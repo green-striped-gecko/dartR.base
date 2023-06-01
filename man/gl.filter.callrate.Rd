@@ -14,7 +14,7 @@ gl.filter.callrate(
   recursive = FALSE,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors = two_colors,
+  plot_colors = gl.colors(2),
   bins = 25,
   save2tmp = FALSE,
   verbose = NULL
@@ -47,7 +47,7 @@ be produced [default TRUE].}
 \item{plot_theme}{User specified theme for the plot [default theme_dartR()].}
 
 \item{plot_colors}{List of two color names for the borders and fill of the
-plots [default two_colors].}
+plots [default gl.colors(2)].}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 

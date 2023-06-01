@@ -13,8 +13,8 @@
 #' otherwise returns a dataframe [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
 #' @param plot_colors Vector with two color names for the borders and fill
-#' [default two_colors].
-#'  [default discrete_palette].
+#' [default gl.colors(2)].
+#'  [default gl.colors("dis")].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].

@@ -7,7 +7,7 @@
 #'
 #' @param D Name of the distance matrix or class fd object [required].
 #' @param palette_divergent A divergent palette for the distance values
-#'  [default diverging_palette].
+#'  [default gl.colors("div")].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
@@ -33,7 +33,7 @@
 #'    }
 
 gl.plot.heatmap <- function(D,
-                            palette_divergent = diverging_palette,
+                            palette_divergent = gl.colors("div"),
                             verbose = NULL,
                             ...) {
     # SET VERBOSITY

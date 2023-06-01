@@ -14,7 +14,7 @@
 #' @param plot_theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot_colors A color palette or a list with as many colors as there are 
-#' populations in the dataset [default discrete_palette].
+#' populations in the dataset [default gl.colors("dis")].
 #' @param pbar Report on progress. Silent if set to FALSE [default TRUE].
 #' @param table Prints a tabular output to the console either 'D'=D values, or
 #'  'H'=H values or 'DH','HD'=both or 'N'=no table. [default 'DH'].
@@ -100,7 +100,7 @@ gl.report.diversity <- function(x,
                                 pbar = TRUE,
                                 table = "DH",
                                 plot_theme = theme_dartR(),
-                                plot_colors = discrete_palette,
+                                plot_colors = gl.colors("dis"),
                                 save2tmp = FALSE,
                                 verbose = NULL) {
     # SET VERBOSITY

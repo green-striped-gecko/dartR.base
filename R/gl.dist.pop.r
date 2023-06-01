@@ -21,7 +21,7 @@
 #' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
 #' @param plot_theme User specified theme [default theme_dartR()].
 #' @param plot_colors Vector with two color names for the borders and fill
-#' [default two_colors].
+#' [default gl.colors(2)].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #'  temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -51,7 +51,7 @@ gl.dist.pop <- function(x,
                         scale = FALSE,
                         output="dist",
                         plot_theme = theme_dartR(),
-                        plot_colors = two_colors,
+                        plot_colors = gl.colors(2),
                         save2tmp = FALSE,
                         verbose = NULL) {
 

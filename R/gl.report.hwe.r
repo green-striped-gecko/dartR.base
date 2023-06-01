@@ -28,7 +28,7 @@
 #' perform H-W tests [default 5].
 #' @param plot.out If TRUE, will produce Ternary Plot(s) [default TRUE].
 #' @param plot_colors Vector with two color names for the significant and
-#' not-significant loci [default two_colors_contrast].
+#' not-significant loci [default gl.colors("2c")].
 #' @param max_plots Maximum number of plots to print per page [default 4].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -173,7 +173,7 @@ gl.report.hwe <- function(x,
                           sig_only = TRUE,
                           min_sample_size = 5,
                           plot.out = TRUE,
-                          plot_colors = two_colors_contrast,
+                          plot_colors = gl.colors("2c"),
                           max_plots = 4,
                           save2tmp = FALSE,
                           verbose = NULL) {

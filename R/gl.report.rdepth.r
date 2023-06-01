@@ -13,7 +13,7 @@
 #' @param plot_theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot_colors List of two color names for the borders and fill of the
-#'  plots [default two_colors].
+#'  plots [default gl.colors(2)].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -50,7 +50,7 @@
 gl.report.rdepth <- function(x,
                              plot.out = TRUE,
                              plot_theme = theme_dartR(),
-                             plot_colors = two_colors,
+                             plot_colors = gl.colors(2),
                              save2tmp = FALSE,
                              verbose = NULL) {
     # SET VERBOSITY

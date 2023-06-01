@@ -14,7 +14,7 @@ gl.filter.sexlinked(
   t.pres = 0.1,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors = three_colors,
+  plot_colors = gl.colors(3),
   verbose = NULL
 )
 }
@@ -53,7 +53,7 @@ females at each loci be regarded as consistent with a sex specific marker
 
 \item{plot_colors}{List of three color names for the not sex-linked loci, for
 the sex-linked loci and for the area in which sex-linked loci appear 
-[default three_colors].}
+[default gl.colors(3)].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
 progress log; 3, progress and results summary; 5, full report 

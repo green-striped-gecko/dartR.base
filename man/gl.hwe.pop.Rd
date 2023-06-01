@@ -26,8 +26,8 @@ otherwise returns a dataframe [default TRUE].}
 \item{plot_theme}{User specified theme [default theme_dartR()].}
 
 \item{plot_colors}{Vector with two color names for the borders and fill
-[default two_colors].
- [default discrete_palette].}
+[default gl.colors(2)].
+ [default gl.colors("dis")].}
 
 \item{HWformat}{Switch if data should be returned in HWformat (counts of
 Genotypes to be used in package \code{HardyWeinberg})}

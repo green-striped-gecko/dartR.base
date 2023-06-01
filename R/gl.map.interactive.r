@@ -207,7 +207,7 @@ individuals nor the number of populations."
           
           if(is.null(palette_links)){
             palette_links <- 
-          diverging_palette(length(unique(unlist(unname(as.vector(matrix))))))
+          gl.colors("div")(length(unique(unlist(unname(as.vector(matrix))))))
           }
             
           qpal <- leaflet::colorNumeric(

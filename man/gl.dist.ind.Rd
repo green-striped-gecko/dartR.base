@@ -12,7 +12,7 @@ gl.dist.ind(
   output = "dist",
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors = two_colors,
+  plot_colors = gl.colors(2),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -35,7 +35,7 @@ mutation) is scored as 1 [default FALSE].}
 
 \item{plot_theme}{User specified theme [default theme_dartR].}
 
-\item{plot_colors}{Vector with two color names for the borders and fill [default two_colors].}
+\item{plot_colors}{Vector with two color names for the borders and fill [default gl.colors(2)].}
 
 \item{save2tmp}{If TRUE, saves any ggplots to the session temporary directory [default FALSE].}
 

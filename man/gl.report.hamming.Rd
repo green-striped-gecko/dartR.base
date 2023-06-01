@@ -12,7 +12,7 @@ gl.report.hamming(
   taglength = 69,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors = two_colors,
+  plot_colors = gl.colors(2),
   probar = FALSE,
   save2tmp = FALSE,
   verbose = NULL
@@ -35,7 +35,7 @@ boxplot and histogram [default 3].}
 [default theme_dartR()].}
 
 \item{plot_colors}{List of two color names for the borders and fill of the
-plots [default two_colors].}
+plots [default gl.colors(2)].}
 
 \item{probar}{If TRUE, then a progress bar is displayed on long loops
 [default TRUE].}

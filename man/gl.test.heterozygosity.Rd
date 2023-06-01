@@ -13,7 +13,7 @@ gl.test.heterozygosity(
   plot.out = TRUE,
   max_plots = 6,
   plot_theme = theme_dartR(),
-  plot_colors = two_colors,
+  plot_colors = gl.colors(2),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -38,7 +38,7 @@ each comparison [default TRUE].}
 [default theme_dartR()].}
 
 \item{plot_colors}{List of two color names for the borders and fill of the
-plots [default two_colors].}
+plots [default gl.colors(2)].}
 
 \item{save2tmp}{If TRUE, saves any ggplots and listings to the session
 temporary directory (tempdir) [default FALSE].}

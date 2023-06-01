@@ -16,9 +16,9 @@
 #' [default theme_dartR()].
 #' @param plot_colors_pop A color palette for population plots or a list with
 #' as many colors as there are populations in the dataset
-#' [default discrete_palette].
+#' [default gl.colors("dis")].
 #' @param plot_colors_ind List of two color names for the borders and fill of
-#' the plot by individual [default two_colors].
+#' the plot by individual [default gl.colors(2)].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -118,8 +118,8 @@ gl.report.heterozygosity <- function(x,
                                      n.invariant = 0,
                                      plot.out = TRUE,
                                      plot_theme = theme_dartR(),
-                                     plot_colors_pop = discrete_palette,
-                                     plot_colors_ind = two_colors,
+                                     plot_colors_pop = gl.colors("dis"),
+                                     plot_colors_ind = gl.colors(2),
                                      save2tmp = FALSE,
                                      verbose = NULL) {
     # SET VERBOSITY

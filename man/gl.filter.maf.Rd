@@ -15,8 +15,8 @@ gl.filter.maf(
   recalc = FALSE,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors_pop = discrete_palette,
-  plot_colors_all = two_colors,
+  plot_colors_pop = gl.colors("dis"),
+  plot_colors_all = gl.colors(2),
   bins = 25,
   save2tmp = FALSE,
   verbose = NULL
@@ -48,10 +48,10 @@ be produced [default TRUE].}
 \item{plot_theme}{User specified theme for the plot [default theme_dartR()].}
 
 \item{plot_colors_pop}{A color palette for population plots
-[default discrete_palette].}
+[default gl.colors("dis")].}
 
 \item{plot_colors_all}{List of two color names for the borders and fill of
-the overall plot [default two_colors].}
+the overall plot [default gl.colors(2)].}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 

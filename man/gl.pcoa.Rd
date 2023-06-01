@@ -14,7 +14,7 @@ gl.pcoa(
   n.cores = 16,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors = two_colors,
+  plot_colors = gl.colors(2),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -45,7 +45,7 @@ for the "informative" axes and a histogram of eigenvalues of the remaining
 [default theme_dartR()].}
 
 \item{plot_colors}{List of two color names for the borders and fill of the
-plot [default two_colors].}
+plot [default gl.colors(2)].}
 
 \item{save2tmp}{If TRUE, saves any ggplots and listings to the session
 temporary directory (tempdir) [default FALSE].}

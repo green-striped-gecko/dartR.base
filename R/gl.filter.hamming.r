@@ -36,7 +36,7 @@
 #' @param plot_theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot_colors List of two color names for the borders and fill of the
-#'  plots [default two_colors].
+#'  plots [default gl.colors(2)].
 #' @param pb Switch to output progress bar [default FALSE].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -64,7 +64,7 @@ gl.filter.hamming <- function(x,
                               taglength = 69,
                               plot.out = TRUE,
                               plot_theme = theme_dartR(),
-                              plot_colors = two_colors,
+                              plot_colors = gl.colors(2),
                               pb = FALSE,
                               save2tmp = FALSE,
                               verbose = NULL) {

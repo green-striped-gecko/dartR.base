@@ -14,7 +14,7 @@
 #' @param plot.out Specify if plot is to be produced [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
 #' @param plot_colors Vector with two color names for the borders and fill
-#' [default two_colors].
+#' [default gl.colors(2)].
 #' @param bins Number of bins to display in histograms [default 25].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -64,7 +64,7 @@ gl.report.callrate <- function(x,
                                by_pop = FALSE, 
                                plot.out = TRUE,
                                plot_theme = theme_dartR(),
-                               plot_colors = two_colors,
+                               plot_colors = gl.colors(2),
                                bins = 50,
                                save2tmp = FALSE,
                                verbose = NULL) {

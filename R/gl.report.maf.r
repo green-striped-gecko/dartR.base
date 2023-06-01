@@ -12,9 +12,9 @@
 #' @param plot_theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot_colors_pop A color palette for population plots
-#' [default discrete_palette].
+#' [default gl.colors("dis")].
 #' @param plot_colors_all List of two color names for the borders and fill of
-#' the overall plot [default two_colors].
+#' the overall plot [default gl.colors(2)].
 #' @param bins Number of bins to display in histograms [default 25].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -62,8 +62,8 @@ gl.report.maf <- function(x,
                           ind.limit = 5,
                           plot.out = TRUE,
                           plot_theme = theme_dartR(),
-                          plot_colors_pop = discrete_palette,
-                          plot_colors_all = two_colors,
+                          plot_colors_pop = gl.colors("dis"),
+                          plot_colors_all = gl.colors(2),
                           bins = 25,
                           save2tmp = FALSE,
                           verbose = NULL) {

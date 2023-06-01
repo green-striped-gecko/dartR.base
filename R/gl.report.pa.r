@@ -20,7 +20,7 @@
 #' alleles between populations is to be produced [default FALSE].
 #' @param palette_discrete A discrete palette for the color of populations or a
 #' list with as many colors as there are populations in the dataset
-#'  [default discrete_palette].
+#'  [default gl.colors("dis")].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
@@ -115,7 +115,7 @@ gl.report.pa <- function(x,
                          plot.out = TRUE,
                          font_plot = 14,
                          map.interactive = FALSE,
-                         palette_discrete = discrete_palette,
+                         palette_discrete = gl.colors("dis"),
                          save2tmp = FALSE,
                          verbose = NULL) {
   # SET VERBOSITY
@@ -157,7 +157,7 @@ gl.report.pa <- function(x,
     return(-1)
   }
   
-  pkg <- "tidyverse"
+  pkg <- "tidyr"
   if (!(requireNamespace(pkg, quietly = TRUE))) {
     cat(error(
       "Package",
@@ -182,6 +182,15 @@ gl.report.pa <- function(x,
       )
     }
   }
+  
+  # Convert color names to hex RGB strings taken from function col2hex
+  RGB_colors <- function (cname){
+    colMat <- col2rgb(cname)
+    rgb(red = colMat[1, ]/255, green = colMat[2, ]/255, blue = colMat[3, 
+    ]/255)
+  }
+  
+  
   
   # DO THE JOB For method 'pairwise'
   if (method == "pairwise") {

@@ -15,7 +15,7 @@
 #' @param ind_labels_size Size of the individual labels [default 10].
 #' @param plot_colors Vector with four color names for homozygotes for the
 #' reference allele, heterozygotes, homozygotes for the alternative allele and
-#' for missing values (NA), e.g. four_colours [default NULL].
+#' for missing values (NA), e.g. gl.colors(4) [default NULL].
 #' Can be set to "hetonly", which defines colors to only show heterozygotes in the genlight object
 #' @param posi Position of the legend: “left”, “top”, “right”, “bottom” or
 #'  'none' [default = 'bottom'].

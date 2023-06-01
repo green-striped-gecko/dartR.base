@@ -12,7 +12,7 @@ gl.dist.pop(
   scale = FALSE,
   output = "dist",
   plot_theme = theme_dartR(),
-  plot_colors = two_colors,
+  plot_colors = gl.colors(2),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -34,7 +34,7 @@ dist for a object of class dist, matrix for an object of class matrix [default "
 \item{plot_theme}{User specified theme [default theme_dartR()].}
 
 \item{plot_colors}{Vector with two color names for the borders and fill
-[default two_colors].}
+[default gl.colors(2)].}
 
 \item{save2tmp}{If TRUE, saves any ggplots and listings to the session
 temporary directory (tempdir) [default FALSE].}

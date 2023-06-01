@@ -4,13 +4,13 @@
 \alias{gl.plot.heatmap}
 \title{Represents a distance matrix as a heatmap}
 \usage{
-gl.plot.heatmap(D, palette_divergent = diverging_palette, verbose = NULL, ...)
+gl.plot.heatmap(D, palette_divergent = gl.colors("div"), verbose = NULL, ...)
 }
 \arguments{
 \item{D}{Name of the distance matrix or class fd object [required].}
 
 \item{palette_divergent}{A divergent palette for the distance values
-[default diverging_palette].}
+[default gl.colors("div")].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report

@@ -26,7 +26,7 @@
 #' [default theme_dartR()].
 #' @param plot_colors List of three color names for the not sex-linked loci, for
 #'  the sex-linked loci and for the area in which sex-linked loci appear
-#'  [default three_colors].
+#'  [default gl.colors(3)].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -71,7 +71,7 @@ gl.report.sexlinked <- function(x,
                                 t.pres = 0.1,
                                 plot.out = TRUE,
                                 plot_theme = theme_dartR(),
-                                plot_colors = three_colors,
+                                plot_colors = gl.colors(3),
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -365,7 +365,7 @@ cat("- mhet is heterozygosity in males\n\n")
                         ymin = 1 - t.het,
                         ymax = 1
                     ),
-                    fill = three_colors[3],
+                    fill = gl.colors(3)[3],
                     alpha = 1 / 2,
                     color = "black"
                 ) +
@@ -376,7 +376,7 @@ cat("- mhet is heterozygosity in males\n\n")
                         ymin = 0,
                         ymax = t.hom
                     ),
-                    fill = three_colors[3],
+                    fill = gl.colors(3)[3],
                     alpha = 1 / 2,
                     color = "black"
                 ) + geom_text(x = 1,
@@ -387,13 +387,13 @@ cat("- mhet is heterozygosity in males\n\n")
                                       y = mhet),
                                   alpha = 1 / 3,
                                   size = 2,
-                                  color = three_colors[1]
+                                  color = gl.colors(3)[1]
                               ) + geom_point(
                                   data = df_sex_linked,
                                   aes(x = fhet, y = mhet),
                                   alpha = 1 / 3,
                                   size = 3,
-                                  color = three_colors[2]
+                                  color = gl.colors(3)[2]
                               ) + xlab("Female Heterozygosity") + 
               ylab("Male Heterozygosity") + 
               xlim(0, 1) + 
@@ -569,7 +569,7 @@ cat("- M1 is the number of loci present in males\n\n")
                         ymin = 1 - t.pres,
                         ymax = 1
                     ),
-                    fill = three_colors[3],
+                    fill = gl.colors(3)[3],
                     alpha = 1 / 2,
                     color = "black"
                 ) +
@@ -580,7 +580,7 @@ cat("- M1 is the number of loci present in males\n\n")
                         ymin = 0,
                         ymax = t.pres
                     ),
-                    fill = three_colors[3],
+                    fill = gl.colors(3)[3],
                     alpha = 1 / 2,
                     color = "black"
                 ) + geom_text(x = 1,
@@ -591,13 +591,13 @@ cat("- M1 is the number of loci present in males\n\n")
                                       y = mhet),
                                   alpha = 1 / 3,
                                   size = 2,
-                                  color = three_colors[1]
+                                  color = gl.colors(3)[1]
                               ) + geom_point(
                                   data = df_sex_linked,
                                   aes(x = fhet, y = mhet),
                                   alpha = 1 / 3,
                                   size = 3,
-                                  color = three_colors[2]
+                                  color = gl.colors(3)[2]
                               ) + xlab("% present in females") + 
               ylab("% present in males") + 
               xlim(0, 1) + 

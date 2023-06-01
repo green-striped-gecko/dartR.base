@@ -12,7 +12,7 @@ gl.report.pa(
   plot.out = TRUE,
   font_plot = 14,
   map.interactive = FALSE,
-  palette_discrete = discrete_palette,
+  palette_discrete = gl.colors("dis"),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -40,7 +40,7 @@ alleles between populations is to be produced [default FALSE].}
 
 \item{palette_discrete}{A discrete palette for the color of populations or a
 list with as many colors as there are populations in the dataset
- [default discrete_palette].}
+ [default gl.colors("dis")].}
 
 \item{save2tmp}{If TRUE, saves any ggplots and listings to the session
 temporary directory (tempdir) [default FALSE].}

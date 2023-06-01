@@ -10,7 +10,7 @@ gl.report.diversity(
   pbar = TRUE,
   table = "DH",
   plot_theme = theme_dartR(),
-  plot_colors = discrete_palette,
+  plot_colors = gl.colors("dis"),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -30,7 +30,7 @@ gl.report.diversity(
 [default theme_dartR()].}
 
 \item{plot_colors}{A color palette or a list with as many colors as there are 
-populations in the dataset [default discrete_palette].}
+populations in the dataset [default gl.colors("dis")].}
 
 \item{save2tmp}{If TRUE, saves any ggplots and listings to the session
 temporary directory (tempdir) [default FALSE].}

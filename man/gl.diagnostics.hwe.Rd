@@ -10,8 +10,8 @@ gl.diagnostics.hwe(
   alpha_val = 0.05,
   bins = 20,
   stdErr = TRUE,
-  colors_hist = two_colors,
-  colors_barplot = two_colors_contrast,
+  colors_hist = gl.colors(2),
+  colors_barplot = gl.colors("2c"),
   plot_theme = theme_dartR(),
   save2tmp = FALSE,
   n.cores = "auto",
@@ -29,10 +29,10 @@ gl.diagnostics.hwe(
 (default: TRUE)}
 
 \item{colors_hist}{List of two color names for the borders and fill of the
-histogram [default two_colors].}
+histogram [default gl.colors(2)].}
 
 \item{colors_barplot}{Vector with two color names for the observed and
-expected number of significant HWE tests [default two_colors_contrast].}
+expected number of significant HWE tests [default gl.colors("2c")].}
 
 \item{plot_theme}{User specified theme [default theme_dartR()].}
 
