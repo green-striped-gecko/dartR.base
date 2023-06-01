@@ -41,7 +41,6 @@ Suggests:
     doParallel,
     expm,
     gdistance,
-    ggtern,
     gganimate,
     ggrepel,
     grid,

@@ -200,15 +200,15 @@ gl.report.hwe <- function(x,
       return(-1)
     }
     
-    # pkg <- "ggtern"
-    # if (!(requireNamespace(pkg, quietly = TRUE))) {
-    #   cat(error(
-    #     "Package",
-    #     pkg,
-    #     " needed for this function to work. Please install it.\n"
-    #   ))
-    #   return(-1)
-    # }
+     pkg <- "ggtern"
+     if (!(requireNamespace(pkg, quietly = TRUE))) {
+       cat(error(
+         "Package",
+         pkg,
+         " needed for this function to work. Please install it using:\n 
+         devtools::install_github('mijangos81/ggtern')"))
+       return(-1)
+     }
     
     if (datatype == "SilicoDArT") {
         cat(error("  Detected Presence/Absence (SilicoDArT) data\n"))

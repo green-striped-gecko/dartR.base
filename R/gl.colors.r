@@ -13,8 +13,7 @@
 #' gl.colors("div")(7)
 
 gl.colors <- function(
-          type=2,
-          paltype=NULL) {
+          type=2) {
   
   #checks
   if (is.numeric(type))

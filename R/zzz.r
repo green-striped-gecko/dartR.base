@@ -2,7 +2,7 @@
 #'
 #' Setting theme, colors and verbosity
 #' @importFrom graphics axis barplot box image lines text
-#' @importFrom grDevices hcl col2rgb rgb
+#' @importFrom grDevices hcl col2rgb rgb colorRampPalette rgb2hsv
 #' @importFrom methods new is show getPackageName
 #' @importFrom stats dist nobs optimize pchisq variable.names optim quantile rbinom cor var as.dist pnorm complete.cases
 #' pgamma
@@ -16,6 +16,9 @@
 
 
 zzz <- NULL  #to create a useful named help page
+
+# defining function "dot" from data.table package to pass CRAN checks
+`.` <- list
 
 build = "Jody"
 # SET MESSAGES COLORS
