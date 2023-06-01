@@ -47,7 +47,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #'  # Folder where the fasta files are located. 
-#'  folder_samples <- system.file('extdata', package ='dartR')
+#'  folder_samples <- system.file('extdata', package ='dartR.data')
 #'  # listing the FASTA files, including their path. Files have an extension
 #'  # that contains "fas".
 #'  file_names <- list.files(path = folder_samples, pattern = "*.fas", 

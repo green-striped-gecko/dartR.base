@@ -48,8 +48,8 @@
 #'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #'
 #'@examples
-#' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR')
-#' metadata <- system.file('extdata','testset_metadata.csv', package='dartR')
+#' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
+#' metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
 #' gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 #'
 #'@seealso \code{\link{utils.read.dart}}

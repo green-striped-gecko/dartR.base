@@ -12,7 +12,7 @@
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @examples
 #' \dontrun{
-#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'))
+#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR.data'))
 #' }
 
 gl.read.vcf <- function(vcffile,

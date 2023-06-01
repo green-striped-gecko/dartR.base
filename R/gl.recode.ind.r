@@ -33,7 +33,7 @@
 #' @export
 #' @author Custodian: Arthur Georges -- Post to \url{https://groups.google.com/d/forum/dartr}
 #' @examples
-#'   file <- system.file('extdata','testset_ind_recode.csv', package='dartR')
+#'   file <- system.file('extdata','testset_ind_recode.csv', package='dartR.data')
 #'   gl <- gl.recode.ind(testset.gl, ind.recode=file, verbose=3)
 #' @seealso \code{\link{gl.filter.monomorphs}} for filtering monomorphs,
 #'  \code{\link{gl.recalc.metrics}} for recalculating locus metrics,

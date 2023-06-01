@@ -82,7 +82,7 @@ gl.install.vanilla.dartR <- function(flavour = NULL,
                                      dependencies = TRUE)
         }
         if (substr(flavour, 1, 3) == "dev") {
-            detach("package:dartR", unload = TRUE)
+            detach("package:dartR.base", unload = TRUE)
             if (verbose >= 2) {
                 cat(report("  Installing dartR from github (dev)\n"))
             }
@@ -91,7 +91,7 @@ gl.install.vanilla.dartR <- function(flavour = NULL,
                                      dependencies = TRUE)
         }
         if (substr(flavour, 1, 4) == "beta") {
-            detach("package:dartR", unload = TRUE)
+            detach("package:dartR.base", unload = TRUE)
             if (verbose >= 2) {
                 cat(report("  Installing dartR from github (beta)\n"))
             }
@@ -105,7 +105,7 @@ gl.install.vanilla.dartR <- function(flavour = NULL,
      ip <- installed.packages()[, "Package"]
      suggests <-
         stringr::str_trim(unlist(strsplit(
-            packageDescription("dartR", fields = "Suggests"), ","
+            packageDescription("dartR.base", fields = "Suggests"), ","
         )))
      toinstall <- suggests[!suggests %in% ip]
      available <- available.packages()[, "Package"]
@@ -204,7 +204,7 @@ gl.install.vanilla.dartR <- function(flavour = NULL,
         #     cat(report(
         #         paste(
         #             "  You have installed dartR:",
-        #             packageVersion("dartR"),"\n"
+        #             packageVersion("dartR.base"),"\n"
         #         )
         #     ))
         # }

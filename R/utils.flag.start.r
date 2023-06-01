@@ -26,8 +26,8 @@ utils.flag.start <- function(func = NULL,
                     report(
                         "Starting",
                         func,
-                        "\n[dartR vers.",
-                        packageVersion("dartR"),
+                        "\n[dartR.base vers.",
+                        packageVersion("dartR.base"),
                         "Build =",
                         build,
                         "]\n"

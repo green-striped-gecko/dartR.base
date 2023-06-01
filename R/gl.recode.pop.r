@@ -35,7 +35,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \donttest{
-#'   mfile <- system.file('extdata', 'testset_pop_recode.csv', package='dartR')
+#'   mfile <- system.file('extdata', 'testset_pop_recode.csv', package='dartR.data')
 #'   nPop(testset.gl)
 #'   gl <- gl.recode.pop(testset.gl, pop.recode=mfile, verbose=3)
 #'  }

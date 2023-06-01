@@ -113,7 +113,7 @@ utils.jackknife <- function(x,
     
     cl <- parallel::makeCluster(n.cores)
     on.exit(expr=parallel::stopCluster(cl))
-    catch <- parallel::clusterEvalQ(cl, library("dartR"))
+    catch <- parallel::clusterEvalQ(cl, library("dartR.base"))
     
     parallel::clusterExport(cl, 
                   varlist=c("subsetList", "x", "FUN", "subsetFUN"), 
