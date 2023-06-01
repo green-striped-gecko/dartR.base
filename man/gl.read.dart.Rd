@@ -76,8 +76,8 @@ The dartR genlight object can then be fed into a number of initial screening,
  also be found in the help documents for \code{\link{utils.read.dart}}.
 }
 \examples{
-dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR')
-metadata <- system.file('extdata','testset_metadata.csv', package='dartR')
+dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
+metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
 gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 
 }

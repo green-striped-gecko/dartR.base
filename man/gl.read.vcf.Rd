@@ -23,7 +23,7 @@ the other$ind.metrics slot.
 }
 \examples{
 \dontrun{
-obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'))
+obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR.data'))
 }
 }
 \author{
