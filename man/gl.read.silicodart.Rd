@@ -73,7 +73,8 @@ The data matrix, locus names (forced to be unique), locus metadata, specimen
 }
 \examples{
 silicodartfile <- system.file('extdata','testset_SilicoDArT.csv', package='dartR.data')
-metadata <- system.file('extdata',ind.metafile ='testset_metadata_silicodart.csv', package='dartR.data')
+metadata <- system.file('extdata',ind.metafile ='testset_metadata_silicodart.csv',
+package='dartR.data')
 testset.gs <- gl.read.silicodart(filename = silicodartfile, ind.metafile = metadata)
 }
 \seealso{
