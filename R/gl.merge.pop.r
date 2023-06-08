@@ -1,38 +1,45 @@
 #' @name gl.merge.pop
-#' @title Merges two or more populations in a genlight object into one population
+# Preliminaries -- parameter definitions -----------------
+#' @title Merges two or more populations in a dartR genlight object into one population
 #' @description
 #' Individuals are assigned to populations based on the specimen metadata data
 #' file (csv) used with gl.read.dart().
 #'
-#' This script assigns individuals from two nominated populations into a new
+#' This function assigns individuals from two nominated populations into a new
 #' single population. It can also be used to rename populations.
+#' 
+#' The function works with both SNP and Tag P/A (silicoDArT) data.
 #'
-#' The script returns a genlight object with the new population assignments.
+#' The function returns a genlight object with the new population assignments.
 #'
-#' @param x Name of the genlight object containing SNP genotypes [required].
+#' @param x Name of the genlight object [required].
 #' @param old A list of populations to be merged [required].
 #' @param new Name of the new population [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-#' @return A genlight object with the new population assignments.
+#'  
 #' @export
+#' @return A genlight object with the new population assignments.
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #'    gl <- gl.merge.pop(testset.gl, old=c('EmsubRopeMata','EmvicVictJasp'), new='Outgroup')
-
+# ----------------------
 gl.merge.pop <- function(x,
                          old = NULL,
                          new = NULL,
                          verbose = NULL) {
+  # Preliminaries -----------------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
@@ -71,7 +78,7 @@ gl.merge.pop <- function(x,
         }
     }
     
-    # DO THE JOB
+    # DO THE JOB -----------------
     
     # Merge or rename
     
@@ -88,6 +95,7 @@ gl.merge.pop <- function(x,
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
+    # End Block -------------------
     
     return(x)
 }
