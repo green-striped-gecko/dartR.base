@@ -1,3 +1,4 @@
+#' @name utils.recalc.freqhomref
 #' A utility script to recalculate the frequency of the homozygous reference
 #' SNP by locus after some populations have been deleted
 #'
@@ -11,12 +12,16 @@
 #' Note that the frequency of the homozygote reference SNPS is calculated from
 #' the individuals that could be scored.
 #'
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report [default 2].
+#'  
+#'  @family dartR-base
 #' @return The modified genlight object
+#' 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
 #'  \code{utils.recalc.callrate} for recalculating CallRate,
 #' \code{utils.recalc.avgpic} for recalculating AvgPIC,
@@ -24,8 +29,9 @@
 #'  alternate, \code{utils.recalc.freqhet} for recalculating frequency of
 #'  heterozygotes, \code{gl.recalc.maf} for recalculating minor allele frequency,
 #' \code{gl.recalc.rdepth} for recalculating average read depth
+#' 
 #' @examples
-#' #result <- utils.recalc.freqhomref(testset.gl)
+#' result <- utils.recalc.freqhomref(testset.gl)
 
 utils.recalc.freqhomref <- function(x,
                                     verbose = NULL) {
@@ -35,7 +41,7 @@ utils.recalc.freqhomref <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
