@@ -1,4 +1,5 @@
 #' @name gl.select.colors
+# Preliminaries -- set parameter definitions --------------------
 #' @title Selects colors from one of several palettes and output as a vector
 #' @description
 #' This script draws upon a number of specified color libraries to extract a
@@ -16,8 +17,7 @@
 #' \item library 'baseR' and the palettes available are: 'rainbow','heat',
 #' 'topo.colors','terrain.colors','cm.colors'.
 #' }
-#' If the nominated palette is not specified, all the palettes will be listed a
-#' nd a default palette will then be chosen.
+#' If the nominated palette is not specified, all the palettes will be listed and a default palette will then be chosen.
 #'
 #' The color palette will be displayed in the graphics window for the requested
 #' number of colors (or 9 if not specified),and the vector of colors returned
@@ -39,7 +39,9 @@
 #' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @return A vector with the required number of colors
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
@@ -64,13 +66,14 @@
 #'
 #' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow
 #' @export
-
+# Function -----------------
 gl.select.colors <- function(x = NULL,
                              library = NULL,
                              palette = NULL,
                              ncolors = NULL,
                              select = NULL,
                              verbose = NULL) {
+# Preliminaries -----------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -159,7 +162,7 @@ gl.select.colors <- function(x = NULL,
         }
     }
     
-    # DO THE JOB
+    # DO THE JOB ----------------
     
     if (is.null(library)) {
         palette <-NULL
@@ -365,11 +368,12 @@ gl.select.colors <- function(x = NULL,
         scales::show_col(colors)
     }
     
-    # FLAG SCRIPT END
+    # FLAG SCRIPT END ----------------
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
+    # End block------------------
     
     return(colors)
 }

@@ -1,4 +1,5 @@
 #' @name gl.select.shapes
+# Preliminaries -- specify parameter definitions -------------------
 #' @title Selects shapes from the base R shape palette and outputs as a vector
 #' @description
 #' This script draws upon the standard R shape palette to extract a vector of
@@ -21,9 +22,12 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @return A vector with the required number of shapes
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' # SET UP DATASET
 #' gl <- testset.gl
@@ -35,13 +39,15 @@
 #' shapes <- gl.select.shapes(select=c(1,1,1,5,8)) 
 #'  # Select set of shapes and check with no. of pops.
 #' shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
+#' 
 #' @seealso \code{\link{gl.select.colors}}
-#' @family Exploration/visualisation functions
+#' @family dartR-base
 #' @export
-
+# Function --------------------
 gl.select.shapes <- function(x = NULL,
                              select = NULL,
                              verbose = NULL) {
+  # Preliminaries -------------------------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -87,7 +93,7 @@ gl.select.shapes <- function(x = NULL,
         nshapes <- nPop(x)
     }
     
-    # DO THE JOB
+    # DO THE JOB -----------------
     
     y <-
         rev(c(rep(1, 6), rep(2, 5), rep(3, 5), rep(4, 5), rep(5, 5)))
@@ -116,11 +122,12 @@ gl.select.shapes <- function(x = NULL,
         ))
     }
     
-    # FLAG SCRIPT END
+    # FLAG SCRIPT END ----------------------
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
+    # End block -------------------
     
     return(select)
 }
