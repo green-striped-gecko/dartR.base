@@ -1,8 +1,8 @@
-#' Converts DarT to genlight
-#'
+#' @name utils.dart2genlight
+#' Converts DarT to genlight.
+#' Internal function called by gl.read.dart()
 #' @description Converts a DArT file (read via \code{read.dart}) into an
-#' genlight object \code{\link{adegenet}}. Internal function called by
-#' gl.read.dart
+#' genlight object \code{\link{adegenet}}. 
 #' @param dart A dart object created via read.dart [required].
 #' @param ind.metafile Optional file in csv format with metadata for each
 #' individual (see details for explanation) [default NULL].
@@ -19,6 +19,9 @@
 #' pop: specifies the population membership of each individual. lat and lon
 #' specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 #' columns with individual metadata can be imported (e.g. age, gender).
+#' 
+#'@family dartR-base
+#'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 utils.dart2genlight <- function(dart,
                                 ind.metafile = NULL,
@@ -31,7 +34,7 @@ utils.dart2genlight <- function(dart,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # DO THE JOB
@@ -178,8 +181,8 @@ utils.dart2genlight <- function(dart,
         ###### population and individual file to link AAnumbers to populations...
         ind.cov <-
             read.csv(ind.metafile,
-                     header = TRUE,
-                     stringsAsFactors = TRUE)
+                     header = T,
+                     stringsAsFactors = T)
         # is there an entry for every individual
         
         id.col <-match("id", names(ind.cov))
