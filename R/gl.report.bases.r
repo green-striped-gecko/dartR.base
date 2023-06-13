@@ -1,5 +1,5 @@
 #' @name gl.report.bases
-# Preliminaries -- Set parameters --------------
+# PRELIMINARIES -- Set parameters --------------
 #' @title Reports summary of base pair frequencies
 #'
 #' @description
@@ -9,15 +9,15 @@
 #'
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
-#' @param plot.display If TRUE, histograms of base composition are produced
+#' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default two_colors=c("#3B9AB2", "#78B7C5")].
 #' @param save.type If specified, will direct the saved output to a file of this type [default NULL]
-#' @param save.dir If specified, saves the ggplot as an RDS to this directory [default = working directory]
-#' @param save.file Name for the ggplot file [default NULL]
+#' @param save.dir Directory in which to save the ggplot [default = working directory]
+#' @param save.file Name for the ggsave file [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
@@ -32,7 +32,7 @@
 #'
 #' For presence/absence data (SilicoDArT), it is not possible to count
 #' transversions or transitions or transversions/transitions ratio because the
-#'  SNP data is not available, only a single sequence tag.
+#'  SNP data are not available, only a single sequence tag per locus.
 #'  
 #'  A color vector can be obtained with gl.select.colors() and then passed to the function
 #'  with the plot.colors parameter.
@@ -48,10 +48,13 @@
 #' will be saved to disk. The option "RDS" saves as a binary file 
 #' using saveRDS(); can be reloaded with readRDS().
 #' 
+#' Optional additional parameters for ggsave() can be added to the parameter list
+#' (...) to govern aspects of the saved plot. Refer to ?ggsave for details.
+#' 
 #'  If a plot directory (save.dir) is specified, the ggplot binary is saved to that
-#'  directory using saveRDS(); otherwise to the working directory. 
+#'  directory; otherwise to the working directory. 
 #'  
-#'  A file name must be specified.
+#'  A file name must be specified for the plot to be saved.
 #'
 #' @family dartR-base
 #' @export
@@ -80,8 +83,9 @@ gl.report.bases <- function(x,
                             save.type=NULL,
                             save.dir=NULL,
                             save.file=NULL,
-                            verbose = NULL) {
-# Preliminaries ----------------
+                            verbose = NULL,
+                            ...) {
+# PRELIMINARIES -- checking ----------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -110,7 +114,7 @@ gl.report.bases <- function(x,
         ))
     }
     
-    # DO THE JOB ----------------------
+# DO THE JOB -- SNP data ----------------------
     
     # Count up the number of bases, and the number of each of ATGC, and other
     if (verbose >= 2) {
@@ -181,7 +185,7 @@ gl.report.bases <- function(x,
         ratio <- ts / tv
     }
     
-    # PRINTING OUTPUTS
+    # Printing outputs -----------
     cat(paste("  Average trimmed sequence length:",
         round(mn, digits = 1),"(",mi,"to",mx,")"),"\n")
     cat(paste(
@@ -193,6 +197,8 @@ gl.report.bases <- function(x,
     cat(paste("    G:", round(G, 2)), "\n")
     cat(paste("    T:", round(T, 2)), "\n")
     cat(paste("    C:", round(C, 2)), "\n\n")
+    
+# DO THE JOB -- Tag P/A data ----------------------
     
     if (datatype == "SilicoDArT") {
         if (verbose >= 2) {
@@ -211,6 +217,7 @@ gl.report.bases <- function(x,
         cat(paste("  tv/ts ratio:", round(ratio, 4), "\n\n"))
     }
     
+# PLOT THE RESULTS ----------------- 
     if (plot.display | !is.null(save.type)) {
       if (datatype == "SNP") {
         title <- paste0("SNP: Base Frequencies")
@@ -250,14 +257,14 @@ gl.report.bases <- function(x,
       print(p3)
     }
     
-    # Optionally save the plot
+    # Optionally save the plot ---------------------
 
     tmp <- utils.ggplotsave(p3,
                             type=save.type,
                             dir=save.dir,
                             file=save.file,
                             verbose=verbose)
-
+# FINISH UP -------------------
     # Create return list
     if (verbose >= 2) {
         cat(
@@ -280,12 +287,12 @@ gl.report.bases <- function(x,
     names(out) <- c("A", "G", "T", "C", "tv", "ts")
     
     
-    # FLAG SCRIPT END --------------
+    # FLAG SCRIPT END 
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    # ----------------------
+# ----------------------
     
     # RETURN
     invisible(x)

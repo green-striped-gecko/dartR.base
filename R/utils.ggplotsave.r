@@ -24,7 +24,8 @@ utils.ggplotsave <- function(
   type=NULL,
   dir=NULL,
   file=NULL,
-  verbose=NULL
+  verbose=NULL,
+  ...
 ){
   
   errorflag <- 0
