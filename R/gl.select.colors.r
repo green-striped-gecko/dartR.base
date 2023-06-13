@@ -62,10 +62,11 @@
 #' colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
 #'
 #' @seealso \code{\link{gl.select.shapes}}
-#' @family Exploration/visualisation functions
+#' @family dartR-base
 #'
 #' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow
 #' @export
+#' 
 # Function -----------------
 gl.select.colors <- function(x = NULL,
                              library = NULL,

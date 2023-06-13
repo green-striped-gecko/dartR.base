@@ -21,7 +21,7 @@ zzz <- NULL  #to create a useful named help page
 # defining function "dot" from data.table package to pass CRAN checks
 `.` <- list
 
-build = "Jody"
+build = "v.2023.2"
 # SET MESSAGES COLORS
 # - For fatal errors use “error” which will print the message in red. Example
 # usage: stop(error(“Fatal error”)) - For warning messages use “warn” which will

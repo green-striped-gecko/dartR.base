@@ -1,5 +1,5 @@
 #' @name gl.report.bases
-#'
+# Preliminaries -- Set parameters --------------
 #' @title Reports summary of base pair frequencies
 #'
 #' @description
@@ -9,20 +9,21 @@
 #'
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
-#' @param plot.out If TRUE, histograms of base composition are produced
+#' @param plot.display If TRUE, histograms of base composition are produced
 #' [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
-#'  plots [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE]
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default two_colors=c("#3B9AB2", "#78B7C5")].
+#' @param save.type If specified, will direct the saved output to a file of this type [default NULL]
+#' @param save.dir If specified, saves the ggplot as an RDS to this directory [default = working directory]
+#' @param save.file Name for the ggplot file [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
 #'
 #' @details 
-#' The script checks first if trimmed sequences are included in the
+#' The function checks first if trimmed sequences are included in the
 #' locus metadata (@@other$loc.metrics$TrimmedSequence), and if so, tallies up
 #' the numbers of A, T, G and C bases. Only the reference state at the SNP locus
 #' is counted. Counts of transitions (Ts) and transversions (Tv) assume that
@@ -32,47 +33,75 @@
 #' For presence/absence data (SilicoDArT), it is not possible to count
 #' transversions or transitions or transversions/transitions ratio because the
 #'  SNP data is not available, only a single sequence tag.
+#'  
+#'  A color vector can be obtained with gl.select.colors() and then passed to the function
+#'  with the plot.colors parameter.
 #'
-#' Examples of other themes that can be used can be consulted in \itemize{
+#' Themes can be obtained from in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
+#'  
+#'  If the save.type parameter is set to one of 
+#' "RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
+#' "bmp", "svg" or "wmf" (windows only), the graphics produced by the function
+#' will be saved to disk. The option "RDS" saves as a binary file 
+#' using saveRDS(); can be reloaded with readRDS().
+#' 
+#'  If a plot directory (save.dir) is specified, the ggplot binary is saved to that
+#'  directory using saveRDS(); otherwise to the working directory. 
+#'  
+#'  A file name must be specified.
 #'
+#' @family dartR-base
+#' @export
 #' @return The unchanged genlight object
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#'
+#' 
 #' @examples
 #' # SNP data
 #'   out <- gl.report.bases(testset.gl)
+#'   out <- gl.report.bases(testset.gl,save.type="pdf",save.file="myplot")
+#'   
+#'   col <- gl.select.colors(select=c(6,1),palette=rainbow)
+#'   out <- gl.report.bases(testset.gl,plot.colors=col)
+
 #'   #' # Tag P/A data
 #'   out <- gl.report.bases(testset.gs)
 #'
-#' @family report functions
-#' @import stringr
-#' @import patchwork
-#' @export
-
-
+# ----------------------
+# Function
 gl.report.bases <- function(x,
-                            plot.out = TRUE,
-                            plot_theme = theme_dartR(),
-                            plot_colors = gl.colors(2),
-                            save2tmp = FALSE,
+                            plot.display=TRUE,
+                            plot.theme = theme_dartR(),
+                            plot.colors = c("#3B9AB2", "#78B7C5"),
+                            save.type=NULL,
+                            save.dir=NULL,
+                            save.file=NULL,
                             verbose = NULL) {
+# Preliminaries ----------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
+    # # CHECK DIRECTORY FOR PLOTS
+    # if(plot.save){
+    #   if(is.null(save.dir)){save.dir <- tempdir()}
+    # }
+    
     # FUNCTION SPECIFIC ERROR CHECKING
+    
+    #plot.theme <- theme_dartR()
     
     if (!any(names(x@other$loc.metrics) == "TrimmedSequence")) {
         stop(error(
@@ -81,7 +110,7 @@ gl.report.bases <- function(x,
         ))
     }
     
-    # DO THE JOB
+    # DO THE JOB ----------------------
     
     # Count up the number of bases, and the number of each of ATGC, and other
     if (verbose >= 2) {
@@ -125,7 +154,7 @@ gl.report.bases <- function(x,
             sum(str_count(state.change, "A>C")) + 
           sum(stringr::str_count(state.change, "C>A")) +
           sum(stringr::str_count(state.change, "G>T")) +
-            sum(stringr::str_count(state.change, "T>G")) + 
+          sum(stringr::str_count(state.change, "T>G")) + 
           sum(stringr::str_count(state.change, "A>T")) + 
           sum(stringr::str_count(state.change, "T>A")) + 
           sum(stringr::str_count(state.change, "G>C")) + 
@@ -153,16 +182,8 @@ gl.report.bases <- function(x,
     }
     
     # PRINTING OUTPUTS
-    cat(paste(
-        "  Average trimmed sequence length:",
-        round(mn, digits = 1),
-        "(",
-        mi,
-        "to",
-        mx,
-        ")"
-    ),
-    "\n")
+    cat(paste("  Average trimmed sequence length:",
+        round(mn, digits = 1),"(",mi,"to",mx,")"),"\n")
     cat(paste(
         "  Total number of trimmed sequences:",
         length(x@other$loc.metrics$TrimmedSequence)
@@ -190,45 +211,53 @@ gl.report.bases <- function(x,
         cat(paste("  tv/ts ratio:", round(ratio, 4), "\n\n"))
     }
     
-    if (plot.out) {
-        if (datatype == "SNP") {
-            title <- paste0("SNP: Base Frequencies")
-        } else {
-            title <- paste0("Tag P/A: Base Frequencies")
-        }
+    if (plot.display | !is.null(save.type)) {
+      if (datatype == "SNP") {
+        title <- paste0("SNP: Base Frequencies")
+      } else {
+        title <- paste0("Tag P/A: Base Frequencies")
+      }
+      
+      bases <- c("A", "C", "T", "G")
+      freq <- round(c(A, C, T, G), 1)
+      df <- data.frame(bases = bases, freq = freq)
+      
+      p1 <-
+        ggplot(data = df, aes(x = bases, y = freq)) +
+        geom_bar(stat="identity",color=plot.colors[1],fill=plot.colors[2]) + 
+        xlab("Bases") +
+        ylab("Percent Frequency") + 
+        ggtitle(title) +
+        plot.theme
+      
+      if (datatype == "SNP") {
+        bases <- c("Ts", "Tv")
+        freq <- round(c(ts, tv), 1)
+        df2 <- data.frame(bases = bases, freq = freq)
         
-        bases <- c("A", "C", "T", "G")
-        freq <- round(c(A, C, T, G), 1)
-        df <- data.frame(bases = bases, freq = freq)
+        p2 <-
+          ggplot(data = df2, aes(x = bases, y = freq)) +
+          geom_bar(stat="identity",color=plot.colors[1],fill=plot.colors[2]) +
+          xlab("Mutation Type") + 
+          ylab("Percent Frequency") + 
+          ggtitle(paste("SNP: Ts/Tv Rates [ratio =",round(ratio,2),"]")) +
+          plot.theme
         
-        p1 <-
-            ggplot(data = df, aes(x = bases, y = freq)) +
-          geom_bar(stat="identity",color=plot_colors[1],fill=plot_colors[2]) + 
-          xlab("Bases") +
-            ylab("Percent Frequency") + 
-          ggtitle(title) +
-          plot_theme
-        
-        if (datatype == "SNP") {
-            bases <- c("Ts", "Tv")
-            freq <- round(c(ts, tv), 1)
-            df2 <- data.frame(bases = bases, freq = freq)
-            
-            p2 <-
-                ggplot(data = df2, aes(x = bases, y = freq)) +
-          geom_bar(stat="identity",color=plot_colors[1],fill=plot_colors[2]) +
-                xlab("Mutation Type") + 
-              ylab("Percent Frequency") + 
-              ggtitle(paste("SNP: Ts/Tv Rates [ratio =",round(ratio,2),"]")) +
-              plot_theme
-            
-            p3 <- (p1 / p2)  # Using package patchwork
-        } else {
-            p3 <- p1
-        }
-        print(p3)
+        p3 <- (p1 / p2)  # Using package patchwork
+      } else {
+        p3 <- p1
+      }
+      print(p3)
     }
     
+    # Optionally save the plot
+
+    tmp <- utils.ggplotsave(p3,
+                            type=save.type,
+                            dir=save.dir,
+                            file=save.file,
+                            verbose=verbose)
+
     # Create return list
     if (verbose >= 2) {
         cat(
@@ -250,32 +279,13 @@ gl.report.bases <- function(x,
           round(ts, 2))
     names(out) <- c("A", "G", "T", "C", "tv", "ts")
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp & plot.out) {
-        # creating temp file names
-        temp_plot <- tempfile(pattern = "Plot_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, p3), file = temp_plot)
-        if (verbose >= 2) {
-            cat(report("  Saving ggplot(s) to the session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
-    }
-    # FLAG SCRIPT END
+    
+    # FLAG SCRIPT END --------------
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
+    # ----------------------
     
     # RETURN
     invisible(x)
