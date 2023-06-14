@@ -56,9 +56,7 @@ gl.smearplot(testset.gs[1:10,],ind_labels=TRUE)
 }
 \seealso{
 Other Exploration/visualisation functions: 
-\code{\link{gl.pcoa.plot}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()}
+\code{\link{gl.pcoa.plot}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to

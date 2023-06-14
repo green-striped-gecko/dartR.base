@@ -137,7 +137,6 @@ df <- gl.report.heterozygosity(platypus.gl)
 \code{\link{gl.filter.heterozygosity}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},

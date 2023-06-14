@@ -87,7 +87,6 @@ directory.
 \code{\link{gl.filter.callrate}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},

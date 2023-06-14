@@ -109,7 +109,6 @@ Broadens the Spectrum of Molecular Ecology and Evolution. TREE 32(12)
 }
 \seealso{
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},

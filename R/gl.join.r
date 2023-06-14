@@ -1,5 +1,5 @@
 #' @name gl.join
-#' Preliminaries -- parameter definitions -----------------
+# Preliminaries -- parameter definitions -----------------
 #' @title Combines two dartR genlight objects
 #' @description
 #' This function combines two genlight objects and their associated metadata.

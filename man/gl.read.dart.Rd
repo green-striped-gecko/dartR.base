@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.read.dart.r
 \name{gl.read.dart}
 \alias{gl.read.dart}
-\title{Imports DArT data into dartR and converts it into a genlight object}
+\title{Imports DArT data into dartR and converts it into a dartR genlight object}
 \usage{
 gl.read.dart(
   filename,
@@ -13,8 +13,8 @@ gl.read.dart(
   topskip = NULL,
   lastmetric = "RepAvg",
   covfilename = NULL,
-  service_row = 1,
-  plate_row = 3,
+  service.row = 1,
+  plate.row = 3,
   probar = FALSE,
   verbose = NULL
 )
@@ -25,31 +25,25 @@ gl.read.dart(
 \item{ind.metafile}{File that contains additional information on individuals
 [required].}
 
-\item{recalc}{Force the recalculation of locus metrics, in case individuals
-have been manually deleted from the input csv file [default TRUE].}
+\item{recalc}{If TRUE, force the recalculation of locus metrics [default TRUE].}
 
-\item{mono.rm}{Force the removal of monomorphic loci (including all NAs), in
-case individuals have been manually deleted from the input csv file
+\item{mono.rm}{If TRUE, force the removal of monomorphic loci (including all NAs.
 [default FALSE].}
 
 \item{nas}{A character specifying NAs [default '-'].}
 
-\item{topskip}{A number specifying the number of rows to be skipped. If not
-provided the number of rows to be skipped are 'guessed' by the number of rows
-with '*' at the beginning [default NULL].}
+\item{topskip}{A number specifying the number of initial rows to be skipped. [default NULL].}
 
-\item{lastmetric}{Specifies the last non-genetic column (Default is 'RepAvg').
-Be sure to check if that is true, otherwise the number of individuals will
-not match. You can also specify the last column by a number
+\item{lastmetric}{Specifies the last column of locus metadata. Can be specified 
+as a column number.
  [default 'RepAvg'].}
 
-\item{covfilename}{Use ind.metafile parameter [depreciated, NULL].}
+\item{covfilename}{Depricated, sse ind.metafile parameter [NULL].}
 
-\item{service_row}{The row number in which the information of the DArT service
+\item{service.row}{The row number for the DArT service
 is contained [default 1].}
 
-\item{plate_row}{The row number in which the information of the plate location
-is contained [default 3].}
+\item{plate.row}{The row number the plate well [default 3].}
 
 \item{probar}{Show progress bar [default FALSE].}
 
@@ -58,22 +52,36 @@ progress log ; 3, progress and results summary; 5, full report
 [default 2, or as set by gl.set.verbose()].}
 }
 \value{
-A genlight object that contains individual metrics
+A dartR genlight object that contains individual and locus metrics
 [if data were provided] and locus metrics [from a DArT report].
 }
 \description{
 This function is a wrapper function that allows you to convert your DArT file
-into a genlight object in one step. In previous versions you had to use
-read.dart and then dart2genlight. In case you have individual metadata for
-each individual/sample you can specify as before in the dart2genlight command
-the file that combines the data.
+into a genlight object of class dartR.
 }
 \details{
-The dartR genlight object can then be fed into a number of initial screening,
- export and export functions provided by the package. For some of the
- functions it is necessary to have the metadata that was provided from DArT.
- Please check the vignette for more information. Additional information can
- also be found in the help documents for \code{\link{utils.read.dart}}.
+The function will determine automatically if the data are in Diversity Arrays
+one-row csv format or two-row csv format. 
+
+The number of locus metadata columns 
+in the input data is determined by a signature last column, by default 'RepAvg'.
+This can be alternatively specified using parameter 'lastmetric'. 
+
+The first 
+row of data is determined from the number of rows with an * in the first 
+column. This can be alternatively specified with the topskip parameter.
+
+The DArT service code is added to the ind.metrics of the genlight object. 
+The row containing the service code for each individual can be specified with 
+the service.row parameter.
+
+#'The DArT plate well is added to the ind.metrics of the genlight object. 
+The row containing the plate well for each individual can be specified with 
+the plate.row parameter.
+
+If individuals have been deleted from the input file manually, then the locus
+metrics supplied by DArT will no longer be correct and some loci may be
+monomorphic. To accommodate this, set mono.rm and recalc to TRUE.
 }
 \examples{
 dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
@@ -83,8 +91,106 @@ gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 }
 \seealso{
 \code{\link{utils.read.dart}}
+
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight
+Converts DarT to genlight.
+Internal function called by gl.read.dart()}},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic
+A utility function to recalculate the OneRatioRef, OneRatioSnp, PICRef, PICSnp,
+ and AvgPIC by locus after some individuals or populations have been deleted.
+
+The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
+ PICSnp, and AvgPIC included, but the allelic composition will change when
+ some individuals,or populations, are removed from the dataset and so the
+ initial statistics will no longer apply. This script recalculates these
+ statistics and places the recalculated values in the appropriate place in
+ the genlight object.
+
+If the locus metadata OneRatioRef|Snp, PICRef|Snp and/or AvgPIC do not exist,
+ the script creates and populates them.}},
+\code{\link{utils.recalc.callrate
+A utility script to recalculate the callrate by locus after some populations
+have been deleted
+
+SNP datasets generated by DArT have missing values primarily arising from
+failure to call a SNP because of a mutation at one or both of the
+restriction enzyme recognition sites. The locus metadata supplied by DArT has
+ callrate included, but the call rate will change when some individuals are
+ removed from the dataset. This script recalculates the callrate and places
+ these recalculated values in the appropriate place in the genlight object.
+ It sets the Call Rate flag to TRUE.}},
+\code{\link{utils.recalc.freqhets
+A utility script to recalculate the frequency of the heterozygous SNPs by
+locus after some populations have been deleted
+
+The locus metadata supplied by DArT has FreqHets included, but the frequency
+ of the heterozygotes will change when some individuals are removed from the
+ dataset.
+
+This script recalculates the FreqHets and places these recalculated values in
+ the appropriate place in the genlight object.
+
+Note that the frequency of the homozygote reference SNPS is calculated from
+the individuals that could be scored.}},
+\code{\link{utils.recalc.freqhomsnp
+A utility function to recalculate the frequency of the homozygous alternate
+SNP by locus after some populations have been deleted
+
+The locus metadata supplied by DArT has FreqHomSnp included, but the
+frequency of the homozygous alternate will change when some individuals are
+removed from the dataset.
+
+This function recalculates the FreqHomSnp and places these recalculated values
+ in the appropriate place in the genlight object.
+
+Note that the frequency of the homozygote alternate SNPS is calculated from
+the individuals that could be scored.
+
+This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).}},
+\code{\link{utils.recalc.maf
+A utility script to recalculate the minor allele frequency by locus,
+typically after some populations have been deleted
+
+The locus metadata supplied by DArT does not have MAF included, so it is
+calculated and added to the locus.metadata by this script. The minimum allele
+frequency will change when some individuals are removed from the dataset.
+This script recalculates the MAF and places these recalculated values in the
+ appropriate place in the genlight object.
+ 
+ This function only applies to SNP genotype data.}},
+\code{\link{utils.reset.flags
+A utility function to reset to FALSE (or TRUE) the locus metric flags after
+some individuals or populations have been deleted.
+
+The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
+PICSnp, and AvgPIC included, but the allelic composition will change when
+some individuals are removed from the dataset and so the initial statistics
+will no longer apply. This applies also to some variable calculated by dartR
+(e.g. maf). This script resets the locus metrics flags to FALSE to indicate
+that these statistics in the genlight object are no longer current. The
+verbosity default is also set, and in the case of SilcoDArT, the flags PIC
+and OneRatio are also set.
+
+If the locus metrics do not exist then they are added to the genlight object
+ but not populated. If the locus metrics flags do not exist, then they are
+ added to the genlight object and set to FALSE (or TRUE).}},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{input data}
+\concept{dartR-base}

@@ -46,8 +46,7 @@
 #'  [default 2 or as specified using gl.set.verbosity].
 #'
 #' @return An object of class ('genlight') with the revised individual labels.
-#' @export 
-#' @import utils
+#' @export
 #' 
 #' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to

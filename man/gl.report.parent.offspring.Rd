@@ -113,7 +113,6 @@ out <- gl.report.parent.offspring(testset.gl[1:10,1:100])
  \code{\link{gl.filter.parent.offspring}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},

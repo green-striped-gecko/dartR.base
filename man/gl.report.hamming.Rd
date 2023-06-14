@@ -98,7 +98,6 @@ result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
 \code{\link{gl.filter.hamming}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.heterozygosity}()},

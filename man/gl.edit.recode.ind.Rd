@@ -15,54 +15,57 @@ gl.edit.recode.ind(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object for which individuals are to be
-relabelled [required].}
+\item{x}{Name of the genlight object [required].}
 
 \item{out.recode.file}{Name of the file to output the new individual labels
 [optional].}
 
-\item{outpath}{Path where to save the output file
+\item{outpath}{Path specifying where to save the output file
 [default tempdir(), mandated by CRAN].}
 
-\item{recalc}{Recalculate the locus metadata statistics [default TRUE].}
+\item{recalc}{If TRUE, recalculate the locus metadata statistics [default TRUE].}
 
-\item{mono.rm}{Remove monomorphic loci [default TRUE].}
+\item{mono.rm}{If TRUE, remove monomorphic loci [default TRUE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+progress but not results; 3, progress and results summary; 5, full report
+ [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 An object of class ('genlight') with the revised individual labels.
 }
 \description{
-A script to edit individual names in a genlight object, or to create a
+A function to edit names of individual in a dartR genlight object, or to create a
 reassignment table taking the individual labels from a genlight object, or to
-edit existing individual labels in an existing recode_ind file.
+edit existing individual labels in an existing recode_ind file. The amended 
+recode table is then applied to the genlight object.
 }
 \details{
-Renaming individuals may be required when there have been errors in labelling
- arising in the process from sample to DArT files. There may be occasions
- where renaming individuals is required for preparation of figures. Caution
- needs to be exercised because of the potential for breaking the 'chain of
- evidence' between the samples themselves and the analyses. Recoding
- individuals can also be done with a recode table (csv).
+Renaming individuals may be required when there have been errors in labeling
+ arising in the passage of samples to sequencing. There may be occasions
+ where renaming individuals is required for preparation of figures. 
 
-This script will input an existing recode table for editing and optionally
+This function will input an existing recode table for editing and optionally
 save it as a new table, or if the name of an input table is not supplied,
 will generate a table using the individual labels in the parent genlight
 object.
 
-The script, having deleted individuals, optionally identifies resultant
-monomorphic loci or loci with all values missing and deletes them (using
-gl.filter.monomorphs.r). The script also optionally recalculates statistics
-made redundant by the deletion of individuals from the dataset.
+When caution needs to be exercised because of the potential for breaking the
+'chain of evidence' associated with the samples, recoding individuals using
+a recode table (csv) can provide a durable record of the changes.
 
-Use outpath=getwd() or outpath='.' when calling this function to direct
+For SNP genotype data, the function, having deleted individuals, optionally 
+identifies resultant monomorphic loci or loci with all values missing 
+and deletes them. The script also optionally recalculates the
+locus metadata as appropriate. The optional deletion of monomorphic loci
+and the optional recalculation of locus statistics is not available for
+Tag P/A data (SilicoDArT).
+
+Use outpath=getwd() when calling this function to direct
 output files to your working directory.
 
-The script returns a genlight object with the new individual labels and the
-recalculated locus metadata.
+The function returns a dartR genlight object with the new population assignments  
+and the recalculated locus metadata.
 }
 \examples{
 \dontrun{
@@ -73,8 +76,107 @@ gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')
 \seealso{
 \code{\link{gl.recode.ind}}, \code{\link{gl.drop.ind}},
 \code{\link{gl.keep.ind}}
+
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight
+Converts DarT to genlight.
+Internal function called by gl.read.dart()}},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic
+A utility function to recalculate the OneRatioRef, OneRatioSnp, PICRef, PICSnp,
+ and AvgPIC by locus after some individuals or populations have been deleted.
+
+The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
+ PICSnp, and AvgPIC included, but the allelic composition will change when
+ some individuals,or populations, are removed from the dataset and so the
+ initial statistics will no longer apply. This script recalculates these
+ statistics and places the recalculated values in the appropriate place in
+ the genlight object.
+
+If the locus metadata OneRatioRef|Snp, PICRef|Snp and/or AvgPIC do not exist,
+ the script creates and populates them.}},
+\code{\link{utils.recalc.callrate
+A utility script to recalculate the callrate by locus after some populations
+have been deleted
+
+SNP datasets generated by DArT have missing values primarily arising from
+failure to call a SNP because of a mutation at one or both of the
+restriction enzyme recognition sites. The locus metadata supplied by DArT has
+ callrate included, but the call rate will change when some individuals are
+ removed from the dataset. This script recalculates the callrate and places
+ these recalculated values in the appropriate place in the genlight object.
+ It sets the Call Rate flag to TRUE.}},
+\code{\link{utils.recalc.freqhets
+A utility script to recalculate the frequency of the heterozygous SNPs by
+locus after some populations have been deleted
+
+The locus metadata supplied by DArT has FreqHets included, but the frequency
+ of the heterozygotes will change when some individuals are removed from the
+ dataset.
+
+This script recalculates the FreqHets and places these recalculated values in
+ the appropriate place in the genlight object.
+
+Note that the frequency of the homozygote reference SNPS is calculated from
+the individuals that could be scored.}},
+\code{\link{utils.recalc.freqhomsnp
+A utility function to recalculate the frequency of the homozygous alternate
+SNP by locus after some populations have been deleted
+
+The locus metadata supplied by DArT has FreqHomSnp included, but the
+frequency of the homozygous alternate will change when some individuals are
+removed from the dataset.
+
+This function recalculates the FreqHomSnp and places these recalculated values
+ in the appropriate place in the genlight object.
+
+Note that the frequency of the homozygote alternate SNPS is calculated from
+the individuals that could be scored.
+
+This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).}},
+\code{\link{utils.recalc.maf
+A utility script to recalculate the minor allele frequency by locus,
+typically after some populations have been deleted
+
+The locus metadata supplied by DArT does not have MAF included, so it is
+calculated and added to the locus.metadata by this script. The minimum allele
+frequency will change when some individuals are removed from the dataset.
+This script recalculates the MAF and places these recalculated values in the
+ appropriate place in the genlight object.
+ 
+ This function only applies to SNP genotype data.}},
+\code{\link{utils.reset.flags
+A utility function to reset to FALSE (or TRUE) the locus metric flags after
+some individuals or populations have been deleted.
+
+The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
+PICSnp, and AvgPIC included, but the allelic composition will change when
+some individuals are removed from the dataset and so the initial statistics
+will no longer apply. This applies also to some variable calculated by dartR
+(e.g. maf). This script resets the locus metrics flags to FALSE to indicate
+that these statistics in the genlight object are no longer current. The
+verbosity default is also set, and in the case of SilcoDArT, the flags PIC
+and OneRatio are also set.
+
+If the locus metrics do not exist then they are added to the genlight object
+ but not populated. If the locus metrics flags do not exist, then they are
+ added to the genlight object and set to FALSE (or TRUE).}},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{dartR-base}

@@ -13,7 +13,7 @@
 #' @importFrom ape dist.gene
 #' @import utils
 #' @import patchwork
-#' @import stringer
+#' @import stringr
 
 
 zzz <- NULL  #to create a useful named help page

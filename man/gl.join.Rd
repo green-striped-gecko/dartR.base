@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.join.r
 \name{gl.join}
 \alias{gl.join}
-\title{Combines two genlight objects}
+\title{Combines two dartR genlight objects}
 \usage{
 gl.join(x1, x2, verbose = NULL)
 }
@@ -27,6 +27,8 @@ object.
 The function is typically used to combine datasets from the same service
 where the files have been split because of size limitations. The data is read
 in from multiple csv files, then the resultant genlight objects are combined.
+
+This function works with both SNP and Tag P/A data.
 }
 \examples{
 x1 <- testset.gl[,1:100]

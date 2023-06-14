@@ -202,7 +202,6 @@ Tests of Hardy-Weinberg Equilibrium. American Journal of Human Genetics
 \code{\link{gl.filter.hwe}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
