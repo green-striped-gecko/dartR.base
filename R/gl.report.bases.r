@@ -21,6 +21,8 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
+#'  @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
+#'  such as width and height, when the ggplot is to be saved.
 #'
 #' @details 
 #' The function checks first if trimmed sequences are included in the
@@ -55,6 +57,11 @@
 #'  directory; otherwise to the working directory. 
 #'  
 #'  A file name must be specified for the plot to be saved.
+#'  
+#'  Note that if save.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
+#' "bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
+#' of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
+#' reloaded with readRDS().
 #'
 #' @family dartR-base
 #' @export
