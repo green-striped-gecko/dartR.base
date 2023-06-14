@@ -1,8 +1,8 @@
 #' @name utils.ggplotsave
+#' @title A function to save a ggplot file/object to disk. 
 #' 
-#' A function to save a ggplot file/object to disk. Uses saveRDS() and ggsave().
-#' 
-#' @details
+#' @description
+#' Uses saveRDS() and ggsave().
 #' Additional details ..... options for saving are specified by the parameter
 #' type, which can be one of 
 #' "RDS", eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", 

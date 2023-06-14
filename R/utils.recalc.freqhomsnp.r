@@ -1,7 +1,9 @@
 #' @name utils.recalc.freqhomsnp
-#' A utility function to recalculate the frequency of the homozygous alternate
+#' 
+#' @title A utility function to recalculate the frequency of the homozygous alternate
 #' SNP by locus after some populations have been deleted
 #'
+#'@description
 #' The locus metadata supplied by DArT has FreqHomSnp included, but the
 #' frequency of the homozygous alternate will change when some individuals are
 #' removed from the dataset.

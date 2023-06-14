@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.flag.start.r
 \name{utils.flag.start}
 \alias{utils.flag.start}
-\title{A utility script to flag the start of a script}
+\title{utils.flag.start}
 \usage{
 utils.flag.start(func = NULL, build = NULL, verbosity = NULL)
 }
@@ -18,6 +18,8 @@ progress log; 3, progress and results summary; 5, full report [default 2].}
 calling function name
 }
 \description{
+utils.flag.start
+
 A utility script to flag the start of a script
 }
 \author{

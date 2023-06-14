@@ -1,7 +1,8 @@
 #' @name utils.recalc.freqhets
-#' A utility script to recalculate the frequency of the heterozygous SNPs by
+#' @title A utility script to recalculate the frequency of the heterozygous SNPs by
 #' locus after some populations have been deleted
-#'
+#' 
+#' @description
 #' The locus metadata supplied by DArT has FreqHets included, but the frequency
 #'  of the heterozygotes will change when some individuals are removed from the
 #'  dataset.

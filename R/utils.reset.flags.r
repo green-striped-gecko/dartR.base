@@ -1,7 +1,9 @@
 #' @name utils.reset.flags
-#' A utility function to reset to FALSE (or TRUE) the locus metric flags after
+#' 
+#' @title #' A utility function to reset to FALSE (or TRUE) the locus metric flags after
 #' some individuals or populations have been deleted.
 #'
+#' @description
 #' The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
 #' PICSnp, and AvgPIC included, but the allelic composition will change when
 #' some individuals are removed from the dataset and so the initial statistics

@@ -1,7 +1,12 @@
 #' @name utils.recalc.avgpic
-#' A utility function to recalculate the OneRatioRef, OneRatioSnp, PICRef, PICSnp,
+#' @title A utility function to recalculate intermediate locus metrics
+#' @description
+#' A short description...
+#' 
+#' Recalculates OneRatioRef, OneRatioSnp, PICRef, PICSnp,
 #'  and AvgPIC by locus after some individuals or populations have been deleted.
 #'
+#' @details
 #' The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
 #'  PICSnp, and AvgPIC included, but the allelic composition will change when
 #'  some individuals,or populations, are removed from the dataset and so the

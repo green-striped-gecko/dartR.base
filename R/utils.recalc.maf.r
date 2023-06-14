@@ -1,7 +1,9 @@
 #' @name utils.recalc.maf
-#' A utility script to recalculate the minor allele frequency by locus,
+#' 
+#' @title A utility function to recalculate the minor allele frequency by locus,
 #' typically after some populations have been deleted
 #'
+#' @description
 #' The locus metadata supplied by DArT does not have MAF included, so it is
 #' calculated and added to the locus.metadata by this script. The minimum allele
 #' frequency will change when some individuals are removed from the dataset.

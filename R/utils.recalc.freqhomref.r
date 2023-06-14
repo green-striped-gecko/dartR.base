@@ -1,7 +1,8 @@
 #' @name utils.recalc.freqhomref
-#' A utility script to recalculate the frequency of the homozygous reference
+#' @title #' A utility function to recalculate the frequency of the homozygous reference
 #' SNP by locus after some populations have been deleted
 #'
+#' @description
 #' The locus metadata supplied by DArT has FreqHomRef included, but the
 #' frequency of the homozygous reference will change when some individuals are
 #' removed from the dataset.

@@ -1,7 +1,9 @@
 #' @name utils.read.dart
 # Preliminaries -- parameter definitions ----------------
-#' @description
+#' 
+#' @title
 #' Utility to import DarT data to R
+#' @description
 #' Internal function called by gl.read.dart()
 #' 
 #' @param filename Path to file (csv file only currently) [required].
