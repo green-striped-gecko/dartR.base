@@ -9,27 +9,27 @@
 #' Individuals are assigned to populations based on the specimen metadata data
 #' file (csv) used with gl.read.dart(). Recoding can be used to amalgamate
 #' populations or to selectively delete or retain populations.
-#' 
+
 #' When caution needs to be exercised because of the potential for breaking the
 #' 'chain of evidence' associated with the samples, recoding individuals using
 #' a recode table (csv) can provide a durable record of the changes.
-#'
+
 #' The population recode file contains a list of populations taken from the genlight
 #'  object as the first column of the csv file, and the new population
 #'  assignments are located in the second column of the csv file. The keyword 
 #'  'Delete' used as a new population assignment will result in the associated 
 #'  specimen being dropped from the dataset.
-#'  
+
 #' The function works with genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
-#'
+
 #' For SNP genotype data, the function, having deleted populations, optionally 
 #' identifies resultant monomorphic loci or loci with all values missing 
 #' and deletes them. The script also optionally recalculates the
 #' locus metadata as appropriate. The optional deletion of monomorphic loci
 #' and the optional recalculation of locus statistics is not available for
 #' Tag P/A data (SilicoDArT).
-#'
+
 #' @param x Name of the genlight object [required].
 #' @param pop.recode Name of the csv file containing the population
 #' reassignments [required].
@@ -39,15 +39,15 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
 #' progress log; 3, progress and results summary; 5, full report 
 #' [default 2 or as specified using gl.set.verbosity].
-#' 
+
 #' @import dartR.data
 #' @export
 #' @return A genlight object with the recoded and reduced data.
-#' 
+
 #' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 # Examples --------------
 #' @examples
 #' \donttest{
@@ -55,11 +55,11 @@
 #'   nPop(testset.gl)
 #'   gl <- gl.recode.pop(testset.gl, pop.recode=mfile, verbose=3)
 #'  }
-#'  
+
 # See also -----------------
 #' @seealso \code{\link{gl.filter.monomorphs}}
 #' @seealso \code{\link{gl.recode.pop}}
-#' 
+
 # Function 
 gl.recode.pop <- function(x,
                           pop.recode,

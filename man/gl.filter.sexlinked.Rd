@@ -78,13 +78,10 @@ Coding is: M for male, F for female, U or NA for unknown/missing.
 The script abbreviates the entries here to the first character. So, coding of
 'Female' and 'Male' works as well. Character are also converted to upper 
 cases.
-
 '\strong{ Function's output }
-
 This function creates also a plot that shows the heterozygosity of males and
 females at each loci for SNP data or percentage of present/absent in the case 
 of SilicoDArT data.
-
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -95,7 +92,6 @@ of SilicoDArT data.
 out <- gl.filter.sexlinked(testset.gl, filter='drop')
 }
 out <- gl.filter.sexlinked(testset.gs, filter='drop')
-
 }
 \seealso{
 Other filter functions: 

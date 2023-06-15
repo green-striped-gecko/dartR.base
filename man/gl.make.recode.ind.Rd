@@ -38,17 +38,13 @@ This function facilitates the construction of a recode table by producing a
  proforma file with current individual (=specimen) names in two identical
  columns. Edit the second column to reassign individual names. Use keyword
  'Delete' to delete an individual.
- 
  When caution needs to be exercised because of the potential for breaking the
  'chain of evidence' associated with the samples, recoding individuals using
  a recode table (csv) can provide a clear record of the changes.
- 
 Use outpath=getwd() or when calling this function to direct output files 
 to your working directory.
-
 The function works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
-
 Apply the recoding using gl.recode.ind().
 }
 \examples{

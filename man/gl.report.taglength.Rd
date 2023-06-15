@@ -43,24 +43,19 @@ from 20 to 69 base pairs. This function reports summary statistics of the tag
 \details{
 The function \code{\link{gl.filter.taglength}} will filter out the
  loci with a tag length below a specified threshold.
-
 Quantiles are partitions of a finite set of values into q subsets of (nearly)
 equal sizes. In this function q = 20. Quantiles are useful measures because
 they are less susceptible to long-tailed distributions and outliers.
-
 \strong{ Function's output }
-
  The minimum, maximum, mean and a tabulation of tag length quantiles against
  thresholds are provided. Output also includes a boxplot and a
  histogram to guide in the selection of a threshold for filtering on tag
  length.
-
  Plots and table are saved to the temporal directory (tempdir) and can be
  accessed with the function \code{\link{gl.print.reports}} and listed with
  the function \code{\link{gl.list.reports}}. Note that they can be accessed
  only in the current R session because tempdir is cleared each time that the
  R session is closed.
-
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}

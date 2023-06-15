@@ -39,22 +39,17 @@ This function facilitates the construction of a recode table by producing a
 proforma file with current population names in two identical columns. Edit
 the second column to reassign populations. Use keyword 'Delete' to delete a
 population.
-
 When caution needs to be exercised because of the potential for breaking the
  'chain of evidence' associated with the samples, recoding individuals using
  a recode table (csv) can provide a clear record of the changes.
- 
 Use outpath=getwd() or when calling this function to direct output files 
 to your working directory.
-
 The function works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
-
 Apply the recoding using gl.recode.pop().
 }
 \examples{
 result <- gl.make.recode.pop(testset.gl,out.recode.file='test.csv',outpath=tempdir(),verbose=2)
-
 }
 \author{
 Custodian: Arthur Georges -- Post to

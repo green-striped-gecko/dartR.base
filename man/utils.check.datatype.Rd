@@ -35,22 +35,18 @@ Most functions require access to a genlight object, dist matrix, data matrix
 \details{
 This function checks the class of passed object and sets the datatype to
 'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
-
 Note also that this function checks to see if there are individuals or loci
 scored as all missing (NA) and if so, issues the user with a warning.
-
 Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
  TRUE.
 }
 \examples{
- \donttest{
+ \dontrun{
 datatype <- utils.check.datatype(testset.gl)
 datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 fd <- gl.fixed.diff(testset.gl)
 datatype <- utils.check.datatype(fd,accept='fd')
-}
-datatype <- utils.check.datatype(testset.gl)
-
+ }
 }
 \author{
 Custodian: Arthur Georges -- Post to

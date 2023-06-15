@@ -1,8 +1,8 @@
 #' @name utils.reset.flags
-#' 
+
 #' @title #' A utility function to reset to FALSE (or TRUE) the locus metric flags after
 #' some individuals or populations have been deleted.
-#'
+
 #' @description
 #' The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
 #' PICSnp, and AvgPIC included, but the allelic composition will change when
@@ -12,24 +12,24 @@
 #' that these statistics in the genlight object are no longer current. The
 #' verbosity default is also set, and in the case of SilcoDArT, the flags PIC
 #' and OneRatio are also set.
-#'
+
 #' If the locus metrics do not exist then they are added to the genlight object
 #'  but not populated. If the locus metrics flags do not exist, then they are
 #'  added to the genlight object and set to FALSE (or TRUE).
-#'
+
 #' @param x Name of the genlight object [required].
 #' @param set Set the flags to TRUE or FALSE [default FALSE].
 #' @param value Set the default verbosity for all functions, where verbosity is
 #'  not specified [default 2].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report [default NULL].
-#' 
+
 #' @family dartR-base
 #' @return The modified genlight object
-#' 
+
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
-#' 
+
 #' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
 #' \code{utils.recalc.callrate} for recalculating CallRate,
 #' \code{utils.recalc.freqhomref} for recalculating frequency of homozygous
@@ -37,9 +37,9 @@
 #' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
 #' of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele 
 #' frequency, \code{gl.recalc.rdepth} for recalculating average read depth
-#' 
+
 #' @examples
-#' result <- utils.reset.flags(testset.gl)
+#' result <- dartR.base:::utils.reset.flags(testset.gl)
 
 utils.reset.flags <- function(x,
                               set = FALSE,

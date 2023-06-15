@@ -5,7 +5,7 @@
 #' (columns) and loci as attributes (rows). Each row has associated locus
 #'  metadata. Each column, with header of specimen id, has population in the
 #'  first row.
-#'
+
 #' The data coding differs from the DArT 1row format in that 0 = reference
 #' homozygous, 2 = alternate homozygous, 1 = heterozygous, and NA = missing SNP
 #' assignment.

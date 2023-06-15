@@ -1,5 +1,5 @@
 #' Replays the history and applies it to a genlight object
-#'
+
 #' @param x A genlight object (with a history slot) [optional].
 #' @param history  If no history is provided the complete history of
 #' x is used (recreating the identical object x). If history is a vector it

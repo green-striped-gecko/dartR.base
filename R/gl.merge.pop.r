@@ -4,27 +4,27 @@
 #' @description
 #' Individuals are assigned to populations based on the specimen metadata data
 #' file (csv) used with gl.read.dart().
-#'
+
 #' This function assigns individuals from two nominated populations into a new
 #' single population. It can also be used to rename populations.
-#' 
+
 #' The function works with both SNP and Tag P/A (silicoDArT) data.
-#'
+
 #' The function returns a genlight object with the new population assignments.
-#'
+
 #' @param x Name of the genlight object [required].
 #' @param old A list of populations to be merged [required].
 #' @param new Name of the new population [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-#'  
+
 #' @export
 #' @return A genlight object with the new population assignments.
-#' 
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 #' @examples
 #'    gl <- gl.merge.pop(testset.gl, old=c('EmsubRopeMata','EmvicVictJasp'), new='Outgroup')
 # ----------------------

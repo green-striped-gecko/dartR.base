@@ -6,7 +6,7 @@
 #'  This is a re-implementation of \code{hierfstat::basics.stats} specifically 
 #'  for genlight objects. Formula (and hence results) match exactly the original 
 #' version of \code{hierfstat::basics.stats} but it is much faster.
-#' 
+
 #' @param x A genlight object containing the SNP genotypes [required].
 #' @return A list with with the statistics for each population
 #' @export

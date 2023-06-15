@@ -2,7 +2,9 @@
 % Please edit documentation in R/theme_dartR.r
 \name{theme_dartR}
 \alias{theme_dartR}
-\title{dartR theme}
+\title{dartR theme
+This is the theme used as default for dartR plots.
+This function controls all non-data display elements in the plots.}
 \usage{
 theme_dartR(
   base_size = 11,
@@ -21,6 +23,7 @@ theme_dartR(
 \item{base_rect_size}{base size for rect elements}
 }
 \description{
+dartR theme
 This is the theme used as default for dartR plots.
 This function controls all non-data display elements in the plots.
 }

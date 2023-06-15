@@ -4,9 +4,9 @@
 #' @description
 #' The script reassigns existing individuals to a new population and removes
 #' their existing population assignment.
-#'
+
 #' The script returns a genlight object with the new population assignment.
-#'
+
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param ind.list A list of individuals to be assigned to the new population
 #'  [required].

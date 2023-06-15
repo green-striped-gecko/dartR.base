@@ -23,12 +23,9 @@ A genlight object with the new population assignments.
 \description{
 Individuals are assigned to populations based on the specimen metadata data
 file (csv) used with gl.read.dart().
-
 This function assigns individuals from two nominated populations into a new
 single population. It can also be used to rename populations.
-
 The function works with both SNP and Tag P/A (silicoDArT) data.
-
 The function returns a genlight object with the new population assignments.
 }
 \examples{

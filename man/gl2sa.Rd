@@ -2,7 +2,14 @@
 % Please edit documentation in R/gl2sa.r
 \name{gl2sa}
 \alias{gl2sa}
-\title{Converts genlight objects to the format used in the SNPassoc package}
+\title{Converts genlight objects to the format used in the SNPassoc package
+This function exports a genlight object into a SNPassoc object. See package
+SNPassoc for details. This function needs package SNPassoc. At the time of
+writing (August 2020) the package was no longer available from CRAN. To
+install the package check their github repository.
+\url{https://github.com/isglobal-brge/SNPassoc} and/or use
+\code{install_github('isglobal-brge/SNPassoc')} to install the function and
+uncomment the function code.}
 \usage{
 gl2sa(x, verbose = NULL, installed = FALSE)
 }
@@ -20,6 +27,7 @@ s installed [default FALSE].}
 Returns an object of class 'snp' to be used with SNPassoc.
 }
 \description{
+Converts genlight objects to the format used in the SNPassoc package
 This function exports a genlight object into a SNPassoc object. See package
 SNPassoc for details. This function needs package SNPassoc. At the time of
 writing (August 2020) the package was no longer available from CRAN. To

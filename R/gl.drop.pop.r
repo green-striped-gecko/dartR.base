@@ -8,11 +8,11 @@
 #' Monomorphic loci and loci that are scored all NA are optionally deleted (mono.rm=TRUE). 
 #' The script also optionally recalculates locus metatdata statistics to accommodate
 #' the deletion of individuals from the dataset (recalc=TRUE).
-#'
+
 #' The script returns a dartR genlight object with the retained populations 
 #' and the recalculated locus metadata. The script works with both genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
-#' 
+
 #' @param x Name of the genlight object [required].
 #' @param pop.list List of populations to be removed [required].
 #' @param as.pop Temporarily assign another locus metric as the population for
@@ -22,14 +22,14 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-#' 
+
 #' @export
 #' @return A reduced dartR genlight object
-#'
+
 #' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-# Examples -------------#' 
+# Examples -------------
 #' @examples
 #'  # SNP data
 #'    gl2 <- gl.drop.pop(testset.gl,

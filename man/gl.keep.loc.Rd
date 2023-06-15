@@ -27,7 +27,6 @@ A genlight object with the reduced data
 }
 \description{
 This function deletes loci that are not specified to keep, and their associated metadata. 
-
 The script returns a dartR genlight object with the retained loci. 
 The script works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).

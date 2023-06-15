@@ -1,12 +1,12 @@
 #' Outputs an nj tree to summarize genetic similarity among populations
-#'
+
 #' This function is a wrapper for the nj function or package ape applied to Euclidean
 #' distances calculated from the genlight object.
 #' @details
 #' An euclidean distance matrix is calculated by default [d_mat = NULL]. 
 #' Optionally the user can use as input for the tree any other distance matrix
 #' using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param d_mat Distance matrix [default NULL].
 #' @param outgroup Vector containing the population names that are the outgroups

@@ -1,5 +1,5 @@
 #' Creates an interactive map (based on latlon) from a genlight object
-#'
+
 #' @param x A genlight object (including coordinates within the latlon slot) 
 #' [required].
 #' @param matrix A distance matrix between populations or individuals. The
@@ -39,19 +39,19 @@
 #' A wrapper around the \pkg{leaflet} package. For possible background 
 #' maps check as specified via the provider:
 #' \url{http://leaflet-extras.github.io/leaflet-providers/preview/index.html}
-#' 
+
 #' The palette_links argument can be any of the following:
 #' A character vector of RGB or named colors. Examples: palette(), 
 #' c("#000000", "#0000FF", "#FFFFFF"), topo.colors(10)
-#' 
+
 #' The name of an RColorBrewer palette, e.g. "BuPu" or "Greens".
-#' 
+
 #' The full name of a viridis palette: "viridis", "magma", "inferno", 
 #' or "plasma".
-#' 
+
 #' A function that receives a single value between 0 and 1 and returns a color.
 #'  Examples: colorRamp(c("#000000", "#FFFFFF"), interpolate = "spline").
-#'  
+
 #' @author Bernd Gruber -- Post to \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' require("dartR.data")

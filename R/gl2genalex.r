@@ -1,15 +1,15 @@
 #' Converts a genlight object into a format suitable for input to genalex
-#'
+
 #' The output csv file contains the snp data and other relevant lines suitable
 #'  for genalex. This script is a wrapper for  \link[poppr]{genind2genalex}
 #'  (package poppr).
-#'
+
 #' @references
 #' Peakall, R. and Smouse P.E. (2012) GenAlEx 6.5: genetic analysis
 #' in Excel. Population genetic software for teaching and research-an update.
 #' Bioinformatics 28, 2537-2539.
 #' http://bioinformatics.oxfordjournals.org/content/28/19/2537
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default 'genalex.csv'].

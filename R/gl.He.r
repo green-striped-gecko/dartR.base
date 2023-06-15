@@ -1,5 +1,5 @@
 #' Estimates expected Heterozygosity
-#'
+
 #' @param gl A genlight object [required]
 #' @return A simple vector whit Ho for each loci
 #' @export

@@ -25,11 +25,9 @@ This function checks the position of the SNP within the trimmed sequence tag
 and identifies those for which the SNP position is outside the trimmed
  sequence tag. This can happen, rarely, when the sequence containing the SNP
  resembles the adaptor.
-
 The SNP genotype can still be used in most analyses, but functions like
 gl2fasta() will present challenges if the SNP has been trimmed from the
 sequence tag.
-
 Not fatal, but should apply this filter before gl.filter.secondaries, for
 obvious reasons.
 }

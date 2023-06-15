@@ -54,17 +54,14 @@ not. This function tabulates the number of missing values as quantiles.
 \details{
 This function expects a genlight object, containing either SNP data or
 SilicoDArT (=presence/absence data).
-
 Callrate is summarized by locus or by individual to allow sensible decisions
 on thresholds for filtering taking into consideration consequential loss of
 data. The summary is in the form of a tabulation and plots.
-
 Plot themes can be obtained from:
  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
-
 Resultant ggplots and the tabulation are saved to the session's temporary
 directory.
 }

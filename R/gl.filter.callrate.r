@@ -6,18 +6,18 @@
 #' failure to call a SNP because of a mutation at one or both of the restriction
 #' enzyme recognition sites. The script gl.filter.callrate() will filter out the
 #'  loci with call rates below a specified threshold.
-#'
+
 #' Tag Presence/Absence datasets (SilicoDArT) have missing values where it is
 #' not possible to determine reliably if there the sequence tag can be called at
 #' a particular locus.
-#'
+
 #' @details
 #' Because this filter operates on call rate, this function recalculates Call
 #' Rate, if necessary, before filtering. If individuals are removed using
 #' method='ind', then the call rate stored in the genlight object is, 
 #' optionally,
 #' recalculated after filtering.
-#'
+
 #' Note that when filtering individuals on call rate, the initial call rate is
 #' calculated and compared against the threshold. After filtering, if
 #' mono.rm=TRUE, the removal of monomorphic loci will alter the call rates.
@@ -26,19 +26,19 @@
 #' threshold. If this is a problem, repeated iterations of this function will
 #' resolve the issue. This is done by setting mono.rm=TRUE and recursive=TRUE,
 #' or it can be done manually.
-#'
+
 #' Callrate is summarized by locus or by individual to allow sensible decisions
 #' on thresholds for filtering taking into consideration consequential loss of
 #' data. The summary is in the form of a tabulation and plots.
-#'
+
 #' Plot themes can be obtained from \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' Resultant ggplot(s) and the tabulation(s) are saved to the session's
 #'  temporary directory.
-#'
+
 #' @param x Name of the genlight object containing the SNP data, or the genind
 #'  object containing the SilocoDArT data [required].
 #' @param method Use method='loc' to specify that loci are to be filtered, 'ind'
@@ -64,11 +64,11 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#'
+
 #' @return The reduced genlight or genind object, plus a summary
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#'
+
 #' @examples
 #'  \donttest{
 #' # SNP data
@@ -87,7 +87,7 @@
 #'   threshold=0.8, verbose=3)
 #'   }
 #'   res <- gl.filter.callrate(platypus.gl)
-#'
+
 #' @seealso \code{\link{gl.report.callrate}}
 #' @family filter functions
 #' @import patchwork
@@ -135,7 +135,7 @@ gl.filter.callrate <- function(x,
     if (verbose >= 2) {
         cat(report("  Recalculating Call Rate\n"))
     }
-    x <- utils.recalc.callrate(x, verbose = 0)
+    x <- dartR.base:::utils.recalc.callrate(x, verbose = 0)
     # }
     
     # Suppress plotting on verbose == 0
@@ -501,7 +501,7 @@ gl.filter.callrate <- function(x,
         x2 <- x[, locall]
         x2@other$loc.metrics <- x@other$loc.metrics[locall,]
         
-        x2 <- utils.recalc.callrate(x2, verbose = 0)
+        x2 <- dartR.base:::utils.recalc.callrate(x2, verbose = 0)
         
         # Plot a histogram of Call Rate
         
@@ -619,7 +619,7 @@ gl.filter.callrate <- function(x,
         }
     }
     
-    # # Recalculate Call Rate to be safe x <- utils.recalc.callrate(x,verbose=0)
+    # # Recalculate Call Rate to be safe x <- dartR.base:::utils.recalc.callrate(x,verbose=0)
     
     # SAVE INTERMEDIATES TO TEMPDIR
     if (save2tmp & plot.out) {

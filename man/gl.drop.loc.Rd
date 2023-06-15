@@ -27,7 +27,6 @@ A reduced dartR genlight object
 }
 \description{
 This function deletes individuals and their associated metadata. 
-
 The script returns a dartR genlight object with the retained loci. 
 The script works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).

@@ -3,7 +3,8 @@
 \docType{data}
 \name{zzz}
 \alias{zzz}
-\title{Setting up the package}
+\title{Setting up the package
+Setting theme, colors and verbosity}
 \format{
 An object of class \code{NULL} of length 0.
 }
@@ -11,6 +12,7 @@ An object of class \code{NULL} of length 0.
 zzz
 }
 \description{
+Setting up the package
 Setting theme, colors and verbosity
 }
 \keyword{datasets}

@@ -5,7 +5,7 @@
 #' observed
 #' frequencies of reference homozygotes, heterozygotes and alternate 
 #' homozygotes.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param subset Way to group individuals to perform H-W tests. Either a vector
 #' with population names, 'each', 'all' (see details) [default 'each'].
@@ -42,11 +42,11 @@
 #'  nonrandom sampling and genotyping errors. Therefore, testing for
 #'  Hardy-Weinberg proportions should be a process that involves a careful
 #'  evaluation of the results, a good place to start is Waples (2015).
-#'
+
 #'  Note that tests for H-W proportions are only valid if there is no population
 #'  substructure (assuming random mating) and have sufficient power only when
 #'  there is sufficient sample size (n individuals > 15).
-#'
+
 #' Populations can be defined in three ways:
 #' \itemize{
 #' \item Merging all populations in the dataset using subset = 'all'.
@@ -54,7 +54,7 @@
 #' \item Within selected populations using for example: subset =
 #'  c('pop1','pop2').
 #' }
-#'
+
 #' Two different statistical methods to test for deviations from Hardy Weinberg
 #' proportions:
 #' \itemize{
@@ -82,7 +82,7 @@
 #' by bringing the rejection rate closer to the nominal level, at the price of
 #' occasionally exceeding the nominal level (Graffelman & Moreno, 2013).
 #' }
-#'
+
 #' Correction for multiple tests can be applied using the following methods
 #' based on the function \code{\link[stats]{p.adjust}}:
 #' \itemize{
@@ -100,7 +100,7 @@
 #' \item 'BH' based on Benjamini & Hochberg, 1995.
 #' \item 'BY' based on Benjamini & Yekutieli, 2001.
 #' }
-#'
+
 #' The first four methods are designed to give strong control of the family-wise
 #' error rate. The last two methods control the false discovery rate (FDR),
 #' the expected proportion of false discoveries among the rejected hypotheses.
@@ -109,9 +109,9 @@
 #' when number of tests is large.
 #' The number of tests on which the adjustment for multiple comparisons is
 #' the number of populations times the number of loci.
-#'
+
 #' \strong{Ternary plots}
-#'
+
 #' Ternary plots can be used to visualise patterns of H-W proportions (plot.out
 #' = TRUE). P-values and the statistical (non)significance of a large number of
 #' bi-allelic markers can be inferred from their position in a ternary plot.
@@ -124,7 +124,7 @@
 #'  correction for multiple tests are shown in pink. The blue parabola 
 #'  represents Hardy-Weinberg equilibrium, and the area between green lines 
 #'  represents the acceptance region.
-#'
+
 #' For these plots to work it is necessary to install the package ggtern.
 #' @return A dataframe containing loci, counts of reference SNP homozygotes,
 #' heterozygotes and alternate SNP homozygotes; probability of departure from

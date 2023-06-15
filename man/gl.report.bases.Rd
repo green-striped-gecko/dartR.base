@@ -37,9 +37,10 @@ plots [default two_colors=c("#3B9AB2", "#78B7C5")].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default NULL, unless specified using gl.set.verbosity]
- @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
- such as width and height, when the ggplot is to be saved.}
+ [default NULL, unless specified using gl.set.verbosity]}
+
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+such as width and height, when the ggplot is to be saved.}
 }
 \value{
 The unchanged genlight object
@@ -56,33 +57,25 @@ the numbers of A, T, G and C bases. Only the reference state at the SNP locus
 is counted. Counts of transitions (Ts) and transversions (Tv) assume that
 there is no directionality, that is C->T is the same as T->C, because the
 reference state is arbitrary.
-
 For presence/absence data (SilicoDArT), it is not possible to count
 transversions or transitions or transversions/transitions ratio because the
  SNP data are not available, only a single sequence tag per locus.
- 
  A color vector can be obtained with gl.select.colors() and then passed to the function
  with the plot.colors parameter.
-
 Themes can be obtained from in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
- 
  If the save.type parameter is set to one of 
 "RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
 "bmp", "svg" or "wmf" (windows only), the graphics produced by the function
 will be saved to disk. The option "RDS" saves as a binary file 
 using saveRDS(); can be reloaded with readRDS().
-
 Optional additional parameters for ggsave() can be added to the parameter list
 (...) to govern aspects of the saved plot. Refer to ?ggsave for details.
-
  If a plot directory (save.dir) is specified, the ggplot binary is saved to that
  directory; otherwise to the working directory. 
- 
  A file name must be specified for the plot to be saved.
- 
  Note that if save.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
 "bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
 of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
@@ -97,7 +90,6 @@ reloaded with readRDS().
   out <- gl.report.bases(testset.gl,plot.colors=col)
   #' # Tag P/A data
   out <- gl.report.bases(testset.gs)
-
 }
 \seealso{
 Other dartR-base: 

@@ -53,20 +53,17 @@ gl.read.silicodart() opens the data file (csv comma delimited) and skips the
 first n=topskip lines. The script assumes that the next line contains the
 entity labels (specimen ids) followed immediately by the SNP data for the
 first locus.
-
 It reads the presence/absence data into a matrix of 1s and 0s, and inputs the
  locus metadata and specimen metadata. The locus metadata comprises a series
  of columns of values for each locus including the essential columns of
  CloneID and the desirable variables Reproducibility and PIC. Refer to
   documentation provide by DArT for an explanation of these columns.
-
 The specimen metadata provides the opportunity to reassign specimens to
  populations, and to add other data relevant to the specimen. The key
  variables are id (specimen identity which must be the same and in the same
  order as the SilicoDArT file, each unique), pop (population assignment), lat
  (latitude, optional) and lon (longitude, optional). id, pop, lat, lon are
  the column headers in the csv file. Other optional columns can be added.
-
 The data matrix, locus names (forced to be unique), locus metadata, specimen
  names, specimen metadata are combined into a genind object. Refer to the
  documentation for \{adegenet\} for further details.

@@ -6,16 +6,16 @@
 #' of the values obtained can be used to evaluate the variability around the point 
 #' estimate. This function can take the loci, the individuals or the populations 
 #' as units over which to conduct resampling.
-#' 
+
 #' bold{Note} that when n is very small, jackknife resampling is not recommended.
-#' 
+
 #' Parallel computation is implemented. The argument code{n.cores} indicates the 
 #' number of core to use. If "auto" [default], it will use all but one available 
 #' cores. If the number of units is small (e.g. a few populations), there is not 
 #' real advantage in using parallel computation. On the other hand, if the number 
 #' of units is large (e.g. thousands of loci), even with parallel computation, 
 #' this function can be very slow.
-#' 
+
 #' @inheritParams gl.drop.ind
 #' @param FUN the name of the function to be used to calculate the statistic
 #' @param unit The unit to use for resampling. One of c("loc", "ind", "pop"): 
@@ -24,10 +24,10 @@
 #' use all but one available cores.
 #' @param ... any additional arguments to be passed to FUN
 #' @return A list of length n where each element is the output of FUN
-#'
+
 #' @author Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#'
+
 #' @examples
 #' require("dartR.data")
 #' platMod.gl <- gl.filter.allna(platypus.gl) 

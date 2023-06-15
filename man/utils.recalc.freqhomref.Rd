@@ -12,7 +12,6 @@ utils.recalc.freqhomref(x, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report [default 2].
-
 @family dartR-base}
 }
 \value{
@@ -22,15 +21,13 @@ The modified genlight object
 The locus metadata supplied by DArT has FreqHomRef included, but the
 frequency of the homozygous reference will change when some individuals are
 removed from the dataset.
-
 This script recalculates the FreqHomRef and places these recalculated values
 in the appropriate place in the genlight object.
-
 Note that the frequency of the homozygote reference SNPS is calculated from
 the individuals that could be scored.
 }
 \examples{
-result <- utils.recalc.freqhomref(testset.gl)
+result <- dartR.base:::utils.recalc.freqhomref(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,

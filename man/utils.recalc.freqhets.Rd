@@ -20,15 +20,13 @@ The modified genlight object.
 The locus metadata supplied by DArT has FreqHets included, but the frequency
  of the heterozygotes will change when some individuals are removed from the
  dataset.
-
 This script recalculates the FreqHets and places these recalculated values in
  the appropriate place in the genlight object.
-
 Note that the frequency of the homozygote reference SNPS is calculated from
 the individuals that could be scored.
 }
 \examples{
-out <- utils.recalc.freqhets(testset.gl)
+out <- dartR.base:::utils.recalc.freqhets(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,

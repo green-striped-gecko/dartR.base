@@ -20,17 +20,14 @@ The modified genlight object.
 The locus metadata supplied by DArT has FreqHomSnp included, but the
 frequency of the homozygous alternate will change when some individuals are
 removed from the dataset.
-
 This function recalculates the FreqHomSnp and places these recalculated values
  in the appropriate place in the genlight object.
-
 Note that the frequency of the homozygote alternate SNPS is calculated from
 the individuals that could be scored.
-
 This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).
 }
 \examples{
-out <- utils.recalc.freqhomsnp(testset.gl)
+out <- dartR.base:::utils.recalc.freqhomsnp(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,

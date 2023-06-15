@@ -6,7 +6,7 @@
 #' individuals of the heterogametic sex and homozygous in all individuals of the
 #' homogametic sex. This function keeps or drops loci with alleles that behave
 #' in this way, as putative sex specific SNP markers.
-#'
+
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param sex Factor that defines the sex of individuals. See explanation in
@@ -36,7 +36,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
 #' progress log; 3, progress and results summary; 5, full report 
 #' [default NULL, unless specified using gl.set.verbosity].
-#'
+
 #' @details
 #' Sex of the individuals for which sex is known with certainty can be provided
 #' via a factor (equal to the length of the number of individuals) or to be held
@@ -45,32 +45,32 @@
 #' The script abbreviates the entries here to the first character. So, coding of
 #' 'Female' and 'Male' works as well. Character are also converted to upper 
 #' cases.
-#'
+
 #''\strong{ Function's output }
-#'
+
 #' This function creates also a plot that shows the heterozygosity of males and
 #' females at each loci for SNP data or percentage of present/absent in the case 
 #' of SilicoDArT data.
-#'
+
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' @return The filtered genlight object (filter = 'keep': sex linked loci,
 #' filter='drop', everything except sex linked loci).
-#'
+
 #' @author Arthur Georges, Bernd Gruber & Floriaan Devloo-Delva (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
-#'
+
 #' @examples
 #'   \donttest{
 #' out <- gl.filter.sexlinked(testset.gl, filter='drop')
 #' }
 #' out <- gl.filter.sexlinked(testset.gs, filter='drop')
-#'
+
 #' @family filter functions
-#'
+
 #' @export
 
 gl.filter.sexlinked <- function(x,

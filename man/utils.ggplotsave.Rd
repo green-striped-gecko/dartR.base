@@ -17,9 +17,10 @@ utils.ggplotsave(x, type = NULL, dir = NULL, file = NULL, verbose = NULL, ...)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default NULL, unless specified using gl.set.verbosity]
- @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
- such as width and height, when the ggplot is to be saved.}
+ [default NULL, unless specified using gl.set.verbosity]}
+
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+such as width and height, when the ggplot is to be saved.}
 }
 \description{
 Uses saveRDS() and ggsave().

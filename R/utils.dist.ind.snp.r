@@ -16,7 +16,7 @@
 #'  \item Czekanowski (or Manhattan) calculates the city block metric distance
 #'  by summing the scores on each axis (locus).
 #'  }
-#'
+
 #' @param x Name of the genlight containing the genotypes [required].
 #' @param method Specify distance measure [default Euclidean].
 #' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
@@ -35,7 +35,7 @@
 #' D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
 #' }
 #' D <- utils.dist.ind.snp(testset.gl, method='Simple')
-#' 
+
 
 utils.dist.ind.snp <- function(x,
                               method = "Euclidean",

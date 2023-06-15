@@ -3,7 +3,7 @@
 #' @description
 #' Hardy-Weinberg tests are performed for each loci in each of the populations
 #' as defined by the pop slot in a genlight object.
-#'
+
 #' @param x A genlight object with a population defined
 #' [pop(x) does not return NULL].
 #' @param alpha_val Level of significance for testing [default 0.05].
@@ -18,7 +18,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
-#'
+
 #' @details
 #' This function employs the \code{HardyWeinberg} package, which needs to be
 #' installed. The function that is used is
@@ -26,7 +26,7 @@
 #' functions implemented in the package regarding HWE. Therefore, this function
 #' can return the data in the format expected by the HWE package expects, via
 #' \code{HWformat=TRUE} and then use this to run other functions of the package.
-#'
+
 #' This functions performs a HWE test for every population (rows) and loci
 #' (columns) and returns a true false matrix. True is reported if the p-value of
 #' an HWE-test for a particular loci and population was below the specified
@@ -36,15 +36,15 @@
 #'  a barplot on the loci and the sum of deviation over all population is
 #'  returned. Loci that deviate in the majority of populations can be identified
 #'   via colSums on the resulting matrix.
-#'
+
 #' Plot themes can be obtained from \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' Resultant ggplots and the tabulation are saved to the session's temporary
 #' directory.
-#'
+
 #' @return The function returns a list with up to three components:
 #' \itemize{
 #'  \item 'HWE' is the matrix over loci and populations

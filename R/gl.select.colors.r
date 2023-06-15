@@ -18,16 +18,16 @@
 #' 'topo.colors','terrain.colors','cm.colors'.
 #' }
 #' If the nominated palette is not specified, all the palettes will be listed and a default palette will then be chosen.
-#'
+
 #' The color palette will be displayed in the graphics window for the requested
 #' number of colors (or 9 if not specified),and the vector of colors returned
 #' for later use.
-#'
+
 #' The select parameter can be used to select colors from the specified ncolors.
 #' For example, select=c(1,1,3) will select color 1, 1 again and 3 to retain in
 #' the final vector. This can be useful for fine-tuning color selection, and
 #' matching colors and shapes.
-#'
+
 #' @param x Optionally, provide a gl object from which to determine the number
 #' of populations [default NULL].
 #' @param library Name of the color library to be used [default scales::hue_pl].
@@ -39,9 +39,9 @@
 #' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' 
+
 #' @return A vector with the required number of colors
-#' 
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
@@ -60,13 +60,13 @@
 #' colors <- gl.select.colors(library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
 #' # EXAMPLES -- CROSS-CHECKING WITH A GENLIGHT OBJECT
 #' colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
-#'
+
 #' @seealso \code{\link{gl.select.shapes}}
 #' @family dartR-base
-#'
+
 #' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow
 #' @export
-#' 
+
 # Function -----------------
 gl.select.colors <- function(x = NULL,
                              library = NULL,

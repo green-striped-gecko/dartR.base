@@ -1,6 +1,6 @@
 #' Installs all required packages for using all functions
 #' available in dartR.base
-#'
+
 #' The function compares the installed packages with the the currently available
 #' ones on CRAN. Be aware this function only works if a version of dartR is
 #' already installed on your system. You can choose if you also want to have a

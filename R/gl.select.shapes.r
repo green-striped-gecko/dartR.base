@@ -9,12 +9,12 @@
 #' By default the shape palette will be displayed in full in the graphics window
 #' from which shapes can be selected in a subsequent run, and the vector of
 #' shapes returned for later use.
-#'
+
 #' The select parameter can be used to select shapes from the specified 26
 #' shapes available (0-25). For example, select=c(1,1,3) will select shape 1, 1
 #' again and 3 to retain in the final vector. This can be useful for fine-tuning
 #' shape selection, and matching colors and shapes.
-#'
+
 #' @param x Optionally, provide a gl object from which to determine the number
 #' of populations [default NULL].
 #' @param select Select the shapes to retain in the output vector
@@ -22,12 +22,12 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' 
+
 #' @return A vector with the required number of shapes
-#' 
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 #' @examples
 #' # SET UP DATASET
 #' gl <- testset.gl
@@ -39,7 +39,7 @@
 #' shapes <- gl.select.shapes(select=c(1,1,1,5,8)) 
 #'  # Select set of shapes and check with no. of pops.
 #' shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
-#' 
+
 #' @seealso \code{\link{gl.select.colors}}
 #' @family dartR-base
 #' @export

@@ -49,10 +49,8 @@ The function displays a table of minimum, maximum, mean and quantiles for
  in \code{\link{gl.filter.rdepth}}. If plot.out=TRUE, display also includes a
   boxplot and a histogram to guide in the selection of a threshold for
   filtering on read depth.
-
  If save2tmp=TRUE, ggplots and relevant tabulations are saved to the
  session's temp directory (tempdir).
-
  For examples of themes, see  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}

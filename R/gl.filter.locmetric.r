@@ -5,7 +5,7 @@
 #' This script uses any field with numeric values stored in $other$loc.metrics
 #' to filter loci. The loci to keep can be within the upper and lower thresholds
 #'  ('within') or outside of the upper and lower thresholds ('outside').
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param metric Name of the metric to be used for filtering [required].
 #' @param upper Filter upper threshold [required].

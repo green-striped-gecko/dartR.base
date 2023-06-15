@@ -59,7 +59,6 @@ The distance measure for SNP genotypes can be one of:
  \item Absolute Mismatch Distance [method="Absolute"]
  \item Czekanowski (Manhattan) Distance [method="Manhattan"]
  }
-
 The distance measure for Sequence Tag Presence/Absence data (binary) can be one of:
 \itemize{
  \item Euclidean Distance [method = "Euclidean"]
@@ -68,7 +67,6 @@ The distance measure for Sequence Tag Presence/Absence data (binary) can be one 
  \item Jaccard Distance [method="Jaccard"]
  \item Bray-Curtis Distance [method="Bray-Curtis"]
  }
-
 Refer to the dartR Technical Note on Distances in Genetics.
 }
 \examples{

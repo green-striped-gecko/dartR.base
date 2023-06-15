@@ -22,7 +22,7 @@
 #' @details
 #' This function orders the SNPS by chromosome and by position before converting
 #' to SNPRelate format, as required by this package.
-#'
+
 #' The chromosome of each SNP can be a character or numeric, as described in the
 #' vignette of SNPRelate:
 #' 'snp.chromosome, an integer or character mapping for each chromosome.
@@ -31,15 +31,15 @@
 #' for probes with unknown positions; it does not allow NA. Character: “X”,
 #'  “XY”, “Y” and “M” can be used here, and a blank string indicating unknown
 #'  position.'
-#'
+
 #' When using some functions from package SNPRelate with datasets other than
 #' humans it might be necessary to use the option autosome.only=FALSE to avoid
 #' detecting chromosome coding. So, it is important to read the documentation of
 #' the function before using it.
-#'
+
 #' The chromosome information for unmapped SNPS is coded as 0, as required by
 #' SNPRelate.
-#'
+
 #' Remember to close the GDS file before working in a different GDS object with
 #' the function \link[SNPRelate]{snpgdsClose} (package SNPRelate).
 #' @return  returns no value (i.e. NULL)

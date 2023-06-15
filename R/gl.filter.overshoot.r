@@ -6,14 +6,14 @@
 #' and identifies those for which the SNP position is outside the trimmed
 #'  sequence tag. This can happen, rarely, when the sequence containing the SNP
 #'  resembles the adaptor.
-#'
+
 #' The SNP genotype can still be used in most analyses, but functions like
 #' gl2fasta() will present challenges if the SNP has been trimmed from the
 #' sequence tag.
-#'
+
 #' Not fatal, but should apply this filter before gl.filter.secondaries, for
 #' obvious reasons.
-#'
+
 #' @param x Name of the genlight object [required].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #'  temporary directory (tempdir) [default FALSE].

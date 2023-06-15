@@ -30,13 +30,12 @@ will no longer apply. This applies also to some variable calculated by dartR
 that these statistics in the genlight object are no longer current. The
 verbosity default is also set, and in the case of SilcoDArT, the flags PIC
 and OneRatio are also set.
-
 If the locus metrics do not exist then they are added to the genlight object
  but not populated. If the locus metrics flags do not exist, then they are
  added to the genlight object and set to FALSE (or TRUE).
 }
 \examples{
-result <- utils.reset.flags(testset.gl)
+result <- dartR.base:::utils.reset.flags(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,

@@ -2,7 +2,11 @@
 % Please edit documentation in R/gl.fst.pop.r
 \name{gl.fst.pop}
 \alias{gl.fst.pop}
-\title{Calculates a pairwise Fst values for populations in a genlight object}
+\title{Calculates a pairwise Fst values for populations in a genlight object
+This script calculates pairwise Fst values based on the implementation in the
+StAMPP package (?stamppFst). It allows to run bootstrap to estimate
+probability of Fst values to be different from zero. For detailed information
+please check the help pages (?stamppFst).}
 \usage{
 gl.fst.pop(x, nboots = 1, percent = 95, nclusters = 1, verbose = NULL)
 }
@@ -30,6 +34,7 @@ Bootstraps results (data frame of all runs). Hint: Use
 symmetric entries returned, instead of a dist object.
 }
 \description{
+Calculates a pairwise Fst values for populations in a genlight object
 This script calculates pairwise Fst values based on the implementation in the
 StAMPP package (?stamppFst). It allows to run bootstrap to estimate
 probability of Fst values to be different from zero. For detailed information

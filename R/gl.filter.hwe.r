@@ -5,11 +5,11 @@
 #' This function filters out loci showing significant departure from H-W
 #' proportions based on observed frequencies of reference homozygotes,
 #'  heterozygotes and alternate homozygotes.
-#'
+
 #' Loci are filtered out if they show HWE departure either in any one population 
 #' (n.pop.threshold =1) or in at least X number of populations 
 #' (n.pop.threshold > 1).
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param subset Way to group individuals to perform H-W tests. Either a vector
 #' with population names, 'each', 'all' (see details) [default 'each'].
@@ -40,11 +40,11 @@
 #'  nonrandom sampling and genotyping errors. Therefore, testing for
 #'  Hardy-Weinberg proportions should be a process that involves a careful
 #'  evaluation of the results, a good place to start is Waples (2015).
-#'
+
 #'  Note that tests for H-W proportions are only valid if there is no population
 #'  substructure (assuming random mating) and have sufficient power only when
 #'  there is sufficient sample size (n individuals > 15).
-#'
+
 #' Populations can be defined in three ways:
 #' \itemize{
 #' \item Merging all populations in the dataset using subset = 'all'.
@@ -52,7 +52,7 @@
 #' \item Within selected populations using for example: subset = 
 #' c('pop1','pop2').
 #' }
-#'
+
 #' Two different statistical methods to test for deviations from Hardy Weinberg
 #' proportions:
 #' \itemize{
@@ -80,7 +80,7 @@
 #' by bringing the rejection rate closer to the nominal level, at the price of
 #' occasionally exceeding the nominal level (Graffelman & Moreno, 2013).
 #' }
-#'
+
 #' Correction for multiple tests can be applied using the following methods
 #' based on the function \code{\link[stats]{p.adjust}}:
 #' \itemize{
@@ -100,7 +100,7 @@
 #' \item 'BH' based on Benjamini & Hochberg, 1995.
 #' \item 'BY' based on Benjamini & Yekutieli, 2001.
 #' }
-#'
+
 #' The first four methods are designed to give strong control of the family-wise
 #' error rate. The last two methods control the false discovery rate (FDR),
 #' the expected proportion of false discoveries among the rejected hypotheses.
@@ -109,14 +109,14 @@
 #' when number of tests is large.
 #' The number of tests on which the adjustment for multiple comparisons is
 #' the number of populations times the number of loci.
-#' 
+
 #' \bold{From v2.1} \code{gl.filter.hwe} takes the argument
 #'  \code{n.pop.threshold}.
 #' if \code{n.pop.threshold > 1} loci will be removed only if they are 
 #' concurrently 
 #' significant (after adjustment if applied) out of hwe in >= 
 #' \code{n.pop.threshold > 1}.
-#'
+
 #' @return A genlight object with the loci departing significantly from H-W
 #' proportions removed.
 #' @author Custodian: Luis Mijangos -- Post to

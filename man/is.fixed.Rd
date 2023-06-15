@@ -2,7 +2,14 @@
 % Please edit documentation in R/is.fixed.r
 \name{is.fixed}
 \alias{is.fixed}
-\title{Tests if two populations are fixed at a given locus}
+\title{Tests if two populations are fixed at a given locus
+This script compares two percent allele frequencies
+and reports TRUE if they represent a fixed difference, FALSE otherwise.
+A fixed difference at a locus occurs when two populations share no alleles,
+ noting that SNPs are biallelic (ploidy=2).
+Tolerance in the definition of a fixed difference is provided by the t
+ parameter. For example, t=0.05 means that SNP allele frequencies of 95,5 and
+ 5,95 percent will be reported as fixed (TRUE).}
 \usage{
 is.fixed(s1, s2, tloc = 0)
 }
@@ -21,10 +28,9 @@ TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both
 s1 or s2 missing)
 }
 \description{
+Tests if two populations are fixed at a given locus
 This script compares two percent allele frequencies
 and reports TRUE if they represent a fixed difference, FALSE otherwise.
-}
-\details{
 A fixed difference at a locus occurs when two populations share no alleles,
  noting that SNPs are biallelic (ploidy=2).
 Tolerance in the definition of a fixed difference is provided by the t

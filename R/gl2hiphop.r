@@ -1,5 +1,5 @@
 #' Converts a genlight objects into hiphop format
-#'
+
 #' This function exports genlight objects to the format used by the parentage
 #' assignment R package hiphop. Hiphop can be used for paternity and maternity
 #' assignment and outperforms conventional methods where closely related
@@ -7,7 +7,7 @@
 #' genotypes of offspring with any combination of potentials parents and scores
 #' the number of mismatches of these individuals at bi-allelic genetic markers
 #'  (e.g. Single Nucleotide Polymorphisms).
-#'
+
 #' @references
 #' Cockburn, A., Penalba, J.V.,Jaccoud, D.,Kilian, A., Brouwer, L.,Double, M.C.,
 #'  Margraf, N., Osmond, H.L., van de Pol, M. and Kruuk, L.E.B.(in revision).

@@ -14,30 +14,30 @@
 #' populations. This can be done with a pop.recode table with two columns. The
 #' first column is the population assignment in the genlight object, the second
 #' column provides the new assignment.
-#'
+
 #' This function will input an existing reassignment table for editing and
 #' optionally save it as a new table, or if the name of an input table is not
 #' supplied, will generate a table using the population assignments in the
 #' parent genlight object. It will then apply the recodings to the genlight 
 #' object.
-#' 
+
 #' When caution needs to be exercised because of the potential for breaking the
 #' 'chain of evidence' associated with the samples, recoding individuals using
 #' a recode table (csv) can provide a durable record of the changes.
-#'
+
 #' For SNP genotype data, the function, having deleted populations, optionally 
 #' identifies resultant monomorphic loci or loci with all values missing 
 #' and deletes them. The script also optionally recalculates the
 #' locus metadata as appropriate. The optional deletion of monomorphic loci
 #' and the optional recalculation of locus statistics is not available for
 #' Tag P/A data (SilicoDArT).
-#'
+
 #' Use outpath=getwd() when calling this function to direct
 #' output files to your working directory.
-#'
+
 #' The function returns a dartR genlight object with the new population assignments  
 #' and the recalculated locus metadata. 
-#'
+
 #' @param x Name of the genlight object  [required].
 #' @param pop.recode Path to recode file [default NULL].
 #' @param out.recode.file Name of the file to output the new individual labels
@@ -49,15 +49,15 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-#'  
+
 #' @import utils
-#' @export#'  
+#' @export  
 #' @return A genlight object with the revised population assignments
-#' 
+
 #' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 # Examples --------------
 #' @examples
 #' \dontrun{

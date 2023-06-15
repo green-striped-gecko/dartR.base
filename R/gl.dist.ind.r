@@ -12,7 +12,7 @@
 #'  \item Absolute Mismatch Distance [method="Absolute"]
 #'  \item Czekanowski (Manhattan) Distance [method="Manhattan"]
 #'  }
-#'
+
 #' The distance measure for Sequence Tag Presence/Absence data (binary) can be one of:
 #' \itemize{
 #'  \item Euclidean Distance [method = "Euclidean"]
@@ -21,9 +21,9 @@
 #'  \item Jaccard Distance [method="Jaccard"]
 #'  \item Bray-Curtis Distance [method="Bray-Curtis"]
 #'  }
-#'
+
 #' Refer to the dartR Technical Note on Distances in Genetics.
-#'
+
 #' @param x Name of the genlight containing the SNP genotypes or presence-absence data [required].
 #' @param method Specify distance measure [SNP: Euclidean; P/A: Simple].
 #' @param scale If TRUE, the distances are scaled to fall in the range [0,1] [default TRUE]

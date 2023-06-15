@@ -18,11 +18,11 @@
 #'  distance.
 #  \item Phi -- binary analogue of the Pearson Correlation coefficient.
 #'  }
-#'
+
 #'  One might choose to disregard or downweight absences in comparison with
 #'  presences because the homology of absences is less clear (mutation at one or
 #'  the other, or both restriction sites). Your call.
-#'
+
 #' @param x Name of the genlight containing the genotypes [required].
 #' @param method Specify distance measure [default simple].
 #' @param scale If TRUE and method='euclidean', the distance will be scaled to 
@@ -44,7 +44,7 @@
 #' D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
 #' }
 #' D <- utils.dist.binary(testset.gs, method='Simple')
-#' 
+
 utils.dist.binary <- function(x,
                               method = "simple",
                               scale=FALSE,

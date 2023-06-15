@@ -33,22 +33,22 @@
 #'  and so on until all missing values are replaced.
 #' \item if "random", missing data are substituted by random values (0, 1 or 2). 
 #' }
-#'
+
 #'   The nearest neighbour is the one with the smallest Euclidean distance in 
 #'   all the dataset.
-#'
+
 #'   The advantage of this approach is that it works regardless of how many
 #'   individuals are in the population to which the focal individual belongs,
 #'   and the displacement of the individual is haphazard as opposed to:
-#'
+
 #'   (a) Drawing the individual toward the population centroid (HW and Frequency).
-#'
+
 #'   (b) Drawing the individual toward the global centroid (glPCA).
-#'
+
 #' Note that loci that are missing for all individuals in a population are not 
 #' imputed with method 'frequency' or 'HW'. Consider using the function 
 #' \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
-#'
+
 #' @return A genlight object with the missing data imputed.
 #' @export
 #' @author Custodian: Luis Mijangos 

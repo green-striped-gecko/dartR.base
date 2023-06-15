@@ -70,14 +70,12 @@ A dataframe with information for each SNP pair in LD.
 \description{
 This function calculates pairwise linkage disequilibrium (LD) by population 
 using the function \code{\link[snpStats]{ld}} (package snpStats).
-
 If SNPs are not mapped to a reference genome, the parameter
  \code{ld_max_pairwise}
  should be set as NULL (the default). In this case, the 
 function will assign the same chromosome ("1") to all the SNPs in the dataset
  and assign a sequence from 1 to n loci as the position of each SNP. The 
  function will then calculate LD for all possible SNP pair combinations. 
- 
 If SNPs are mapped to a reference genome, the parameter 
 \code{ld_max_pairwise}
  should be filled out (i.e. not NULL). In this case, the
@@ -93,7 +91,6 @@ The function \code{\link{gl.filter.ld}} filters out the SNPs in LD using as
 input the results of \code{\link{gl.report.ld.map}}. The actual number of 
 SNPs to be filtered out depends on the parameters set in the function 
 \code{\link{gl.filter.ld}}.
-
 Boxplots of LD by population and
 a histogram showing LD frequency are presented.
 }

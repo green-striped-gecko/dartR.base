@@ -1,11 +1,11 @@
 #' A utility script to calculate the number of variant and invariant sites by
 #' locus
-#'
+
 #' Calculate the number of variant and invariant sites by locus and add them as
 #' columns in \code{loc.metrics}. This can be useful to conduct further
 #' filtering, for example where only loci with secondaries are wanted for
 #' phylogenetic analyses.
-#'
+
 #' Invariant sites are the sites (nucleotide) that are not polymorphic. When the
 #' locus metadata supplied by DArT includes the sequence of the allele
 #' (\code{TrimmedSequence}), it is used by this function to estimate the number
@@ -14,11 +14,11 @@
 #' (lenTrimSeq), the number of variant (n.variant) and
 #' invariant (n.invariant) sites are the added to the table in
 #' \code{gl@others$loc.metrics}.
-#'
+
 #' \strong{NOTE}: It is important to realise that this function correctly
 #' estimates the number of variant and invariant sites only when it is executed on
 #' \code{genlight} objects before secondaries are removed.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'   progress log; 3, progress and results summary; 5, full report

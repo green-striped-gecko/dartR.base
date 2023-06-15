@@ -45,18 +45,18 @@
 #' computed) and it may take some time for these computations to complete. 
 #' De Meeûs 2018 suggests that under a global significant heterozygosity 
 #' deficit: 
-#' 
+
 #' - if the
 #' correlation between Fis and Fst is strongly positive, and StdErrFis >>
 #' StdErrFst, Null alleles are likely to be the cause. 
-#' 
+
 #' - if the correlation
 #' between Fis and Fst is ~0 or mildly positive, and StdErrFis > StdErrFst,
 #' Wahlund may be the cause. 
-#' 
+
 #' - if the correlation between Fis and Fst is ~0, and
 #' StdErrFis ~ StdErrFst, selfing or sib mating could to be the cause.
-#' 
+
 #'  It is
 #' important to realise that these statistics only suggest a pattern (pointers).
 #' Their absence is not conclusive evidence of the absence of the problem, as 

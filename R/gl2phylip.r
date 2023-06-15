@@ -1,10 +1,10 @@
 #' Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
 #'  object
-#'
+
 #' This function calculates and returns a matrix of Euclidean distances between 
 #' populations and produces an input file for the phylogenetic program Phylip 
 #' (Joe Felsenstein).
-#'
+
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param outfile Name of the file to become the input file for phylip

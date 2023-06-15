@@ -8,11 +8,11 @@
 #' reproducing the data independently for 30% of loci. RepAvg is the proportion
 #' of alleles that give a repeatable result, averaged over both alleles for each
 #' locus.
-#'
+
 #' In the case of fragment presence/absence data (SilicoDArT), repeatability is
 #' the percentage of scores that are repeated in the technical replicate
 #'  dataset.
-#'
+
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param plot.out If TRUE, displays a plot to guide the decision on a filter
@@ -26,29 +26,29 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#'
+
 #' @details
 #'  The function displays a table of minimum, maximum, mean and quantiles for
 #'  repeatbility against possible thresholds that might subsequently be
 #'  specified in \code{\link{gl.filter.reproducibility}}.
-#'
+
 #'  If plot.out=TRUE, display also includes a boxplot and a histogram to guide
 #'  in the selection of a threshold for filtering on repeatability.
-#'
+
 #'  If save2tmp=TRUE, ggplots and relevant tabulations are saved to the
 #'  session's temp directory (tempdir)
-#'
+
 #'  For examples of themes, see:
 #'    \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and 
 #'  \item
 #'   \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' @return An unaltered genlight object
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#'
+
 #' @examples
 #'  \donttest{
 #' # SNP data
@@ -56,7 +56,7 @@
 #'   }
 #' # Tag P/A data
 #'   out <- gl.report.reproducibility(testset.gs)
-#'
+
 #' @seealso \code{\link{gl.filter.reproducibility}}
 #' @family report functions
 #' @import patchwork

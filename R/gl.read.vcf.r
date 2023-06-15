@@ -1,5 +1,5 @@
 #' Converts a vcf file into a genlight object
-#'
+
 #' This function needs package vcfR, please install it. The converted genlight
 #' object does not have individual metrics. You need to add them 'manually' to
 #' the other$ind.metrics slot.

@@ -1,6 +1,6 @@
 
 #' A simulated genlight object created to run a landscape genetic example
-#'
+
 #'This a test data set to run a landscape genetics example. It contains 10 
 #'populations of 30 individuals each and each individual has 300 loci. There 
 #'are no covariates for individuals or loci.
@@ -13,7 +13,7 @@
 "possums.gl"
 
 #' A genlight object created via the read.dart functions
-#'
+
 #'This a test data set to test the validity of functions within dartR and is 
 #'based on a DArT SNP data set of simulated bandicoots across Australia. It 
 #'contains 96 individuals and 1000 SNPs.
@@ -26,7 +26,7 @@
 "bandicoot.gl"
 
 #' A genlight object created via the gl.read.dart function
-#'
+
 #' This is a test data set on turtles. 250 individuals, 255 loci in >30 
 #' populations.
 #' @name testset.gl
@@ -38,7 +38,7 @@
 "testset.gl"
 
 #' A genlight object created via the gl.read.silicodart function
-#'
+
 #' This is a test data set on turtles. 218 individuals, 255 loci in >30 
 #' populations.
 #' @name testset.gs
@@ -50,7 +50,7 @@
 "testset.gs"
 
 #' Testfile in DArT format (as provided by DArT)
-#'
+
 #' This test data set is provided to show a typical DArT file format. Can be 
 #' used to create a genlight object using the read.dart function.
 #' @name testset_SNPs_2Row
@@ -62,7 +62,7 @@
 NULL
 
 #' Recode file to be used with the function.
-#'
+
 #' This test data set is provided to show a typical recode file format.
 #' @name testset_pop_recode
 #' @format csv
@@ -73,7 +73,7 @@ NULL
 NULL
 
 #' Metadata file. Can be integrated via the dart2genlight function.
-#'
+
 #' @name testset_metadata
 #' @format csv
 #' @docType data

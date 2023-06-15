@@ -6,7 +6,7 @@
 #' This script calculates the minor allele frequency for each locus and updates
 #' the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
 #' exists). It then uses the updated metadata for MAF to filter loci.
-#' 
+
 #' @details 
 #' Careful consideration needs to be given to the settings to be used for this 
 #' fucntion. When the filter is applied globally (i.e. \code{by.pop=FALSE}) but 
@@ -26,8 +26,8 @@
 #' error.
 #' \bold{From v2.1} The threshold can take values > 1. In this case, these are 
 #' interpreted as a threshold for MAC.
-#' 
-#'
+
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param threshold Threshold MAF -- loci with a MAF less than the threshold
 #' will be removed. If a value > 1 is provided it will be 
@@ -147,7 +147,7 @@ gl.filter.maf <- function(x,
                 "populations and recalculating FreqHoms and FreqHets\n"
             ))
         }
-        #x <- utils.recalc.maf(x, verbose = 0)
+        #x <- dartR.base:::utils.recalc.maf(x, verbose = 0)
         pop.list <- seppop(x)
         
         # getting populations with more than ind.limit
@@ -167,7 +167,7 @@ gl.filter.maf <- function(x,
           x2 <- x[, -loci.list]
           x2@other$loc.metrics <- x@other$loc.metrics[-loci.list,]
         
-        x2 <- utils.recalc.maf(x2, verbose = 0)
+        x2 <- dartR.base:::utils.recalc.maf(x2, verbose = 0)
     }else{
         # Recalculate the relevant loc.metrics
         if (verbose >= 2) {
@@ -177,7 +177,7 @@ gl.filter.maf <- function(x,
             ))
         }
         
-        x <- utils.recalc.maf(x, verbose = 0)
+        x <- dartR.base:::utils.recalc.maf(x, verbose = 0)
         
         # Remove loci with NA count <= 1-threshold
         index <- x@other$loc.metrics$maf >= threshold
@@ -185,7 +185,7 @@ gl.filter.maf <- function(x,
           x2 <- x[, index]
           x2@other$loc.metrics <- x@other$loc.metrics[index,]
         
-        x2 <- utils.recalc.maf(x2, verbose = 0)
+        x2 <- dartR.base:::utils.recalc.maf(x2, verbose = 0)
     }
     
     if(plot.out & by.pop==FALSE){

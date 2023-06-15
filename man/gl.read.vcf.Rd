@@ -2,7 +2,10 @@
 % Please edit documentation in R/gl.read.vcf.r
 \name{gl.read.vcf}
 \alias{gl.read.vcf}
-\title{Converts a vcf file into a genlight object}
+\title{Converts a vcf file into a genlight object
+This function needs package vcfR, please install it. The converted genlight
+object does not have individual metrics. You need to add them 'manually' to
+the other$ind.metrics slot.}
 \usage{
 gl.read.vcf(vcffile, verbose = NULL)
 }
@@ -17,6 +20,7 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object.
 }
 \description{
+Converts a vcf file into a genlight object
 This function needs package vcfR, please install it. The converted genlight
 object does not have individual metrics. You need to add them 'manually' to
 the other$ind.metrics slot.

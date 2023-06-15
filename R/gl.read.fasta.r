@@ -10,7 +10,7 @@
 #'  \item Y is heterozygote	for CT and TC
 #'  \item K is heterozygote	for GT and TG
 #'  }
-#'  
+
 #' The following IUPAC Ambiguity Codes are taken as missing data:
 #' \itemize{
 #'  \item V
@@ -19,14 +19,14 @@
 #'  \item B
 #'  \item N 
 #'  }
-#'  
+
 #'  The function can deal with missing data in individuals, e.g. when FASTA 
 #'  files have different number of individuals due to missing data.
-#'  
+
 #'  The allele with the highest frequency is taken as the reference allele.
-#'  
+
 #'  SNPs with more than two alleles are skipped.
-#'  
+
 #' @param fasta_files Fasta files to read [required].
 #' @param parallel A logical indicating whether multiple cores -if available-
 #'  should be used for the computations (TRUE), or not (FALSE); requires the

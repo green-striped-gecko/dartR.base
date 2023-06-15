@@ -1,12 +1,15 @@
 #' @name utils.transpose
-#' 
+
 #' @title A utility function to transpose a genlight object.
-#' 
+
 #' @description
 #' This is a function to transpose a genlight object, that is, to set loci as
 #' entities and individuals as attributes.
-#'
-#' build = "v.2023.2"
+
+# build = "v.2023.2"
+
+#' @param x name of the genlight object
+#' @param parallel if TRUE, use parallel processing capability
 
 #' @family dartR-base
 

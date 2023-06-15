@@ -3,11 +3,11 @@
 #' @description
 #' Individuals are assigned to populations based on the specimen metadata data
 #' file (csv) used with gl.read.dart().
-#'
+
 #' This script renames a nominated population.
-#'
+
 #' The script returns a genlight object with the new population name.
-#'
+
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param old Name of population to be changed [required].
 #' @param new New name for the population [required].

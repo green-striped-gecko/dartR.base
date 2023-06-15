@@ -17,7 +17,6 @@ The modified genlight object.
 }
 \description{
 A short description...
-
 Recalculates OneRatioRef, OneRatioSnp, PICRef, PICSnp,
  and AvgPIC by locus after some individuals or populations have been deleted.
 }
@@ -28,12 +27,11 @@ The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
  initial statistics will no longer apply. This script recalculates these
  statistics and places the recalculated values in the appropriate place in
  the genlight object.
-
 If the locus metadata OneRatioRef|Snp, PICRef|Snp and/or AvgPIC do not exist,
  the script creates and populates them.
 }
 \examples{
-out <- utils.recalc.avgpic(testset.gl)
+out <- dartR.base:::utils.recalc.avgpic(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,

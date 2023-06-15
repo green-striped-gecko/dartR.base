@@ -4,10 +4,10 @@
 #' Each locus is color coded for scores of 0, 1, 2 and NA for SNP data and 0, 1
 #' and NA for presence/absence (SilicoDArT) data. Individual labels can be added
 #' and individuals can be grouped by population.
-#'
+
 #' Plot may become cluttered if ind_labels If there are too many individuals, 
 #' it is best to use ind_labels_size = 0.
-#'
+
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param ind_labels If TRUE, individuals are labelled with indNames(x) [default FALSE].
@@ -23,7 +23,7 @@
 #' (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report [default NULL].
-#'
+
 #' @return Returns unaltered genlight object
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -32,7 +32,7 @@
 #' gl.smearplot(testset.gs[1:10,],ind_labels=TRUE)
 #' @family Exploration/visualisation functions
 #' @export
-#'
+
 
 gl.smearplot <- function(x,
                         ind_labels = FALSE,

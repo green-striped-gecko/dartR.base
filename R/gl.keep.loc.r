@@ -3,7 +3,7 @@
 #' @title Removes all but the specified loci from a genlight object
 #' @description
 #' This function deletes loci that are not specified to keep, and their associated metadata. 
-#'
+
 #' The script returns a dartR genlight object with the retained loci. 
 #' The script works with both genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
@@ -18,10 +18,10 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-#'
+
 #' @export
 #' @return A genlight object with the reduced data
-#'
+
 #' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -33,7 +33,7 @@
 #'   gs2 <- gl.keep.loc(testset.gs, loc.list=c('20134188','19249144'))
 # See also ------------
 #' @seealso \code{\link{gl.drop.loc}} to drop rather than keep specified loci
-#'
+
 # End Block --------------
 # Function 
 gl.keep.loc <- function(x,

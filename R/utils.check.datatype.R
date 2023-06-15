@@ -15,27 +15,27 @@
 #' @details
 #' This function checks the class of passed object and sets the datatype to
 #' 'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
-#'
+
 #' Note also that this function checks to see if there are individuals or loci
 #' scored as all missing (NA) and if so, issues the user with a warning.
-#'
+
 #' Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
 #'  TRUE.
+
 #' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
 #'  distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
 #'   class(x)[1].
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+
 #' @examples
-#'  \donttest{
+#'  \dontrun{
 #' datatype <- utils.check.datatype(testset.gl)
 #' datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 #' fd <- gl.fixed.diff(testset.gl)
 #' datatype <- utils.check.datatype(fd,accept='fd')
-#' }
-#' datatype <- utils.check.datatype(testset.gl)
-#' 
-#' @export
+#'  }
 
 utils.check.datatype <- function(x,
                                  accept = c("genlight", "SNP", "SilicoDArT"),

@@ -11,20 +11,20 @@
 #' caution needs to be exercised because of the potential for breaking the
 #' 'chain of evidence' associated with the samples, recoding individuals using
 #' a recode table (csv) can provide a durable record of the changes.
-#'
+
 #' The function works with genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
-#'
+
 #' For SNP genotype data, the function, having deleted individuals, optionally 
 #' identifies resultant monomorphic loci or loci with all values missing 
 #' and deletes them. The script also optionally recalculates the
 #' locus metadata as appropriate. The optional deletion of monomorphic loci
 #' and the optional recalculation of locus statistics is not available for
 #' Tag P/A data (SilicoDArT).
-#'
+
 #' The script returns a dartR genlight object with the new individual names  
 #' and the recalculated locus metadata. 
-#'
+
 #' @param x Name of the genlight object  [required].
 #' @param ind.recode Name of the csv file containing the individual relabelling
 #'  [required].
@@ -34,15 +34,15 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
 #' progress log; 3, progress and results summary; 5, full report 
 #' [default 2 or as specified using gl.set.verbosity].
-#' 
+
 #' @import dartR.data
 #' @export
 #' @return A genlight or genind object with the recoded and reduced data.
-#' 
+
 #' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 # Examples --------------
 #' @examples
 #'   file <- system.file('extdata','testset_ind_recode.csv', package='dartR.data')

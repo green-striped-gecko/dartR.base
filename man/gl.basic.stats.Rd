@@ -2,7 +2,9 @@
 % Please edit documentation in R/gl.basic.stats.r
 \name{gl.basic.stats}
 \alias{gl.basic.stats}
-\title{Calculates basic statistics for each loci (Hs, Ho, Fis etc.)}
+\title{Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
+Based on function \code{\link[hierfstat]{basic.stats}}. Check ?basic.stats
+for help.}
 \usage{
 gl.basic.stats(x, digits = 4, verbose = NULL)
 }
@@ -20,6 +22,7 @@ Several tables and lists with all basic stats.
 \code{\link[hierfstat]{basic.stats}} for details.
 }
 \description{
+Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
 Based on function \code{\link[hierfstat]{basic.stats}}. Check ?basic.stats
 for help.
 }

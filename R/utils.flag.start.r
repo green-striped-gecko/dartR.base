@@ -1,13 +1,14 @@
 #' @title utils.flag.start
-#' 
+
 #' @title A utility script to flag the start of a script
-#'
+
 #' @param func Name of the function that is starting [required].
 #' @param build Name of the build [default NULL].
 #' @param verbosity Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report [default 2].
+#'  
 #' @return calling function name
-# @export
+
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 

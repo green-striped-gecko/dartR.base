@@ -25,7 +25,6 @@ A genlight object with the redefined population structure.
 \description{
 The script reassigns existing individuals to a new population and removes
 their existing population assignment.
-
 The script returns a genlight object with the new population assignment.
 }
 \examples{

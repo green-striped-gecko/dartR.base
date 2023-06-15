@@ -33,20 +33,16 @@ recode file.
 Individuals are assigned to populations based on the specimen metadata data
 file (csv) used with gl.read.dart(). Recoding can be used to amalgamate
 populations or to selectively delete or retain populations.
-
 When caution needs to be exercised because of the potential for breaking the
 'chain of evidence' associated with the samples, recoding individuals using
 a recode table (csv) can provide a durable record of the changes.
-
 The population recode file contains a list of populations taken from the genlight
  object as the first column of the csv file, and the new population
  assignments are located in the second column of the csv file. The keyword 
  'Delete' used as a new population assignment will result in the associated 
  specimen being dropped from the dataset.
- 
 The function works with genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
-
 For SNP genotype data, the function, having deleted populations, optionally 
 identifies resultant monomorphic loci or loci with all values missing 
 and deletes them. The script also optionally recalculates the
@@ -60,7 +56,6 @@ Tag P/A data (SilicoDArT).
   nPop(testset.gl)
   gl <- gl.recode.pop(testset.gl, pop.recode=mfile, verbose=3)
  }
- 
 }
 \seealso{
 \code{\link{gl.filter.monomorphs}}

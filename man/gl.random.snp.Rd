@@ -30,17 +30,14 @@ DArT calls the most common allele as the reference allele. In a genlight
 object, homozygous for the reference allele are coded with a '0' and
 homozygous for the alternative allele are coded with a '2'. This causes some
 distortions in visuals from time to time.
-
 If plot.out = TRUE, two smear plots (pre-randomisation and
 post-randomisation) are presented using a random subset of individuals (10)
 and loci (100) to provide an overview of the changes.
-
 Resultant ggplots are saved to the session's temporary directory.
 }
 \examples{
 require("dartR.data")
 res <- gl.random.snp(platypus.gl[1:5,1:5],verbose = 5)
-
 }
 \author{
 Custodian: Luis Mijangos -- Post to

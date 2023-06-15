@@ -63,20 +63,15 @@ shorter sequence.
 \details{
 The function \code{\link{gl.filter.hamming}} will filter out one of
 two loci if their Hamming distance is less than a specified percentage
-
 Hamming distance can be computed by exploiting the fact that the dot product
 of two binary vectors x and (1-y) counts the corresponding elements that are
 different between x and y. This approach can also be used for vectors that
 contain more than two possible values at each position (e.g. A, C, T or G).
-
 If a pair of DNA sequences are of differing length, the longer is truncated.
-
 The algorithm is that of Johann de Jong
 \url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
 as implemented in \code{\link{utils.hamming}}
-
  Plots and table are saved to the session's temporary directory (tempdir)
-
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -87,12 +82,10 @@ as implemented in \code{\link{utils.hamming}}
 gl.report.hamming(testset.gl[,1:100])
 gl.report.hamming(testset.gs[,1:100])
 }
-
 #' # SNP data
 test <- platypus.gl
 test <- gl.subsample.loci(platypus.gl,n=50)
 result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
-
 }
 \seealso{
 \code{\link{gl.filter.hamming}}

@@ -13,7 +13,7 @@
 #' positives, given the observed allele frequency profiles and the sample sizes.
 #'  The probability of the observed count of fixed differences is greater than
 #' the expected number of false positives is calculated.
-#'
+
 #' @param x Name of the genlight containing the SNP genotypes [required].
 #' @param poppair Labels of two populations for comparison in the form
 #' c(popA,popB) [required].

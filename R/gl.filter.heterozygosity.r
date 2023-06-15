@@ -5,7 +5,7 @@
 #' Calculates the observed heterozygosity for each individual in a genlight
 #' object and filters individuals based on specified threshold values.
 #' Use gl.report.heterozygosity to determine the appropriate thresholds.
-#'
+
 #' @param x A genlight object containing the SNP genotypes [required].
 #' @param t.upper Filter individuals > the threshold [default 0.7].
 #' @param t.lower Filter individuals < the threshold [default 0].

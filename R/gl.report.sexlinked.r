@@ -38,13 +38,13 @@
 #' The script abbreviates the entries here to the first character. So, coding of
 #' 'Female' and 'Male' works as well. Character are also converted to upper
 #' cases.
-#'
+
 #''\strong{ Function's output }
-#'
+
 #' This function creates a plot that shows the heterozygosity of males and
 #' females at each loci or SNP data or percentage of present/absent in the case
 #' of SilicoDArT data.
-#'
+
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}

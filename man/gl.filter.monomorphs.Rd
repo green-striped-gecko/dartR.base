@@ -18,13 +18,10 @@ A genlight object with monomorphic (and all NA) loci removed.
 }
 \description{
 This script deletes monomorphic loci from a genlight \{adegenet\} object
-
 A DArT dataset will not have monomorphic loci, but they can arise, along with
 loci that are scored all NA, when populations or individuals are deleted.
-
 Retaining monomorphic loci unnecessarily increases the size of the dataset
 and will affect some calculations.
-
 Note that for SNP data, NAs likely represent null alleles; in tag
 presence/absence data, NAs represent missing values (presence/absence could
 not be reliably scored)
@@ -34,7 +31,6 @@ not be reliably scored)
   result <- gl.filter.monomorphs(testset.gl, verbose=3)
 # Tag P/A data
   result <- gl.filter.monomorphs(testset.gs, verbose=3)
-
 }
 \seealso{
 Other filter functions: 

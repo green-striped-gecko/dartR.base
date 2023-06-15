@@ -24,17 +24,17 @@
 #' @details
 #' This function expects a genlight object, containing either SNP data or
 #' SilicoDArT (=presence/absence data).
-#'
+
 #' Callrate is summarized by locus or by individual to allow sensible decisions
 #' on thresholds for filtering taking into consideration consequential loss of
 #' data. The summary is in the form of a tabulation and plots.
-#'
+
 #' Plot themes can be obtained from:
 #'  \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' Resultant ggplots and the tabulation are saved to the session's temporary
 #' directory.
 #' @return Returns unaltered genlight object
@@ -85,7 +85,7 @@ gl.report.callrate <- function(x,
     # Check that call rate is up to date and recalculate if necessary
     
     # if (!x@other$loc.metrics.flags$CallRate) {
-        x <- utils.recalc.callrate(x, verbose = 0)
+        x <- dartR.base:::utils.recalc.callrate(x, verbose = 0)
     # }
     
     # DO THE JOB
@@ -133,7 +133,7 @@ gl.report.callrate <- function(x,
                 cat("  Reporting Call Rate by population\n")
                 
                 c_rate_plots <- lapply(pops, function(z) {
-                    pop_tmp <- utils.recalc.callrate(z, verbose = 0)
+                    pop_tmp <- dartR.base:::utils.recalc.callrate(z, verbose = 0)
                     c_rate_tmp <- pop_tmp$other$loc.metrics$CallRate
                     p_temp <-
                        ggplot(as.data.frame(c_rate_tmp), aes(x = c_rate_tmp)) + 

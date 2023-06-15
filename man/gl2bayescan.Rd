@@ -2,7 +2,9 @@
 % Please edit documentation in R/gl2bayescan.r
 \name{gl2bayescan}
 \alias{gl2bayescan}
-\title{Converts a genlight object into a format suitable for input to Bayescan}
+\title{Converts a genlight object into a format suitable for input to Bayescan
+The output text file contains the SNP data and relevant BAyescan command
+ lines to guide input.}
 \usage{
 gl2bayescan(x, outfile = "bayescan.txt", outpath = tempdir(), verbose = NULL)
 }
@@ -24,6 +26,7 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
+Converts a genlight object into a format suitable for input to Bayescan
 The output text file contains the SNP data and relevant BAyescan command
  lines to guide input.
 }

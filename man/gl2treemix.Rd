@@ -2,7 +2,11 @@
 % Please edit documentation in R/gl2treemix.r
 \name{gl2treemix}
 \alias{gl2treemix}
-\title{Converts a genlight object to a treemix input file}
+\title{Converts a genlight object to a treemix input file
+The output file contains the SNP data in the format expected by treemix --
+see the treemix manual. The file will be gzipped before in order to be
+recognised by treemix. Plotting functions provided with treemix will need to
+ be sourced from the treemix download page.}
 \usage{
 gl2treemix(
   x,
@@ -30,6 +34,7 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
+Converts a genlight object to a treemix input file
 The output file contains the SNP data in the format expected by treemix --
 see the treemix manual. The file will be gzipped before in order to be
 recognised by treemix. Plotting functions provided with treemix will need to

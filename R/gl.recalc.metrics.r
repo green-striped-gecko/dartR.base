@@ -1,6 +1,6 @@
 #' Recalculates locus metrics when individuals or populations are deleted from a
 #'  genlight \{adegenet\} object
-#'
+
 #' When individuals,or populations, are deleted from a genlight object, the
 #' locus metrics no longer apply. For example, the Call Rate may be different
 #' considering the subset of individuals, compared with the full set. This
@@ -9,12 +9,12 @@
 #'  PICSnp.
 #'  Metrics that remain unaltered are RepAvg and TrimmedSeq as they are
 #'   unaffected by the removal of individuals.
-#'
+
 #' The script optionally removes resultant monomorphic loci or loci
 #' with all values missing and deletes them (using gl.filter.monomorphs.r).
-#'
+
 #' The script returns a genlight object with the recalculated locus metadata.
-#'
+
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param mono.rm If TRUE, removes monomorphic loci [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -48,13 +48,13 @@ gl.recalc.metrics <- function(x,
     # Recalculate statistics
     
     if (datatype == "SNP") {
-        x <- utils.recalc.avgpic(x, verbose = verbose)
-        x <- utils.recalc.callrate(x, verbose = verbose)
-        x <- utils.recalc.maf(x, verbose = verbose)
+        x <- dartR.base:::utils.recalc.avgpic(x, verbose = verbose)
+        x <- dartR.base:::utils.recalc.callrate(x, verbose = verbose)
+        x <- dartR.base:::utils.recalc.maf(x, verbose = verbose)
     }
     if (datatype == "SilicoDArT") {
-        x <- utils.recalc.avgpic(x, verbose = verbose)
-        x <- utils.recalc.callrate(x, verbose = verbose)
+        x <- dartR.base:::utils.recalc.avgpic(x, verbose = verbose)
+        x <- dartR.base:::utils.recalc.callrate(x, verbose = verbose)
     }
     
     if (verbose >= 2) {

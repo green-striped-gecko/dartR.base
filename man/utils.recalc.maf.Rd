@@ -22,11 +22,10 @@ calculated and added to the locus.metadata by this script. The minimum allele
 frequency will change when some individuals are removed from the dataset.
 This script recalculates the MAF and places these recalculated values in the
  appropriate place in the genlight object.
- 
  This function only applies to SNP genotype data.
 }
 \examples{
-f <- dartR::utils.recalc.maf(testset.gl)
+f <- dartR.base:::utils.recalc.maf(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,

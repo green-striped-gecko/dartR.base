@@ -35,17 +35,14 @@ where renaming individuals is required for preparation of figures. When
 caution needs to be exercised because of the potential for breaking the
 'chain of evidence' associated with the samples, recoding individuals using
 a recode table (csv) can provide a durable record of the changes.
-
 The function works with genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
-
 For SNP genotype data, the function, having deleted individuals, optionally 
 identifies resultant monomorphic loci or loci with all values missing 
 and deletes them. The script also optionally recalculates the
 locus metadata as appropriate. The optional deletion of monomorphic loci
 and the optional recalculation of locus statistics is not available for
 Tag P/A data (SilicoDArT).
-
 The script returns a dartR genlight object with the new individual names  
 and the recalculated locus metadata.
 }

@@ -1,5 +1,5 @@
 #' Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
-#'
+
 #' Based on function \code{\link[hierfstat]{basic.stats}}. Check ?basic.stats
 #' for help.
 #' @param x Name of the genlight object containing the SNP data [required].

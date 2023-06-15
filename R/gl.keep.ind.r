@@ -6,11 +6,11 @@
 #' Monomorphic loci and loci that are scored all NA are optionally deleted (mono.rm=TRUE). 
 #' The script also optionally recalculates locus metatdata statistics to accommodate
 #' the deletion of individuals from the dataset (recalc=TRUE).
-#'
+
 #' The script returns a dartR genlight object with the retained individuals 
 #' and the recalculated locus metadata. The script works with both genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
-#'
+
 #' @param x Name of the genlight object [required].
 #' @param ind.list A list of individuals to be retained [required].
 #' @param recalc If TRUE, recalculate the locus metadata statistics [default FALSE].

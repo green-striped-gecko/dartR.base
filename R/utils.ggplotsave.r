@@ -1,6 +1,6 @@
 #' @name utils.ggplotsave
 #' @title A function to save a ggplot file/object to disk. 
-#' 
+
 #' @description
 #' Uses saveRDS() and ggsave().
 #' Additional details ..... options for saving are specified by the parameter
@@ -9,7 +9,7 @@
 #' "bmp", "svg" or "wmf" (windows only). If type is specified, Whether or not "RDS", 
 #' the function also saves the ggplot object as an RDS binary file using gl.save(); 
 #' can be reloaded with gl.load().
-#' 
+
 #' @param x Name of the ggplot object.
 #' @param type Type of file to save 
 #' @param dir Name of the directory to save the file.
@@ -17,9 +17,9 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
-#'  @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
+#' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
 #'  such as width and height, when the ggplot is to be saved.
-#' 
+
 #' @return NULL
 
 utils.ggplotsave <- function(

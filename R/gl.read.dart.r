@@ -1,34 +1,34 @@
 #' @name gl.read.dart
 # Preliminaries -- Parameter specifications -------------- 
 #'@title Imports DArT data into dartR and converts it into a dartR genlight object
-#'
+
 #'@description
 #'This function is a wrapper function that allows you to convert your DArT file
 #'into a genlight object of class dartR.
 #'@details
 #'The function will determine automatically if the data are in Diversity Arrays
 #'one-row csv format or two-row csv format. 
-#'
+
 #'The number of locus metadata columns 
 #'in the input data is determined by a signature last column, by default 'RepAvg'.
 #'This can be alternatively specified using parameter 'lastmetric'. 
-#'
+
 #'The first 
 #'row of data is determined from the number of rows with an * in the first 
 #'column. This can be alternatively specified with the topskip parameter.
-#'
+
 #'The DArT service code is added to the ind.metrics of the genlight object. 
 #'The row containing the service code for each individual can be specified with 
 #'the service.row parameter.
-#'
+
 #'#'The DArT plate well is added to the ind.metrics of the genlight object. 
 #'The row containing the plate well for each individual can be specified with 
 #'the plate.row parameter.
-#'
+
 #'If individuals have been deleted from the input file manually, then the locus
 #'metrics supplied by DArT will no longer be correct and some loci may be
 #'monomorphic. To accommodate this, set mono.rm and recalc to TRUE.
-#'
+
 #'@param filename File containing the SNP data (csv file) [required].
 #'@param ind.metafile File that contains additional information on individuals
 #' [required].
@@ -48,21 +48,21 @@
 #'@param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'progress log ; 3, progress and results summary; 5, full report
 #' [default 2, or as set by gl.set.verbose()].
-#'
+
 #'@return A dartR genlight object that contains individual and locus metrics
 #'[if data were provided] and locus metrics [from a DArT report].
 #'@export
-#'
+
 #'@family dartR-base
 #'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-#'
+
 #'@examples
 #' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
 #' metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
 #' gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
-#'
+
 #'@seealso \code{\link{utils.read.dart}}
-#'
+
 # ------------------------
 # Function
 gl.read.dart <- function(filename,
@@ -192,11 +192,11 @@ gl.read.dart <- function(filename,
                 )
             )
         }
-        glout <- utils.recalc.avgpic(glout, verbose = 0)
-        glout <- utils.recalc.callrate(glout, verbose = 0)
-        glout <- utils.recalc.freqhets(glout, verbose = 0)
-        glout <- utils.recalc.freqhomref(glout, verbose = 0)
-        glout <- utils.recalc.freqhomsnp(glout, verbose = 0)
+        glout <- dartR.base:::utils.recalc.avgpic(glout, verbose = 0)
+        glout <- dartR.base:::utils.recalc.callrate(glout, verbose = 0)
+        glout <- dartR.base:::utils.recalc.freqhets(glout, verbose = 0)
+        glout <- dartR.base:::utils.recalc.freqhomref(glout, verbose = 0)
+        glout <- dartR.base:::utils.recalc.freqhomsnp(glout, verbose = 0)
     }
     
     # Remove monomorphs, which should not be present, but might have been introduced it the user deleted individuals from the input csv

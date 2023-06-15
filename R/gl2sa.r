@@ -1,5 +1,5 @@
 #' Converts genlight objects to the format used in the SNPassoc package
-#'
+
 #' This function exports a genlight object into a SNPassoc object. See package
 #' SNPassoc for details. This function needs package SNPassoc. At the time of
 #' writing (August 2020) the package was no longer available from CRAN. To
@@ -7,7 +7,7 @@
 #' \url{https://github.com/isglobal-brge/SNPassoc} and/or use
 #' \code{install_github('isglobal-brge/SNPassoc')} to install the function and
 #' uncomment the function code.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report

@@ -1,5 +1,5 @@
 #' Setting up the package
-#'
+
 #' Setting theme, colors and verbosity
 #' @importFrom graphics axis barplot box image lines text
 #' @importFrom grDevices hcl col2rgb rgb colorRampPalette rgb2hsv

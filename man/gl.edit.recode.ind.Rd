@@ -44,26 +44,21 @@ recode table is then applied to the genlight object.
 Renaming individuals may be required when there have been errors in labeling
  arising in the passage of samples to sequencing. There may be occasions
  where renaming individuals is required for preparation of figures. 
-
 This function will input an existing recode table for editing and optionally
 save it as a new table, or if the name of an input table is not supplied,
 will generate a table using the individual labels in the parent genlight
 object.
-
 When caution needs to be exercised because of the potential for breaking the
 'chain of evidence' associated with the samples, recoding individuals using
 a recode table (csv) can provide a durable record of the changes.
-
 For SNP genotype data, the function, having deleted individuals, optionally 
 identifies resultant monomorphic loci or loci with all values missing 
 and deletes them. The script also optionally recalculates the
 locus metadata as appropriate. The optional deletion of monomorphic loci
 and the optional recalculation of locus statistics is not available for
 Tag P/A data (SilicoDArT).
-
 Use outpath=getwd() when calling this function to direct
 output files to your working directory.
-
 The function returns a dartR genlight object with the new population assignments  
 and the recalculated locus metadata.
 }

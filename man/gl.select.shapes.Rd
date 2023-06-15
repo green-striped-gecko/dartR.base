@@ -29,7 +29,6 @@ expecting a vector of shapes.
 By default the shape palette will be displayed in full in the graphics window
 from which shapes can be selected in a subsequent run, and the vector of
 shapes returned for later use.
-
 The select parameter can be used to select shapes from the specified 26
 shapes available (0-25). For example, select=c(1,1,3) will select shape 1, 1
 again and 3 to retain in the final vector. This can be useful for fine-tuning
@@ -46,7 +45,6 @@ shapes <- gl.select.shapes() # Select and display available shapes
 shapes <- gl.select.shapes(select=c(1,1,1,5,8)) 
  # Select set of shapes and check with no. of pops.
 shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
-
 }
 \seealso{
 \code{\link{gl.select.colors}}

@@ -6,11 +6,14 @@
 \usage{
 utils.transpose(x, parallel = FALSE)
 }
+\arguments{
+\item{x}{name of the genlight object}
+
+\item{parallel}{if TRUE, use parallel processing capability}
+}
 \description{
 This is a function to transpose a genlight object, that is, to set loci as
 entities and individuals as attributes.
-
-build = "v.2023.2"
 }
 \seealso{
 Other dartR-base: 
