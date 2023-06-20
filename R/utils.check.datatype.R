@@ -25,7 +25,7 @@
 #' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
 #'  distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
 #'   class(x)[1].
-
+#' @export
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
