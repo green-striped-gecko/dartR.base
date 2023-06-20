@@ -176,8 +176,10 @@ gl.select.colors <- function(x = NULL,
         library <- "scales"
         palette <- "hue_pal"
         colors <- (scales::hue_pal())(ncolors)
-        cat(report(("  Library: scale\n")))
-        cat(report(("  Palette: hue_pal\n")))
+        if (verbose >= 2) {
+          cat(report(("  Library: scale\n")))
+          cat(report(("  Palette: hue_pal\n")))
+        }
         
     } else {
         if (library == "brewer") {
@@ -205,8 +207,10 @@ gl.select.colors <- function(x = NULL,
                 palette <- "Spectral"
             }
             colors <- RColorBrewer::brewer.pal(ncolors, palette)
+            if (verbose >= 2) {
             cat(report(("  Library: RColorBrewer\n")))
             cat(report(("  Palette: brewer.pal\n")))
+            }
             
         } else if (library == "gr.palette") {
             if (is.null(palette)) {
@@ -233,8 +237,10 @@ gl.select.colors <- function(x = NULL,
             }
             colors <-
                 grDevices::palette.colors(n = ncolors, palette = palette)
+            if (verbose >= 2) {
             cat(report(("  Library: grDevices\n")))
             cat(report(("  Palette: palette.pals\n")))
+            }
             
         } else if (library == "gr.hcl") {
             if (is.null(palette)) {
@@ -261,8 +267,10 @@ gl.select.colors <- function(x = NULL,
             }
             colors <-
                 grDevices::hcl.colors(n = ncolors, palette = palette)
-            cat(report(("  Library: grDevices\n")))
-            cat(report(("  Palette: hcl.pals\n")))
+            if (verbose >= 2) {
+              cat(report(("  Library: grDevices\n")))
+              cat(report(("  Palette: hcl.pals\n")))
+            }
             
         } else if (library == "baseR") {
             if (is.null(palette)) {
@@ -299,26 +307,34 @@ gl.select.colors <- function(x = NULL,
             }
             if (palette == "rainbow") {
                 colors <- rainbow(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report(("  Palette: rainbow\n")))
+                }
                 # } else if(palette=='heat.colors'){ colors <- heat.colors(n = ncolors) cat(report((' Library: baseR\n'))) cat(report(('
                 # Palette: heat.colors\n')))
             } else if (palette == "topo.colors") {
                 colors <- topo.colors(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report((
                     "  Palette: topo.colors\n"
                 )))
+                }
             } else if (palette == "terrain.colors") {
                 colors <- terrain.colors(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report((
                     "  Palette: terrain.colors\n"
                 )))
+                }
             } else if (palette == "cm.colors") {
                 colors <- cm.colors(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report(("  Palette: cm.colors\n")))
+                }
             } else {
                 if (verbose >= 2) {
                     cat(
@@ -343,7 +359,8 @@ gl.select.colors <- function(x = NULL,
         }
         if (!is.null(select)) {
             colors <- colors[c(select)]
-            cat(
+            if (verbose >= 2) {
+              cat(
                 "  Showing and returning",
                 length(select),
                 "of",
@@ -354,7 +371,9 @@ gl.select.colors <- function(x = NULL,
                 palette,
                 "\n"
             )
+            }
         } else {
+          if (verbose >= 2) {
             cat(
                 "  Showing and returning",
                 ncolors,
@@ -364,6 +383,7 @@ gl.select.colors <- function(x = NULL,
                 palette,
                 "\n"
             )
+          }
         }
         
         scales::show_col(colors)
