@@ -11,7 +11,7 @@
 
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
-
+#'@export
 
 utils.flag.start <- function(func = NULL,
                              build = NULL,
