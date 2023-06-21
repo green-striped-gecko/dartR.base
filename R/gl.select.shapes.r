@@ -80,7 +80,8 @@ gl.select.shapes <- function(x = NULL,
     
     if (!is.null(x)) {
         datatype <- utils.check.datatype(x)
-        cat(
+        if(verbose >= 2){
+          cat(
             warn(
                 "  Specified shapes",
                 nshapes,
@@ -89,7 +90,10 @@ gl.select.shapes <- function(x = NULL,
                 "in the gl object\n"
             )
         )
-        cat(warn("  Setting the number of shapes to number of populations\n"))
+        }
+        if(verbose >= 2){
+          cat(warn("  Setting the number of shapes to number of populations\n"))
+        }
         nshapes <- nPop(x)
     }
     
