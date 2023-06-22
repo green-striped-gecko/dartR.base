@@ -14,7 +14,7 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default two_colors=c("#3B9AB2", "#78B7C5")].
+#'  plots [default gl.select.colors(ncolors=2)].
 #' @param save.type If specified, will direct the saved output to a file of this type [default NULL]
 #' @param save.dir Directory in which to save the ggplot [default = working directory]
 #' @param save.file Name for the ggsave file [default NULL]
