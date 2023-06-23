@@ -56,8 +56,7 @@ Other filter functions:
 \code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.sexlinked}()}
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

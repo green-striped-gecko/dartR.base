@@ -79,7 +79,6 @@ Other filter functions:
 \code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.sexlinked}()},
 \code{\link{gl.filter.taglength}()}
 }
 \author{

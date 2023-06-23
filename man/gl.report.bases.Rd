@@ -27,7 +27,7 @@ gl.report.bases(
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default two_colors=c("#3B9AB2", "#78B7C5")].}
+plots [default gl.select.colors(ncolors=2)].}
 
 \item{save.type}{If specified, will direct the saved output to a file of this type [default NULL]}
 

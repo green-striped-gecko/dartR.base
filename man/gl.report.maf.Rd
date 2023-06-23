@@ -96,7 +96,6 @@ Other report functions:
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

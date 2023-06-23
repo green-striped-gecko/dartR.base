@@ -40,22 +40,20 @@ utils.ggplotsave <- function(
     if(type=="jpg"){type<-"jpeg"}
     if(type=="tif"){type<-"tiff"}
     if(type=="rds"){type<-"RDS"}
-    if(type %in% typelist){
-      if(verbose >= 2){cat("Saving a ggplot file",deparse(substitute(x)),"as file type",type,"\n")}
-    } else {
+    if(!(type %in% typelist)){
       errorflag <- 1
-      if(verbose >= 2){cat("Error: type specified as",type,"but not included in list of acceptable types\n")}
-      if(verbose >= 2){cat("  Should be one of",typelist,"\n")}
+      if(verbose >= 2){cat(error("type specified as",type,"but not included in list of acceptable types\n"))}
+      if(verbose >= 2){cat(error("  Should be one of",typelist,"\n"))}
     }
     
     if (!is.ggplot(x) & errorflag==0) {
-      if(verbose >= 2){cat("Error:",deparse(substitute(x))," is not a ggplot object, no object saved\n")}
+      if(verbose >= 2){cat(error(deparse(substitute(x))," is not a ggplot object, no object saved\n"))}
       errorflag <- 1
     }
     
     if(!is.null(dir) & errorflag==0){
       if(!file.exists(dir)){
-        if(verbose >= 2){cat("Error: Directory to receive the saved plot file does not exist or is misspecified. Defaulting to working directory\n")}
+        if(verbose >= 2){cat(error("Directory to receive the saved plot file does not exist or is misspecified. Defaulting to working directory\n"))}
         dir <- getwd()
       }
     } else {
@@ -63,28 +61,28 @@ utils.ggplotsave <- function(
     }
     
     if(is.null(file) & errorflag==0){
-      if(verbose >= 2){cat("Error: No file name provided for the plot file.\n")}
+      if(verbose >= 2){cat(error("No file name provided for the plot file.\n"))}
       file <- NULL
       errorflag <- 1
     }
     
     if(errorflag==0){
       filespec <- file.path(dir, file)
-      filespec <- paste0(filespec,".",type)
+      filespec.ext <- paste0(filespec,".",type)
       if(type=="RDS"){
-        if(verbose >= 2){cat("ggplot object will be saved as RDS to",filespec,"using saveRDS()\n")}
-        saveRDS(x, filespec)
+        if(verbose >= 2){cat(report("ggplot object will be saved as RDS to",filespec.ext,"using saveRDS()\n"))}
+        saveRDS(x, filespec.ext)
       } else {
-        if(verbose >= 2){cat("ggplot file will be saved as",type,"to",filespec,"using ggsave()\n")}
-        if(verbose >= 2){cat("ggplot object will also be saved as RDS binary to",filespec,"using saveRDS()\n")}
-        ggsave(x,filename=filespec,device=type)
-        saveRDS(x, filespec)
+        if(verbose >= 2){cat(report("ggplot file will be saved as",type,"to",filespec.ext,"using ggsave()\n"))}
+        if(verbose >= 2){cat(report("ggplot object will also be saved as RDS binary to",filespec.ext,"using saveRDS()\n"))}
+        ggsave(x,filename=filespec.ext,device=type)
+        saveRDS(x, filespec.ext)
       }
     } 
   } 
   
   if(is.null(type) | errorflag==1){
-    cat("    No plot saved\n")
+    cat(error("    No plot saved\n"))
   }
 
 return(NULL)
