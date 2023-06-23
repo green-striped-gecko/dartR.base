@@ -3,7 +3,10 @@
 \name{gl.propShared}
 \alias{gl.propShared}
 \title{Calculates a similarity (distance) matrix for individuals on the proportion of
- shared alleles}
+ shared alleles
+This script calculates an individual based distance matrix. It uses an C++
+ implementation, so package Rcpp needs to be installed and it is therefore
+  really fast (once it has compiled the function after the first run).}
 \usage{
 gl.propShared(x)
 }
@@ -14,6 +17,8 @@ gl.propShared(x)
 A similarity matrix
 }
 \description{
+Calculates a similarity (distance) matrix for individuals on the proportion of
+ shared alleles
 This script calculates an individual based distance matrix. It uses an C++
  implementation, so package Rcpp needs to be installed and it is therefore
   really fast (once it has compiled the function after the first run).

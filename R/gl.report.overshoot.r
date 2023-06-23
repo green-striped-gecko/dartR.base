@@ -16,10 +16,10 @@
 #' The SNP genotype can still be used in most analyses, but functions like
 #' gl2fasta() will present challenges if the SNP has been trimmed from the 
 #' sequence tag.
-#'
+
 #' Resultant ggplot(s) and the tabulation(s) are saved to the session's
 #' temporary directory.
-#'
+
 #' @return An unaltered genlight object
 #' @author Custodian: Arthur Georges -- Post to 
 #' \url{https://groups.google.com/d/forum/dartr}

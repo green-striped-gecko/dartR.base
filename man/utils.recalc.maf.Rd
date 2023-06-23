@@ -2,13 +2,13 @@
 % Please edit documentation in R/utils.recalc.maf.r
 \name{utils.recalc.maf}
 \alias{utils.recalc.maf}
-\title{A utility script to recalculate the minor allele frequency by locus,
+\title{A utility function to recalculate the minor allele frequency by locus,
 typically after some populations have been deleted}
 \usage{
 utils.recalc.maf(x, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report [default 2].}
@@ -22,9 +22,10 @@ calculated and added to the locus.metadata by this script. The minimum allele
 frequency will change when some individuals are removed from the dataset.
 This script recalculates the MAF and places these recalculated values in the
  appropriate place in the genlight object.
+ This function only applies to SNP genotype data.
 }
 \examples{
-#f <- dartR::utils.recalc.maf(testset.gl)
+f <- dartR.base:::utils.recalc.maf(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
@@ -34,8 +35,32 @@ reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
 homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
 of heterozygotes, \code{gl.recalc.avgpic} for recalculating AvgPIC,
 \code{gl.recalc.rdepth} for recalculating average read depth
+
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{dartR-base}

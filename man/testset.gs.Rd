@@ -3,7 +3,9 @@
 \docType{data}
 \name{testset.gs}
 \alias{testset.gs}
-\title{A genlight object created via the gl.read.silicodart function}
+\title{A genlight object created via the gl.read.silicodart function
+This is a test data set on turtles. 218 individuals, 255 loci in >30 
+populations.}
 \format{
 genlight object
 }
@@ -11,6 +13,7 @@ genlight object
 testset.gs
 }
 \description{
+A genlight object created via the gl.read.silicodart function
 This is a test data set on turtles. 218 individuals, 255 loci in >30 
 populations.
 }

@@ -3,16 +3,16 @@
 #' @description
 #' Individuals are assigned to populations based on the
 #' individual/sample/specimen metrics file (csv) used with gl.read.dart().
-#'
+
 #' One might want to define the population structure in accordance with another
 #' classification, such as using an individual metric (e.g. sex, male or
 #' female). This script discards the current population assignments and replaces
 #' them with new population assignments defined by a specified individual
 #' metric.
-#'
+
 #' The script returns a genlight object with the new population assignments.
 #' Note that the original population assignments are lost.
-#'
+
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param as.pop Specify the name of the individual metric to set as the pop
 #'  variable [required].

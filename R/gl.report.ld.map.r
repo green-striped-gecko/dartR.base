@@ -3,14 +3,14 @@
 #' @description
 #' This function calculates pairwise linkage disequilibrium (LD) by population 
 #' using the function \code{\link[snpStats]{ld}} (package snpStats).
-#' 
+
 #' If SNPs are not mapped to a reference genome, the parameter
 #'  \code{ld_max_pairwise}
 #'  should be set as NULL (the default). In this case, the 
 #' function will assign the same chromosome ("1") to all the SNPs in the dataset
 #'  and assign a sequence from 1 to n loci as the position of each SNP. The 
 #'  function will then calculate LD for all possible SNP pair combinations. 
-#'  
+
 #' If SNPs are mapped to a reference genome, the parameter 
 #' \code{ld_max_pairwise}
 #'  should be filled out (i.e. not NULL). In this case, the
@@ -19,7 +19,7 @@
 #'    (see examples). The function will then calculate LD within each chromosome
 #'     and for all possible SNP pair combinations within a distance of
 #'      \code{ld_max_pairwise}. 
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param ld_max_pairwise Maximum distance in number of base pairs at which LD 
 #' should be calculated [default NULL].
@@ -48,14 +48,14 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#'
+
 #' @details
 #' This function reports LD between SNP pairs by population. 
 #' The function \code{\link{gl.filter.ld}} filters out the SNPs in LD using as
 #' input the results of \code{\link{gl.report.ld.map}}. The actual number of 
 #' SNPs to be filtered out depends on the parameters set in the function 
 #' \code{\link{gl.filter.ld}}.
-#' 
+
 #' Boxplots of LD by population and
 #' a histogram showing LD frequency are presented.
 #'    

@@ -3,7 +3,10 @@
 \docType{data}
 \name{possums.gl}
 \alias{possums.gl}
-\title{A simulated genlight object created to run a landscape genetic example}
+\title{A simulated genlight object created to run a landscape genetic example
+This a test data set to run a landscape genetics example. It contains 10 
+populations of 30 individuals each and each individual has 300 loci. There 
+are no covariates for individuals or loci.}
 \format{
 genlight object
 }
@@ -11,6 +14,7 @@ genlight object
 possums.gl
 }
 \description{
+A simulated genlight object created to run a landscape genetic example
 This a test data set to run a landscape genetics example. It contains 10 
 populations of 30 individuals each and each individual has 300 loci. There 
 are no covariates for individuals or loci.

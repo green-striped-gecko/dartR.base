@@ -2,7 +2,15 @@
 % Please edit documentation in R/gl2related.r
 \name{gl2related}
 \alias{gl2related}
-\title{Converts a genlight object to format suitable to be run with Coancestry}
+\title{Converts a genlight object to format suitable to be run with Coancestry
+The output txt file contains the SNP data and an additional column with the
+names of the individual. The file then can be used and loaded into coancestry
+or - if installed - run with the related package. Be aware the related
+package was crashing in previous versions, but in general is using the same
+code as coancestry and therefore should have identical results. Also running
+coancestry with thousands of SNPs via the GUI seems to be not reliable and
+therefore for comparisons between coancestry and related we suggest to use
+the command line version of coancestry.}
 \usage{
 gl2related(
   x,
@@ -33,6 +41,7 @@ progress log; 3, progress and results summary; 5, full report
 A data.frame that can be used to run with the related package
 }
 \description{
+Converts a genlight object to format suitable to be run with Coancestry
 The output txt file contains the SNP data and an additional column with the
 names of the individual. The file then can be used and loaded into coancestry
 or - if installed - run with the related package. Be aware the related

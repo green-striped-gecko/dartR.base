@@ -15,7 +15,7 @@
 #' the probability of [experiment-wide] type 1 error to negligible levels
 #' [ploidy=2]. A warning is issued if comparison between two populations
 #' involves sample sizes less than 5, taking into account allele drop-out.
-#'
+
 #' Optionally, if test=TRUE, the script will test the fixed differences between
 #' final OTUs for statistical significance, using simulation, and then further
 #' amalgamate populations that for which there are no significant fixed
@@ -27,18 +27,18 @@
 #' false positives) if they arise from true allele frequencies of less than
 #' 1-delta in one or both populations.  The parameter delta is typically set to
 #' be small (e.g. delta = 0.02).
-#'
+
 #' NOTE: The above test will only be calculated if tloc=0, that is, for analyses
 #' of absolute fixed differences. The test applies in comparisons of allopatric
 #'  populations only. For sympatric populations, use gl.pval.sympatry().
-#'
+
 #' An absolute fixed difference is as defined above. However, one might wish to
 #' score fixed differences at some lower level of allele frequency difference,
 #' say where percent allele frequencies are 95,5 and 5,95 rather than 100:0 and
 #' 0:100. This adjustment can be done with the tloc parameter. For example,
 #' tloc=0.05 means that SNP allele frequencies of 95,5 and 5,95 percent will be
 #' regarded as fixed when comparing two populations at a locus.
-#'
+
 #' @param x Name of the genlight object containing SNP genotypes or tag P/A data
 #' (SilicoDArT) or an object of class 'fd' [required].
 #' @param tloc Threshold defining a fixed difference (e.g. 0.05 implies 95:5 vs

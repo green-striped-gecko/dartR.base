@@ -2,7 +2,10 @@
 % Please edit documentation in R/gl.load.r
 \name{gl.load}
 \alias{gl.load}
-\title{Loads an object from compressed binary format produced by gl.save()}
+\title{Loads an object from compressed binary format produced by gl.save()
+This is a wrapper for readRDS()
+The script loads the object from the current workspace and returns the
+ gl object.}
 \usage{
 gl.load(file, verbose = NULL)
 }
@@ -18,9 +21,8 @@ progress log; 3, progress and results summary; 5, full report
 The loaded object
 }
 \description{
+Loads an object from compressed binary format produced by gl.save()
 This is a wrapper for readRDS()
-}
-\details{
 The script loads the object from the current workspace and returns the
  gl object.
 }

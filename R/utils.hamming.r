@@ -1,5 +1,5 @@
 #' Calculates the Hamming distance between two DArT trimmed DNA sequences
-#'
+
 #' Hamming distance is calculated as the number of base differences between two
 #' sequences which can be expressed as a count or a proportion. Typically, it is
 #' calculated between two sequences of equal length. In the context of DArT
@@ -7,13 +7,13 @@
 #' by the restriction enzyme recognition sequence, it is sensible to compare the
 #' two trimmed sequences starting from immediately after the common recognition
 #' sequence and terminating at the last base of the shorter sequence.
-#'
+
 #' The Hamming distance between the rows of a matrix can be computed quickly
 #' by exploiting the fact that the dot product of two binary vectors x and (1-y)
 #' counts the corresponding elements that are different between x and y.
 #' This matrix multiplication can also be used for matrices with more than two
 #' possible values, and different types of elements, such as DNA sequences.
-#'
+
 #' The function calculates the Hamming distance between all columns of a
 #' matrix X, or two matrices X and Y. Again matrix multiplication is used, this
 #' time for counting, between two columns x and y, the number of cases in which
@@ -23,13 +23,13 @@
 #' corresponding elements that are the same, i.e. the inverse of the Hamming
 #' distance. Therefore, the last step is to subtract this end result H from the
 #' maximum possible distance, which is the number of rows of matrix X.
-#'
+
 #' If the two DNA sequences are of differing length, the longer is truncated. The
 #' initial common restriction enzyme recognition sequence is ignored.
-#'
+
 #' The algorithm is that of Johann de Jong
 #' \url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
-#'
+
 #' @param str1 String containing the first sequence [required].
 #' @param str2 String containing the second sequence [required].
 #' @param r Number of bases in the restriction enzyme recognition sequence

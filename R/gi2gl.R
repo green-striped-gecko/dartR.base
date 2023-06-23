@@ -1,5 +1,5 @@
 #' Converts a genind object into a genlight object
-#'
+
 #' @param gi A genind object [required].
 #' @param parallel Switch to deactivate parallel version. It might not be worth
 #' to run it parallel most of the times [default FALSE].

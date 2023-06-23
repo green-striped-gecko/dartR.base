@@ -12,7 +12,7 @@
 #' loci that are scored all NA, when populations or individuals are deleted.
 #' Retaining monomorphic loci unnecessarily increases the size of the dataset
 #' and will affect some calculations.
-#'
+
 #' Note that for SNP data, NAs likely represent null alleles; in tag
 #' presence/absence data, NAs represent missing values (presence/absence could
 #' not be reliably scored)

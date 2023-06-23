@@ -2,7 +2,15 @@
 % Please edit documentation in R/gl.filter.pa.r
 \name{gl.filter.pa}
 \alias{gl.filter.pa}
-\title{Filters loci that contain private (and fixed alleles) between two populations}
+\title{Filters loci that contain private (and fixed alleles) between two populations
+This script is meant to be used prior to \code{gl.nhybrids} to maximise the
+information content of the SNPs used to identify hybrids (currently
+ newhybrids does allow only 200 SNPs). The idea is to use first all loci that
+  have fixed alleles between the potential source populations and then 'fill
+   up' to 200 loci using loci that have private alleles between those. The
+   functions filters for those loci (if invers is set to TRUE, the opposite
+   is returned (all loci that are not fixed and have no private alleles - not
+    sure why yet, but maybe useful.)}
 \usage{
 gl.filter.pa(x, pop1, pop2, invers = FALSE, verbose = NULL)
 }
@@ -25,6 +33,7 @@ The reduced genlight dataset, containing now only fixed and private
 alleles.
 }
 \description{
+Filters loci that contain private (and fixed alleles) between two populations
 This script is meant to be used prior to \code{gl.nhybrids} to maximise the
 information content of the SNPs used to identify hybrids (currently
  newhybrids does allow only 200 SNPs). The idea is to use first all loci that
@@ -49,11 +58,9 @@ Other filter functions:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.parent.offspring}()},
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.reproducibility}()},
 \code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.sexlinked}()},
 \code{\link{gl.filter.taglength}()}
 }
 \author{

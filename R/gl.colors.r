@@ -1,5 +1,5 @@
 # Set colors for plots
-#'
+
 #' This is a helper function that supports the creation of color palettes for all plotting functions.
 #' @param type the type of color or palette. Can be "2" [two colors], "2c" [two colors contrast], "3" [three colors], "4" [four colors], "pal" [need to be specify the palette type and the number of colors ]. A palette of colors can be specified via "div" [divergent], "dis" [discrete], "con" [convergent], "vir" [viridis]. Be aware a palette needs the number of colors specified as well. It returns a function and therefore the number of colors needs to be a part of the function call. Check the examples to see how this works. 
 #' @export

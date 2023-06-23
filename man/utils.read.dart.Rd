@@ -2,15 +2,15 @@
 % Please edit documentation in R/utils.read.dart.r
 \name{utils.read.dart}
 \alias{utils.read.dart}
-\title{Imports DarT data to R}
+\title{Utility to import DarT data to R}
 \usage{
 utils.read.dart(
   filename,
   nas = "-",
   topskip = NULL,
   lastmetric = "RepAvg",
-  service_row = 1,
-  plate_row = 3,
+  service.row = 1,
+  plate.row = 3,
   verbose = NULL
 )
 }
@@ -27,10 +27,10 @@ with '*' at the beginning [default NULL].}
 Be sure to check if that is true, otherwise the number of individuals will
 not match. You can also specify the last column by a number.}
 
-\item{service_row}{The row number in which the information of the DArT
+\item{service.row}{The row number in which the information of the DArT
 service is contained [default 1].}
 
-\item{plate_row}{The row number in which the information of the plate
+\item{plate.row}{The row number in which the information of the plate
 location is contained [default 3].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -42,5 +42,33 @@ A list of length 5. #dart format (one or two rows) #individuals,
  columns=individuals)
 }
 \description{
-Internal function called by gl.read.dart
+Internal function called by gl.read.dart()
 }
+\seealso{
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
+}
+\author{
+Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+}
+\concept{dartR-base}

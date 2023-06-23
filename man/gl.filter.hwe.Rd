@@ -62,7 +62,6 @@ proportions removed.
 This function filters out loci showing significant departure from H-W
 proportions based on observed frequencies of reference homozygotes,
  heterozygotes and alternate homozygotes.
-
 Loci are filtered out if they show HWE departure either in any one population 
 (n.pop.threshold =1) or in at least X number of populations 
 (n.pop.threshold > 1).
@@ -74,11 +73,9 @@ There are several factors that can cause deviations from Hardy-Weinberg
  nonrandom sampling and genotyping errors. Therefore, testing for
  Hardy-Weinberg proportions should be a process that involves a careful
  evaluation of the results, a good place to start is Waples (2015).
-
  Note that tests for H-W proportions are only valid if there is no population
  substructure (assuming random mating) and have sufficient power only when
  there is sufficient sample size (n individuals > 15).
-
 Populations can be defined in three ways:
 \itemize{
 \item Merging all populations in the dataset using subset = 'all'.
@@ -86,7 +83,6 @@ Populations can be defined in three ways:
 \item Within selected populations using for example: subset = 
 c('pop1','pop2').
 }
-
 Two different statistical methods to test for deviations from Hardy Weinberg
 proportions:
 \itemize{
@@ -114,7 +110,6 @@ for small minor allele frequencies. The mid p-value ameliorates this problem
 by bringing the rejection rate closer to the nominal level, at the price of
 occasionally exceeding the nominal level (Graffelman & Moreno, 2013).
 }
-
 Correction for multiple tests can be applied using the following methods
 based on the function \code{\link[stats]{p.adjust}}:
 \itemize{
@@ -134,7 +129,6 @@ multiple departures from the null hypothesis.
 \item 'BH' based on Benjamini & Hochberg, 1995.
 \item 'BY' based on Benjamini & Yekutieli, 2001.
 }
-
 The first four methods are designed to give strong control of the family-wise
 error rate. The last two methods control the false discovery rate (FDR),
 the expected proportion of false discoveries among the rejected hypotheses.
@@ -143,7 +137,6 @@ error rate, so these methods are more powerful than the others, especially
 when number of tests is large.
 The number of tests on which the adjustment for multiple comparisons is
 the number of populations times the number of loci.
-
 \bold{From v2.1} \code{gl.filter.hwe} takes the argument
  \code{n.pop.threshold}.
 if \code{n.pop.threshold > 1} loci will be removed only if they are 
@@ -193,12 +186,10 @@ Other filter functions:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.parent.offspring}()},
 \code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.reproducibility}()},
 \code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.sexlinked}()},
 \code{\link{gl.filter.taglength}()}
 }
 \author{

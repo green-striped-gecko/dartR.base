@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.join.r
 \name{gl.join}
 \alias{gl.join}
-\title{Combines two genlight objects}
+\title{Combines two dartR genlight objects}
 \usage{
 gl.join(x1, x2, verbose = NULL)
 }
@@ -23,10 +23,10 @@ This function combines two genlight objects and their associated metadata.
 The history associated with the two genlight objects is cleared from the new
 genlight object. The individuals/samples must be the same in each genlight
 object.
-
 The function is typically used to combine datasets from the same service
 where the files have been split because of size limitations. The data is read
 in from multiple csv files, then the resultant genlight objects are combined.
+This function works with both SNP and Tag P/A data.
 }
 \examples{
 x1 <- testset.gl[,1:100]

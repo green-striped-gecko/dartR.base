@@ -3,7 +3,13 @@
 \name{gl.install.vanilla.dartR}
 \alias{gl.install.vanilla.dartR}
 \title{Installs all required packages for using all functions
-available in dartR.base}
+available in dartR.base
+The function compares the installed packages with the the currently available
+ones on CRAN. Be aware this function only works if a version of dartR is
+already installed on your system. You can choose if you also want to have a
+specific version of dartR installed ('CRAN', 'master', 'beta' or 'dev' ). 'master'
+, 'beta' and 'dev' are installed from Github. Be aware that the dev version from github is
+ not fully tested and most certainly will contain untested functions.}
 \usage{
 gl.install.vanilla.dartR(flavour = NULL, verbose = NULL)
 }
@@ -23,6 +29,8 @@ progress log ; 3, progress and results summary; 5, full report
 Returns a message if the installation was successful/required.
 }
 \description{
+Installs all required packages for using all functions
+available in dartR.base
 The function compares the installed packages with the the currently available
 ones on CRAN. Be aware this function only works if a version of dartR is
 already installed on your system. You can choose if you also want to have a

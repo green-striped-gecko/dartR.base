@@ -8,7 +8,7 @@
 #' between cores, the function may crash half way. Before running the function, 
 #' it is advisable to use the function \code{\link{gl.filter.allna}} to remove
 #'  loci with all missing data.
-#'
+
 #' @param x A genlight or genind object created (genlight objects are internally
 #'  converted via \code{\link{gl2gi}} to genind) [required].
 #' @param name Character string for rdata file. If not given genind object name

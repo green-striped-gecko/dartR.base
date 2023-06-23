@@ -30,7 +30,6 @@ resembles the adaptor.
 The SNP genotype can still be used in most analyses, but functions like
 gl2fasta() will present challenges if the SNP has been trimmed from the 
 sequence tag.
-
 Resultant ggplot(s) and the tabulation(s) are saved to the session's
 temporary directory.
 }
@@ -41,7 +40,6 @@ gl.report.overshoot(testset.gl)
 \code{\link{gl.filter.overshoot}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
@@ -51,12 +49,10 @@ Other report functions:
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

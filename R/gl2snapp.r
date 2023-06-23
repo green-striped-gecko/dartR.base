@@ -1,14 +1,14 @@
 #' Converts a genlight object to nexus format suitable for phylogenetic analysis
 #'  by SNAPP (via BEAUti)
-#'
+
 #' The output nexus file contains the SNP data and relevant PAUP command lines
 #' suitable for BEAUti.
-#'
+
 #' @references Bryant, D., Bouckaert, R., Felsenstein, J., Rosenberg, N.A. and
 #' RoyChoudhury, A. (2012). Inferring species trees directly from biallelic
 #' genetic markers: bypassing gene trees in a full coalescent analysis.
 #'  Molecular Biology and Evolution 29:1917-1932.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default "snapp.nex"].

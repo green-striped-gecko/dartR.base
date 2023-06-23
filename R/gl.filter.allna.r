@@ -1,11 +1,11 @@
 #' @name gl.filter.allna
 #' @title Filters loci that are all NA across individuals and/or populations 
 #' with all NA across loci
-#'
+
 #' @description
 #' This script deletes deletes loci or individuals with all calls missing (NA),
 #'  from a genlight object
-#'
+
 #' A DArT dataset will not have loci for which the calls are scored all as
 #' missing (NA) for a particular individual, but such loci can arise rarely when
 #'  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -13,15 +13,15 @@
 #'  all loci, but such individuals may sneak in to the dataset when loci are
 #'  deleted. Retaining individual or loci with all NAs can cause issues for
 #'  several functions.
-#'  
+
 #'  Also, on occasion an analysis will require that there are some loci scored
 #'  in each population. Setting by.pop=TRUE will result in removal of loci when
 #'  they are all missing in any one population.
-#'  
+
 #' Note that loci that are missing for all individuals in a population are
 #' not imputed with method 'frequency' or 'HW'. Consider 
 #' using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
-#'
+
 #' @param x Name of the input genlight object [required].
 #' @param by.pop If TRUE, loci that are all missing in any one population
 #' are deleted [default FALSE]
@@ -32,7 +32,7 @@
 #' [default 2, unless specified using gl.set.verbosity].
 #' @return A genlight object having removed individuals that are scored NA
 #' across all loci, or loci that are scored NA across all individuals.
-#'
+
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
@@ -40,7 +40,7 @@
 #'   result <- gl.filter.allna(testset.gl, verbose=3)
 #' # Tag P/A data
 #'   result <- gl.filter.allna(testset.gs, verbose=3)
-#'
+
 #' @family filter functions
 #' @import utils patchwork
 #' @export

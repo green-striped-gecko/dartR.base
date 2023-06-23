@@ -3,7 +3,20 @@
 \name{gl2bpp}
 \alias{gl2bpp}
 \title{Converts a genlight object into a format suitable for input to the BPP 
-program}
+program
+This function generates the sequence alignment file and the Imap file. The 
+control file should produced by the user. 
+If method = 1, heterozygous positions are replaced by standard ambiguity 
+codes.
+If method = 2, the heterozygous state is resolved by randomly assigning one 
+or the other SNP variant to the individual.
+Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
+ mis-identity are deleted.
+This function requires 'TrimmedSequence' to be among the locus metrics
+(\code{@other$loc.metrics}) and information of the type of alleles (slot
+loc.all e.g. 'G/A') and the position of the SNP in slot position of the
+ ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
+ how to format these slots.)}
 \usage{
 gl2bpp(
   x,
@@ -33,26 +46,23 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
+Converts a genlight object into a format suitable for input to the BPP 
+program
 This function generates the sequence alignment file and the Imap file. The 
-control file should produced by the user.
-}
-\details{
+control file should produced by the user. 
 If method = 1, heterozygous positions are replaced by standard ambiguity 
 codes.
-
 If method = 2, the heterozygous state is resolved by randomly assigning one 
 or the other SNP variant to the individual.
-
 Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
  mis-identity are deleted.
-
 This function requires 'TrimmedSequence' to be among the locus metrics
 (\code{@other$loc.metrics}) and information of the type of alleles (slot
 loc.all e.g. 'G/A') and the position of the SNP in slot position of the
  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
  how to format these slots.)
-
-
+}
+\details{
 It's important to keep in mind that analyses based on coalescent theory, 
 like those done by the programme BPP, are meant to be used with sequence
  data. In this type of data, large chunks of DNA are sequenced, so when we

@@ -25,7 +25,6 @@ A DArT dataset will not have monomorphic loci, but they can arise, along with
 loci that are scored all NA, when populations or individuals are deleted.
 Retaining monomorphic loci unnecessarily increases the size of the dataset
 and will affect some calculations.
-
 Note that for SNP data, NAs likely represent null alleles; in tag
 presence/absence data, NAs represent missing values (presence/absence could
 not be reliably scored)
@@ -40,7 +39,6 @@ not be reliably scored)
 \code{\link{gl.filter.monomorphs}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
@@ -50,12 +48,10 @@ Other report functions:
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

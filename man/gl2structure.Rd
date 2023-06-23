@@ -2,7 +2,14 @@
 % Please edit documentation in R/gl2structure.r
 \name{gl2structure}
 \alias{gl2structure}
-\title{Converts a genlight object to STRUCTURE formatted files}
+\title{Converts a genlight object to STRUCTURE formatted files
+This function exports genlight objects to STRUCTURE formatted files (be aware
+there is a gl2faststructure version as well). It is based on the code
+provided by Lindsay Clark (see
+\url{https://github.com/lvclark/R_genetics_conv}) and this function is
+basically a wrapper around her numeric2structure function. See also: Lindsay
+Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
+(Version v1.1). Zenodo: doi.org/10.5281/zenodo.846816.}
 \usage{
 gl2structure(
   x,
@@ -45,6 +52,7 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
+Converts a genlight object to STRUCTURE formatted files
 This function exports genlight objects to STRUCTURE formatted files (be aware
 there is a gl2faststructure version as well). It is based on the code
 provided by Lindsay Clark (see

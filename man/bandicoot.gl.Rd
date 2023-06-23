@@ -3,7 +3,10 @@
 \docType{data}
 \name{bandicoot.gl}
 \alias{bandicoot.gl}
-\title{A genlight object created via the read.dart functions}
+\title{A genlight object created via the read.dart functions
+This a test data set to test the validity of functions within dartR and is 
+based on a DArT SNP data set of simulated bandicoots across Australia. It 
+contains 96 individuals and 1000 SNPs.}
 \format{
 genlight object
 }
@@ -11,6 +14,7 @@ genlight object
 bandicoot.gl
 }
 \description{
+A genlight object created via the read.dart functions
 This a test data set to test the validity of functions within dartR and is 
 based on a DArT SNP data set of simulated bandicoots across Australia. It 
 contains 96 individuals and 1000 SNPs.

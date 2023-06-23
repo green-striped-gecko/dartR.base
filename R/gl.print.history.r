@@ -1,5 +1,5 @@
 #' Prints history of a genlight object
-#'
+
 #' @param x A genlight object (with history) [optional].
 #' @param history Either a link to a history slot
 #' (gl\@other$history), or a vector indicating which part of the history of x is

@@ -1,10 +1,10 @@
 #' Calculates a pairwise Fst values for populations in a genlight object
-#'
+
 #' This script calculates pairwise Fst values based on the implementation in the
 #' StAMPP package (?stamppFst). It allows to run bootstrap to estimate
 #' probability of Fst values to be different from zero. For detailed information
 #' please check the help pages (?stamppFst).
-#'
+
 #' @param x Name of the genlight containing the SNP genotypes [required].
 #' @param nboots Number of bootstraps to perform across loci to generate
 #' confidence intervals and p-values [default 1].

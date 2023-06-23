@@ -29,7 +29,6 @@ expecting a vector of shapes.
 By default the shape palette will be displayed in full in the graphics window
 from which shapes can be selected in a subsequent run, and the vector of
 shapes returned for later use.
-
 The select parameter can be used to select shapes from the specified 26
 shapes available (0-25). For example, select=c(1,1,3) will select shape 1, 1
 again and 3 to retain in the final vector. This can be useful for fine-tuning
@@ -50,13 +49,31 @@ shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
 \seealso{
 \code{\link{gl.select.colors}}
 
-Other Exploration/visualisation functions: 
-\code{\link{gl.pcoa.plot}()},
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
 \code{\link{gl.select.colors}()},
-\code{\link{gl.smearplot}()}
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{Exploration/visualisation functions}
+\concept{dartR-base}

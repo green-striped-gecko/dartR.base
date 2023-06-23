@@ -54,17 +54,14 @@ not. This function tabulates the number of missing values as quantiles.
 \details{
 This function expects a genlight object, containing either SNP data or
 SilicoDArT (=presence/absence data).
-
 Callrate is summarized by locus or by individual to allow sensible decisions
 on thresholds for filtering taking into consideration consequential loss of
 data. The summary is in the form of a tabulation and plots.
-
 Plot themes can be obtained from:
  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
-
 Resultant ggplots and the tabulation are saved to the session's temporary
 directory.
 }
@@ -87,7 +84,6 @@ directory.
 \code{\link{gl.filter.callrate}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
@@ -97,12 +93,10 @@ Other report functions:
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

@@ -7,7 +7,7 @@
 #' undertakes a Gower Principal Coordinate analysis (PCoA) if supplied with a
 #' distance matrix. Technically, any distance matrix can be represented in an
 #' ordinated space using PCoA.
-#'
+
 #' @param x Name of the genlight object or fd object containing the SNP data, or
 #'  a distance matrix of type dist [required].
 #' @param nfactors Number of axes to retain in the output of factor scores
@@ -31,13 +31,13 @@
 #' @param verbose verbose= 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#'
+
 #' @details
 #'The function is essentially a wrapper for glPca {adegenet} or pcoa \{ape\}
 #'with default settings apart from those specified as parameters in this
 #'function.
 #'\strong{ Sources of stress in the visual representation }
-#'
+
 #' While, technically, any distance matrix can be represented in an ordinated
 #' space, the representation will not typically be exact.There are three major
 #' sources of stress in a reduced-representation of distances or dissimilarities
@@ -49,7 +49,7 @@
 #' informative dimensions. For this reason, it is not sensible to be too
 #' precious about managing the other two sources of stress in the visual
 #' representation.
-#'
+
 #' The measure of distance between entities in a PCA is the Pearson Correlation
 #' Coefficient, essentially a standardized Euclidean distance. This is both a
 #' metric distance and a Euclidean distance. In PCoA, the second source of
@@ -63,7 +63,7 @@
 #' exactly represent the distances in the input matrix (stress will be non-zero).
 #' This source of stress will be evident as negative eigenvalues in the deeper
 #'  dimensions.
-#'
+
 #' A third source of stress arises from having a sparse dataset, one with
 #' missing values. This affects both PCA and PCoA. If the original data matrix
 #' is not fully populated, that is, if there are missing values, then even a
@@ -76,30 +76,30 @@
 #' is given in a paper 'Honey, I shrunk the sample covariance matrix' and more
 #' recently by Ledoit and Wolf (2018), but their approach has not been
 #'  implemented here.
-#'
+
 #' The good news is that, unless the sum of the negative eigenvalues, arising
 #' from a non-Euclidean distance measure or from missing values, approaches
 #' those of the final PCA or PCoA axes to be displayed, the distortion is
 #' probably of no practical consequence and certainly not comparable to the
 #' stress arising from selecting only two or three final dimensions out of
 #' several informative dimensions for the visual representation.
-#'
+
 #'\strong{ Function's output }
-#'
+
 #' Two diagnostic plots are produced. The first is a Scree Plot, showing the
 #' percentage variation explained by each of the PCA or PCoA axes, for those
 #' axes that explain more than the original variables (loci) on average. That
 #' is, only informative axes are displayed. The scree plot informs the number of
 #' dimensions to be retained in the visual summaries. As a rule of thumb, axes
 #' with more than 10% of variation explained should be included.
-#'
+
 #' The second graph shows the distribution of eigenvalues for the remaining
 #' uninformative (noise) axes, including those with negative eigenvalues.
-#'
+
 #' Action is recommended (verbose >= 2) if the negative eigenvalues are
 #' dominant, their sum approaching in magnitude the eigenvalues for axes
 #' selected for the final visual solution.
-#'
+
 #' Output is a glPca object conforming to adegenet::glPca but with only the
 #' following retained.
 #'\itemize{
@@ -108,22 +108,22 @@
 #'\item  $scores - Scores (coefficients) for each individual
 #'\item  $loadings - Loadings of each SNP for each principal component
 #'    }
-#'
+
 #' Plots and table were saved to the temporal directory (tempdir) and can be
 #' accessed with the function \code{\link{gl.print.reports}} and listed with
 #' the function \code{\link{gl.list.reports}}. Note that they can be accessed
 #' only in the current R session because tempdir is cleared each time that the R
 #' session is closed.
-#'
+
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' PCA was developed by Pearson (1901) and Hotelling (1933), whilst the best
 #' modern reference is Jolliffe (2002). PCoA was developed by Gower (1966) while
 #' the best modern reference is Legendre & Legendre (1998).
-#'
+
 #'@return An object of class pcoa containing the eigenvalues and factor scores
 #'@author Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
 #'\url{https://groups.google.com/d/forum/dartr})
@@ -133,21 +133,21 @@
 #' # PCA (using SNP genlight object)
 #' pca <- gl.pcoa(possums.gl[1:50,],verbose=2)
 #' gl.pcoa.plot(pca,gl)
-#' 
+
 #' gs <- testset.gs
 #' levels(pop(gs))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),
 #' rep('MDB',8),rep('Coast',6),'Em.subglobosa','Em.victoriae')
-#' 
+
 #' # PCA (using SilicoDArT genlight object)
 #' pca <- gl.pcoa(gs)
 #' gl.pcoa.plot(pca,gs)
-#' 
+
 #' # Collapsing pops to OTUs using Fixed Difference Analysis (using fd object)
 #' fd <- gl.fixed.diff(testset.gl)
 #' fd <- gl.collapse(fd)
 #' pca <- gl.pcoa(fd)
 #' gl.pcoa.plot(pca,fd$gl)
-#' 
+
 #' # Using a distance matrix
 #' D <- gl.dist.ind(testset.gs, method='jaccard')
 #' pcoa <- gl.pcoa(D,correction="cailliez")

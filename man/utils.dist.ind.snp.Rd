@@ -53,7 +53,6 @@ D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
 D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
 }
 D <- utils.dist.ind.snp(testset.gl, method='Simple')
-
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

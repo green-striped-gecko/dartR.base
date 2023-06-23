@@ -2,12 +2,12 @@
 % Please edit documentation in R/gl.merge.pop.r
 \name{gl.merge.pop}
 \alias{gl.merge.pop}
-\title{Merges two or more populations in a genlight object into one population}
+\title{Merges two or more populations in a dartR genlight object into one population}
 \usage{
 gl.merge.pop(x, old = NULL, new = NULL, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing SNP genotypes [required].}
+\item{x}{Name of the genlight object [required].}
 
 \item{old}{A list of populations to be merged [required].}
 
@@ -23,11 +23,10 @@ A genlight object with the new population assignments.
 \description{
 Individuals are assigned to populations based on the specimen metadata data
 file (csv) used with gl.read.dart().
-
-This script assigns individuals from two nominated populations into a new
+This function assigns individuals from two nominated populations into a new
 single population. It can also be used to rename populations.
-
-The script returns a genlight object with the new population assignments.
+The function works with both SNP and Tag P/A (silicoDArT) data.
+The function returns a genlight object with the new population assignments.
 }
 \examples{
    gl <- gl.merge.pop(testset.gl, old=c('EmsubRopeMata','EmvicVictJasp'), new='Outgroup')

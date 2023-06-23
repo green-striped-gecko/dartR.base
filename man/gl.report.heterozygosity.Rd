@@ -59,15 +59,12 @@ genlight object.
 Observed heterozygosity for a population takes the proportion of
 heterozygous loci for each individual then averages over the individuals in
 that population. The calculations take into account missing values.
-
 Expected heterozygosity for a population takes the expected proportion of
 heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
 locus, then averages this across the loci for an average estimate for the
 population.
-
 Observed heterozygosity for individuals is calculated as the proportion of
 loci that are heterozygous for that individual.
-
 Finally, the loci that are invariant across all individuals in the dataset
 (that is, across populations), is typically unknown. This can render
 estimates of heterozygosity analysis specific, and so it is not valid to
@@ -76,10 +73,8 @@ is a similar problem faced by microsatellites. If you have an estimate of the
 number of invariant sequence tags (loci) in your data, such as provided by
 \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 parameter to standardize your estimates of heterozygosity.
-
 \strong{NOTE}: It is important to realise that estimation of adjusted
 heterozygosity requires that secondaries not to be removed.
-
 Heterozygosities and FIS (inbreeding coefficient) are calculated by locus
 within each population using the following equations:
 \itemize{
@@ -99,24 +94,18 @@ the alternative allele.
 (2 * n_Ind - 1))
 \item Inbreeding coefficient (FIS) = 1 - (mean(Ho) / mean(uHe))
 }
-
 \strong{ Function's output }
-
 Output for method='pop' is an ordered barchart of observed heterozygosity,
 unbiased expected heterozygosity and FIS (Inbreeding coefficient) across populations
 together with a table of mean observed and expected heterozygosities and FIS
 by population and their respective standard deviations (SD).
-
 In the output, it is also reported by population: the number of loci used to
  estimate heterozygosity(nLoc), the number of polymorphic loci (polyLoc), 
  the number of monomorphic loci (monoLoc) and loci with all missing data
   (all_NALoc).
-
 Output for method='ind' is a histogram and a boxplot of heterozygosity across
 individuals.
-
  Plots and table are saved to the session temporary directory (tempdir)
-
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -131,13 +120,11 @@ n.inv <- gl.report.secondaries(platypus.gl)
 gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 }
 df <- gl.report.heterozygosity(platypus.gl)
-
 }
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
@@ -147,12 +134,10 @@ Other report functions:
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

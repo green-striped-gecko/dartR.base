@@ -1,24 +1,30 @@
 #' @name gl.join
-#' @title Combines two genlight objects
+# Preliminaries -- parameter definitions -----------------
+#' @title Combines two dartR genlight objects
 #' @description
 #' This function combines two genlight objects and their associated metadata.
 #' The history associated with the two genlight objects is cleared from the new
 #' genlight object. The individuals/samples must be the same in each genlight
 #' object.
-#'
+
 #' The function is typically used to combine datasets from the same service
 #' where the files have been split because of size limitations. The data is read
 #' in from multiple csv files, then the resultant genlight objects are combined.
-#'
+
+#' This function works with both SNP and Tag P/A data.
+
 #' @param x1 Name of the first genlight object [required].
 #' @param x2 Name of the first genlight object [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return A new genlight object
+
 #' @export
+#' @return A new genlight object
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+
 #' @examples
 #' x1 <- testset.gl[,1:100]
 #' x1@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
@@ -32,13 +38,14 @@
 gl.join <- function(x1,
                     x2,
                     verbose = NULL) {
+# Preliminaries -------------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # STANDARD ERROR CHECKING
@@ -107,7 +114,7 @@ gl.join <- function(x1,
         }
     }
     
-    # DO THE JOB
+    # DO THE JOB --------------
     
     if (verbose >= 2) {
         cat(
@@ -255,11 +262,12 @@ gl.join <- function(x1,
         cat("    Combined genlight object has", nLoc(x), "loci\n")
     }
     
-    # FLAG SCRIPT END
+    # FLAG SCRIPT END ---------------
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
+    # End block -----------------------
     
     return(x)
 }

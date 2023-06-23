@@ -1,19 +1,19 @@
 #' Converts a genlight object to nexus format PAUP SVDquartets
-#'
+
 #' The output nexus file contains the SNP data in one of two forms, depending
 #' upon what you regard as most appropriate. One form, that used by Chifman and
 #'  Kubatko, has two lines per individual, one providing the reference SNP the
 #'   second providing the alternate SNP (method=1).
-#'
+
 #'   A second form, recommended by Dave Swofford, has a single line per
 #'   individual, resolving heterozygous SNPs by replacing them with standard
 #' ambiguity codes (method=2).
-#'
+
 #' If the data are tag presence/absence, then method=2 is assumed.
-#'
+
 #' @references Chifman, J. and L. Kubatko. 2014. Quartet inference from SNP data
 #' under the coalescent. Bioinformatics 30: 3317-3324
-#'
+
 #' @param x Name of the genlight object containing the SNP data or tag P/A data
 #' [required].
 #' @param outfile File name of the output file (including extension)

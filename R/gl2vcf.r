@@ -34,7 +34,7 @@
 #' its path (plink_path).
 #' The binary file can be downloaded from:
 #' \url{https://www.cog-genomics.org/plink/}
-#'
+
 #' The chromosome information for unmapped SNPS is coded as 0.
 #' Family ID is taken from  x$pop
 #' Within-family ID (cannot be '0') is taken from indNames(x)

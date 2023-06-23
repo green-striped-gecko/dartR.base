@@ -5,7 +5,7 @@
 #' corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
 #' for each population or the observed heterozygosity for each individual in a
 #' genlight object.
-#'
+
 #' @param x Name of the genlight object containing the SNP [required].
 #' @param method Calculate heterozygosity by population (method='pop') or by
 #' individual (method='ind') [default 'pop'].
@@ -24,20 +24,20 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
-#'
+
 #' @details
 #' Observed heterozygosity for a population takes the proportion of
 #' heterozygous loci for each individual then averages over the individuals in
 #' that population. The calculations take into account missing values.
-#'
+
 #' Expected heterozygosity for a population takes the expected proportion of
 #' heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
 #' locus, then averages this across the loci for an average estimate for the
 #' population.
-#'
+
 #' Observed heterozygosity for individuals is calculated as the proportion of
 #' loci that are heterozygous for that individual.
-#'
+
 #' Finally, the loci that are invariant across all individuals in the dataset
 #' (that is, across populations), is typically unknown. This can render
 #' estimates of heterozygosity analysis specific, and so it is not valid to
@@ -46,10 +46,10 @@
 #' number of invariant sequence tags (loci) in your data, such as provided by
 #' \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 #' parameter to standardize your estimates of heterozygosity.
-#'
+
 #' \strong{NOTE}: It is important to realise that estimation of adjusted
 #' heterozygosity requires that secondaries not to be removed.
-#'
+
 #' Heterozygosities and FIS (inbreeding coefficient) are calculated by locus
 #' within each population using the following equations:
 #' \itemize{
@@ -69,35 +69,35 @@
 #' (2 * n_Ind - 1))
 #' \item Inbreeding coefficient (FIS) = 1 - (mean(Ho) / mean(uHe))
 #' }
-#'
+
 #'\strong{ Function's output }
-#'
+
 #' Output for method='pop' is an ordered barchart of observed heterozygosity,
 #' unbiased expected heterozygosity and FIS (Inbreeding coefficient) across populations
 #' together with a table of mean observed and expected heterozygosities and FIS
 #' by population and their respective standard deviations (SD).
-#' 
+
 #' In the output, it is also reported by population: the number of loci used to
 #'  estimate heterozygosity(nLoc), the number of polymorphic loci (polyLoc), 
 #'  the number of monomorphic loci (monoLoc) and loci with all missing data
 #'   (all_NALoc).
-#'
+
 #' Output for method='ind' is a histogram and a boxplot of heterozygosity across
 #' individuals.
-#'
+
 #'  Plots and table are saved to the session temporary directory (tempdir)
-#'
+
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#'
+
 #' @return A dataframe containing population labels, heterozygosities, FIS,
 #' their standard deviations and sample sizes
-#'
+
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
-#'
+
 #' @examples
 #'  \donttest{
 #' require("dartR.data")
@@ -107,9 +107,9 @@
 #' gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 #' }
 #' df <- gl.report.heterozygosity(platypus.gl)
-#'
+
 #' @seealso \code{\link{gl.filter.heterozygosity}}
-#'
+
 #' @family report functions
 #' @export
 
@@ -325,9 +325,9 @@ gl.report.heterozygosity <- function(x,
         # For each population
         for (i in 1:length(sgl)) {
             gl <- sgl[[i]]
-            gl <- utils.recalc.freqhomref(gl, verbose = 0)
-            gl <- utils.recalc.freqhomsnp(gl, verbose = 0)
-            gl <- utils.recalc.freqhets(gl, verbose = 0)
+            gl <- dartR.base:::utils.recalc.freqhomref(gl, verbose = 0)
+            gl <- dartR.base:::utils.recalc.freqhomsnp(gl, verbose = 0)
+            gl <- dartR.base:::utils.recalc.freqhets(gl, verbose = 0)
             p <- gl@other$loc.metrics$FreqHomRef
             q <- gl@other$loc.metrics$FreqHomSnp
             hets <- gl@other$loc.metrics$FreqHets

@@ -2,10 +2,10 @@
 #' @title Saves an object in compressed binary format for later rapid retrieval
 #' @description
 #' This is a wrapper for saveRDS().
-#'
+
 #' The script saves the object in binary form to the current workspace and
 #' returns the input gl object.
-#'
+
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param file Name of the file to receive the binary version of the object
 #' [required].

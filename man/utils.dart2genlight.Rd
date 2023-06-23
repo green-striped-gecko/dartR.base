@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dart2genlight.r
 \name{utils.dart2genlight}
 \alias{utils.dart2genlight}
-\title{Converts DarT to genlight}
+\title{Converts DarT to genlight.}
 \usage{
 utils.dart2genlight(
   dart,
@@ -31,8 +31,7 @@ loc.names, ind.names, pop, lat, lon (if provided via the ind.metadata file)
 }
 \description{
 Converts a DArT file (read via \code{read.dart}) into an
-genlight object \code{\link{adegenet}}. Internal function called by
-gl.read.dart
+genlight object \code{\link{adegenet}}. #' Internal function called by gl.read.dart().
 }
 \details{
 The ind.metadata file needs to have very specific headings. First a heading
@@ -42,3 +41,31 @@ pop: specifies the population membership of each individual. lat and lon
 specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
 }
+\seealso{
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
+}
+\author{
+Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+}
+\concept{dartR-base}

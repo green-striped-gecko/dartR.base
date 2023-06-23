@@ -2,13 +2,12 @@
 % Please edit documentation in R/utils.recalc.avgpic.r
 \name{utils.recalc.avgpic}
 \alias{utils.recalc.avgpic}
-\title{A utility script to recalculate the OneRatioRef, OneRatioSnp, PICRef, PICSnp,
- and AvgPIC by locus after some individuals or populations have been deleted.}
+\title{A utility function to recalculate intermediate locus metrics}
 \usage{
 utils.recalc.avgpic(x, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report [default 2].}
@@ -17,19 +16,22 @@ progress log; 3, progress and results summary; 5, full report [default 2].}
 The modified genlight object.
 }
 \description{
+A short description...
+Recalculates OneRatioRef, OneRatioSnp, PICRef, PICSnp,
+ and AvgPIC by locus after some individuals or populations have been deleted.
+}
+\details{
 The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
  PICSnp, and AvgPIC included, but the allelic composition will change when
  some individuals,or populations, are removed from the dataset and so the
  initial statistics will no longer apply. This script recalculates these
  statistics and places the recalculated values in the appropriate place in
  the genlight object.
-}
-\details{
 If the locus metadata OneRatioRef|Snp, PICRef|Snp and/or AvgPIC do not exist,
  the script creates and populates them.
 }
 \examples{
-#out <- utils.recalc.avgpic(testset.gl)
+out <- dartR.base:::utils.recalc.avgpic(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
@@ -39,8 +41,32 @@ reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
 homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
  of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele
  frequency, \code{gl.recalc.rdepth} for recalculating average read depth
+
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{dartR-base}

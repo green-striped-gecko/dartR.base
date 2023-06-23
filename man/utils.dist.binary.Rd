@@ -52,7 +52,6 @@ The distance measure can be one of:
  could be for different reasons. Sometimes called the Dice or Sorensen
  distance.
  }
-
  One might choose to disregard or downweight absences in comparison with
  presences because the homology of absences is less clear (mutation at one or
  the other, or both restriction sites). Your call.
@@ -63,7 +62,6 @@ D <- utils.dist.binary(testset.gs, method='Jaccard')
 D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
 }
 D <- utils.dist.binary(testset.gs, method='Simple')
-
 }
 \author{
 Author: Arthur Georges. Custodian: Arthur Georges -- Post to

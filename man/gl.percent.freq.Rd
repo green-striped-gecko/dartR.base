@@ -2,7 +2,10 @@
 % Please edit documentation in R/gl.percent.freq.r
 \name{gl.percent.freq}
 \alias{gl.percent.freq}
-\title{Generates percentage allele frequencies by locus and population}
+\title{Generates percentage allele frequencies by locus and population
+This is a support script, to take SNP data or SilicoDArT presence/absence
+data grouped into populations in a genlight object \{adegenet\} and generate
+a table of allele frequencies for each population and locus}
 \usage{
 gl.percent.freq(x, verbose = NULL)
 }
@@ -19,6 +22,7 @@ A matrix with allele (SNP data) or presence/absence frequencies
 (Tag P/A data) broken down by population and locus
 }
 \description{
+Generates percentage allele frequencies by locus and population
 This is a support script, to take SNP data or SilicoDArT presence/absence
 data grouped into populations in a genlight object \{adegenet\} and generate
 a table of allele frequencies for each population and locus

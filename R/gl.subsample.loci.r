@@ -1,9 +1,9 @@
 #' Subsamples n loci from a genlight object and return it as a genlight object
-#'
+
 #' This is a support script, to subsample a genlight \{adegenet\} object based
 #'  on loci. Two methods are used to subsample, random and based on information
 #'  content.
-#'
+
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param n Number of loci to include in the subsample [required].

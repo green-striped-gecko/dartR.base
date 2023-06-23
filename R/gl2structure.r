@@ -1,5 +1,5 @@
 #' Converts a genlight object to STRUCTURE formatted files
-#'
+
 #' This function exports genlight objects to STRUCTURE formatted files (be aware
 #' there is a gl2faststructure version as well). It is based on the code
 #' provided by Lindsay Clark (see
@@ -7,7 +7,7 @@
 #' basically a wrapper around her numeric2structure function. See also: Lindsay
 #' Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
 #' (Version v1.1). Zenodo: doi.org/10.5281/zenodo.846816.
-#'
+
 #' @param x Name of the genlight object containing the SNP data and location
 #' data, lat longs [required].
 #' @param indNames Specify individuals names to be added 

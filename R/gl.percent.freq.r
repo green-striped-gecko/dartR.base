@@ -1,9 +1,9 @@
 #' Generates percentage allele frequencies by locus and population
-#'
+
 #' This is a support script, to take SNP data or SilicoDArT presence/absence
 #' data grouped into populations in a genlight object \{adegenet\} and generate
 #' a table of allele frequencies for each population and locus
-#'
+
 #' @param x Name of the genlight object containing the SNP or Tag P/A
 #' (SilicoDArT) data [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,

@@ -2,7 +2,9 @@
 % Please edit documentation in R/gl.tree.nj.r
 \name{gl.tree.nj}
 \alias{gl.tree.nj}
-\title{Outputs an nj tree to summarize genetic similarity among populations}
+\title{Outputs an nj tree to summarize genetic similarity among populations
+This function is a wrapper for the nj function or package ape applied to Euclidean
+distances calculated from the genlight object.}
 \usage{
 gl.tree.nj(
   x,
@@ -39,6 +41,7 @@ summary; 5, full report [default 2].}
 A tree file of class phylo.
 }
 \description{
+Outputs an nj tree to summarize genetic similarity among populations
 This function is a wrapper for the nj function or package ape applied to Euclidean
 distances calculated from the genlight object.
 }

@@ -3,11 +3,13 @@
 \docType{data}
 \name{testset_pop_recode}
 \alias{testset_pop_recode}
-\title{Recode file to be used with the function.}
+\title{Recode file to be used with the function.
+This test data set is provided to show a typical recode file format.}
 \format{
 csv
 }
 \description{
+Recode file to be used with the function.
 This test data set is provided to show a typical recode file format.
 }
 \author{

@@ -4,7 +4,7 @@
 #' The script plots a heat map to represent the distances in the distance or
 #' dissimilarity matrix. This function is a wrapper for
 #' \link[gplots]{heatmap.2} (package gplots).
-#'
+
 #' @param D Name of the distance matrix or class fd object [required].
 #' @param palette_divergent A divergent palette for the distance values
 #'  [default gl.colors("div")].

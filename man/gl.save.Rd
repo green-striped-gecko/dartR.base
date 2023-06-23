@@ -21,7 +21,6 @@ The input object
 }
 \description{
 This is a wrapper for saveRDS().
-
 The script saves the object in binary form to the current workspace and
 returns the input gl object.
 }

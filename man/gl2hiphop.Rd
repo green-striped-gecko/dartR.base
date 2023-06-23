@@ -2,7 +2,14 @@
 % Please edit documentation in R/gl2hiphop.r
 \name{gl2hiphop}
 \alias{gl2hiphop}
-\title{Converts a genlight objects into hiphop format}
+\title{Converts a genlight objects into hiphop format
+This function exports genlight objects to the format used by the parentage
+assignment R package hiphop. Hiphop can be used for paternity and maternity
+assignment and outperforms conventional methods where closely related
+individuals occur in the pool of possible parents. The method compares the
+genotypes of offspring with any combination of potentials parents and scores
+the number of mismatches of these individuals at bi-allelic genetic markers
+ (e.g. Single Nucleotide Polymorphisms).}
 \usage{
 gl2hiphop(x, verbose = NULL)
 }
@@ -18,6 +25,7 @@ Dataframe containing all the genotyped individuals (offspring and
  potential parents) and their genotypes scored using bi-allelic markers.
 }
 \description{
+Converts a genlight objects into hiphop format
 This function exports genlight objects to the format used by the parentage
 assignment R package hiphop. Hiphop can be used for paternity and maternity
 assignment and outperforms conventional methods where closely related

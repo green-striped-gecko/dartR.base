@@ -1,30 +1,30 @@
 #' Reads SNP data from a csv file into a genlight object
-#'
+
 #' This script takes SNP genotypes from a csv file, combines them with
 #' individual and locus metrics and creates a genlight object.
-#'
+
 #' The SNP data need to be in one of two forms. SNPs can be coded 0 for
 #' homozygous reference, 2 for homozygous alternate, 1 for heterozygous, and NA 
 #' for missing values; or the SNP data can be coded A/A, A/C, C/T, G/A etc,
 #' and -/- for missing data. In this format, the reference allele is the most 
 #' frequent allele, as used by DArT. Other formats will throw an error.
-#'
+
 #' The SNP data need to be individuals as rows, labeled, and loci as columns,
 #' also labeled. If the orientation is individuals as columns and loci by rows,
 #'  then set transpose=TRUE.
-#'
+
 #' The individual metrics need to be in a csv file, with headings, with a
 #'  mandatory id column corresponding exactly to the individual identity labels
 #'  provided with the SNP data and in the same order.
-#'
+
 #' The locus metadata needs to be in a csv file with headings, with a mandatory
 #' column headed AlleleID corresponding exactly to the locus identity labels
 #' provided with the SNP data and in the same order.
-#'
+
 #' Note that the locus metadata will be complemented by calculable statistics
 #' corresponding to those that would be provided by Diversity Arrays Technology
 #' (e.g. CallRate).
-#'
+
 #' @param filename Name of the csv file containing the SNP genotypes [required].
 #' @param transpose If TRUE, rows are loci and columns are individuals
 #' [default FALSE].

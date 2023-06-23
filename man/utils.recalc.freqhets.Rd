@@ -20,16 +20,13 @@ The modified genlight object.
 The locus metadata supplied by DArT has FreqHets included, but the frequency
  of the heterozygotes will change when some individuals are removed from the
  dataset.
-}
-\details{
 This script recalculates the FreqHets and places these recalculated values in
  the appropriate place in the genlight object.
-
 Note that the frequency of the homozygote reference SNPS is calculated from
 the individuals that could be scored.
 }
 \examples{
-#out <- utils.recalc.freqhets(testset.gl)
+out <- dartR.base:::utils.recalc.freqhets(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
@@ -40,8 +37,32 @@ homozygous alternate,
 \code{utils.recalc.AvgPIC} for recalculating RepAvg, \code{gl.recalc.maf} for
  recalculating minor allele frequency,
 \code{gl.recalc.rdepth} for recalculating average read depth
+
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.report.bases}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{dartR-base}

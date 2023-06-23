@@ -2,7 +2,15 @@
 % Please edit documentation in R/gl2svdquartets.r
 \name{gl2svdquartets}
 \alias{gl2svdquartets}
-\title{Converts a genlight object to nexus format PAUP SVDquartets}
+\title{Converts a genlight object to nexus format PAUP SVDquartets
+The output nexus file contains the SNP data in one of two forms, depending
+upon what you regard as most appropriate. One form, that used by Chifman and
+ Kubatko, has two lines per individual, one providing the reference SNP the
+  second providing the alternate SNP (method=1).
+  A second form, recommended by Dave Swofford, has a single line per
+  individual, resolving heterozygous SNPs by replacing them with standard
+ambiguity codes (method=2).
+If the data are tag presence/absence, then method=2 is assumed.}
 \usage{
 gl2svdquartets(
   x,
@@ -36,16 +44,14 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
+Converts a genlight object to nexus format PAUP SVDquartets
 The output nexus file contains the SNP data in one of two forms, depending
 upon what you regard as most appropriate. One form, that used by Chifman and
  Kubatko, has two lines per individual, one providing the reference SNP the
   second providing the alternate SNP (method=1).
-}
-\details{
-A second form, recommended by Dave Swofford, has a single line per
+  A second form, recommended by Dave Swofford, has a single line per
   individual, resolving heterozygous SNPs by replacing them with standard
 ambiguity codes (method=2).
-
 If the data are tag presence/absence, then method=2 is assumed.
 }
 \examples{

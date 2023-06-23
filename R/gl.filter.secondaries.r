@@ -5,13 +5,13 @@
 #' record them separately with the same CloneID (=AlleleID). These multiple SNP
 #' loci within a fragment (secondaries) are likely to be linked, and so you may
 #' wish to remove secondaries.
-#'
+
 #' This script filters out all but the first sequence tag with the same CloneID
 #' after ordering the genlight object on based on repeatability, avgPIC in that
 #' order (method='best') or at random (method='random').
-#'
+
 #' The filter has not been implemented for tag presence/absence data.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method Method of selecting SNP locus to retain, 'best' or 'random'
 #'  [default 'random'].

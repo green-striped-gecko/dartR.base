@@ -3,11 +3,14 @@
 \docType{data}
 \name{testset_SNPs_2Row}
 \alias{testset_SNPs_2Row}
-\title{Testfile in DArT format (as provided by DArT)}
+\title{Testfile in DArT format (as provided by DArT)
+This test data set is provided to show a typical DArT file format. Can be 
+used to create a genlight object using the read.dart function.}
 \format{
 csv
 }
 \description{
+Testfile in DArT format (as provided by DArT)
 This test data set is provided to show a typical DArT file format. Can be 
 used to create a genlight object using the read.dart function.
 }

@@ -1,5 +1,5 @@
 #' Converts a genlight object to format suitable to be run with Coancestry
-#'
+
 #' The output txt file contains the SNP data and an additional column with the
 #' names of the individual. The file then can be used and loaded into coancestry
 #' or - if installed - run with the related package. Be aware the related
@@ -8,7 +8,7 @@
 #' coancestry with thousands of SNPs via the GUI seems to be not reliable and
 #' therefore for comparisons between coancestry and related we suggest to use
 #' the command line version of coancestry.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default 'related.txt'].

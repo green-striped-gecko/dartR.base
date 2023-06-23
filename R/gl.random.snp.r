@@ -3,7 +3,7 @@
 #' @description
 #' This function samples randomly half of the SNPs and re-codes, in the sampled
 #' SNP's, 0's by 2's.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param plot.out Specify if a plot is to be produced [default TRUE].
 #' @param save2tmp If TRUE, saves any ggplots to the session temporary directory
@@ -11,26 +11,26 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report [default NULL,
 #' unless specified using gl.set.verbosity].
-#'
+
 #' @details
 #' DArT calls the most common allele as the reference allele. In a genlight
 #' object, homozygous for the reference allele are coded with a '0' and
 #' homozygous for the alternative allele are coded with a '2'. This causes some
 #' distortions in visuals from time to time.
-#'
+
 #' If plot.out = TRUE, two smear plots (pre-randomisation and
 #' post-randomisation) are presented using a random subset of individuals (10)
 #' and loci (100) to provide an overview of the changes.
-#'
+
 #' Resultant ggplots are saved to the session's temporary directory.
-#'
+
 #' @return Returns a genlight object with half of the loci re-coded.
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' require("dartR.data")
 #' res <- gl.random.snp(platypus.gl[1:5,1:5],verbose = 5)
-#'
+
 #' @export
 
 gl.random.snp <- function(x,

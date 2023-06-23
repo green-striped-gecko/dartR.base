@@ -59,36 +59,26 @@ For all indexes, the entropies (H) and corresponding effective
  causing it, such as dispersal, selection or strong drift. For a detailed
  explanation of all the indexes, we recommend resorting to the literature
  provided below. Confidence intervals are +/- 1 standard deviation.
-
 \strong{ Function's output }
-
 If the function's parameter "table" = "DH" (the default value) is used, the 
  output of the function is 20 tables.
-
 The first two show the number of loci used. The name of each of the rest of 
 the tables starts with three terms separated by underscores.
-
 The first term refers to the q value (0 to 2).
-
 The second term refers to whether it is the diversity measure (H) or its 
 transformation to Hill numbers (D). 
-
 The third term refers to whether the diversity is calculated within 
 populations (alpha) or between populations (beta). 
-
 In the case of alpha diversity tables, standard deviations have their own 
 table, which finishes with a fourth term: "sd".
-
 In the case of beta diversity tables, standard deviations are in the upper 
 triangle of the matrix and diversity values are in the lower triangle of the 
 matrix.
-
  Plots are saved to the temporal directory (tempdir) and can be accessed with
   the function \code{\link{gl.print.reports}} and listed with the function
    \code{\link{gl.list.reports}}. Note that they can be accessed only in the
     current R session because tempdir is cleared each time that the R session
     is closed.
-
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -100,7 +90,6 @@ div <- gl.report.diversity(bandicoot.gl[1:10,1:100], table = FALSE,
 div$zero_H_alpha
 div$two_H_beta
 names(div)
-
 }
 \references{
 Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017). Information Theory
@@ -109,7 +98,6 @@ Broadens the Spectrum of Molecular Ecology and Evolution. TREE 32(12)
 }
 \seealso{
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
@@ -119,12 +107,10 @@ Other report functions:
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

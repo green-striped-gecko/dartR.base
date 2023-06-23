@@ -1,9 +1,9 @@
 #'@name gl.sample
-#'
+
 #'@title Samples individuals from populations
-#'
+
 #'@description This is a convenience function to prepare a bootstrap approach in dartR. For a bootstrap approach it is often desirable to sample a defined number of individuals for each of the populations in a genlight object and then calculate a certain quantity for that subset (redo a 1000 times)
-#'
+
 #'@param x genlight object containing SNP/silicodart genotypes
 #'@param nsample the number of individuals that should be sampled
 #'@param replace a switch to sample by replacement (default).
@@ -11,9 +11,9 @@
 #'@param verbose set verbosity
 #'@details This is convenience function to facilitate a bootstrap approach
 #'@return returns a genlight object with nsample samples from each populations.
-#'
+
 #'@author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-#'
+
 #'@examples 
 #'\dontrun{
 #' #bootstrap for 2 possums populations to check effect of sample size on fixed alleles
@@ -31,7 +31,7 @@
 #'}
 #'@family base dartR
 #'@export 
-#'
+
 gl.sample <- function(x,
                   nsample = min(table(pop(x))),
                   replace = TRUE,

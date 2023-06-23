@@ -23,9 +23,7 @@ A genlight object with the new population name.
 \description{
 Individuals are assigned to populations based on the specimen metadata data
 file (csv) used with gl.read.dart().
-
 This script renames a nominated population.
-
 The script returns a genlight object with the new population name.
 }
 \examples{

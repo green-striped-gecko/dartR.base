@@ -1,14 +1,14 @@
 #' Converts a genlight object to a treemix input file
-#'
+
 #' The output file contains the SNP data in the format expected by treemix --
 #' see the treemix manual. The file will be gzipped before in order to be
 #' recognised by treemix. Plotting functions provided with treemix will need to
 #'  be sourced from the treemix download page.
-#'
+
 #' @references Pickrell and Pritchard (2012). Inference of population splits and
 #' mixtures from genome-wide allele frequency data. PLoS Genetics
 #'  https://doi.org/10.1371/journal.pgen.1002967
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including gz extension)
 #' [default 'treemix_input.gz'].

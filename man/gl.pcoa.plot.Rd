@@ -104,20 +104,16 @@ ellipses. Population labels on the plot are shuffled so as not to overlap
 This can be a bit clunky, as the labels may be some distance from the points
 to which they refer, but it provides the opportunity for moving labels around
  using graphics software (e.g. Adobe Illustrator).
-
 3D plotting is activated by specifying a zaxis.
-
 Any pair or trio of axes can be specified from the ordination, provided they
 are within the range of the nfactors value provided to gl.pcoa().
 In the 2D plots, axes can be scaled to represent the proportion of variation
 explained. In any case, the proportion of variation explained by each axis is
 provided in the axis label.
-
 Colors and shapes of the points can be altered by passing a vector of shapes
 and/or a vector of colors. These vectors can be created with
 gl.select.shapes() and gl.select.colors() and passed to this script using the
  pt.shapes and pt.colors parameters.
-
 Points displayed in the ordination can be identified if the option
  interactive=TRUE is chosen, in which case the resultant plot is ggplotly()
  friendly. Identification of points is by moving the mouse over them. Refer
@@ -125,7 +121,7 @@ Points displayed in the ordination can be identified if the option
 The interactive option is automatically enabled for 3D plotting.
 }
 \examples{
-\donttest{
+\dontrun{
 # SET UP DATASET
 gl <- testset.gl
 levels(pop(gl))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),
@@ -160,8 +156,6 @@ gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 \code{\link{gl.pcoa}}
 
 Other Exploration/visualisation functions: 
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
 \code{\link{gl.smearplot}()}
 }
 \author{

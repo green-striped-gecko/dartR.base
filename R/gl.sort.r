@@ -1,18 +1,18 @@
 #'@name gl.sort
-#'
+
 #'@title re-sorts genlight objects
-#'
+
 #'@description Often it is desirable to have the genlight object sorted individuals by population names, indiviual name, for example to have a more informative gl.smearplot (showing banding patterns for populations). Also sorting by loci can be informative in some instances. This function provides the ability to sort individuals of a genlight object by providing the order of individuals or populations and also by loci metric providing the order of locis. See examples below for specifics.
-#'
+
 #'@param x genlight object containing SNP/silicodart genotypes
 #'@param sort.by either "ind", "pop". Default is pop
 #'@param order.by that is used to order individuals or loci. Depening on the order.by parameter, this needs to be a vector of length of nPop(genlight) for populations or  nInd(genlight) for individuals. If not specified alphabetical order of populations or individuals is used. For sort.by="ind" order.by can be also a vector specifying the order for each individual (for example another ind.metrics)
 #'@param verbose set verbosity
 #'@details This is convenience function to facilitate sorting of individuals within the genlight object. For example if you want to visualise the "band" of population in a gl.smearplot then the order of individuals is important. Also
 #'@return Returns a reordered genlight object. Sorts also the ind/loc.metrics and coordinates accordingly
-#'
+
 #'@author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-#'
+
 #'@examples 
 #'#sort by populations
 #'bc <- gl.sort(bandicoot.gl)
@@ -25,7 +25,7 @@
 #'gl.smearplot(bc3)
 #'@family base dartR
 #'@export 
-#'
+
 gl.sort <- function(x,
                   sort.by = "pop",
                   order.by = NULL,

@@ -59,7 +59,6 @@ installed. The function that is used is
 functions implemented in the package regarding HWE. Therefore, this function
 can return the data in the format expected by the HWE package expects, via
 \code{HWformat=TRUE} and then use this to run other functions of the package.
-
 This functions performs a HWE test for every population (rows) and loci
 (columns) and returns a true false matrix. True is reported if the p-value of
 an HWE-test for a particular loci and population was below the specified
@@ -69,12 +68,10 @@ treated (e.g. filtered if loci under selection are of interest). If plot=TRUE
  a barplot on the loci and the sum of deviation over all population is
  returned. Loci that deviate in the majority of populations can be identified
   via colSums on the resulting matrix.
-
 Plot themes can be obtained from \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
-
 Resultant ggplots and the tabulation are saved to the session's temporary
 directory.
 }

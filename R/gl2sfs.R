@@ -1,11 +1,11 @@
 
 #'Converts a genlight object into a sfs input file
-#'
+
 #'The output of this function is suitable for analysis in fastsimcoal2 or dada.
-#'
+
 #'It saves a derived sfs, assuming that the reference allele is the ancestral,
 #'and a MAF sfs.
-#'
+
 #'At this stage this function caters only for diploid organisms, for samples
 #'from one population only, and for genotypes without missing data. Note that
 #'sfs uses frequencies considered \bold{independent}, data are assumed to be
@@ -19,8 +19,8 @@
 #'\code{gl.report.secondaries}. In a limited number of cases, ascertainment bias
 #'can be explicitly modelled in fastsimcoal2. See fastsimcoal2 manual for
 #'details.
-#'
-#'
+
+
 #'It expects a dartR formatted genlight object, but it should also  work with
 #'other genlight objects.
 #' @param x Name of the genlight object containing the SNP data [required].

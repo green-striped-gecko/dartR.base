@@ -47,12 +47,10 @@ function \code{\link{gl.filter.locmetric}}.
 \details{
 The function \code{\link{gl.filter.locmetric}} will filter out the
  loci with a locmetric value below a specified threshold.
-
 The fields that are included in dartR, and a short description, are found
 below. Optionally, the user can also set his/her own field by adding a vector
 into $other$loc.metrics as shown in the example. You can check the names of
 all available loc.metrics via: names(gl$other$loc.metrics).
-
 \itemize{
 \item SnpPosition - position (zero is position 1) in the sequence tag of the
 defined SNP variant base.
@@ -78,23 +76,18 @@ row.
 marker score is consistent.
 \item rdepth - read depth.
 }
-
 \strong{ Function's output }
-
 The minimum, maximum, mean and a tabulation of quantiles of the locmetric
 values against thresholds rate are provided. Output also includes a boxplot
 and a histogram.
-
 Quantiles are partitions of a finite set of values into q subsets of (nearly)
 equal sizes. In this function q = 20. Quantiles are useful measures because
 they are less susceptible to long-tailed distributions and outliers.
-
  Plots and table were saved to the temporal directory (tempdir) and can be
  accessed with the function \code{\link{gl.print.reports}} and listed with
  the function \code{\link{gl.list.reports}}. Note that they can be accessed
  only in the current R session because tempdir is cleared each time that the
  R session is closed.
-
  Examples of other themes that can be used can be consulted in:
   \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -107,20 +100,17 @@ test <- testset.gl
 test$other$loc.metrics$test <- 1:nLoc(test)
 # SNP data
 out <- gl.report.locmetric(test,metric='test')
-
 # adding dummy data
 test.gs <- testset.gs
 test.gs$other$loc.metrics$test <- 1:nLoc(test.gs)
 # Tag P/A data
 out <- gl.report.locmetric(test.gs,metric='test')
-
 }
 \seealso{
 \code{\link{gl.filter.locmetric}}, \code{\link{gl.list.reports}},
  \code{\link{gl.print.reports}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
@@ -130,12 +120,10 @@ Other report functions:
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

@@ -6,32 +6,41 @@
 \usage{
 gl.report.bases(
   x,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
-  verbose = NULL
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = c("#3B9AB2", "#78B7C5"),
+  save.type = NULL,
+  save.dir = NULL,
+  save.file = NULL,
+  verbose = NULL,
+  ...
 )
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{plot.out}{If TRUE, histograms of base composition are produced
+\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
 [default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default gl.select.colors(ncolors=2)].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE]}
+\item{save.type}{If specified, will direct the saved output to a file of this type [default NULL]}
+
+\item{save.dir}{Directory in which to save the ggplot [default = working directory]}
+
+\item{save.file}{Name for the ggsave file [default NULL]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
  [default NULL, unless specified using gl.set.verbosity]}
+
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+such as width and height, when the ggplot is to be saved.}
 }
 \value{
 The unchanged genlight object
@@ -42,51 +51,72 @@ adenine (A), cytosine (C), 'guanine (G) and thymine (T), and the frequency of
 transitions (Ts) and transversions (Tv) in a DArT genlight object.
 }
 \details{
-The script checks first if trimmed sequences are included in the
+The function checks first if trimmed sequences are included in the
 locus metadata (@other$loc.metrics$TrimmedSequence), and if so, tallies up
 the numbers of A, T, G and C bases. Only the reference state at the SNP locus
 is counted. Counts of transitions (Ts) and transversions (Tv) assume that
 there is no directionality, that is C->T is the same as T->C, because the
 reference state is arbitrary.
-
 For presence/absence data (SilicoDArT), it is not possible to count
 transversions or transitions or transversions/transitions ratio because the
- SNP data is not available, only a single sequence tag.
-
-Examples of other themes that can be used can be consulted in \itemize{
+ SNP data are not available, only a single sequence tag per locus.
+ A color vector can be obtained with gl.select.colors() and then passed to the function
+ with the plot.colors parameter.
+Themes can be obtained from in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
+ If the save.type parameter is set to one of 
+"RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
+"bmp", "svg" or "wmf" (windows only), the graphics produced by the function
+will be saved to disk. The option "RDS" saves as a binary file 
+using saveRDS(); can be reloaded with readRDS().
+Optional additional parameters for ggsave() can be added to the parameter list
+(...) to govern aspects of the saved plot. Refer to ?ggsave for details.
+ If a plot directory (save.dir) is specified, the ggplot binary is saved to that
+ directory; otherwise to the working directory. 
+ A file name must be specified for the plot to be saved.
+ Note that if save.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
+"bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
+of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
+reloaded with readRDS().
 }
 \examples{
 # SNP data
   out <- gl.report.bases(testset.gl)
+  out <- gl.report.bases(testset.gl,save.type="pdf",save.file="myplot")
+  
+  col <- gl.select.colors(select=c(6,1),palette=rainbow)
+  out <- gl.report.bases(testset.gl,plot.colors=col)
   #' # Tag P/A data
   out <- gl.report.bases(testset.gs)
-
 }
 \seealso{
-Other report functions: 
-\code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
-\code{\link{gl.report.pa}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
-\code{\link{gl.report.taglength}()}
+Other dartR-base: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.ind}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.read.dart}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{dartR-base}

@@ -3,7 +3,11 @@
 \name{gl2faststructure}
 \alias{gl2faststructure}
 \title{Converts a genlight object into faststructure format (to run faststructure
- elsewhere)}
+ elsewhere)
+Recodes in the quite specific faststructure format (e.g first six columns
+need to be there, but are ignored...check faststructure documentation
+ (if you find any :-( )))
+The script writes out the a file in faststructure format.}
 \usage{
 gl2faststructure(
   x,
@@ -33,11 +37,11 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
+Converts a genlight object into faststructure format (to run faststructure
+ elsewhere)
 Recodes in the quite specific faststructure format (e.g first six columns
 need to be there, but are ignored...check faststructure documentation
  (if you find any :-( )))
-}
-\details{
 The script writes out the a file in faststructure format.
 }
 \author{

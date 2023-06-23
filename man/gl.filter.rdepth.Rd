@@ -51,7 +51,6 @@ of sequence tags for the reference and alternate alleles respectively. These
 can be used to back calculate Read Depth. Fragment presence/absence datasets
 as provided by DArT (SilicoDArT) provide Average Read Depth and Standard
  Deviation of Read Depth as standard columns in their report.
-
 Filtering on Read Depth using the companion script gl.filter.rdepth can be on
  the basis of loci with exceptionally low counts,
 or loci with exceptionally high counts.
@@ -72,7 +71,6 @@ For examples of themes, see:
   result <- gl.filter.rdepth(testset.gs, lower=8, upper=50, verbose=3)
   }
   res <- gl.filter.rdepth(platypus.gl)
-
 }
 \seealso{
 \code{\link{gl.filter.rdepth}}
@@ -87,11 +85,9 @@ Other filter functions:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.parent.offspring}()},
 \code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.reproducibility}()},
 \code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.sexlinked}()},
 \code{\link{gl.filter.taglength}()}
 }
 \author{

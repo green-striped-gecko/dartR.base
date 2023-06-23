@@ -1,4 +1,5 @@
 #' @name gl.select.colors
+# Preliminaries -- set parameter definitions --------------------
 #' @title Selects colors from one of several palettes and output as a vector
 #' @description
 #' This script draws upon a number of specified color libraries to extract a
@@ -16,18 +17,17 @@
 #' \item library 'baseR' and the palettes available are: 'rainbow','heat',
 #' 'topo.colors','terrain.colors','cm.colors'.
 #' }
-#' If the nominated palette is not specified, all the palettes will be listed a
-#' nd a default palette will then be chosen.
-#'
+#' If the nominated palette is not specified, all the palettes will be listed and a default palette will then be chosen.
+
 #' The color palette will be displayed in the graphics window for the requested
 #' number of colors (or 9 if not specified),and the vector of colors returned
 #' for later use.
-#'
+
 #' The select parameter can be used to select colors from the specified ncolors.
 #' For example, select=c(1,1,3) will select color 1, 1 again and 3 to retain in
 #' the final vector. This can be useful for fine-tuning color selection, and
 #' matching colors and shapes.
-#'
+
 #' @param x Optionally, provide a gl object from which to determine the number
 #' of populations [default NULL].
 #' @param library Name of the color library to be used [default scales::hue_pl].
@@ -39,7 +39,9 @@
 #' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+
 #' @return A vector with the required number of colors
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
@@ -58,19 +60,21 @@
 #' colors <- gl.select.colors(library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
 #' # EXAMPLES -- CROSS-CHECKING WITH A GENLIGHT OBJECT
 #' colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
-#'
+
 #' @seealso \code{\link{gl.select.shapes}}
-#' @family Exploration/visualisation functions
-#'
+#' @family dartR-base
+
 #' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow
 #' @export
 
+# Function -----------------
 gl.select.colors <- function(x = NULL,
                              library = NULL,
                              palette = NULL,
                              ncolors = NULL,
                              select = NULL,
                              verbose = NULL) {
+# Preliminaries -----------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -159,7 +163,7 @@ gl.select.colors <- function(x = NULL,
         }
     }
     
-    # DO THE JOB
+    # DO THE JOB ----------------
     
     if (is.null(library)) {
         palette <-NULL
@@ -172,8 +176,10 @@ gl.select.colors <- function(x = NULL,
         library <- "scales"
         palette <- "hue_pal"
         colors <- (scales::hue_pal())(ncolors)
-        cat(report(("  Library: scale\n")))
-        cat(report(("  Palette: hue_pal\n")))
+        if (verbose >= 2) {
+          cat(report(("  Library: scale\n")))
+          cat(report(("  Palette: hue_pal\n")))
+        }
         
     } else {
         if (library == "brewer") {
@@ -201,8 +207,10 @@ gl.select.colors <- function(x = NULL,
                 palette <- "Spectral"
             }
             colors <- RColorBrewer::brewer.pal(ncolors, palette)
+            if (verbose >= 2) {
             cat(report(("  Library: RColorBrewer\n")))
             cat(report(("  Palette: brewer.pal\n")))
+            }
             
         } else if (library == "gr.palette") {
             if (is.null(palette)) {
@@ -229,8 +237,10 @@ gl.select.colors <- function(x = NULL,
             }
             colors <-
                 grDevices::palette.colors(n = ncolors, palette = palette)
+            if (verbose >= 2) {
             cat(report(("  Library: grDevices\n")))
             cat(report(("  Palette: palette.pals\n")))
+            }
             
         } else if (library == "gr.hcl") {
             if (is.null(palette)) {
@@ -257,8 +267,10 @@ gl.select.colors <- function(x = NULL,
             }
             colors <-
                 grDevices::hcl.colors(n = ncolors, palette = palette)
-            cat(report(("  Library: grDevices\n")))
-            cat(report(("  Palette: hcl.pals\n")))
+            if (verbose >= 2) {
+              cat(report(("  Library: grDevices\n")))
+              cat(report(("  Palette: hcl.pals\n")))
+            }
             
         } else if (library == "baseR") {
             if (is.null(palette)) {
@@ -295,26 +307,34 @@ gl.select.colors <- function(x = NULL,
             }
             if (palette == "rainbow") {
                 colors <- rainbow(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report(("  Palette: rainbow\n")))
+                }
                 # } else if(palette=='heat.colors'){ colors <- heat.colors(n = ncolors) cat(report((' Library: baseR\n'))) cat(report(('
                 # Palette: heat.colors\n')))
             } else if (palette == "topo.colors") {
                 colors <- topo.colors(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report((
                     "  Palette: topo.colors\n"
                 )))
+                }
             } else if (palette == "terrain.colors") {
                 colors <- terrain.colors(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report((
                     "  Palette: terrain.colors\n"
                 )))
+                }
             } else if (palette == "cm.colors") {
                 colors <- cm.colors(n = ncolors)
+                if (verbose >= 2) {
                 cat(report(("  Library: baseR\n")))
                 cat(report(("  Palette: cm.colors\n")))
+                }
             } else {
                 if (verbose >= 2) {
                     cat(
@@ -339,7 +359,8 @@ gl.select.colors <- function(x = NULL,
         }
         if (!is.null(select)) {
             colors <- colors[c(select)]
-            cat(
+            if (verbose >= 2) {
+              cat(
                 "  Showing and returning",
                 length(select),
                 "of",
@@ -350,7 +371,9 @@ gl.select.colors <- function(x = NULL,
                 palette,
                 "\n"
             )
+            }
         } else {
+          if (verbose >= 2) {
             cat(
                 "  Showing and returning",
                 ncolors,
@@ -360,16 +383,18 @@ gl.select.colors <- function(x = NULL,
                 palette,
                 "\n"
             )
+          }
         }
         
         scales::show_col(colors)
     }
     
-    # FLAG SCRIPT END
+    # FLAG SCRIPT END ----------------
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
+    # End block------------------
     
     return(colors)
 }

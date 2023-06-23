@@ -1,9 +1,9 @@
 # SET THEME FOR PLOTS
 #' dartR theme
-#'
+
 #' This is the theme used as default for dartR plots.
 #' This function controls all non-data display elements in the plots.
-#'
+
 #' @param base_size base font size, given in pts.
 #' @param base_family base font family
 #' @param base_line_size base size for line elements

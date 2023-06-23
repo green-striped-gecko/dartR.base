@@ -1,5 +1,5 @@
 #' Filters loci that contain private (and fixed alleles) between two populations
-#'
+
 #' This script is meant to be used prior to \code{gl.nhybrids} to maximise the
 #' information content of the SNPs used to identify hybrids (currently
 #'  newhybrids does allow only 200 SNPs). The idea is to use first all loci that
@@ -8,7 +8,7 @@
 #'    functions filters for those loci (if invers is set to TRUE, the opposite
 #'    is returned (all loci that are not fixed and have no private alleles - not
 #'     sure why yet, but maybe useful.)
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param pop1 Name of the first parental population (in quotes) [required].
 #' @param pop2 Name of the second parental population (in quotes) [required].

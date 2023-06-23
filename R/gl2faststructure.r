@@ -1,10 +1,10 @@
 #' Converts a genlight object into faststructure format (to run faststructure
 #'  elsewhere)
-#'
+
 #' Recodes in the quite specific faststructure format (e.g first six columns
 #' need to be there, but are ignored...check faststructure documentation
 #'  (if you find any :-( )))
-#'
+
 #' The script writes out the a file in faststructure format.
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)

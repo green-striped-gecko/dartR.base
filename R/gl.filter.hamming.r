@@ -1,6 +1,6 @@
 #' @name gl.filter.hamming
 #' @title Filters loci based on pairwise Hamming distance between sequence tags
-#'
+
 #' @description
 #' Hamming distance is calculated as the number of base differences between two
 #' sequences which can be expressed as a count or a proportion. Typically, it is
@@ -15,17 +15,17 @@
 #' counts the corresponding elements that are different between x and y.
 #' This approach can also be used for vectors that contain more than two 
 #' possible values at each position (e.g. A, C, T or G).
-#'
+
 #' If a pair of DNA sequences are of differing length, the longer is truncated.
-#'
+
 #' The algorithm is that of Johann de Jong
 #'\url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
 #' as implemented in \code{\link{utils.hamming}}.
-#'
+
 #' Only one of two loci are retained if their Hamming distance is less that a 
 #' specified
 #' percentage. 5 base differences out of 100 bases is a 20% Hamming distance.
-#'
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param threshold A threshold Hamming distance for filtering loci
 #' [default threshold 0.2].
@@ -43,17 +43,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log ; 3, progress and results summary; 5, full report
 #'   [default 2, unless specified using gl.set.verbosity].
-#'
+
 #' @return A genlight object filtered on Hamming distance.
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
-#'
+
 #' @examples
 #' # SNP data
 #' test <- platypus.gl
 #' test <- gl.subsample.loci(platypus.gl,n=50)
 #' result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
-#'
+
 #' @family filters functions
 #' @import patchwork
 #' @export

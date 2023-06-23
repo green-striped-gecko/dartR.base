@@ -49,10 +49,8 @@ The function displays a table of minimum, maximum, mean and quantiles for
  in \code{\link{gl.filter.rdepth}}. If plot.out=TRUE, display also includes a
   boxplot and a histogram to guide in the selection of a threshold for
   filtering on read depth.
-
  If save2tmp=TRUE, ggplots and relevant tabulations are saved to the
  session's temp directory (tempdir).
-
  For examples of themes, see  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -69,7 +67,6 @@ df <- gl.report.rdepth(testset.gs)
 \code{\link{gl.filter.rdepth}}
 
 Other report functions: 
-\code{\link{gl.report.bases}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
@@ -80,11 +77,9 @@ Other report functions:
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.parent.offspring}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.sexlinked}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{

@@ -2,16 +2,17 @@
 % Please edit documentation in R/utils.recalc.freqhomref.r
 \name{utils.recalc.freqhomref}
 \alias{utils.recalc.freqhomref}
-\title{A utility script to recalculate the frequency of the homozygous reference
+\title{#' A utility function to recalculate the frequency of the homozygous reference
 SNP by locus after some populations have been deleted}
 \usage{
 utils.recalc.freqhomref(x, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default 2].}
+progress log; 3, progress and results summary; 5, full report [default 2].
+@family dartR-base}
 }
 \value{
 The modified genlight object
@@ -20,16 +21,13 @@ The modified genlight object
 The locus metadata supplied by DArT has FreqHomRef included, but the
 frequency of the homozygous reference will change when some individuals are
 removed from the dataset.
-}
-\details{
 This script recalculates the FreqHomRef and places these recalculated values
 in the appropriate place in the genlight object.
-
 Note that the frequency of the homozygote reference SNPS is calculated from
 the individuals that could be scored.
 }
 \examples{
-#result <- utils.recalc.freqhomref(testset.gl)
+result <- dartR.base:::utils.recalc.freqhomref(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
