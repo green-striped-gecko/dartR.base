@@ -40,6 +40,7 @@
 
 #' @examples
 #' result <- dartR.base:::utils.reset.flags(testset.gl)
+#' @export
 
 utils.reset.flags <- function(x,
                               set = FALSE,
