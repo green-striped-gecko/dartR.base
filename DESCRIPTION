@@ -93,8 +93,6 @@ Suggests:
     fields,
     testthat (>= 3.0.0), 
     ggtern
-Remotes: github::mijangos81/ggtern
-License: GPL (>= 3)
 LazyData: true
 RoxygenNote: 7.2.3
 NeedsCompilation: no
