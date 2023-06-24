@@ -39,7 +39,7 @@
 #' datatype <- utils.check.datatype(fd,accept='fd')
 #'  }
 #'  
-# @export
+#' @export
 #' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
 #'  distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
 #'   class(x)[1].
