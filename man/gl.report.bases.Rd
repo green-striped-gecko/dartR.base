@@ -8,7 +8,8 @@ gl.report.bases(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors = c("#3B9AB2", "#78B7C5"),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
   save.type = NULL,
   save.dir = NULL,
   save.file = NULL,
@@ -27,7 +28,7 @@ gl.report.bases(
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default gl.select.colors(ncolors=2)].}
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
 \item{save.type}{If specified, will direct the saved output to a file of this type [default NULL]}
 

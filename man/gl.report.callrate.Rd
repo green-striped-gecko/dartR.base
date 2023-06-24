@@ -10,7 +10,8 @@ gl.report.callrate(
   by_pop = FALSE,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  plot_colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
   bins = 50,
   save2tmp = FALSE,
   verbose = NULL
@@ -30,7 +31,7 @@ individual (method='ind') [default 'loc'].}
 \item{plot_theme}{User specified theme [default theme_dartR()].}
 
 \item{plot_colors}{Vector with two color names for the borders and fill
-[default gl.colors(2)].}
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 

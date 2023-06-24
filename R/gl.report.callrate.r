@@ -14,7 +14,7 @@
 #' @param plot.out Specify if plot is to be produced [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
 #' @param plot_colors Vector with two color names for the borders and fill
-#' [default gl.colors(2)].
+#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
 #' @param bins Number of bins to display in histograms [default 25].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -64,7 +64,7 @@ gl.report.callrate <- function(x,
                                by_pop = FALSE, 
                                plot.out = TRUE,
                                plot_theme = theme_dartR(),
-                               plot_colors = gl.colors(2),
+                               plot_colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
                                bins = 50,
                                save2tmp = FALSE,
                                verbose = NULL) {
@@ -74,7 +74,7 @@ gl.report.callrate <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

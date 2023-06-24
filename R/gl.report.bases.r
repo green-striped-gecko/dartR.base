@@ -14,7 +14,7 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default gl.select.colors(ncolors=2)].
+#'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
 #' @param save.type If specified, will direct the saved output to a file of this type [default NULL]
 #' @param save.dir Directory in which to save the ggplot [default = working directory]
 #' @param save.file Name for the ggsave file [default NULL]
@@ -87,7 +87,7 @@
 gl.report.bases <- function(x,
                             plot.display=TRUE,
                             plot.theme = theme_dartR(),
-                            plot.colors = c("#3B9AB2", "#78B7C5"),
+                            plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
                             save.type=NULL,
                             save.dir=NULL,
                             save.file=NULL,
@@ -277,7 +277,7 @@ gl.report.bases <- function(x,
     if (verbose >= 2) {
         cat(
             report(
-                "  Returning a list containing
+                "\n  Returning a list containing
 [[1]] $freq -- the table of base frequencies and transition/transversion ratios;
 [[2]] $plotbases -- ggplot bargraph of base frequencies;
 [[3]] $plottstv -- ggplot bargraph of transitions and transversions."

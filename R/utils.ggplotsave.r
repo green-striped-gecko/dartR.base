@@ -76,14 +76,15 @@ utils.ggplotsave <- function(
     if(errorflag==0){
       filespec <- file.path(dir, file)
       filespec.ext <- paste0(filespec,".",type)
+      filespec.RDS <- paste0(filespec,".RDS")
       if(type=="RDS"){
-        if(verbose >= 2){cat(report("ggplot object will be saved as RDS to",filespec.ext,"using saveRDS()\n"))}
-        saveRDS(x, filespec.ext)
+        if(verbose >= 2){cat(report("ggplot object will be saved as RDS to",filespec.RDS,"using saveRDS()\n"))}
+        saveRDS(x, filespec.RDS)
       } else {
         if(verbose >= 2){cat(report("ggplot file will be saved as",type,"to",filespec.ext,"using ggsave()\n"))}
-        if(verbose >= 2){cat(report("ggplot object will also be saved as RDS binary to",filespec.ext,"using saveRDS()\n"))}
+        if(verbose >= 2){cat(report("ggplot object will also be saved as RDS binary to",filespec.RDS,"using saveRDS()\n"))}
         ggsave(x,filename=filespec.ext,device=type)
-        saveRDS(x, filespec.ext)
+        saveRDS(x, filespec.RDS)
       }
     } 
   } 

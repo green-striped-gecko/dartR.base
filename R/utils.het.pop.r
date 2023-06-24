@@ -7,7 +7,7 @@
 #' @author Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' out <- utils.het.pop(testset.gl)
+#' # out <- utils.het.pop(testset.gl)
 #' 
 # @export
 #' @return A vector with the mean expected heterozygosity for each population
