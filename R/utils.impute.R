@@ -1,3 +1,25 @@
+#' @name utils.impute
+#' @title An internal script [Custodian to provide a title]
+#' @family utilities
+#' 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#'  
+#' #[Custodian to provide other parameter descriptions]
+
+#' @details
+#' #[Custodian to provide details]
+#' 
+#' @author Custodian: Luis Mijangos (Post to
+#' \url{https://groups.google.com/d/forum/dartr})
+
+# @export
+#' @return The resultant genlight object
+
+
 matrix2gen <- function(snp_matrix, parallel = FALSE) {
   if (parallel) {
     i@gen <-

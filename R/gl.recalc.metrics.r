@@ -48,13 +48,13 @@ gl.recalc.metrics <- function(x,
     # Recalculate statistics
     
     if (datatype == "SNP") {
-        x <- dartR.base:::utils.recalc.avgpic(x, verbose = verbose)
-        x <- dartR.base:::utils.recalc.callrate(x, verbose = verbose)
-        x <- dartR.base:::utils.recalc.maf(x, verbose = verbose)
+        x <- utils.recalc.avgpic(x, verbose = verbose)
+        x <- utils.recalc.callrate(x, verbose = verbose)
+        x <- utils.recalc.maf(x, verbose = verbose)
     }
     if (datatype == "SilicoDArT") {
-        x <- dartR.base:::utils.recalc.avgpic(x, verbose = verbose)
-        x <- dartR.base:::utils.recalc.callrate(x, verbose = verbose)
+        x <- utils.recalc.avgpic(x, verbose = verbose)
+        x <- utils.recalc.callrate(x, verbose = verbose)
     }
     
     if (verbose >= 2) {

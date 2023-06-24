@@ -135,7 +135,7 @@ gl.filter.callrate <- function(x,
     if (verbose >= 2) {
         cat(report("  Recalculating Call Rate\n"))
     }
-    x <- dartR.base:::utils.recalc.callrate(x, verbose = 0)
+    x <- utils.recalc.callrate(x, verbose = 0)
     # }
     
     # Suppress plotting on verbose == 0
@@ -501,7 +501,7 @@ gl.filter.callrate <- function(x,
         x2 <- x[, locall]
         x2@other$loc.metrics <- x@other$loc.metrics[locall,]
         
-        x2 <- dartR.base:::utils.recalc.callrate(x2, verbose = 0)
+        x2 <- utils.recalc.callrate(x2, verbose = 0)
         
         # Plot a histogram of Call Rate
         
@@ -619,7 +619,7 @@ gl.filter.callrate <- function(x,
         }
     }
     
-    # # Recalculate Call Rate to be safe x <- dartR.base:::utils.recalc.callrate(x,verbose=0)
+    # # Recalculate Call Rate to be safe x <- utils.recalc.callrate(x,verbose=0)
     
     # SAVE INTERMEDIATES TO TEMPDIR
     if (save2tmp & plot.out) {

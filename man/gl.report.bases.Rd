@@ -102,18 +102,7 @@ Other dartR-base:
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+\code{\link{gl.recode.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

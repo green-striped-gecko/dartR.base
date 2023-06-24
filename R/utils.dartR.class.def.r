@@ -1,5 +1,3 @@
-
-
 #seppop needs to be imported to work for dartR
 #also internal functions for "[" methods
 seppop <- getFromNamespace("seppop", "adegenet")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.ggplotsave.r
 \name{utils.ggplotsave}
 \alias{utils.ggplotsave}
-\title{A function to save a ggplot file/object to disk.}
+\title{An internal function to save a ggplot file/object to disk.}
 \usage{
 utils.ggplotsave(x, type = NULL, dir = NULL, file = NULL, verbose = NULL, ...)
 }
@@ -20,14 +20,44 @@ progress log; 3, progress and results summary; 5, full report
  [default NULL, unless specified using gl.set.verbosity]}
 
 \item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
-such as width and height, when the ggplot is to be saved.}
-}
-\description{
-Uses saveRDS() and ggsave().
+ such as width and height, when the ggplot is to be saved.
+ 
+ @details
+ #' Uses saveRDS() and ggsave().
 Additional details ..... options for saving are specified by the parameter
 type, which can be one of 
 "RDS", eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", 
 "bmp", "svg" or "wmf" (windows only). If type is specified, Whether or not "RDS", 
 the function also saves the ggplot object as an RDS binary file using gl.save(); 
-can be reloaded with gl.load().
+can be reloaded with gl.load().}
 }
+\description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\seealso{
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
+}
+\author{
+Maintainer: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+}
+\concept{utilities}

@@ -1,9 +1,16 @@
 #' @name utils.recalc.freqhomsnp
-
 #' @title A utility function to recalculate the frequency of the homozygous alternate
 #' SNP by locus after some populations have been deleted
+#' @family utilities
 
-#'@description
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
+#' @param x Name of the genlight object [required].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report [default 2].
+#' 
+#' @details
 #' The locus metadata supplied by DArT has FreqHomSnp included, but the
 #' frequency of the homozygous alternate will change when some individuals are
 #' removed from the dataset.
@@ -15,13 +22,6 @@
 #' the individuals that could be scored.
 
 #' This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).
-
-#' @param x Name of the genlight object [required].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report [default 2].
-
-#' @family dartR-base
-#' @return The modified genlight object.
 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -35,7 +35,11 @@
 #' \code{gl.recalc.rdepth} for recalculating average read depth
 
 #' @examples
-#' out <- dartR.base:::utils.recalc.freqhomsnp(testset.gl)
+#' # out <- utils.recalc.freqhomsnp(testset.gl)
+#' 
+# @export
+#' @return The modified genlight object.
+
 
 utils.recalc.freqhomsnp <- function(x,
                                     verbose = NULL) {

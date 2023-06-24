@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.jackknife.R
 \name{utils.jackknife}
 \alias{utils.jackknife}
-\title{Conducts jackknife resampling using a genlight object}
+\title{An internal function to conducts jackknife resampling using a genlight object}
 \usage{
 utils.jackknife(
   x,
@@ -40,6 +40,9 @@ progress but not results; 3, progress and results summary; 5, full report
 A list of length n where each element is the output of FUN
 }
 \description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 Jackknife resampling is a statistical procedure where for a dataset of sample 
 size n, subsamples of size n-1 are used to compute a statistic. The collection 
 of the values obtained can be used to evaluate the variability around the point 
@@ -58,8 +61,33 @@ require("dartR.data")
 platMod.gl <- gl.filter.allna(platypus.gl) 
 chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
 recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
+
+}
+\seealso{
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.ggplotsave}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Carlo Pacioni -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{utilities}

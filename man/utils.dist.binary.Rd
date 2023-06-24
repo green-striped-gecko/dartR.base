@@ -30,16 +30,12 @@ mutation) is scored as 1 [default FALSE].}
 dist for a object of class dist, matrix for an object of class matrix [default "dist"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default 2].}
-}
-\value{
-An object of class 'dist' or 'matrix' giving distances between individuals
-}
-\description{
+ progress log; 3, progress and results summary; 5, full report [default 2].
+ 
+ @details
 This script calculates various distances between individuals based on sequence tag
 Presence/Absence data.
-}
-\details{
+
 The distance measure can be one of:
  \itemize{
   \item Euclidean -- Euclidean Distance applied to cartesian coordinates defined
@@ -54,7 +50,13 @@ The distance measure can be one of:
  }
  One might choose to disregard or downweight absences in comparison with
  presences because the homology of absences is less clear (mutation at one or
- the other, or both restriction sites). Your call.
+ the other, or both restriction sites). Your call.}
+}
+\value{
+An object of class 'dist' or 'matrix' giving distances between individuals
+}
+\description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \examples{
  \donttest{
@@ -62,8 +64,33 @@ D <- utils.dist.binary(testset.gs, method='Jaccard')
 D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
 }
 D <- utils.dist.binary(testset.gs, method='Simple')
+
+}
+\seealso{
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.ggplotsave}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{utilities}

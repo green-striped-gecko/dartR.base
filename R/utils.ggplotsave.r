@@ -1,14 +1,9 @@
 #' @name utils.ggplotsave
-#' @title A function to save a ggplot file/object to disk. 
+#' @title An internal function to save a ggplot file/object to disk. 
+#' @family utilities
 
 #' @description
-#' Uses saveRDS() and ggsave().
-#' Additional details ..... options for saving are specified by the parameter
-#' type, which can be one of 
-#' "RDS", eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", 
-#' "bmp", "svg" or "wmf" (windows only). If type is specified, Whether or not "RDS", 
-#' the function also saves the ggplot object as an RDS binary file using gl.save(); 
-#' can be reloaded with gl.load().
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
 #' @param x Name of the ggplot object.
 #' @param type Type of file to save 
@@ -19,7 +14,19 @@
 #'  [default NULL, unless specified using gl.set.verbosity]
 #' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
 #'  such as width and height, when the ggplot is to be saved.
+#'  
+#'  @details
+#'  #' Uses saveRDS() and ggsave().
+#' Additional details ..... options for saving are specified by the parameter
+#' type, which can be one of 
+#' "RDS", eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", 
+#' "bmp", "svg" or "wmf" (windows only). If type is specified, Whether or not "RDS", 
+#' the function also saves the ggplot object as an RDS binary file using gl.save(); 
+#' can be reloaded with gl.load().
+#' 
+#' @author Maintainer: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
+#' @export
 #' @return NULL
 
 utils.ggplotsave <- function(

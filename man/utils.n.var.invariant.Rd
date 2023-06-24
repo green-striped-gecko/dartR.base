@@ -2,8 +2,19 @@
 % Please edit documentation in R/utils.n.var.invariant.r
 \name{utils.n.var.invariant}
 \alias{utils.n.var.invariant}
-\title{A utility script to calculate the number of variant and invariant sites by
-locus
+\title{An internal utility function to calculate the number of variant and invariant sites by
+locus}
+\usage{
+utils.n.var.invariant(x, verbose = NULL)
+}
+\arguments{
+\item{x}{Name of the genlight object containing the SNP data [required].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+  progress log; 3, progress and results summary; 5, full report
+   [default NULL].
+   
+ @details
 Calculate the number of variant and invariant sites by locus and add them as
 columns in \code{loc.metrics}. This can be useful to conduct further
 filtering, for example where only loci with secondaries are wanted for
@@ -19,45 +30,44 @@ invariant (n.invariant) sites are the added to the table in
 \strong{NOTE}: It is important to realise that this function correctly
 estimates the number of variant and invariant sites only when it is executed on
 \code{genlight} objects before secondaries are removed.}
-\usage{
-utils.n.var.invariant(x, verbose = NULL)
-}
-\arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
-
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
- [default NULL].}
 }
 \value{
 The modified genlight object.
 }
 \description{
-A utility script to calculate the number of variant and invariant sites by
-locus
-Calculate the number of variant and invariant sites by locus and add them as
-columns in \code{loc.metrics}. This can be useful to conduct further
-filtering, for example where only loci with secondaries are wanted for
-phylogenetic analyses.
-Invariant sites are the sites (nucleotide) that are not polymorphic. When the
-locus metadata supplied by DArT includes the sequence of the allele
-(\code{TrimmedSequence}), it is used by this function to estimate the number
-of sites that were sequenced in each tag (read). This script then subtracts
-the number of polymorphic sites. The length of the trimmed sequence
-(lenTrimSeq), the number of variant (n.variant) and
-invariant (n.invariant) sites are the added to the table in
-\code{gl@others$loc.metrics}.
-\strong{NOTE}: It is important to realise that this function correctly
-estimates the number of variant and invariant sites only when it is executed on
-\code{genlight} objects before secondaries are removed.
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \examples{
 require("dartR.data")
 out <- utils.n.var.invariant(platypus.gl)
+
 }
 \seealso{
 \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
+
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.ggplotsave}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
-Carlo Pacioni (Post to \url{https://groups.google.com/d/forum/dartr})
+Custodian: Carlo Pacioni (Post to \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{utilities}

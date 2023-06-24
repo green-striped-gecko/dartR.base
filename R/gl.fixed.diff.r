@@ -83,7 +83,7 @@
 #' fd <- gl.fixed.diff(testset.gl, tloc=0, verbose=3 )
 #' fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose=3 )
 #' }
-#' @seealso \code{\link{is.fixed}}
+#' @seealso \code{\link{utils.is.fixed}}
 
 gl.fixed.diff <- function(x,
                           tloc = 0,
@@ -260,7 +260,7 @@ gl.fixed.diff <- function(x,
             for (i in 1:nloci) {
                 # For each locus
                 fixed[i] <-
-                    is.fixed(p1$frequency[i], p2$frequency[i], tloc = tloc)
+                    utils.is.fixed(p1$frequency[i], p2$frequency[i], tloc = tloc)
             }
             # Calculate stats across loci
             fixed.matrix[popi, popj] <- sum(fixed, na.rm = TRUE)

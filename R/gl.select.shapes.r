@@ -1,10 +1,21 @@
 #' @name gl.select.shapes
 # Preliminaries -- specify parameter definitions -------------------
 #' @title Selects shapes from the base R shape palette and outputs as a vector
+#' @family graphics
+#' 
 #' @description
 #' This script draws upon the standard R shape palette to extract a vector of
 #' shapes for plotting, where the script that follows has a shape parameter
 #' expecting a vector of shapes.
+
+#' @param x Optionally, provide a gl object from which to determine the number
+#' of populations [default NULL].
+#' @param select Select the shapes to retain in the output vector
+#' [default NULL, all shapes shown and returned].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
 #' By default the shape palette will be displayed in full in the graphics window
 #' from which shapes can be selected in a subsequent run, and the vector of
@@ -14,16 +25,6 @@
 #' shapes available (0-25). For example, select=c(1,1,3) will select shape 1, 1
 #' again and 3 to retain in the final vector. This can be useful for fine-tuning
 #' shape selection, and matching colors and shapes.
-
-#' @param x Optionally, provide a gl object from which to determine the number
-#' of populations [default NULL].
-#' @param select Select the shapes to retain in the output vector
-#' [default NULL, all shapes shown and returned].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-
-#' @return A vector with the required number of shapes
 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -41,8 +42,11 @@
 #' shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
 
 #' @seealso \code{\link{gl.select.colors}}
-#' @family dartR-base
+
 #' @export
+#' @return A vector with the required number of shapes
+#' 
+#' 
 # Function --------------------
 gl.select.shapes <- function(x = NULL,
                              select = NULL,

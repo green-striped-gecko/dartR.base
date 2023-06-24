@@ -1,7 +1,9 @@
 #' @name utils.dart2genlight
-#' @title Converts DarT to genlight.
-#' @description Converts a DArT file (read via \code{read.dart}) into an
-#' genlight object \code{\link{adegenet}}. #' Internal function called by gl.read.dart().
+#' @title An internal function to converts DarT to genlight.
+#' @family utilities
+#' 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
 #' @param dart A dart object created via read.dart [required].
 #' @param ind.metafile Optional file in csv format with metadata for each
@@ -10,18 +12,23 @@
 #' @param probar Show progress bar [default TRUE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report [default NULL].
-#' @return A genlight object. Including all available slots are filled.
-#' loc.names, ind.names, pop, lat, lon (if provided via the ind.metadata file)
+
 #' @details
+#' Converts a DArT file (read via \code{read.dart}) into an
+#' genlight object \code{\link{adegenet}}. #' Internal function called by gl.read.dart().
+#' 
 #' The ind.metadata file needs to have very specific headings. First a heading
 #' called id. Here the ids have to match the ids in the dart object
 #' \code{colnames(dart[[4]])}. The following column headings are optional.
 #' pop: specifies the population membership of each individual. lat and lon
 #' specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 #' columns with individual metadata can be imported (e.g. age, gender).
+#' 
+#' @author Maintainer: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
-#'@family dartR-base
-#'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+# @export
+#' @return A genlight object. Including all available slots are filled.
+#' loc.names, ind.names, pop, lat, lon (if provided via the ind.metadata file)
 
 utils.dart2genlight <- function(dart,
                                 ind.metafile = NULL,
