@@ -5,13 +5,11 @@
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
-#'  
-#' #[Custodian to provide other parameter descriptions]
+#' @param snp_matrix [Custodian to provide parameter description]
+#' @param parallel [Custodian to provide parameter description]
 
 #' @details
-#' #[Custodian to provide details]
+#' #[Custodian to provide details for future you]
 #' 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})

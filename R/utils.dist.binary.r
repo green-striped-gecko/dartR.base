@@ -45,10 +45,10 @@
 #' 
 #' @examples
 #'  \donttest{
-#' D <- utils.dist.binary(testset.gs, method='Jaccard')
-#' D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
+#' # D <- utils.dist.binary(testset.gs, method='Jaccard')
+#' # D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
+#' # D <- utils.dist.binary(testset.gs, method='Simple')
 #' }
-#' D <- utils.dist.binary(testset.gs, method='Simple')
 #' 
 # @export  
 #' @return An object of class 'dist' or 'matrix' giving distances between individuals

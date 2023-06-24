@@ -52,8 +52,8 @@ The distance measure can be one of:
  \donttest{
 D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
 D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
-}
 D <- utils.dist.ind.snp(testset.gl, method='Simple')
+}
 
 }
 \seealso{

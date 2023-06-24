@@ -8,10 +8,9 @@
 matrix2gen(snp_matrix, parallel = FALSE)
 }
 \arguments{
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
- progress log; 3, progress and results summary; 5, full report [default 2].
- 
-#[Custodian to provide other parameter descriptions]}
+\item{snp_matrix}{[Custodian to provide parameter description]}
+
+\item{parallel}{[Custodian to provide parameter description]}
 }
 \value{
 The resultant genlight object
@@ -20,7 +19,7 @@ The resultant genlight object
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
-#[Custodian to provide details]
+#[Custodian to provide details for future you]
 }
 \seealso{
 Other utilities: 

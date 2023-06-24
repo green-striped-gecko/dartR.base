@@ -60,10 +60,10 @@ WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END
 }
 \examples{
  \donttest{
-D <- utils.dist.binary(testset.gs, method='Jaccard')
-D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
+# D <- utils.dist.binary(testset.gs, method='Jaccard')
+# D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
+# D <- utils.dist.binary(testset.gs, method='Simple')
 }
-D <- utils.dist.binary(testset.gs, method='Simple')
 
 }
 \seealso{
