@@ -15,9 +15,9 @@
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
-#' @param save.type If specified, will direct the saved output to a file of this type [default NULL]
-#' @param save.dir Directory in which to save the ggplot [default = working directory]
-#' @param save.file Name for the ggsave file [default NULL]
+#' @param save.plot.type If specified, will direct the saved output to a file of this type [default NULL]
+#' @param save.dir Directory in which to save files [default = working directory]
+#' @param save.file.basename Name for the ggsave file [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
@@ -44,7 +44,7 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#'  If the save.type parameter is set to one of 
+#'  If the save.plot.type parameter is set to one of 
 #' "RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
 #' "bmp", "svg" or "wmf" (windows only), the graphics produced by the function
 #' will be saved to disk. The option "RDS" saves as a binary file 
@@ -58,7 +58,7 @@
 
 #'  A file name must be specified for the plot to be saved.
 
-#'  Note that if save.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
+#'  Note that if save.plot.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
 #' "bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
 #' of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
 #' reloaded with readRDS().
@@ -73,7 +73,8 @@
 #' @examples
 #' # SNP data
 #'   out <- gl.report.bases(testset.gl)
-#'   out <- gl.report.bases(testset.gl,save.type="pdf",save.file="myplot")
+#'   out <- gl.report.bases(testset.gl,save.plot.type="pdf",save.file.basename="myplot")
+#'   out <- gl.report.bases(testset.gl,save.plot.type="jpg",save.file.basename="myplot")
 #'   
 #'   col <- gl.select.colors(select=c(6,1),palette=rainbow)
 #'   out <- gl.report.bases(testset.gl,plot.colors=col)
@@ -88,9 +89,9 @@ gl.report.bases <- function(x,
                             plot.display=TRUE,
                             plot.theme = theme_dartR(),
                             plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
-                            save.type=NULL,
+                            save.plot.type=NULL,
                             save.dir=NULL,
-                            save.file=NULL,
+                            save.file.basename=NULL,
                             verbose = NULL,
                             ...) {
 # PRELIMINARIES -- checking ----------------
@@ -226,7 +227,7 @@ gl.report.bases <- function(x,
     }
     
 # PLOT THE RESULTS ----------------- 
-    if (plot.display | !is.null(save.type)) {
+    if (plot.display | !is.null(save.plot.type)) {
       if (datatype == "SNP") {
         title <- paste0("SNP: Base Frequencies")
       } else {
@@ -268,9 +269,9 @@ gl.report.bases <- function(x,
     # Optionally save the plot ---------------------
 
     tmp <- utils.ggplotsave(p3,
-                            type=save.type,
+                            type=save.plot.type,
                             dir=save.dir,
-                            file=save.file,
+                            file=save.file.basename,
                             verbose=verbose)
 # FINISH UP -------------------
     # Create return list

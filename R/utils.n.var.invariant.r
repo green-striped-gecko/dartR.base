@@ -36,8 +36,8 @@
 #' \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
 
 #' @examples
-#' require("dartR.data")
-#' out <- utils.n.var.invariant(platypus.gl)
+#' # require("dartR.data")
+#' # out <- utils.n.var.invariant(platypus.gl)
 #' 
 # @export
 #' @return The modified genlight object.

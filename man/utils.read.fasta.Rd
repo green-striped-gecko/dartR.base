@@ -4,9 +4,15 @@
 \alias{utils.read.fasta}
 \title{An internal script [Custodian to provide a title]}
 \usage{
-utils.read.fasta(file, parallel = parallel, n_cores = NULL, verbose = verbose)
+utils.read.fasta(file, parallel = parallel, n.cores = NULL, verbose = verbose)
 }
 \arguments{
+\item{file}{Custodian to provide other parameter descriptions}
+
+\item{parallel}{Custodian to provide other parameter descriptions}
+
+\item{n.cores}{Custodian to provide other parameter descriptions}
+
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
  progress log; 3, progress and results summary; 5, full report [default 2].
  

@@ -28,7 +28,7 @@ This script recalculates the MAF and places these recalculated values in the
  This function only applies to SNP genotype data.
 }
 \examples{
-f <- utils.recalc.maf(testset.gl)
+# f <- utils.recalc.maf(testset.gl)
 
 }
 \seealso{

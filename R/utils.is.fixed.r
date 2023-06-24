@@ -25,8 +25,8 @@
 #' @author Maintainer: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples
-#' utils.is.fixed(s1=100, s2=0, tloc=0)
-#' utils.is.fixed(96, 4, tloc=0.05)
+#' # utils.is.fixed(s1=100, s2=0, tloc=0)
+#' # utils.is.fixed(96, 4, tloc=0.05)
 #' 
 #' @seealso \code{\link{gl.fixed.diff}}
 #'  

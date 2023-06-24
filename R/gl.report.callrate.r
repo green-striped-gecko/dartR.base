@@ -10,14 +10,12 @@
 #'  (SilicoDArT) data [required].
 #' @param method Specify the type of report by locus (method='loc') or
 #' individual (method='ind') [default 'loc'].
-#' @param by_pop Whether report by population [default FALSE].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme User specified theme [default theme_dartR()].
-#' @param plot_colors Vector with two color names for the borders and fill
+#' @param by.pop If TRUE, report by population [default FALSE].
+#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.colors Vector with two color names for the borders and fill
 #' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
 #' @param bins Number of bins to display in histograms [default 25].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
@@ -46,6 +44,9 @@
 #'   test.gl <- testset.gl[1:20,]
 #'   gl.report.callrate(test.gl)
 #'   gl.report.callrate(test.gl,method='ind')
+#'   gl.report.callrate(test.gl,method='ind',save.file.basename="test",save.plot.type="pdf")
+#'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
+#'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE,save.file.basename="test",save.plot.type="pdf")
 #' # Tag P/A data
 #'   test.gs <- testset.gs[1:20,]
 #'   gl.report.callrate(test.gs)
@@ -61,13 +62,18 @@
 
 gl.report.callrate <- function(x,
                                method = "loc",
-                               by_pop = FALSE, 
-                               plot.out = TRUE,
-                               plot_theme = theme_dartR(),
-                               plot_colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                               by.pop = FALSE, 
+                               plot.display=TRUE,
+                               plot.theme = theme_dartR(),
+                               plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                               save.plot.type=NULL,
+                               save.dir=NULL,
+                               save.file.basename=NULL,
                                bins = 50,
-                               save2tmp = FALSE,
-                               verbose = NULL) {
+                               verbose = NULL,
+                               ...) {
+  
+ 
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -93,7 +99,7 @@ gl.report.callrate <- function(x,
     ########### FOR METHOD BASED ON LOCUS
     if (method == "loc") {
         callrate <- x@other$loc.metrics$CallRate
-        if (plot.out) {
+        if (plot.display) {
             # get title for plots
                 if (datatype == "SNP") {
                     title1 <- "SNP data - Call Rate by Locus"
@@ -108,9 +114,9 @@ gl.report.callrate <- function(x,
                 # Boxplot
                 p1 <-
                     ggplot(data.frame(callrate), aes(y = callrate)) + 
-                    geom_boxplot(color=plot_colors[1], fill = plot_colors[2]) + 
+                    geom_boxplot(color=plot.colors[1], fill = plot.colors[2]) + 
                     coord_flip() +
-                    plot_theme + 
+                    plot.theme + 
                     xlim(range = c(-1, 1)) + 
                     ylim(min, 1) + 
                     ylab(" ") + 
@@ -120,14 +126,14 @@ gl.report.callrate <- function(x,
                 # Histogram
                 p2 <-
                     ggplot(data.frame(callrate), aes(x = callrate)) +
-    geom_histogram(bins = bins,color = plot_colors[1],fill = plot_colors[2]) +
+                    geom_histogram(bins = bins,color = plot.colors[1],fill = plot.colors[2]) +
                     coord_cartesian(xlim = c(min, 1)) +
                     xlab("Call rate") +
                     ylab("Count") + 
-                    plot_theme
+                    plot.theme
                 
                 # plots by population
-                if(nPop(x)>1 & by_pop==TRUE){
+                if(nPop(x)>1 & by.pop==TRUE){
                 pops <- seppop(x)
                 
                 cat("  Reporting Call Rate by population\n")
@@ -137,11 +143,11 @@ gl.report.callrate <- function(x,
                     c_rate_tmp <- pop_tmp$other$loc.metrics$CallRate
                     p_temp <-
                        ggplot(as.data.frame(c_rate_tmp), aes(x = c_rate_tmp)) + 
-    geom_histogram(bins = bins, color = plot_colors[1],fill = plot_colors[2]) +
+                       geom_histogram(bins = bins, color = plot.colors[1],fill = plot.colors[2]) +
                         xlab("Call rate") + 
                         ylab("Count") +
                         coord_cartesian(xlim = c(min, 1)) +
-                        plot_theme + 
+                        plot.theme + 
                         ggtitle(paste(popNames(z), "n =", nInd(z)))
                     
 cat("   Population:",popNames(pop_tmp),"\n")
@@ -209,7 +215,7 @@ cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
 ########### FOR METHOD BASED ON INDIVIDUAL Calculate the call rate by individual
     if (method == "ind") {
         ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
-        if (plot.out) {
+        if (plot.display) {
             # get title for plots
             if (datatype == "SNP") {
                 title1 <- "SNP data - Call Rate by Individual"
@@ -224,9 +230,9 @@ cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
             # Boxplot
             p1 <-
                 ggplot(data.frame(ind.call.rate), aes(y = ind.call.rate)) + 
-                geom_boxplot(color = plot_colors[1], fill = plot_colors[2]) +
+                geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) +
                 coord_flip() +
-                plot_theme + 
+                plot.theme + 
                 xlim(range = c(-1, 1)) +
                 ylim(min, 1) + 
                 ylab(" ") +
@@ -236,11 +242,11 @@ cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
             # Histogram
             p2 <-
                 ggplot(data.frame(ind.call.rate), aes(x = ind.call.rate)) + 
-  geom_histogram(bins = bins, color = plot_colors[1],fill = plot_colors[2]) +
+                geom_histogram(bins = bins, color = plot.colors[1],fill = plot.colors[2]) +
                 coord_cartesian(xlim = c(min, 1)) + 
                 xlab("Call rate") +
                 ylab("Count") +
-                plot_theme
+                plot.theme
         }
         # Print out some statistics
         stats <- summary(ind.call.rate)
@@ -257,107 +263,122 @@ cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
             as.matrix(x)
         )) / (nLoc(x) * nInd(x)), 4), "\n\n")
         
-  # Determine the loss of individuals for a given threshold using quantiles
-        quantile_res <-
-            quantile(ind.call.rate, probs = seq(0, 1, 1 / 20))
-        retained <- unlist(lapply(quantile_res, function(y) {
-            res <- length(ind.call.rate[ind.call.rate >= y])
-        }))
-        pc.retained <- round(retained * 100 / nInd(x), 1)
-        filtered <- nInd(x) - retained
-        pc.filtered <- 100 - pc.retained
-        df <-
-            data.frame(
-                as.numeric(sub("%", "", names(
-                    quantile_res
-                ))),
-                quantile_res,
-                retained,
-                pc.retained,
-                filtered,
-                pc.filtered
-            )
-        colnames(df) <-
-            c("Quantile",
-              "Threshold",
-              "Retained",
-              "Percent",
-              "Filtered",
-              "Percent")
-        df <- df[order(-df$Quantile), ]
-        df$Quantile <- paste0(df$Quantile, "%")
-        rownames(df) <- NULL
-        
-        ind.call.rate_pop <- as.data.frame(cbind(names(ind.call.rate),
-                                                 as.character(pop(x)),
-                                                 ind.call.rate))
-        colnames(ind.call.rate_pop) <- c("ind_name","pop","missing_data")
-ind.call.rate_pop <- ind.call.rate_pop[order(ind.call.rate_pop$pop,
-                                             ind.call.rate_pop$missing_data,
-                                             decreasing = TRUE),]
-        
-    }
+#   # Determine the loss of individuals for a given threshold using quantiles
+#         quantile_res <-
+#             quantile(ind.call.rate, probs = seq(0, 1, 1 / 20))
+#         retained <- unlist(lapply(quantile_res, function(y) {
+#             res <- length(ind.call.rate[ind.call.rate >= y])
+#         }))
+#         pc.retained <- round(retained * 100 / nInd(x), 1)
+#         filtered <- nInd(x) - retained
+#         pc.filtered <- 100 - pc.retained
+#         df <-
+#             data.frame(
+#                 as.numeric(sub("%", "", names(
+#                     quantile_res
+#                 ))),
+#                 quantile_res,
+#                 retained,
+#                 pc.retained,
+#                 filtered,
+#                 pc.filtered
+#             )
+#         colnames(df) <-
+#             c("Quantile",
+#               "Threshold",
+#               "Retained",
+#               "Percent",
+#               "Filtered",
+#               "Percent")
+#         df <- df[order(-df$Quantile), ]
+#         df$Quantile <- paste0(df$Quantile, "%")
+#         rownames(df) <- NULL
+#         
+#         ind.call.rate_pop <- as.data.frame(cbind(names(ind.call.rate),
+#                                                  as.character(pop(x)),
+#                                                  ind.call.rate))
+#         colnames(ind.call.rate_pop) <- c("ind_name","pop","missing_data")
+# ind.call.rate_pop <- ind.call.rate_pop[order(ind.call.rate_pop$pop,
+#                                              ind.call.rate_pop$missing_data,
+#                                              decreasing = TRUE),]
+#         
+     }
     
     # PRINTING OUTPUTS
-    if (plot.out) {
+    if (plot.display) {
         # using package patchwork
         p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
         print(p3)
         
-        if(nPop(x)>1 & method == "loc" & by_pop == TRUE){
+        filename <- paste0(save.file.basename,"_01")
+        tmp <- utils.ggplotsave(p3,
+                                type=save.plot.type,
+                                dir=save.dir,
+                                file=filename,
+                                verbose=verbose)
+        
+        if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
             row_plots <- ceiling(nPop(x) / 3)
             p4 <- wrap_plots(c_rate_plots)
             p4 <- p4 + plot_layout(ncol = 3, nrow = row_plots)
             print(p4)
-        }
-    }
-    print(df)
-    cat("\n\n")
-    if (method == "ind") {
-    print(ind.call.rate_pop, row.names = FALSE)
-    }
-    
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
             
-            # saving plots per pop
-            if(nPop(x)>1){
-            temp_plot_2 <- tempfile(pattern = "Plot_per_pop")
-            # saving to tempdir
-            saveRDS(list(match_call, p4), file = temp_plot_2)
-            }
-            
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, df), file = temp_table)
-        if (method == "ind") {
-        temp_table_2 <- tempfile(pattern = "Table2_")
-        saveRDS(list(ind.call.rate_pop, df), file = temp_table_2)
-        }
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
+            filename <- paste0(save.file.basename,"_02")
+            tmp <- utils.ggplotsave(p4,
+                                    type=save.plot.type,
+                                    dir=save.dir,
+                                    file=filename,
+                                    verbose=verbose)
         }
     }
+        
+    #print(df)
+    # cat("\n\n")
+    # if (method == "ind") {
+    # print(ind.call.rate_pop, row.names = FALSE)
+    # }
+    
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # 
+    # # creating temp file names
+    # if (save2tmp) {
+    #     if (plot.display) {
+    #         temp_plot <- tempfile(pattern = "Plot_")
+    #         match_call <-
+    #             paste0(names(match.call()),
+    #                    "_",
+    #                    as.character(match.call()),
+    #                    collapse = "_")
+    #         # saving to tempdir
+    #         saveRDS(list(match_call, p3), file = temp_plot)
+    #         
+    #         # saving plots per pop
+    #         if(nPop(x)>1){
+    #         temp_plot_2 <- tempfile(pattern = "Plot_per_pop")
+    #         # saving to tempdir
+    #         saveRDS(list(match_call, p4), file = temp_plot_2)
+    #         }
+    #         
+    #         if (verbose >= 2) {
+    #             cat(report("  Saving the ggplot to session tempfile\n"))
+    #         }
+    #     }
+    #     temp_table <- tempfile(pattern = "Table_")
+    #     saveRDS(list(match_call, df), file = temp_table)
+    #     if (method == "ind") {
+    #     temp_table_2 <- tempfile(pattern = "Table2_")
+    #     saveRDS(list(ind.call.rate_pop, df), file = temp_table_2)
+    #     }
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving tabulation to session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using 
+    #                 gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    #  }
     
     # FLAG SCRIPT END
     

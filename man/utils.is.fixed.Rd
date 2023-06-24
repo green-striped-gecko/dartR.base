@@ -34,8 +34,8 @@ Tolerance in the definition of a fixed difference is provided by the t
  5,95 percent will be reported as fixed (TRUE).
 }
 \examples{
-utils.is.fixed(s1=100, s2=0, tloc=0)
-utils.is.fixed(96, 4, tloc=0.05)
+# utils.is.fixed(s1=100, s2=0, tloc=0)
+# utils.is.fixed(96, 4, tloc=0.05)
 
 }
 \seealso{

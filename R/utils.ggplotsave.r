@@ -83,7 +83,7 @@ utils.ggplotsave <- function(
       } else {
         if(verbose >= 2){cat(report("ggplot file will be saved as",type,"to",filespec.ext,"using ggsave()\n"))}
         if(verbose >= 2){cat(report("ggplot object will also be saved as RDS binary to",filespec.RDS,"using saveRDS()\n"))}
-        ggsave(x,filename=filespec.ext,device=type)
+        ggsave(x,filename=filespec.ext,device=type,dpi=600)
         saveRDS(x, filespec.RDS)
       }
     } 
