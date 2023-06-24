@@ -1,5 +1,19 @@
-#' Calculates the Hamming distance between two DArT trimmed DNA sequences
+#' @name utils.hamming
+#' @title Calculates the Hamming distance between two DArT trimmed DNA sequences
+#' @family utilities
 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
+#' The algorithm is that of Johann de Jong
+#' \url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
+
+#' @param str1 String containing the first sequence [required].
+#' @param str2 String containing the second sequence [required].
+#' @param r Number of bases in the restriction enzyme recognition sequence
+#' [default 4].
+#' 
+#' @details
 #' Hamming distance is calculated as the number of base differences between two
 #' sequences which can be expressed as a count or a proportion. Typically, it is
 #' calculated between two sequences of equal length. In the context of DArT
@@ -26,18 +40,14 @@
 
 #' If the two DNA sequences are of differing length, the longer is truncated. The
 #' initial common restriction enzyme recognition sequence is ignored.
+#' 
 
-#' The algorithm is that of Johann de Jong
-#' \url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
-
-#' @param str1 String containing the first sequence [required].
-#' @param str2 String containing the second sequence [required].
-#' @param r Number of bases in the restriction enzyme recognition sequence
-#' [default 4].
-#' @return Hamming distance between the two strings
-#' @export
 #' @author Custodian: Arthur Georges (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
+#'  
+# @export
+#' @return Hamming distance between the two strings
+
 
 utils.hamming <- function(str1,
                           str2,

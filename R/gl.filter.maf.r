@@ -147,7 +147,7 @@ gl.filter.maf <- function(x,
                 "populations and recalculating FreqHoms and FreqHets\n"
             ))
         }
-        #x <- dartR.base:::utils.recalc.maf(x, verbose = 0)
+        #x <- utils.recalc.maf(x, verbose = 0)
         pop.list <- seppop(x)
         
         # getting populations with more than ind.limit
@@ -167,7 +167,7 @@ gl.filter.maf <- function(x,
           x2 <- x[, -loci.list]
           x2@other$loc.metrics <- x@other$loc.metrics[-loci.list,]
         
-        x2 <- dartR.base:::utils.recalc.maf(x2, verbose = 0)
+        x2 <- utils.recalc.maf(x2, verbose = 0)
     }else{
         # Recalculate the relevant loc.metrics
         if (verbose >= 2) {
@@ -177,7 +177,7 @@ gl.filter.maf <- function(x,
             ))
         }
         
-        x <- dartR.base:::utils.recalc.maf(x, verbose = 0)
+        x <- utils.recalc.maf(x, verbose = 0)
         
         # Remove loci with NA count <= 1-threshold
         index <- x@other$loc.metrics$maf >= threshold
@@ -185,7 +185,7 @@ gl.filter.maf <- function(x,
           x2 <- x[, index]
           x2@other$loc.metrics <- x@other$loc.metrics[index,]
         
-        x2 <- dartR.base:::utils.recalc.maf(x2, verbose = 0)
+        x2 <- utils.recalc.maf(x2, verbose = 0)
     }
     
     if(plot.out & by.pop==FALSE){

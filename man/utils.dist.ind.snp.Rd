@@ -31,10 +31,11 @@ progress log; 3, progress and results summary; 5, full report [default 2].}
 An object of class 'dist' or 'matrix' giving distances between individuals
 }
 \description{
-This script calculates various distances between individuals based on 
-SNP genotypes.
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
+This script calculates various distances between individuals based on 
+SNP genotypes.
 The distance measure can be one of:
  \itemize{
   \item Euclidean -- Euclidean Distance applied to Cartesian coordinates defined
@@ -51,10 +52,35 @@ The distance measure can be one of:
  \donttest{
 D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
 D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
-}
 D <- utils.dist.ind.snp(testset.gl, method='Simple')
+}
+
+}
+\seealso{
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.ggplotsave}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{utilities}

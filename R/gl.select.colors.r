@@ -1,11 +1,26 @@
 #' @name gl.select.colors
 # Preliminaries -- set parameter definitions --------------------
 #' @title Selects colors from one of several palettes and output as a vector
+#' @family graphics
+
 #' @description
 #' This script draws upon a number of specified color libraries to extract a
 #' vector of colors for plotting, where the script that follows has a color
 #' parameter expecting a vector of colors.
-#' @details
+
+#' @param x Optionally, provide a gl object from which to determine the number
+#' of populations [default NULL].
+#' @param library Name of the color library to be used [default scales::hue_pl].
+#' @param palette Name of the color palette to be pulled from the specified
+#' library [default is library specific] .
+#' @param ncolors number of colors to be displayed and returned [default 9].
+#' @param select select the colors to retain in the output vector
+#' [default NULL].
+#' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity].
+#' 
+#' #' @details
 #' The available color libraries and their palettes include:
 #' \itemize{
 #' \item library 'brewer' and the palettes available can be listed by
@@ -28,20 +43,6 @@
 #' the final vector. This can be useful for fine-tuning color selection, and
 #' matching colors and shapes.
 
-#' @param x Optionally, provide a gl object from which to determine the number
-#' of populations [default NULL].
-#' @param library Name of the color library to be used [default scales::hue_pl].
-#' @param palette Name of the color palette to be pulled from the specified
-#' library [default is library specific] .
-#' @param ncolors number of colors to be displayed and returned [default 9].
-#' @param select select the colors to retain in the output vector
-#' [default NULL].
-#' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-
-#' @return A vector with the required number of colors
-
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
@@ -62,10 +63,11 @@
 #' colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
 
 #' @seealso \code{\link{gl.select.shapes}}
-#' @family dartR-base
-
+#' 
 #' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow
 #' @export
+
+#' @return A vector with the required number of colors
 
 # Function -----------------
 gl.select.colors <- function(x = NULL,

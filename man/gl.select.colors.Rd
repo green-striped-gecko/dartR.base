@@ -29,17 +29,9 @@ library [default is library specific] .}
 
 \item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
-}
-\value{
-A vector with the required number of colors
-}
-\description{
-This script draws upon a number of specified color libraries to extract a
-vector of colors for plotting, where the script that follows has a color
-parameter expecting a vector of colors.
-}
-\details{
+[default 2 or as specified using gl.set.verbosity].
+
+#' @details
 The available color libraries and their palettes include:
 \itemize{
 \item library 'brewer' and the palettes available can be listed by
@@ -58,7 +50,15 @@ for later use.
 The select parameter can be used to select colors from the specified ncolors.
 For example, select=c(1,1,3) will select color 1, 1 again and 3 to retain in
 the final vector. This can be useful for fine-tuning color selection, and
-matching colors and shapes.
+matching colors and shapes.}
+}
+\value{
+A vector with the required number of colors
+}
+\description{
+This script draws upon a number of specified color libraries to extract a
+vector of colors for plotting, where the script that follows has a color
+parameter expecting a vector of colors.
 }
 \examples{
 # SET UP DATASET
@@ -80,31 +80,11 @@ colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,sel
 \seealso{
 \code{\link{gl.select.shapes}}
 
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+Other graphics: 
+\code{\link{gl.select.shapes}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}
+\concept{graphics}

@@ -1,9 +1,16 @@
 #' @name utils.recalc.maf
-
 #' @title A utility function to recalculate the minor allele frequency by locus,
 #' typically after some populations have been deleted
+#' @family utilities
+#' 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
-#' @description
+#' @param x Name of the genlight object [required].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report [default 2].
+#' 
+#' @details
 #' The locus metadata supplied by DArT does not have MAF included, so it is
 #' calculated and added to the locus.metadata by this script. The minimum allele
 #' frequency will change when some individuals are removed from the dataset.
@@ -11,13 +18,6 @@
 #'  appropriate place in the genlight object.
 
 #'  This function only applies to SNP genotype data.
-
-#' @param x Name of the genlight object [required].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report [default 2].
-
-#' @family dartR-base
-#' @return The modified genlight dataset.
 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -31,7 +31,11 @@
 #' \code{gl.recalc.rdepth} for recalculating average read depth
 
 #' @examples
-#' f <- dartR.base:::utils.recalc.maf(testset.gl)
+#' f <- utils.recalc.maf(testset.gl)
+#' 
+# @export
+#' @return The modified genlight dataset.
+
 
 utils.recalc.maf <- function(x,
                              verbose = NULL) {
@@ -79,9 +83,9 @@ utils.recalc.maf <- function(x,
         cat(report("  Recalculating FreqHoms and FreqHets\n"))
     }
     
-    x <- dartR.base:::utils.recalc.freqhets(x, verbose = verbose)
-    x <- dartR.base:::utils.recalc.freqhomref(x, verbose = verbose)
-    x <- dartR.base:::utils.recalc.freqhomsnp(x, verbose = verbose)
+    x <- utils.recalc.freqhets(x, verbose = verbose)
+    x <- utils.recalc.freqhomref(x, verbose = verbose)
+    x <- utils.recalc.freqhomsnp(x, verbose = verbose)
     
     # Calculate and plot overall MAF
     

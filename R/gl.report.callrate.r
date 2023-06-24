@@ -85,7 +85,7 @@ gl.report.callrate <- function(x,
     # Check that call rate is up to date and recalculate if necessary
     
     # if (!x@other$loc.metrics.flags$CallRate) {
-        x <- dartR.base:::utils.recalc.callrate(x, verbose = 0)
+        x <- utils.recalc.callrate(x, verbose = 0)
     # }
     
     # DO THE JOB
@@ -133,7 +133,7 @@ gl.report.callrate <- function(x,
                 cat("  Reporting Call Rate by population\n")
                 
                 c_rate_plots <- lapply(pops, function(z) {
-                    pop_tmp <- dartR.base:::utils.recalc.callrate(z, verbose = 0)
+                    pop_tmp <- utils.recalc.callrate(z, verbose = 0)
                     c_rate_tmp <- pop_tmp$other$loc.metrics$CallRate
                     p_temp <-
                        ggplot(as.data.frame(c_rate_tmp), aes(x = c_rate_tmp)) + 

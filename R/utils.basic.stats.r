@@ -1,21 +1,27 @@
 #' @name utils.basic.stats
-#' @title 
-#' Calculates mean observed heterozygosity, mean expected heterozygosity and Fis
+#' @title Calculates mean observed heterozygosity, mean expected heterozygosity and Fis
 #'  per locus, per population and various population differentiation measures
-#' @description
+#'  @family utilities
+#'  
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+#' 
+#' @param x A genlight object containing the SNP genotypes [required].
+#' 
+#' @details
 #'  This is a re-implementation of \code{hierfstat::basics.stats} specifically 
 #'  for genlight objects. Formula (and hence results) match exactly the original 
 #' version of \code{hierfstat::basics.stats} but it is much faster.
 
-#' @param x A genlight object containing the SNP genotypes [required].
-#' @return A list with with the statistics for each population
-#' @export
-#' @author Luis Mijangos and Carlo Pacioni (bugs? Post to
+#' @author Luis Mijangos and Carlo Pacioni (post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
-#' require("dartR.data")
-#' out <- utils.basic.stats(platypus.gl)
-#' @export
+#' # require("dartR.data")
+#' # out <- utils.basic.stats(platypus.gl)
+#' 
+# @export
+#' @return A list with with the statistics for each population
 
 utils.basic.stats <- function(x) {
   

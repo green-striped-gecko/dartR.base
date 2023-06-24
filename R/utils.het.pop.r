@@ -1,11 +1,16 @@
-#' Calculates expected mean expected heterozygosity per population
+#' @name utils.het.pop
+#' @title An internal function that calculates expected mean heterozygosity per population
+#' @family utilities
+#' 
 #' @param x A genlight object containing the SNP genotypes [required].
-#' @return A vector with the mean expected heterozygosity for each population
-#' @export
-#' @author Bernd Gruber & Luis Mijangos (bugs? Post to
-#' \url{https://groups.google.com/d/forum/dartr})
+#
+#' @author Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' out <- utils.het.pop(testset.gl)
+#' 
+# @export
+#' @return A vector with the mean expected heterozygosity for each population
 
 utils.het.pop <- function(x) {
     # Split the genlight object into a list of populations

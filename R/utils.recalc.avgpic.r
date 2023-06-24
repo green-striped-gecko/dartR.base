@@ -1,12 +1,18 @@
 #' @name utils.recalc.avgpic
 #' @title A utility function to recalculate intermediate locus metrics
-#' @description
-#' A short description...
+#' @family utilities
 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
+#' @param x Name of the genlight [required].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report [default 2].
+#' 
+#' @details
 #' Recalculates OneRatioRef, OneRatioSnp, PICRef, PICSnp,
 #'  and AvgPIC by locus after some individuals or populations have been deleted.
-
-#' @details
+#'  
 #' The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
 #'  PICSnp, and AvgPIC included, but the allelic composition will change when
 #'  some individuals,or populations, are removed from the dataset and so the
@@ -16,13 +22,6 @@
 
 #' If the locus metadata OneRatioRef|Snp, PICRef|Snp and/or AvgPIC do not exist,
 #'  the script creates and populates them.
-
-#' @param x Name of the genlight [required].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report [default 2].
-
-#' @family dartR-base
-#' @return The modified genlight object.
 
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
@@ -34,8 +33,13 @@
 #' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
 #'  of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele
 #'  frequency, \code{gl.recalc.rdepth} for recalculating average read depth
+#'  
 #' @examples
-#' out <- dartR.base:::utils.recalc.avgpic(testset.gl)
+#' # out <- utils.recalc.avgpic(testset.gl)
+#' 
+# @export
+#' @return The modified genlight object.
+
 
 utils.recalc.avgpic <- function(x,
                                 verbose = NULL) {

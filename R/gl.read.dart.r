@@ -192,11 +192,11 @@ gl.read.dart <- function(filename,
                 )
             )
         }
-        glout <- dartR.base:::utils.recalc.avgpic(glout, verbose = 0)
-        glout <- dartR.base:::utils.recalc.callrate(glout, verbose = 0)
-        glout <- dartR.base:::utils.recalc.freqhets(glout, verbose = 0)
-        glout <- dartR.base:::utils.recalc.freqhomref(glout, verbose = 0)
-        glout <- dartR.base:::utils.recalc.freqhomsnp(glout, verbose = 0)
+        glout <- utils.recalc.avgpic(glout, verbose = 0)
+        glout <- utils.recalc.callrate(glout, verbose = 0)
+        glout <- utils.recalc.freqhets(glout, verbose = 0)
+        glout <- utils.recalc.freqhomref(glout, verbose = 0)
+        glout <- utils.recalc.freqhomsnp(glout, verbose = 0)
     }
     
     # Remove monomorphs, which should not be present, but might have been introduced it the user deleted individuals from the input csv
