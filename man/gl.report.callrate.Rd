@@ -12,9 +12,8 @@ gl.report.callrate(
   plot.theme = theme_dartR(),
   plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
     verbose = 0),
-  save.plot.type = NULL,
-  save.dir = NULL,
-  save.file.basename = NULL,
+  plot.dir = NULL,
+  plot.file = NULL,
   bins = 50,
   verbose = NULL,
   ...
@@ -35,6 +34,10 @@ individual (method='ind') [default 'loc'].}
 
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+
+\item{plot.dir}{Directory to save the plot RDS files [default getwd()]}
+
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 
@@ -72,9 +75,9 @@ directory.
   test.gl <- testset.gl[1:20,]
   gl.report.callrate(test.gl)
   gl.report.callrate(test.gl,method='ind')
-  gl.report.callrate(test.gl,method='ind',save.file.basename="test",save.plot.type="pdf")
+  gl.report.callrate(test.gl,method='ind',plot.file="test")
   gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
-  gl.report.callrate(test.gl,method='loc',by.pop=TRUE,save.file.basename="test",save.plot.type="pdf")
+  gl.report.callrate(test.gl,method='loc',by.pop=TRUE,plot.file="test")
 # Tag P/A data
   test.gs <- testset.gs[1:20,]
   gl.report.callrate(test.gs)

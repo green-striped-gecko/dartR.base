@@ -15,9 +15,8 @@
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
-#' @param save.plot.type If specified, will direct the saved output to a file of this type [default NULL]
-#' @param save.dir Directory in which to save files [default = working directory]
-#' @param save.file.basename Name for the ggsave file [default NULL]
+#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.file Name for the ggsave file (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
@@ -53,7 +52,7 @@
 #' Optional additional parameters for ggsave() can be added to the parameter list
 #' (...) to govern aspects of the saved plot. Refer to ?ggsave for details.
 
-#'  If a plot directory (save.dir) is specified, the ggplot binary is saved to that
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
 #'  directory; otherwise to the working directory. 
 
 #'  A file name must be specified for the plot to be saved.
@@ -73,7 +72,7 @@
 #' @examples
 #' # SNP data
 #'   out <- gl.report.bases(testset.gl)
-#'   out <- gl.report.bases(testset.gl,save.plot.type="pdf",save.file.basename="myplot")
+#'   out <- gl.report.bases(testset.gl,plot.file="myplot")
 #'   out <- gl.report.bases(testset.gl,save.plot.type="jpg",save.file.basename="myplot")
 #'   
 #'   col <- gl.select.colors(select=c(6,1),palette=rainbow)
@@ -89,9 +88,8 @@ gl.report.bases <- function(x,
                             plot.display=TRUE,
                             plot.theme = theme_dartR(),
                             plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
-                            save.plot.type=NULL,
-                            save.dir=NULL,
-                            save.file.basename=NULL,
+                            plot.file=NULL,
+                            plot.dir=NULL,
                             verbose = NULL,
                             ...) {
 # PRELIMINARIES -- checking ----------------
@@ -109,7 +107,7 @@ gl.report.bases <- function(x,
     
     # # CHECK DIRECTORY FOR PLOTS
     # if(plot.save){
-    #   if(is.null(save.dir)){save.dir <- tempdir()}
+    #   if(is.null(plot.dir)){plot.dir <- tempdir()}
     # }
     
     # FUNCTION SPECIFIC ERROR CHECKING
@@ -122,6 +120,13 @@ gl.report.bases <- function(x,
             TrimmedSequence!\n"
         ))
     }
+    
+    # # extract the filename and the extension
+    # tmp <- strsplit(filename.ext, ".", fixed = TRUE)[[1]]
+    # save.file.basename <- tmp[1]
+    # save.plot.type <- tmp[2]
+    # save.plot.type <- tolower(save.plot.type)
+    
     
 # DO THE JOB -- SNP data ----------------------
     
@@ -174,7 +179,7 @@ gl.report.bases <- function(x,
           sum(stringr::str_count(state.change, "C>G"))
         
         ts <-
-            sum(stringr::str_count(state.change, "A>G")) + 
+          sum(stringr::str_count(state.change, "A>G")) + 
           sum(stringr::str_count(state.change, "G>A")) + 
           sum(stringr::str_count(state.change, "C>T")) + 
           sum(stringr::str_count(state.change, "T>C"))
@@ -227,7 +232,6 @@ gl.report.bases <- function(x,
     }
     
 # PLOT THE RESULTS ----------------- 
-    if (plot.display | !is.null(save.plot.type)) {
       if (datatype == "SNP") {
         title <- paste0("SNP: Base Frequencies")
       } else {
@@ -263,27 +267,21 @@ gl.report.bases <- function(x,
       } else {
         p3 <- p1
       }
-      print(p3)
-    }
-    
+      if (plot.display){print(p3)}
+
     # Optionally save the plot ---------------------
 
-    tmp <- utils.ggplotsave(p3,
-                            type=save.plot.type,
-                            dir=save.dir,
-                            file=save.file.basename,
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                            dir=plot.dir,
+                            file=plot.file,
                             verbose=verbose)
+    }
+    
 # FINISH UP -------------------
     # Create return list
     if (verbose >= 2) {
-        cat(
-            report(
-                "\n  Returning a list containing
-[[1]] $freq -- the table of base frequencies and transition/transversion ratios;
-[[2]] $plotbases -- ggplot bargraph of base frequencies;
-[[3]] $plottstv -- ggplot bargraph of transitions and transversions."
-            )
-        )
+        cat(report("  Returning the table of base frequencies and transition/transversion ratios\n\n"))
     }
     
     out <-
@@ -304,5 +302,5 @@ gl.report.bases <- function(x,
 # ----------------------
     
     # RETURN
-    invisible(x)
+    invisible(out)
 }

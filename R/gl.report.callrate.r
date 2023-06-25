@@ -15,6 +15,8 @@
 #' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.colors Vector with two color names for the borders and fill
 #' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.dir Directory to save the plot RDS files [default getwd()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
 #' @param bins Number of bins to display in histograms [default 25].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -44,9 +46,9 @@
 #'   test.gl <- testset.gl[1:20,]
 #'   gl.report.callrate(test.gl)
 #'   gl.report.callrate(test.gl,method='ind')
-#'   gl.report.callrate(test.gl,method='ind',save.file.basename="test",save.plot.type="pdf")
+#'   gl.report.callrate(test.gl,method='ind',plot.file="test")
 #'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
-#'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE,save.file.basename="test",save.plot.type="pdf")
+#'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE,plot.file="test")
 #' # Tag P/A data
 #'   test.gs <- testset.gs[1:20,]
 #'   gl.report.callrate(test.gs)
@@ -66,9 +68,8 @@ gl.report.callrate <- function(x,
                                plot.display=TRUE,
                                plot.theme = theme_dartR(),
                                plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
-                               save.plot.type=NULL,
-                               save.dir=NULL,
-                               save.file.basename=NULL,
+                               plot.dir=NULL,
+                               plot.file=NULL,
                                bins = 50,
                                verbose = NULL,
                                ...) {
@@ -263,7 +264,8 @@ cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
             as.matrix(x)
         )) / (nLoc(x) * nInd(x)), 4), "\n\n")
         
-#   # Determine the loss of individuals for a given threshold using quantiles
+#   Changes made without consulting the Custodian?
+        # Determine the loss of individuals for a given threshold using quantiles
 #         quantile_res <-
 #             quantile(ind.call.rate, probs = seq(0, 1, 1 / 20))
 #         retained <- unlist(lapply(quantile_res, function(y) {
@@ -304,33 +306,31 @@ cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
 #         
      }
     
-    # PRINTING OUTPUTS
-    if (plot.display) {
+  # PRINTING OUTPUTS
         # using package patchwork
         p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-        print(p3)
+        if (plot.display) {print(p3)}
         
-        filename <- paste0(save.file.basename,"_01")
-        tmp <- utils.ggplotsave(p3,
-                                type=save.plot.type,
-                                dir=save.dir,
-                                file=filename,
-                                verbose=verbose)
-        
-        if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
+        if(!is.null(plot.file)){
+          filename <- paste0(plot.file,"_01")
+          tmp <- utils.plot.save(p3,
+                                 dir=plot.dir,
+                                 file=filename,
+                                 verbose=verbose)
+          
+          if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
             row_plots <- ceiling(nPop(x) / 3)
             p4 <- wrap_plots(c_rate_plots)
             p4 <- p4 + plot_layout(ncol = 3, nrow = row_plots)
             print(p4)
             
-            filename <- paste0(save.file.basename,"_02")
-            tmp <- utils.ggplotsave(p4,
-                                    type=save.plot.type,
-                                    dir=save.dir,
-                                    file=filename,
-                                    verbose=verbose)
+            filename <- paste0(plot.file,"_02")
+            tmp <- utils.plot.save(p4,
+                                   dir=plot.dir,
+                                   file=filename,
+                                   verbose=verbose)
+          }
         }
-    }
         
     #print(df)
     # cat("\n\n")

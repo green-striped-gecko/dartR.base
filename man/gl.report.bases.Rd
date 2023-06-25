@@ -10,9 +10,8 @@ gl.report.bases(
   plot.theme = theme_dartR(),
   plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
     verbose = 0),
-  save.plot.type = NULL,
-  save.dir = NULL,
-  save.file.basename = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL,
   ...
 )
@@ -30,11 +29,9 @@ gl.report.bases(
 \item{plot.colors}{List of two color names for the borders and fill of the
 plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{save.plot.type}{If specified, will direct the saved output to a file of this type [default NULL]}
+\item{plot.file}{Name for the ggsave file (base name only, exclude extension) [default NULL]}
 
-\item{save.dir}{Directory in which to save files [default = working directory]}
-
-\item{save.file.basename}{Name for the ggsave file [default NULL]}
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -74,7 +71,7 @@ will be saved to disk. The option "RDS" saves as a binary file
 using saveRDS(); can be reloaded with readRDS().
 Optional additional parameters for ggsave() can be added to the parameter list
 (...) to govern aspects of the saved plot. Refer to ?ggsave for details.
- If a plot directory (save.dir) is specified, the ggplot binary is saved to that
+ If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
  directory; otherwise to the working directory. 
  A file name must be specified for the plot to be saved.
  Note that if save.plot.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
@@ -85,7 +82,7 @@ reloaded with readRDS().
 \examples{
 # SNP data
   out <- gl.report.bases(testset.gl)
-  out <- gl.report.bases(testset.gl,save.plot.type="pdf",save.file.basename="myplot")
+  out <- gl.report.bases(testset.gl,plot.file="myplot")
   out <- gl.report.bases(testset.gl,save.plot.type="jpg",save.file.basename="myplot")
   
   col <- gl.select.colors(select=c(6,1),palette=rainbow)
