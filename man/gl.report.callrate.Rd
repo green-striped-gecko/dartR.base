@@ -7,13 +7,16 @@
 gl.report.callrate(
   x,
   method = "loc",
-  by_pop = FALSE,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  by.pop = FALSE,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.dir = NULL,
+  plot.file = NULL,
   bins = 50,
-  save2tmp = FALSE,
-  verbose = NULL
+  verbose = NULL,
+  ...
 )
 }
 \arguments{
@@ -23,19 +26,20 @@ gl.report.callrate(
 \item{method}{Specify the type of report by locus (method='loc') or
 individual (method='ind') [default 'loc'].}
 
-\item{by_pop}{Whether report by population [default FALSE].}
+\item{by.pop}{If TRUE, report by population [default FALSE].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
-\item{plot_theme}{User specified theme [default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors}{Vector with two color names for the borders and fill
-[default gl.colors(2)].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+
+\item{plot.dir}{Directory to save the plot RDS files [default getwd()]}
+
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -71,6 +75,9 @@ directory.
   test.gl <- testset.gl[1:20,]
   gl.report.callrate(test.gl)
   gl.report.callrate(test.gl,method='ind')
+  gl.report.callrate(test.gl,method='ind',plot.file="test")
+  gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
+  gl.report.callrate(test.gl,method='loc',by.pop=TRUE,plot.file="test")
 # Tag P/A data
   test.gs <- testset.gs[1:20,]
   gl.report.callrate(test.gs)

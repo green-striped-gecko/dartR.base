@@ -31,7 +31,7 @@
 #' \code{gl.recalc.rdepth} for recalculating average read depth
 
 #' @examples
-#' f <- utils.recalc.maf(testset.gl)
+#' # f <- utils.recalc.maf(testset.gl)
 #' 
 # @export
 #' @return The modified genlight dataset.

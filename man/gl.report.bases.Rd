@@ -8,10 +8,10 @@ gl.report.bases(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors = c("#3B9AB2", "#78B7C5"),
-  save.type = NULL,
-  save.dir = NULL,
-  save.file = NULL,
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL,
   ...
 )
@@ -27,13 +27,11 @@ gl.report.bases(
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default gl.select.colors(ncolors=2)].}
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{save.type}{If specified, will direct the saved output to a file of this type [default NULL]}
+\item{plot.file}{Name for the ggsave file (base name only, exclude extension) [default NULL]}
 
-\item{save.dir}{Directory in which to save the ggplot [default = working directory]}
-
-\item{save.file}{Name for the ggsave file [default NULL]}
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -66,17 +64,17 @@ Themes can be obtained from in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
- If the save.type parameter is set to one of 
+ If the save.plot.type parameter is set to one of 
 "RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
 "bmp", "svg" or "wmf" (windows only), the graphics produced by the function
 will be saved to disk. The option "RDS" saves as a binary file 
 using saveRDS(); can be reloaded with readRDS().
 Optional additional parameters for ggsave() can be added to the parameter list
 (...) to govern aspects of the saved plot. Refer to ?ggsave for details.
- If a plot directory (save.dir) is specified, the ggplot binary is saved to that
+ If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
  directory; otherwise to the working directory. 
  A file name must be specified for the plot to be saved.
- Note that if save.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
+ Note that if save.plot.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
 "bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
 of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
 reloaded with readRDS().
@@ -84,7 +82,8 @@ reloaded with readRDS().
 \examples{
 # SNP data
   out <- gl.report.bases(testset.gl)
-  out <- gl.report.bases(testset.gl,save.type="pdf",save.file="myplot")
+  out <- gl.report.bases(testset.gl,plot.file="myplot")
+  out <- gl.report.bases(testset.gl,save.plot.type="jpg",save.file.basename="myplot")
   
   col <- gl.select.colors(select=c(6,1),palette=rainbow)
   out <- gl.report.bases(testset.gl,plot.colors=col)

@@ -34,8 +34,8 @@ Tolerance in the definition of a fixed difference is provided by the t
  5,95 percent will be reported as fixed (TRUE).
 }
 \examples{
-utils.is.fixed(s1=100, s2=0, tloc=0)
-utils.is.fixed(96, 4, tloc=0.05)
+# utils.is.fixed(s1=100, s2=0, tloc=0)
+# utils.is.fixed(96, 4, tloc=0.05)
 
 }
 \seealso{
@@ -46,12 +46,12 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

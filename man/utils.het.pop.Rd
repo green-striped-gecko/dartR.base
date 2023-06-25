@@ -16,7 +16,7 @@ A vector with the mean expected heterozygosity for each population
 An internal function that calculates expected mean heterozygosity per population
 }
 \examples{
-out <- utils.het.pop(testset.gl)
+# out <- utils.het.pop(testset.gl)
 
 }
 \seealso{
@@ -25,12 +25,12 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

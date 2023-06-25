@@ -4,7 +4,10 @@
 #' 
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
-
+#'
+#' @param file Custodian to provide other parameter descriptions
+#' @param parallel Custodian to provide other parameter descriptions
+#' @param n.cores Custodian to provide other parameter descriptions
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report [default 2].
 #'  
@@ -21,7 +24,7 @@
 
 utils.read.fasta <-  function(file,
                               parallel = parallel,
-                              n_cores = NULL,
+                              n.cores = NULL,
                               verbose = verbose) {
   
   if(verbose >= 2){
@@ -56,7 +59,7 @@ utils.read.fasta <-  function(file,
     txt <-
       parallel::mclapply(txt, function(e)
         strsplit(paste(e[-1], collapse = ""), split = ""),
-        mc.cores = n_cores, mc.silent = TRUE, mc.cleanup =
+        mc.cores = n.cores, mc.silent = TRUE, mc.cleanup =
           TRUE, mc.preschedule = FALSE)
   } else {
     # each genome -> one vector
@@ -103,7 +106,7 @@ utils.read.fasta <-  function(file,
     txt <-
       parallel::mclapply(txt, function(e)
         strsplit(paste(e[-1], collapse = ""), split = "")[[1]][snp.posi],
-        mc.cores = n_cores, mc.silent = TRUE, mc.cleanup =
+        mc.cores = n.cores, mc.silent = TRUE, mc.cleanup =
           TRUE, mc.preschedule = FALSE)
   } else {
     # each genome -> one SNP vector

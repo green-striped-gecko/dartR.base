@@ -45,8 +45,6 @@
 #' @export
 #' @return The modified genlight object
 
-
-
 utils.reset.flags <- function(x,
                               set = FALSE,
                               value = 2,
