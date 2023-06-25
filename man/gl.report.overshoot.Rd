@@ -40,7 +40,6 @@ gl.report.overshoot(testset.gl)
 \code{\link{gl.filter.overshoot}}
 
 Other report functions: 
-\code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},

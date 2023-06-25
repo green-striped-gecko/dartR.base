@@ -58,14 +58,6 @@ An object of class 'dist' or 'matrix' giving distances between individuals
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
-\examples{
- \donttest{
-# D <- utils.dist.binary(testset.gs, method='Jaccard')
-# D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
-# D <- utils.dist.binary(testset.gs, method='Simple')
-}
-
-}
 \seealso{
 Other utilities: 
 \code{\link{utils.check.datatype}()},

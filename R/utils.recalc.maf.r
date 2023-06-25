@@ -29,13 +29,12 @@
 #' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
 #' of heterozygotes, \code{gl.recalc.avgpic} for recalculating AvgPIC,
 #' \code{gl.recalc.rdepth} for recalculating average read depth
-
-#' @examples
-#' # f <- utils.recalc.maf(testset.gl)
-#' 
+#'
 # @export
 #' @return The modified genlight dataset.
 
+# Examples for testing
+# f <- utils.recalc.maf(testset.gl)
 
 utils.recalc.maf <- function(x,
                              verbose = NULL) {

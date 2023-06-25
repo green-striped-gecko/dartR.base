@@ -29,10 +29,6 @@ Note that the frequency of the homozygote alternate SNPS is calculated from
 the individuals that could be scored.
 This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).
 }
-\examples{
-# out <- utils.recalc.freqhomsnp(testset.gl)
-
-}
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
 \code{utils.recalc.callrate} for recalculating CallRate,

@@ -39,7 +39,6 @@ not be reliably scored)
 \code{\link{gl.filter.monomorphs}}
 
 Other report functions: 
-\code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},

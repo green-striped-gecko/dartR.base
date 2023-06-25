@@ -33,11 +33,11 @@
 #'  recalculating minor allele frequency,
 #' \code{gl.recalc.rdepth} for recalculating average read depth
 
-#' @examples
-#' # out <- utils.recalc.freqhets(testset.gl)
-#' 
 # @export
 #' @return The modified genlight object.
+
+# Examples for testing
+# out <- utils.recalc.freqhets(testset.gl)
 
 utils.recalc.freqhets <- function(x,
                                   verbose = NULL) {

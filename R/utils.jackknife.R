@@ -31,15 +31,15 @@
 #' 
 #' @author Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-
-#' @examples
-#' # require("dartR.data")
-#' # platMod.gl <- gl.filter.allna(platypus.gl) 
-#' # chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
-#' # recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 #' 
 # @export
 #' @return A list of length n where each element is the output of FUN
+
+# Examples for testing
+# require("dartR.data")
+# platMod.gl <- gl.filter.allna(platypus.gl) 
+# chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
+# recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 
 utils.jackknife <- function(x, 
                             FUN, 

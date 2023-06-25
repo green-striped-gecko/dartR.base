@@ -24,15 +24,14 @@
 #'  
 #' @author Maintainer: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 
-#' @examples
-#' # utils.is.fixed(s1=100, s2=0, tloc=0)
-#' # utils.is.fixed(96, 4, tloc=0.05)
-#' 
 #' @seealso \code{\link{gl.fixed.diff}}
 #'  
 # @export
-#' @return TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both 
-#' s1 or s2 missing)
+#' @return TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both s1 or s2 missing)
+
+# Examples for testing
+# utils.is.fixed(s1=100, s2=0, tloc=0)
+# utils.is.fixed(96, 4, tloc=0.05)
 
 utils.is.fixed <- function(s1, 
                      s2, 

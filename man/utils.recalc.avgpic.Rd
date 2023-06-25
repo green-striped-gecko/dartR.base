@@ -31,10 +31,6 @@ The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
 If the locus metadata OneRatioRef|Snp, PICRef|Snp and/or AvgPIC do not exist,
  the script creates and populates them.
 }
-\examples{
-# out <- utils.recalc.avgpic(testset.gl)
-
-}
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
 \code{utils.recalc.callrate} for recalculating CallRate,

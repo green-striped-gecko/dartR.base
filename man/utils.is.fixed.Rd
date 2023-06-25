@@ -17,8 +17,7 @@ population [required].}
 fixed [default 0].}
 }
 \value{
-TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both 
-s1 or s2 missing)
+TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both s1 or s2 missing)
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
@@ -32,11 +31,6 @@ and reports TRUE if they represent a fixed difference, FALSE otherwise.
 Tolerance in the definition of a fixed difference is provided by the t
  parameter. For example, t=0.05 means that SNP allele frequencies of 95,5 and
  5,95 percent will be reported as fixed (TRUE).
-}
-\examples{
-# utils.is.fixed(s1=100, s2=0, tloc=0)
-# utils.is.fixed(96, 4, tloc=0.05)
-
 }
 \seealso{
 \code{\link{gl.fixed.diff}}

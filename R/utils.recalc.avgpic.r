@@ -34,12 +34,11 @@
 #'  of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele
 #'  frequency, \code{gl.recalc.rdepth} for recalculating average read depth
 #'  
-#' @examples
-#' # out <- utils.recalc.avgpic(testset.gl)
-#' 
 # @export
 #' @return The modified genlight object.
 
+# Examples for testing
+# out <- utils.recalc.avgpic(testset.gl)
 
 utils.recalc.avgpic <- function(x,
                                 verbose = NULL) {

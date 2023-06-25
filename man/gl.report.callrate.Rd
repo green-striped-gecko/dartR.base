@@ -7,7 +7,7 @@
 gl.report.callrate(
   x,
   method = "loc",
-  by.pop = FALSE,
+  ind.to.list = 20,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
   plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
@@ -26,7 +26,7 @@ gl.report.callrate(
 \item{method}{Specify the type of report by locus (method='loc') or
 individual (method='ind') [default 'loc'].}
 
-\item{by.pop}{If TRUE, report by population [default FALSE].}
+\item{ind.to.list}{Number of individuals to list for callrate [default 20]}
 
 \item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
@@ -61,13 +61,17 @@ SilicoDArT (=presence/absence data).
 Callrate is summarized by locus or by individual to allow sensible decisions
 on thresholds for filtering taking into consideration consequential loss of
 data. The summary is in the form of a tabulation and plots.
+
+To avoid issues from inadvertent use of this function in an assignment statement,
+the function returns the genlight object unaltered.
 Plot themes can be obtained from:
  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
-Resultant ggplots and the tabulation are saved to the session's temporary
-directory.
+ 
+ Plot colours can be set with gl.select.colors().
+Resultant ggplots can be optionally (if plot.file is specified) saved to disk as an RDS binary file.
 }
 \examples{
  \donttest{
@@ -89,25 +93,9 @@ directory.
 }
 \seealso{
 \code{\link{gl.filter.callrate}}
-
-Other report functions: 
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.taglength}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}
