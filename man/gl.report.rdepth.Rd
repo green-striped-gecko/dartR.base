@@ -74,8 +74,6 @@ Other report functions:
 \code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
