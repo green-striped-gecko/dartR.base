@@ -56,13 +56,6 @@ real advantage in using parallel computation. On the other hand, if the number
 of units is large (e.g. thousands of loci), even with parallel computation, 
 this function can be very slow.
 }
-\examples{
-# require("dartR.data")
-# platMod.gl <- gl.filter.allna(platypus.gl) 
-# chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
-# recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
-
-}
 \seealso{
 Other utilities: 
 \code{\link{utils.check.datatype}()},

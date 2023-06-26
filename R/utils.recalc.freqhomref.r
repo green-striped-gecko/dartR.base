@@ -31,12 +31,12 @@
 #'  alternate, \code{utils.recalc.freqhet} for recalculating frequency of
 #'  heterozygotes, \code{gl.recalc.maf} for recalculating minor allele frequency,
 #' \code{gl.recalc.rdepth} for recalculating average read depth
-
-#' @examples
-#' # result <- utils.recalc.freqhomref(testset.gl)
 #' 
 # @export
 #' @return The modified genlight object
+
+# Examples for testing
+# result <- utils.recalc.freqhomref(testset.gl)
 
 utils.recalc.freqhomref <- function(x,
                                     verbose = NULL) {

@@ -37,11 +37,6 @@ The modified genlight object.
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
-\examples{
-# require("dartR.data")
-# out <- utils.n.var.invariant(platypus.gl)
-
-}
 \seealso{
 \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
 

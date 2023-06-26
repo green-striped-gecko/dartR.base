@@ -27,10 +27,6 @@ This script recalculates the MAF and places these recalculated values in the
  appropriate place in the genlight object.
  This function only applies to SNP genotype data.
 }
-\examples{
-# f <- utils.recalc.maf(testset.gl)
-
-}
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
 \code{utils.recalc.callrate} for recalculating CallRate,

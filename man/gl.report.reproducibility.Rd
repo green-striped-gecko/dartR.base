@@ -75,7 +75,6 @@ The function displays a table of minimum, maximum, mean and quantiles for
 \code{\link{gl.filter.reproducibility}}
 
 Other report functions: 
-\code{\link{gl.report.callrate}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},

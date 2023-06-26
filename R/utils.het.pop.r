@@ -5,12 +5,12 @@
 #' @param x A genlight object containing the SNP genotypes [required].
 #
 #' @author Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
-#' 
-#' @examples
-#' # out <- utils.het.pop(testset.gl)
-#' 
+
 # @export
 #' @return A vector with the mean expected heterozygosity for each population
+
+# Examples for testing
+# out <- utils.het.pop(testset.gl)
 
 utils.het.pop <- function(x) {
     # Split the genlight object into a list of populations
