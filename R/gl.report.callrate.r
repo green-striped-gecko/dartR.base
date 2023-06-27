@@ -25,6 +25,8 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
+#' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
+#'  such as width and height, when the ggplot is to be saved.
 #' 
 #' @details
 #' This function expects a genlight object, containing either SNP data or
@@ -70,6 +72,7 @@
 #' @seealso \code{\link{gl.filter.callrate}}
 
 #' @import patchwork
+#' @importFrom stats aggregate
 #' @export
 #' @return Returns unaltered genlight object
 # END HEADER INFORMATION --------------------

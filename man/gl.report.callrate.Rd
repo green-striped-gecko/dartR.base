@@ -44,6 +44,9 @@ individual (method='ind') [default 'loc'].}
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
+
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+such as width and height, when the ggplot is to be saved.}
 }
 \value{
 Returns unaltered genlight object
@@ -93,6 +96,9 @@ Resultant ggplots can be optionally (if plot.file is specified) saved to disk as
 }
 \seealso{
 \code{\link{gl.filter.callrate}}
+
+Other matched report: 
+\code{\link{gl.report.overshoot}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

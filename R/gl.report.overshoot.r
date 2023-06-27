@@ -1,11 +1,14 @@
 #' @name gl.report.overshoot
 #' @title Reports loci for which the SNP has been trimmed from the sequence tag
 #'  along with the adaptor
+#' @family matched report
+#' 
 #' @description
 #' This function checks the position of the SNP within the trimmed sequence tag
 #' and identifies those for which the SNP position is outside the trimmed
 #' sequence tag. This can happen, rarely, when the sequence containing the SNP
 #' resembles the adaptor.
+#' 
 #' @param x Name of the genlight object [required].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -20,14 +23,16 @@
 #' Resultant ggplot(s) and the tabulation(s) are saved to the session's
 #' temporary directory.
 
-#' @return An unaltered genlight object
 #' @author Custodian: Arthur Georges -- Post to 
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' gl.report.overshoot(testset.gl)
+#' 
 #' @seealso \code{\link{gl.filter.overshoot}}
-#' @family report functions
+
 #' @export
+#' @return An unaltered genlight object
 
 gl.report.overshoot <- function(x,
                                 save2tmp = FALSE,
@@ -38,7 +43,7 @@ gl.report.overshoot <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
