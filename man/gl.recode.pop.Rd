@@ -71,8 +71,7 @@ Other dartR-base:
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.report.bases}()}
+\code{\link{gl.recode.ind}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

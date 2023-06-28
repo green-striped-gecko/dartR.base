@@ -4,16 +4,21 @@
 #' 
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
-
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#' @param file Custodian to provide
+#' @param snps Custodian to provide
+#' @param which Custodian to provide
+#' @param split Custodian to provide
+#' @param sep Custodian to provide
+#' @param na.strings Custodian to provide
+#' @param lex.order Custodian to provide
+#' @param show_warnings Custodian to provide
 #'  
 #' #[Custodian to provide other parameter descriptions]
 
 #' @details
 #' #[Custodian to provide details]
 #' 
-#' @author Custodian: ### (Post to
+#' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 
 # @export

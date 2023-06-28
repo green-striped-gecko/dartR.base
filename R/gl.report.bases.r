@@ -1,6 +1,7 @@
 #' @name gl.report.bases
 # PRELIMINARIES -- Set parameters --------------
 #' @title Reports summary of base pair frequencies
+#' @family matched reports
 
 #' @description
 #' This script calculates the frequencies of the four DNA nucleotide bases:
@@ -43,28 +44,12 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#'  If the save.plot.type parameter is set to one of 
-#' "RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
-#' "bmp", "svg" or "wmf" (windows only), the graphics produced by the function
-#' will be saved to disk. The option "RDS" saves as a binary file 
-#' using saveRDS(); can be reloaded with readRDS().
-
-#' Optional additional parameters for ggsave() can be added to the parameter list
-#' (...) to govern aspects of the saved plot. Refer to ?ggsave for details.
+# If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
 
 #'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
-#'  directory; otherwise to the working directory. 
-
-#'  A file name must be specified for the plot to be saved.
-
-#'  Note that if save.plot.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
-#' "bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
-#' of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
-#' reloaded with readRDS().
-
-#' @family dartR-base
-
-#' @return The unchanged genlight object
+#'  directory; otherwise to the tempdir(). 
 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -81,7 +66,8 @@
 #'   #' # Tag P/A data
 #'   out <- gl.report.bases(testset.gs)
 #' @export
-
+#' @return The unchanged genlight object
+#' 
 # ----------------------
 # Function
 gl.report.bases <- function(x,
@@ -97,7 +83,7 @@ gl.report.bases <- function(x,
     verbose <- gl.check.verbosity(verbose)
     
     # SET WORKING DIRECTORY
-    plot.dir <- gl.checkwd(plot.dir)
+    plot.dir <- gl.check.wd(plot.dir)
     
     
     # FLAG SCRIPT START
@@ -109,14 +95,6 @@ gl.report.bases <- function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
-    # # CHECK DIRECTORY FOR PLOTS
-    # if(plot.save){
-    #   if(is.null(plot.dir)){plot.dir <- tempdir()}
-    # }
-    
-    # FUNCTION SPECIFIC ERROR CHECKING
-    
-    #plot.theme <- theme_dartR()
     
     if (!any(names(x@other$loc.metrics) == "TrimmedSequence")) {
         stop(error(
@@ -124,13 +102,6 @@ gl.report.bases <- function(x,
             TrimmedSequence!\n"
         ))
     }
-    
-    # # extract the filename and the extension
-    # tmp <- strsplit(filename.ext, ".", fixed = TRUE)[[1]]
-    # save.file.basename <- tmp[1]
-    # save.plot.type <- tmp[2]
-    # save.plot.type <- tolower(save.plot.type)
-    
     
 # DO THE JOB -- SNP data ----------------------
     
@@ -283,20 +254,21 @@ gl.report.bases <- function(x,
     }
     
 # FINISH UP -------------------
-    # Create return list
-    if (verbose >= 2) {
-        cat(report("  Returning the table of base frequencies and transition/transversion ratios\n\n"))
-    }
-    
-    out <-
-        c(round(A, 2),
-          round(G, 2),
-          round(T, 2),
-          round(C, 2),
-          round(tv, 2),
-          round(ts, 2))
-    names(out) <- c("A", "G", "T", "C", "tv", "ts")
-    
+      
+    # # Create return list
+    # if (verbose >= 2) {
+    #     cat(report("  Returning the table of base frequencies and transition/transversion ratios\n\n"))
+    # }
+    # 
+    # out <-
+    #     c(round(A, 2),
+    #       round(G, 2),
+    #       round(T, 2),
+    #       round(C, 2),
+    #       round(tv, 2),
+    #       round(ts, 2))
+    # names(out) <- c("A", "G", "T", "C", "tv", "ts")
+    # 
     
     # FLAG SCRIPT END 
     
@@ -306,5 +278,5 @@ gl.report.bases <- function(x,
 # ----------------------
     
     # RETURN
-    invisible(out)
+    invisible(x)
 }

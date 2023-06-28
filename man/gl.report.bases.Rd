@@ -64,20 +64,10 @@ Themes can be obtained from in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
- If the save.plot.type parameter is set to one of 
-"RDS", "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
-"bmp", "svg" or "wmf" (windows only), the graphics produced by the function
-will be saved to disk. The option "RDS" saves as a binary file 
-using saveRDS(); can be reloaded with readRDS().
-Optional additional parameters for ggsave() can be added to the parameter list
-(...) to govern aspects of the saved plot. Refer to ?ggsave for details.
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+specified for the plot to be saved.
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the working directory. 
- A file name must be specified for the plot to be saved.
- Note that if save.plot.type is specified as one of "eps", "ps", "tex", "pdf", "jpeg", "tiff", "png", 
-"bmp", "svg" or "wmf" , then in addition to saving the plot file, a binary copy
-of the ggplot object will be saved as a RDS binary file using saveRDS(). Can be
-reloaded with readRDS().
+ directory; otherwise to the tempdir().
 }
 \examples{
 # SNP data
@@ -90,21 +80,8 @@ reloaded with readRDS().
   #' # Tag P/A data
   out <- gl.report.bases(testset.gs)
 }
-\seealso{
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()}
-}
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}
+\concept{matched reports}

@@ -95,8 +95,7 @@ Other dartR-base:
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()}
+\code{\link{gl.recode.pop}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
