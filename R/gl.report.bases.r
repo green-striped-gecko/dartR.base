@@ -96,6 +96,10 @@ gl.report.bases <- function(x,
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.checkwd(plot.dir)
+    
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
