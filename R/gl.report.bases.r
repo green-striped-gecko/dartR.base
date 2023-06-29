@@ -57,8 +57,8 @@
 #' @examples
 #' # SNP data
 #'   out <- gl.report.bases(testset.gl)
+#'   out <- gl.report.bases(testset.gl,plot.dir=getwd(),plot.file="myplot")
 #'   out <- gl.report.bases(testset.gl,plot.file="myplot")
-#'   out <- gl.report.bases(testset.gl,save.plot.type="jpg",save.file.basename="myplot")
 #'   
 #'   col <- gl.select.colors(select=c(6,1),palette=rainbow)
 #'   out <- gl.report.bases(testset.gl,plot.colors=col)
@@ -83,8 +83,7 @@ gl.report.bases <- function(x,
     verbose <- gl.check.verbosity(verbose)
     
     # SET WORKING DIRECTORY
-    plot.dir <- gl.check.wd(plot.dir)
-    
+    if(!is.null(plot.file)){plot.dir <- gl.check.wd(plot.dir,verbose=0)}
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
@@ -185,7 +184,7 @@ gl.report.bases <- function(x,
     cat(paste("    A:", round(A, 2)), "\n")
     cat(paste("    G:", round(G, 2)), "\n")
     cat(paste("    T:", round(T, 2)), "\n")
-    cat(paste("    C:", round(C, 2)), "\n\n")
+    cat(paste("    C:", round(C, 2)), "\n")
     
 # DO THE JOB -- Tag P/A data ----------------------
     

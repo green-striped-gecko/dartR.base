@@ -4,10 +4,14 @@
 \alias{gl.set.wd}
 \title{Sets the default working directory}
 \usage{
-gl.set.wd(wd = tempdir())
+gl.set.wd(wd = tempdir(), verbose = NULL)
 }
 \arguments{
 \item{wd}{Set the path to the wd directory globally to be used by all functions if not set explicitely in the function.}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
 }
 \value{
 path the the working directory [set for all functions]
