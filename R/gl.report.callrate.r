@@ -93,6 +93,9 @@ gl.report.callrate <- function(x,
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
+  # SET WORKING DIRECTORY
+  if(!is.null(plot.file)){plot.dir <- gl.check.wd(plot.dir,verbose=0)}
+  
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
