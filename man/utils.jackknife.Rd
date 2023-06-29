@@ -56,25 +56,18 @@ real advantage in using parallel computation. On the other hand, if the number
 of units is large (e.g. thousands of loci), even with parallel computation, 
 this function can be very slow.
 }
-\examples{
-require("dartR.data")
-platMod.gl <- gl.filter.allna(platypus.gl) 
-chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
-recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
-
-}
 \seealso{
 Other utilities: 
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

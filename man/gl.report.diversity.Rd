@@ -98,15 +98,12 @@ Broadens the Spectrum of Molecular Ecology and Evolution. TREE 32(12)
 }
 \seealso{
 Other report functions: 
-\code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.hwe}()},
 \code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},

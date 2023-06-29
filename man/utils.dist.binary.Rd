@@ -58,26 +58,18 @@ An object of class 'dist' or 'matrix' giving distances between individuals
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
-\examples{
- \donttest{
-# D <- utils.dist.binary(testset.gs, method='Jaccard')
-# D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
-# D <- utils.dist.binary(testset.gs, method='Simple')
-}
-
-}
 \seealso{
 Other utilities: 
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

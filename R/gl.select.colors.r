@@ -20,7 +20,7 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 #' 
-#' #' @details
+#' @details
 #' The available color libraries and their palettes include:
 #' \itemize{
 #' \item library 'brewer' and the palettes available can be listed by
@@ -83,7 +83,7 @@ gl.select.colors <- function(x = NULL,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK PACKAGES
@@ -349,7 +349,7 @@ gl.select.colors <- function(x = NULL,
             }
         }
     }
-    if (verbose >= 1) {
+
         if (library == "brewer") {
             library <- "RColorBrewer"
         }
@@ -389,8 +389,7 @@ gl.select.colors <- function(x = NULL,
         }
         
         scales::show_col(colors)
-    }
-    
+
     # FLAG SCRIPT END ----------------
     
     if (verbose >= 1) {

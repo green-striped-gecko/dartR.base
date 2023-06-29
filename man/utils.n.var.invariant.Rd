@@ -37,11 +37,6 @@ The modified genlight object.
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
-\examples{
-require("dartR.data")
-out <- utils.n.var.invariant(platypus.gl)
-
-}
 \seealso{
 \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
 
@@ -50,12 +45,12 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

@@ -27,10 +27,6 @@ This script recalculates the MAF and places these recalculated values in the
  appropriate place in the genlight object.
  This function only applies to SNP genotype data.
 }
-\examples{
-f <- utils.recalc.maf(testset.gl)
-
-}
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
 \code{utils.recalc.callrate} for recalculating CallRate,
@@ -45,13 +41,13 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

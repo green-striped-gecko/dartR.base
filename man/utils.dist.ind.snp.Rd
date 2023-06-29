@@ -48,26 +48,18 @@ The distance measure can be one of:
  by summing the scores on each axis (locus).
  }
 }
-\examples{
- \donttest{
-D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
-D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
-D <- utils.dist.ind.snp(testset.gl, method='Simple')
-}
-
-}
 \seealso{
 Other utilities: 
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},

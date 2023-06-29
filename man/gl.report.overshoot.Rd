@@ -35,28 +35,16 @@ temporary directory.
 }
 \examples{
 gl.report.overshoot(testset.gl)
+
 }
 \seealso{
 \code{\link{gl.filter.overshoot}}
 
-Other report functions: 
-\code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.pa}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.taglength}()}
+Other matched report: 
+\code{\link{gl.report.callrate}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to 
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

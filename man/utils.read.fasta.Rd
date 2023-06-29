@@ -4,9 +4,15 @@
 \alias{utils.read.fasta}
 \title{An internal script [Custodian to provide a title]}
 \usage{
-utils.read.fasta(file, parallel = parallel, n_cores = NULL, verbose = verbose)
+utils.read.fasta(file, parallel = parallel, n.cores = NULL, verbose = verbose)
 }
 \arguments{
+\item{file}{Custodian to provide other parameter descriptions}
+
+\item{parallel}{Custodian to provide other parameter descriptions}
+
+\item{n.cores}{Custodian to provide other parameter descriptions}
+
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
  progress log; 3, progress and results summary; 5, full report [default 2].
  
@@ -27,13 +33,13 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.ggplotsave}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
 \code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},
 \code{\link{utils.recalc.callrate}()},

@@ -29,9 +29,17 @@ library [default is library specific] .}
 
 \item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].
-
-#' @details
+[default 2 or as specified using gl.set.verbosity].}
+}
+\value{
+A vector with the required number of colors
+}
+\description{
+This script draws upon a number of specified color libraries to extract a
+vector of colors for plotting, where the script that follows has a color
+parameter expecting a vector of colors.
+}
+\details{
 The available color libraries and their palettes include:
 \itemize{
 \item library 'brewer' and the palettes available can be listed by
@@ -50,15 +58,7 @@ for later use.
 The select parameter can be used to select colors from the specified ncolors.
 For example, select=c(1,1,3) will select color 1, 1 again and 3 to retain in
 the final vector. This can be useful for fine-tuning color selection, and
-matching colors and shapes.}
-}
-\value{
-A vector with the required number of colors
-}
-\description{
-This script draws upon a number of specified color libraries to extract a
-vector of colors for plotting, where the script that follows has a color
-parameter expecting a vector of colors.
+matching colors and shapes.
 }
 \examples{
 # SET UP DATASET

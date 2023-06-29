@@ -20,7 +20,7 @@
 #' # require("dartR.data")
 #' # out <- utils.basic.stats(platypus.gl)
 #' 
-# @export
+#' @export
 #' @return A list with with the statistics for each population
 
 utils.basic.stats <- function(x) {

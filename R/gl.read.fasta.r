@@ -27,11 +27,11 @@
 
 #'  SNPs with more than two alleles are skipped.
 
-#' @param fasta_files Fasta files to read [required].
+#' @param fasta.files Fasta files to read [required].
 #' @param parallel A logical indicating whether multiple cores -if available-
 #'  should be used for the computations (TRUE), or not (FALSE); requires the
 #'   package parallel to be installed [default FALSE].
-#' @param n_cores If parallel is TRUE, the number of cores to be used in the
+#' @param n.cores If parallel is TRUE, the number of cores to be used in the
 #'  computations; if NULL, then the maximum number of cores available on the
 #'   computer is used [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -57,9 +57,9 @@
 #' @family reading functions
 #' @export
 
-gl.read.fasta <- function(fasta_files,
+gl.read.fasta <- function(fasta.files,
                           parallel = FALSE,
-                          n_cores = NULL,
+                          n.cores = NULL,
                           verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
@@ -72,10 +72,10 @@ gl.read.fasta <- function(fasta_files,
   
   # DO THE JOB
   
-  gl_list <- lapply(fasta_files,
+  gl_list <- lapply(fasta.files,
                     utils.read.fasta,
                     parallel = parallel,
-                    n_cores = n_cores,
+                    n.cores = n.cores,
                     verbose = verbose)
   
   x <- merge_gl_fasta(gl_list, parallel = parallel, verbose = verbose)
