@@ -12,6 +12,8 @@
 #' compare each population against the rest 'one2rest' [default 'pairwise'].
 #' @param loc_names Whether names of loci with private alleles and fixed 
 #' differences should reported. If TRUE, loci names are reported using a list
+#' @param test.asym bootstrap test for significant differences of private alleles. This test uses a bootstrap simulation by shuffling individuals between a pair of population and drawing with replacement. For each bootstrap the ratio of private alleles is compared to the actual ratio and recorded how often it is larger than the simulated one. If number of individuals are different between population bootstrap is done using the smaller number of samples in both populations.
+#' @param test.aysm.boot number of bootstraps [default 100]
 #'  [default FALSE].
 #' @param plot.out Specify if Sankey plot is to be produced [default TRUE].
 #' @param font_plot Numeric font size in pixels for the node text labels
@@ -112,6 +114,8 @@ gl.report.pa <- function(x,
                          x2 = NULL,
                          method = "pairwise",
                          loc_names = FALSE,
+                         test.asym= FALSE,
+                         test.asym.boot = 100,
                          plot.out = TRUE,
                          font_plot = 14,
                          map.interactive = FALSE,
@@ -209,7 +213,9 @@ gl.report.pa <- function(x,
         Chao1 = NA,
         Chao2= NA,
         totalpriv = NA,
-        AFD = NA
+        AFD = NA, 
+        asym =NA, 
+        asym.sig=NA
       )
     
     pall_loc_names <- rep(list(as.list(rep(NA, 3))), nrow(pc))
@@ -268,6 +274,35 @@ gl.report.pa <- function(x,
       pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
       pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
       pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+      #### bootstrap test to check for asymmetry of private alleles
+      if (test.asym)
+      {
+        asym <- NA
+        p1a <- NA
+        p2a <- NA
+        dd <- rbind(pops[[i1]], pops[[i2]])
+        
+        for (bb in 1:test.asym.boot)
+        {
+        ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:length(x))]))
+        tt <- table(pop(dd))
+        p1 <- ab[1:tt[1],]
+        p2 <- ab[(tt[1]+1):(nrow(dd)),]
+        p1alf <- colMeans(p1, na.rm = T) / 2
+        p2alf <- colMeans(p2, na.rm = T) / 2
+        pa_12 <- sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1))
+        p1a[bb] <- pa_12
+        pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1))
+        p2a[bb] <- pa_21
+        if (pa_21+pa_12>0) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
+        }
+        dasym <-  round(mean(asym),3)
+        pall[i,"asym"] <- dasym
+        estasym <- pall[i, "priv1"] / (pall[i, "priv1"]+pall[i, "priv2"])
+        if ((pall[i, "priv1"]==pall[i, "priv2"])) estasym <- 0.5
+        pall[i,"asym.sig"] <- sum(asym > estasym)/test.asym.boot
+      }
+      
       
     }
     
