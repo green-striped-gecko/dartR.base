@@ -83,6 +83,7 @@ gs <- gl.edit.recode.pop(testset.gs)
 \code{\link{gl.reassign.pop}}
 
 Other data manipulation: 
+\code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
@@ -91,6 +92,7 @@ Other data manipulation:
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

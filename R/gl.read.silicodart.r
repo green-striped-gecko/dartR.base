@@ -1,6 +1,7 @@
 #' @name gl.read.silicodart
 #' @title Imports presence/absence data from SilicoDArT to genlight \{agegenet\}
 #' format (ploidy=1)
+#' @family io
 
 #' @description
 #' DaRT provide the data as a matrix of entities (individual animals) across the
@@ -9,6 +10,21 @@
 #'  for consistency with other programming activity. The script may require
 #'  modification as DArT modify their data formats from time to time.
 
+#' @param filename Name of csv file containing the SilicoDArT data [required].
+#' @param ind.metafile Name of csv file containing metadata assigned to each
+#' entity (individual) [default NULL].
+#' @param nas Missing data character [default '-'].
+#' @param topskip Number of rows to skip before the header row (containing the
+#' specimen identities) [optional].
+#' @param lastmetric Specifies the last non genetic column (Default is
+#' 'Reproducibility'). Be sure to check if that is true, otherwise the number of
+#' individuals will not match. You can also specify the last column by a number
+#'  [default "Reproducibility"].
+#' @param probar Show progress bar [default TRUE].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2, or as set by gl.set.verbose()].
+#' 
 #' @details
 #' gl.read.silicodart() opens the data file (csv comma delimited) and skips the
 #' first n=topskip lines. The script assumes that the next line contains the
@@ -32,31 +48,19 @@
 #'  names, specimen metadata are combined into a genind object. Refer to the
 #'  documentation for \{adegenet\} for further details.
 
-#' @param filename Name of csv file containing the SilicoDArT data [required].
-#' @param ind.metafile Name of csv file containing metadata assigned to each
-#' entity (individual) [default NULL].
-#' @param nas Missing data character [default '-'].
-#' @param topskip Number of rows to skip before the header row (containing the
-#' specimen identities) [optional].
-#' @param lastmetric Specifies the last non genetic column (Default is
-#' 'Reproducibility'). Be sure to check if that is true, otherwise the number of
-#' individuals will not match. You can also specify the last column by a number
-#'  [default "Reproducibility"].
-#' @param probar Show progress bar [default TRUE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2, or as set by gl.set.verbose()].
-#' @return An object of class \code{genlight} with ploidy set to 1, containing
-#' the presence/absence data, and locus and individual metadata.
-#' @export
 #' @author Custodian: Bernd Gruber -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
+#'  
 #' @examples
 #' silicodartfile <- system.file('extdata','testset_SilicoDArT.csv', package='dartR.data')
 #' metadata <- system.file('extdata',ind.metafile ='testset_metadata_silicodart.csv',
 #' package='dartR.data')
 #' testset.gs <- gl.read.silicodart(filename = silicodartfile, ind.metafile = metadata)
 #' @seealso \code{\link{gl.read.dart}}
+#' 
+#' @export
+#' @return An object of class \code{genlight} with ploidy set to 1, containing
+#' the presence/absence data, and locus and individual metadata.
 
 gl.read.silicodart <- function(filename,
                                ind.metafile = NULL,
@@ -71,7 +75,7 @@ gl.read.silicodart <- function(filename,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jackson",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # DO THE JOB

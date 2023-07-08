@@ -1,5 +1,7 @@
 #' @name gl.write.csv
 #' @title Writes out data from a genlight object to csv file
+#' @family io
+
 #' @description
 #' This script writes to file the SNP genotypes with specimens as entities
 #' (columns) and loci as attributes (rows). Each row has associated locus
@@ -9,6 +11,7 @@
 #' The data coding differs from the DArT 1row format in that 0 = reference
 #' homozygous, 2 = alternate homozygous, 1 = heterozygous, and NA = missing SNP
 #' assignment.
+#' 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default "outfile.csv"].
@@ -18,15 +21,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end;
 #' 2, progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return Saves a genlight object to csv, returns NULL.
-#' @export
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' # SNP data
 #'   gl.write.csv(testset.gl, outfile='SNP_1row.csv')
 #' # Tag P/A data
 #'   gl.write.csv(testset.gs, outfile='PA_1row.csv')
+#' @export
+#' @return Saves a genlight object to csv, returns NULL.
 
 gl.write.csv <- function(x,
                          outfile = "outfile.csv",
@@ -38,7 +43,7 @@ gl.write.csv <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

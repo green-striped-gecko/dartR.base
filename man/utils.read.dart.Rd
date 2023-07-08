@@ -47,6 +47,15 @@ WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END
 \details{
 Internal function called by gl.read.dart()
 }
+\seealso{
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()}
+}
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }

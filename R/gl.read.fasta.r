@@ -1,5 +1,7 @@
 #' @name gl.read.fasta
 #' @title Reads FASTA files and converts them to genlight object
+#' @family io
+
 #' @description
 #' The following IUPAC Ambiguity Codes are taken as heterozygotes:
 #' \itemize{
@@ -37,14 +39,16 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
+#' 
 #' @details
 #' Ambiguity characters are often used to code heterozygotes. However, using
 #'  heterozygotes as ambiguity characters may bias many estimates. See more
 #'   information in the link below:
 #' \url{https://evodify.com/heterozygotes-ambiguity-characters/}
-#' @return A genlight object.
+#' 
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #'  # Folder where the fasta files are located. 
 #'  folder_samples <- system.file('extdata', package ='dartR.data')
@@ -54,8 +58,9 @@
 #'                           full.names = TRUE)
 #'  # reading fasta files
 #'   obj <- gl.read.fasta(file_names)
-#' @family reading functions
+#'   
 #' @export
+#' @return A genlight object.
 
 gl.read.fasta <- function(fasta.files,
                           parallel = FALSE,
@@ -67,7 +72,7 @@ gl.read.fasta <- function(fasta.files,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "Jody",
+                   build = "v.2023.2",
                    verbosity = verbose)
   
   # DO THE JOB

@@ -52,6 +52,7 @@ result <- gl.make.recode.ind(testset.gl, out.recode.file ='Emmac_recode_ind.csv'
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
@@ -60,6 +61,7 @@ Other data manipulation:
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
+\code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

@@ -2,10 +2,7 @@
 % Please edit documentation in R/gl.check.verbosity.r
 \name{gl.check.verbosity}
 \alias{gl.check.verbosity}
-\title{Checks the current global verbosity
-The verbosity can be set in one of two ways -- (a) explicitly by the user by
-passing a value using the parameter verbose in a function, or (b) by setting
-the verbosity globally as part of the r environment (gl.set.verbosity).}
+\title{Checks the current global verbosity}
 \usage{
 gl.check.verbosity(x = NULL)
 }
@@ -16,14 +13,20 @@ gl.check.verbosity(x = NULL)
 The verbosity, in variable verbose
 }
 \description{
-Checks the current global verbosity
 The verbosity can be set in one of two ways -- (a) explicitly by the user by
 passing a value using the parameter verbose in a function, or (b) by setting
 the verbosity globally as part of the r environment (gl.set.verbosity).
 }
 \examples{
 gl.check.verbosity()
+
+}
+\seealso{
+Other environment: 
+\code{\link{gl.check.wd}()},
+\code{\link{gl.set.wd}()}
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{environment}

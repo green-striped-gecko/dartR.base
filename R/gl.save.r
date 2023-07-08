@@ -1,5 +1,7 @@
 #' @name gl.save
 #' @title Saves an object in compressed binary format for later rapid retrieval
+#' @family io
+
 #' @description
 #' This is a wrapper for saveRDS().
 
@@ -12,13 +14,16 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return The input object
-#' @export
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 #' @seealso \code{\link{gl.load}}
+#' 
+#' @export
+#' @return The input object
 
 gl.save <- function(x,
                     file,

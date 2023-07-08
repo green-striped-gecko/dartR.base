@@ -2,26 +2,7 @@
 % Please edit documentation in R/gl.read.csv.r
 \name{gl.read.csv}
 \alias{gl.read.csv}
-\title{Reads SNP data from a csv file into a genlight object
-This script takes SNP genotypes from a csv file, combines them with
-individual and locus metrics and creates a genlight object.
-The SNP data need to be in one of two forms. SNPs can be coded 0 for
-homozygous reference, 2 for homozygous alternate, 1 for heterozygous, and NA 
-for missing values; or the SNP data can be coded A/A, A/C, C/T, G/A etc,
-and -/- for missing data. In this format, the reference allele is the most 
-frequent allele, as used by DArT. Other formats will throw an error.
-The SNP data need to be individuals as rows, labeled, and loci as columns,
-also labeled. If the orientation is individuals as columns and loci by rows,
- then set transpose=TRUE.
-The individual metrics need to be in a csv file, with headings, with a
- mandatory id column corresponding exactly to the individual identity labels
- provided with the SNP data and in the same order.
-The locus metadata needs to be in a csv file with headings, with a mandatory
-column headed AlleleID corresponding exactly to the locus identity labels
-provided with the SNP data and in the same order.
-Note that the locus metadata will be complemented by calculable statistics
-corresponding to those that would be provided by Diversity Arrays Technology
-(e.g. CallRate).}
+\title{Reads SNP data from a csv file into a genlight object}
 \usage{
 gl.read.csv(
   filename,
@@ -51,7 +32,6 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object with the SNP data and associated metadata included.
 }
 \description{
-Reads SNP data from a csv file into a genlight object
 This script takes SNP genotypes from a csv file, combines them with
 individual and locus metrics and creates a genlight object.
 The SNP data need to be in one of two forms. SNPs can be coded 0 for
@@ -76,8 +56,19 @@ corresponding to those that would be provided by Diversity Arrays Technology
 csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
 ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
 gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
+
+}
+\seealso{
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{io}

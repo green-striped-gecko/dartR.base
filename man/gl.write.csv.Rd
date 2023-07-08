@@ -38,7 +38,17 @@ assignment.
 # Tag P/A data
   gl.write.csv(testset.gs, outfile='PA_1row.csv')
 }
+\seealso{
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{utils.read.dart}()}
+}
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{io}

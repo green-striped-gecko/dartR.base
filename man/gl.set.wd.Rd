@@ -28,6 +28,7 @@ wd <- gl.set.wd(wd=getwd())
 }
 \seealso{
 Other environment: 
+\code{\link{gl.check.verbosity}()},
 \code{\link{gl.check.wd}()}
 }
 \author{
