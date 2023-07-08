@@ -1,6 +1,6 @@
 #' @name gl.report.monomorphs
 #' @title Reports monomorphic loci
-#' @family managed reports
+#' @family matched reports
 #' 
 #' @description
 #' This script reports the number of monomorphic loci and those with all NAs in

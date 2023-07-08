@@ -37,9 +37,12 @@ not be reliably scored)
 }
 \seealso{
 \code{\link{gl.filter.monomorphs}}
+
+Other matched reports: 
+\code{\link{gl.report.bases}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{managed reports}
+\concept{matched reports}

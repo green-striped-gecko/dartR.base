@@ -107,17 +107,9 @@ ld_res <- gl.report.ld.map(x,ld_max_pairwise = 10000000)
 \code{\link{gl.filter.ld}}
 
 Other report functions: 
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.hwe}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.pa}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.taglength}()}
+\code{\link{gl.report.pa}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to

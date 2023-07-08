@@ -15,11 +15,12 @@
 #' @param method Specify the type of report by locus (method='loc') or
 #' individual (method='ind') [default 'loc'].
 #' @param ind.to.list Number of individuals to list for callrate [default 20]
-#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.display Specify if plot is to be displayed in the graphics window [default TRUE].
 #' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.colors Vector with two color names for the borders and fill
 #' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
-#' @param plot.dir Directory to save the plot RDS files [default getwd()]
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
 #' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
 #' @param bins Number of bins to display in histograms [default 25].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -46,8 +47,9 @@
 #'  }
 #'  
 #'  Plot colours can be set with gl.select.colors().
-
-#' Resultant ggplots can be optionally (if plot.file is specified) saved to disk as an RDS binary file.
+#'  
+#'  If plot.file is specified, plots are saved to the directory specified by the user, or the global
+#'  default working directory set by gl.set.wd() or to the tempdir().
 #' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -94,7 +96,7 @@ gl.report.callrate <- function(x,
   verbose <- gl.check.verbosity(verbose)
   
   # SET WORKING DIRECTORY
-  if(!is.null(plot.file)){plot.dir <- gl.check.wd(plot.dir,verbose=0)}
+  plot.dir <- gl.check.wd(plot.dir,verbose=0)
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
@@ -207,6 +209,7 @@ gl.report.callrate <- function(x,
                              dir=plot.dir,
                              file=plot.file,
                              verbose=verbose)
+    }
       
       # if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
       #   row_plots <- ceiling(nPop(x) / 3)
@@ -220,8 +223,7 @@ gl.report.callrate <- function(x,
       #                          file=filename,
       #                          verbose=verbose)
       # }
-    }
-    
+
   #   # plots by population
   #   if(nPop(x)>1 & by.pop==TRUE){
   #     pops <- seppop(x)
@@ -373,6 +375,7 @@ gl.report.callrate <- function(x,
                              dir=plot.dir,
                              file=plot.file,
                              verbose=verbose)
+    }
       
       # if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
       #   row_plots <- ceiling(nPop(x) / 3)
@@ -386,7 +389,7 @@ gl.report.callrate <- function(x,
       #                          file=filename,
       #                          verbose=verbose)
       # }
-    }
+
     
     # # Determine the loss of individuals for a given threshold using quantiles
     # quantile_res <-

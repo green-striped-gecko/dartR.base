@@ -63,20 +63,18 @@ they are less susceptible to long-tailed distributions and outliers.
 }
 \examples{
 out <- gl.report.taglength(testset.gl)
+
 }
 \seealso{
 \code{\link{gl.filter.taglength}}, \code{\link{gl.list.reports}},
  \code{\link{gl.print.reports}}
 
-Other report functions: 
-\code{\link{gl.report.diversity}()},
+Other matched report: 
+\code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.pa}()},
+\code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()}
@@ -85,4 +83,4 @@ Other report functions:
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

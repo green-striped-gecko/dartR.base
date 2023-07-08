@@ -1,6 +1,7 @@
 #' @name gl.report.hamming
 #' @title Calculates the pairwise Hamming distance between DArT trimmed DNA
 #' sequences
+#' @family matched report
 
 #' @description Hamming distance is calculated as the number of base differences
 #' between two sequences which can be expressed as a count or a proportion.
@@ -16,16 +17,15 @@
 #' [default 5].
 #' @param threshold Minimum acceptable base pair difference for display on the
 #' boxplot and histogram [default 3].
-#' @param taglength Typical length of the sequence tags [default 69].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
-#' plots [default gl.colors(2)].
-#' @param probar If TRUE, then a progress bar is displayed on long loops
-#' [default TRUE].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param tag.length Typical length of the sequence tags [default 69].
+#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.colors Vector with two color names for the borders and fill
+#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
+#' @param probar If TRUE, a progress bar is displayed during run [defalut FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
@@ -44,7 +44,8 @@
 #' \url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
 #' as implemented in \code{\link{utils.hamming}}
 
-#'  Plots and table are saved to the session's temporary directory (tempdir)
+#'   If plot.file is specified, plots are saved to the directory specified by the user, or the global
+#'   default working directory set by gl.set.wd() or to the tempdir().
 
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -64,11 +65,11 @@
 #' #' # SNP data
 #' test <- platypus.gl
 #' test <- gl.subsample.loci(platypus.gl,n=50)
-#' result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
+#' result <- gl.report.hamming(test, verbose=3)
+#' result <- gl.report.hamming(test, plot.file="ttest", verbose=3)
 
 #' @seealso \code{\link{gl.filter.hamming}}
 
-#' @family report functions
 #' @importFrom stats sd
 #' @import patchwork
 #' @export
@@ -76,15 +77,19 @@
 gl.report.hamming <- function(x,
                               rs = 5,
                               threshold = 3,
-                              taglength = 69,
-                              plot.out = TRUE,
-                              plot_theme = theme_dartR(),
-                              plot_colors = gl.colors(2),
+                              tag.length = 69,
+                              plot.display=TRUE,
+                              plot.theme = theme_dartR(),
+                              plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                              plot.dir=NULL,
+                              plot.file=NULL,
                               probar = FALSE,
-                              save2tmp = FALSE,
                               verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
@@ -101,7 +106,7 @@ gl.report.hamming <- function(x,
         stop(error("Fatal Error: Data must include Trimmed Sequences\n"))
     }
     
-    if (rs < 0 | rs > taglength) {
+    if (rs < 0 | rs > tag.length) {
         stop(
             error(
                 "Fatal Error: Length of restriction enzyme recognition sequence
@@ -118,7 +123,7 @@ gl.report.hamming <- function(x,
     # DO THE JOB
     
     s <- as.character(x@other$loc.metrics$TrimmedSequence)
-    tld <- threshold / (taglength - rs)
+    tld <- threshold / (tag.length - rs)
     
     if (probar) {
         pb <-
@@ -177,7 +182,7 @@ gl.report.hamming <- function(x,
     }
     
     if (verbose >= 2) {
-        if (plot.out) {
+        if (plot.display) {
             cat(
                 report(
                     "  Plotting boxplot and histogram of Hamming distance, 
@@ -194,10 +199,10 @@ gl.report.hamming <- function(x,
     # Boxplot
     p1 <-
         ggplot(as.data.frame(d), aes(y = d)) +
-      geom_boxplot(color = plot_colors[1], fill = plot_colors[2]) + 
+      geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + 
       geom_hline(yintercept = tld,color = "red", size = 1) + 
       coord_flip() + 
-      plot_theme + 
+      plot.theme + 
       xlim(range = c(-1, 1)) + 
       ylim(0, 1) +
       ylab(" ") + 
@@ -207,7 +212,7 @@ gl.report.hamming <- function(x,
     # Histogram
     p2 <-
         ggplot(as.data.frame(d), aes(x = d)) + 
-      geom_histogram(bins = 50, color = plot_colors[1],fill = plot_colors[2]) +
+      geom_histogram(bins = 50, color = plot.colors[1],fill = plot.colors[2]) +
       geom_vline(xintercept = tld,color = "red",size = 1) + 
       coord_cartesian(xlim = c(0, 1)) +
       xlab("Hamming distance") +
@@ -218,7 +223,7 @@ gl.report.hamming <- function(x,
                                       plot = FALSE)$counts) * 0.75,
                label = paste("Threshold of\n", threshold,
                              "bp [HD", round(tld, 2), "]")) + 
-      plot_theme
+      plot.theme
     
     cat("    No. of loci =", nLoc(x), "\n")
     cat("    No. of individuals =", nInd(x), "\n")
@@ -231,7 +236,7 @@ gl.report.hamming <- function(x,
         round(sd(d), 3),
         " SD\n"
     ))
-    n.outliers <- sum(d <= (threshold / (taglength - rs)))
+    n.outliers <- sum(d <= (threshold / (tag.length - rs)))
     cat(
         "    No. of pairs with Hamming Distance less than or equal to",
         threshold,
@@ -270,42 +275,49 @@ gl.report.hamming <- function(x,
     rownames(df) <- NULL
     
     # PRINTING OUTPUTS
-    if (plot.out) {
+    if (plot.display) {
         # using package patchwork
         p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
         print(p3)
     }
     print(df)
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
+    
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # 
+    # # creating temp file names
+    # if (plot.file) {
+    #     if (plot.display) {
+    #         temp_plot <- tempfile(pattern = "Plot_")
+    #         match_call <-
+    #             paste0(names(match.call()),
+    #                    "_",
+    #                    as.character(match.call()),
+    #                    collapse = "_")
+    #         # saving to tempdir
+    #         saveRDS(list(match_call, p3), file = temp_plot)
+    #         if (verbose >= 2) {
+    #             cat(report("  Saving the ggplot to session tempfile\n"))
+    #         }
+    #     }
+    #     temp_table <- tempfile(pattern = "Table_")
+    #     saveRDS(list(match_call, df), file = temp_table)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving tabulation to session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using 
+    #                 gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
     
     # FLAG SCRIPT END
     

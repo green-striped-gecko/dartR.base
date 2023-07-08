@@ -29,7 +29,7 @@ gl.report.bases(
 \item{plot.colors}{List of two color names for the borders and fill of the
 plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{plot.file}{Name for the ggsave file (base name only, exclude extension) [default NULL]}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
 \item{plot.dir}{Directory in which to save files [default = working directory]}
 
@@ -79,6 +79,10 @@ specified for the plot to be saved.
   out <- gl.report.bases(testset.gl,plot.colors=col)
   #' # Tag P/A data
   out <- gl.report.bases(testset.gs)
+}
+\seealso{
+Other matched reports: 
+\code{\link{gl.report.monomorphs}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
