@@ -3,10 +3,7 @@
 \name{gl2phylip}
 \alias{gl2phylip}
 \title{Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
- object
-This function calculates and returns a matrix of Euclidean distances between 
-populations and produces an input file for the phylogenetic program Phylip 
-(Joe Felsenstein).}
+ object}
 \usage{
 gl2phylip(
   x,
@@ -37,8 +34,6 @@ progress log; 3, progress and results summary; 5, full report
 Matrix of Euclidean distances between populations.
 }
 \description{
-Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
- object
 This function calculates and returns a matrix of Euclidean distances between 
 populations and produces an input file for the phylogenetic program Phylip 
 (Joe Felsenstein).
@@ -47,8 +42,10 @@ populations and produces an input file for the phylogenetic program Phylip
 \donttest{
 result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
 }
+
 }
 \author{
 Custodian: Arthur Georges (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

@@ -42,6 +42,7 @@ assignment.
 Other io: 
 \code{\link{gl.load}()},
 \code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.read.silicodart}()},
 \code{\link{gl.save}()},

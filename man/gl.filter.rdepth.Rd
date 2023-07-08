@@ -3,16 +3,19 @@
 \name{gl.filter.rdepth}
 \alias{gl.filter.rdepth}
 \title{Filters loci based on counts of sequence tags scored at a locus (read
- depth)}
+ depth)
+ @family matched filter}
 \usage{
 gl.filter.rdepth(
   x,
   lower = 5,
   upper = 50,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -26,16 +29,18 @@ presence/absence data [required].}
 \item{upper}{Upper threshold value above which loci will be removed
 [default 50].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
+[default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -74,24 +79,8 @@ For examples of themes, see:
 }
 \seealso{
 \code{\link{gl.filter.rdepth}}
-
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
-\code{\link{gl.filter.locmetric}()},
-\code{\link{gl.filter.maf}()},
-\code{\link{gl.filter.monomorphs}()},
-\code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.pa}()},
-\code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.taglength}()}
 }
 \author{
 Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{filter functions}

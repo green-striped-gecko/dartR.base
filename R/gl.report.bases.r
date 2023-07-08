@@ -57,9 +57,6 @@
 #' @examples
 #' # SNP data
 #'   out <- gl.report.bases(testset.gl)
-#'   out <- gl.report.bases(testset.gl,plot.dir=getwd(),plot.file="myplot")
-#'   out <- gl.report.bases(testset.gl,plot.file="myplot")
-#'   
 #'   col <- gl.select.colors(select=c(6,1),palette=rainbow)
 #'   out <- gl.report.bases(testset.gl,plot.colors=col)
 
@@ -83,7 +80,7 @@ gl.report.bases <- function(x,
     verbose <- gl.check.verbosity(verbose)
     
     # SET WORKING DIRECTORY
-    if(!is.null(plot.file)){plot.dir <- gl.check.wd(plot.dir,verbose=0)}
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]

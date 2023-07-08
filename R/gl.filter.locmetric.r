@@ -1,6 +1,8 @@
 #' @name gl.filter.locmetric
 #' @title Filters loci on the basis of numeric information stored in
 #'  other$loc.metrics in a genlight \{adegenet\} object
+#' @family matched filter
+#' 
 #' @description
 #' This script uses any field with numeric values stored in $other$loc.metrics
 #' to filter loci. The loci to keep can be within the upper and lower thresholds
@@ -15,6 +17,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
+#' 
 #' @details
 #' The fields that are included in dartR, and a short description, are found
 #' below. Optionally, the user can also set his/her own filter by adding a
@@ -45,17 +48,19 @@
 #' \item RepAvg - proportion of technical replicate assay pairs for which the
 #' marker score is consistent.
 #' }
-#' @return The reduced genlight dataset.
-#' @export
-#' @family filter functions
+#' 
 #' @author Luis Mijangos -- Post to 
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' # adding dummy data
 #' test <- testset.gl
 #' test$other$loc.metrics$test <- 1:nLoc(test)
 #' result <- gl.filter.locmetric(x=test, metric= 'test', upper=255,
 #' lower=200, keep= 'within', verbose=3)
+#' 
+#' @export
+#' @return The reduced genlight dataset.
 
 gl.filter.locmetric <- function(x,
                                 metric,

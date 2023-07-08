@@ -85,8 +85,17 @@ gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 }
 \seealso{
 \code{\link{utils.read.dart}}
+
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{dartR-base}
+\concept{io}

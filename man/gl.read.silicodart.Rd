@@ -80,6 +80,7 @@ testset.gs <- gl.read.silicodart(filename = silicodartfile, ind.metafile = metad
 Other io: 
 \code{\link{gl.load}()},
 \code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.save}()},
 \code{\link{gl.write.csv}()},

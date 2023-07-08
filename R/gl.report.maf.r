@@ -13,9 +13,7 @@
 #' ind.limit [default 5].
 #' @param plot.display Specify if plot is to be displayed in the graphics window [default TRUE].
 #' @param plot.theme User specified theme [default theme_dartR()].
-#' @param plot.colors.pop Vector with color names for the borders and fill
-#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
-#' @param plot.colors.all Vector with two color names for the borders and fill
+#' @param plot.colors Vector with color names for the borders and fill
 #' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
@@ -68,8 +66,7 @@ gl.report.maf <- function(x,
                           ind.limit = 5,
                           plot.display=TRUE,
                           plot.theme = theme_dartR(),
-                          plot.colors.pop = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
-                          plot.colors.all = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                          plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
                           plot.dir=NULL,
                           plot.file = NULL,
                           bins = 25,
@@ -79,6 +76,10 @@ gl.report.maf <- function(x,
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
+    if(verbose==0){
+      plot.display <- FALSE
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
@@ -120,7 +121,7 @@ gl.report.maf <- function(x,
     # DO THE JOB
     
     pops_maf <- seppop(x)
-    col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+    #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
     mafs_plots <- lapply(pops_maf, function(z) {
         z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)
         z <- gl.filter.monomorphs(z, verbose = 0)
@@ -130,7 +131,7 @@ gl.report.maf <- function(x,
             mafs_per_pop_temp[mafs_per_pop_temp < maf.limit]
         p_temp <-
             ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) +
-            geom_histogram(bins = bins, color = col[1], fill = col[2]) +
+            geom_histogram(bins = bins, color = plot.colors[1], fill = plot.colors[2]) +
             xlab("MAF") +
             ylab("Count") +
             xlim(0, maf.limit) +
@@ -204,7 +205,7 @@ gl.report.maf <- function(x,
         
         p_all <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins,color = plot.colors.all[1], fill = plot.colors.all[2]) +
+            geom_histogram(bins = bins,color = plot.colors[1], fill = plot.colors[2]) +
             xlab("MAF") + 
             ylab("Count") +
             xlim(0, maf.limit) + 
@@ -226,7 +227,7 @@ gl.report.maf <- function(x,
         title.str <- "Overall"
         p3 <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins,color = plot.colors.all[1],fill = plot.colors.all[2]) +
+            geom_histogram(bins = bins,color = plot.colors[1],fill = plot.colors[2]) +
             xlab("MAF") + 
             ylab("Count") + 
             xlim(0, maf.limit) + 
@@ -246,7 +247,7 @@ gl.report.maf <- function(x,
             paste("Minor Allele Frequency\n", popn.hold)
         p3 <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins,color = plot.colors.all[1],fill = plot.colors.all[2]) +
+            geom_histogram(bins = bins,color = plot.colors[1],fill = plot.colors[2]) +
             xlab("MAF") + 
             ylab("Count") + xlim(0, maf.limit) + 
             plot.theme + 
@@ -261,7 +262,7 @@ gl.report.maf <- function(x,
             paste("Minor Allele Frequency\n", pop(x2)[1])
         p3 <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins, color = plot.colors.all[1],fill = plot.colors.all[2]) +
+            geom_histogram(bins = bins, color = plot.colors[1],fill = plot.colors[2]) +
             xlab("MAF") +
             ylab("Count") + 
             xlim(0, maf.limit) + 

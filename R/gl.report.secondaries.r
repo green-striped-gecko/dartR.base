@@ -96,7 +96,6 @@
 #' test <- gl.filter.callrate(platypus.gl,threshold = 1)
 #' n.inv <- gl.report.secondaries(test)
 #' gl.report.heterozygosity(test, n.invariant = n.inv[7, 2])
-#' gl.report.secondaries(test,plot.dir=getwd(),plot.file="tttest")
 #' 
 #' @seealso
 #' \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}},

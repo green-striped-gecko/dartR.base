@@ -3,8 +3,7 @@
 \name{gl.filter.maf}
 \alias{gl.filter.maf}
 \title{Filters loci on the basis of minor allele frequency (MAF) in a 
-genlight
- {adegenet} object}
+genlight {adegenet} object}
 \usage{
 gl.filter.maf(
   x,
@@ -13,12 +12,13 @@ gl.filter.maf(
   pop.limit = ceiling(nPop(x)/2),
   ind.limit = 10,
   recalc = FALSE,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors_pop = gl.colors("dis"),
-  plot_colors_all = gl.colors(2),
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   bins = 25,
-  save2tmp = FALSE,
   verbose = NULL
 )
 }
@@ -42,35 +42,26 @@ contain to calculate MAF. Only used if by.pop=TRUE [default 10].}
 \item{recalc}{Recalculate the locus metadata statistics if any individuals
 are deleted in the filtering [default FALSE].}
 
-\item{plot.out}{Specify if histograms of call rate, before and after, are to
-be produced [default TRUE].}
+\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
+[default TRUE].}
 
-\item{plot_theme}{User specified theme for the plot [default theme_dartR()].}
+\item{plot.theme}{Theme for the plot. See Details for options
+[default theme_dartR()].}
 
-\item{plot_colors_pop}{A color palette for population plots
-[default gl.colors("dis")].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{plot_colors_all}{List of two color names for the borders and fill of
-the overall plot [default gl.colors(2)].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
-
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default 2, unless specified using gl.set.verbosity].}
-}
-\value{
-The reduced genlight dataset
-}
-\description{
-This script calculates the minor allele frequency for each locus and updates
-the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
-exists). It then uses the updated metadata for MAF to filter loci.
-}
-\details{
+ [default 2, unless specified using gl.set.verbosity].
+ 
+ @details 
 Careful consideration needs to be given to the settings to be used for this 
 fucntion. When the filter is applied globally (i.e. \code{by.pop=FALSE}) but 
 the data include multiple population, there is the risk to remove markers 
@@ -88,30 +79,33 @@ of times an allele is observed (MAC, Minimum Allele Count), under the
 assumption that if an allele is observed >MAC, it is fairly rare to be an 
 error.
 \bold{From v2.1} The threshold can take values > 1. In this case, these are 
-interpreted as a threshold for MAC.
+interpreted as a threshold for MAC.}
+}
+\value{
+The reduced genlight dataset
+}
+\description{
+This script calculates the minor allele frequency for each locus and updates
+the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
+exists). It then uses the updated metadata for MAF to filter loci.
 }
 \examples{
 result <- gl.filter.monomorphs(testset.gl)
 result <- gl.filter.maf(result, threshold=0.05, verbose=3)
+result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
+
 }
 \seealso{
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
+Other matched filter: 
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.pa}()},
-\code{\link{gl.filter.rdepth}()},
-\code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.taglength}()}
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
+\concept{matched filter}

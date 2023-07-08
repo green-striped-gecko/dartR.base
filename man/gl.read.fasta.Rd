@@ -68,6 +68,7 @@ Ambiguity characters are often used to code heterozygotes. However, using
 Other io: 
 \code{\link{gl.load}()},
 \code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
 \code{\link{gl.read.silicodart}()},
 \code{\link{gl.save}()},
 \code{\link{gl.write.csv}()},

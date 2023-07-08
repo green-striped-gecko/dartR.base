@@ -12,11 +12,13 @@ gl.filter.callrate(
   mono.rm = FALSE,
   recalc = FALSE,
   recursive = FALSE,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   bins = 25,
-  save2tmp = FALSE,
   verbose = NULL
 )
 }
@@ -41,18 +43,20 @@ are deleted in the filtering [default FALSE].}
 removing monomorphic loci. Only applies if method='ind' and mono.rm=TRUE
  [default FALSE].}
 
-\item{plot.out}{Specify if histograms of call rate, before and after, are to
-be produced [default TRUE].}
+\item{plot.display}{If TRUE, histograms are displayed in the plot window
+[default TRUE].}
 
-\item{plot_theme}{User specified theme for the plot [default theme_dartR()].}
+\item{plot.theme}{Theme for the plot. See Details for options
+[default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -116,23 +120,16 @@ Resultant ggplot(s) and the tabulation(s) are saved to the session's
 \seealso{
 \code{\link{gl.report.callrate}}
 
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
+Other matched filter: 
+\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.pa}()},
-\code{\link{gl.filter.rdepth}()},
-\code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.taglength}()}
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
+\concept{matched filter}

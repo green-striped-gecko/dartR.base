@@ -1,5 +1,6 @@
 #' @name gl.filter.hamming
 #' @title Filters loci based on pairwise Hamming distance between sequence tags
+#' @family matched filter
 
 #' @description
 #' Hamming distance is calculated as the number of base differences between two
@@ -9,6 +10,26 @@
 #' by the restriction enzyme recognition sequence, it is sensible to compare the
 #' two trimmed sequences starting from immediately after the common recognition
 #' sequence and terminating at the last base of the shorter sequence.
+#' 
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param threshold A threshold Hamming distance for filtering loci
+#' [default threshold 0.2].
+#' @param rs Number of bases in the restriction enzyme recognition sequence
+#' [default 5].
+#' @param tag.length Typical length of the sequence tags [default 69].
+#' @param plot.display If TRUE, histograms are displayed in the plot window
+#' [default TRUE].
+#' @param plot.theme Theme for the plot. See Details for options
+#' [default theme_dartR()].
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' @param pb If TRUE, a progress bar will be displayed [default FALSE]
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'  progress log ; 3, progress and results summary; 5, full report
+#'   [default 2, unless specified using gl.set.verbosity].
+#'   
 #' @details
 #' Hamming distance can be computed
 #' by exploiting the fact that the dot product of two binary vectors x and (1-y)
@@ -26,25 +47,7 @@
 #' specified
 #' percentage. 5 base differences out of 100 bases is a 20% Hamming distance.
 
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param threshold A threshold Hamming distance for filtering loci
-#' [default threshold 0.2].
-#' @param rs Number of bases in the restriction enzyme recognition sequence
-#' [default 5].
-#' @param taglength Typical length of the sequence tags [default 69].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
-#'  plots [default gl.colors(2)].
-#' @param pb Switch to output progress bar [default FALSE].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log ; 3, progress and results summary; 5, full report
-#'   [default 2, unless specified using gl.set.verbosity].
 
-#' @return A genlight object filtered on Hamming distance.
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 
@@ -52,29 +55,33 @@
 #' # SNP data
 #' test <- platypus.gl
 #' test <- gl.subsample.loci(platypus.gl,n=50)
-#' result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
+#' result <- gl.filter.hamming(test, threshold=0.6, verbose=3)
 
-#' @family filters functions
 #' @import patchwork
 #' @export
+#' @return A genlight object filtered on Hamming distance.
 
 gl.filter.hamming <- function(x,
                               threshold = 0.2,
                               rs = 5,
-                              taglength = 69,
-                              plot.out = TRUE,
-                              plot_theme = theme_dartR(),
-                              plot_colors = gl.colors(2),
+                              tag.length = 69,
+                              plot.display=TRUE,
+                              plot.theme = theme_dartR(),
+                              plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                              plot.file=NULL,
+                              plot.dir=NULL,
                               pb = FALSE,
-                              save2tmp = FALSE,
                               verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+
+    # SET WORKING DIRECTORY    
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
@@ -157,12 +164,12 @@ gl.filter.hamming <- function(x,
             if (d[count] <= threshold) {
                 index[i] <- FALSE
                 if (verbose >= 3) {
-                    cat(report(
+                    cat(
                         " Deleting:",
                         locNames(x)[i],
                         locNames(x)[j],
                         "\n"
-                    ))
+                    )
                 }
                 break
             }
@@ -177,7 +184,7 @@ gl.filter.hamming <- function(x,
       x2@other$loc.metrics <- x@other$loc.metrics[(index), ]
     
     # PLOT HISTOGRAMS, BEFORE AFTER
-    if (plot.out) {
+    if (plot.display) {
         plotvar <- d
         # min <- min(plotvar,threshold,na.rm=TRUE) min <- trunc(min*100)/100
         max <- max(plotvar, threshold, na.rm = TRUE)
@@ -190,15 +197,15 @@ gl.filter.hamming <- function(x,
         p1 <-
             ggplot(data.frame(plotvar), aes(x = plotvar)) + 
             geom_histogram(bins = 100,
-                           color = plot_colors[1],
-                           fill = plot_colors[2]) + 
+                           color = plot.colors[1],
+                           fill = plot.colors[2]) + 
             coord_cartesian(xlim = c(0, max)) +
             geom_vline(xintercept = threshold,
                        color = "red",
                        size = 1) + 
             xlab(xlabel) + 
             ylab("Count") + 
-            plot_theme
+            plot.theme
         
         # if (datatype=='SilicoDArT'){ rdepth <-
         #x2@other$loc.metrics$AvgReadDepth } else if 
@@ -215,27 +222,36 @@ gl.filter.hamming <- function(x,
         p2 <-
             ggplot(data.frame(plotvar), aes(x = plotvar)) +
             geom_histogram(bins = 100,
-                           color = plot_colors[1],
-                           fill = plot_colors[2]) + 
+                           color = plot.colors[1],
+                           fill = plot.colors[2]) + 
             coord_cartesian(xlim = c(0, max)) + 
             geom_vline(xintercept = threshold,color = "red", size = 1) + 
             xlab(xlabel) +
             ylab("Count") + 
-            plot_theme
+            plot.theme
         
         p3 <- (p1 / p2) + plot_layout(heights = c(1, 1))
         print(p3)
     }
+      
+      # Optionally save the plot ---------------------
+      
+      if(!is.null(plot.file)){
+        tmp <- utils.plot.save(p3,
+                               dir=plot.dir,
+                               file=plot.file,
+                               verbose=verbose)
+      }
     
     # REPORT A SUMMARY
     if (verbose >= 3) {
-        cat("  Summary of filtered dataset\n")
+        cat("\n  Summary of filtered dataset\n")
         cat(paste("    Initial No. of loci:", n0, "\n"))
         cat(paste(
             "    Hamming d >",
             threshold,
             "=",
-            round(threshold * taglength, 0),
+            round(threshold * tag.length, 0),
             "bp\n"
         ))
         cat(paste("    Loci deleted", (n0 - nLoc(x2)), "\n"))
@@ -246,27 +262,27 @@ gl.filter.hamming <- function(x,
         )), "\n"))
     }
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp & plot.out) {
-        # creating temp file names
-        temp_plot <- tempfile(pattern = "Plot_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, p3), file = temp_plot)
-        if (verbose >= 2) {
-            cat(report("  Saving ggplot(s) to the session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
-    }
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # if (plot.file & plot.display) {
+    #     # creating temp file names
+    #     temp_plot <- tempfile(pattern = "Plot_")
+    #     match_call <-
+    #         paste0(names(match.call()),
+    #                "_",
+    #                as.character(match.call()),
+    #                collapse = "_")
+    #     # saving to tempdir
+    #     saveRDS(list(match_call, p3), file = temp_plot)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using 
+    #                 gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
     
     # ADD TO HISTORY
     nh <- length(x2@other$history)

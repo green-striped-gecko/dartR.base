@@ -33,6 +33,7 @@ gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 Other io: 
 \code{\link{gl.load}()},
 \code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.read.silicodart}()},
 \code{\link{gl.write.csv}()},

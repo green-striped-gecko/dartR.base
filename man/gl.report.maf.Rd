@@ -10,10 +10,8 @@ gl.report.maf(
   ind.limit = 5,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors.pop = gl.select.colors(library = "brewer", palette = "Blues", select = c(7,
-    5), verbose = 0),
-  plot.colors.all = gl.select.colors(library = "brewer", palette = "Blues", select = c(7,
-    5), verbose = 0),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
   plot.dir = NULL,
   plot.file = NULL,
   bins = 25,
@@ -32,10 +30,7 @@ ind.limit [default 5].}
 
 \item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot.colors.pop}{Vector with color names for the borders and fill
-[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
-
-\item{plot.colors.all}{Vector with two color names for the borders and fill
+\item{plot.colors}{Vector with color names for the borders and fill
 [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
