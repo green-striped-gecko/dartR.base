@@ -36,11 +36,27 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
     gl2 <- gl.keep.ind(testset.gl, ind.list=c('AA019073','AA004859'))
   # Tag P/A data
    gs2 <- gl.keep.ind(testset.gs, ind.list=c('AA020656','AA19077','AA004859'))
+   
 }
 \seealso{
 \code{\link{gl.drop.pop}} to drop rather than keep specified populations
+
+Other data manipulation: 
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}

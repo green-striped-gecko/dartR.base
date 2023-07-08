@@ -1,6 +1,8 @@
 #' @name gl.keep.ind
 # Preliminaries -- Parameter specifications -------------- 
 #' @title Removes all but the specified individuals from a dartR genlight object
+#' @family data manipulation
+#' 
 #' @description
 #' This script deletes all individuals apart from those listed (ind.list).
 #' Monomorphic loci and loci that are scored all NA are optionally deleted (mono.rm=TRUE). 
@@ -19,18 +21,22 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 
-#' @export
-#' @return A reduced dartR genlight object
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #Examples -------------
 #' @examples
 #'   # SNP data
 #'     gl2 <- gl.keep.ind(testset.gl, ind.list=c('AA019073','AA004859'))
 #'   # Tag P/A data
 #'    gs2 <- gl.keep.ind(testset.gs, ind.list=c('AA020656','AA19077','AA004859'))
+#'    
 # See also ------------
 #' @seealso \code{\link{gl.drop.pop}} to drop rather than keep specified populations
+
+#' @export
+#' @return A reduced dartR genlight object
+
 # --------------
 # Function 
 gl.keep.ind <- function(x,

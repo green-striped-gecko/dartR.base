@@ -85,17 +85,6 @@ gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 }
 \seealso{
 \code{\link{utils.read.dart}}
-
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})

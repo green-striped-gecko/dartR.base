@@ -36,23 +36,27 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
   gl2 <- gl.drop.loc(testset.gl, loc.list=c('100051468|42-A/T', '100049816-51-A/G'),verbose=3)
 # Tag P/A data
   gs2 <- gl.drop.loc(testset.gs, loc.list=c('20134188','19249144'),verbose=3)
+  
 }
 \seealso{
 \code{\link{gl.keep.loc}} to keep rather than drop specified loci
 
-Other dartR-base: 
+Other data manipulation: 
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
+\code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()}
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}
+\concept{data manipulation}

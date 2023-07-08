@@ -1,6 +1,8 @@
 #' @name gl.drop.loc
 # Preliminaries -- Parameter specifications -------------- 
 #' @title Removes specified loci from a dartR genlight object
+#' @family data manipulation
+
 #' @description
 #' This function deletes individuals and their associated metadata. 
 
@@ -19,20 +21,21 @@
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
 
-#' @export
-#' @return A reduced dartR genlight object
-
-#' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 # Examples -------------
 #' @examples
 #' # SNP data
 #'   gl2 <- gl.drop.loc(testset.gl, loc.list=c('100051468|42-A/T', '100049816-51-A/G'),verbose=3)
 #' # Tag P/A data
 #'   gs2 <- gl.drop.loc(testset.gs, loc.list=c('20134188','19249144'),verbose=3)
+#'   
 # See also ------------
 #' @seealso \code{\link{gl.keep.loc}} to keep rather than drop specified loci
+#' 
+#' @export
+#' @return A reduced dartR genlight object
 
 # End Block --------------
 # Function 
