@@ -1,5 +1,8 @@
-#' Converts a genlight object to format suitable to be run with Coancestry
+#' @name gl2related
+#' @title Converts a genlight object to format suitable to be run with Coancestry
+#' @family linker
 
+#' @description
 #' The output txt file contains the SNP data and an additional column with the
 #' names of the individual. The file then can be used and loaded into coancestry
 #' or - if installed - run with the related package. Be aware the related
@@ -12,7 +15,8 @@
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default 'related.txt'].
-#' @param outpath Path where to save the output file [default tempdir()].
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param save A switch if you want to save the file or not. This might be
 #' useful for someone who wants to use the coancestry function to calculate
 #' relatedness and not export to coancestry. See the example below
@@ -20,10 +24,10 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return A data.frame that can be used to run with the related package
-#' @export
+#' 
 #' @author Bernd Gruber (bugs? Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE)
 #' \dontrun{
@@ -34,25 +38,32 @@
 #' head(coan$relatedness)
 #' ##check ?coancestry for information how to use the function.
 #' }
+#' 
 #' @references Jack Pew, Jinliang Wang, Paul Muir and Tim Frasier (2014).
 #' related: related: an R package for analyzing pairwise relatedness
 #'  data based on codominant molecular markers.
 #'  R package version 0.8/r2.
 #'   \url{https://R-Forge.R-project.org/projects/related/}
+#'   
+#' @export
+#' @return A data.frame that can be used to run with the related package
 
 gl2related <- function(x,
                        outfile = "related.txt",
-                       outpath = tempdir(),
+                       outpath = NULL,
                        save = TRUE,
                        verbose = NULL) {
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

@@ -6,51 +6,50 @@
 \usage{
 gl2plink(
   x,
-  plink_path = getwd(),
-  bed_file = FALSE,
+  plink.bin.path = getwd(),
+  bed.files = FALSE,
   outfile = "gl_plink",
-  outpath = tempdir(),
-  chr_format = "character",
-  pos_cM = "0",
-  ID_dad = "0",
-  ID_mom = "0",
-  sex_code = "unknown",
-  phen_value = "0",
+  outpath = NULL,
+  chr.format = "character",
+  pos.cM = "0",
+  ID.dad = "0",
+  ID.mum = "0",
+  sex.code = "unknown",
+  phen.value = "0",
   verbose = NULL
 )
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{plink_path}{Path of PLINK binary file [default getwd()].}
+\item{plink.bin.path}{Path of PLINK binary file [default getwd()].}
 
-\item{bed_file}{Whether create PLINK files .bed, .bim and .fam
+\item{bed.files}{Whether create PLINK files .bed, .bim and .fam
 [default FALSE].}
 
 \item{outfile}{File name of the output file [default 'gl_plink'].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
- when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
-\item{chr_format}{Whether chromosome information is stored as 'numeric' or as
+\item{chr.format}{Whether chromosome information is stored as 'numeric' or as
 'character', see details [default 'character'].}
 
-\item{pos_cM}{A vector, with as many elements as there are loci, containing
+\item{pos.cM}{A vector, with as many elements as there are loci, containing
 the SNP position in morgans or centimorgans [default '0'].}
 
-\item{ID_dad}{A vector, with as many elements as there are individuals,
+\item{ID.dad}{A vector, with as many elements as there are individuals,
 containing the ID of the father, '0' if father isn't in dataset [default '0'].}
 
-\item{ID_mom}{A vector, with as many elements as there are individuals,
+\item{ID.mum}{A vector, with as many elements as there are individuals,
 containing the ID of the mother, '0' if mother isn't in dataset [default '0'].}
 
-\item{sex_code}{A vector, with as many elements as there are individuals,
+\item{sex.code}{A vector, with as many elements as there are individuals,
 containing the sex code ('male', 'female', 'unknown'). Sex information needs 
 just to start with an "F" or "f" for females, with an "M" or "m" for males 
 and with a "U", "u" or being empty if the sex is unknown [default 'unknown'].}
 
-\item{phen_value}{A vector, with as many elements as there are individuals,
+\item{phen.value}{A vector, with as many elements as there are individuals,
 containing the phenotype value. '1' = control, '2' = case, '0' = unknown
 [default '0'].}
 
@@ -67,8 +66,8 @@ file.
 This function produces the following PLINK files: bed, bim, fam, ped and map.
 }
 \details{
-To create PLINK files .bed, .bim and .fam (bed_file = TRUE), it is necessary
-to download the binary file of PLINK 1.9 and provide its path (plink_path).
+To create PLINK files .bed, .bim and .fam (bed.files = TRUE), it is necessary
+to download the binary file of PLINK 1.9 and provide its path (plink.bin.path).
 The binary file can be downloaded from:
 \url{https://www.cog-genomics.org/plink/}
 After downloading, unzip the file, access the unzipped folder and move the 
@@ -100,13 +99,35 @@ test$position <- test$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
 test$chromosome <- as.factor("1")
 gl2plink(test)
 }
+
 }
 \references{
 Purcell, Shaun, et al. 'PLINK: a tool set for whole-genome association and
 population-based linkage analyses.' The American journal of human genetics
 81.3 (2007): 559-575.
 }
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
+}
 \author{
 Custodian: Luis Mijangos (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

@@ -7,9 +7,9 @@
 gl2genepop(
   x,
   outfile = "genepop.gen",
-  outpath = tempdir(),
-  pop_order = "alphabetic",
-  output_format = "2_digits",
+  outpath = NULL,
+  pop.order = "alphabetic",
+  output.format = "2_digits",
   verbose = NULL
 )
 }
@@ -18,15 +18,14 @@ gl2genepop(
 
 \item{outfile}{File name of the output file [default 'genepop.gen'].}
 
-\item{outpath}{Path where to save the output file. Use outpath=getwd() or
-outpath='.' when calling this function to direct output files to your working
- directory [default tempdir(), mandated by CRAN].}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
-\item{pop_order}{Order of the output populations either "alphabetic" or a 
+\item{pop.order}{Order of the output populations either "alphabetic" or a 
 vector of population names in the order required by the user (see examples)
 [default "alphabetic"].}
 
-\item{output_format}{Whether to use a 2-digit format ("2_digits") or 3-digits
+\item{output.format}{Whether to use a 2-digit format ("2_digits") or 3-digits
 format ("3_digits") [default "2_digits"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -52,11 +51,33 @@ geno <- gl2genepop(testset.gl[1:3,1:9])
 head(geno)
 test <- gl.filter.callrate(platypus.gl,threshold = 1)
 popNames(test)
-gl2genepop(test, pop_order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
-           output_format="3_digits")
+gl2genepop(test, pop.order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
+           output.format="3_digits")
 }
+
+}
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

@@ -1,7 +1,10 @@
-#' Converts a genlight object into a format suitable for input to genalex
+#' @name gl2genalex
+#' @title Converts a genlight object into a format suitable for input to genalex
+#' @family linker
 
+#' @description
 #' The output csv file contains the snp data and other relevant lines suitable
-#'  for genalex. This script is a wrapper for  \link[poppr]{genind2genalex}
+#'  for genalex. This function is a wrapper for  \link[poppr]{genind2genalex}
 #'  (package poppr).
 
 #' @references
@@ -10,38 +13,45 @@
 #' Bioinformatics 28, 2537-2539.
 #' http://bioinformatics.oxfordjournals.org/content/28/19/2537
 
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param outfile File name of the output file (including extension)
+#' @param x Name of the genlight object containing SNP data [required].
+#' @param outfile Name of the output file (including extension)
 #' [default 'genalex.csv'].
-#' @param outpath Path where to save the output file [default tempdir()].
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param overwrite If FALSE and filename exists, then the file will not be
-#' overwritten. Set this option to TRUE to overwrite the file [default FALSE].
+#' overwritten [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end;
 #' 2, progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return  returns no value (i.e. NULL)
-#' @export
+#' 
 #' @author Custodian: Luis Mijangos, Author: Katrin Hohwieler, wrapper Arthur
 #' Georges (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' \donttest{
 #' gl2genalex(testset.gl, outfile='testset.csv')
 #' }
+#' 
+#' @export
+#' @return  returns no value (i.e. NULL)
 
 gl2genalex <- function(x,
                        outfile = "genalex.csv",
-                       outpath = tempdir(),
+                       outpath = NULL,
                        overwrite = FALSE,
                        verbose = NULL) {
-    outfilespec <- file.path(outpath, outfile)
-    
+  
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    outfilespec <- file.path(outpath, outfile)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

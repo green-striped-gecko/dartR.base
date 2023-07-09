@@ -1,5 +1,7 @@
 #' @name gl2genepop
 #' @title Converts a genlight object into genepop format (and file)
+#' @family linker
+
 #' @description
 #' The genepop format is used by several external applications (for example
 #' Neestimator2
@@ -7,22 +9,23 @@
 #' So the main idea is to create the genepop file and then run the other
 #' software externally. As a feature, the genepop file is also returned as an
 #' invisible data.frame by the function.
+#' 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file [default 'genepop.gen'].
-#' @param outpath Path where to save the output file. Use outpath=getwd() or
-#' outpath='.' when calling this function to direct output files to your working
-#'  directory [default tempdir(), mandated by CRAN].
-#' @param pop_order Order of the output populations either "alphabetic" or a 
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
+#' @param pop.order Order of the output populations either "alphabetic" or a 
 #' vector of population names in the order required by the user (see examples)
 #' [default "alphabetic"].
-#' @param output_format Whether to use a 2-digit format ("2_digits") or 3-digits
+#' @param output.format Whether to use a 2-digit format ("2_digits") or 3-digits
 #'  format ("3_digits") [default "2_digits"].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return Invisible data frame in genepop format
+#' 
 #' @author Custodian: Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' \dontrun{
 #' require("dartR.data")
@@ -31,24 +34,29 @@
 #' head(geno)
 #' test <- gl.filter.callrate(platypus.gl,threshold = 1)
 #' popNames(test)
-#' gl2genepop(test, pop_order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
-#'            output_format="3_digits")
+#' gl2genepop(test, pop.order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
+#'            output.format="3_digits")
 #' }
+#' 
 #' @export
+#' @return Invisible data frame in genepop format
 
 gl2genepop <- function (x,
                         outfile = "genepop.gen",
-                        outpath = tempdir(),
-                        pop_order = "alphabetic",
-                        output_format = "2_digits", 
+                        outpath = NULL,
+                        pop.order = "alphabetic",
+                        output.format = "2_digits", 
                         verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
+  # SET WORKING DIRECTORY
+  outpath <- gl.check.wd(outpath,verbose=0)
+  
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "Jody",
+                   build = "v.2023.2",
                    verbosity = verbose)
   
   # CHECK DATATYPE
@@ -76,14 +84,14 @@ gl2genepop <- function (x,
   # DO THE JOB
   #ordering populations
   
-  if(length(pop_order)==1){
+  if(length(pop.order)==1){
     x <- x[order(pop(x)), ]
   }
   
-  if(length(pop_order)>1){
+  if(length(pop.order)>1){
     
     tmp <- seppop(x)
-    tmp_2 <-  tmp[match(pop_order, names(tmp))]
+    tmp_2 <-  tmp[match(pop.order, names(tmp))]
     x <- Reduce(rbind,tmp_2)
   }
 
@@ -126,7 +134,7 @@ gl2genepop <- function (x,
     into = c("locus", "allele")
   )
   
-  if(output_format == "3_digits"){
+  if(output.format == "3_digits"){
     loc_all$allele <- paste0("0",loc_all$allele)
   }
   

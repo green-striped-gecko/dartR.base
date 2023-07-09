@@ -60,7 +60,7 @@
 #' @examples
 #' result <- gl.filter.monomorphs(testset.gl)
 #' result <- gl.filter.maf(result, threshold=0.05, verbose=3)
-#' result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
+#' #result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
 #' 
 #' @export
 #' @return The reduced genlight dataset

@@ -1,17 +1,21 @@
-#' Creates a dataframe suitable for input to package \{Demerelate\} from a
+#' @name gl2demerelate
+#' @title Creates a dataframe suitable for input to package \{Demerelate\} from a
 #' genlight \{adegenet\} object
+#' @family linker
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
-#' @return A dataframe suitable as input to package \{Demerelate\}
-#' @export
+#' 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' df <- gl2demerelate(testset.gl)
-
+#' 
+#' @export
+#' @return A dataframe suitable as input to package \{Demerelate\}
 
 gl2demerelate <- function(x,
                           verbose = NULL) {
@@ -23,7 +27,7 @@ gl2demerelate <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
