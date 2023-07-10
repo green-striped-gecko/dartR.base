@@ -1,7 +1,8 @@
+#' @name gl2sfs
+#' @title Converts a genlight object into a sfs input file
 
-#'Converts a genlight object into a sfs input file
-
-#'The output of this function is suitable for analysis in fastsimcoal2 or dada.
+#' @description
+#' The output of this function is suitable for analysis in fastsimcoal2 or dada.
 
 #'It saves a derived sfs, assuming that the reference allele is the ancestral,
 #'and a MAF sfs.
@@ -20,30 +21,35 @@
 #'can be explicitly modelled in fastsimcoal2. See fastsimcoal2 manual for
 #'details.
 
-
 #'It expects a dartR formatted genlight object, but it should also  work with
 #'other genlight objects.
+#'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param n.invariant.tags Number of invariant sites[default 0].
-#' @param outfile_root The root of the name of the output file [default "gl2sfs"].
-#' @param outpath Path where to save the output file [default tempdir()].
+#' @param outfile.root The root of the name of the output file [default "gl2sfs"].
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#'@return Deprecated. Please use gl.sfs instead.
+#' 
 #'@author Custodian: Carlo Pacioni (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
+#'  
 #'@seealso \code{\link{gl.report.heterozygosity}},
 #'  \code{\link{gl.report.secondaries}}, \code{\link{utils.n.var.invariant}}
-#'@export
+#'  
 #'@references Excoffier L., Dupanloup I., Huerta-Sánchez E., Sousa V. C. and
 #'  Foll M. (2013) Robust demographic inference from genomic and SNP data. PLoS
 #'  genetics 9(10)
+#'  
+#'@export
+#'@return Deprecated. Please use gl.sfs instead.
 
 gl2sfs <- function(x,
                    n.invariant.tags = 0,
-                   outfile_root = "gl2sfs",
-                   outpath = tempdir(),
+                   outfile.root = "gl2sfs",
+                   outpath = NULL,
                    verbose = NULL) {
   cat(warn("Deprecated. Use gl.sfs instead.\n"))
 }

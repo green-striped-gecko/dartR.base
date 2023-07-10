@@ -7,12 +7,12 @@
 gl2eigenstrat(
   x,
   outfile = "gl_eigenstrat",
-  outpath = tempdir(),
-  snp_pos = 1,
-  snp_chr = 1,
-  pos_cM = 0,
-  sex_code = "unknown",
-  phen_value = "Case",
+  outpath = NULL,
+  snp.pos = 1,
+  snp.chr = 1,
+  pos.cM = 0,
+  sex.code = "unknown",
+  phen.value = "Case",
   verbose = NULL
 )
 }
@@ -21,23 +21,22 @@ gl2eigenstrat(
 
 \item{outfile}{File name of the output file [default 'gl_eigenstrat'].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
- when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
-\item{snp_pos}{Field name from the slot loc.metrics where the SNP position is
+\item{snp.pos}{Field name from the slot loc.metrics where the SNP position is
 stored [default 1].}
 
-\item{snp_chr}{Field name from the slot loc.metrics where the chromosome of
+\item{snp.chr}{Field name from the slot loc.metrics where the chromosome of
 each is stored [default 1].}
 
-\item{pos_cM}{A vector, with as many elements as there are loci, containing
+\item{pos.cM}{A vector, with as many elements as there are loci, containing
 the SNP position in morgans or centimorgans [default 1].}
 
-\item{sex_code}{A vector, with as many elements as there are individuals,
+\item{sex.code}{A vector, with as many elements as there are individuals,
 containing the sex code ('male', 'female', 'unknown') [default 'unknown'].}
 
-\item{phen_value}{A vector, with as many elements as there are individuals,
+\item{phen.value}{A vector, with as many elements as there are individuals,
 containing the phenotype value ('Case', 'Control') [default 'Case'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -66,9 +65,10 @@ as 0, will be removed.
 \examples{
 \donttest{
 require("dartR.data")
-gl2eigenstrat(platypus.gl,snp_pos='ChromPos_Platypus_Chrom_NCBIv1',
-snp_chr = 'Chrom_Platypus_Chrom_NCBIv1')
+gl2eigenstrat(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
+snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
 }
+
 }
 \references{
 \itemize{
@@ -80,6 +80,28 @@ for stratification in genome-wide association studies. Nature genetics,
 38(8), 904-909.
 }
 }
-\author{
-Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
 }
+\author{
+Custodian: Luis Mijangos 
+(Post to \url{https://groups.google.com/d/forum/dartr})
+}
+\concept{linker}

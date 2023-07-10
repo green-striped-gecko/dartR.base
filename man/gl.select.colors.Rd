@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.select.colors.r
 \name{gl.select.colors}
 \alias{gl.select.colors}
-\title{Selects colors from one of several palettes and output as a vector}
+\title{Selects colors from one of several palettes and outputs as a vector}
 \usage{
 gl.select.colors(
   x = NULL,
@@ -17,15 +17,16 @@ gl.select.colors(
 \item{x}{Optionally, provide a gl object from which to determine the number
 of populations [default NULL].}
 
-\item{library}{Name of the color library to be used [default scales::hue_pl].}
+\item{library}{Name of the color library to be used, one of 'brewer'
+'gr.palette', 'r.hcl' or 'baseR' [default scales::hue_pl].}
 
 \item{palette}{Name of the color palette to be pulled from the specified
-library [default is library specific] .}
+library, refer function help [default is library specific].}
 
-\item{ncolors}{number of colors to be displayed and returned [default 9].}
+\item{ncolors}{number of colors to be displayed and returned [default 9 or nPop(gl)].}
 
-\item{select}{select the colors to retain in the output vector
-[default NULL].}
+\item{select}{select bu number the colors to retain in the output vector; 
+can repeat colors. [default NULL].}
 
 \item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -35,11 +36,17 @@ progress log; 3, progress and results summary; 5, full report
 A vector with the required number of colors
 }
 \description{
-This script draws upon a number of specified color libraries to extract a
-vector of colors for plotting, where the script that follows has a color
+This function draws upon a number of specified color libraries to extract a
+vector of colors for plotting. For use where the function that follows has a color
 parameter expecting a vector of colors.
 }
 \details{
+Colors are chosen by specifying a library (one of 'brewer'
+'gr.palette', 'r.hcl' or 'baseR') and a palette within that library. Each
+library has its own array of palettes, which can be listed as outlined below.
+Alternatively, if you specify an incorrect palette, the list of available
+palettes for the specified library will be listed.
+
 The available color libraries and their palettes include:
 \itemize{
 \item library 'brewer' and the palettes available can be listed by
@@ -51,10 +58,15 @@ grDevices::hcl.pals()
 \item library 'baseR' and the palettes available are: 'rainbow','heat',
 'topo.colors','terrain.colors','cm.colors'.
 }
-If the nominated palette is not specified, all the palettes will be listed and a default palette will then be chosen.
+
+If the library is not specified, then the default library 'scales' is set and
+the default palette of 'hue_pal is set.
+
+If the library is set but the palette is not specified, all palettes for that
+library will be listed and a default palette will then be chosen.
 The color palette will be displayed in the graphics window for the requested
-number of colors (or 9 if not specified),and the vector of colors returned
-for later use.
+number of colors (or 9 if not specified or nPop(gl) if a genlight object is 
+specified),and the vector of colors returned by assignment for later use.
 The select parameter can be used to select colors from the specified ncolors.
 For example, select=c(1,1,3) will select color 1, 1 again and 3 to retain in
 the final vector. This can be useful for fine-tuning color selection, and
@@ -76,6 +88,7 @@ colors <- gl.select.colors(library='gr.palette',palette='Pastel 1',ncolors=6)
 colors <- gl.select.colors(library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
 # EXAMPLES -- CROSS-CHECKING WITH A GENLIGHT OBJECT
 colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,select=c(1,1,1,5,8))
+
 }
 \seealso{
 \code{\link{gl.select.shapes}}

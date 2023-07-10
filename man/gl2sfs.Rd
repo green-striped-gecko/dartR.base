@@ -2,31 +2,13 @@
 % Please edit documentation in R/gl2sfs.R
 \name{gl2sfs}
 \alias{gl2sfs}
-\title{Converts a genlight object into a sfs input file
-The output of this function is suitable for analysis in fastsimcoal2 or dada.
-It saves a derived sfs, assuming that the reference allele is the ancestral,
-and a MAF sfs.
-At this stage this function caters only for diploid organisms, for samples
-from one population only, and for genotypes without missing data. Note that
-sfs uses frequencies considered \bold{independent}, data are assumed to be
-from independent (i.e. not linked) loci. This means that only one site per tag
-should be considered 9i.e. secondaries should be removed). If no monomorphic
-site estimates is provided (with \code{n.invariant.tags}), the sfs will only
-include the number of monomorphic sites in the data (but this will be a biased
-estimates as it doesn't take into account the invariant tags that have not
-been included. This will affect parameter estimates in the analyses). Note
-that the number of invariant tags can be estimated with
-\code{gl.report.secondaries}. In a limited number of cases, ascertainment bias
-can be explicitly modelled in fastsimcoal2. See fastsimcoal2 manual for
-details.
-It expects a dartR formatted genlight object, but it should also  work with
-other genlight objects.}
+\title{Converts a genlight object into a sfs input file}
 \usage{
 gl2sfs(
   x,
   n.invariant.tags = 0,
-  outfile_root = "gl2sfs",
-  outpath = tempdir(),
+  outfile.root = "gl2sfs",
+  outpath = NULL,
   verbose = NULL
 )
 }
@@ -35,9 +17,10 @@ gl2sfs(
 
 \item{n.invariant.tags}{Number of invariant sites[default 0].}
 
-\item{outfile_root}{The root of the name of the output file [default "gl2sfs"].}
+\item{outfile.root}{The root of the name of the output file [default "gl2sfs"].}
 
-\item{outpath}{Path where to save the output file [default tempdir()].}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -47,7 +30,6 @@ progress log; 3, progress and results summary; 5, full report
 Deprecated. Please use gl.sfs instead.
 }
 \description{
-Converts a genlight object into a sfs input file
 The output of this function is suitable for analysis in fastsimcoal2 or dada.
 It saves a derived sfs, assuming that the reference allele is the ancestral,
 and a MAF sfs.

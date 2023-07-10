@@ -1,6 +1,8 @@
 #' @name gl.keep.pop
 # Preliminaries -- Parameter specifications -------------- 
 #' @title Removes all but the specified populations from a dartR genlight object
+#' @family data manipulation
+#' 
 #' @description
 #' Individuals are assigned to populations based on associated specimen metadata
 #' stored in the dartR genlight object. 
@@ -24,10 +26,9 @@
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
 
-#' @export
-#' @return A reduced dartR genlight object
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #Examples -------------
 #' @examples
 #'  # SNP data
@@ -37,8 +38,13 @@
 #'    gl2 <- gl.keep.pop(testset.gl, pop.list=c('Female'),as.pop='sex')
 #'  # Tag P/A data
 #'    gs2 <- gl.keep.pop(testset.gs, pop.list=c('EmsubRopeMata','EmvicVictJasp'))
+#'    
 # See also ------------
 #' @seealso \code{\link{gl.drop.pop}} to drop rather than keep specified populations
+#' 
+#' @export
+#' @return A reduced dartR genlight object
+
 # --------------
 # Function 
 gl.keep.pop <-  function(x,

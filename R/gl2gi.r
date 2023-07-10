@@ -1,26 +1,33 @@
-#' Converts a genlight object to genind object
+#' @name gl2gi
+#' @title Converts a genlight object to genind object
+#' @family linker
+
 #' @param x A genlight object [required].
 #' @param probar If TRUE, a progress bar will be displayed for long loops
 #' [default TRUE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return A genind object, with all slots filled.
-#' @export
+#' 
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @details This function uses a faster version of df2genind (from the adegenet
 #'  package)
+#'  
+#' @export
+#' @return A genind object, with all slots filled.
 
 gl2gi <- function(x,
                   probar = FALSE,
                   verbose = NULL) {
+  
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

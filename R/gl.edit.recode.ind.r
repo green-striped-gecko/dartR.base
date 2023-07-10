@@ -2,11 +2,25 @@
 # Preliminaries -- parameters -----------
 #' @title Creates or edits individual (=specimen) names, creates a recode_ind
 #'  file and applies the changes to a genlight object
+#'  @family data manipulation
+#'  
 #' @description
 #' A function to edit names of individual in a dartR genlight object, or to create a
 #' reassignment table taking the individual labels from a genlight object, or to
 #' edit existing individual labels in an existing recode_ind file. The amended 
 #' recode table is then applied to the genlight object.
+#' 
+#' @param x Name of the genlight object [required].
+#' @param out.recode.file Name of the file to output the new individual labels
+#'  [optional].
+#' @param outpath Path specifying where to save the output file
+#' [default tempdir(), mandated by CRAN].
+#' @param recalc If TRUE, recalculate the locus metadata statistics [default TRUE].
+#' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress but not results; 3, progress and results summary; 5, full report
+#'  [default 2 or as specified using gl.set.verbosity].
+#'  
 #' @details
 #' Renaming individuals may be required when there have been errors in labeling
 #'  arising in the passage of samples to sequencing. There may be occasions
@@ -34,21 +48,6 @@
 #' The function returns a dartR genlight object with the new population assignments  
 #' and the recalculated locus metadata. 
 
-#' @param x Name of the genlight object [required].
-#' @param out.recode.file Name of the file to output the new individual labels
-#'  [optional].
-#' @param outpath Path specifying where to save the output file
-#' [default tempdir(), mandated by CRAN].
-#' @param recalc If TRUE, recalculate the locus metadata statistics [default TRUE].
-#' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress but not results; 3, progress and results summary; 5, full report
-#'  [default 2 or as specified using gl.set.verbosity].
-
-#' @return An object of class ('genlight') with the revised individual labels.
-#' @export
-
-#' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
@@ -58,9 +57,13 @@
 #' gl <- gl.edit.recode.ind(testset.gl)
 #' gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')
 #' }
+#' 
 # See also --------------
 #' @seealso \code{\link{gl.recode.ind}}, \code{\link{gl.drop.ind}},
 #' \code{\link{gl.keep.ind}}
+#' 
+#' @return An object of class ('genlight') with the revised individual labels.
+#' @export
 
 # Function ----------
 gl.edit.recode.ind <- function(x,

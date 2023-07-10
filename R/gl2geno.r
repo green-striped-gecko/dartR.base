@@ -1,39 +1,47 @@
 #' @name gl2geno
 #' @title Converts a genlight object to geno format from package LEA
+#' @family linker
+
 #' @description
 #' The function converts a genlight object (SNP or presence/absence
 #'  i.e. SilicoDArT data) into a file in the 'geno' and the 'lfmm' formats from 
 #'  (package LEA).
+#'  
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param outfile File name of the output file [default 'gl_geno'].
-#' @param outpath Path where to save the output file
-#' [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
-#'  when calling this function to direct output files to your working directory.
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return  returns no value (i.e. NULL)
+#' 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' # SNP data
 #' gl2geno(testset.gl)
 #' # Tag P/A data
 #' gl2geno(testset.gs)
+#' 
 #' @export
+#' @return  returns no value (i.e. NULL)
 
 gl2geno <- function(x,
                     outfile = "gl_geno",
-                    outpath = tempdir(),
+                    outpath = NULL,
                     verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

@@ -62,19 +62,24 @@ Tag P/A data (SilicoDArT).
 
 \code{\link{gl.recode.pop}}
 
-Other dartR-base: 
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()}
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.rename.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}
+\concept{data manipulation}

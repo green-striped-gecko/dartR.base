@@ -2,29 +2,27 @@
 % Please edit documentation in R/gl2genalex.r
 \name{gl2genalex}
 \alias{gl2genalex}
-\title{Converts a genlight object into a format suitable for input to genalex
-The output csv file contains the snp data and other relevant lines suitable
- for genalex. This script is a wrapper for  \link[poppr]{genind2genalex}
- (package poppr).}
+\title{Converts a genlight object into a format suitable for input to genalex}
 \usage{
 gl2genalex(
   x,
   outfile = "genalex.csv",
-  outpath = tempdir(),
+  outpath = NULL,
   overwrite = FALSE,
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing SNP data [required].}
 
-\item{outfile}{File name of the output file (including extension)
+\item{outfile}{Name of the output file (including extension)
 [default 'genalex.csv'].}
 
-\item{outpath}{Path where to save the output file [default tempdir()].}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{overwrite}{If FALSE and filename exists, then the file will not be
-overwritten. Set this option to TRUE to overwrite the file [default FALSE].}
+overwritten [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end;
 2, progress log; 3, progress and results summary; 5, full report
@@ -34,15 +32,15 @@ overwritten. Set this option to TRUE to overwrite the file [default FALSE].}
 returns no value (i.e. NULL)
 }
 \description{
-Converts a genlight object into a format suitable for input to genalex
 The output csv file contains the snp data and other relevant lines suitable
- for genalex. This script is a wrapper for  \link[poppr]{genind2genalex}
+ for genalex. This function is a wrapper for  \link[poppr]{genind2genalex}
  (package poppr).
 }
 \examples{
 \donttest{
 gl2genalex(testset.gl, outfile='testset.csv')
 }
+
 }
 \references{
 Peakall, R. and Smouse P.E. (2012) GenAlEx 6.5: genetic analysis
@@ -50,7 +48,28 @@ in Excel. Population genetic software for teaching and research-an update.
 Bioinformatics 28, 2537-2539.
 http://bioinformatics.oxfordjournals.org/content/28/19/2537
 }
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
+}
 \author{
 Custodian: Luis Mijangos, Author: Katrin Hohwieler, wrapper Arthur
 Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

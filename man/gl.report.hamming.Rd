@@ -9,12 +9,14 @@ gl.report.hamming(
   x,
   rs = 5,
   threshold = 3,
-  taglength = 69,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  tag.length = 69,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.dir = NULL,
+  plot.file = NULL,
   probar = FALSE,
-  save2tmp = FALSE,
   verbose = NULL
 )
 }
@@ -27,21 +29,21 @@ gl.report.hamming(
 \item{threshold}{Minimum acceptable base pair difference for display on the
 boxplot and histogram [default 3].}
 
-\item{taglength}{Typical length of the sequence tags [default 69].}
+\item{tag.length}{Typical length of the sequence tags [default 69].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{probar}{If TRUE, then a progress bar is displayed on long loops
-[default TRUE].}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
+
+\item{probar}{If TRUE, a progress bar is displayed during run [defalut FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -71,7 +73,8 @@ If a pair of DNA sequences are of differing length, the longer is truncated.
 The algorithm is that of Johann de Jong
 \url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
 as implemented in \code{\link{utils.hamming}}
- Plots and table are saved to the session's temporary directory (tempdir)
+  If plot.file is specified, plots are saved to the directory specified by the user, or the global
+  default working directory set by gl.set.wd() or to the tempdir().
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -85,19 +88,17 @@ gl.report.hamming(testset.gs[,1:100])
 #' # SNP data
 test <- platypus.gl
 test <- gl.subsample.loci(platypus.gl,n=50)
-result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
+result <- gl.report.hamming(test, verbose=3)
+result <- gl.report.hamming(test, plot.file="ttest", verbose=3)
 }
 \seealso{
 \code{\link{gl.filter.hamming}}
 
-Other report functions: 
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
+Other matched report: 
+\code{\link{gl.report.callrate}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.pa}()},
+\code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
@@ -107,4 +108,4 @@ Other report functions:
 Custodian: Arthur Georges -- Post to 
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

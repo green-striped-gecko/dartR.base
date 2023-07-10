@@ -3,10 +3,7 @@
 \name{gl2phylip}
 \alias{gl2phylip}
 \title{Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
- object
-This function calculates and returns a matrix of Euclidean distances between 
-populations and produces an input file for the phylogenetic program Phylip 
-(Joe Felsenstein).}
+ object}
 \usage{
 gl2phylip(
   x,
@@ -37,8 +34,6 @@ progress log; 3, progress and results summary; 5, full report
 Matrix of Euclidean distances between populations.
 }
 \description{
-Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
- object
 This function calculates and returns a matrix of Euclidean distances between 
 populations and produces an input file for the phylogenetic program Phylip 
 (Joe Felsenstein).
@@ -47,8 +42,30 @@ populations and produces an input file for the phylogenetic program Phylip
 \donttest{
 result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
 }
+
+}
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
 }
 \author{
 Custodian: Arthur Georges (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

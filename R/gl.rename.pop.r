@@ -1,5 +1,7 @@
 #' @name gl.rename.pop
 #' @title Renames a population in a genlight object
+#' @family data manipulation
+
 #' @description
 #' Individuals are assigned to populations based on the specimen metadata data
 #' file (csv) used with gl.read.dart().
@@ -14,12 +16,15 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-#' @return A genlight object with the new population name.
-#' @export
+#'  
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #'    gl <- gl.rename.pop(testset.gl, old='EmsubRopeMata', new='Outgroup')
+#'    
+#' @export
+#' @return A genlight object with the new population name.
 
 gl.rename.pop <- function(x,
                          old = NULL,
@@ -31,7 +36,7 @@ gl.rename.pop <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

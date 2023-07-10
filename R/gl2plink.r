@@ -1,38 +1,41 @@
 #' @name gl2plink
 #' @title Converts a genlight object into PLINK format
+#' @family linker
+
 #' @description
 #' This function exports a genlight object into PLINK format and save it into a
 #' file.
 #' This function produces the following PLINK files: bed, bim, fam, ped and map.
+#' 
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param plink_path Path of PLINK binary file [default getwd()].
-#' @param bed_file Whether create PLINK files .bed, .bim and .fam
+#' @param plink.bin.path Path of PLINK binary file [default getwd()].
+#' @param bed.files Whether create PLINK files .bed, .bim and .fam
 #' [default FALSE].
 #' @param outfile File name of the output file [default 'gl_plink'].
-#' @param outpath Path where to save the output file
-#' [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
-#'  when calling this function to direct output files to your working directory.
-#' @param chr_format Whether chromosome information is stored as 'numeric' or as
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
+#' @param chr.format Whether chromosome information is stored as 'numeric' or as
 #' 'character', see details [default 'character'].
-#' @param pos_cM A vector, with as many elements as there are loci, containing
+#' @param pos.cM A vector, with as many elements as there are loci, containing
 #' the SNP position in morgans or centimorgans [default '0'].
-#' @param ID_dad A vector, with as many elements as there are individuals,
+#' @param ID.dad A vector, with as many elements as there are individuals,
 #' containing the ID of the father, '0' if father isn't in dataset [default '0'].
-#' @param ID_mom A vector, with as many elements as there are individuals,
+#' @param ID.mum A vector, with as many elements as there are individuals,
 #' containing the ID of the mother, '0' if mother isn't in dataset [default '0'].
-#' @param sex_code A vector, with as many elements as there are individuals,
+#' @param sex.code A vector, with as many elements as there are individuals,
 #' containing the sex code ('male', 'female', 'unknown'). Sex information needs 
 #' just to start with an "F" or "f" for females, with an "M" or "m" for males 
 #' and with a "U", "u" or being empty if the sex is unknown [default 'unknown'].
-#' @param phen_value A vector, with as many elements as there are individuals,
+#' @param phen.value A vector, with as many elements as there are individuals,
 #' containing the phenotype value. '1' = control, '2' = case, '0' = unknown
 #' [default '0'].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
-#' To create PLINK files .bed, .bim and .fam (bed_file = TRUE), it is necessary
-#' to download the binary file of PLINK 1.9 and provide its path (plink_path).
+#' To create PLINK files .bed, .bim and .fam (bed.files = TRUE), it is necessary
+#' to download the binary file of PLINK 1.9 and provide its path (plink.bin.path).
 #' The binary file can be downloaded from:
 #' \url{https://www.cog-genomics.org/plink/}
 
@@ -58,14 +61,9 @@
 #'   chromosome IDs" in the following link:
 #'   https://www.cog-genomics.org/plink/1.9/input
 #'   
-#' @return  returns no value (i.e. NULL)
-#' @references
-#' Purcell, Shaun, et al. 'PLINK: a tool set for whole-genome association and
-#' population-based linkage analyses.' The American journal of human genetics
-#' 81.3 (2007): 559-575.
-#' @export
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
+#'  
 #' @examples
 #' \donttest{
 #' require("dartR.data")
@@ -76,35 +74,45 @@
 #' test$chromosome <- as.factor("1")
 #' gl2plink(test)
 #' }
+#' 
+#' @references
+#' Purcell, Shaun, et al. 'PLINK: a tool set for whole-genome association and
+#' population-based linkage analyses.' The American journal of human genetics
+#' 81.3 (2007): 559-575.
+#' 
+#' @export
+#' @return  returns no value (i.e. NULL)
 
 gl2plink <- function(x,
-                     plink_path = getwd(),
-                     bed_file = FALSE,
+                     plink.bin.path = getwd(),
+                     bed.files = FALSE,
                      outfile = "gl_plink",
-                     outpath = tempdir(),
-                     chr_format = "character",
-                     pos_cM = "0",
-                     ID_dad = "0",
-                     ID_mom = "0",
-                     sex_code = "unknown",
-                     phen_value = "0",
+                     outpath = NULL,
+                     chr.format = "character",
+                     pos.cM = "0",
+                     ID.dad = "0",
+                     ID.mum = "0",
+                     sex.code = "unknown",
+                     phen.value = "0",
                      verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    outfilespec <- file.path(outpath, outfile)
+        
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # DO THE JOB
-    
-    outfilespec <- file.path(outpath, outfile)
-    
+
     if(is.null(x$chromosome)){
       x$chromosome <- as.factor(rep("1",nLoc(x)))
       cat(warn("   Chromosome slot is empty. Using 1 as dummy name.\n"))
@@ -114,10 +122,10 @@ gl2plink <- function(x,
     colnames(snp_temp) <- c("chrom","snp_pos")
     
 
-        if (chr_format == "numeric") {
+        if (chr.format == "numeric") {
             snp_temp$chrom <- as.numeric(snp_temp$chrom)
         }
-        if (chr_format == "character") {
+        if (chr.format == "character") {
             snp_temp$chrom <- as.character(snp_temp$chrom)
         }
     
@@ -136,7 +144,7 @@ gl2plink <- function(x,
     # Base-pair coordinate
     pos_bp <- snp_temp$snp_pos
     
-    gl_map <- cbind(snp_chr, var_id, pos_cM, pos_bp)
+    gl_map <- cbind(snp_chr, var_id, pos.cM, pos_bp)
     
     write.table(
         gl_map,
@@ -158,23 +166,23 @@ gl2plink <- function(x,
     # Within-family ID ('IID'; cannot be '0')
     IID <- sample.id_temp
 
-    ID_dad <- gsub(" ","_",ID_dad)
-    ID_mom <- gsub(" ","_",ID_mom)
+    ID.dad <- gsub(" ","_",ID.dad)
+    ID.mum <- gsub(" ","_",ID.mum)
 
     # Sex code ('1' = male, '2' = female, '0' = unknown)
-    if (length(sex_code) > 1) {
-        sex_code <- as.character(sex_code)
-        sex_code[startsWith(sex_code, "f") |
-                     startsWith(sex_code, "F")] <- "2"
-        sex_code[startsWith(sex_code, "m") |
-                     startsWith(sex_code, "M")] <- "1"
-        sex_code[startsWith(sex_code, "u") |
-                     startsWith(sex_code, "U")] <- "0"
-        sex_code[nchar(sex_code) == 0] <- "0"
+    if (length(sex.code) > 1) {
+        sex.code <- as.character(sex.code)
+        sex.code[startsWith(sex.code, "f") |
+                     startsWith(sex.code, "F")] <- "2"
+        sex.code[startsWith(sex.code, "m") |
+                     startsWith(sex.code, "M")] <- "1"
+        sex.code[startsWith(sex.code, "u") |
+                     startsWith(sex.code, "U")] <- "0"
+        sex.code[nchar(sex.code) == 0] <- "0"
     }
     
     gl_fam <-
-        cbind(FID, IID, ID_dad, ID_mom, sex_code, phen_value)
+        cbind(FID, IID, ID.dad, ID.mum, sex.code, phen.value)
     
     x_mat <- as.matrix(x[, ])
     homs1 <- paste(substr(x@loc.all, 1, 1), "/", substr(x@loc.all, 1, 1), sep = "")
@@ -208,7 +216,7 @@ gl2plink <- function(x,
         col.names = FALSE
     )
     
-    if (bed_file) {
+    if (bed.files) {
         prefix.in_temp <- outfilespec
         prefix.out_temp <- outfilespec
         
@@ -256,7 +264,7 @@ gl2plink <- function(x,
             )
         }
         
-        make_plink(plink.path = paste0(plink_path, "/plink"))
+        make_plink(plink.path = paste0(plink.bin.path, "/plink"))
     }
     
     # FLAG SCRIPT END

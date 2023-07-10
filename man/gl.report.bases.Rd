@@ -72,13 +72,14 @@ specified for the plot to be saved.
 \examples{
 # SNP data
   out <- gl.report.bases(testset.gl)
-  out <- gl.report.bases(testset.gl,plot.dir=getwd(),plot.file="myplot")
-  out <- gl.report.bases(testset.gl,plot.file="myplot")
-  
   col <- gl.select.colors(select=c(6,1),palette=rainbow)
   out <- gl.report.bases(testset.gl,plot.colors=col)
   #' # Tag P/A data
   out <- gl.report.bases(testset.gs)
+}
+\seealso{
+Other matched reports: 
+\code{\link{gl.report.monomorphs}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

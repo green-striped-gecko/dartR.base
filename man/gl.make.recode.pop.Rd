@@ -3,7 +3,8 @@
 \name{gl.make.recode.pop}
 \alias{gl.make.recode.pop}
 \title{Creates a proforma recode_pop_table file for reassigning population
- names}
+ names
+ @family data manipulation}
 \usage{
 gl.make.recode.pop(
   x,

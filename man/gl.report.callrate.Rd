@@ -28,14 +28,15 @@ individual (method='ind') [default 'loc'].}
 
 \item{ind.to.list}{Number of individuals to list for callrate [default 20]}
 
-\item{plot.display}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be displayed in the graphics window [default TRUE].}
 
 \item{plot.theme}{User specified theme [default theme_dartR()].}
 
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default getwd()]}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
@@ -74,7 +75,9 @@ Plot themes can be obtained from:
  }
  
  Plot colours can be set with gl.select.colors().
-Resultant ggplots can be optionally (if plot.file is specified) saved to disk as an RDS binary file.
+ 
+ If plot.file is specified, plots are saved to the directory specified by the user, or the global
+ default working directory set by gl.set.wd() or to the tempdir().
 }
 \examples{
  \donttest{
@@ -98,7 +101,14 @@ Resultant ggplots can be optionally (if plot.file is specified) saved to disk as
 \code{\link{gl.filter.callrate}}
 
 Other matched report: 
-\code{\link{gl.report.overshoot}()}
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

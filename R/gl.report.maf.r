@@ -1,26 +1,28 @@
 #' @name gl.report.maf
 #' @title Reports minor allele frequency (MAF) for each locus in a SNP dataset
+#' @family matched report
+
 #' @description
 #' This script provides summary histograms of MAF for each
-#' population in the dataset and an overall histogram to assist the decision of
+#' population and an overall histogram to assist the decision of
 #' choosing thresholds for the filter function \code{\link{gl.filter.maf}}
+#' 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param maf.limit Show histograms MAF range <= maf.limit [default 0.5].
 #' @param ind.limit Show histograms only for populations of size greater than
 #' ind.limit [default 5].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot_colors_pop A color palette for population plots
-#' [default gl.colors("dis")].
-#' @param plot_colors_all List of two color names for the borders and fill of
-#' the overall plot [default gl.colors(2)].
+#' @param plot.display Specify if plot is to be displayed in the graphics window [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.colors Vector with color names for the borders and fill
+#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
 #' @param bins Number of bins to display in histograms [default 25].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
+#' 
 #' @details
 #'The function \code{\link{gl.filter.maf}} will filter out the
 #'  loci with MAF below a specified threshold.
@@ -36,44 +38,53 @@
 #'  partitions of a finite set of values into q subsets of (nearly) equal sizes.
 #'  In this function q = 20. Quantiles are useful measures because they are less
 #'  susceptible to long-tailed distributions and outliers.
-
-#'  Plots and table are saved to the temporal directory (tempdir) and can be
-#'  accessed with the function \code{\link{gl.print.reports}} and listed with
-#'  the function \code{\link{gl.list.reports}}. Note that they can be accessed
-#'  only in the current R session because tempdir is cleared each time that the
-#'   R session is closed.
-
+#'  
+#'  Plot colours can be set with gl.select.colors().
+#'  
+#'   If plot.file is specified, plots are saved to the directory specified by the user, or the global
+#'   default working directory set by gl.set.wd() or to the tempdir().
+#' 
 #' Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#' @return An unaltered genlight object
+#'  
 #' @author Custodian: Arthur Georges (Post to 
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' gl <- gl.report.maf(platypus.gl)
+#' 
 #' @seealso \code{\link{gl.filter.maf}}, \code{\link{gl.list.reports}},
 #'  \code{\link{gl.print.reports}}
-#' @family report functions
-#' @export
 
+#' @export
+#' @return An unaltered genlight object
+#' 
 gl.report.maf <- function(x,
                           maf.limit = 0.5,
                           ind.limit = 5,
-                          plot.out = TRUE,
-                          plot_theme = theme_dartR(),
-                          plot_colors_pop = gl.colors("dis"),
-                          plot_colors_all = gl.colors(2),
+                          plot.display=TRUE,
+                          plot.theme = theme_dartR(),
+                          plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                          plot.dir=NULL,
+                          plot.file = NULL,
                           bins = 25,
-                          save2tmp = FALSE,
                           verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
+    if(verbose==0){
+      plot.display <- FALSE
+    }
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
@@ -110,7 +121,7 @@ gl.report.maf <- function(x,
     # DO THE JOB
     
     pops_maf <- seppop(x)
-    
+    #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
     mafs_plots <- lapply(pops_maf, function(z) {
         z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)
         z <- gl.filter.monomorphs(z, verbose = 0)
@@ -119,13 +130,13 @@ gl.report.maf <- function(x,
         mafs_per_pop <-
             mafs_per_pop_temp[mafs_per_pop_temp < maf.limit]
         p_temp <-
-            ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) + 
-            geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
-            xlab("Minor Allele Frequency") + 
-            ylab("Count") + 
-            xlim(0, maf.limit) + 
-            plot_theme + 
-            ggtitle(paste(popNames(z), "n =", nInd(z)))
+            ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) +
+            geom_histogram(bins = bins, color = plot.colors[1], fill = plot.colors[2]) +
+            xlab("MAF") +
+            ylab("Count") +
+            xlim(0, maf.limit) +
+            plot.theme +
+            ggtitle(paste(popNames(z), "\nn =", nInd(z)))
         return(p_temp)
     })
     
@@ -190,15 +201,15 @@ gl.report.maf <- function(x,
     mafs_plots_print <- mafs_plots[popn.hold]
     
     if (length(popn.hold) > 1) {
-        title.str <- "Minor Allele Frequency\nOverall"
+        title.str <- "Overall"
         
         p_all <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins,color = plot_colors_all[1], fill = plot_colors_all[2]) +
-            xlab("Minor Allele Frequency") + 
+            geom_histogram(bins = bins,color = plot.colors[1], fill = plot.colors[2]) +
+            xlab("MAF") + 
             ylab("Count") +
             xlim(0, maf.limit) + 
-            plot_theme + 
+            plot.theme + 
             ggtitle(title.str)
         
         row_plots <- ceiling(length(popn.hold) / 3) + 1
@@ -213,14 +224,14 @@ gl.report.maf <- function(x,
                 )
             )
         }
-        title.str <- "Minor Allele Frequency\nOverall"
+        title.str <- "Overall"
         p3 <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins,color = plot_colors_all[1],fill = plot_colors_all[2]) +
-            xlab("Minor Allele Frequency") + 
+            geom_histogram(bins = bins,color = plot.colors[1],fill = plot.colors[2]) +
+            xlab("MAF") + 
             ylab("Count") + 
             xlim(0, maf.limit) + 
-            plot_theme + 
+            plot.theme + 
             ggtitle(title.str)
     }
     
@@ -236,10 +247,10 @@ gl.report.maf <- function(x,
             paste("Minor Allele Frequency\n", popn.hold)
         p3 <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins,color = plot_colors_all[1],fill = plot_colors_all[2]) +
-            xlab("Minor Allele Frequency") + 
+            geom_histogram(bins = bins,color = plot.colors[1],fill = plot.colors[2]) +
+            xlab("MAF") + 
             ylab("Count") + xlim(0, maf.limit) + 
-            plot_theme + 
+            plot.theme + 
             ggtitle(title.str)
     }
     
@@ -251,48 +262,55 @@ gl.report.maf <- function(x,
             paste("Minor Allele Frequency\n", pop(x2)[1])
         p3 <-
             ggplot(as.data.frame(maf), aes(x = maf)) + 
-            geom_histogram(bins = bins, color = plot_colors_all[1],fill = plot_colors_all[2]) +
-            xlab("Minor Allele Frequency") +
+            geom_histogram(bins = bins, color = plot.colors[1],fill = plot.colors[2]) +
+            xlab("MAF") +
             ylab("Count") + 
             xlim(0, maf.limit) + 
-            plot_theme + 
+            plot.theme + 
             ggtitle(title.str)
     }
     
     # PRINTING OUTPUTS
-    if (plot.out) {
+    if (plot.display) {
         suppressWarnings(print(p3))
     }
     print(df)
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
+    
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # 
+    # # creating temp file names
+    # if(!is.null(plot.file)){
+    #     if (plot.display) {
+    #         temp_plot <- tempfile(pattern = "Plot_")
+    #         match_call <-
+    #             paste0(names(match.call()),
+    #                    "_",
+    #                    as.character(match.call()),
+    #                    collapse = "_")
+    #         # saving to tempdir
+    #         saveRDS(list(match_call, p3), file = temp_plot)
+    #         if (verbose >= 2) {
+    #             cat(report("  Saving the ggplot to session tempfile\n"))
+    #         }
+    #     }
+    #     temp_table <- tempfile(pattern = "Table_")
+    #     saveRDS(list(match_call, df), file = temp_table)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving tabulation to session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
     
     # FLAG SCRIPT END
     

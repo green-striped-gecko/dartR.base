@@ -1,6 +1,9 @@
-#' Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
+#' @name gl2phylip
+#' @title Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
 #'  object
-
+#' @family linker
+#' 
+#' @description
 #' This function calculates and returns a matrix of Euclidean distances between 
 #' populations and produces an input file for the phylogenetic program Phylip 
 #' (Joe Felsenstein).
@@ -12,20 +15,23 @@
 #' @param outpath Path where to save the output file 
 #' [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
 #'  when calling this function to direct output files to your working directory.
+#' @param bstrap Number of bootstrap replicates [default 1].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
 #' progress log; 3, progress and results summary; 5, full report 
 #' [default 2 or as specified using gl.set.verbosity]
-#' @param bstrap Number of bootstrap replicates [default 1].
-#' @return Matrix of Euclidean distances between populations.
-#' @import utils
-#' @importFrom stats dist
-#' @export
+#' 
 #' @author Custodian: Arthur Georges (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
+#'  
 #' @examples
 #' \donttest{
 #' result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
 #' }
+#' 
+#' @import utils
+#' @importFrom stats dist
+#' @export
+#' @return Matrix of Euclidean distances between populations.
 
 gl2phylip <- function(x,
                       outfile = "phyinput.txt",

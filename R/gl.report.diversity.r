@@ -1,6 +1,6 @@
 #' @name gl.report.diversity
-
 #' @title Calculates diversity indexes for SNPs
+#' @family unmatched report
 
 #' @description
 #'This script takes a genlight object and calculates alpha and beta diversity
@@ -10,15 +10,17 @@
 
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot_colors A color palette or a list with as many colors as there are 
-#' populations in the dataset [default gl.colors("dis")].
+#' @param plot.display Specify if plot is to be displayed in the graphics window [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param library Name of the color library to be used [default scales::hue_pl].
+#' @param palette Name of the color palette to be pulled from the specified library [default is library specific].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
 #' @param pbar Report on progress. Silent if set to FALSE [default TRUE].
 #' @param table Prints a tabular output to the console either 'D'=D values, or
 #'  'H'=H values or 'DH','HD'=both or 'N'=no table. [default 'DH'].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
+#' @param plot.file If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -56,32 +58,25 @@
 #'In the case of beta diversity tables, standard deviations are in the upper 
 #'triangle of the matrix and diversity values are in the lower triangle of the 
 #'matrix.
-
-#'  Plots are saved to the temporal directory (tempdir) and can be accessed with
-#'   the function \code{\link{gl.print.reports}} and listed with the function
-#'    \code{\link{gl.list.reports}}. Note that they can be accessed only in the
-#'     current R session because tempdir is cleared each time that the R session
-#'     is closed.
-
-#'  Examples of other themes that can be used can be consulted in \itemize{
+#'
+#'  Plot colours can be set with gl.select.colors().
+#'  
+#'  If plot.file is specified, plots are saved to the directory specified by the user, or the global
+#'  default working directory set by gl.set.wd() or to the tempdir().
+#' 
+##'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-
-#' @return A list of entropy indexes for each level of q and equivalent numbers
-#'  for alpha and beta diversity.
 
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr}),
 #'  Contributors: William B. Sherwin, Alexander Sentinella
 
 #' @examples
-#' div <- gl.report.diversity(bandicoot.gl[1:10,1:100], table = FALSE,
-#'  pbar=FALSE)
+#' div <- gl.report.diversity(bandicoot.gl[1:10,1:100],library='brewer', table=FALSE,pbar=FALSE)
 #' div$zero_H_alpha
 #' div$two_H_beta
 #' names(div)
-
-#' @family report functions
 
 #' @references
 #'Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017). Information Theory
@@ -91,25 +86,32 @@
 #' @import reshape2
 
 #' @export
+#' @return A list of entropy indexes for each level of q and equivalent numbers
+#'  for alpha and beta diversity.
 
 
 ### To be done: adjust calculation of betas for population sizes (switch)
 
 gl.report.diversity <- function(x,
-                                plot.out = TRUE,
+                                plot.display = TRUE,
+                                plot.theme = theme_dartR(),
+                                library=NULL,
+                                palette=NULL,
+                                plot.dir=NULL,
+                                plot.file=NULL,
                                 pbar = TRUE,
                                 table = "DH",
-                                plot_theme = theme_dartR(),
-                                plot_colors = gl.colors("dis"),
-                                save2tmp = FALSE,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
@@ -482,17 +484,17 @@ gl.report.diversity <- function(x,
     fs_final <- as.data.frame(cbind(fs_plot, fs_plot_up[, 3], fs_plot_low[, 3]))
     colnames(fs_final) <- c("pop", "q", "value", "up", "low")
     
-    if(plot.out==TRUE){
+    if(plot.display){
     
     # printing plots and reports assigning colors to populations
-    if (is(plot_colors, "function")) {
-        colors_pops <- plot_colors(length(levels(pop(x))))
-    }
-    
-    if (!is(plot_colors, "function")) {
-        colors_pops <- plot_colors
-    }
-    
+    # if (is(plot.colors, "function")) {
+    #     colors_pops <- plot.colors(length(levels(pop(x))))
+    # }
+    # 
+    # if (!is(plot.colors, "function")) {
+    #     colors_pops <- plot.colors
+    # }
+     colors_pops <- gl.select.colors(x=x,library=library,palette=palette,verbose=0)
     
     p3 <-
         ggplot(fs_final, aes(x = pop, y = value, fill = pop)) + 
@@ -500,7 +502,7 @@ gl.report.diversity <- function(x,
         geom_errorbar(aes(ymin = low, ymax = up), width = 0.2) + 
         scale_fill_manual(values = colors_pops) + 
         facet_wrap(~ q, scales = "free_x") + 
-        plot_theme + 
+        plot.theme + 
         theme(text = element_text(size = 14),
               axis.ticks.x = element_blank(), 
               axis.text.x = element_blank(),
@@ -511,6 +513,13 @@ gl.report.diversity <- function(x,
         ggtitle("q-profile")
     
     print(p3)
+    }
+    
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
     
     if (!is.na(match(table, c("H", "DH", "HD")))) {
@@ -604,27 +613,27 @@ gl.report.diversity <- function(x,
             )
     }
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp & plot.out==TRUE) {
-        # creating temp file names
-        temp_plot <- tempfile(pattern = "Plot_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, p3), file = temp_plot)
-        if (verbose >= 2) {
-            cat(report("  Saving ggplot(s) to the session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
-    }
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # if (plot.file & plot.display==TRUE) {
+    #     # creating temp file names
+    #     temp_plot <- tempfile(pattern = "Plot_")
+    #     match_call <-
+    #         paste0(names(match.call()),
+    #                "_",
+    #                as.character(match.call()),
+    #                collapse = "_")
+    #     # saving to tempdir
+    #     saveRDS(list(match_call, p3), file = temp_plot)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using 
+    #                 gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
     
     # FLAG SCRIPT END
     

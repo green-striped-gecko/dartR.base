@@ -1,16 +1,18 @@
 #' @name gl.drop.ind
 # Preliminaries -- Parameter specifications -------------- 
 #' @title Removes specified individuals from a dartR genlight object
+#' @family data manipulation
+
 #' @description
 #' This function deletes individuals and their associated metadata.
 #' Monomorphic loci and loci that are scored all NA are optionally deleted (mono.rm=TRUE). 
 #' The script also optionally recalculates locus metatdata statistics to accommodate
 #' the deletion of individuals from the dataset (recalc=TRUE).
-
+#' 
 #' The script returns a dartR genlight object with the retained individuals 
 #' and the recalculated locus metadata. The script works with both genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
-
+#' 
 #' @param x Name of the genlight object [required].
 #' @param ind.list List of individuals to be removed [required].
 #' @param recalc If TRUE, recalculate the locus metadata statistics [default FALSE].
@@ -18,12 +20,10 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
-
-#' @return A reduced dartR genlight object
-
-#' @family dartR-base
+#'  
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 # Examples -------------
 #' @examples
 #'  # SNP data
@@ -34,10 +34,14 @@
 #'    ind.list=c('AA020656','AA19077','AA004859'))
 #'    gs2 <- gl.drop.ind(testset.gs, ind.list=c('AA020656'
 #'    ,'AA19077','AA004859'),mono.rm=TRUE, recalc=TRUE)
+#'    
 # See also ------------
 #' @seealso \code{\link{gl.keep.ind}} to keep rather than drop specified
 #' individuals
+#' 
 #' @export
+#' @return A reduced dartR genlight object
+
 # --------------
 
 # Function 

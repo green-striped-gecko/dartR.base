@@ -1,41 +1,48 @@
-#' Converts a genlight object into faststructure format (to run faststructure
+#' @name gl2faststructure
+#' @title Converts a genlight object into faststructure format (to run faststructure
 #'  elsewhere)
+#' @family linker
 
+#' @description
 #' Recodes in the quite specific faststructure format (e.g first six columns
 #' need to be there, but are ignored...check faststructure documentation
 #'  (if you find any :-( )))
 
 #' The script writes out the a file in faststructure format.
+#' 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default "gl.str"].
-#' @param outpath Path where to save the output file
-#' [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
-#' when calling this function to direct output files to your working directory.
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
+#' @param probar Switch to show/hide progress bar [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @param probar Switch to show/hide progress bar [default FALSE].
-#' @return  returns no value (i.e. NULL)
-#' @export
+#' 
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @importFrom utils getTxtProgressBar setTxtProgressBar txtProgressBar
+#' @export
+#' @return  returns no value (i.e. NULL)
 
 gl2faststructure <- function(x,
                              outfile = "gl.str",
-                             outpath = tempdir(),
+                             outpath = NULL,
                              probar = FALSE,
                              verbose = NULL) {
-    
-    outfilespec <- file.path(outpath, outfile)
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    outfilespec <- file.path(outpath, outfile)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

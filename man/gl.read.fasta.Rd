@@ -62,9 +62,20 @@ Ambiguity characters are often used to code heterozygotes. However, using
                           full.names = TRUE)
  # reading fasta files
   obj <- gl.read.fasta(file_names)
+  
+}
+\seealso{
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{reading functions}
+\concept{io}

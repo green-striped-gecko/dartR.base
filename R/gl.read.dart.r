@@ -1,11 +1,33 @@
 #' @name gl.read.dart
 # Preliminaries -- Parameter specifications -------------- 
 #'@title Imports DArT data into dartR and converts it into a dartR genlight object
+#'@family io
 
 #'@description
 #'This function is a wrapper function that allows you to convert your DArT file
 #'into a genlight object of class dartR.
-#'@details
+
+#'@param filename File containing the SNP data (csv file) [required].
+#'@param ind.metafile File that contains additional information on individuals
+#' [required].
+#'@param covfilename Depricated, sse ind.metafile parameter [NULL].
+#'@param nas A character specifying NAs [default '-'].
+#'@param topskip A number specifying the number of initial rows to be skipped. [default NULL].
+#'@param lastmetric Specifies the last column of locus metadata. Can be specified 
+#'as a column number.
+#'  [default 'RepAvg'].
+#'@param service.row The row number for the DArT service
+#'is contained [default 1].
+#'@param plate.row The row number the plate well [default 3].
+#'@param recalc If TRUE, force the recalculation of locus metrics [default TRUE].
+#'@param mono.rm If TRUE, force the removal of monomorphic loci (including all NAs.
+#' [default FALSE].
+#'@param probar Show progress bar [default FALSE].
+#'@param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'progress log ; 3, progress and results summary; 5, full report
+#' [default 2, or as set by gl.set.verbose()].
+#' 
+#' @details
 #'The function will determine automatically if the data are in Diversity Arrays
 #'one-row csv format or two-row csv format. 
 
@@ -29,31 +51,6 @@
 #'metrics supplied by DArT will no longer be correct and some loci may be
 #'monomorphic. To accommodate this, set mono.rm and recalc to TRUE.
 
-#'@param filename File containing the SNP data (csv file) [required].
-#'@param ind.metafile File that contains additional information on individuals
-#' [required].
-#'@param covfilename Depricated, sse ind.metafile parameter [NULL].
-#'@param nas A character specifying NAs [default '-'].
-#'@param topskip A number specifying the number of initial rows to be skipped. [default NULL].
-#'@param lastmetric Specifies the last column of locus metadata. Can be specified 
-#'as a column number.
-#'  [default 'RepAvg'].
-#'@param service.row The row number for the DArT service
-#'is contained [default 1].
-#'@param plate.row The row number the plate well [default 3].
-#'@param recalc If TRUE, force the recalculation of locus metrics [default TRUE].
-#'@param mono.rm If TRUE, force the removal of monomorphic loci (including all NAs.
-#' [default FALSE].
-#'@param probar Show progress bar [default FALSE].
-#'@param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'progress log ; 3, progress and results summary; 5, full report
-#' [default 2, or as set by gl.set.verbose()].
-
-#'@return A dartR genlight object that contains individual and locus metrics
-#'[if data were provided] and locus metrics [from a DArT report].
-#'@export
-
-#'@family dartR-base
 #'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #'@examples
@@ -62,6 +59,10 @@
 #' gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 
 #'@seealso \code{\link{utils.read.dart}}
+#'
+#'@export
+#'@return A dartR genlight object that contains individual and locus metrics
+#'[if data were provided] and locus metrics [from a DArT report].
 
 # ------------------------
 # Function

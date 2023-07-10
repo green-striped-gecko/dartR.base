@@ -1,23 +1,23 @@
 #' @name gl.report.locmetric
-
 #' @title Reports summary of the slot $other$loc.metrics
-
+#' @family matched report
+#' 
 #' @description
-#' This script uses any field with numeric values stored in $other$loc.metrics
-#' to produce summary statistics (mean, minimum, average, quantiles), histograms
-#' and boxplots to assist the decision of choosing thresholds for the filter
+#' This function reports summary statistics (mean, minimum, average, quantiles), histograms
+#' and boxplots for any loc.metric with numeric values (stored in 
+#' $other$loc.metrics) to assist the decision of choosing thresholds for the filter
 #' function \code{\link{gl.filter.locmetric}}.
 
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
 #' @param metric Name of the metric to be used for filtering [required].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
-#' plots [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.colors Vector with two color names for the borders and fill
+#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -67,11 +67,10 @@
 #' equal sizes. In this function q = 20. Quantiles are useful measures because
 #' they are less susceptible to long-tailed distributions and outliers.
 
-#'  Plots and table were saved to the temporal directory (tempdir) and can be
-#'  accessed with the function \code{\link{gl.print.reports}} and listed with
-#'  the function \code{\link{gl.list.reports}}. Note that they can be accessed
-#'  only in the current R session because tempdir is cleared each time that the
-#'  R session is closed.
+#'  Plot colours can be set with gl.select.colors().
+
+#'   If plot.file is specified, plots are saved to the directory specified by the user, or the global
+#'   default working directory set by gl.set.wd() or to the tempdir().
 
 #'  Examples of other themes that can be used can be consulted in:
 #'   \itemize{
@@ -79,45 +78,37 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#' @return An unaltered genlight object.
-
 #' @author Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples
-#' # adding dummy data
-#' test <- testset.gl
-#' test$other$loc.metrics$test <- 1:nLoc(test)
 #' # SNP data
-#' out <- gl.report.locmetric(test,metric='test')
-
-#' # adding dummy data
-#' test.gs <- testset.gs
-#' test.gs$other$loc.metrics$test <- 1:nLoc(test.gs)
+#' out <- gl.report.locmetric(testset.gl,metric='SnpPosition')
 #' # Tag P/A data
-#' out <- gl.report.locmetric(test.gs,metric='test')
+#' out <- gl.report.locmetric(testset.gs,metric='AvgReadDepth')
 
-#' @seealso \code{\link{gl.filter.locmetric}}, \code{\link{gl.list.reports}},
-#'  \code{\link{gl.print.reports}}
-
-#' @family report functions
+#' @seealso \code{\link{gl.filter.locmetric}}
 
 #' @export
-
+#' @return An unaltered genlight object.
 
 gl.report.locmetric <- function(x,
                                 metric,
-                                plot.out = TRUE,
-                                plot_theme = theme_dartR(),
-                                plot_colors = gl.colors(2),
-                                save2tmp = FALSE,
+                                plot.display=TRUE,
+                                plot.theme = theme_dartR(),
+                                plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                                plot.dir=NULL,
+                                plot.file=NULL,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
@@ -148,14 +139,14 @@ gl.report.locmetric <- function(x,
     colnames(metric_df) <- "field"
     
     p1 <-
-        ggplot(metric_df, aes(y = field)) + geom_boxplot(color = plot_colors[1], fill = plot_colors[2]) + coord_flip() + plot_theme + xlim(range = c(-1,
+        ggplot(metric_df, aes(y = field)) + geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + coord_flip() + plot.theme + xlim(range = c(-1,
                                                                                                                                                      1)) + ylab(metric) + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle(title1)
     
     p2 <-
         ggplot(metric_df, aes(x = field)) + geom_histogram(bins = 50,
-                                                           color = plot_colors[1],
-                                                           fill = plot_colors[2]) + xlab(metric) + ylab("Count") +
-        plot_theme
+                                                           color = plot.colors[1],
+                                                           fill = plot.colors[2]) + xlab(metric) + ylab("Count") +
+        plot.theme
     
     # Print out some statistics
     stats <- summary(metric_df)
@@ -197,41 +188,49 @@ gl.report.locmetric <- function(x,
     rownames(df) <- NULL
     
     # PRINTING OUTPUTS
-    if (plot.out) {
+    if (plot.display) {
         # using package patchwork
         p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
         print(p3)
     }
     print(df)
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
+    
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # 
+    # # creating temp file names
+    # if (plot.file) {
+    #     if (plot.display) {
+    #         temp_plot <- tempfile(pattern = "Plot_")
+    #         match_call <-
+    #             paste0(names(match.call()),
+    #                    "_",
+    #                    as.character(match.call()),
+    #                    collapse = "_")
+    #         # saving to tempdir
+    #         saveRDS(list(match_call, p3), file = temp_plot)
+    #         if (verbose >= 2) {
+    #             cat(report("  Saving the ggplot to session tempfile\n"))
+    #         }
+    #     }
+    #     temp_table <- tempfile(pattern = "Table_")
+    #     saveRDS(list(match_call, df), file = temp_table)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving tabulation to session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
+    # 
     
     # FLAG SCRIPT END
     

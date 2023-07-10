@@ -1,6 +1,9 @@
-#' Converts a genlight object into a format suitable for input to the BPP 
+#' @name gl2bpp
+#' @title Converts a genlight object into a format suitable for input to the BPP 
 #' program
-
+#' @family linker
+#' 
+#' @description
 #' This function generates the sequence alignment file and the Imap file. The 
 #' control file should produced by the user. 
 
@@ -21,12 +24,14 @@
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method One of 1 | 2, see details [default = 1].
-#' @param outfile Name of the sequence alignment file ["output_bpp.txt"].
-#' @param imap Name of the Imap file ["Imap.txt"].
-#' @param outpath Path where to save the output file (set to tempdir by default)
+#' @param outfile Name of the saved sequence alignment file ["output_bpp.txt"].
+#' @param imap Name of the saved Imap file ["Imap.txt"].
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report 
 #'  [default 2 or as specified using gl.set.verbosity].
+#'  
 #' @details
 #' It's important to keep in mind that analyses based on coalescent theory, 
 #' like those done by the programme BPP, are meant to be used with sequence
@@ -43,7 +48,18 @@
 #'     
 #'     Be mindful that there is little information in the literature on the
 #'      validity of this method. 
-#' @return  returns no value (i.e. NULL)
+#'      
+#' @author Custodian: Luis Mijangos (Post to
+#'  \url{https://groups.google.com/d/forum/dartr})
+#'  
+#' @examples
+#' require(dartR.data)
+#' test <- platypus.gl
+#' test <- gl.filter.callrate(test,threshold = 1)
+#' test <- gl.filter.monomorphs(test)
+#' test <- gl.subsample.loci(test,n=25)
+#' gl2bpp(x = test)
+#' 
 #' @references
 #' \itemize{
 #' \item Ellegren, Hans, et al. "The genomic landscape of species divergence in 
@@ -52,34 +68,30 @@
 #'with BPP using Genomic Sequences and the Multispecies Coalescent. Molecular
 #' Biology and Evolution, 35(10):2585-2593. doi:10.1093/molbev/msy147
 #'}
+#'
 #' @export
-#' @author Custodian: Luis Mijangos (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
-#' @examples
-#' require(dartR.data)
-#' test <- platypus.gl
-#' test <- gl.filter.callrate(test,threshold = 1)
-#' test <- gl.filter.monomorphs(test)
-#' test <- gl.subsample.loci(test,n=25)
-#' gl2bpp(x = test)
+#' @return  returns no value (i.e. NULL)
 
 gl2bpp <- function(x,
                    method = 1,
                    outfile = "output_bpp.txt", 
                    imap = "Imap.txt",
-                   outpath = tempdir(),
+                   outpath = NULL,
                    verbose = NULL) {
   
-  outfilespec <- file.path(outpath, outfile)
-  outfilespec_imap <- file.path(outpath, imap)
-
+  
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
+  # SET WORKING DIRECTORY
+  outpath <- gl.check.wd(outpath,verbose=0)
+  outfilespec <- file.path(outpath, outfile)
+  outfilespec_imap <- file.path(outpath, imap)
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "Jackson",
+                   build = "v.2023.2",
                    verbosity = verbose)
   
   # CHECK DATATYPE

@@ -3,16 +3,12 @@
 \name{gl2faststructure}
 \alias{gl2faststructure}
 \title{Converts a genlight object into faststructure format (to run faststructure
- elsewhere)
-Recodes in the quite specific faststructure format (e.g first six columns
-need to be there, but are ignored...check faststructure documentation
- (if you find any :-( )))
-The script writes out the a file in faststructure format.}
+ elsewhere)}
 \usage{
 gl2faststructure(
   x,
   outfile = "gl.str",
-  outpath = tempdir(),
+  outpath = NULL,
   probar = FALSE,
   verbose = NULL
 )
@@ -23,9 +19,8 @@ gl2faststructure(
 \item{outfile}{File name of the output file (including extension)
 [default "gl.str"].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
-when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{probar}{Switch to show/hide progress bar [default FALSE].}
 
@@ -37,13 +32,32 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
-Converts a genlight object into faststructure format (to run faststructure
- elsewhere)
 Recodes in the quite specific faststructure format (e.g first six columns
 need to be there, but are ignored...check faststructure documentation
  (if you find any :-( )))
 The script writes out the a file in faststructure format.
 }
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
+}
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

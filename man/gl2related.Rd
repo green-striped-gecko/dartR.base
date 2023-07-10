@@ -2,20 +2,12 @@
 % Please edit documentation in R/gl2related.r
 \name{gl2related}
 \alias{gl2related}
-\title{Converts a genlight object to format suitable to be run with Coancestry
-The output txt file contains the SNP data and an additional column with the
-names of the individual. The file then can be used and loaded into coancestry
-or - if installed - run with the related package. Be aware the related
-package was crashing in previous versions, but in general is using the same
-code as coancestry and therefore should have identical results. Also running
-coancestry with thousands of SNPs via the GUI seems to be not reliable and
-therefore for comparisons between coancestry and related we suggest to use
-the command line version of coancestry.}
+\title{Converts a genlight object to format suitable to be run with Coancestry}
 \usage{
 gl2related(
   x,
   outfile = "related.txt",
-  outpath = tempdir(),
+  outpath = NULL,
   save = TRUE,
   verbose = NULL
 )
@@ -26,7 +18,8 @@ gl2related(
 \item{outfile}{File name of the output file (including extension)
 [default 'related.txt'].}
 
-\item{outpath}{Path where to save the output file [default tempdir()].}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{save}{A switch if you want to save the file or not. This might be
 useful for someone who wants to use the coancestry function to calculate
@@ -41,7 +34,6 @@ progress log; 3, progress and results summary; 5, full report
 A data.frame that can be used to run with the related package
 }
 \description{
-Converts a genlight object to format suitable to be run with Coancestry
 The output txt file contains the SNP data and an additional column with the
 names of the individual. The file then can be used and loaded into coancestry
 or - if installed - run with the related package. Be aware the related
@@ -61,6 +53,7 @@ coan <- coancestry(gtd, wang=1)
 head(coan$relatedness)
 ##check ?coancestry for information how to use the function.
 }
+
 }
 \references{
 Jack Pew, Jinliang Wang, Paul Muir and Tim Frasier (2014).
@@ -69,7 +62,28 @@ related: related: an R package for analyzing pairwise relatedness
  R package version 0.8/r2.
   \url{https://R-Forge.R-project.org/projects/related/}
 }
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
+}
 \author{
 Bernd Gruber (bugs? Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

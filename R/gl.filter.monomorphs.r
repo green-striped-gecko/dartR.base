@@ -1,5 +1,7 @@
 #' @name gl.filter.monomorphs
 #' @title Filters monomorphic loci, including those with all NAs
+#' @family matched filter
+
 #' @description
 #' This script deletes monomorphic loci from a genlight \{adegenet\} object
 
@@ -17,20 +19,20 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return A genlight object with monomorphic (and all NA) loci removed.
 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' # SNP data
 #'   result <- gl.filter.monomorphs(testset.gl, verbose=3)
 #' # Tag P/A data
 #'   result <- gl.filter.monomorphs(testset.gs, verbose=3)
 
-#' @family filter functions
 #' @import utils patchwork
 #' @importFrom plyr count
 #' @export
+#' @return A genlight object with monomorphic (and all NA) loci removed.
 
 gl.filter.monomorphs <- function(x, 
                                  verbose = NULL) {
@@ -41,7 +43,7 @@ gl.filter.monomorphs <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

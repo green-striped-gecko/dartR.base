@@ -1,13 +1,40 @@
 #' @name gl.filter.maf
 #' @title Filters loci on the basis of minor allele frequency (MAF) in a 
-#' genlight
-#'  {adegenet} object
+#' genlight {adegenet} object
+#' @family matched filter
+
 #' @description
 #' This script calculates the minor allele frequency for each locus and updates
 #' the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
 #' exists). It then uses the updated metadata for MAF to filter loci.
 
-#' @details 
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param threshold Threshold MAF -- loci with a MAF less than the threshold
+#' will be removed. If a value > 1 is provided it will be 
+#' interpreted as MAC (i.e. the minimum number of times an allele needs to be 
+#' observed) [default 0.01].
+#' @param by.pop Whether MAF should be calculated by population [default FALSE].
+#' @param pop.limit Minimum number of populations in which MAF should be less 
+#' than the threshold for a locus to be filtered out. Only used if by.pop=TRUE. 
+#' The default value is half of the populations [default ceiling(nPop(x)/2)].
+#' @param ind.limit Minimum number of individuals that a population should 
+#' contain to calculate MAF. Only used if by.pop=TRUE [default 10].
+#' @param recalc Recalculate the locus metadata statistics if any individuals
+#' are deleted in the filtering [default FALSE].
+#' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
+#' [default TRUE].
+#' @param plot.theme Theme for the plot. See Details for options
+#' [default theme_dartR()].
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' @param bins Number of bins to display in histograms [default 25].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#'  [default 2, unless specified using gl.set.verbosity].
+#'  
+#'  @details 
 #' Careful consideration needs to be given to the settings to be used for this 
 #' fucntion. When the filter is applied globally (i.e. \code{by.pop=FALSE}) but 
 #' the data include multiple population, there is the risk to remove markers 
@@ -27,41 +54,16 @@
 #' \bold{From v2.1} The threshold can take values > 1. In this case, these are 
 #' interpreted as a threshold for MAC.
 
-
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param threshold Threshold MAF -- loci with a MAF less than the threshold
-#' will be removed. If a value > 1 is provided it will be 
-#' interpreted as MAC (i.e. the minimum number of times an allele needs to be 
-#' observed) [default 0.01].
-#' @param by.pop Whether MAF should be calculated by population [default FALSE].
-#' @param pop.limit Minimum number of populations in which MAF should be less 
-#' than the threshold for a locus to be filtered out. Only used if by.pop=TRUE. 
-#' The default value is half of the populations [default ceiling(nPop(x)/2)].
-#' @param ind.limit Minimum number of individuals that a population should 
-#' contain to calculate MAF. Only used if by.pop=TRUE [default 10].
-#' @param recalc Recalculate the locus metadata statistics if any individuals
-#' are deleted in the filtering [default FALSE].
-#' @param plot.out Specify if histograms of call rate, before and after, are to
-#' be produced [default TRUE].
-#' @param plot_theme User specified theme for the plot [default theme_dartR()].
-#' @param plot_colors_pop A color palette for population plots
-#' [default gl.colors("dis")].
-#' @param plot_colors_all List of two color names for the borders and fill of
-#' the overall plot [default gl.colors(2)].
-#' @param bins Number of bins to display in histograms [default 25].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#'  temporary directory (tempdir) [default FALSE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#'  [default 2, unless specified using gl.set.verbosity].
-#' @return The reduced genlight dataset
-#' @export
-#' @family filter functions
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
+#'  
 #' @examples
 #' result <- gl.filter.monomorphs(testset.gl)
 #' result <- gl.filter.maf(result, threshold=0.05, verbose=3)
+#' #result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
+#' 
+#' @export
+#' @return The reduced genlight dataset
 
 gl.filter.maf <- function(x,
                           threshold = 0.01,
@@ -69,19 +71,24 @@ gl.filter.maf <- function(x,
                           pop.limit = ceiling(nPop(x)/2),
                           ind.limit = 10,
                           recalc = FALSE,
-                          plot.out = TRUE,
-                          plot_theme = theme_dartR(),
-                          plot_colors_pop = gl.colors("dis"),
-                          plot_colors_all = gl.colors(2),
+                          plot.display=TRUE,
+                          plot.theme = theme_dartR(),
+                          plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                          plot.file=NULL,
+                          plot.dir=NULL,
                           bins = 25,
-                          save2tmp = FALSE,
                           verbose = NULL) {
     hold <- x 
+    plot.colors.pop <- plot.colors
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
     if(verbose==0){
-        plot.out <- FALSE
+        plot.display <- FALSE
     }
     
     # FLAG SCRIPT START
@@ -149,6 +156,7 @@ gl.filter.maf <- function(x,
         }
         #x <- utils.recalc.maf(x, verbose = 0)
         pop.list <- seppop(x)
+        #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
         
         # getting populations with more than ind.limit
         ind_per_pop <- which(unlist(lapply(pop.list, nInd))>=ind.limit)
@@ -188,7 +196,7 @@ gl.filter.maf <- function(x,
         x2 <- utils.recalc.maf(x2, verbose = 0)
     }
     
-    if(plot.out & by.pop==FALSE){
+    if(plot.display & by.pop==FALSE){
         
         popn.hold <- FALSE
         maf <- NULL
@@ -200,12 +208,12 @@ gl.filter.maf <- function(x,
  
     p1 <-
         ggplot(as.data.frame(maf_pre), aes(x = maf)) + 
-geom_histogram(bins=bins,color=plot_colors_all[1],fill = plot_colors_all[2]) +
+geom_histogram(bins=bins,color=plot.colors[1],fill = plot.colors[2]) +
         coord_cartesian(xlim = c(min, 0.5)) + 
         geom_vline(xintercept = threshold,color = "red",size = 1) + 
         xlab("Pre-filter SNP MAF\nOver all populations") + 
         ylab("Count") +
-        plot_theme
+        plot.theme
     
     maf_post <- data.frame(x2@other$loc.metrics$maf)
     colnames(maf_post) <- "maf"
@@ -214,15 +222,15 @@ geom_histogram(bins=bins,color=plot_colors_all[1],fill = plot_colors_all[2]) +
 
     p2 <-
         ggplot(as.data.frame(maf_post), aes(x = maf)) + 
-geom_histogram(bins = bins,color = plot_colors_all[1],fill=plot_colors_all[2]) +
+geom_histogram(bins = bins,color = plot.colors[1],fill=plot.colors[2]) +
         coord_cartesian(xlim = c(min, 0.5)) + 
         geom_vline(xintercept = threshold,color = "red", size = 1) + 
         xlab("Post-filter SNP MAF\nOver all populations") + 
         ylab("Count") +
-        plot_theme
+        plot.theme
     }
     
-    if(plot.out & by.pop==TRUE){
+    if(plot.display & by.pop==TRUE){
         
         
         # plots pre
@@ -237,12 +245,12 @@ geom_histogram(bins = bins,color = plot_colors_all[1],fill=plot_colors_all[2]) +
             
             p_temp <-
                 ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) + 
-geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
+geom_histogram(bins = bins, color = plot.colors[1],fill=plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) +
                 xlab("Pre-filter SNP MAF") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme + 
+                plot.theme + 
                 ggtitle(paste(popNames(z), "n =", nInd(z)))
             
             return(p_temp)
@@ -260,12 +268,12 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
             
             p_temp <-
                 ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) + 
-geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
+geom_histogram(bins = bins, color = plot.colors[1],fill=plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Post-filter SNP MAF\n") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme 
+                plot.theme 
 
             return(p_temp)
         })
@@ -302,24 +310,24 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
             p_all_pre <-
                 ggplot(as.data.frame(maf_pre), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Pre-filter SNP MAF\nOver all populations") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p_all_post <-
                 ggplot(as.data.frame(maf_post), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Post-filter SNP MAF\nOver all populations") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p2 <- p_all_pre / p_all_post
             p3 <- mafs_plots_print
@@ -337,24 +345,24 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
             p_all_pre <-
                 ggplot(as.data.frame(maf_pre), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Pre-filter SNP MAF\nOver all populations") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p_all_post <-
                 ggplot(as.data.frame(maf_post), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Post-filter SNP MAF\nOver all populations") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p3 <- p_all_pre / p_all_post
         }
@@ -372,24 +380,24 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
             p_all_pre <-
                 ggplot(as.data.frame(maf_pre), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Pre-filter SNP MAF") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p_all_post <-
                 ggplot(as.data.frame(maf_post), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Post-filter SNP MAF") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p3 <- p_all_pre / p_all_post
             
@@ -405,24 +413,24 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
             p_all_pre <-
                 ggplot(as.data.frame(maf_pre), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Pre-filter SNP MAF") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p_all_post <-
                 ggplot(as.data.frame(maf_post), aes(x = maf)) + 
                 geom_histogram(bins = bins,
-                               color = plot_colors_all[1],
-                               fill = plot_colors_all[2]) +
+                               color = plot.colors[1],
+                               fill = plot.colors[2]) +
                 geom_vline(xintercept = threshold,color = "red",size = 1) + 
                 xlab("Post-filter SNP MAF") + 
                 ylab("Count") + 
                 xlim(0, 0.5) + 
-                plot_theme
+                plot.theme
             
             p3 <- p_all_pre / p_all_post
         }
@@ -456,7 +464,7 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
     }
     
     # PRINTING OUTPUTS using package patchwork
-    if (plot.out) {
+    if (plot.display) {
         if (length(popn.hold) > 1 & by.pop==TRUE) {
             suppressWarnings(print(p2))
             suppressWarnings(print(p3))
@@ -467,27 +475,35 @@ geom_histogram(bins = bins, color = "black", fill = plot_colors_pop(bins)) +
         }
     }
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp & plot.out) {
-        # creating temp file names
-        temp_plot <- tempfile(pattern = "Plot_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, p3), file = temp_plot)
-        if (verbose >= 2) {
-            cat(report("  Saving ggplot(s) to the session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    # Optionally save the plot ---------------------
+    
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # if (plot.file & plot.display) {
+    #     # creating temp file names
+    #     temp_plot <- tempfile(pattern = "Plot_")
+    #     match_call <-
+    #         paste0(names(match.call()),
+    #                "_",
+    #                as.character(match.call()),
+    #                collapse = "_")
+    #     # saving to tempdir
+    #     saveRDS(list(match_call, p3), file = temp_plot)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using 
+    #                 gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
     
     # ADD TO HISTORY
     nh <- length(x2@other$history)

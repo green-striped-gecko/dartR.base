@@ -1,10 +1,23 @@
 #' @name gl.recode.pop
 # Preliminaries -- Parameter specifications -------------- 
 #' @title Recodes population assignments in a genlight object
+#' @family data manipulation
+
 #' @description
 #' This function recodes population assignments and/or deletes populations from a
 #' DaRT genlight object based on information provided in a csv population
 #' recode file.
+
+#' @param x Name of the genlight object [required].
+#' @param pop.recode Name of the csv file containing the population
+#' reassignments [required].
+#' @param recalc If TRUE, recalculates the locus metadata statistics if any individuals
+#' are deleted in the filtering [default FALSE].
+#' @param mono.rm If TRUE, removes monomorphic loci [default FALSE].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
+#' progress log; 3, progress and results summary; 5, full report 
+#' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
 #' Individuals are assigned to populations based on the specimen metadata data
 #' file (csv) used with gl.read.dart(). Recoding can be used to amalgamate
@@ -30,21 +43,6 @@
 #' and the optional recalculation of locus statistics is not available for
 #' Tag P/A data (SilicoDArT).
 
-#' @param x Name of the genlight object [required].
-#' @param pop.recode Name of the csv file containing the population
-#' reassignments [required].
-#' @param recalc If TRUE, recalculates the locus metadata statistics if any individuals
-#' are deleted in the filtering [default FALSE].
-#' @param mono.rm If TRUE, removes monomorphic loci [default FALSE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
-#' progress log; 3, progress and results summary; 5, full report 
-#' [default 2 or as specified using gl.set.verbosity].
-
-#' @import dartR.data
-#' @export
-#' @return A genlight object with the recoded and reduced data.
-
-#' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
@@ -59,6 +57,10 @@
 # See also -----------------
 #' @seealso \code{\link{gl.filter.monomorphs}}
 #' @seealso \code{\link{gl.recode.pop}}
+#' 
+#' @import dartR.data
+#' @export
+#' @return A genlight object with the recoded and reduced data.
 
 # Function 
 gl.recode.pop <- function(x,

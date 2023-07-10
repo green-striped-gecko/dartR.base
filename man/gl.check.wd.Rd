@@ -27,6 +27,7 @@ gl.check.wd()
 }
 \seealso{
 Other environment: 
+\code{\link{gl.check.verbosity}()},
 \code{\link{gl.set.wd}()}
 }
 \author{

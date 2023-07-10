@@ -3,7 +3,8 @@
 \name{gl.edit.recode.ind}
 \alias{gl.edit.recode.ind}
 \title{Creates or edits individual (=specimen) names, creates a recode_ind
- file and applies the changes to a genlight object}
+ file and applies the changes to a genlight object
+ @family data manipulation}
 \usage{
 gl.edit.recode.ind(
   x,
@@ -67,24 +68,13 @@ and the recalculated locus metadata.
 gl <- gl.edit.recode.ind(testset.gl)
 gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')
 }
+
 }
 \seealso{
 \code{\link{gl.recode.ind}}, \code{\link{gl.drop.ind}},
 \code{\link{gl.keep.ind}}
-
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}

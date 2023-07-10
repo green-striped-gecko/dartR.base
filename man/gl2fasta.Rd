@@ -2,42 +2,13 @@
 % Please edit documentation in R/gl2fasta.r
 \name{gl2fasta}
 \alias{gl2fasta}
-\title{Concatenates DArT trimmed sequences and outputs a FASTA file
-Concatenated sequence tags are useful for phylogenetic methods where
-information on base frequencies and transition and transversion ratios are
-required (for example, Maximum Likelihood methods). Where relevant,
-heterozygous loci are resolved before concatenation by either assigning
- ambiguity codes or by random allele assignment.
-Four methods are employed:
-Method 1 -- heterozygous positions are replaced by the standard ambiguity 
-codes. The resultant sequence fragments are concatenated across loci to
-generate a single combined sequence to be used in subsequent ML phylogenetic
-analyses.
-Method 2 -- the heterozygous state is resolved by randomly assigning one or
-the other SNP variant to the individual. The resultant sequence fragments are
-concatenated across loci to generate a single composite haplotype to be used
-in subsequent ML phylogenetic analyses.
-Method 3 -- heterozygous positions are replaced by the standard ambiguity
-codes. The resultant SNP bases are concatenated across loci to generate a
-single combined sequence to be used in subsequent MP phylogenetic analyses.
-Method 4 -- the heterozygous state is resolved by randomly assigning one or
-the other SNP variant to the individual. The resultant SNP bases are
-concatenated across loci to generate a single composite haplotype to be used
-in subsequent MP phylogenetic analyses.
-Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
- mis-identity are deleted.
-The script writes out the composite haplotypes for each individual as a
-fastA file. Requires 'TrimmedSequence' to be among the locus metrics
-(\code{@other$loc.metrics}) and information of the type of alleles (slot
-loc.all e.g. 'G/A') and the position of the SNP in slot position of the
- ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
- how to format these slots.)}
+\title{Concatenates DArT trimmed sequences and outputs a FASTA file}
 \usage{
 gl2fasta(
   x,
   method = 1,
   outfile = "output.fasta",
-  outpath = tempdir(),
+  outpath = NULL,
   probar = FALSE,
   verbose = NULL
 )
@@ -50,7 +21,8 @@ gl2fasta(
 
 \item{outfile}{Name of the output file (fasta format) ["output.fasta"].}
 
-\item{outpath}{Path where to save the output file (set to tempdir by default)}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{probar}{If TRUE, a progress bar will be displayed for long loops 
 [default = TRUE].}
@@ -63,7 +35,6 @@ progress log; 3, progress and results summary; 5, full report
 A new gl object with all loci rendered homozygous.
 }
 \description{
-Concatenates DArT trimmed sequences and outputs a FASTA file
 Concatenated sequence tags are useful for phylogenetic methods where
 information on base frequencies and transition and transversion ratios are
 required (for example, Maximum Likelihood methods). Where relevant,
@@ -104,8 +75,30 @@ gl2fasta(gl, method=1, outfile='test.fasta',verbose=3)
 }
 test <- gl.subsample.loci(platypus.gl,n=100)
 gl2fasta(test)
+
+}
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}
