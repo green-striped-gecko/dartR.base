@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.recalc.freqhomref.r
 \name{utils.recalc.freqhomref}
 \alias{utils.recalc.freqhomref}
-\title{#' A utility function to recalculate the frequency of the homozygous reference
+\title{#' An internal utility function to recalculate the frequency of the homozygous reference
 SNP by locus after some populations have been deleted}
 \usage{
 utils.recalc.freqhomref(x, verbose = NULL)
@@ -11,13 +11,15 @@ utils.recalc.freqhomref(x, verbose = NULL)
 \item{x}{Name of the genlight [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default 2].
-@family dartR-base}
+progress log; 3, progress and results summary; 5, full report [default 2].}
 }
 \value{
 The modified genlight object
 }
 \description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 The locus metadata supplied by DArT has FreqHomRef included, but the
 frequency of the homozygous reference will change when some individuals are
 removed from the dataset.
@@ -25,9 +27,6 @@ This script recalculates the FreqHomRef and places these recalculated values
 in the appropriate place in the genlight object.
 Note that the frequency of the homozygote reference SNPS is calculated from
 the individuals that could be scored.
-}
-\examples{
-result <- dartR.base:::utils.recalc.freqhomref(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
@@ -37,8 +36,31 @@ result <- dartR.base:::utils.recalc.freqhomref(testset.gl)
  alternate, \code{utils.recalc.freqhet} for recalculating frequency of
  heterozygotes, \code{gl.recalc.maf} for recalculating minor allele frequency,
 \code{gl.recalc.rdepth} for recalculating average read depth
+
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{utilities}

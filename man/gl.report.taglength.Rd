@@ -52,8 +52,8 @@ they are less susceptible to long-tailed distributions and outliers.
  histogram to guide in the selection of a threshold for filtering on tag
  length.
  Plots and table are saved to the temporal directory (tempdir) and can be
- accessed with the function \code{\link{gl.print.reports}} and listed with
- the function \code{\link{gl.list.reports}}. Note that they can be accessed
+ accessed with the function and listed with
+ the function . Note that they can be accessed
  only in the current R session because tempdir is cleared each time that the
  R session is closed.
  Examples of other themes that can be used can be consulted in \itemize{
@@ -63,23 +63,17 @@ they are less susceptible to long-tailed distributions and outliers.
 }
 \examples{
 out <- gl.report.taglength(testset.gl)
+
 }
 \seealso{
-\code{\link{gl.filter.taglength}}, \code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
+\code{\link{gl.filter.taglength}}
 
-Other report functions: 
+Other matched report: 
 \code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()}
@@ -88,4 +82,4 @@ Other report functions:
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

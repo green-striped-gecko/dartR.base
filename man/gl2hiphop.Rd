@@ -2,14 +2,7 @@
 % Please edit documentation in R/gl2hiphop.r
 \name{gl2hiphop}
 \alias{gl2hiphop}
-\title{Converts a genlight objects into hiphop format
-This function exports genlight objects to the format used by the parentage
-assignment R package hiphop. Hiphop can be used for paternity and maternity
-assignment and outperforms conventional methods where closely related
-individuals occur in the pool of possible parents. The method compares the
-genotypes of offspring with any combination of potentials parents and scores
-the number of mismatches of these individuals at bi-allelic genetic markers
- (e.g. Single Nucleotide Polymorphisms).}
+\title{Converts a genlight objects into hiphop format}
 \usage{
 gl2hiphop(x, verbose = NULL)
 }
@@ -25,7 +18,6 @@ Dataframe containing all the genotyped individuals (offspring and
  potential parents) and their genotypes scored using bi-allelic markers.
 }
 \description{
-Converts a genlight objects into hiphop format
 This function exports genlight objects to the format used by the parentage
 assignment R package hiphop. Hiphop can be used for paternity and maternity
 assignment and outperforms conventional methods where closely related
@@ -38,6 +30,7 @@ the number of mismatches of these individuals at bi-allelic genetic markers
 \donttest{
 result <- gl2hiphop(testset.gl)
 }
+
 }
 \references{
 Cockburn, A., Penalba, J.V.,Jaccoud, D.,Kilian, A., Brouwer, L.,Double, M.C.,
@@ -46,6 +39,27 @@ Cockburn, A., Penalba, J.V.,Jaccoud, D.,Kilian, A., Brouwer, L.,Double, M.C.,
  exclusion method for bi-allelic markers. Molecular Ecology Resources, DOI to
  be added upon acceptance
 }
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
+}
 \author{
 Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

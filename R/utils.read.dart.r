@@ -1,10 +1,9 @@
 #' @name utils.read.dart
-# Preliminaries -- parameter definitions ----------------
+#' @title Utility to import DarT data to R
+#' @family io
 
-#' @title
-#' Utility to import DarT data to R
-#' @description
-#' Internal function called by gl.read.dart()
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
 #' @param filename Path to file (csv file only currently) [required].
 #' @param nas A character specifying NAs [default '-'].
@@ -20,13 +19,17 @@
 #' not match. You can also specify the last column by a number.
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report [default NULL].
-
+#' 
+#' @details
+#' Internal function called by gl.read.dart()
+#' 
+#' @author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
+# @export
 #' @return A list of length 5. #dart format (one or two rows) #individuals,
 #' #snps, #non genetic metrics, #genetic data (still two line format, rows=snps,
 #'  columns=individuals)
 
-#'@family dartR-base
-#'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 utils.read.dart <- function(filename,
                             nas = "-",

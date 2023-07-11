@@ -3,27 +3,14 @@
 \name{gl2bpp}
 \alias{gl2bpp}
 \title{Converts a genlight object into a format suitable for input to the BPP 
-program
-This function generates the sequence alignment file and the Imap file. The 
-control file should produced by the user. 
-If method = 1, heterozygous positions are replaced by standard ambiguity 
-codes.
-If method = 2, the heterozygous state is resolved by randomly assigning one 
-or the other SNP variant to the individual.
-Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
- mis-identity are deleted.
-This function requires 'TrimmedSequence' to be among the locus metrics
-(\code{@other$loc.metrics}) and information of the type of alleles (slot
-loc.all e.g. 'G/A') and the position of the SNP in slot position of the
- ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
- how to format these slots.)}
+program}
 \usage{
 gl2bpp(
   x,
   method = 1,
   outfile = "output_bpp.txt",
   imap = "Imap.txt",
-  outpath = tempdir(),
+  outpath = NULL,
   verbose = NULL
 )
 }
@@ -32,11 +19,12 @@ gl2bpp(
 
 \item{method}{One of 1 | 2, see details [default = 1].}
 
-\item{outfile}{Name of the sequence alignment file ["output_bpp.txt"].}
+\item{outfile}{Name of the saved sequence alignment file ["output_bpp.txt"].}
 
-\item{imap}{Name of the Imap file ["Imap.txt"].}
+\item{imap}{Name of the saved Imap file ["Imap.txt"].}
 
-\item{outpath}{Path where to save the output file (set to tempdir by default)}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report 
@@ -46,8 +34,6 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
-Converts a genlight object into a format suitable for input to the BPP 
-program
 This function generates the sequence alignment file and the Imap file. The 
 control file should produced by the user. 
 If method = 1, heterozygous positions are replaced by standard ambiguity 
@@ -85,7 +71,8 @@ test <- platypus.gl
 test <- gl.filter.callrate(test,threshold = 1)
 test <- gl.filter.monomorphs(test)
 test <- gl.subsample.loci(test,n=25)
-gl2bpp(x = test)
+gl2bpp(x = test, outpath=tempdir())
+
 }
 \references{
 \itemize{
@@ -96,7 +83,28 @@ with BPP using Genomic Sequences and the Multispecies Coalescent. Molecular
 Biology and Evolution, 35(10):2585-2593. doi:10.1093/molbev/msy147
 }
 }
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
+}
 \author{
 Custodian: Luis Mijangos (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

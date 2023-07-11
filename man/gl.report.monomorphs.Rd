@@ -38,24 +38,11 @@ not be reliably scored)
 \seealso{
 \code{\link{gl.filter.monomorphs}}
 
-Other report functions: 
-\code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.taglength}()}
+Other matched reports: 
+\code{\link{gl.report.bases}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched reports}

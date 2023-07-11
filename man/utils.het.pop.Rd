@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.het.pop.r
 \name{utils.het.pop}
 \alias{utils.het.pop}
-\title{Calculates expected mean expected heterozygosity per population}
+\title{An internal function that calculates expected mean heterozygosity per population}
 \usage{
 utils.het.pop(x)
 }
@@ -13,12 +13,32 @@ utils.het.pop(x)
 A vector with the mean expected heterozygosity for each population
 }
 \description{
-Calculates expected mean expected heterozygosity per population
+An internal function that calculates expected mean heterozygosity per population
 }
-\examples{
-out <- utils.het.pop(testset.gl)
+\seealso{
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
-Bernd Gruber & Luis Mijangos (bugs? Post to
-\url{https://groups.google.com/d/forum/dartr})
+Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{utilities}

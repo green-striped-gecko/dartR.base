@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.transpose.R
 \name{utils.transpose}
 \alias{utils.transpose}
-\title{A utility function to transpose a genlight object.}
+\title{An internal utility function to transpose a genlight object.}
 \usage{
 utils.transpose(x, parallel = FALSE)
 }
@@ -11,32 +11,37 @@ utils.transpose(x, parallel = FALSE)
 
 \item{parallel}{if TRUE, use parallel processing capability}
 }
+\value{
+a transposed genlight object
+}
 \description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 This is a function to transpose a genlight object, that is, to set loci as
 entities and individuals as attributes.
 }
 \seealso{
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
+Other utilities: 
+\code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},
 \code{\link{utils.recalc.callrate}()},
 \code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
 \code{\link{utils.recalc.freqhomsnp}()},
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()}
 }
-\concept{dartR-base}
+\concept{utilities}

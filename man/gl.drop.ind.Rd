@@ -27,6 +27,7 @@ This function deletes individuals and their associated metadata.
 Monomorphic loci and loci that are scored all NA are optionally deleted (mono.rm=TRUE). 
 The script also optionally recalculates locus metatdata statistics to accommodate
 the deletion of individuals from the dataset (recalc=TRUE).
+
 The script returns a dartR genlight object with the retained individuals 
 and the recalculated locus metadata. The script works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
@@ -40,36 +41,30 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
    ind.list=c('AA020656','AA19077','AA004859'))
    gs2 <- gl.drop.ind(testset.gs, ind.list=c('AA020656'
    ,'AA19077','AA004859'),mono.rm=TRUE, recalc=TRUE)
+   
 }
 \seealso{
 \code{\link{gl.keep.ind}} to keep rather than drop specified
 individuals
 
-Other dartR-base: 
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+\code{\link{gl.rename.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}
+\concept{data manipulation}

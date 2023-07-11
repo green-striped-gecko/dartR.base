@@ -2,20 +2,12 @@
 % Please edit documentation in R/gl2svdquartets.r
 \name{gl2svdquartets}
 \alias{gl2svdquartets}
-\title{Converts a genlight object to nexus format PAUP SVDquartets
-The output nexus file contains the SNP data in one of two forms, depending
-upon what you regard as most appropriate. One form, that used by Chifman and
- Kubatko, has two lines per individual, one providing the reference SNP the
-  second providing the alternate SNP (method=1).
-  A second form, recommended by Dave Swofford, has a single line per
-  individual, resolving heterozygous SNPs by replacing them with standard
-ambiguity codes (method=2).
-If the data are tag presence/absence, then method=2 is assumed.}
+\title{Converts a genlight object to nexus format PAUP SVDquartets}
 \usage{
 gl2svdquartets(
   x,
   outfile = "svd.nex",
-  outpath = tempdir(),
+  outpath = NULL,
   method = 2,
   verbose = NULL
 )
@@ -27,10 +19,8 @@ gl2svdquartets(
 \item{outfile}{File name of the output file (including extension)
 [default 'svd.nex'].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() when calling this
-function or set.tempdir <- getwd() elsewhere in your script to direct output
- files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{method}{Method = 1, nexus file with two lines per individual; method =
 2, nexus file with one line per individual, ambiguity codes for SNP
@@ -44,7 +34,6 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
-Converts a genlight object to nexus format PAUP SVDquartets
 The output nexus file contains the SNP data in one of two forms, depending
 upon what you regard as most appropriate. One form, that used by Chifman and
  Kubatko, has two lines per individual, one providing the reference SNP the
@@ -58,6 +47,7 @@ If the data are tag presence/absence, then method=2 is assumed.
 gg <- testset.gl[1:20,1:100]
 gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 gl2svdquartets(gg)
+
 }
 \references{
 Chifman, J. and L. Kubatko. 2014. Quartet inference from SNP data
@@ -67,3 +57,4 @@ under the coalescent. Bioinformatics 30: 3317-3324
 Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linkers}

@@ -5,13 +5,10 @@
 \title{Filters loci for which the SNP has been trimmed from the sequence tag
 along with the adaptor}
 \usage{
-gl.filter.overshoot(x, save2tmp = FALSE, verbose = NULL)
+gl.filter.overshoot(x, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object [required].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -33,25 +30,19 @@ obvious reasons.
 }
 \examples{
 result <- gl.filter.overshoot(testset.gl, verbose=3)
+
 }
 \seealso{
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
+Other matched filter: 
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
-\code{\link{gl.filter.pa}()},
-\code{\link{gl.filter.rdepth}()},
-\code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.taglength}()}
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
+\concept{matched filter}

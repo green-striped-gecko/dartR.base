@@ -27,7 +27,7 @@ classification, such as using an individual metric (e.g. sex, male or
 female). This script discards the current population assignments and replaces
 them with new population assignments defined by a specified individual
 metric.
-The script returns a genlight object with the new population assignments.
+The function returns a genlight object with the new population assignments.
 Note that the original population assignments are lost.
 }
 \examples{
@@ -39,8 +39,27 @@ Note that the original population assignments are lost.
    popNames(testset.gs)
    gs <- gl.reassign.pop(testset.gs, as.pop='sex',verbose=3)
    popNames(gs)
+   
+}
+\seealso{
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}

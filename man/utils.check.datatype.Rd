@@ -27,12 +27,14 @@ datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
   class(x)[1].
 }
 \description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 Most functions require access to a genlight object, dist matrix, data matrix
  or fixed difference list (fd), and this function checks that a genlight
  object or one of the above has been passed, whether the genlight object is a
   SNP dataset or a SilicoDArT object, and reports back if verbosity is >=2.
-}
-\details{
+  
 This function checks the class of passed object and sets the datatype to
 'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
 Note also that this function checks to see if there are individuals or loci
@@ -47,8 +49,33 @@ datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 fd <- gl.fixed.diff(testset.gl)
 datatype <- utils.check.datatype(fd,accept='fd')
  }
+ 
+}
+\seealso{
+Other utilities: 
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{utilities}

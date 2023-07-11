@@ -86,30 +86,16 @@ gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=TRUE)
 \seealso{
 \code{\link{utils.read.dart}}
 
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{dartR-base}
+\concept{io}

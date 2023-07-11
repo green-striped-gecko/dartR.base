@@ -17,6 +17,9 @@ progress log; 3, progress and results summary; 5, full report [default 2].}
 The modified genlight object.
 }
 \description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 The locus metadata supplied by DArT has FreqHomSnp included, but the
 frequency of the homozygous alternate will change when some individuals are
 removed from the dataset.
@@ -25,9 +28,6 @@ This function recalculates the FreqHomSnp and places these recalculated values
 Note that the frequency of the homozygote alternate SNPS is calculated from
 the individuals that could be scored.
 This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).
-}
-\examples{
-out <- dartR.base:::utils.recalc.freqhomsnp(testset.gl)
 }
 \seealso{
 \code{utils.recalc.metrics} for recalculating all metrics,
@@ -38,25 +38,24 @@ reference, \code{utils.recalc.avgpic} for recalculating AvgPIC,
 \code{gl.recalc.maf} for recalculating minor allele frequency,
 \code{gl.recalc.rdepth} for recalculating average read depth
 
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
+Other utilities: 
+\code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},
 \code{\link{utils.recalc.callrate}()},
 \code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()}
@@ -65,4 +64,4 @@ Other dartR-base:
 Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{dartR-base}
+\concept{utilities}

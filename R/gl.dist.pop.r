@@ -149,11 +149,11 @@ gl.dist.pop <- function(x,
         }
     }
     # # Test code
-    # x <- dartR.base:::gl2gi(testset.gl)
+    # x <- gl2gi(testset.gl)
     # x <- adegenet::genind2genpop(x)
     # D_check <- adegenet::dist.genpop(x,4) # Rogers D
     # hist(D_check,breaks=50)
-    # D <- dartR.base:::gl.dist.pop(testset.gl, method='euclidean',output="matrix",scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='euclidean',output="matrix",scale=TRUE)
     # D[upper.tri(D)] <- t(D)[upper.tri(D)]
     # hist(D/2,breaks=50)
     # #VALIDATED [with minor differences, missing handling?]
@@ -192,12 +192,12 @@ gl.dist.pop <- function(x,
         }
     }
     # # Test code
-    # x <- dartR.base:::gl2gi(testset.gl)
+    # x <- gl2gi(testset.gl)
     # x <- adegenet::genind2genpop(x)
     # D_check <- adegenet::dist.genpop(x,3) # Reynolds in common use
     # D_check <- -log(1-D_check) # Proportional to divergence time
     # hist(D_check,breaks=50)
-    # D <- dartR.base:::gl.dist.pop(testset.gl, method='reynolds',output='matrix',scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='reynolds',output='matrix',scale=TRUE)
     # D[upper.tri(D)] <- t(D)[upper.tri(D)]
     # hist(D,breaks=50)
     # #VALIDATED [with minor difference, missing handling?]
@@ -235,11 +235,11 @@ gl.dist.pop <- function(x,
         }
     }
     # # Test code
-    # x <- dartR.base:::gl2gi(testset.gl)
+    # x <- gl2gi(testset.gl)
     # x <- adegenet::genind2genpop(x)
     # D_check <- adegenet::dist.genpop(x,1) 
     # hist(D_check,breaks=50)
-    # D <- dartR.base:::gl.dist.pop(testset.gl, method='nei',output='matrix',scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='nei',output='matrix',scale=TRUE)
     # hist(D,breaks=50)
     # #VALIDATED [with minor difference, missing handling?]
     
@@ -271,12 +271,12 @@ gl.dist.pop <- function(x,
         }
     }
     # # Test code
-    # x <- dartR.base:::gl2gi(testset.gl)
+    # x <- gl2gi(testset.gl)
     # x <- adegenet::genind2genpop(x)
     # D_check <- adegenet::dist.genpop(x,2) # Angular or Edwards?
     # #D_check <- -log(1-D_check) # Proportional to divergence time
     # hist(D_check,breaks=50)
-    # D <- dartR.base:::gl.dist.pop(testset.gl, method='chord',output='matrix',scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='chord',output='matrix',scale=TRUE)
     # D[upper.tri(D)] <- t(D)[upper.tri(D)]
     # hist(D,breaks=50)
     # #VALIDATED [with minor difference, missing handling?]

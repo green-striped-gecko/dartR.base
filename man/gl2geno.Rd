@@ -4,7 +4,7 @@
 \alias{gl2geno}
 \title{Converts a genlight object to geno format from package LEA}
 \usage{
-gl2geno(x, outfile = "gl_geno", outpath = tempdir(), verbose = NULL)
+gl2geno(x, outfile = "gl_geno", outpath = NULL, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP or presence/absence
@@ -12,9 +12,8 @@ gl2geno(x, outfile = "gl_geno", outpath = tempdir(), verbose = NULL)
 
 \item{outfile}{File name of the output file [default 'gl_geno'].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
- when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -33,8 +32,30 @@ The function converts a genlight object (SNP or presence/absence
 gl2geno(testset.gl)
 # Tag P/A data
 gl2geno(testset.gs)
+
+}
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2structure}()},
+\code{\link{gl2vcf}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{linker}

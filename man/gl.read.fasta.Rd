@@ -4,16 +4,16 @@
 \alias{gl.read.fasta}
 \title{Reads FASTA files and converts them to genlight object}
 \usage{
-gl.read.fasta(fasta_files, parallel = FALSE, n_cores = NULL, verbose = NULL)
+gl.read.fasta(fasta.files, parallel = FALSE, n.cores = NULL, verbose = NULL)
 }
 \arguments{
-\item{fasta_files}{Fasta files to read [required].}
+\item{fasta.files}{Fasta files to read [required].}
 
 \item{parallel}{A logical indicating whether multiple cores -if available-
 should be used for the computations (TRUE), or not (FALSE); requires the
  package parallel to be installed [default FALSE].}
 
-\item{n_cores}{If parallel is TRUE, the number of cores to be used in the
+\item{n.cores}{If parallel is TRUE, the number of cores to be used in the
 computations; if NULL, then the maximum number of cores available on the
  computer is used [default NULL].}
 
@@ -62,9 +62,20 @@ Ambiguity characters are often used to code heterozygotes. However, using
                           full.names = TRUE)
  # reading fasta files
   obj <- gl.read.fasta(file_names)
+  
+}
+\seealso{
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{reading functions}
+\concept{io}

@@ -1,10 +1,24 @@
 #' @name utils.dist.ind.snp
 #' @title Calculates a distance matrix for individuals defined in a dartR
 #' genlight object using SNP data (DArTseq)
-#' @description
+#' @family utilities
+#' 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+#' 
+#' @param x Name of the genlight containing the genotypes [required].
+#' @param method Specify distance measure [default Euclidean].
+#' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
+#'  fall in the range [0,1] [default FALSE].
+#' @param output Specify the format and class of the object to be returned, 
+#' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#'  
+#' @details
 #' This script calculates various distances between individuals based on 
 #' SNP genotypes.
-#' @details
+
 #' The distance measure can be one of:
 #'  \itemize{
 #'   \item Euclidean -- Euclidean Distance applied to Cartesian coordinates defined
@@ -16,26 +30,17 @@
 #'  \item Czekanowski (or Manhattan) calculates the city block metric distance
 #'  by summing the scores on each axis (locus).
 #'  }
-
-#' @param x Name of the genlight containing the genotypes [required].
-#' @param method Specify distance measure [default Euclidean].
-#' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
-#'  fall in the range [0,1] [default FALSE].
-#' @param output Specify the format and class of the object to be returned, 
-#' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
-#' @return An object of class 'dist' or 'matrix' giving distances between individuals
-#' @export
+#'  
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' @examples
-#'  \donttest{
-#' D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
-#' D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
-#' }
-#' D <- utils.dist.ind.snp(testset.gl, method='Simple')
+#' 
+# @export
+#' @return An object of class 'dist' or 'matrix' giving distances between individuals
 
+# Examples for testing
+# D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
+# D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
+# D <- utils.dist.ind.snp(testset.gl, method='Simple')
 
 utils.dist.ind.snp <- function(x,
                               method = "Euclidean",

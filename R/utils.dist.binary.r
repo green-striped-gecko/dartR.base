@@ -1,10 +1,27 @@
 #' @name utils.dist.binary
 #' @title Calculates a distance matrix for individuals defined in a dartR
 #' genlight object using binary P/A data (SilicoDArT)
-#' @description
+#' @family utilities
+
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
+#' @param x Name of the genlight containing the genotypes [required].
+#' @param method Specify distance measure [default simple].
+#' @param scale If TRUE and method='euclidean', the distance will be scaled to 
+#'  fall in the range [0,1] [default FALSE].
+#' @param swap If TRUE and working with presence-absence data, then presence 
+#' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
+#' mutation) is scored as 1 [default FALSE].
+#' @param output Specify the format and class of the object to be returned, 
+#' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#'  
+#'  @details
 #' This script calculates various distances between individuals based on sequence tag
 #' Presence/Absence data.
-#' @details
+#' 
 #' The distance measure can be one of:
 #'  \itemize{
 #'   \item Euclidean -- Euclidean Distance applied to cartesian coordinates defined
@@ -23,27 +40,16 @@
 #'  presences because the homology of absences is less clear (mutation at one or
 #'  the other, or both restriction sites). Your call.
 
-#' @param x Name of the genlight containing the genotypes [required].
-#' @param method Specify distance measure [default simple].
-#' @param scale If TRUE and method='euclidean', the distance will be scaled to 
-#'  fall in the range [0,1] [default FALSE].
-#' @param swap If TRUE and working with presence-absence data, then presence 
-#' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
-#' mutation) is scored as 1 [default FALSE].
-#' @param output Specify the format and class of the object to be returned, 
-#' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
-#' @return An object of class 'dist' or 'matrix' giving distances between individuals
-#' @export
 #' @author Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' @examples
-#'  \donttest{
-#' D <- utils.dist.binary(testset.gs, method='Jaccard')
-#' D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
-#' }
-#' D <- utils.dist.binary(testset.gs, method='Simple')
+
+# @export  
+#' @return An object of class 'dist' or 'matrix' giving distances between individuals
+
+# Examples for testing
+# D <- utils.dist.binary(testset.gs, method='Jaccard')
+# D <- utils.dist.binary(testset.gs, method='Euclidean',scale=TRUE)
+# D <- utils.dist.binary(testset.gs, method='Simple')
 
 utils.dist.binary <- function(x,
                               method = "simple",

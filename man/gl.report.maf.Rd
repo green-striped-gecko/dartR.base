@@ -8,12 +8,13 @@ gl.report.maf(
   x,
   maf.limit = 0.5,
   ind.limit = 5,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors_pop = gl.colors("dis"),
-  plot_colors_all = gl.colors(2),
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.dir = NULL,
+  plot.file = NULL,
   bins = 25,
-  save2tmp = FALSE,
   verbose = NULL
 )
 }
@@ -25,21 +26,19 @@ gl.report.maf(
 \item{ind.limit}{Show histograms only for populations of size greater than
 ind.limit [default 5].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be displayed in the graphics window [default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors_pop}{A color palette for population plots
-[default gl.colors("dis")].}
+\item{plot.colors}{Vector with color names for the borders and fill
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{plot_colors_all}{List of two color names for the borders and fill of
-the overall plot [default gl.colors(2)].}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
+
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -50,7 +49,7 @@ An unaltered genlight object
 }
 \description{
 This script provides summary histograms of MAF for each
-population in the dataset and an overall histogram to assist the decision of
+population and an overall histogram to assist the decision of
 choosing thresholds for the filter function \code{\link{gl.filter.maf}}
 }
 \details{
@@ -65,11 +64,12 @@ The function \code{\link{gl.filter.maf}} will filter out the
  partitions of a finite set of values into q subsets of (nearly) equal sizes.
  In this function q = 20. Quantiles are useful measures because they are less
  susceptible to long-tailed distributions and outliers.
- Plots and table are saved to the temporal directory (tempdir) and can be
- accessed with the function \code{\link{gl.print.reports}} and listed with
- the function \code{\link{gl.list.reports}}. Note that they can be accessed
- only in the current R session because tempdir is cleared each time that the
-  R session is closed.
+ 
+ Plot colours can be set with gl.select.colors().
+ 
+  If plot.file is specified, plots are saved to the directory specified by the user, or the global
+  default working directory set by gl.set.wd() or to the tempdir().
+
 Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -77,22 +77,16 @@ Examples of other themes that can be used can be consulted in \itemize{
 }
 \examples{
 gl <- gl.report.maf(platypus.gl)
+
 }
 \seealso{
-\code{\link{gl.filter.maf}}, \code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
+\code{\link{gl.filter.maf}}
 
-Other report functions: 
+Other matched report: 
 \code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
@@ -102,4 +96,4 @@ Other report functions:
 Custodian: Arthur Georges (Post to 
 \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{report functions}
+\concept{matched report}

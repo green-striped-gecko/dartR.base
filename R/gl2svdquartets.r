@@ -1,5 +1,8 @@
-#' Converts a genlight object to nexus format PAUP SVDquartets
+#' @name gl2svdquartets
+#' @title Converts a genlight object to nexus format PAUP SVDquartets
+#' @family linkers
 
+#' @description
 #' The output nexus file contains the SNP data in one of two forms, depending
 #' upon what you regard as most appropriate. One form, that used by Chifman and
 #'  Kubatko, has two lines per individual, one providing the reference SNP the
@@ -18,39 +21,43 @@
 #' [required].
 #' @param outfile File name of the output file (including extension)
 #' [default 'svd.nex'].
-#' @param outpath Path where to save the output file
-#' [default tempdir(), mandated by CRAN]. Use outpath=getwd() when calling this
-#' function or set.tempdir <- getwd() elsewhere in your script to direct output
-#'  files to your working directory.
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param method Method = 1, nexus file with two lines per individual; method =
 #'  2, nexus file with one line per individual, ambiguity codes for SNP
 #'  genotypes, 0 or 1 for presence/absence data [default 2].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
-#' @return  returns no value (i.e. NULL)
-#' @export
+#' 
 #' @author Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' gg <- testset.gl[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 #' gl2svdquartets(gg)
+#' 
+#' @export
+#' @return  returns no value (i.e. NULL)
 
 gl2svdquartets <- function(x,
                            outfile = "svd.nex",
-                           outpath = tempdir(),
+                           outpath = NULL,
                            method = 2,
                            verbose = NULL) {
-    outfilespec <- file.path(outpath, outfile)
-    
+   
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    outfilespec <- file.path(outpath, outfile)
+     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

@@ -2,23 +2,16 @@
 % Please edit documentation in R/gl2structure.r
 \name{gl2structure}
 \alias{gl2structure}
-\title{Converts a genlight object to STRUCTURE formatted files
-This function exports genlight objects to STRUCTURE formatted files (be aware
-there is a gl2faststructure version as well). It is based on the code
-provided by Lindsay Clark (see
-\url{https://github.com/lvclark/R_genetics_conv}) and this function is
-basically a wrapper around her numeric2structure function. See also: Lindsay
-Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
-(Version v1.1). Zenodo: doi.org/10.5281/zenodo.846816.}
+\title{Converts a genlight object to STRUCTURE formatted files}
 \usage{
 gl2structure(
   x,
-  indNames = NULL,
-  addcolumns = NULL,
+  ind.names = NULL,
+  add.columns = NULL,
   ploidy = 2,
-  exportMarkerNames = TRUE,
+  export.marker.names = TRUE,
   outfile = "gl.str",
-  outpath = tempdir(),
+  outpath = NULL,
   verbose = NULL
 )
 }
@@ -26,23 +19,22 @@ gl2structure(
 \item{x}{Name of the genlight object containing the SNP data and location
 data, lat longs [required].}
 
-\item{indNames}{Specify individuals names to be added 
-[if NULL, defaults to indNames(x)].}
+\item{ind.names}{Specify individuals names to be added 
+[if NULL, defaults to ind.names(x)].}
 
-\item{addcolumns}{Additional columns to be added before genotypes 
+\item{add.columns}{Additional columns to be added before genotypes 
 [default NULL].}
 
 \item{ploidy}{Set the ploidy [defaults 2].}
 
-\item{exportMarkerNames}{If TRUE, locus names locNames(x) will be included 
+\item{export.marker.names}{If TRUE, locus names locNames(x) will be included 
 [default TRUE].}
 
 \item{outfile}{File name of the output file (including extension) 
 [default "gl.str"].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.' 
-when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -52,7 +44,6 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
-Converts a genlight object to STRUCTURE formatted files
 This function exports genlight objects to STRUCTURE formatted files (be aware
 there is a gl2faststructure version as well). It is based on the code
 provided by Lindsay Clark (see
@@ -64,7 +55,30 @@ Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
 \examples{
 #not run here
 #gl2structure(testset.gl)
+
+}
+\seealso{
+Other linker: 
+\code{\link{gl2bayescan}()},
+\code{\link{gl2bpp}()},
+\code{\link{gl2demerelate}()},
+\code{\link{gl2eigenstrat}()},
+\code{\link{gl2fasta}()},
+\code{\link{gl2faststructure}()},
+\code{\link{gl2gds}()},
+\code{\link{gl2genalex}()},
+\code{\link{gl2genepop}()},
+\code{\link{gl2geno}()},
+\code{\link{gl2gi}()},
+\code{\link{gl2hiphop}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()},
+\code{\link{gl2related}()},
+\code{\link{gl2sa}()},
+\code{\link{gl2vcf}()}
 }
 \author{
-Bernd Gruber (wrapper) and Lindsay V. Clark [lvclark@illinois.edu]
+Bernd Gruber (wrapper) and Lindsay V. Clark [lvclark@illinois.edu]; 
+Custodian Bernd Gruber
 }
+\concept{linker}

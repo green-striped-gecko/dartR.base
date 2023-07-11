@@ -8,12 +8,14 @@ gl.filter.hamming(
   x,
   threshold = 0.2,
   rs = 5,
-  taglength = 69,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  tag.length = 69,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   pb = FALSE,
-  save2tmp = FALSE,
   verbose = NULL
 )
 }
@@ -26,20 +28,22 @@ gl.filter.hamming(
 \item{rs}{Number of bases in the restriction enzyme recognition sequence
 [default 5].}
 
-\item{taglength}{Typical length of the sequence tags [default 69].}
+\item{tag.length}{Typical length of the sequence tags [default 69].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{If TRUE, histograms are displayed in the plot window
+[default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{pb}{Switch to output progress bar [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.dir}{Directory in which to save files [default = working directory]}
+
+\item{pb}{If TRUE, a progress bar will be displayed [default FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -75,10 +79,19 @@ percentage. 5 base differences out of 100 bases is a 20% Hamming distance.
 # SNP data
 test <- platypus.gl
 test <- gl.subsample.loci(platypus.gl,n=50)
-result <- gl.filter.hamming(test, threshold=0.25, verbose=3)
+result <- gl.filter.hamming(test, threshold=0.6, verbose=3)
+}
+\seealso{
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filters functions}
+\concept{matched filter}

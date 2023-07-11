@@ -1,5 +1,8 @@
-#' Converts a genlight object to STRUCTURE formatted files
+#' @name gl2structure
+#' @title Converts a genlight object to STRUCTURE formatted files
+#' @family linker
 
+#' @description
 #' This function exports genlight objects to STRUCTURE formatted files (be aware
 #' there is a gl2faststructure version as well). It is based on the code
 #' provided by Lindsay Clark (see
@@ -10,45 +13,51 @@
 
 #' @param x Name of the genlight object containing the SNP data and location
 #' data, lat longs [required].
-#' @param indNames Specify individuals names to be added 
-#' [if NULL, defaults to indNames(x)].
-#' @param addcolumns Additional columns to be added before genotypes 
+#' @param ind.names Specify individuals names to be added 
+#' [if NULL, defaults to ind.names(x)].
+#' @param add.columns Additional columns to be added before genotypes 
 #' [default NULL].
 #' @param ploidy Set the ploidy [defaults 2].
-#' @param exportMarkerNames If TRUE, locus names locNames(x) will be included 
+#' @param export.marker.names If TRUE, locus names locNames(x) will be included 
 #' [default TRUE].
 #' @param outfile File name of the output file (including extension) 
 #' [default "gl.str"].
-#' @param outpath Path where to save the output file
-#'  [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.' 
-#'  when calling this function to direct output files to your working directory.
+#' @param outpath Path where to save the output file [default global working 
+#' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return  returns no value (i.e. NULL)
-#' @export
-#' @author Bernd Gruber (wrapper) and Lindsay V. Clark [lvclark@illinois.edu]
+#' 
+#' @author Bernd Gruber (wrapper) and Lindsay V. Clark [lvclark@illinois.edu]; 
+#' Custodian Bernd Gruber
+#' 
 #' @examples
 #' #not run here
 #' #gl2structure(testset.gl)
+#' 
+#' @export
+#' @return  returns no value (i.e. NULL)
 
 gl2structure <- function(x,
-                         indNames = NULL,
-                         addcolumns = NULL,
+                         ind.names = NULL,
+                         add.columns = NULL,
                          ploidy = 2,
-                         exportMarkerNames = TRUE,
+                         export.marker.names = TRUE,
                          outfile = "gl.str",
-                         outpath = tempdir(),
+                         outpath = NULL,
                          verbose = NULL) {
-    outfilespec <- file.path(outpath, outfile)
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    outfilespec <- file.path(outpath, outfile)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE
@@ -57,26 +66,26 @@ gl2structure <- function(x,
     # FUNCTION SPECIFIC ERROR CHECKING
     
     nInd <- nInd(x)
-    if (is.null(indNames)) {
-        indNames <-indNames(x)
+    if (is.null(ind.names)) {
+        ind.names <-ind.names(x)
     }
     
-    if (length(indNames) != nInd) {
+    if (length(ind.names) != nInd) {
         stop(
             error(
-                "Fatal Error: No. of individuals listed in user-specified indNames and no. of individuals in supplied genlight object x do not match\n"
+                "Fatal Error: No. of individuals listed in user-specified ind.names and no. of individuals in supplied genlight object x do not match\n"
             )
         )
     }
     
-    if (!is.null(addcolumns) && is.null(dim(addcolumns))) {
-        addcolumns <- data.frame(pop = addcolumns)
+    if (!is.null(add.columns) && is.null(dim(add.columns))) {
+        add.columns <- data.frame(pop = add.columns)
     }
     
-    if (!is.null(addcolumns) && nrow(addcolumns) != nInd) {
+    if (!is.null(add.columns) && nrow(add.columns) != nInd) {
         stop(
             error(
-                "Fatal Error: No. of individuals in user-specified addColumns and no. of individuals in supplied genlight object x does not match\n"
+                "Fatal Error: No. of individuals in user-specified add.columns and no. of individuals in supplied genlight object x does not match\n"
             )
         )
     }
@@ -98,8 +107,8 @@ gl2structure <- function(x,
         stop(error("Fatal Error: ploidy must be a single number\n"))
     }
     
-    if (!exportMarkerNames %in% c(TRUE, FALSE)) {
-        stop(error("Fatal Error: exportMarkerNames must be TRUE or FALSE\n"))
+    if (!export.marker.names %in% c(TRUE, FALSE)) {
+        stop(error("Fatal Error: export.marker.names must be TRUE or FALSE\n"))
     }
     
     # DO THE JOB
@@ -112,15 +121,15 @@ gl2structure <- function(x,
     G[[ploidy + 2]] <- rep(-9, ploidy)  # for missing data
     
     # set up data frame for Structure
-    StructTab <- data.frame(ind = rep(indNames, each = ploidy))
+    StructTab <- data.frame(ind = rep(ind.names, each = ploidy))
     
     # add any additional columns
-    if (!is.null(addcolumns)) {
-        for (i in 1:dim(addcolumns)[2]) {
+    if (!is.null(add.columns)) {
+        for (i in 1:dim(add.columns)[2]) {
             StructTab <-
-                data.frame(StructTab, rep(addcolumns[, i], each = ploidy))
-            if (!is.null(dimnames(addcolumns)[[2]])) {
-                names(StructTab)[i + 1] <- dimnames(addcolumns)[[2]][i]
+                data.frame(StructTab, rep(add.columns[, i], each = ploidy))
+            if (!is.null(dimnames(add.columns)[[2]])) {
+                names(StructTab)[i + 1] <- dimnames(add.columns)[[2]][i]
             } else {
                 names(StructTab)[i + 1] <- paste("X", i, sep = "")
             }
@@ -136,7 +145,7 @@ gl2structure <- function(x,
     }
     
     # add marker name header
-    if (exportMarkerNames) {
+    if (export.marker.names) {
         cat(paste(locNames(x), collapse = "\t"),
             sep = "\n",
             file = outfilespec)

@@ -4,10 +4,9 @@
 \alias{gl2snapp}
 \title{Converts a genlight object to nexus format suitable for phylogenetic analysis
  by SNAPP (via BEAUti)
-The output nexus file contains the SNP data and relevant PAUP command lines
-suitable for BEAUti.}
+ @family linker}
 \usage{
-gl2snapp(x, outfile = "snapp.nex", outpath = tempdir(), verbose = NULL)
+gl2snapp(x, outfile = "snapp.nex", outpath = NULL, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
@@ -15,9 +14,8 @@ gl2snapp(x, outfile = "snapp.nex", outpath = tempdir(), verbose = NULL)
 \item{outfile}{File name of the output file (including extension)
 [default "snapp.nex"].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
-when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working 
+directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -27,13 +25,12 @@ progress log; 3, progress and results summary; 5, full report
 returns no value (i.e. NULL)
 }
 \description{
-Converts a genlight object to nexus format suitable for phylogenetic analysis
- by SNAPP (via BEAUti)
 The output nexus file contains the SNP data and relevant PAUP command lines
 suitable for BEAUti.
 }
 \examples{
 gl2snapp(testset.gl)
+
 }
 \references{
 Bryant, D., Bouckaert, R., Felsenstein, J., Rosenberg, N.A. and

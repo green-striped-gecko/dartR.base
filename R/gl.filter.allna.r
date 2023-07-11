@@ -1,6 +1,7 @@
 #' @name gl.filter.allna
 #' @title Filters loci that are all NA across individuals and/or populations 
 #' with all NA across loci
+#' @family unmatched filter
 
 #' @description
 #' This script deletes deletes loci or individuals with all calls missing (NA),
@@ -30,11 +31,10 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return A genlight object having removed individuals that are scored NA
-#' across all loci, or loci that are scored NA across all individuals.
 
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' # SNP data
 #'   result <- gl.filter.allna(testset.gl, verbose=3)
@@ -44,6 +44,8 @@
 #' @family filter functions
 #' @import utils patchwork
 #' @export
+#' @return A genlight object having removed individuals that are scored NA
+#' across all loci, or loci that are scored NA across all individuals.
 
 gl.filter.allna <- function(x,
                             by.pop = FALSE,

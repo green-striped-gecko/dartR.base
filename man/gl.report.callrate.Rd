@@ -7,13 +7,16 @@
 gl.report.callrate(
   x,
   method = "loc",
-  by_pop = FALSE,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  ind.to.list = 20,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.dir = NULL,
+  plot.file = NULL,
   bins = 50,
-  save2tmp = FALSE,
-  verbose = NULL
+  verbose = NULL,
+  ...
 )
 }
 \arguments{
@@ -23,23 +26,28 @@ gl.report.callrate(
 \item{method}{Specify the type of report by locus (method='loc') or
 individual (method='ind') [default 'loc'].}
 
-\item{by_pop}{Whether report by population [default FALSE].}
+\item{ind.to.list}{Number of individuals to list for callrate [default 20]}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be displayed in the graphics window [default TRUE].}
 
-\item{plot_theme}{User specified theme [default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors}{Vector with two color names for the borders and fill
-[default gl.colors(2)].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
+
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
+
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+such as width and height, when the ggplot is to be saved.}
 }
 \value{
 Returns unaltered genlight object
@@ -57,13 +65,19 @@ SilicoDArT (=presence/absence data).
 Callrate is summarized by locus or by individual to allow sensible decisions
 on thresholds for filtering taking into consideration consequential loss of
 data. The summary is in the form of a tabulation and plots.
+
+To avoid issues from inadvertent use of this function in an assignment statement,
+the function returns the genlight object unaltered.
 Plot themes can be obtained from:
  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
-Resultant ggplots and the tabulation are saved to the session's temporary
-directory.
+ 
+ Plot colours can be set with gl.select.colors().
+ 
+ If plot.file is specified, plots are saved to the directory specified by the user, or the global
+ default working directory set by gl.set.wd() or to the tempdir().
 }
 \examples{
  \donttest{
@@ -71,6 +85,9 @@ directory.
   test.gl <- testset.gl[1:20,]
   gl.report.callrate(test.gl)
   gl.report.callrate(test.gl,method='ind')
+  gl.report.callrate(test.gl,method='ind',plot.file="test")
+  gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
+  gl.report.callrate(test.gl,method='loc',by.pop=TRUE,plot.file="test")
 # Tag P/A data
   test.gs <- testset.gs[1:20,]
   gl.report.callrate(test.gs)
@@ -83,17 +100,11 @@ directory.
 \seealso{
 \code{\link{gl.filter.callrate}}
 
-Other report functions: 
-\code{\link{gl.report.diversity}()},
+Other matched report: 
 \code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
@@ -103,4 +114,4 @@ Other report functions:
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

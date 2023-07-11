@@ -1,6 +1,17 @@
-#' A utility script to calculate the number of variant and invariant sites by
+#' @name utils.n.var.invariant
+#' @title An internal utility function to calculate the number of variant and invariant sites by
 #' locus
+#' @family utilities
+#' 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'   progress log; 3, progress and results summary; 5, full report
+#'    [default NULL].
+#'    
+#'  @details
 #' Calculate the number of variant and invariant sites by locus and add them as
 #' columns in \code{loc.metrics}. This can be useful to conduct further
 #' filtering, for example where only loci with secondaries are wanted for
@@ -18,19 +29,18 @@
 #' \strong{NOTE}: It is important to realise that this function correctly
 #' estimates the number of variant and invariant sites only when it is executed on
 #' \code{genlight} objects before secondaries are removed.
-
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'   progress log; 3, progress and results summary; 5, full report
-#'    [default NULL].
-#' @return The modified genlight object.
-#' @author Carlo Pacioni (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
+#' @author Custodian: Carlo Pacioni (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @seealso
 #' \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
-#' @export
-#' @examples
-#' require("dartR.data")
-#' out <- utils.n.var.invariant(platypus.gl)
+
+# @export
+#' @return The modified genlight object.
+
+# Examples for testing
+# require("dartR.data")
+# out <- utils.n.var.invariant(platypus.gl)
 
 utils.n.var.invariant <- function(x,
                                   verbose = NULL) {

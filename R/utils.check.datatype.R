@@ -1,10 +1,10 @@
 #' @name utils.check.datatype
 #' @title Utility function to check the class of an object passed to a function
-#' @description
-#' Most functions require access to a genlight object, dist matrix, data matrix
-#'  or fixed difference list (fd), and this function checks that a genlight
-#'  object or one of the above has been passed, whether the genlight object is a
-#'   SNP dataset or a SilicoDArT object, and reports back if verbosity is >=2.
+#' @family utilities
+#' 
+#' @description 
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
 #' @param x Name of the genlight object, dist matrix, data matrix, glPCA, or
 #' fixed difference list (fd) [required].
 #' @param accept Vector containing the classes of objects that are to be
@@ -12,7 +12,13 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
+#' 
 #' @details
+#' Most functions require access to a genlight object, dist matrix, data matrix
+#'  or fixed difference list (fd), and this function checks that a genlight
+#'  object or one of the above has been passed, whether the genlight object is a
+#'   SNP dataset or a SilicoDArT object, and reports back if verbosity is >=2.
+#'   
 #' This function checks the class of passed object and sets the datatype to
 #' 'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
 
@@ -22,10 +28,6 @@
 #' Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
 #'  TRUE.
 
-#' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
-#'  distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
-#'   class(x)[1].
-#' @export
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
@@ -36,6 +38,11 @@
 #' fd <- gl.fixed.diff(testset.gl)
 #' datatype <- utils.check.datatype(fd,accept='fd')
 #'  }
+#'  
+#' @export
+#' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
+#'  distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
+#'   class(x)[1].
 
 utils.check.datatype <- function(x,
                                  accept = c("genlight", "SNP", "SilicoDArT"),

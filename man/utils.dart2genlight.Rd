@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dart2genlight.r
 \name{utils.dart2genlight}
 \alias{utils.dart2genlight}
-\title{Converts DarT to genlight.}
+\title{An internal function to converts DarT to genlight.}
 \usage{
 utils.dart2genlight(
   dart,
@@ -30,10 +30,12 @@ A genlight object. Including all available slots are filled.
 loc.names, ind.names, pop, lat, lon (if provided via the ind.metadata file)
 }
 \description{
-Converts a DArT file (read via \code{read.dart}) into an
-genlight object \code{\link{adegenet}}. #' Internal function called by gl.read.dart().
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
+Converts a DArT file (read via \code{read.dart}) into an
+genlight object \code{\link{adegenet}}. #' Internal function called by gl.read.dart().
+
 The ind.metadata file needs to have very specific headings. First a heading
 called id. Here the ids have to match the ids in the dart object
 \code{colnames(dart[[4]])}. The following column headings are optional.
@@ -42,30 +44,29 @@ specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
 }
 \seealso{
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.ind}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{utils.read.dart}()},
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
 \code{\link{utils.recalc.avgpic}()},
 \code{\link{utils.recalc.callrate}()},
 \code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
 \code{\link{utils.recalc.freqhomsnp}()},
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()}
 }
 \author{
-Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Maintainer: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{dartR-base}
+\concept{utilities}

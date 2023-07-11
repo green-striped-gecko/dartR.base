@@ -9,11 +9,14 @@ gl.report.pa(
   x2 = NULL,
   method = "pairwise",
   loc_names = FALSE,
-  plot.out = TRUE,
+  test.asym = FALSE,
+  test.asym.boot = 100,
+  plot.out = FALSE,
   font_plot = 14,
   map.interactive = FALSE,
-  palette_discrete = gl.colors("dis"),
-  save2tmp = FALSE,
+  palette_discrete = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -27,8 +30,18 @@ provided here, but they must have the same number of SNPs [default NULL].}
 compare each population against the rest 'one2rest' [default 'pairwise'].}
 
 \item{loc_names}{Whether names of loci with private alleles and fixed 
-differences should reported. If TRUE, loci names are reported using a list
- [default FALSE].}
+differences should reported. If TRUE, loci names are reported using a list}
+
+\item{test.asym}{bootstrap test for significant differences of private alleles. 
+This test uses a bootstrap simulation by shuffling individuals between a pair
+of population and drawing with replacement. For each bootstrap the ratio of 
+private alleles is compared to the actual ratio and recorded how often it is 
+larger than the simulated one. If number of individuals are different between
+ population bootstrap is done using the smaller number of samples in both 
+ populations.}
+
+\item{test.asym.boot}{number of bootstraps [default 100]
+[default FALSE].}
 
 \item{plot.out}{Specify if Sankey plot is to be produced [default TRUE].}
 
@@ -40,10 +53,11 @@ alleles between populations is to be produced [default FALSE].}
 
 \item{palette_discrete}{A discrete palette for the color of populations or a
 list with as many colors as there are populations in the dataset
- [default gl.colors("dis")].}
+ [default gl.select.colors(x)].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
 begin and end; 2, progress log; 3, progress and results summary; 5, full
@@ -124,24 +138,10 @@ alternative to FST for quantifying genetic population differentiation. Genes,
 }
 }
 \seealso{
-\code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
-
 Other report functions: 
-\code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
-\code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.taglength}()}
+\code{\link{gl.report.ld.map}()}
 }
 \author{
 Custodian: Bernd Gruber -- Post to

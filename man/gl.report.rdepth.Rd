@@ -6,10 +6,12 @@
 \usage{
 gl.report.rdepth(
   x,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.dir = NULL,
+  plot.file = NULL,
   verbose = NULL
 )
 }
@@ -17,16 +19,17 @@ gl.report.rdepth(
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
+
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -46,38 +49,32 @@ function reports the read depth by locus for each of several quantiles.
 \details{
 The function displays a table of minimum, maximum, mean and quantiles for
  read depth against possible thresholds that might subsequently be specified
- in \code{\link{gl.filter.rdepth}}. If plot.out=TRUE, display also includes a
+ in \code{\link{gl.filter.rdepth}}. If plot.display=TRUE, display also includes a
   boxplot and a histogram to guide in the selection of a threshold for
   filtering on read depth.
- If save2tmp=TRUE, ggplots and relevant tabulations are saved to the
- session's temp directory (tempdir).
+ Plot colours can be set with gl.select.colors().
+  If plot.file is specified, plots are saved to the directory specified by the user, or the global
+  default working directory set by gl.set.wd() or to the tempdir().
  For examples of themes, see  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
 }
 \examples{
- \donttest{
 # SNP data
 df <- gl.report.rdepth(testset.gl)
-}
 df <- gl.report.rdepth(testset.gs)
+
 }
 \seealso{
 \code{\link{gl.filter.rdepth}}
 
-Other report functions: 
+Other matched report: 
 \code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
@@ -86,4 +83,4 @@ Other report functions:
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

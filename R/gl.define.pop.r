@@ -1,6 +1,8 @@
 #' @name gl.define.pop
 #' @title Defines a new population in a genlight object for specified 
 #' individuals
+#' @family data manipulation
+
 #' @description
 #' The script reassigns existing individuals to a new population and removes
 #' their existing population assignment.
@@ -14,16 +16,19 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return A genlight object with the redefined population structure.
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' popNames(testset.gl)
 #' gl <- gl.define.pop(testset.gl, ind.list=c('AA019073','AA004859'), 
 #' new='newguys')
 #' popNames(gl)
 #' indNames(gl)[pop(gl)=='newguys']
+#' 
 #' @export
+#' @return A genlight object with the redefined population structure.
 
 gl.define.pop <- function(x,
                           ind.list,
@@ -35,7 +40,7 @@ gl.define.pop <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

@@ -1,6 +1,19 @@
 #' @name utils.jackknife
-#' @title Conducts jackknife resampling using a genlight object
+#' @title An internal function to conducts jackknife resampling using a genlight object
+#' @family utilities
+#' 
 #' @description
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+
+#' @inheritParams gl.drop.ind
+#' @param FUN the name of the function to be used to calculate the statistic
+#' @param unit The unit to use for resampling. One of c("loc", "ind", "pop"): 
+#' loci, individuals or populations
+#' @param n.cores The number of cores to use. If "auto" [default], it will 
+#' use all but one available cores.
+#' @param ... any additional arguments to be passed to FUN
+#' 
+#' @details
 #' Jackknife resampling is a statistical procedure where for a dataset of sample 
 #' size n, subsamples of size n-1 are used to compute a statistic. The collection 
 #' of the values obtained can be used to evaluate the variability around the point 
@@ -15,25 +28,18 @@
 #' real advantage in using parallel computation. On the other hand, if the number 
 #' of units is large (e.g. thousands of loci), even with parallel computation, 
 #' this function can be very slow.
-
-#' @inheritParams gl.drop.ind
-#' @param FUN the name of the function to be used to calculate the statistic
-#' @param unit The unit to use for resampling. One of c("loc", "ind", "pop"): 
-#' loci, individuals or populations
-#' @param n.cores The number of cores to use. If "auto" [default], it will 
-#' use all but one available cores.
-#' @param ... any additional arguments to be passed to FUN
-#' @return A list of length n where each element is the output of FUN
-
+#' 
 #' @author Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
+# @export
+#' @return A list of length n where each element is the output of FUN
 
-#' @examples
-#' require("dartR.data")
-#' platMod.gl <- gl.filter.allna(platypus.gl) 
-#' chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
-#' recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
-#' @export
+# Examples for testing
+# require("dartR.data")
+# platMod.gl <- gl.filter.allna(platypus.gl) 
+# chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
+# recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 
 utils.jackknife <- function(x, 
                             FUN, 

@@ -1,5 +1,8 @@
-#' Reads SNP data from a csv file into a genlight object
-
+#' @name gl.read.csv
+#' @title Reads SNP data from a csv file into a genlight object
+#' @family io
+#' 
+#' @description
 #' This script takes SNP genotypes from a csv file, combines them with
 #' individual and locus metrics and creates a genlight object.
 
@@ -35,14 +38,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return A genlight object with the SNP data and associated metadata included.
-#' @export
+#' 
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
 #' ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
 #' gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
+#' 
+#' @export
+#' @return A genlight object with the SNP data and associated metadata included.
 
 gl.read.csv <- function(filename,
                         transpose = FALSE,
@@ -55,7 +61,7 @@ gl.read.csv <- function(filename,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jackson",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # FUNCTION SPECIFIC ERROR CHECKING

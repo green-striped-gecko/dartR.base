@@ -3,15 +3,18 @@
 \name{gl.filter.reproducibility}
 \alias{gl.filter.reproducibility}
 \title{Filters loci in a genlight \{adegenet\} object based on average
- repeatability of alleles at a locus}
+ repeatability of alleles at a locus
+ @family matched filter}
 \usage{
 gl.filter.reproducibility(
   x,
   threshold = 0.99,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -21,16 +24,18 @@ gl.filter.reproducibility(
 \item{threshold}{Threshold value below which loci will be removed
 [default 0.99].}
 
-\item{plot.out}{If TRUE, displays a plots of the distribution of
-reproducibility values before and after filtering [default TRUE].}
+\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
+[default TRUE].}
 
-\item{plot_theme}{Theme for the plot [default theme_dartR()].}
+\item{plot.theme}{Theme for the plot. See Details for options
+[default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -58,31 +63,13 @@ scores that are repeated in the technical replicate dataset.
   gl.report.reproducibility(testset.gs)
   result <- gl.filter.reproducibility(testset.gs, threshold=0.99)
   }
-  
-  test <- gl.subsample.loci(platypus.gl,n=100)
-  res <- gl.filter.reproducibility(test)
+  res <- gl.filter.reproducibility(testset.gl)
   
 }
 \seealso{
 \code{\link{gl.report.reproducibility}}
-
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
-\code{\link{gl.filter.locmetric}()},
-\code{\link{gl.filter.maf}()},
-\code{\link{gl.filter.monomorphs}()},
-\code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.pa}()},
-\code{\link{gl.filter.rdepth}()},
-\code{\link{gl.filter.secondaries}()},
-\code{\link{gl.filter.taglength}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}

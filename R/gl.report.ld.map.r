@@ -177,7 +177,7 @@ gl.report.ld.map <- function(x,
     gl2plink(
       pop_ld,
       outfile = paste0("gl_plink", "_", pop_name),
-      pos_cM = pop_ld$other$loc.metrics[, stat_keep],
+      pos.cM = pop_ld$other$loc.metrics[, stat_keep],
       verbose = 0
     )
     

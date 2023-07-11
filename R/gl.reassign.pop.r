@@ -1,5 +1,7 @@
 #' @name gl.reassign.pop
 #' @title Assigns an individual metric as pop in a genlight \{adegenet\} object
+#' @family data manipulation
+
 #' @description
 #' Individuals are assigned to populations based on the
 #' individual/sample/specimen metrics file (csv) used with gl.read.dart().
@@ -10,7 +12,7 @@
 #' them with new population assignments defined by a specified individual
 #' metric.
 
-#' The script returns a genlight object with the new population assignments.
+#' The function returns a genlight object with the new population assignments.
 #' Note that the original population assignments are lost.
 
 #' @param x Name of the genlight object containing SNP genotypes [required].
@@ -19,10 +21,10 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return A genlight object with the reassigned populations.
-#' @export
+
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' # SNP data
 #'    popNames(testset.gl)
@@ -32,7 +34,10 @@
 #'    popNames(testset.gs)
 #'    gs <- gl.reassign.pop(testset.gs, as.pop='sex',verbose=3)
 #'    popNames(gs)
-
+#'    
+#' @return A genlight object with the reassigned populations.
+#' @export
+#' 
 gl.reassign.pop <- function(x,
                             as.pop,
                             verbose = NULL) {
@@ -42,7 +47,7 @@ gl.reassign.pop <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     # CHECK DATATYPE

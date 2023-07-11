@@ -2,10 +2,7 @@
 % Please edit documentation in R/gl.load.r
 \name{gl.load}
 \alias{gl.load}
-\title{Loads an object from compressed binary format produced by gl.save()
-This is a wrapper for readRDS()
-The script loads the object from the current workspace and returns the
- gl object.}
+\title{Loads an object from compressed binary format produced by gl.save()}
 \usage{
 gl.load(file, verbose = NULL)
 }
@@ -21,9 +18,8 @@ progress log; 3, progress and results summary; 5, full report
 The loaded object
 }
 \description{
-Loads an object from compressed binary format produced by gl.save()
 This is a wrapper for readRDS()
-The script loads the object from the current workspace and returns the
+The function loads the object from the current workspace and returns the
  gl object.
 }
 \examples{
@@ -32,8 +28,18 @@ gl <- gl.load(file.path(tempdir(),'testset.rds'))
 }
 \seealso{
 \code{\link{gl.save}}
+
+Other io: 
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{io}

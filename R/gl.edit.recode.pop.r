@@ -1,13 +1,28 @@
 #' @name gl.edit.recode.pop
 # Preliminaries -- Parameter specifications -------------- 
 #' @title Creates or edits and applies a population re-assignment table
+#' @family data manipulation
+
 #' @description
 #' A function to edit population assignments in a dartR genlight object, or to
 #' create a reassignment table taking the population assignments
 #' from a genlight object, or to edit existing population assignments in
 #' a pop.recode.table. The amended recode table is then applied to the genlight
 #' object.
-#' @details
+
+#' @param x Name of the genlight object  [required].
+#' @param pop.recode Path to recode file [default NULL].
+#' @param out.recode.file Name of the file to output the new individual labels
+#' [default NULL].
+#' @param outpath Path where to save the output file [default tempdir(), mandated by CRAN].
+#' @param recalc If TRUE, recalculate the locus metadata statistics
+#' [default TRUE].
+#' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress but not results; 3, progress and results summary; 5, full report
+#'  [default 2 or as specified using gl.set.verbosity].
+#'  
+#'  @details
 #' Genlight objects assign specimens to populations based on information in the
 #' ind.metadata file provided when the genlight object is first generated.
 #' Often one wishes to subset the data by deleting populations or to amalgamate
@@ -38,23 +53,6 @@
 #' The function returns a dartR genlight object with the new population assignments  
 #' and the recalculated locus metadata. 
 
-#' @param x Name of the genlight object  [required].
-#' @param pop.recode Path to recode file [default NULL].
-#' @param out.recode.file Name of the file to output the new individual labels
-#' [default NULL].
-#' @param outpath Path where to save the output file [default tempdir(), mandated by CRAN].
-#' @param recalc If TRUE, recalculate the locus metadata statistics
-#' [default TRUE].
-#' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress but not results; 3, progress and results summary; 5, full report
-#'  [default 2 or as specified using gl.set.verbosity].
-
-#' @import utils
-#' @export  
-#' @return A genlight object with the revised population assignments
-
-#' @family dartR-base
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
@@ -64,10 +62,15 @@
 #' gl <- gl.edit.recode.pop(testset.gl)
 #' gs <- gl.edit.recode.pop(testset.gs)
 #' }
+#' 
 #' # See also -------------------
 #' @seealso \code{\link{gl.recode.pop}}, \code{\link{gl.drop.pop}},
 #' \code{\link{gl.keep.pop}}, \code{\link{gl.merge.pop}},
 #' \code{\link{gl.reassign.pop}}
+#' 
+#' @import utils
+#' @export  
+#' @return A genlight object with the revised population assignments
 
 # Function -----------
 gl.edit.recode.pop <-  function(x,

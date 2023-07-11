@@ -1,6 +1,8 @@
 #' @name gl.join
 # Preliminaries -- parameter definitions -----------------
 #' @title Combines two dartR genlight objects
+#' @family data manipulation
+
 #' @description
 #' This function combines two genlight objects and their associated metadata.
 #' The history associated with the two genlight objects is cleared from the new
@@ -19,9 +21,6 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 
-#' @export
-#' @return A new genlight object
-
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
@@ -34,6 +33,9 @@
 #' nLoc(x2)
 #' gl <- gl.join(x1, x2, verbose=2)
 #' nLoc(gl)
+#' 
+#' @export
+#' @return A new genlight object
 
 gl.join <- function(x1,
                     x2,

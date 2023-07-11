@@ -3,7 +3,8 @@
 \name{gl.edit.recode.ind}
 \alias{gl.edit.recode.ind}
 \title{Creates or edits individual (=specimen) names, creates a recode_ind
- file and applies the changes to a genlight object}
+ file and applies the changes to a genlight object
+ @family data manipulation}
 \usage{
 gl.edit.recode.ind(
   x,
@@ -67,36 +68,13 @@ and the recalculated locus metadata.
 gl <- gl.edit.recode.ind(testset.gl)
 gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')
 }
+
 }
 \seealso{
 \code{\link{gl.recode.ind}}, \code{\link{gl.drop.ind}},
 \code{\link{gl.keep.ind}}
-
-Other dartR-base: 
-\code{\link{gl.drop.ind}()},
-\code{\link{gl.drop.loc}()},
-\code{\link{gl.drop.pop}()},
-\code{\link{gl.edit.recode.pop}()},
-\code{\link{gl.keep.loc}()},
-\code{\link{gl.make.recode.ind}()},
-\code{\link{gl.read.dart}()},
-\code{\link{gl.recode.ind}()},
-\code{\link{gl.recode.pop}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.read.dart}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{dartR-base}

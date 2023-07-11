@@ -7,10 +7,12 @@
 gl.report.locmetric(
   x,
   metric,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
+    verbose = 0),
+  plot.dir = NULL,
+  plot.file = NULL,
   verbose = NULL
 )
 }
@@ -20,16 +22,17 @@ gl.report.locmetric(
 
 \item{metric}{Name of the metric to be used for filtering [required].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
+
+\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -39,9 +42,9 @@ progress log; 3, progress and results summary; 5, full report
 An unaltered genlight object.
 }
 \description{
-This script uses any field with numeric values stored in $other$loc.metrics
-to produce summary statistics (mean, minimum, average, quantiles), histograms
-and boxplots to assist the decision of choosing thresholds for the filter
+This function reports summary statistics (mean, minimum, average, quantiles), histograms
+and boxplots for any loc.metric with numeric values (stored in 
+$other$loc.metrics) to assist the decision of choosing thresholds for the filter
 function \code{\link{gl.filter.locmetric}}.
 }
 \details{
@@ -83,11 +86,9 @@ and a histogram.
 Quantiles are partitions of a finite set of values into q subsets of (nearly)
 equal sizes. In this function q = 20. Quantiles are useful measures because
 they are less susceptible to long-tailed distributions and outliers.
- Plots and table were saved to the temporal directory (tempdir) and can be
- accessed with the function \code{\link{gl.print.reports}} and listed with
- the function \code{\link{gl.list.reports}}. Note that they can be accessed
- only in the current R session because tempdir is cleared each time that the
- R session is closed.
+ Plot colours can be set with gl.select.colors().
+  If plot.file is specified, plots are saved to the directory specified by the user, or the global
+  default working directory set by gl.set.wd() or to the tempdir().
  Examples of other themes that can be used can be consulted in:
   \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -95,32 +96,19 @@ they are less susceptible to long-tailed distributions and outliers.
  }
 }
 \examples{
-# adding dummy data
-test <- testset.gl
-test$other$loc.metrics$test <- 1:nLoc(test)
 # SNP data
-out <- gl.report.locmetric(test,metric='test')
-# adding dummy data
-test.gs <- testset.gs
-test.gs$other$loc.metrics$test <- 1:nLoc(test.gs)
+out <- gl.report.locmetric(testset.gl,metric='SnpPosition')
 # Tag P/A data
-out <- gl.report.locmetric(test.gs,metric='test')
+out <- gl.report.locmetric(testset.gs,metric='AvgReadDepth')
 }
 \seealso{
-\code{\link{gl.filter.locmetric}}, \code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
+\code{\link{gl.filter.locmetric}}
 
-Other report functions: 
+Other matched report: 
 \code{\link{gl.report.callrate}()},
-\code{\link{gl.report.diversity}()},
 \code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.maf}()},
-\code{\link{gl.report.monomorphs}()},
 \code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
@@ -129,4 +117,4 @@ Other report functions:
 \author{
 Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{report functions}
+\concept{matched report}

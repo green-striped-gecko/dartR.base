@@ -1,8 +1,11 @@
-#' Loads an object from compressed binary format produced by gl.save()
+#' @name gl.load
+#' @title Loads an object from compressed binary format produced by gl.save()
+#' @family io
 
+#' @description
 #' This is a wrapper for readRDS()
 
-#' The script loads the object from the current workspace and returns the
+#' The function loads the object from the current workspace and returns the
 #'  gl object.
 
 #' @param file Name of the file to receive the binary version of the object
@@ -10,14 +13,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' @return The loaded object
-#' @export
+#' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 #' gl <- gl.load(file.path(tempdir(),'testset.rds'))
 #' @seealso \code{\link{gl.save}}
+#' 
+#' @export
+#' @return The loaded object
 
 gl.load <- function(file,
                     verbose = NULL) {
@@ -27,7 +33,7 @@ gl.load <- function(file,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.2",
                      verbosity = verbose)
     
     x <- readRDS(file)

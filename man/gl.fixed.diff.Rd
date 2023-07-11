@@ -107,7 +107,7 @@ fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose
 }
 }
 \seealso{
-\code{\link{is.fixed}}
+\code{\link{utils.is.fixed}}
 }
 \author{
 Custodian: Arthur Georges -- Post to
