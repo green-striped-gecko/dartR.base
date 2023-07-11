@@ -80,8 +80,7 @@ gl <- gl.report.maf(platypus.gl)
 
 }
 \seealso{
-\code{\link{gl.filter.maf}}, \code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
+\code{\link{gl.filter.maf}}
 
 Other matched report: 
 \code{\link{gl.report.callrate}()},

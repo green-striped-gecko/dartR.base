@@ -110,8 +110,6 @@
 #' }
 #' @examples
 #' out <- gl.report.pa(platypus.gl)
-#' @seealso \code{\link{gl.list.reports}},
-#'  \code{\link{gl.print.reports}}
 #' @family report functions
 #' @importFrom tidyr pivot_longer
 #' @export

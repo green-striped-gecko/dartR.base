@@ -43,7 +43,7 @@
 #' @export
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
-#'  \donttest{
+#' \donttest{
 #' D <- gl.dist.ind(testset.gl[1:20,], method='manhattan')
 #' D <- gl.dist.ind(testset.gs[1:20,], method='Jaccard',swap=TRUE)
 #' }

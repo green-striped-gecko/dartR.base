@@ -15,6 +15,9 @@
 #' @param colors_barplot Vector with two color names for the observed and
 #'   expected number of significant HWE tests [default gl.colors("2c")].
 #' @param plot_theme User specified theme [default theme_dartR()].
+#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension)
+#' [default NULL]
 #' @details This function initially runs \code{\link{gl.report.hwe}} and reports
 #' the ternary plots. The remaining outputs follow the recommendations from
 #'  Waples
@@ -112,12 +115,18 @@ gl.diagnostics.hwe <- function(x,
                                stdErr = TRUE,
                                colors_hist = gl.colors(2),
                                colors_barplot = gl.colors("2c"),
+                               
                                plot_theme = theme_dartR(),
-                               save2tmp = FALSE,
                                n.cores = "auto",
+                               plot.file=NULL,
+                               plot.dir=NULL,                               
                                verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
+  
+  # SET WORKING DIRECTORY
+  plot.dir <- gl.check.wd(plot.dir,verbose=0)
+  
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
@@ -292,35 +301,19 @@ gl.diagnostics.hwe <- function(x,
   
   print(hwe_summary, row.names = FALSE)
   
-  # SAVE INTERMEDIATES TO TEMPDIR
+  # Optionally save the plot ---------------------
   
-  # creating temp file names
-  if (save2tmp) {
-    temp_plot <- tempfile(pattern = "Plot_")
-    match_call <-
-      paste0(names(match.call()),
-             "_",
-             as.character(match.call()),
-             collapse = "_")
-    # saving to tempdir
-    saveRDS(list(match_call,p5), file = temp_plot)
-    
-    if (verbose >= 2) {
-      cat(report("  Saving the ggplot to session tempfile\n"))
-    }
-    
-    temp_table <- tempfile(pattern = "Table_")
-    saveRDS(list(match_call, hwe_summary), file = temp_table)
-    
-    if (verbose >= 2) {
-      cat(report("  Saving tabulation to session tempfile\n"))
-      cat(
-        report(
-          "  NOTE: Retrieve output files from tempdir using gl.list.reports() 
-          and gl.print.reports()\n"
-        )
-      )
-    }
+  if(!is.null(plot.file)){
+    tmp <- utils.plot.save(p5,
+                           dir=plot.dir,
+                           file=plot.file,
+                           verbose=verbose)
+  }
+  if(!is.null(plot.file)){
+    tmp <- utils.plot.save(hwe_summary,
+                           dir=plot.dir,
+                           file=paste0(plot.file,"_tab"),
+                           verbose=verbose)
   }
   
   # FLAG SCRIPT END

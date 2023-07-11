@@ -32,8 +32,8 @@
 #' value (if in range).
 
 #' Plots and table are saved to the temporal directory (tempdir) and can be
-#' accessed with the function \code{\link{gl.print.reports}} and listed with the
-#' function \code{\link{gl.list.reports}}. Note that they can be accessed only
+#' accessed with the function  and listed with the
+#' function . Note that they can be accessed only
 #' in the current R session because tempdir is cleared each time that the R
 #' session is closed.
 
