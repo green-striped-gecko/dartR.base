@@ -11,11 +11,12 @@ gl.report.pa(
   loc_names = FALSE,
   test.asym = FALSE,
   test.asym.boot = 100,
-  plot.out = TRUE,
+  plot.out = FALSE,
   font_plot = 14,
   map.interactive = FALSE,
-  palette_discrete = gl.colors("dis"),
-  save2tmp = FALSE,
+  palette_discrete = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -31,7 +32,16 @@ compare each population against the rest 'one2rest' [default 'pairwise'].}
 \item{loc_names}{Whether names of loci with private alleles and fixed 
 differences should reported. If TRUE, loci names are reported using a list}
 
-\item{test.asym}{bootstrap test for significant differences of private alleles. This test uses a bootstrap simulation by shuffling individuals between a pair of population and drawing with replacement. For each bootstrap the ratio of private alleles is compared to the actual ratio and recorded how often it is larger than the simulated one. If number of individuals are different between population bootstrap is done using the smaller number of samples in both populations.}
+\item{test.asym}{bootstrap test for significant differences of private alleles. 
+This test uses a bootstrap simulation by shuffling individuals between a pair
+of population and drawing with replacement. For each bootstrap the ratio of 
+private alleles is compared to the actual ratio and recorded how often it is 
+larger than the simulated one. If number of individuals are different between
+ population bootstrap is done using the smaller number of samples in both 
+ populations.}
+
+\item{test.asym.boot}{number of bootstraps [default 100]
+[default FALSE].}
 
 \item{plot.out}{Specify if Sankey plot is to be produced [default TRUE].}
 
@@ -43,17 +53,15 @@ alleles between populations is to be produced [default FALSE].}
 
 \item{palette_discrete}{A discrete palette for the color of populations or a
 list with as many colors as there are populations in the dataset
- [default gl.colors("dis")].}
+ [default gl.select.colors(x)].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
 begin and end; 2, progress log; 3, progress and results summary; 5, full
 report [default 2 or as specified using gl.set.verbosity].}
-
-\item{test.aysm.boot}{number of bootstraps [default 100]
-[default FALSE].}
 }
 \value{
 A data.frame. Each row shows, for each pair of populations the number
