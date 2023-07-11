@@ -14,6 +14,7 @@
 #' @import utils
 #' @import patchwork
 #' @import stringr
+#' @importFrom crayon red yellow blue green cyan
 
 
 zzz <- NULL  #to create a useful named help page

@@ -55,8 +55,7 @@
 #' @examples
 #' gl <- gl.report.maf(platypus.gl)
 #' 
-#' @seealso \code{\link{gl.filter.maf}}, \code{\link{gl.list.reports}},
-#'  \code{\link{gl.print.reports}}
+#' @seealso \code{\link{gl.filter.maf}}
 
 #' @export
 #' @return An unaltered genlight object
