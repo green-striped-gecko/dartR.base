@@ -79,6 +79,7 @@ gl2fasta(test)
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},

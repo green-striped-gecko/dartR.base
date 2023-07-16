@@ -91,6 +91,7 @@ Danecek, P., Auton, A., Abecasis, G., Albers, C. A., Banks, E., DePristo, M.
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},

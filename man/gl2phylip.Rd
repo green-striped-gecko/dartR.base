@@ -46,6 +46,7 @@ result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
