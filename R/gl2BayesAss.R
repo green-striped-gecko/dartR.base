@@ -8,6 +8,7 @@
 #' This function only caters for \code{ploidy=2}.
 #' 
 #' @param x Name of the genlight object containing the SNP data [required].
+#' @param ploidy Set the ploidy [defaults 2].
 #' @param outfile File name of the output file [default 'gl.BayesAss.txt'].
 #' @param outpath Path where to save the output file [default global working 
 #' directory or if not specified, tempdir()].
@@ -52,6 +53,9 @@ gl2bayesAss <-  function(x,
   if(ploidy != 2) stop("This function only caters for ploidy=2")
   
   # DO THE JOB
+  # Set NULL to variables to pass CRAN checks
+  Locus<-Pop<-i.V2<-i.V3<-locus<-NULL
+  
   m <- as.matrix(x)
   dtref<- data.table(c(0,1,2,NA), c(1,1,2,0), c(1,2,2,0))
   mdt <- data.table(m, keep.rownames = T)
