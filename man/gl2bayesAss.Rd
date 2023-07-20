@@ -15,6 +15,8 @@ gl2bayesAss(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
+\item{ploidy}{Set the ploidy [defaults 2].}
+
 \item{outfile}{File name of the output file [default 'gl.BayesAss.txt'].}
 
 \item{outpath}{Path where to save the output file [default global working 
@@ -33,7 +35,7 @@ file.
 This function only caters for \code{ploidy=2}.
 }
 \examples{
-\donttest{
+\dontrun{
 require("dartR.data")
 gl2bayesAss(platypus.gl)
 }

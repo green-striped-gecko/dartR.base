@@ -20,7 +20,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr})
 #'  
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require("dartR.data")
 #' gl2bayesAss(platypus.gl)
 #' }
