@@ -25,7 +25,12 @@
 #' gl2bayesAss(platypus.gl)
 #' }
 #' @references
+#' Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs: 
+#' Contemporary migration reconfigured in BayesAss for next-generation sequence data. 
+#' Methods in Ecology and Evolution 10, 1808-1813.
 #' 
+#' Wilson G. A. and Rannala B. (2003) Bayesian Inference of Recent Migration Rates 
+#' Using Multilocus Genotypes. Genetics 163, 1177-1191.
 #' 
 #' @export
 #' @return  returns the input file as data.table
