@@ -10,8 +10,7 @@ gl.report.maf(
   ind.limit = 5,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
-    verbose = 0),
+  plot.colors = NULL,
   plot.dir = NULL,
   plot.file = NULL,
   bins = 25,
@@ -31,7 +30,7 @@ ind.limit [default 5].}
 \item{plot.theme}{User specified theme [default theme_dartR()].}
 
 \item{plot.colors}{Vector with color names for the borders and fill
-[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+[default c("#2171B5", "#6BAED6")].}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
 by the global working directory or tempdir()]}
@@ -75,19 +74,15 @@ Examples of other themes that can be used can be consulted in \itemize{
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
 }
-\examples{
-gl <- gl.report.maf(platypus.gl)
-
-}
 \seealso{
-\code{\link{gl.filter.maf}}, \code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
+\code{\link{gl.filter.maf}}
 
 Other matched report: 
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},

@@ -4,12 +4,12 @@
 \alias{gl.plot.heatmap}
 \title{Represents a distance matrix as a heatmap}
 \usage{
-gl.plot.heatmap(D, palette_divergent = gl.colors("div"), verbose = NULL, ...)
+gl.plot.heatmap(D, palette.divergent = gl.colors("div"), verbose = NULL, ...)
 }
 \arguments{
 \item{D}{Name of the distance matrix or class fd object [required].}
 
-\item{palette_divergent}{A divergent palette for the distance values
+\item{palette.divergent}{A divergent palette for the distance values
 [default gl.colors("div")].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -41,8 +41,19 @@ dissimilarity matrix. This function is a wrapper for
    D2 <- gl.dist.pop(possums.gl)
    gl.plot.heatmap(D2)
    }
+   
+}
+\seealso{
+Other graphics: 
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{graphics}

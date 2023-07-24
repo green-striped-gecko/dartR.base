@@ -105,6 +105,7 @@ regarded as fixed when comparing two populations at a locus.
 fd <- gl.fixed.diff(testset.gl, tloc=0, verbose=3 )
 fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose=3 )
 }
+
 }
 \seealso{
 \code{\link{utils.is.fixed}}
@@ -113,3 +114,4 @@ fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose
 Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{fixed difference analysis}

@@ -101,6 +101,10 @@ Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017). Information Theory
 Broadens the Spectrum of Molecular Ecology and Evolution. TREE 32(12)
  948-963. doi:10.1016/j.tree.2017.09.12
 }
+\seealso{
+Other unmatched report: 
+\code{\link{gl.allele.freq}()}
+}
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr}),
  Contributors: William B. Sherwin, Alexander Sentinella

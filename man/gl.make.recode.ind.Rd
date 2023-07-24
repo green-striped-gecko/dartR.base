@@ -8,7 +8,7 @@
 gl.make.recode.ind(
   x,
   out.recode.file = "default_recode_ind.csv",
-  outpath = tempdir(),
+  outpath = NULL,
   verbose = NULL
 )
 }
@@ -18,8 +18,8 @@ gl.make.recode.ind(
 \item{out.recode.file}{File name of the output file (including extension)
 [default default_recode_ind.csv].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN].}
+\item{outpath}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
 progress log; 3, progress and results summary; 5, full report 
@@ -57,6 +57,7 @@ Other data manipulation:
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
@@ -65,7 +66,9 @@ Other data manipulation:
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
-\code{\link{gl.rename.pop}()}
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sort}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

@@ -192,14 +192,8 @@ Tests of Hardy-Weinberg Equilibrium. American Journal of Human Genetics
 }
 \seealso{
 \code{\link{gl.filter.hwe}}
-
-Other report functions: 
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.ld.map}()},
-\code{\link{gl.report.pa}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}

@@ -14,7 +14,8 @@
 #' @param pop.recode Path to recode file [default NULL].
 #' @param out.recode.file Name of the file to output the new individual labels
 #' [default NULL].
-#' @param outpath Path where to save the output file [default tempdir(), mandated by CRAN].
+#' @param outpath Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()] 
 #' @param recalc If TRUE, recalculate the locus metadata statistics
 #' [default TRUE].
 #' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
@@ -76,7 +77,7 @@
 gl.edit.recode.pop <-  function(x,
                                 pop.recode = NULL,
                                 out.recode.file = NULL,
-                                outpath = tempdir(),
+                                outpath = NULL,
                                 recalc = FALSE,
                                 mono.rm = FALSE,
                                 verbose = NULL) {
@@ -84,11 +85,14 @@ gl.edit.recode.pop <-  function(x,
       # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

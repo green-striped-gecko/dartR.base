@@ -22,7 +22,7 @@ gl.set.verbosity <- function(value = 2) {
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = value)
+                     verbose = value)
     
     # SET GLOBAL VERBOSITY
     if (!is.null(value) &

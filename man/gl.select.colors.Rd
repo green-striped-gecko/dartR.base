@@ -94,7 +94,12 @@ colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,sel
 \code{\link{gl.select.shapes}}
 
 Other graphics: 
-\code{\link{gl.select.shapes}()}
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

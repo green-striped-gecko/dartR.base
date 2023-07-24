@@ -23,7 +23,7 @@
 #' @param plot.theme Theme for the plot. See Details for options [default
 #'   theme_dartR()].
 #' @param plot.colors Vector with two color names for the borders and fill
-#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
@@ -115,7 +115,7 @@ gl.report.secondaries <- function(x,
                                   taglength = 69,
                                   plot.display = TRUE,
                                   plot.theme = theme_dartR(),
-                                  plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                                  plot.colors = NULL,
                                   plot.dir=NULL,
                                   plot.file=NULL,
                                   verbose = NULL) {
@@ -125,11 +125,16 @@ gl.report.secondaries <- function(x,
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir,verbose=0)
   
+  # SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+    }
+  
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "v.2023.2",
-                   verbosity = verbose)
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)

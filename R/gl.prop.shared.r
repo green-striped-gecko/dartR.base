@@ -1,20 +1,25 @@
-#' Calculates a similarity (distance) matrix for individuals on the proportion of
+#' @name gl.prop.shared
+#' @title Calculates a similarity (distance) matrix for individuals on the proportion of
 #'  shared alleles
+#'  @family distance
 
-#' This script calculates an individual based distance matrix. It uses an C++
+#' @description This script calculates an individual based distance matrix. It uses an C++
 #'  implementation, so package Rcpp needs to be installed and it is therefore
 #'   really fast (once it has compiled the function after the first run).
 
 #' @param x Name of the genlight containing the SNP genotypes [required].
-#' @export
+#' 
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-#' @return A similarity matrix 
+#' 
 #' @examples
 #' #takes some time at the first run of the function...
 #' \dontrun{
 #' res <- gl.propShared(bandicoot.gl)
 #' res[1:5,1:7] #show only a small part of the matrix
 #' }
+#' 
+#' @export
+#' @return A similarity matrix 
 
 gl.propShared <- function(x) {
   # CHECK IF PACKAGES ARE INSTALLED

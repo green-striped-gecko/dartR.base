@@ -34,8 +34,17 @@ gl3 <- gl.filter.callrate(gl2, method='ind', threshold=0.95)
 #history=gl3@other$history[c(2,3)], verbose=1)
 #gl.print.history(bc.fil)
 }
+
+}
+\seealso{
+Other environment: 
+\code{\link{gl.check.verbosity}()},
+\code{\link{gl.check.wd}()},
+\code{\link{gl.set.wd}()},
+\code{\link{theme_dartR}()}
 }
 \author{
 Bernd Gruber (bugs? Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{environment}

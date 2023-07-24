@@ -11,8 +11,7 @@ gl.filter.reproducibility(
   threshold = 0.99,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
-    verbose = 0),
+  plot.colors = NULL,
   plot.file = NULL,
   plot.dir = NULL,
   verbose = NULL
@@ -31,7 +30,7 @@ gl.filter.reproducibility(
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+plots [default c("#2171B5", "#6BAED6")].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 

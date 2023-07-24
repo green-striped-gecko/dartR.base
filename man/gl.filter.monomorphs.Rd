@@ -36,9 +36,11 @@ not be reliably scored)
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

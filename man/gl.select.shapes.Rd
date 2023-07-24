@@ -50,7 +50,12 @@ shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
 \code{\link{gl.select.colors}}
 
 Other graphics: 
-\code{\link{gl.select.colors}()}
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

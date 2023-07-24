@@ -48,6 +48,7 @@ Other data manipulation:
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
@@ -56,7 +57,9 @@ Other data manipulation:
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
-\code{\link{gl.rename.pop}()}
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sort}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

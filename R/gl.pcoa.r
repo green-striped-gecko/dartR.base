@@ -109,12 +109,6 @@
 #'\item  $loadings - Loadings of each SNP for each principal component
 #'    }
 
-#' Plots and table were saved to the temporal directory (tempdir) and can be
-#' accessed with the function \code{\link{gl.print.reports}} and listed with
-#' the function \code{\link{gl.list.reports}}. Note that they can be accessed
-#' only in the current R session because tempdir is cleared each time that the R
-#' session is closed.
-
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -198,7 +192,7 @@ gl.pcoa <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Josh",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <-
