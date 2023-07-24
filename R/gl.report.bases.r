@@ -208,7 +208,7 @@ gl.report.bases <- function(x,
         cat(paste("  tv/ts ratio:", round(ratio, 4), "\n\n"))
     }
     
-# PLOT THE RESULTS ----------------- 
+    # Plot the results ----------------- 
       if (datatype == "SNP") {
         title <- paste0("SNP: Base Frequencies")
       } else {
