@@ -255,8 +255,6 @@ gl.report.bases <- function(x,
                             verbose=verbose)
     }
     
-# FINISH UP -------------------
-      
     # # Create return list
     # if (verbose >= 2) {
     #     cat(report("  Returning the table of base frequencies and transition/transversion ratios\n\n"))
@@ -272,7 +270,7 @@ gl.report.bases <- function(x,
     # names(out) <- c("A", "G", "T", "C", "tv", "ts")
     # 
     
-    # FLAG SCRIPT END 
+# FLAG SCRIPT END ---------------
     
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
