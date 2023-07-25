@@ -9,7 +9,7 @@
 gl.make.recode.pop(
   x,
   out.recode.file = "recode_pop_table.csv",
-  outpath = tempdir(),
+  outpath = NULL,
   verbose = NULL
 )
 }
@@ -19,8 +19,8 @@ gl.make.recode.pop(
 \item{out.recode.file}{File name of the output file (including extension)
 [default recode_pop_table.csv].}
 
-\item{outpath}{Path where to save the output file
-[default tempdir(), mandated by CRAN].}
+\item{outpath}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report

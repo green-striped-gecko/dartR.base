@@ -3,6 +3,7 @@
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @return A simple data.frame with alf1, alf2.
 #' @export
+#' @rawNamespace import(adegenet, except = plot)
 #' @author Bernd Gruber (bugs? Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
 #' @examples
@@ -11,6 +12,7 @@
 #' barplot(t(as.matrix(gl.alf(possums.gl[,1:10]))))
 
 gl.alf <- function(x) {
+  cat(warn("Deprecated: Please use gl.allele.freq\n"))
   alf <- colMeans(as.matrix(x), na.rm = T) / 2
   out <- data.frame(alf1 = 1 - alf, alf2 = alf)
   return(out)

@@ -73,7 +73,7 @@ gl.dist.pop <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Josh",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <-
@@ -117,7 +117,7 @@ gl.dist.pop <- function(x,
         }
     
     # Calculate allele frequencies for each population and locus
-    f <- gl.percent.freq(x, verbose = 0)
+    f <- gl.allele.freq(x, percent=TRUE, by='loc', verbose = 0)
     # Select only pop, locus, frequency columns
     f <- f[, c(1, 2, 6)]
     # Convert to a pop x locus matrix

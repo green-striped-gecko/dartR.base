@@ -44,7 +44,7 @@ gl2bayescan <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -60,7 +60,7 @@ gl2bayescan <- function(x,
     }
     
     # Prepare the data
-    mat <- gl.percent.freq(x, verbose = verbose)
+    mat <- gl.allele.freq(x, percent=TRUE, by='loc', verbose = verbose)
     mat <- mat[order(mat$popn),]
     
     # convert to character so it can be used in the for loop

@@ -1,23 +1,27 @@
-#' @title utils.flag.start
-
+#' @name utils.flag.start
 #' @title A utility script to flag the start of a script
+#' @family utilities
 
 #' @param func Name of the function that is starting [required].
 #' @param build Name of the build [default NULL].
-#' @param verbosity Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity]
 #'  
-#' @return calling function name
 
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
-#'@export
+#'  
+#' @export
+#' @return calling function name
+ 
+# Build Version v.2023.2
 
 utils.flag.start <- function(func = NULL,
                              build = NULL,
-                             verbosity = NULL) {
+                             verbose = NULL) {
     # SET VERBOSITY
-    verbose <- gl.check.verbosity(verbosity)
+    verbose <- gl.check.verbosity(verbose)
     
     if (is.null(func)) {
         stop(error("Fatal Error: The calling function must be specified.\n"))

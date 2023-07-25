@@ -1,5 +1,8 @@
-#' Performs AMOVA using genlight data
+#' @name gl.amova
+#' @title Performs AMOVA using genlight data
+#' @family basic statistics
 
+#' @description 
 #' This script performs an AMOVA based on the genetic distance matrix from
 #' stamppNeisD() [package StAMPP] using the amova() function from the package
 #' PEGAS for exploring within and between population variation. For detailed
@@ -16,15 +19,18 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return An object of class 'amova' which is a list with a table of sums of
-#' square deviations (SSD), mean square deviations (MSD), and the number of
-#' degrees of freedom, and a vector of variance components.
-#' @export
+#' 
 #' @author Bernd Gruber (bugs? Post to 
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' #permutations should be higher, here set to 1 because of speed
 #' out <- gl.amova(bandicoot.gl, permutations=1)
+#' 
+#' @export
+#' @return An object of class 'amova' which is a list with a table of sums of
+#' square deviations (SSD), mean square deviations (MSD), and the number of
+#' degrees of freedom, and a vector of variance components.
 
 
 gl.amova <- function(x,
@@ -37,8 +43,8 @@ gl.amova <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

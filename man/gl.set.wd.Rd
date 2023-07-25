@@ -29,7 +29,9 @@ wd <- gl.set.wd(wd=getwd())
 \seealso{
 Other environment: 
 \code{\link{gl.check.verbosity}()},
-\code{\link{gl.check.wd}()}
+\code{\link{gl.check.wd}()},
+\code{\link{gl.print.history}()},
+\code{\link{theme_dartR}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to

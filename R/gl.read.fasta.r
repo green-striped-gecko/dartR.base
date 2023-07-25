@@ -49,15 +49,15 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-#' @examples
-#'  # Folder where the fasta files are located. 
-#'  folder_samples <- system.file('extdata', package ='dartR.data')
-#'  # listing the FASTA files, including their path. Files have an extension
-#'  # that contains "fas".
-#'  file_names <- list.files(path = folder_samples, pattern = "*.fas", 
-#'                           full.names = TRUE)
-#'  # reading fasta files
-#'   obj <- gl.read.fasta(file_names)
+# @examples
+#  # Folder where the fasta files are located. 
+#  folder_samples <- system.file('extdata', package ='dartR.data')
+#  # listing the FASTA files, including their path. Files have an extension
+#  # that contains "fas".
+#  file_names <- list.files(path = folder_samples, pattern = "*.fas", 
+#                           full.names = TRUE)
+#  # reading fasta files
+#   obj <- gl.read.fasta(file_names)
 #'   
 #' @export
 #' @return A genlight object.
@@ -73,7 +73,7 @@ gl.read.fasta <- function(fasta.files,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "v.2023.2",
-                   verbosity = verbose)
+                   verbose = verbose)
   
   # DO THE JOB
   

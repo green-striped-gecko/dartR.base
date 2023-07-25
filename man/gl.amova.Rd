@@ -2,13 +2,7 @@
 % Please edit documentation in R/gl.amova.r
 \name{gl.amova}
 \alias{gl.amova}
-\title{Performs AMOVA using genlight data
-This script performs an AMOVA based on the genetic distance matrix from
-stamppNeisD() [package StAMPP] using the amova() function from the package
-PEGAS for exploring within and between population variation. For detailed
-information use their help pages: ?pegas::amova, ?StAMPP::stamppAmova. Be
-aware due to a conflict of the amova functions from various packages I had
-to 'hack' StAMPP::stamppAmova to avoid a namespace conflict.}
+\title{Performs AMOVA using genlight data}
 \usage{
 gl.amova(x, distance = NULL, permutations = 100, verbose = NULL)
 }
@@ -32,7 +26,6 @@ square deviations (SSD), mean square deviations (MSD), and the number of
 degrees of freedom, and a vector of variance components.
 }
 \description{
-Performs AMOVA using genlight data
 This script performs an AMOVA based on the genetic distance matrix from
 stamppNeisD() [package StAMPP] using the amova() function from the package
 PEGAS for exploring within and between population variation. For detailed
@@ -43,8 +36,14 @@ to 'hack' StAMPP::stamppAmova to avoid a namespace conflict.
 \examples{
 #permutations should be higher, here set to 1 because of speed
 out <- gl.amova(bandicoot.gl, permutations=1)
+
+}
+\seealso{
+Other basic statistics: 
+\code{\link{gl.basic.stats}()}
 }
 \author{
 Bernd Gruber (bugs? Post to 
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{basic statistics}

@@ -16,7 +16,8 @@ utils.reset.flags(x, set = FALSE, value = 2, verbose = NULL)
 not specified [default 2].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default NULL].}
+progress log; 3, progress and results summary; 5, full report
+[default 2 or as specified using gl.set.verbosity]}
 }
 \value{
 The modified genlight object
@@ -55,6 +56,7 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},

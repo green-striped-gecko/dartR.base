@@ -8,11 +8,11 @@ gl.report.pa(
   x,
   x2 = NULL,
   method = "pairwise",
-  loc_names = FALSE,
-  plot.out = TRUE,
-  font_plot = 14,
+  loc.names = FALSE,
+  plot.display = TRUE,
+  plot.font = 14,
   map.interactive = FALSE,
-  palette_discrete = gl.colors("dis"),
+  palette.discrete = gl.colors("dis"),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -26,19 +26,19 @@ provided here, but they must have the same number of SNPs [default NULL].}
 \item{method}{Method to calculate private alleles: 'pairwise' comparison or
 compare each population against the rest 'one2rest' [default 'pairwise'].}
 
-\item{loc_names}{Whether names of loci with private alleles and fixed 
+\item{loc.names}{Whether names of loci with private alleles and fixed 
 differences should reported. If TRUE, loci names are reported using a list
  [default FALSE].}
 
-\item{plot.out}{Specify if Sankey plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if Sankey plot is to be produced [default TRUE].}
 
-\item{font_plot}{Numeric font size in pixels for the node text labels
+\item{plot.font}{Numeric font size in pixels for the node text labels
 [default 14].}
 
 \item{map.interactive}{Specify whether an interactive map showing private
 alleles between populations is to be produced [default FALSE].}
 
-\item{palette_discrete}{A discrete palette for the color of populations or a
+\item{palette.discrete}{A discrete palette for the color of populations or a
 list with as many colors as there are populations in the dataset
  [default gl.colors("dis")].}
 
@@ -54,7 +54,7 @@ A data.frame. Each row shows, for each pair of populations the number
  of individuals in each population, the number of loci with fixed differences
  (same for both populations) in pop1 (compared to pop2) and vice versa. Same
  for private alleles and finally the absolute mean allele frequency
- difference between loci (AFD). If loc_names = TRUE, loci names with private
+ difference between loci (AFD). If loc.names = TRUE, loci names with private
   alleles and fixed differences are reported in a list in addition to the 
   dataframe.
 }
@@ -112,6 +112,7 @@ session's temporary directory.
 }
 \examples{
 out <- gl.report.pa(platypus.gl)
+
 }
 \references{
 \itemize{
@@ -124,16 +125,19 @@ alternative to FST for quantifying genetic population differentiation. Genes,
 }
 }
 \seealso{
-\code{\link{gl.list.reports}},
- \code{\link{gl.print.reports}}
-
-Other report functions: 
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()}
+Other matched report: 
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
 Custodian: Bernd Gruber -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

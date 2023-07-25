@@ -28,7 +28,9 @@ gl.check.wd()
 \seealso{
 Other environment: 
 \code{\link{gl.check.verbosity}()},
-\code{\link{gl.set.wd}()}
+\code{\link{gl.print.history}()},
+\code{\link{gl.set.wd}()},
+\code{\link{theme_dartR}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to
