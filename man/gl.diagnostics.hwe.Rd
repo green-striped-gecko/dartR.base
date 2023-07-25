@@ -11,11 +11,12 @@ gl.diagnostics.hwe(
   alpha_val = 0.05,
   bins = 20,
   stdErr = TRUE,
-  colors.hist = gl.colors(2),
-  colors.barplot = gl.colors("2c"),
-  plot.theme = theme_dartR(),
-  save2tmp = FALSE,
+  colors_hist = gl.colors(2),
+  colors_barplot = gl.colors("2c"),
+  plot_theme = theme_dartR(),
   n.cores = "auto",
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -29,23 +30,25 @@ gl.diagnostics.hwe(
 \item{stdErr}{Whether standard errors for Fis and Fst should be computed 
 (default: TRUE)}
 
+\item{plot_theme}{User specified theme [default theme_dartR()].}
+
+\item{n.cores}{The number of cores to use. If "auto", it will 
+use all but one available cores [default "auto"].}
+
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension)
+[default NULL]}
+
+\item{plot.dir}{Directory in which to save files [default = working directory]}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log ; 3, progress and results summary; 5, full report
+[default NULL, unless specified using gl.set.verbosity].}
+
 \item{colors.hist}{List of two color names for the borders and fill of the
 histogram [default gl.colors(2)].}
 
 \item{colors.barplot}{Vector with two color names for the observed and
 expected number of significant HWE tests [default gl.colors("2c")].}
-
-\item{plot.theme}{User specified theme [default theme_dartR()].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
-
-\item{n.cores}{The number of cores to use. If "auto", it will 
-use all but one available cores [default "auto"].}
-
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
 A list with the table with the summary of the HWE tests and (if 

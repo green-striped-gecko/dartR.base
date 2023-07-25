@@ -26,7 +26,7 @@
 
 #' @seealso \code{\link{gl.fixed.diff}}
 #'  
-# @export
+#' @export
 #' @return TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both s1 or s2 missing)
 
 # Examples for testing

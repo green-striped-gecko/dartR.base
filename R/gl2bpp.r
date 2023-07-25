@@ -58,7 +58,7 @@
 #' test <- gl.filter.callrate(test,threshold = 1)
 #' test <- gl.filter.monomorphs(test)
 #' test <- gl.subsample.loci(test,n=25)
-#' gl2bpp(x = test)
+#' gl2bpp(x = test, outpath=tempdir())
 #' 
 #' @references
 #' \itemize{

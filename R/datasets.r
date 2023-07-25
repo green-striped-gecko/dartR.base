@@ -49,36 +49,3 @@
 #' @keywords datasets
 "testset.gs"
 
-#' Testfile in DArT format (as provided by DArT)
-
-#' This test data set is provided to show a typical DArT file format. Can be 
-#' used to create a genlight object using the read.dart function.
-#' @name testset_SNPs_2Row
-#' @format csv
-#' @docType data
-#' @author Custodian: Arthur Georges (bugs? Post to
-#'  \url{https://groups.google.com/d/forum/dartr}
-#' @keywords datasets
-NULL
-
-#' Recode file to be used with the function.
-
-#' This test data set is provided to show a typical recode file format.
-#' @name testset_pop_recode
-#' @format csv
-#' @docType data
-#' @author Custodian: Arthur Georges (bugs? Post to 
-#' \url{https://groups.google.com/d/forum/dartr}
-#' @keywords datasets
-NULL
-
-#' Metadata file. Can be integrated via the dart2genlight function.
-
-#' @name testset_metadata
-#' @format csv
-#' @docType data
-#' @author Custodian: Arthur Georges (bugs? Post to 
-#' \url{https://groups.google.com/d/forum/dartr}
-#' @keywords datasets
-NULL
-

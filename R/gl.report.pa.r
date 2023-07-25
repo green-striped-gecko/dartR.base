@@ -15,17 +15,25 @@
 #' compare each population against the rest 'one2rest' [default 'pairwise'].
 #' @param loc.names Whether names of loci with private alleles and fixed 
 #' differences should reported. If TRUE, loci names are reported using a list
+#' @param test.asym bootstrap test for significant differences of private alleles. 
+#' This test uses a bootstrap simulation by shuffling individuals between a pair
+#' of population and drawing with replacement. For each bootstrap the ratio of 
+#' private alleles is compared to the actual ratio and recorded how often it is 
+#' larger than the simulated one. If number of individuals are different between
+#'  population bootstrap is done using the smaller number of samples in both 
+#'  populations.
+#' @param test.asym.boot number of bootstraps [default 100]
 #'  [default FALSE].
-#' @param plot.display Specify if Sankey plot is to be produced [default TRUE].
+#' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
 #' @param plot.font Numeric font size in pixels for the node text labels
 #' [default 14].
 #' @param map.interactive Specify whether an interactive map showing private
 #' alleles between populations is to be produced [default FALSE].
 #' @param palette.discrete A discrete palette for the color of populations or a
 #' list with as many colors as there are populations in the dataset
-#'  [default gl.colors("dis")].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#'  [default gl.select.colors(x)].
+#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
 #' begin and end; 2, progress log; 3, progress and results summary; 5, full
 #' report [default 2 or as specified using gl.set.verbosity].
@@ -101,7 +109,9 @@
 #'  phylogenetic, and functional diversity based on Good-Turing theory." 
 #'  Ecology 98.11 (2017): 2914-2929.
 #' }
-#' 
+#' @examples
+#' out <- gl.report.pa(platypus.gl)
+#' @family report functions
 #' @importFrom tidyr pivot_longer
 #' @export
 #' @return A data.frame. Each row shows, for each pair of populations the number
@@ -116,14 +126,22 @@ gl.report.pa <- function(x,
                          x2 = NULL,
                          method = "pairwise",
                          loc.names = FALSE,
-                         plot.display = TRUE,
-                         plot.font = 14,
+                         test.asym = FALSE,
+                         test.asym.boot = 100,
+                         plot.display=FALSE,
+                         plot.out = FALSE,
+                         font_plot = 14,
                          map.interactive = FALSE,
-                         palette.discrete = gl.colors("dis"),
-                         save2tmp = FALSE,
+                         palette_discrete = NULL,
+                         plot.file=NULL,
+                         plot.dir=NULL,
                          verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
+
+  # SET WORKING DIRECTORY
+  plot.dir <- gl.check.wd(plot.dir,verbose=0)  
+  
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
@@ -213,7 +231,9 @@ gl.report.pa <- function(x,
         Chao1 = NA,
         Chao2= NA,
         totalpriv = NA,
-        AFD = NA
+        AFD = NA, 
+        asym =NA, 
+        asym.sig=NA
       )
     
     pall_loc.names <- rep(list(as.list(rep(NA, 3))), nrow(pc))
@@ -269,9 +289,38 @@ gl.report.pa <- function(x,
       pall[i, "totalpriv"] <- pall[i, 8] + pall[i, 9]
       pall[i, "AFD"] <- round(mean(abs(p1alf - p2alf), na.rm = TRUE), 3)
       
-      pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
-      pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
-      pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+      #pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
+      #pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
+      #pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+      #### bootstrap test to check for asymmetry of private alleles
+      if (test.asym)
+      {
+        asym <- NA
+        p1a <- NA
+        p2a <- NA
+        dd <- rbind(pops[[i1]], pops[[i2]])
+        
+        for (bb in 1:test.asym.boot)
+        {
+        ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:nrow(dd))]))
+        tt <- table(pop(dd))
+        p1 <- ab[1:tt[1],]
+        p2 <- ab[(tt[1]+1):(nrow(dd)),]
+        p1alf <- colMeans(p1, na.rm = T) / 2
+        p2alf <- colMeans(p2, na.rm = T) / 2
+        pa_12 <- sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1))
+        p1a[bb] <- pa_12
+        pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1))
+        p2a[bb] <- pa_21
+        if (pa_21!=pa_12) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
+        }
+        dasym <-  round(mean(asym),3)
+        pall[i,"asym"] <- dasym
+        estasym <- pall[i, "priv1"] / (pall[i, "priv1"]+pall[i, "priv2"])
+        if ((pall[i, "priv1"]==pall[i, "priv2"])) estasym <- 0.5
+        pall[i,"asym.sig"] <- sum(asym > estasym)/test.asym.boot
+      }
+      
       
     }
     
@@ -321,18 +370,8 @@ gl.report.pa <- function(x,
       nodes$name <- gsub("src_", "", nodes$name)
       nodes$name <- gsub("trgt_", "", nodes$name)
       
-      # assigning colors to populations
-      if (is(palette.discrete, "function")) {
-        colors_pops <- palette.discrete(length(levels(pop(x))))
-      }
-      
-      if (!is(palette.discrete, "function")) {
-        colors_pops <- palette.discrete
-        if (!any(grepl("#", colors_pops))) {
-          colors_pops <- gplots::col2hex(colors_pops)
-        }
-      }
-      
+      if (is.null(palette_discrete)) colors_pops <- gl.select.colors(x, verbose=0) else 
+        colors_pops <- palette_discrete
       colors_pops <- paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
       
       colorScal <- paste("d3.scaleOrdinal().range([", colors_pops, "])")
@@ -563,33 +602,17 @@ gl.report.pa <- function(x,
     cat(report("  Table of private alleles and fixed differences returned\n"))
   }
   
-  # SAVE INTERMEDIATES TO TEMPDIR creating temp file names
-  if (save2tmp) {
-    if (plot.display) {
-      temp_plot <- tempfile(pattern = "Plot_")
-      match_call <-
-        paste0(names(match.call()),
-               "_",
-               as.character(match.call()),
-               collapse = "_")
-      # saving to tempdir
-      saveRDS(list(match_call, p3), file = temp_plot)
-      if (verbose >= 2) {
-        cat(report("  Saving the ggplot to session tempfile\n"))
-      }
-    }
-    temp_table <- tempfile(pattern = "Table_")
-    saveRDS(list(match_call, df), file = temp_table)
-    if (verbose >= 2) {
-      cat(report("  Saving tabulation to session tempfile\n"))
-      cat(
-        report(
-          "  NOTE: Retrieve output files from tempdir using
-                    gl.list.reports() and gl.print.reports()\n"
-        )
-      )
-    }
+  # Optionally save the plot ---------------------
+  
+  if(!is.null(plot.file)){
+    tmp <- utils.plot.save(p3,
+                           dir=plot.dir,
+                           file=plot.file,
+                           verbose=verbose)
   }
+  
+  
+  
   
   # FLAG SCRIPT END
   
@@ -605,7 +628,7 @@ gl.report.pa <- function(x,
     
   }else{
     
-   return(invisible(df))
+   return(df)
     
   }
   

@@ -26,8 +26,9 @@
 #'  [default theme_dartR()].
 #' @param plot_colors List of two color names for the borders and fill of the
 #'  plot [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose verbose= 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -95,7 +96,11 @@
 
 #' The second graph shows the distribution of eigenvalues for the remaining
 #' uninformative (noise) axes, including those with negative eigenvalues.
-
+#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir(). 
 #' Action is recommended (verbose >= 2) if the negative eigenvalues are
 #' dominant, their sum approaching in magnitude the eigenvalues for axes
 #' selected for the final visual solution.
@@ -108,6 +113,7 @@
 #'\item  $scores - Scores (coefficients) for each individual
 #'\item  $loadings - Loadings of each SNP for each principal component
 #'    }
+
 
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -183,7 +189,8 @@ gl.pcoa <- function(x,
                     plot.out = TRUE,
                     plot_theme = theme_dartR(),
                     plot_colors = gl.colors(2),
-                    save2tmp = FALSE,
+                    plot.file=NULL,
+                    plot.dir=NULL,
                     verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -193,6 +200,9 @@ gl.pcoa <- function(x,
     utils.flag.start(func = funname,
                      build = "Josh",
                      verbose = verbose)
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # CHECK DATATYPE
     datatype <-
@@ -561,28 +571,16 @@ gl.pcoa <- function(x,
     if (verbose >= 1) {
         if(plot.out){print(p3)}
     }
+
+    # Optionally save the plot ---------------------
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp) {
-        # creating temp file names
-        temp_plot <- tempfile(pattern = "Plot_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, p3), file = temp_plot)
-        if (verbose >= 2) {
-            cat(report("  Saving ggplot(s) to the session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
-    
+
     # FLAG SCRIPT END
     
     if (verbose > 0) {

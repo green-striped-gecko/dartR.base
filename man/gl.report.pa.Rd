@@ -9,11 +9,15 @@ gl.report.pa(
   x2 = NULL,
   method = "pairwise",
   loc.names = FALSE,
-  plot.display = TRUE,
-  plot.font = 14,
+  test.asym = FALSE,
+  test.asym.boot = 100,
+  plot.display = FALSE,
+  plot.out = FALSE,
+  font_plot = 14,
   map.interactive = FALSE,
-  palette.discrete = gl.colors("dis"),
-  save2tmp = FALSE,
+  palette_discrete = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -27,27 +31,38 @@ provided here, but they must have the same number of SNPs [default NULL].}
 compare each population against the rest 'one2rest' [default 'pairwise'].}
 
 \item{loc.names}{Whether names of loci with private alleles and fixed 
-differences should reported. If TRUE, loci names are reported using a list
- [default FALSE].}
+differences should reported. If TRUE, loci names are reported using a list}
 
-\item{plot.display}{Specify if Sankey plot is to be produced [default TRUE].}
+\item{test.asym}{bootstrap test for significant differences of private alleles. 
+This test uses a bootstrap simulation by shuffling individuals between a pair
+of population and drawing with replacement. For each bootstrap the ratio of 
+private alleles is compared to the actual ratio and recorded how often it is 
+larger than the simulated one. If number of individuals are different between
+ population bootstrap is done using the smaller number of samples in both 
+ populations.}
 
-\item{plot.font}{Numeric font size in pixels for the node text labels
-[default 14].}
+\item{test.asym.boot}{number of bootstraps [default 100]
+[default FALSE].}
+
+\item{plot.display}{Specify if Sankey plot is to be produced [default FALSE].}
 
 \item{map.interactive}{Specify whether an interactive map showing private
 alleles between populations is to be produced [default FALSE].}
 
-\item{palette.discrete}{A discrete palette for the color of populations or a
-list with as many colors as there are populations in the dataset
- [default gl.colors("dis")].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.dir}{Directory in which to save files [default = working directory]}
 
 \item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
 begin and end; 2, progress log; 3, progress and results summary; 5, full
 report [default 2 or as specified using gl.set.verbosity].}
+
+\item{plot.font}{Numeric font size in pixels for the node text labels
+[default 14].}
+
+\item{palette.discrete}{A discrete palette for the color of populations or a
+list with as many colors as there are populations in the dataset
+ [default gl.select.colors(x)].}
 }
 \value{
 A data.frame. Each row shows, for each pair of populations the number
@@ -113,6 +128,7 @@ session's temporary directory.
 \examples{
 out <- gl.report.pa(platypus.gl)
 
+out <- gl.report.pa(platypus.gl)
 }
 \references{
 \itemize{
@@ -135,9 +151,13 @@ Other matched report:
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
+
+Other report functions: 
+\code{\link{gl.report.heterozygosity}()}
 }
 \author{
 Custodian: Bernd Gruber -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}
+\concept{report functions}

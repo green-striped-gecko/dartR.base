@@ -123,6 +123,9 @@ df <- gl.report.heterozygosity(platypus.gl)
 }
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
+
+Other report functions: 
+\code{\link{gl.report.pa}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to

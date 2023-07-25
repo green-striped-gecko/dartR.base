@@ -44,8 +44,7 @@
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-
-# If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
 #' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
 #' specified for the plot to be saved.
 
