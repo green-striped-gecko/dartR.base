@@ -1,5 +1,8 @@
-#' Filters loci that contain private (and fixed alleles) between two populations
+#' @name gl.filter.pa
+#' @title Filters loci that contain private (and fixed alleles) between two populations
+#' @family matched filter
 
+#' @description
 #' This script is meant to be used prior to \code{gl.nhybrids} to maximise the
 #' information content of the SNPs used to identify hybrids (currently
 #'  newhybrids does allow only 200 SNPs). The idea is to use first all loci that
@@ -17,16 +20,18 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return The reduced genlight dataset, containing now only fixed and private
-#' alleles.
-#' @export
-#' @family filter functions
+#' 
 #' @author Authors: Bernd Gruber & Ella Kelly (University of Melbourne);
 #' Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' result <- gl.filter.pa(testset.gl, pop1=pop(testset.gl)[1], 
 #' pop2=pop(testset.gl)[2],verbose=3)
+#' 
+#' @export
+#' @return The reduced genlight dataset, containing now only fixed and private
+#' alleles.
 
 gl.filter.pa <- function(x,
                          pop1,
@@ -39,8 +44,8 @@ gl.filter.pa <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

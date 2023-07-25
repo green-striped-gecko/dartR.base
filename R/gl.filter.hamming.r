@@ -22,7 +22,7 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#'  plots [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory in which to save files [default = working directory]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param pb If TRUE, a progress bar will be displayed [default FALSE]
@@ -67,7 +67,7 @@ gl.filter.hamming <- function(x,
                               tag.length = 69,
                               plot.display=TRUE,
                               plot.theme = theme_dartR(),
-                              plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                              plot.colors = NULL,
                               plot.file=NULL,
                               plot.dir=NULL,
                               pb = FALSE,
@@ -77,12 +77,17 @@ gl.filter.hamming <- function(x,
 
     # SET WORKING DIRECTORY    
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
+	
+	# SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

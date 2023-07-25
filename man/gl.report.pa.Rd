@@ -8,9 +8,10 @@ gl.report.pa(
   x,
   x2 = NULL,
   method = "pairwise",
-  loc_names = FALSE,
+  loc.names = FALSE,
   test.asym = FALSE,
   test.asym.boot = 100,
+  plot.display = FALSE,
   plot.out = FALSE,
   font_plot = 14,
   map.interactive = FALSE,
@@ -29,7 +30,7 @@ provided here, but they must have the same number of SNPs [default NULL].}
 \item{method}{Method to calculate private alleles: 'pairwise' comparison or
 compare each population against the rest 'one2rest' [default 'pairwise'].}
 
-\item{loc_names}{Whether names of loci with private alleles and fixed 
+\item{loc.names}{Whether names of loci with private alleles and fixed 
 differences should reported. If TRUE, loci names are reported using a list}
 
 \item{test.asym}{bootstrap test for significant differences of private alleles. 
@@ -43,17 +44,10 @@ larger than the simulated one. If number of individuals are different between
 \item{test.asym.boot}{number of bootstraps [default 100]
 [default FALSE].}
 
-\item{plot.out}{Specify if Sankey plot is to be produced [default TRUE].}
-
-\item{font_plot}{Numeric font size in pixels for the node text labels
-[default 14].}
+\item{plot.display}{Specify if Sankey plot is to be produced [default FALSE].}
 
 \item{map.interactive}{Specify whether an interactive map showing private
 alleles between populations is to be produced [default FALSE].}
-
-\item{palette_discrete}{A discrete palette for the color of populations or a
-list with as many colors as there are populations in the dataset
- [default gl.select.colors(x)].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
@@ -62,13 +56,20 @@ list with as many colors as there are populations in the dataset
 \item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
 begin and end; 2, progress log; 3, progress and results summary; 5, full
 report [default 2 or as specified using gl.set.verbosity].}
+
+\item{plot.font}{Numeric font size in pixels for the node text labels
+[default 14].}
+
+\item{palette.discrete}{A discrete palette for the color of populations or a
+list with as many colors as there are populations in the dataset
+ [default gl.select.colors(x)].}
 }
 \value{
 A data.frame. Each row shows, for each pair of populations the number
  of individuals in each population, the number of loci with fixed differences
  (same for both populations) in pop1 (compared to pop2) and vice versa. Same
  for private alleles and finally the absolute mean allele frequency
- difference between loci (AFD). If loc_names = TRUE, loci names with private
+ difference between loci (AFD). If loc.names = TRUE, loci names with private
   alleles and fixed differences are reported in a list in addition to the 
   dataframe.
 }
@@ -126,6 +127,8 @@ session's temporary directory.
 }
 \examples{
 out <- gl.report.pa(platypus.gl)
+
+out <- gl.report.pa(platypus.gl)
 }
 \references{
 \itemize{
@@ -138,13 +141,23 @@ alternative to FST for quantifying genetic population differentiation. Genes,
 }
 }
 \seealso{
+Other matched report: 
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
+
 Other report functions: 
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()}
+\code{\link{gl.report.heterozygosity}()}
 }
 \author{
 Custodian: Bernd Gruber -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{matched report}
 \concept{report functions}

@@ -14,7 +14,7 @@
 #' @param plot.display Specify if plot is to be displayed in the graphics window [default TRUE].
 #' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.colors Vector with color names for the borders and fill
-#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
@@ -52,8 +52,8 @@
 #' @author Custodian: Arthur Georges (Post to 
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
-#' @examples
-#' gl <- gl.report.maf(platypus.gl)
+# @examples
+# gl <- gl.report.maf(platypus.gl)
 #' 
 #' @seealso \code{\link{gl.filter.maf}}
 
@@ -65,7 +65,7 @@ gl.report.maf <- function(x,
                           ind.limit = 5,
                           plot.display=TRUE,
                           plot.theme = theme_dartR(),
-                          plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                          plot.colors = NULL,
                           plot.dir=NULL,
                           plot.file = NULL,
                           bins = 25,
@@ -75,6 +75,11 @@ gl.report.maf <- function(x,
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
+	
+	# SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+    }
     
     if(verbose==0){
       plot.display <- FALSE
@@ -84,7 +89,7 @@ gl.report.maf <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

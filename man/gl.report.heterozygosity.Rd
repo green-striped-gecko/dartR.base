@@ -9,10 +9,10 @@ gl.report.heterozygosity(
   x,
   method = "pop",
   n.invariant = 0,
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors_pop = gl.colors("dis"),
-  plot_colors_ind = gl.colors(2),
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors.pop = gl.colors("dis"),
+  plot.colors.ind = gl.colors(2),
   save2tmp = FALSE,
   verbose = NULL
 )
@@ -26,16 +26,16 @@ individual (method='ind') [default 'pop'].}
 \item{n.invariant}{An estimate of the number of invariant sequence tags used
 to adjust the heterozygosity rate [default 0].}
 
-\item{plot.out}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors_pop}{A color palette for population plots or a list with
+\item{plot.colors.pop}{A color palette for population plots or a list with
 as many colors as there are populations in the dataset
 [default gl.colors("dis")].}
 
-\item{plot_colors_ind}{List of two color names for the borders and fill of
+\item{plot.colors.ind}{List of two color names for the borders and fill of
 the plot by individual [default gl.colors(2)].}
 
 \item{save2tmp}{If TRUE, saves any ggplots and listings to the session
@@ -125,8 +125,6 @@ df <- gl.report.heterozygosity(platypus.gl)
 \code{\link{gl.filter.heterozygosity}}
 
 Other report functions: 
-\code{\link{gl.report.hwe}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.pa}()}
 }
 \author{

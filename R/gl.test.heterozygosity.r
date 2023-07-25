@@ -31,11 +31,12 @@
 #' critical limits alpha1 and alpha2, the observed heterozygosity, and the zero
 #' value (if in range).
 
-#' Plots and table are saved to the temporal directory (tempdir) and can be
-#' accessed with the function  and listed with the
-#' function . Note that they can be accessed only
-#' in the current R session because tempdir is cleared each time that the R
-#' session is closed.
+#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
+
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir(). 
 
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -58,8 +59,9 @@ gl.test.heterozygosity <- function(x,
                                    plot.out = TRUE,
                                    max_plots = 6,
                                    plot_theme = theme_dartR(),
-                                   plot_colors = gl.colors(2),
-                                   save2tmp = FALSE,
+                                   plot_colors = gl.select.colors(ncolors=2, verbose=0),
+                                   plot.file=NULL,
+                                   plot.dir=NULL,
                                    verbose = NULL) {
     # TRAP COMMAND
     
@@ -68,6 +70,9 @@ gl.test.heterozygosity <- function(x,
     # SET VERBOSITY
     
     verbose <- gl.check.verbosity(verbose)
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # CHECKS DATATYPE
     
@@ -376,40 +381,31 @@ gl.test.heterozygosity <- function(x,
             
             suppressWarnings(print(p_final))
             # SAVE INTERMEDIATES TO TEMPDIR
-            if (save2tmp) {
-                # creating temp file names
-                temp_plot <-
-                    tempfile(pattern = paste0("Plot_", seq_1[i], "_to_", seq_2[i]))
-                # saving to tempdir
-                suppressWarnings(saveRDS(list(match_call, p_final), file = temp_plot))
+            temp_plot <- paste0(plot.file,"_", seq_1[i], "_to_", seq_2[i])
+            if(!is.null(plot.file)){
+              tmp <- utils.plot.save(df,
+                                     dir=plot.dir,
+                                     file=temp_plot,
+                                     verbose=verbose)
+            }    
+        }
+            
                 if (verbose >= 2) {
                     cat(report("  Saving the ggplot to session tempfile\n"))
                 }
-            }
         }
-    }
+        
+    
     
     print(df)
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp) {
-        # creating temp file names
-        temp_table <- tempfile(pattern = "Table_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    # Optionally save the plot ---------------------
+    
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(df,
+                             dir=plot.dir,
+                             file=paste0("table_",plot.file),
+                             verbose=verbose)
     }
     
     # FLAG SCRIPT END

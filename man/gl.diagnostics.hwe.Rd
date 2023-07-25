@@ -3,7 +3,8 @@
 \name{gl.diagnostics.hwe}
 \alias{gl.diagnostics.hwe}
 \title{Provides descriptive stats and plots to diagnose potential problems
-  with Hardy-Weinberg proportions}
+  with Hardy-Weinberg proportions
+  @family matched report}
 \usage{
 gl.diagnostics.hwe(
   x,
@@ -29,12 +30,6 @@ gl.diagnostics.hwe(
 \item{stdErr}{Whether standard errors for Fis and Fst should be computed 
 (default: TRUE)}
 
-\item{colors_hist}{List of two color names for the borders and fill of the
-histogram [default gl.colors(2)].}
-
-\item{colors_barplot}{Vector with two color names for the observed and
-expected number of significant HWE tests [default gl.colors("2c")].}
-
 \item{plot_theme}{User specified theme [default theme_dartR()].}
 
 \item{n.cores}{The number of cores to use. If "auto", it will 
@@ -48,6 +43,12 @@ use all but one available cores [default "auto"].}
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
+
+\item{colors.hist}{List of two color names for the borders and fill of the
+histogram [default gl.colors(2)].}
+
+\item{colors.barplot}{Vector with two color names for the observed and
+expected number of significant HWE tests [default gl.colors("2c")].}
 }
 \value{
 A list with the table with the summary of the HWE tests and (if 
@@ -147,4 +148,3 @@ the plot?. Journal of heredity, 106(1), 1-19.
 Custodian: Carlo Pacioni -- Post to
   \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{reporting functions}

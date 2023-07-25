@@ -15,7 +15,8 @@ gl.pcoa(
   plot.out = TRUE,
   plot_theme = theme_dartR(),
   plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -47,8 +48,10 @@ for the "informative" axes and a histogram of eigenvalues of the remaining
 \item{plot_colors}{List of two color names for the borders and fill of the
 plot [default gl.colors(2)].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{verbose= 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -120,6 +123,11 @@ dimensions to be retained in the visual summaries. As a rule of thumb, axes
 with more than 10% of variation explained should be included.
 The second graph shows the distribution of eigenvalues for the remaining
 uninformative (noise) axes, including those with negative eigenvalues.
+  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+specified for the plot to be saved.
+ If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+ directory; otherwise to the tempdir(). 
 Action is recommended (verbose >= 2) if the negative eigenvalues are
 dominant, their sum approaching in magnitude the eigenvalues for axes
 selected for the final visual solution.
@@ -131,11 +139,6 @@ following retained.
 \item  $scores - Scores (coefficients) for each individual
 \item  $loadings - Loadings of each SNP for each principal component
    }
-Plots and table were saved to the temporal directory (tempdir) and can be
-accessed with the function  and listed with
-the function . Note that they can be accessed
-only in the current R session because tempdir is cleared each time that the R
-session is closed.
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}

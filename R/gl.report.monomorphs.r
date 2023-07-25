@@ -41,7 +41,7 @@ gl.report.monomorphs <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -56,7 +56,7 @@ gl.report.monomorphs <- function(x,
         cat(report("  Identifying monomorphic loci\n"))
     }
  
-    mono_tmp <- gl.alf(x)
+    mono_tmp <- gl.allele.freq(x)
     loc.list <- rownames(mono_tmp[which(mono_tmp$alf1==1 | 
                                           mono_tmp$alf1 == 0),])
     loc.list_NA <- rownames(mono_tmp[which(is.na(mono_tmp$alf1)),])

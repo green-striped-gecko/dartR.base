@@ -18,7 +18,7 @@
 #' An internal function to save a ggplot object to disk in RDS binary format.
 #' Uses saveRDS() to save the file with an .RDS extension; can be reloaded with gl.load().
 #' 
-#' @author Maintainer: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @author Custodian: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @export
 #' @return NULL

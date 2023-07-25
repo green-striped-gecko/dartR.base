@@ -1,6 +1,7 @@
 #' @name gl.report.heterozygosity
 #' @title Reports observed, expected and unbiased heterozygosities and FIS
 #' (inbreeding coefficient) by population or by individual from SNP data
+#' 
 #' @description Calculates the observed, expected and unbiased expected (i.e.
 #' corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
 #' for each population or the observed heterozygosity for each individual in a
@@ -11,13 +12,13 @@
 #' individual (method='ind') [default 'pop'].
 #' @param n.invariant An estimate of the number of invariant sequence tags used
 #' to adjust the heterozygosity rate [default 0].
-#' @param plot.out Specify if plot is to be produced [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
-#' @param plot_colors_pop A color palette for population plots or a list with
+#' @param plot.colors.pop A color palette for population plots or a list with
 #' as many colors as there are populations in the dataset
 #' [default gl.colors("dis")].
-#' @param plot_colors_ind List of two color names for the borders and fill of
+#' @param plot.colors.ind List of two color names for the borders and fill of
 #' the plot by individual [default gl.colors(2)].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
@@ -116,10 +117,10 @@
 gl.report.heterozygosity <- function(x,
                                      method = "pop",
                                      n.invariant = 0,
-                                     plot.out = TRUE,
-                                     plot_theme = theme_dartR(),
-                                     plot_colors_pop = gl.colors("dis"),
-                                     plot_colors_ind = gl.colors(2),
+                                     plot.display = TRUE,
+                                     plot.theme = theme_dartR(),
+                                     plot.colors.pop = gl.colors("dis"),
+                                     plot.colors.ind = gl.colors(2),
                                      save2tmp = FALSE,
                                      verbose = NULL) {
     # SET VERBOSITY
@@ -129,7 +130,7 @@ gl.report.heterozygosity <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Jackson",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <-
@@ -248,7 +249,7 @@ gl.report.heterozygosity <- function(x,
 
           y_temp <- sgl[[y]]
           hold <- y_temp
-          mono_tmp <- gl.alf(y_temp)
+          mono_tmp <- gl.allele.freq(y_temp)
           loc.list <- rownames(mono_tmp[which(mono_tmp$alf1==1 |
                                                 mono_tmp$alf1 == 0),])
           loc.list_NA <- rownames(mono_tmp[which(is.na(mono_tmp$alf1)),])
@@ -385,15 +386,15 @@ gl.report.heterozygosity <- function(x,
             )
         ##########
         
-        if (plot.out) {
+        if (plot.display) {
             value <- color <- variable <- He.adj <- NULL
             # printing plots and reports assigning colors to populations
-            if (is(plot_colors_pop, "function")) {
-                colors_pops <- plot_colors_pop(length(levels(pop(x))))
+            if (is(plot.colors.pop, "function")) {
+                colors_pops <- plot.colors.pop(length(levels(pop(x))))
             }
             
-            if (!is(plot_colors_pop,"function")) {
-                colors_pops <- plot_colors_pop
+            if (!is(plot.colors.pop,"function")) {
+                colors_pops <- plot.colors.pop
             }
             
             if (n.invariant == 0) {
@@ -441,7 +442,7 @@ gl.report.heterozygosity <- function(x,
                         inherit.aes = TRUE, fontface = "bold"
                     ) +
                     
-                    plot_theme +
+                    plot.theme +
                     theme(
                         axis.ticks.x = element_blank(),
                         axis.text.x = element_text(
@@ -476,7 +477,7 @@ gl.report.heterozygosity <- function(x,
                         df.ordered$pop,
                         round(df.ordered$nInd, 0),
                         sep = " | "
-                    )) + plot_theme + theme(
+                    )) + plot.theme + theme(
                         axis.ticks.x = element_blank(),
                         axis.text.x = element_blank(),
                         axis.title.x = element_blank(),
@@ -500,7 +501,7 @@ gl.report.heterozygosity <- function(x,
                         df.ordered$pop,
                         round(df.ordered$nInd, 0),
                         sep = " | "
-                    )) + plot_theme + theme(
+                    )) + plot.theme + theme(
                         axis.ticks.x = element_blank(),
                         axis.text.x = element_text(
                             angle = 90,
@@ -581,7 +582,7 @@ cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6))
         }
         
         # PRINTING OUTPUTS
-        if (plot.out) {
+        if (plot.display) {
             suppressWarnings(print(p3))
         }
         if (verbose >= 2) {
@@ -645,13 +646,13 @@ cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6))
             c("ind.name", "Ho", "f.hom.ref", "f.hom.alt")
         
         # Boxplot
-        if (plot.out) {
+        if (plot.display) {
             upper <- ceiling(max(df$Ho) * 10) / 10
             p1 <-
                 ggplot(df, aes(y = Ho)) + 
-        geom_boxplot(color = plot_colors_ind[1], fill = plot_colors_ind[2]) + 
+        geom_boxplot(color = plot.colors.ind[1], fill = plot.colors.ind[2]) + 
               coord_flip() + 
-              plot_theme +
+              plot.theme +
                 xlim(range = c(-1, 1)) +
               ylim(0, upper) + 
               ylab(" ") + 
@@ -661,11 +662,11 @@ cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6))
             # Histogram
             p2 <-
                 ggplot(df, aes(x = Ho)) +
-geom_histogram(bins =25,color = plot_colors_ind[1],fill =plot_colors_ind[2]) +
+geom_histogram(bins =25,color = plot.colors.ind[1],fill =plot.colors.ind[2]) +
               coord_cartesian(xlim = c(0, upper)) +
               xlab("Observed heterozygosity") + 
               ylab("Count") +
-              plot_theme
+              plot.theme
         }
         
         outliers_temp <-
@@ -699,7 +700,7 @@ geom_histogram(bins =25,color = plot_colors_ind[1],fill =plot_colors_ind[2]) +
         }
         
         # PRINTING OUTPUTS
-        if (plot.out) {
+        if (plot.display) {
             p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
             print(p3)
         }
@@ -711,7 +712,7 @@ geom_histogram(bins =25,color = plot_colors_ind[1],fill =plot_colors_ind[2]) +
     # SAVE INTERMEDIATES TO TEMPDIR
     if (save2tmp) {
         # creating temp file names
-        if (plot.out) {
+        if (plot.display) {
             temp_plot <- tempfile(pattern = "Plot_")
         }
         temp_table <- tempfile(pattern = "Table_")
@@ -721,7 +722,7 @@ geom_histogram(bins =25,color = plot_colors_ind[1],fill =plot_colors_ind[2]) +
                    as.character(match.call()),
                    collapse = "_")
         # saving to tempdir
-        if (plot.out) {
+        if (plot.display) {
             saveRDS(list(match_call, p3), file = temp_plot)
             if (verbose >= 2) {
                 cat(report("  Saving the ggplot to session tempfile\n"))

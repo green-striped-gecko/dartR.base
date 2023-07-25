@@ -34,27 +34,26 @@ gl2treemix <- function(x,
                        outfile = "treemix_input.gz",
                        outpath = NULL,
                        verbose = NULL) {
-    outfilespec <- file.path(outpath, outfile)
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # SET WORKING DIRECTORY
     outpath <- gl.check.wd(outpath,verbose=0)
-    outfile <- file.path(outpath, outfile)
+    outfilespec <- file.path(outpath, outfile)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # DO THE JOB
     
-    freq <- gl.percent.freq(x, verbose = verbose)
+    freq <- gl.allele.freq(x, percent=TRUE, by='loc', verbose = verbose)
     freq$ref <- freq$nobs * 2 - freq$sum
     freq$alt <- freq$sum
     freq$sum <- NULL

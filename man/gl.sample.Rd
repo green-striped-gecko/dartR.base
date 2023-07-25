@@ -27,10 +27,17 @@ gl.sample(
 returns a genlight object with nsample samples from each populations.
 }
 \description{
-This is a convenience function to prepare a bootstrap approach in dartR. For a bootstrap approach it is often desirable to sample a defined number of individuals for each of the populations in a genlight object and then calculate a certain quantity for that subset (redo a 1000 times)
+A function to subsample individuals in a genlight object
 }
 \details{
 This is convenience function to facilitate a bootstrap approach
+
+This function is often used to support a bootstrap 
+approach in dartR. For a bootstrap approach it is often 
+desirable to sample a defined number of individuals for 
+each of the populations in a genlight object and then 
+calculate a certain quantity for that subset (redo a 
+1000 times)
 }
 \examples{
 \dontrun{
@@ -49,10 +56,27 @@ boxplot(fixed ~ nss, data=res)
 }
 }
 \seealso{
-Other base dartR: 
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
 \code{\link{gl.sort}()}
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{base dartR}
+\concept{data manipulation}

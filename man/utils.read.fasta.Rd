@@ -2,21 +2,21 @@
 % Please edit documentation in R/utils.read.fasta.r
 \name{utils.read.fasta}
 \alias{utils.read.fasta}
-\title{An internal script [Custodian to provide a title]}
+\title{An internal script to read a fastA file into a genlight object}
 \usage{
 utils.read.fasta(file, parallel = parallel, n.cores = NULL, verbose = verbose)
 }
 \arguments{
-\item{file}{Custodian to provide other parameter descriptions}
+\item{file}{Name of the fastA file [required]}
 
-\item{parallel}{Custodian to provide other parameter descriptions}
+\item{parallel}{Switch to deactivate parallel version. It might not be worth
+to run it parallel most of the times [default FALSE]}
 
-\item{n.cores}{Custodian to provide other parameter descriptions}
+\item{n.cores}{Number of cores to use in parallel [default 4]}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
- progress log; 3, progress and results summary; 5, full report [default 2].
- 
-#[Custodian to provide other parameter descriptions]}
+\item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
+begin and end; 2, progress log; 3, progress and results summary; 5, full
+report [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 The resultant genlight object
@@ -24,15 +24,13 @@ The resultant genlight object
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
-\details{
-#[Custodian to provide details]
-}
 \seealso{
 Other utilities: 
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},

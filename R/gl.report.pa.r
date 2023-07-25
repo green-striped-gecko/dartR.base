@@ -1,16 +1,19 @@
 #' @name gl.report.pa
 #' @title Reports private alleles (and fixed alleles) per pair of populations
+#' @family matched report
+
 #' @description
 #' This function reports private alleles in one population compared with a
 #' second population, for all populations taken pairwise. It also reports a
 #' count of fixed allelic differences and the mean absolute allele frequency
 #' differences (AFD) between pairs of populations.
+#' 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param x2 If two separate genlight objects are to be compared this can be
 #' provided here, but they must have the same number of SNPs [default NULL].
 #' @param method Method to calculate private alleles: 'pairwise' comparison or
 #' compare each population against the rest 'one2rest' [default 'pairwise'].
-#' @param loc_names Whether names of loci with private alleles and fixed 
+#' @param loc.names Whether names of loci with private alleles and fixed 
 #' differences should reported. If TRUE, loci names are reported using a list
 #' @param test.asym bootstrap test for significant differences of private alleles. 
 #' This test uses a bootstrap simulation by shuffling individuals between a pair
@@ -21,12 +24,12 @@
 #'  populations.
 #' @param test.asym.boot number of bootstraps [default 100]
 #'  [default FALSE].
-#' @param plot.out Specify if Sankey plot is to be produced [default TRUE].
-#' @param font_plot Numeric font size in pixels for the node text labels
+#' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
+#' @param plot.font Numeric font size in pixels for the node text labels
 #' [default 14].
 #' @param map.interactive Specify whether an interactive map showing private
 #' alleles between populations is to be produced [default FALSE].
-#' @param palette_discrete A discrete palette for the color of populations or a
+#' @param palette.discrete A discrete palette for the color of populations or a
 #' list with as many colors as there are populations in the dataset
 #'  [default gl.select.colors(x)].
 #' @param plot.dir Directory in which to save files [default = working directory]
@@ -34,6 +37,7 @@
 #' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
 #' begin and end; 2, progress log; 3, progress and results summary; 5, full
 #' report [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
 #' Note that the number of paired alleles between two populations is not a
 #' symmetric dissimilarity measure.
@@ -91,15 +95,12 @@
 #' if save2temp=TRUE, resultant plot(s) and the tabulation(s) are saved to the
 #' session's temporary directory.
 
-#' @return A data.frame. Each row shows, for each pair of populations the number
-#'  of individuals in each population, the number of loci with fixed differences
-#'  (same for both populations) in pop1 (compared to pop2) and vice versa. Same
-#'  for private alleles and finally the absolute mean allele frequency
-#'  difference between loci (AFD). If loc_names = TRUE, loci names with private
-#'   alleles and fixed differences are reported in a list in addition to the 
-#'   dataframe. 
 #' @author Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
+#' @examples
+#' out <- gl.report.pa(platypus.gl)
+#' 
 #' @references \itemize{
 #' \item Berner, D. (2019). Allele frequency difference AFD – an intuitive
 #' alternative to FST for quantifying genetic population differentiation. Genes,
@@ -113,13 +114,21 @@
 #' @family report functions
 #' @importFrom tidyr pivot_longer
 #' @export
+#' @return A data.frame. Each row shows, for each pair of populations the number
+#'  of individuals in each population, the number of loci with fixed differences
+#'  (same for both populations) in pop1 (compared to pop2) and vice versa. Same
+#'  for private alleles and finally the absolute mean allele frequency
+#'  difference between loci (AFD). If loc.names = TRUE, loci names with private
+#'   alleles and fixed differences are reported in a list in addition to the 
+#'   dataframe. 
 
 gl.report.pa <- function(x,
                          x2 = NULL,
                          method = "pairwise",
-                         loc_names = FALSE,
+                         loc.names = FALSE,
                          test.asym = FALSE,
                          test.asym.boot = 100,
+                         plot.display=FALSE,
                          plot.out = FALSE,
                          font_plot = 14,
                          map.interactive = FALSE,
@@ -138,7 +147,7 @@ gl.report.pa <- function(x,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "Jackson",
-                   verbosity = verbose)
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype1 <- utils.check.datatype(x, verbose = verbose)
@@ -227,13 +236,13 @@ gl.report.pa <- function(x,
         asym.sig=NA
       )
     
-    pall_loc_names <- rep(list(as.list(rep(NA, 3))), nrow(pc))
+    pall_loc.names <- rep(list(as.list(rep(NA, 3))), nrow(pc))
     
-    names(pall_loc_names) <- paste0(names(pops)[pc[, 1]],
+    names(pall_loc.names) <- paste0(names(pops)[pc[, 1]],
                                     "_",
                                     names(pops)[pc[, 2]])
     
-    pall_loc_names <- lapply(pall_loc_names,function(x){
+    pall_loc.names <- lapply(pall_loc.names,function(x){
       names(x) <- c("pop1_pop2_pa","pop2_pop1_pa","fd")
       return(x)
     })
@@ -262,27 +271,27 @@ gl.report.pa <- function(x,
       # private alleles
       pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                              which(p2alf == 1 & p1alf != 1)))))
-      pop1_pop2_pa_loc_names <- locNames(x)[pop1_pop2_pa]
+      pop1_pop2_pa_loc.names <- locNames(x)[pop1_pop2_pa]
       pop2_pop1_pa <- unique(unname(unlist(c(which(p1alf == 0 & p2alf != 0),
                                              which(p1alf == 1 & p2alf != 1)))))
-      pop2_pop1_pa_loc_names <- locNames(x)[pop2_pop1_pa]
+      pop2_pop1_pa_loc.names <- locNames(x)[pop2_pop1_pa]
       pop1_pop2_fd <- unique(unname(unlist(which(abs(p1alf - p2alf) == 1))))
-      pop1_pop2_fd_loc_names <- locNames(x)[pop1_pop2_fd]
+      pop1_pop2_fd_loc.names <- locNames(x)[pop1_pop2_fd]
       
       pall[i, "fixed"] <- length(pop1_pop2_fd)
       pall[i, "priv1"] <- length(pop1_pop2_pa)
       pall[i, "priv2"] <- length(pop2_pop1_pa)
       
-      pall_loc_names[[i]][["pop1_pop2_pa"]] <- pop1_pop2_pa_loc_names
-      pall_loc_names[[i]][["pop2_pop1_pa"]] <- pop2_pop1_pa_loc_names
-      pall_loc_names[[i]][["fd"]] <- pop1_pop2_fd_loc_names
+      pall_loc.names[[i]][["pop1_pop2_pa"]] <- pop1_pop2_pa_loc.names
+      pall_loc.names[[i]][["pop2_pop1_pa"]] <- pop2_pop1_pa_loc.names
+      pall_loc.names[[i]][["fd"]] <- pop1_pop2_fd_loc.names
       
       pall[i, "totalpriv"] <- pall[i, 8] + pall[i, 9]
       pall[i, "AFD"] <- round(mean(abs(p1alf - p2alf), na.rm = TRUE), 3)
       
-      pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
-      pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
-      pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+      #pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
+      #pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
+      #pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
       #### bootstrap test to check for asymmetry of private alleles
       if (test.asym)
       {
@@ -293,7 +302,7 @@ gl.report.pa <- function(x,
         
         for (bb in 1:test.asym.boot)
         {
-        ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:length(x))]))
+        ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:nrow(dd))]))
         tt <- table(pop(dd))
         p1 <- ab[1:tt[1],]
         p2 <- ab[(tt[1]+1):(nrow(dd)),]
@@ -303,7 +312,7 @@ gl.report.pa <- function(x,
         p1a[bb] <- pa_12
         pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1))
         p2a[bb] <- pa_21
-        if (pa_21+pa_12>0) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
+        if (pa_21!=pa_12) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
         }
         dasym <-  round(mean(asym),3)
         pall[i,"asym"] <- dasym
@@ -315,7 +324,7 @@ gl.report.pa <- function(x,
       
     }
     
-    if (plot.out) {
+    if (plot.display) {
       mm <- matrix(0, nPop(x), nPop(x))
       
       for (i in 1:nrow(pall)){
@@ -363,7 +372,6 @@ gl.report.pa <- function(x,
       
       if (is.null(palette_discrete)) colors_pops <- gl.select.colors(x, verbose=0) else 
         colors_pops <- palette_discrete
-      
       colors_pops <- paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
       
       colorScal <- paste("d3.scaleOrdinal().range([", colors_pops, "])")
@@ -385,7 +393,7 @@ gl.report.pa <- function(x,
             units = "Private alleles",
             colourScale = colorScal,
             nodeWidth = 40,
-            fontSize = font_plot,
+            fontSize = plot.font,
             nodePadding = 10
           )
         )
@@ -411,13 +419,13 @@ gl.report.pa <- function(x,
         "AFD"
       )
     
-    pall_loc_names <- rep(list(as.list(rep(NA, 3))), nPop(x))
+    pall_loc.names <- rep(list(as.list(rep(NA, 3))), nPop(x))
     
-    names(pall_loc_names) <- paste0(popNames(x),
+    names(pall_loc.names) <- paste0(popNames(x),
                                     "_",
                                     "Rest")
     
-    pall_loc_names <- lapply(pall_loc_names,function(x){
+    pall_loc.names <- lapply(pall_loc.names,function(x){
       names(x) <- c("pop1_pop2_pa","pop2_pop1_pa","fd")
       return(x)
     })
@@ -454,20 +462,20 @@ gl.report.pa <- function(x,
         
         pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                                which(p2alf == 1 & p1alf != 1)))))
-        pop1_pop2_pa_loc_names <- locNames(x)[pop1_pop2_pa]
+        pop1_pop2_pa_loc.names <- locNames(x)[pop1_pop2_pa]
         pop2_pop1_pa <- unique(unname(unlist(c(which(p1alf == 0 & p2alf != 0),
                                                which(p1alf == 1 & p2alf != 1)))))
-        pop2_pop1_pa_loc_names <- locNames(x)[pop2_pop1_pa]
+        pop2_pop1_pa_loc.names <- locNames(x)[pop2_pop1_pa]
         pop1_pop2_fd <- unique(unname(unlist(which(abs(p1alf - p2alf) == 1))))
-        pop1_pop2_fd_loc_names <- locNames(x)[pop1_pop2_fd]
+        pop1_pop2_fd_loc.names <- locNames(x)[pop1_pop2_fd]
         
         pall[i, "fixed"] <- length(pop1_pop2_fd)
         pall[i, "priv1"] <- length(pop1_pop2_pa)
         pall[i, "priv2"] <- length(pop2_pop1_pa)
         
-        pall_loc_names[[y]][["pop1_pop2_pa"]] <- pop1_pop2_pa_loc_names
-        pall_loc_names[[y]][["pop2_pop1_pa"]] <- pop2_pop1_pa_loc_names
-        pall_loc_names[[y]][["fd"]] <- pop1_pop2_fd_loc_names
+        pall_loc.names[[y]][["pop1_pop2_pa"]] <- pop1_pop2_pa_loc.names
+        pall_loc.names[[y]][["pop2_pop1_pa"]] <- pop2_pop1_pa_loc.names
+        pall_loc.names[[y]][["fd"]] <- pop1_pop2_fd_loc.names
         
         pall[i, 5:6] <- c(nrow(p1), nrow(p2))
         # pall[i, 7] <- sum(abs(p1alf - p2alf) == 1, na.rm = T)
@@ -491,14 +499,14 @@ gl.report.pa <- function(x,
     pall <- pas
     pall$pop2 <- "Rest"
     
-    if (plot.out) {
+    if (plot.display) {
       # assigning colors to populations
-      if (is(palette_discrete, "function")) {
-        colors_pops <- palette_discrete(length(levels(pop(x))) + 1)
+      if (is(palette.discrete, "function")) {
+        colors_pops <- palette.discrete(length(levels(pop(x))) + 1)
       }
       
-      if (!is(palette_discrete, "function")) {
-        colors_pops <- palette_discrete
+      if (!is(palette.discrete, "function")) {
+        colors_pops <- palette.discrete
         # if colors are not in RGB format
         if (grepl("#", colors_pops[1]) == FALSE) {
           colors_pops <- RGB_colors(colors_pops)
@@ -577,7 +585,7 @@ gl.report.pa <- function(x,
   df <- pall
   
   # PRINTING OUTPUTS
-  if (plot.out) {
+  if (plot.display) {
     if (map.interactive & (method == "pairwise")) {
       labs <- popNames(x)
       gl.map.interactive(x, matrix = mm, symmetric = FALSE)
@@ -593,7 +601,6 @@ gl.report.pa <- function(x,
   if (verbose >= 2) {
     cat(report("  Table of private alleles and fixed differences returned\n"))
   }
-  
   
   # Optionally save the plot ---------------------
   
@@ -615,13 +622,13 @@ gl.report.pa <- function(x,
   
   # RETURN
   
-  if(loc_names==TRUE){
+  if(loc.names==TRUE){
     
-    return(invisible(list(table=df,names_loci=pall_loc_names)))
+    return(invisible(list(table=df,names_loci=pall_loc.names)))
     
   }else{
     
-   return(invisible(df))
+   return(df)
     
   }
   

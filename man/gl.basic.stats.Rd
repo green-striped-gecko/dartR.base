@@ -2,9 +2,7 @@
 % Please edit documentation in R/gl.basic.stats.r
 \name{gl.basic.stats}
 \alias{gl.basic.stats}
-\title{Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
-Based on function \code{\link[hierfstat]{basic.stats}}. Check ?basic.stats
-for help.}
+\title{Calculates basic statistics for each loci (Hs, Ho, Fis etc.)}
 \usage{
 gl.basic.stats(x, digits = 4, verbose = NULL)
 }
@@ -19,19 +17,23 @@ progress log; 3, progress and results summary; 5, full report
 }
 \value{
 Several tables and lists with all basic stats.
-\code{\link[hierfstat]{basic.stats}} for details.
 }
 \description{
-Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
 Based on function \code{\link[hierfstat]{basic.stats}}. Check ?basic.stats
-for help.
+for help and \code{\link[hierfstat]{basic.stats}} for details.#'
 }
 \examples{
 if (!(requireNamespace("hierfstat", quietly = TRUE))) {
 out <- gl.basic.stats(possums.gl[1:10,1:100])
 }
+
+}
+\seealso{
+Other basic statistics: 
+\code{\link{gl.amova}()}
 }
 \author{
-Bernd Gruber (bugs? Post to
+Bernd Gruber (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{basic statistics}

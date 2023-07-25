@@ -3,7 +3,8 @@
 \name{gl.compliance.check}
 \alias{gl.compliance.check}
 \title{Checks a genlight object to see if it complies with dartR
- expectations and amends it to comply if necessary}
+ expectations and amends it to comply if necessary
+ @family environment}
 \usage{
 gl.compliance.check(x, verbose = NULL)
 }
@@ -42,6 +43,7 @@ updated.
 \examples{
 x <- gl.compliance.check(testset.gl)
 x <- gl.compliance.check(testset.gs)
+
 }
 \author{
 Custodian: Luis Mijangos -- Post to
