@@ -8,7 +8,7 @@
 #'  be sourced from the treemix download page.
 
 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object [required].
 #' @param outfile File name of the output file (including gz extension)
 #' [default 'treemix_input.gz'].
 #' @param outpath Path where to save the output file [default global working 
@@ -53,7 +53,7 @@ gl2treemix <- function(x,
     
     # DO THE JOB
     
-    freq <- gl.allele.freq(x, percent=TRUE, by='loc', verbose = verbose)
+    freq <- gl.allele.freq(x, percent=TRUE, by='popxloc', verbose = verbose)
     freq$ref <- freq$nobs * 2 - freq$sum
     freq$alt <- freq$sum
     freq$sum <- NULL

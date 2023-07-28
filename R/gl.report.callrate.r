@@ -100,7 +100,12 @@ gl.report.callrate <- function(x,
   
   # SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
     }
   
   # FLAG SCRIPT START
@@ -117,6 +122,7 @@ gl.report.callrate <- function(x,
   # Ib case the call rate is not up to date, recalculate
 
   x <- utils.recalc.callrate(x, verbose = 0)
+  if(verbose==0){plot.display <- FALSE}
 
   # DO THE JOB -------------------------
   ########### FOR METHOD BASED ON LOCUS ----------------
@@ -137,40 +143,6 @@ gl.report.callrate <- function(x,
     cat("    Missing Rate Overall: ", round(sum(is.na(
       as.matrix(x)
     )) / (nLoc(x) * nInd(x)), 4), "\n\n")
-    
-    # # Determine the loss of loci for a given threshold
-    # quantile_res <-
-    #   quantile(callrate, probs = seq(0, 1, 1 / 20),type=1)
-    # retained <-
-    #   unlist(lapply(quantile_res, function(y) {
-    #     res <- length(callrate[callrate >= y])
-    #   }))
-    # pc.retained <- round(retained * 100 / nLoc(x), 1)
-    # filtered <- nLoc(x) - retained
-    # pc.filtered <- 100 - pc.retained
-    # df <-
-    #   data.frame(
-    #     as.numeric(sub("%", "", names(
-    #       quantile_res
-    #     ))),
-    #     quantile_res,
-    #     retained,
-    #     pc.retained,
-    #     filtered,
-    #     pc.filtered
-    #   )
-    # colnames(df) <-
-    #   c("Quantile",
-    #     "Threshold",
-    #     "Retained",
-    #     "Percent",
-    #     "Filtered",
-    #     "Percent")
-    # df <- df[order(-df$Quantile), ]
-    # df$Quantile <- paste0(df$Quantile, "%")
-    # rownames(df) <- NULL
-    # cat("Refer to this table to decide thresholds for filtering loci\n")
-    # print(df[,1:4])
     
     # Prepare the plots ------------------------
     # get title for plots
@@ -216,48 +188,6 @@ gl.report.callrate <- function(x,
                              verbose=verbose)
     }
       
-      # if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
-      #   row_plots <- ceiling(nPop(x) / 3)
-      #   p4 <- wrap_plots(c_rate_plots)
-      #   p4 <- p4 + plot_layout(ncol = 3, nrow = row_plots)
-      #   print(p4)
-      #   
-      #   filename <- paste0(plot.file,"_02")
-      #   tmp <- utils.plot.save(p_temp,
-      #                          dir=plot.dir,
-      #                          file=filename,
-      #                          verbose=verbose)
-      # }
-
-  #   # plots by population
-  #   if(nPop(x)>1 & by.pop==TRUE){
-  #     pops <- seppop(x)
-  #     
-  #     cat("  Reporting Call Rate by population\n")
-  #     
-  #     c_rate_plots <- lapply(pops, function(z) {
-  #       pop_tmp <- utils.recalc.callrate(z, verbose = 0)
-  #       c_rate_tmp <- pop_tmp$other$loc.metrics$CallRate
-  #       p_temp <-
-  #         ggplot(as.data.frame(c_rate_tmp), aes(x = c_rate_tmp)) + 
-  #         geom_histogram(bins = bins, color = plot.colors[1],fill = plot.colors[2]) +
-  #         xlab("Call rate") + 
-  #         ylab("Count") +
-  #         coord_cartesian(xlim = c(min, 1)) +
-  #         plot.theme + 
-  #         ggtitle(paste(popNames(z), "n =", nInd(z)))
-  #       
-  #       if(verbose >= 3){
-  #         cat("   Population:",popNames(pop_tmp),"\n")
-  #       cat("   No. of loci =", nLoc(pop_tmp), "\n")
-  #       cat("   No. of individuals =", nInd(pop_tmp), "\n")
-  #       cat("   Mean Call Rate",mean(pop_tmp$other$loc.metrics$CallRate,na.rm = TRUE) ,
-  #           "\n\n")
-  #       }
-  #       
-  #       return(p_temp)
-  #     })
-  #   }
    }
 
   ########### FOR METHOD BASED ON INDIVIDUAL -----------------------
@@ -304,40 +234,6 @@ gl.report.callrate <- function(x,
     print(ind.means)
     cat("\n)")
     
-    # # Determine the loss of individuals for a given threshold
-    # quantile_res <-
-    #   quantile(ind.call.rate, probs = seq(0, 1, 1 / 20),type=1)
-    # retained <-
-    #   unlist(lapply(quantile_res, function(y) {
-    #     res <- length(ind.call.rate[ind.call.rate >= y])
-    #   }))
-    # pc.retained <- round(retained * 100 / nInd(x), 1)
-    # filtered <- nInd(x) - retained
-    # pc.filtered <- 100 - pc.retained
-    # df <-
-    #   data.frame(
-    #     as.numeric(sub("%", "", names(
-    #       quantile_res
-    #     ))),
-    #     quantile_res,
-    #     retained,
-    #     pc.retained,
-    #     filtered,
-    #     pc.filtered
-    #   )
-    # colnames(df) <-
-    #   c("Quantile",
-    #     "Threshold",
-    #     "Retained",
-    #     "Percent",
-    #     "Filtered",
-    #     "Percent")
-    # df <- df[order(-df$Quantile), ]
-    # df$Quantile <- paste0(df$Quantile, "%")
-    # rownames(df) <- NULL
-    # cat("Refer to this table to decide thresholds for filtering individuals\n")
-    # print(df[,1:4])
-    
     # Prepare the plots ------------------------
     # get title for plots
     if (datatype == "SNP") {
@@ -381,139 +277,8 @@ gl.report.callrate <- function(x,
                              file=plot.file,
                              verbose=verbose)
     }
-      
-      # if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
-      #   row_plots <- ceiling(nPop(x) / 3)
-      #   p4 <- wrap_plots(c_rate_plots)
-      #   p4 <- p4 + plot_layout(ncol = 3, nrow = row_plots)
-      #   print(p4)
-      #   
-      #   filename <- paste0(plot.file,"_02")
-      #   tmp <- utils.plot.save(p_temp,
-      #                          dir=plot.dir,
-      #                          file=filename,
-      #                          verbose=verbose)
-      # }
-
-    
-    # # Determine the loss of individuals for a given threshold using quantiles
-    # quantile_res <-
-    #   quantile(ind.call.rate, probs = seq(0, 1, 1 / 20))
-    # retained <- unlist(lapply(quantile_res, function(y) {
-    #   res <- length(ind.call.rate[ind.call.rate >= y])
-    # }))
-    # pc.retained <- round(retained * 100 / nInd(x), 1)
-    # filtered <- nInd(x) - retained
-    # pc.filtered <- 100 - pc.retained
-    # df <-
-    #   data.frame(
-    #     as.numeric(sub("%", "", names(
-    #       quantile_res
-    #     ))),
-    #     quantile_res,
-    #     retained,
-    #     pc.retained,
-    #     filtered,
-    #     pc.filtered
-    #   )
-    # colnames(df) <-
-    #   c("Quantile",
-    #     "Threshold",
-    #     "Retained",
-    #     "Percent",
-    #     "Filtered",
-    #     "Percent")
-    # df <- df[order(-df$Quantile), ]
-    # df$Quantile <- paste0(df$Quantile, "%")
-    # rownames(df) <- NULL
-    # 
-    # ind.call.rate_pop <- as.data.frame(cbind(names(ind.call.rate),
-    #                                          as.character(pop(x)),
-    #                                          ind.call.rate))
-    # colnames(ind.call.rate_pop) <- c("ind_name","pop","missing_data")
-    # ind.call.rate_pop <- ind.call.rate_pop[order(ind.call.rate_pop$pop,
-    #                                              ind.call.rate_pop$missing_data,
-    #                                              decreasing = TRUE),]
   }
-    
 
-    # # using package patchwork
-    # p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-    # if (plot.display) {print(p3)}
-    # 
-    # if(!is.null(plot.file)){
-    #   if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
-    #     filename <- paste0(plot.file,"_01")
-    #   } else {
-    #     filename <- plot.file
-    #   }
-    #   tmp <- utils.plot.save(p3,
-    #                          dir=plot.dir,
-    #                          file=filename,
-    #                          verbose=verbose)
-    #   
-    #   if(nPop(x)>1 & method == "loc" & by.pop == TRUE){
-    #     row_plots <- ceiling(nPop(x) / 3)
-    #     p4 <- wrap_plots(c_rate_plots)
-    #     p4 <- p4 + plot_layout(ncol = 3, nrow = row_plots)
-    #     print(p4)
-    #     
-    #     filename <- paste0(plot.file,"_02")
-    #     tmp <- utils.plot.save(p_temp,
-    #                            dir=plot.dir,
-    #                            file=filename,
-    #                            verbose=verbose)
-    #   }
-    # }
-
-  #print(df)
-  # cat("\n\n")
-  # if (method == "ind") {
-  # print(ind.call.rate_pop, row.names = FALSE)
-  # }
-  
-  # # SAVE INTERMEDIATES TO TEMPDIR
-  # 
-  # # creating temp file names
-  # if (save2tmp) {
-  #     if (plot.display) {
-  #         temp_plot <- tempfile(pattern = "Plot_")
-  #         match_call <-
-  #             paste0(names(match.call()),
-  #                    "_",
-  #                    as.character(match.call()),
-  #                    collapse = "_")
-  #         # saving to tempdir
-  #         saveRDS(list(match_call, p3), file = temp_plot)
-  #         
-  #         # saving plots per pop
-  #         if(nPop(x)>1){
-  #         temp_plot_2 <- tempfile(pattern = "Plot_per_pop")
-  #         # saving to tempdir
-  #         saveRDS(list(match_call, p4), file = temp_plot_2)
-  #         }
-  #         
-  #         if (verbose >= 2) {
-  #             cat(report("  Saving the ggplot to session tempfile\n"))
-  #         }
-  #     }
-  #     temp_table <- tempfile(pattern = "Table_")
-  #     saveRDS(list(match_call, df), file = temp_table)
-  #     if (method == "ind") {
-  #     temp_table_2 <- tempfile(pattern = "Table2_")
-  #     saveRDS(list(ind.call.rate_pop, df), file = temp_table_2)
-  #     }
-  #     if (verbose >= 2) {
-  #         cat(report("  Saving tabulation to session tempfile\n"))
-  #         cat(
-  #             report(
-  #                 "  NOTE: Retrieve output files from tempdir using 
-  #                 gl.list.reports() and gl.print.reports()\n"
-  #             )
-  #         )
-  #     }
-  #  }
-  
   # FLAG SCRIPT END
   
   if (verbose >= 1) {

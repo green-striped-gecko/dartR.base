@@ -5,12 +5,10 @@
 \title{Reports loci for which the SNP has been trimmed from the sequence tag
  along with the adaptor}
 \usage{
-gl.report.overshoot(x, save2tmp = FALSE, verbose = NULL)
+gl.report.overshoot(x, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object [required].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
+\item{x}{Name of the genlight object [required].
 temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,

@@ -15,7 +15,7 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default c("#2171B5", "#6BAED6")].
+#'  plots [default c("#2171B5","#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
@@ -79,23 +79,29 @@ gl.report.bases <- function(x,
 # PRELIMINARIES -- checking ----------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
-    
+
     # SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
     }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
     
     
     if (!any(names(x@other$loc.metrics) == "TrimmedSequence")) {
@@ -254,21 +260,6 @@ gl.report.bases <- function(x,
                             file=plot.file,
                             verbose=verbose)
     }
-    
-    # # Create return list
-    # if (verbose >= 2) {
-    #     cat(report("  Returning the table of base frequencies and transition/transversion ratios\n\n"))
-    # }
-    # 
-    # out <-
-    #     c(round(A, 2),
-    #       round(G, 2),
-    #       round(T, 2),
-    #       round(C, 2),
-    #       round(tv, 2),
-    #       round(ts, 2))
-    # names(out) <- c("A", "G", "T", "C", "tv", "ts")
-    # 
     
 # FLAG SCRIPT END ---------------
     

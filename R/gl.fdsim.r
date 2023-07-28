@@ -62,7 +62,7 @@ gl.fdsim <-  function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -118,7 +118,7 @@ gl.fdsim <-  function(x,
     }
     
     # Calculate the percentage frequencies
-    rf <- gl.allele.freq(pair, percent=TRUE, by='loc', verbose = 0)
+    rf <- gl.allele.freq(pair, percent=TRUE, by='popxloc', verbose = 0)
     
     # Disaggregate the data for the two populations
     rfA <- rf[rf$popn == poppair[1], ]

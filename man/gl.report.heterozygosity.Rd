@@ -123,9 +123,13 @@ df <- gl.report.heterozygosity(platypus.gl)
 }
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
+
+Other unmatched report: 
+\code{\link{gl.allele.freq}()},
+\code{\link{gl.report.diversity}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{report functions}
+\concept{unmatched report}

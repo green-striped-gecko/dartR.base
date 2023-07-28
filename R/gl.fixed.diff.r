@@ -195,7 +195,7 @@ gl.fixed.diff <- function(x,
     # DO THE JOB
     
     # Calculate percent allele frequencies
-    ftable <- gl.allele.freq(x, percent=TRUE, by='loc', verbose = 0) 
+    ftable <- gl.allele.freq(x, percent=TRUE, by='popxloc', verbose = 0) 
     
     # GENERATE A MATRIX OF PAIRWISE FIXED DIFFERENCES
     

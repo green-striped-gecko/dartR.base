@@ -29,6 +29,7 @@ Uses saveRDS() to save the file with an .RDS extension; can be reloaded with gl.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},

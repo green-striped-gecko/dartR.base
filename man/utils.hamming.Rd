@@ -49,6 +49,7 @@ initial common restriction enzyme recognition sequence is ignored.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},

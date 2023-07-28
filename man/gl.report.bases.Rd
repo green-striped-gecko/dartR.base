@@ -26,7 +26,7 @@ gl.report.bases(
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default c("#2171B5", "#6BAED6")].}
+plots [default c("#2171B5","#6BAED6")].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
