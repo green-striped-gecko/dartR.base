@@ -151,9 +151,6 @@ Other matched report:
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
-
-Other report functions: 
-\code{\link{gl.report.heterozygosity}()}
 }
 \author{
 Custodian: Bernd Gruber -- Post to
