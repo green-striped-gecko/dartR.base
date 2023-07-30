@@ -1,6 +1,7 @@
 #' @name gl.report.heterozygosity
 #' @title Reports observed, expected and unbiased heterozygosities and FIS
 #' (inbreeding coefficient) by population or by individual from SNP data
+#' @family unmatched report
 #' 
 #' @description Calculates the observed, expected and unbiased expected (i.e.
 #' corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
@@ -92,13 +93,10 @@
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-
-#' @return A dataframe containing population labels, heterozygosities, FIS,
-#' their standard deviations and sample sizes
-
+#'  
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
-
+#' 
 #' @examples
 #'  \donttest{
 #' require("dartR.data")
@@ -111,8 +109,9 @@
 
 #' @seealso \code{\link{gl.filter.heterozygosity}}
 
-#' @family report functions
 #' @export
+#' @return A dataframe containing population labels, heterozygosities, FIS,
+#' their standard deviations and sample sizes
 
 gl.report.heterozygosity <- function(x,
                                      method = "pop",
@@ -249,7 +248,7 @@ gl.report.heterozygosity <- function(x,
 
           y_temp <- sgl[[y]]
           hold <- y_temp
-          mono_tmp <- gl.allele.freq(y_temp)
+          mono_tmp <- gl.allele.freq(y_temp,simple=TRUE,verbose=0)
           loc.list <- rownames(mono_tmp[which(mono_tmp$alf1==1 |
                                                 mono_tmp$alf1 == 0),])
           loc.list_NA <- rownames(mono_tmp[which(is.na(mono_tmp$alf1)),])

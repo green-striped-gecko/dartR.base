@@ -38,22 +38,22 @@ gl.filter.overshoot <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    datatype <- utils.check.datatype(x, accept = c("genlight", "SNP"), verbose = verbose)
     
     # STANDARD ERROR CHECKING
     
-    if (datatype == "SilicoDArT") {
-        stop(
-            error(
-                "  Detected Presence/Absence (SilicoDArT) data. Please supply a 
-                SNP dataset\n"
-            )
-        )
-    }
+    # if (datatype == "SilicoDArT") {
+    #     stop(
+    #         error(
+    #             "  Detected Presence/Absence (SilicoDArT) data. Please supply a 
+    #             SNP dataset\n"
+    #         )
+    #     )
+    # }
     
     # SCRIPT SPECIFIC ERROR CHECKING
     
@@ -100,7 +100,8 @@ gl.filter.overshoot <- function(x,
     }
     
     if (verbose >= 2) {
-        cat(report("  Deleting those loci\n"))
+        cat(report("  Deleting:\n"))
+        cat(locNames(x2))
     }
     # extracting indexes of loci to keep
     index <- which((snpos <= nchar(trimmed)) == TRUE)

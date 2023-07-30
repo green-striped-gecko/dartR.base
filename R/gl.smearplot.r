@@ -4,25 +4,26 @@
 
 #' @description
 #' Each locus is color coded for scores of 0, 1, 2 and NA for SNP data and 0, 1
-#' and NA for presence/absence (SilicoDArT) data. Individual labels can be added
-#' and individuals can be grouped by population.
+#' and NA for presence/absence (SilicoDArT) data. Individual labels can be added.
 
 #' Plot may become cluttered if ind.labels If there are too many individuals, 
-#' it is best to use ind.labels.size = 0.
+#' it is best to use ind.labels = FALSE.
+#' 
+#' Works with both SNP data and P/A data (SilicoDArT)
 
-#' @param x Name of the genlight object containing the SNP or presence/absence
-#'  (SilicoDArT) data [required].
-#' @param ind.labels If TRUE, individuals are labelled with indNames(x) [default FALSE].
-#' @param group.pop If ind.labels is TRUE, group by population [default TRUE].
-#' @param ind.labels.size Size of the individual labels [default 10].
+#' @param x Name of the genlight object [required].
+#' @param ind.labels If TRUE, individual IDs are shown [default FALSE].
+# @param group.pop If ind.labels is TRUE, group by population [default TRUE].
+#' @param label.size Size of the individual labels [default 10].
 #' @param het.only If TRUE, show only the heterozygous state [default FALSE]
-#' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
+#' @param plot.display If TRUE, the plot is displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
-#' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default c("#2171B5", "#6BAED6")].
-#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.colors List of four color names for the column fill for homozygous reference,
+#' heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]#' 
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param legend Position of the legend: “left”, “top”, “right”, “bottom” or
 #'  'none' [default = 'bottom'].
@@ -30,21 +31,23 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
 #' 
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
 #' gl.smearplot(testset.gl,ind.labels=FALSE)
+#' gl.smearplot(testset.gs,ind.labels=FALSE)
+#' gl.smearplot(testset.gl[1:10,],ind.labels=TRUE)
 #' gl.smearplot(testset.gs[1:10,],ind.labels=TRUE)
 
 #' @export
-#' @return Returns unaltered genlight object
+#' @return Returns the ggplot object
 
 gl.smearplot <- function(x,
                         plot.display=TRUE,
                         ind.labels = FALSE,
-                        ind.labels.size = 10,
-                        group.pop = FALSE, 
+                        label.size = 10,
+                        #group.pop = FALSE, 
                         plot.theme = theme_dartR(),
                         plot.colors = NULL,
                         plot.file=NULL,
@@ -66,13 +69,19 @@ gl.smearplot <- function(x,
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- c("#0000FF","#00FFFF","#FF0000","#e0e0e0")
+    } else {
+      if(length(plot.colors)>4){
+        if(verbose >= 2)cat(warn("  Specified plot colours exceed 4, first 4 only are used\n"))
+        plot.colors <- plot.colors[1:4]
+      }
     }
     
     # CHECK DATATYPE
@@ -81,54 +90,72 @@ gl.smearplot <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
-    # SET COLORS
-    
-    if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="spectral",select=c(1,8,11,6),ncolors=11)
-        #plot.colors <- gl.select.colors(library="baseR",palette="topo.colors",select=c(1,5,3,9))
-        #plot.colors <- gl.select.colors(library="baseR",palette="rainbow",select=c(1,4,7,3))
-        #plot.colors <- c("#a6cee3","#1f78b4","#b2df8a","#dddddd") # = default for plot()
-        #plot.colors <- c("#1b9e77","#d95f02","#7570b3","#dddddd") # = default for plot()
-    } 
-    
     if (het.only) {
-      #plot.colors <- c("#dddddd", "#ff0000", "#dddddd","#dddddd" )
-      plot.colors <- gl.select.colors(library="brewer",select=c(5,9,5,6))
+       plot.colors <- c("#d3d3d3","#00FFFF","#d3d3d3","#e0e0e0")
     }
     
     # SET IND LABELS
     
-    n10 <- nchar(as.character(nInd(x)))
-    lzs <- paste0("%0",as.character(n10),"d")
     if(ind.labels == TRUE){
-      individuals <- paste0(sprintf(lzs,1:nInd(x)),"_",indNames(x))
+      individuals <- indNames(x)
     } else {
-      #individuals <- paste0(sprintf(lzs,1:nInd(x)))
-      individuals <- "-"
+      individuals <- seq(1:nInd(x))
     }
-    
+
     # DO THE JOB
     
-    X_temp <- as.data.frame(as.matrix(x))
-    colnames(X_temp) <- 1:nLoc(x)
-    X_temp$id <- individuals
-    X_temp$pop <- pop(x)
+    # pull the data from the genlight object, and place in a dataframe
+    df.matrix <- as.data.frame(as.matrix(x))
+    colnames(df.matrix) <- 1:nLoc(x)
+    df.matrix$id <- individuals
+    df.matrix$pop <- pop(x)
     
-    X <- reshape2::melt(X_temp, id.vars = c("pop", "id"))
-    X$value <- as.character(X$value)
-    X$value <- ifelse(X$value=="NA", NA, X$value)
-    colnames(X) <- c("pop", "id", "locus", "genotype")
+    # convert the data to long form
+    df.listing <- reshape2::melt(df.matrix, id.vars = c("pop", "id"))
+    df.listing$value <- as.character(df.listing$value)
+    df.listing$value <- ifelse(df.listing$value=="NA", NA, df.listing$value)
+    colnames(df.listing) <- c("pop", "id", "locus", "genotype")
+    df.listing$id <- as.factor(df.listing$id)
+    
+    # The locus names are 1 to nLoc(x)
+    
     loc_labels <- pretty(1:nLoc(x), 5)
     id_labels <- pretty(1:nInd(x), 5)
     
     locus <- id <- genotype <- NA
     
     if (datatype == "SilicoDArT") {
+      if(het.only){
+        cat(warn("The het only option is applicable to SNP data only. Set to FALSE\n"))
+        het.only <- FALSE
+        }
+      if(ind.labels==TRUE){
         p3 <-
-            ggplot(X, aes(
+          ggplot(df.listing, aes(
+            x = locus,
+            y = id,
+            fill = genotype
+          )) + geom_raster() + scale_fill_discrete(
+            type = plot.colors[c(1, 3)],
+            na.value = plot.colors[4],
+            name = "Genotype",
+            labels = c("0", "1")
+          ) + theme_dartR() + theme(
+            legend.position = legend,
+            axis.text.y = element_text(size = label.size)
+          ) +
+          scale_x_discrete(
+            breaks = loc_labels,
+            labels = as.character(loc_labels),
+            name = "Loci"
+          ) +
+          ylab("Individuals")
+      } else {
+        p3 <-
+            ggplot(df.listing, aes(
                 x = locus,
                 y = id,
                 fill = genotype
@@ -139,19 +166,52 @@ gl.smearplot <- function(x,
                 labels = c("0", "1")
             ) + theme_dartR() + theme(
                 legend.position = legend,
-                axis.text.y = element_text(size = ind.labels.size)
+                axis.text.y = element_text(size = label.size)
             ) +
             scale_x_discrete(
                 breaks = loc_labels,
                 labels = as.character(loc_labels),
                 name = "Loci"
-            ) + 
-            ylab("Individuals")
+            ) +
+          scale_y_discrete(
+            breaks = id_labels,
+            labels = as.character(id_labels),
+            name = "Individuals",
+            position="left"
+          )
+            #ylab("Individuals")
+      }
     }
     
     if (datatype == "SNP") {
+      if(ind.labels==TRUE){
         p3 <-
-            ggplot(X, aes(
+          ggplot(df.listing, aes(
+            x = locus,
+            y = id,
+            fill = genotype
+          )) + geom_raster() + 
+          scale_fill_discrete(
+            type = plot.colors,
+            na.value = plot.colors[4],
+            name = "Genotype",
+            labels = c("0", "1", "2")
+            # ) + theme_dartR() + theme(
+          ) + theme(
+            legend.position = legend,
+            #axis.text.y = element_text(size = label.size)
+            axis.text.y = element_text(size = label.size)
+          ) +
+          scale_x_discrete(
+            breaks = loc_labels,
+            labels = as.character(loc_labels),
+            name = "Loci",
+            position="bottom"
+          ) +
+        ylab("Individuals")
+      } else {
+        p3 <-
+            ggplot(df.listing, aes(
                 x = locus,
                 y = id,
                 fill = genotype
@@ -161,25 +221,34 @@ gl.smearplot <- function(x,
                 na.value = plot.colors[4],
                 name = "Genotype",
                 labels = c("0", "1", "2")
-            ) + theme_dartR() + theme(
+           # ) + theme_dartR() + theme(
+            ) + theme(
                 legend.position = legend,
-                axis.text.y = element_text(size = ind.labels.size)
+                #axis.text.y = element_text(size = label.size)
+                axis.text.y = element_text(size = label.size)
             ) +
             scale_x_discrete(
                 breaks = loc_labels,
                 labels = as.character(loc_labels),
                 name = "Loci",
                 position="bottom"
-            ) + 
-        ylab("Individuals")
+            ) +
+            scale_y_discrete(
+                breaks = id_labels,
+                labels = as.character(id_labels),
+                name = "Individuals",
+                position="left"
+          )
+        #ylab("Individuals")
+      }
     }
     
-    if (ind.labels==TRUE & group.pop == TRUE) {
-        p3 <- p3 + facet_wrap(~ pop,
-                              ncol = 1,
-                              dir = "v",
-                              scales = "free_y")
-    }
+    # if (ind.labels==TRUE & group.pop == TRUE) {
+    #     p3 <- p3 + facet_wrap(~ pop,
+    #                           ncol = 1,
+    #                           dir = "v",
+    #                           scales = "free_y")
+    # }
     
     # PRINTING OUTPUTS
     print(p3)
@@ -192,21 +261,6 @@ gl.smearplot <- function(x,
                              file=plot.file,
                              verbose=verbose)
     }
-    
-    # # creating temp file names
-    # if (plot.file) {
-    #     temp_plot <- tempfile(pattern = "Plot_")
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     # saving to tempdir
-    #     saveRDS(list(match_call, p3), file = temp_plot)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving the ggplot to session tempfile\n"))
-    #     }
-    # }
     
     # FLAG SCRIPT END
     

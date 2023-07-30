@@ -59,51 +59,46 @@ gl.filter.monomorphs <- function(x,
         cat(report("  Identifying monomorphic loci\n"))
     }
     
-    # Tag presence/absence data
-    # if (datatype == "SilicoDArT") {
-    #     nL <- nLoc(x)
-    #     matrix <- as.matrix(x)
-    #     l.names <- locNames(x)
-    #     for (i in 1:nL) {
-    #         row <- matrix[, i]  # Row for each locus
-    #         if (all(row == 0, na.rm = TRUE) |
-    #             all(row == 1, na.rm = TRUE) | all(is.na(row))) {
-    #             loc.list[i] <- l.names[i]
-    #             if (all(is.na(row))) {
-    #                 na.counter <-na.counter + 1
-    #             }
-    #         }
-    #     }
-    # }
-    # 
-    # SNP data
-    # if (datatype == "SNP") {
-        # nL <- nLoc(x)
-        # matrix <- as.matrix(x)
-        # lN <- locNames(x)
-        # for (i in 1:nL) {
-        #     row <- matrix[, i]  # Row for each locus
-        #     if (all(row == 0, na.rm = TRUE) |
-        #         all(row == 2, na.rm = TRUE) | all(is.na(row))) {
-        #         loc.list[i] <- lN[i]
-        #         if (all(is.na(row))) {
-        #             na.counter <-na.counter + 1
-        #         }
-        #     }
-        # }
+ 
+        # Tag presence/absence data
+        if (datatype == "SilicoDArT") {
+          mat <- as.matrix(x)
+          lN <- locNames(x)
+          for (i in 1:nLoc(x)) {
+            row <- mat[, i]  # Row for each locus
+            if (all(row == 0, na.rm = TRUE) |
+                all(row == 1, na.rm = TRUE) | all(is.na(row))) {
+              loc.list[i] <- lN[i]
+              if (all(is.na(row))) {
+                na.counter <-na.counter + 1
+              }
+            }
+          }
+        }
         
-        mono_tmp <- gl.allele.freq(x)
-        loc.list <- rownames(mono_tmp[which(mono_tmp$alf1==1 | 
-                                         mono_tmp$alf1 == 0),])
-        loc.list_NA <- rownames(mono_tmp[which(is.na(mono_tmp$alf1)),])
+        # SNP data
+        if (datatype == "SNP") {
+          mat <- as.matrix(x)
+          lN <- locNames(x)
+          for (i in 1:nLoc(x)) {
+            row <- mat[, i]  # Row for each locus
+            if (all(row == 0, na.rm = TRUE) |
+                all(row == 2, na.rm = TRUE) | all(is.na(row))) {
+              loc.list[i] <- lN[i]
+              if (all(is.na(row))) {
+                na.counter <-na.counter + 1
+              }
+            }
+          }
+        }
     # }
     
     # Remove NAs from list of monomorphic loci and loci with all NAs
-    # loc.list <- loc.list[!is.na(loc.list)]
+    loc.list <- loc.list[!is.na(loc.list)]
     
     # remove monomorphic loc and loci with all NAs
     
-    loc.list <- c(loc.list,loc.list_NA)
+    #loc.list <- c(loc.list,loc.list_NA)
     
     if (length(loc.list > 0)) {
         if (verbose >= 2) {
@@ -121,7 +116,7 @@ gl.filter.monomorphs <- function(x,
     if (verbose >= 3) {
         cat("    Original No. of loci:", nLoc(hold), "\n")
         cat("    Monomorphic loci:", nLoc(hold) - nLoc(x), "\n")
-        cat("    Loci scored all NA:", length(loc.list_NA), "\n")
+        cat("    Loci scored all NA:", length(na.counter), "\n")
         cat("    No. of loci deleted:", nLoc(hold) - nLoc(x), "\n")
         cat("    No. of loci retained:", nLoc(x), "\n")
         cat("    No. of individuals:", nInd(x), "\n")

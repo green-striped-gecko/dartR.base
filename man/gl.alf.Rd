@@ -2,27 +2,57 @@
 % Please edit documentation in R/gl.alf.r
 \name{gl.alf}
 \alias{gl.alf}
-\title{Calculates allele frequency of the first and second allele for each loci
+\title{Calculates allele frequency of the first and second allele for each locus
 A very simple function to report allele frequencies}
 \usage{
 gl.alf(x)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object [required].}
 }
 \value{
-A simple data.frame with alf1, alf2.
+A simple data.frame with ref (reference allele), alt (alternate allele).
 }
 \description{
-Calculates allele frequency of the first and second allele for each loci
+Calculates allele frequency of the first and second allele for each locus
 A very simple function to report allele frequencies
 }
 \examples{
 #for the first 10 loci only
+#Deprecated:
 gl.alf(possums.gl[,1:10])
 barplot(t(as.matrix(gl.alf(possums.gl[,1:10]))))
+#Current:
+gl.allele.freq(possums.gl[,1:10],simple=TRUE)
+barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
+}
+\seealso{
+Other utilities: 
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Bernd Gruber (bugs? Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{utilities}

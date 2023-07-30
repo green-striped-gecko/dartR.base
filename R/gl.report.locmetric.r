@@ -101,19 +101,25 @@ gl.report.locmetric <- function(x,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
 	
-	# SET COLOURS
+    # SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
     }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -193,12 +199,11 @@ gl.report.locmetric <- function(x,
     rownames(df) <- NULL
     
     # PRINTING OUTPUTS
-    if (plot.display) {
-        # using package patchwork
-        p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-        print(p3)
-    }
-    print(df)
+
+    # using package patchwork
+      p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
+      if (plot.display) {print(p3)}
+      print(df)
     
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p3,
@@ -206,36 +211,6 @@ gl.report.locmetric <- function(x,
                              file=plot.file,
                              verbose=verbose)
     }
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # 
-    # # creating temp file names
-    # if (plot.file) {
-    #     if (plot.display) {
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving to tempdir
-    #         saveRDS(list(match_call, p3), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report("  Saving the ggplot to session tempfile\n"))
-    #         }
-    #     }
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     saveRDS(list(match_call, df), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving tabulation to session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
-    # 
     
     # FLAG SCRIPT END
     

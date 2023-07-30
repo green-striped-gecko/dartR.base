@@ -70,6 +70,7 @@ gl.filter.locmetric <- function(x,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    #if(verbose==0){plot.display <- FALSE}
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]

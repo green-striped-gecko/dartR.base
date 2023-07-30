@@ -60,7 +60,7 @@ gl2bayescan <- function(x,
     }
     
     # Prepare the data
-    mat <- gl.allele.freq(x, percent=TRUE, by='loc', verbose = verbose)
+    mat <- gl.allele.freq(x, percent=TRUE, by='popxloc', verbose = verbose)
     mat <- mat[order(mat$popn),]
     
     # convert to character so it can be used in the for loop
