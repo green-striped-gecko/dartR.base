@@ -44,6 +44,7 @@ This function uses a faster version of df2genind (from the adegenet
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
@@ -63,6 +64,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},

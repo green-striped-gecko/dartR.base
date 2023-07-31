@@ -50,6 +50,7 @@ http://bioinformatics.oxfordjournals.org/content/28/19/2537
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
