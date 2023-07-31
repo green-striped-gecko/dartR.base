@@ -64,6 +64,14 @@ SNPRelate.
 Remember to close the GDS file before working in a different GDS object with
 the function \link[SNPRelate]{snpgdsClose} (package SNPRelate).
 }
+\examples{
+\donttest{
+require("dartR.data")
+gl2gds(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
+snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
+}
+
+}
 \seealso{
 Other linker: 
 \code{\link{gl2bayesAss}()},
