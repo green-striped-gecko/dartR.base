@@ -17,7 +17,7 @@
 #'   histogram [default gl.colors(2)].
 #' @param colors.barplot Vector with two color names for the observed and
 #'   expected number of significant HWE tests [default gl.colors("2c")].
-#' @param plot_theme User specified theme [default theme_dartR()].
+#' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.dir Directory in which to save files [default = working directory]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension)
 #' [default NULL]
@@ -117,9 +117,9 @@ gl.diagnostics.hwe <- function(x,
                                alpha_val = 0.05,
                                bins = 20,
                                stdErr = TRUE,
-                               colors_hist = gl.colors(2),
-                               colors_barplot = gl.colors("2c"),
-                               plot_theme = theme_dartR(),
+                               colors.hist = gl.colors(2),
+                               colors.barplot = gl.colors("2c"),
+                               plot.theme = theme_dartR(),
                                n.cores = "auto",
                                plot.file=NULL,
                                plot.dir=NULL,                               

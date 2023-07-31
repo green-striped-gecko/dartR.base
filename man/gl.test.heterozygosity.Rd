@@ -12,8 +12,8 @@ gl.test.heterozygosity(
   alpha2 = 0.01,
   plot.out = TRUE,
   max_plots = 6,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.select.colors(ncolors = 2, verbose = 0),
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(ncolors = 2, verbose = 0),
   plot.file = NULL,
   plot.dir = NULL,
   verbose = NULL
@@ -35,18 +35,20 @@ each comparison [default TRUE].}
 
 \item{max_plots}{Maximum number of plots to print per page [default 6].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
+\item{plot.colors}{List of two color names for the borders and fill of the
 plots [default gl.colors(2)].}
+
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
-
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
 }
 \value{
 A dataframe containing population labels, heterozygosities and sample

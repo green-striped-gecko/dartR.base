@@ -72,7 +72,7 @@
 #' test$position <- test$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
 #' # assigning a dummy name for chromosomes
 #' test$chromosome <- as.factor("1")
-#' gl2plink(test)
+#' gl2plink(test, outpath=tempdir())
 #' }
 #' 
 #' @references

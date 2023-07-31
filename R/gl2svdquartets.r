@@ -36,7 +36,7 @@
 #' @examples
 #' gg <- testset.gl[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
-#' gl2svdquartets(gg)
+#' gl2svdquartets(gg, outpath=tempdir())
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)

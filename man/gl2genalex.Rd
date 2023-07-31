@@ -38,7 +38,7 @@ The output csv file contains the snp data and other relevant lines suitable
 }
 \examples{
 \donttest{
-gl2genalex(testset.gl, outfile='testset.csv')
+gl2genalex(testset.gl, outfile='testset.csv', outpath=tempdir())
 }
 
 }

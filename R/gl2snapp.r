@@ -20,7 +20,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' gl2snapp(testset.gl)
+#' gl2snapp(testset.gl, outpath=tempdir())
 #' 
 #' @references Bryant, D., Bouckaert, R., Felsenstein, J., Rosenberg, N.A. and
 #' RoyChoudhury, A. (2012). Inferring species trees directly from biallelic

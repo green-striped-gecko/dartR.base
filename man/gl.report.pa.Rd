@@ -12,10 +12,9 @@ gl.report.pa(
   test.asym = FALSE,
   test.asym.boot = 100,
   plot.display = FALSE,
-  plot.out = FALSE,
-  font_plot = 14,
+  plot.font = 14,
   map.interactive = FALSE,
-  palette_discrete = NULL,
+  palette.discrete = NULL,
   plot.file = NULL,
   plot.dir = NULL,
   verbose = NULL
@@ -46,8 +45,15 @@ larger than the simulated one. If number of individuals are different between
 
 \item{plot.display}{Specify if Sankey plot is to be produced [default FALSE].}
 
+\item{plot.font}{Numeric font size in pixels for the node text labels
+[default 14].}
+
 \item{map.interactive}{Specify whether an interactive map showing private
 alleles between populations is to be produced [default FALSE].}
+
+\item{palette.discrete}{A discrete palette for the color of populations or a
+list with as many colors as there are populations in the dataset
+ [default gl.select.colors(x)].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
@@ -56,13 +62,6 @@ alleles between populations is to be produced [default FALSE].}
 \item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
 begin and end; 2, progress log; 3, progress and results summary; 5, full
 report [default 2 or as specified using gl.set.verbosity].}
-
-\item{plot.font}{Numeric font size in pixels for the node text labels
-[default 14].}
-
-\item{palette.discrete}{A discrete palette for the color of populations or a
-list with as many colors as there are populations in the dataset
- [default gl.select.colors(x)].}
 }
 \value{
 A data.frame. Each row shows, for each pair of populations the number

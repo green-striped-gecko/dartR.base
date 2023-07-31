@@ -43,7 +43,7 @@
 #' \donttest{
 #' require("dartR.data")
 #' gl2eigenstrat(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
-#' snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
+#' snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
 #' }
 #' 
 #' @references

@@ -53,7 +53,7 @@
 #' \donttest{
 #' require("dartR.data")
 #' gl2gds(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
-#' snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
+#' snp.chr = 'Chrom_Platypus_Chrom_NCBIv1, outpath=tempdir())
 #' }
 #' 
 #' @importFrom SNPRelate snpgdsCreateGeno snpgdsOpen snpgdsSummary snpgdsClose

@@ -27,7 +27,7 @@ The output text file contains the SNP data and relevant BAyescan command
  lines to guide input.
 }
 \examples{
-out <- gl2bayescan(testset.gl)
+out <- gl2bayescan(testset.gl, outpath = tempdir())
 
 }
 \references{
