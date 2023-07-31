@@ -129,10 +129,9 @@ gl.report.pa <- function(x,
                          test.asym = FALSE,
                          test.asym.boot = 100,
                          plot.display=FALSE,
-                         plot.out = FALSE,
-                         font_plot = 14,
+                         plot.font = 14,
                          map.interactive = FALSE,
-                         palette_discrete = NULL,
+                         palette.discrete = NULL,
                          plot.file=NULL,
                          plot.dir=NULL,
                          verbose = NULL) {
@@ -289,9 +288,9 @@ gl.report.pa <- function(x,
       pall[i, "totalpriv"] <- pall[i, 8] + pall[i, 9]
       pall[i, "AFD"] <- round(mean(abs(p1alf - p2alf), na.rm = TRUE), 3)
       
-      #pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
-      #pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
-      #pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+      pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
+      pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
+      pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
       #### bootstrap test to check for asymmetry of private alleles
       if (test.asym)
       {
@@ -370,8 +369,8 @@ gl.report.pa <- function(x,
       nodes$name <- gsub("src_", "", nodes$name)
       nodes$name <- gsub("trgt_", "", nodes$name)
       
-      if (is.null(palette_discrete)) colors_pops <- gl.select.colors(x, verbose=0) else 
-        colors_pops <- palette_discrete
+      if (is.null(palette.discrete)) colors_pops <- gl.select.colors(x, verbose=0) else 
+        colors_pops <- palette.discrete
       colors_pops <- paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
       
       colorScal <- paste("d3.scaleOrdinal().range([", colors_pops, "])")

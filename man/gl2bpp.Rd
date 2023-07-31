@@ -85,6 +85,7 @@ Biology and Evolution, 35(10):2585-2593. doi:10.1093/molbev/msy147
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},

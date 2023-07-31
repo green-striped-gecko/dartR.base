@@ -61,10 +61,10 @@
 #' gl <- gl.filter.overshoot(gl,verbose=3)
 #' gl <- gl.filter.callrate(testset.gl,t=.98)
 #' gl <- gl.filter.monomorphs(gl)
-#' gl2fasta(gl, method=1, outfile='test.fasta',verbose=3)
+#' gl2fasta(gl, method=1, outfile='test.fasta',verbose=3, outpath=tempdir())
 #' }
 #' test <- gl.subsample.loci(platypus.gl,n=100)
-#' gl2fasta(test)
+#' gl2fasta(test, , outpath=tempdir())
 #' 
 #' @importFrom utils combn edit flush.console getTxtProgressBar read.csv setTxtProgressBar txtProgressBar write.csv write.table
 #' @importFrom graphics axis barplot box image lines text

@@ -74,19 +74,25 @@ gl.filter.hamming <- function(x,
                               verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
 
     # SET WORKING DIRECTORY    
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
 	
-	# SET COLOURS
+    # SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
     }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -266,28 +272,6 @@ gl.filter.hamming <- function(x,
             factor(pop(x2))
         )), "\n"))
     }
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (plot.file & plot.display) {
-    #     # creating temp file names
-    #     temp_plot <- tempfile(pattern = "Plot_")
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     # saving to tempdir
-    #     saveRDS(list(match_call, p3), file = temp_plot)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # ADD TO HISTORY
     nh <- length(x2@other$history)

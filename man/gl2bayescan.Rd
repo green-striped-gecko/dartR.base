@@ -27,7 +27,7 @@ The output text file contains the SNP data and relevant BAyescan command
  lines to guide input.
 }
 \examples{
-out <- gl2bayescan(testset.gl)
+out <- gl2bayescan(testset.gl, outpath = tempdir())
 
 }
 \references{
@@ -37,6 +37,7 @@ Foll M and OE Gaggiotti (2008) A genome scan method to identify selected loci
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},

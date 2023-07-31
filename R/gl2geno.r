@@ -21,9 +21,9 @@
 #' 
 #' @examples
 #' # SNP data
-#' gl2geno(testset.gl)
+#' gl2geno(testset.gl, outpath=tempdir())
 #' # Tag P/A data
-#' gl2geno(testset.gs)
+#' gl2geno(testset.gs, outpath=tempdir())
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)

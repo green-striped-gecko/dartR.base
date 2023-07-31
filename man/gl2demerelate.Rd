@@ -27,6 +27,7 @@ df <- gl2demerelate(testset.gl)
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2eigenstrat}()},

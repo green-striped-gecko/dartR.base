@@ -14,12 +14,13 @@
 #' @param plot.out If TRUE, plots a sampling distribution of the differences for
 #' each comparison [default TRUE].
 #' @param max_plots Maximum number of plots to print per page [default 6].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.theme Theme for the plot. See Details for options
 #'  [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
+#' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -58,8 +59,8 @@ gl.test.heterozygosity <- function(x,
                                    alpha2 = 0.01,
                                    plot.out = TRUE,
                                    max_plots = 6,
-                                   plot_theme = theme_dartR(),
-                                   plot_colors = gl.select.colors(ncolors=2, verbose=0),
+                                   plot.theme = theme_dartR(),
+                                   plot.colors = gl.select.colors(ncolors=2, verbose=0),
                                    plot.file=NULL,
                                    plot.dir=NULL,
                                    verbose = NULL) {
@@ -260,8 +261,8 @@ gl.test.heterozygosity <- function(x,
                         p_temp <-
                             ggplot(plot_values, aes(x = values)) + geom_histogram(
                                 bins = 50,
-                                color = plot_colors[1],
-                                fill = plot_colors[2]
+                                color = plot.colors[1],
+                                fill = plot.colors[2]
                             ) +
                             geom_vline(
                                 xintercept = u1quantile,
@@ -288,7 +289,7 @@ gl.test.heterozygosity <- function(x,
                                 color = "blue",
                                 size = 1
                             ) +
-                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot_theme + theme(plot.title = element_text(size = 12)) +
+                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot.theme + theme(plot.title = element_text(size = 12)) +
                             labs(title = title, subtitle = subtitle)
                     )
                     
@@ -303,10 +304,10 @@ gl.test.heterozygosity <- function(x,
                         p_temp <-
                             ggplot(plot_values, aes(x = values)) + geom_histogram(
                                 bins = 50,
-                                color = plot_colors[1],
-                                fill = plot_colors[2]
+                                color = plot.colors[1],
+                                fill = plot.colors[2]
                             ) +
-                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot_theme + theme(plot.title = element_text(size = 12)) +
+                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot.theme + theme(plot.title = element_text(size = 12)) +
                             labs(title = title, subtitle = subtitle) + geom_vline(
                                 aes(xintercept = u1quantile, color = "alpha1"),
                                 size = 1

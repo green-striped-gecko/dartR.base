@@ -48,8 +48,8 @@ removing monomorphic loci. Only applies if method='ind' and mono.rm=TRUE
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot.colors}{List of two color names for the borders and fill of the
-plots [default c("#2171B5", "#6BAED6")].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default c("#2171B5", "#6BAED6")].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 

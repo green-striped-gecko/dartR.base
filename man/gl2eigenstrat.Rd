@@ -66,7 +66,7 @@ as 0, will be removed.
 \donttest{
 require("dartR.data")
 gl2eigenstrat(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
-snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
+snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
 }
 
 }
@@ -82,6 +82,7 @@ for stratification in genome-wide association studies. Nature genetics,
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},

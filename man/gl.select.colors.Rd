@@ -10,6 +10,7 @@ gl.select.colors(
   palette = NULL,
   ncolors = NULL,
   select = NULL,
+  plot.display = TRUE,
   verbose = NULL
 )
 }
@@ -27,6 +28,8 @@ library, refer function help [default is library specific].}
 
 \item{select}{select bu number the colors to retain in the output vector; 
 can repeat colors. [default NULL].}
+
+\item{plot.display}{if TRUE, plot the colours in the plot window [default=TRUE]}
 
 \item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report

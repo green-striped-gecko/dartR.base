@@ -18,7 +18,7 @@ gl.report.secondaries(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object [required].}
 
 \item{nsim}{The number of simulations to estimate the mean of the Poisson
 distribution [default 1000].}

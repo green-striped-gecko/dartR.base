@@ -4,7 +4,7 @@
 \alias{gl.allele.freq}
 \title{Generates percentage allele frequencies by locus and population}
 \usage{
-gl.allele.freq(x, percent = FALSE, by = "pop", verbose = NULL)
+gl.allele.freq(x, percent = FALSE, by = "pop", simple = FALSE, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP or Tag P/A
@@ -13,8 +13,12 @@ gl.allele.freq(x, percent = FALSE, by = "pop", verbose = NULL)
 \item{percent}{If TRUE, percentage allele frequencies are given, if FALSE
 allele proportions are given [default FALSE]}
 
-\item{by}{If by='loc' then breakdown is given by population and locus; if by='pop'
-then breakdown is given by population with statistics averaged across loci [default 'pop']}
+\item{by}{If by='popxloc' then breakdown is given by population and locus; if by='pop'
+then breakdown is given by population with statistics averaged across loci; if by='loc'
+then breakdown is given by locus with statistics averaged across individuals [default 'pop']}
+
+\item{simple}{A legacy option to return a dataframe with the frequency of the 
+reference allele (alf1) and the frequency of the alternate allele (alf2) by locus [default FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -30,13 +34,17 @@ data grouped into populations in a genlight object \{adegenet\} and generate
 a table of allele frequencies for each population and locus
 }
 \examples{
-m <-  gl.allele.freq(testset.gl,percent=FALSE,by='pop')[,4]
+gl.allele.freq(testset.gl,percent=FALSE,by='pop')
+gl.allele.freq(testset.gl,percent=FALSE,by="loc")
+gl.allele.freq(testset.gl,percent=FALSE,by="popxloc")
+gl.allele.freq(testset.gl,simple=TRUE)
 
 
 }
 \seealso{
 Other unmatched report: 
-\code{\link{gl.report.diversity}()}
+\code{\link{gl.report.diversity}()},
+\code{\link{gl.report.heterozygosity}()}
 }
 \author{
 Custodian: Arthur Georges (Post to

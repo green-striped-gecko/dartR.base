@@ -7,7 +7,7 @@
 gl2treemix(x, outfile = "treemix_input.gz", outpath = NULL, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object [required].}
 
 \item{outfile}{File name of the output file (including gz extension)
 [default 'treemix_input.gz'].}
