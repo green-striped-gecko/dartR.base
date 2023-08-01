@@ -79,7 +79,7 @@ gl.report.reproducibility <- function(x,
 	
 	# SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
     }
     
     # FLAG SCRIPT START
