@@ -2,6 +2,7 @@
 #' @title Converts a genlight object to a treemix input file
 #' @family linker
 
+#' @description
 #' The output file contains the SNP data in the format expected by treemix --
 #' see the treemix manual. The file will be gzipped before in order to be
 #' recognised by treemix. Plotting functions provided with treemix will need to

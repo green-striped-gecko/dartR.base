@@ -108,7 +108,8 @@ Other linker:
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
-\code{\link{gl2structure}()}
+\code{\link{gl2structure}()},
+\code{\link{gl2treemix}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to
