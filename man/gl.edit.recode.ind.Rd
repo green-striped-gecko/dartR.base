@@ -9,7 +9,7 @@
 gl.edit.recode.ind(
   x,
   out.recode.file = NULL,
-  outpath = tempdir(),
+  outpath = NULL,
   recalc = FALSE,
   mono.rm = FALSE,
   verbose = NULL
@@ -21,8 +21,8 @@ gl.edit.recode.ind(
 \item{out.recode.file}{Name of the file to output the new individual labels
 [optional].}
 
-\item{outpath}{Path specifying where to save the output file
-[default tempdir(), mandated by CRAN].}
+\item{outpath}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{recalc}{If TRUE, recalculate the locus metadata statistics [default TRUE].}
 

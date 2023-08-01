@@ -6,7 +6,7 @@
 \usage{
 gl.filter.ld(
   x,
-  ld_report,
+  ld.report,
   threshold = 0.2,
   pop.limit = ceiling(nPop(x)/2),
   verbose = NULL
@@ -15,7 +15,7 @@ gl.filter.ld(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{ld_report}{Output from function \code{\link{gl.report.ld.map}} 
+\item{ld.report}{Output from function \code{\link{gl.report.ld.map}} 
 [required].}
 
 \item{threshold}{Threshold value above which loci will be removed
@@ -39,33 +39,21 @@ SNPs are in LD. When a SNP is selected to be filtered out in each pairwise
 comparison, the function stores its  name in a list. In subsequent pairwise
  comparisons, if the SNP is already in the list, the other SNP will be kept.
 }
-\examples{
-\dontrun{
-test <- bandicoot.gl
-test <- gl.filter.callrate(test,threshold = 1)
-res <- gl.report.ld.map(test)
-res_2 <- gl.filter.ld(x=test,ld_report = res)
-res_3 <- gl.report.ld.map(res_2)
-}
-if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
-test <- gl.filter.callrate(platypus.gl, threshold = 1)
-test <- gl.filter.monomorphs(test)
-test <- test[,1:250]
-report <- gl.report.ld.map(test)
-res <- gl.filter.ld(x=test,ld_report = report)
-}
-}
 \seealso{
 \code{\link{gl.report.ld.map}}
 
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.pa}()}
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
+\concept{matched filter}

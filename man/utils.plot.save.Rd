@@ -29,10 +29,12 @@ Uses saveRDS() to save the file with an .RDS extension; can be reloaded with gl.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
@@ -51,6 +53,6 @@ Other utilities:
 \code{\link{utils.transpose}()}
 }
 \author{
-Maintainer: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
+Custodian: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}

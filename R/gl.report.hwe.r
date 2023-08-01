@@ -1,5 +1,6 @@
 #' @name gl.report.hwe
 #' @title Reports departure from Hardy-Weinberg proportions
+#' 
 #' @description
 #' Calculates the probabilities of agreement with H-W proportions based on 
 #' observed
@@ -35,6 +36,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
+#' 
 #' @details
 #'  There are several factors that can cause deviations from Hardy-Weinberg
 #'  proportions including: mutation, finite population size, selection,
@@ -126,13 +128,9 @@
 #'  represents the acceptance region.
 
 #' For these plots to work it is necessary to install the package ggtern.
-#' @return A dataframe containing loci, counts of reference SNP homozygotes,
-#' heterozygotes and alternate SNP homozygotes; probability of departure from
-#' H-W proportions, per locus significance with and without correction for
-#' multiple comparisons and the number of population where the same locus is 
-#' significantly out of HWE.
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @references
 #' \itemize{
 #'  \item Benjamini, Y., and Yekutieli, D. (2001). The control of the false
@@ -159,8 +157,13 @@
 #' 76:887-893.
 #' }
 #' @seealso \code{\link{gl.filter.hwe}}
-#' @family report functions
+
 #' @export
+#' @return A dataframe containing loci, counts of reference SNP homozygotes,
+#' heterozygotes and alternate SNP homozygotes; probability of departure from
+#' H-W proportions, per locus significance with and without correction for
+#' multiple comparisons and the number of population where the same locus is 
+#' significantly out of HWE.
 
 gl.report.hwe <- function(x,
                           subset = "each",
@@ -184,7 +187,7 @@ gl.report.hwe <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Jackson",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

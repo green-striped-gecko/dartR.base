@@ -31,7 +31,7 @@ gl.set.wd <- function(
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "v.2023.2",
-                   verbosity = verbose)
+                   verbose = verbose)
   # DO THE JOB
   if (!is.null(wd) &    # Check if 'wd' argument is not NULL
       is.character(wd) &    # Check if 'wd' is a character string

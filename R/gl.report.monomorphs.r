@@ -40,8 +40,8 @@ gl.report.monomorphs <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
-                     verbosity = verbose)
+                     build = "v.2023.3",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -56,10 +56,41 @@ gl.report.monomorphs <- function(x,
         cat(report("  Identifying monomorphic loci\n"))
     }
  
-    mono_tmp <- gl.alf(x)
-    loc.list <- rownames(mono_tmp[which(mono_tmp$alf1==1 | 
-                                          mono_tmp$alf1 == 0),])
-    loc.list_NA <- rownames(mono_tmp[which(is.na(mono_tmp$alf1)),])
+    # tmp <- gl.allele.freq(x,simple=TRUE)
+    # loc.list <- rownames(tmp[which(tmp$alf1==1 | tmp$alf1 == 0),])
+    # loc.list_NA <- rownames(tmp[which(is.na(tmp$alf1)),])
+  
+    # Tag presence/absence data
+    if (datatype == "SilicoDArT") {
+      mat <- as.matrix(x)
+      lN <- locNames(x)
+      for (i in 1:nLoc(x)) {
+        row <- mat[, i]  # Row for each locus
+        if (all(row == 0, na.rm = TRUE) |
+            all(row == 1, na.rm = TRUE) | all(is.na(row))) {
+          loc.list[i] <- lN[i]
+          if (all(is.na(row))) {
+            na.counter <-na.counter + 1
+          }
+        }
+      }
+    }
+    
+    # SNP data
+    if (datatype == "SNP") {
+      mat <- as.matrix(x)
+      lN <- locNames(x)
+      for (i in 1:nLoc(x)) {
+        row <- mat[, i]  # Row for each locus
+        if (all(row == 0, na.rm = TRUE) |
+            all(row == 2, na.rm = TRUE) | all(is.na(row))) {
+          loc.list[i] <- lN[i]
+          if (all(is.na(row))) {
+            na.counter <-na.counter + 1
+          }
+        }
+      }
+    }
     
     # Remove NAs from list of monomorphic loci and loci with all NAs
     loc.list <- loc.list[!is.na(loc.list)]
@@ -73,7 +104,7 @@ gl.report.monomorphs <- function(x,
     cat("\n  No. of loci:", nLoc(hold), "\n")
     cat("    Polymorphic loci:", nLoc(x), "\n")
     cat("    Monomorphic loci:", nLoc(hold) - nLoc(x), "\n")
-    cat("    Loci scored all NA:", length(loc.list_NA), "\n")
+    cat("    Loci scored all NA:", length(na.counter), "\n")
     cat("  No. of individuals:", nInd(x), "\n")
     cat("  No. of populations:", nPop(x), "\n\n")
     

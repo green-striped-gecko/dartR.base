@@ -1,8 +1,8 @@
 #'@name gl.sample
-
 #'@title Samples individuals from populations
+#'@family data manipulation
 
-#'@description This is a convenience function to prepare a bootstrap approach in dartR. For a bootstrap approach it is often desirable to sample a defined number of individuals for each of the populations in a genlight object and then calculate a certain quantity for that subset (redo a 1000 times)
+#'@description A function to subsample individuals in a genlight object
 
 #'@param x genlight object containing SNP/silicodart genotypes
 #'@param nsample the number of individuals that should be sampled
@@ -12,6 +12,14 @@
 #'@details This is convenience function to facilitate a bootstrap approach
 #'@return returns a genlight object with nsample samples from each populations.
 
+#' @details
+#' This function is often used to support a bootstrap 
+#' approach in dartR. For a bootstrap approach it is often 
+#' desirable to sample a defined number of individuals for 
+#' each of the populations in a genlight object and then 
+#' calculate a certain quantity for that subset (redo a 
+#' 1000 times)
+#' 
 #'@author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #'@examples 
@@ -44,7 +52,7 @@ gl.sample <- function(x,
   verbose <- gl.check.verbosity(verbose)
   # FLAG SCRIPT START
  funname <- match.call()[[1]]
-  utils.flag.start(func=funname,build="Jody",verbosity=verbose)
+  utils.flag.start(func=funname,build="Jody",verbose=verbose)
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose=verbose)
   # FUNCTION SPECIFIC ERROR CHECKING

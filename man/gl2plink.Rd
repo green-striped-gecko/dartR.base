@@ -97,7 +97,7 @@ test <- platypus.gl
 test$position <- test$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
 # assigning a dummy name for chromosomes
 test$chromosome <- as.factor("1")
-gl2plink(test)
+gl2plink(test, outpath=tempdir())
 }
 
 }
@@ -108,6 +108,7 @@ population-based linkage analyses.' The American journal of human genetics
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
@@ -124,6 +125,7 @@ Other linker:
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
 \code{\link{gl2structure}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

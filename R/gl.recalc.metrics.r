@@ -1,6 +1,9 @@
-#' Recalculates locus metrics when individuals or populations are deleted from a
+#' @name gl.recalc.metrics
+#' @title Recalculates locus metrics when individuals or populations are deleted from a
 #'  genlight \{adegenet\} object
+#'  @family environment
 
+#' @description
 #' When individuals,or populations, are deleted from a genlight object, the
 #' locus metrics no longer apply. For example, the Call Rate may be different
 #' considering the subset of individuals, compared with the full set. This
@@ -20,13 +23,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report
 #'   [default 2 or as specified using gl.set.verbosity].
-#' @return A genlight object with the recalculated locus metadata.
-#' @export
+#'   
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
+#'  
 #' @examples
 #'   gl <- gl.recalc.metrics(testset.gl, verbose=2)
+#'   
 #' @seealso \code{\link{gl.filter.monomorphs}}
+#' 
+#' @export
+#' @return A genlight object with the recalculated locus metadata.
 
 gl.recalc.metrics <- function(x,
                               mono.rm = FALSE,
@@ -37,8 +44,8 @@ gl.recalc.metrics <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

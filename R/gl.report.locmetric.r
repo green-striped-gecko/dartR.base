@@ -14,7 +14,7 @@
 #' @param plot.display Specify if plot is to be produced [default TRUE].
 #' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.colors Vector with two color names for the borders and fill
-#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
@@ -95,21 +95,32 @@ gl.report.locmetric <- function(x,
                                 metric,
                                 plot.display=TRUE,
                                 plot.theme = theme_dartR(),
-                                plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                                plot.colors = NULL,
                                 plot.dir=NULL,
                                 plot.file=NULL,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
+	
+    # SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
-                     verbosity = verbose)
+                     build = "v.2023.3",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -188,12 +199,11 @@ gl.report.locmetric <- function(x,
     rownames(df) <- NULL
     
     # PRINTING OUTPUTS
-    if (plot.display) {
-        # using package patchwork
-        p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-        print(p3)
-    }
-    print(df)
+
+    # using package patchwork
+      p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
+      if (plot.display) {print(p3)}
+      print(df)
     
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p3,
@@ -201,36 +211,6 @@ gl.report.locmetric <- function(x,
                              file=plot.file,
                              verbose=verbose)
     }
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # 
-    # # creating temp file names
-    # if (plot.file) {
-    #     if (plot.display) {
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving to tempdir
-    #         saveRDS(list(match_call, p3), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report("  Saving the ggplot to session tempfile\n"))
-    #         }
-    #     }
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     saveRDS(list(match_call, df), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving tabulation to session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
-    # 
     
     # FLAG SCRIPT END
     

@@ -11,7 +11,8 @@
 #' @param value Set the default verbosity for all functions, where verbosity is
 #'  not specified [default 2].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report [default NULL].
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity]
 #' 
 #' @details
 #' The locus metadata supplied by DArT has OneRatioRef, OneRatioSnp, PICRef,
@@ -56,7 +57,7 @@ utils.reset.flags <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

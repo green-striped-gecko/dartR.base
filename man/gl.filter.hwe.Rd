@@ -3,19 +3,20 @@
 \name{gl.filter.hwe}
 \alias{gl.filter.hwe}
 \title{Filters loci that show significant departure from Hardy-Weinberg
- Equilibrium}
+ Equilibrium
+ @family matched filter}
 \usage{
 gl.filter.hwe(
   x,
   subset = "each",
   n.pop.threshold = 1,
-  method_sig = "Exact",
-  multi_comp = FALSE,
-  multi_comp_method = "BY",
-  alpha_val = 0.05,
-  pvalue_type = "midp",
-  cc_val = 0.5,
-  min_sample_size = 5,
+  test.type = "Exact",
+  mult.comp.adj = FALSE,
+  mult.comp.adj.method = "BY",
+  alpha = 0.05,
+  pvalue.type = "midp",
+  cc.val = 0.5,
+  n.min = 5,
   verbose = NULL
 )
 }
@@ -28,26 +29,26 @@ with population names, 'each', 'all' (see details) [default 'each'].}
 \item{n.pop.threshold}{The minimum number of populations where the same locus 
 has to be out of H-W proportions to be removed [default 1].}
 
-\item{method_sig}{Method for determining statistical significance: 
+\item{test.type}{Method for determining statistical significance: 
 'ChiSquare'
 or 'Exact' [default 'Exact'].}
 
-\item{multi_comp}{Whether to adjust p-values for multiple comparisons
+\item{mult.comp.adj}{Whether to adjust p-values for multiple comparisons
 [default FALSE].}
 
-\item{multi_comp_method}{Method to adjust p-values for multiple comparisons:
+\item{mult.comp.adj.method}{Method to adjust p-values for multiple comparisons:
 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr'
 (see details) [default 'fdr'].}
 
-\item{alpha_val}{Level of significance for testing [default 0.05].}
+\item{alpha}{Level of significance for testing [default 0.05].}
 
-\item{pvalue_type}{Type of p-value to be used in the Exact method.
+\item{pvalue.type}{Type of p-value to be used in the Exact method.
 Either 'dost','selome','midp' (see details) [default 'midp'].}
 
-\item{cc_val}{The continuity correction applied to the ChiSquare test
+\item{cc.val}{The continuity correction applied to the ChiSquare test
 [default 0.5].}
 
-\item{min_sample_size}{Minimum number of individuals per population in which
+\item{n.min}{Minimum number of individuals per population in which
 perform H-W tests [default 5].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -86,17 +87,17 @@ c('pop1','pop2').
 Two different statistical methods to test for deviations from Hardy Weinberg
 proportions:
 \itemize{
-\item The classical chi-square test (method_sig='ChiSquare') based on the
+\item The classical chi-square test (test.type='ChiSquare') based on the
 function \code{\link[HardyWeinberg]{HWChisq}} of the R package HardyWeinberg.
-By default a continuity correction is applied (cc_val=0.5). The
-continuity correction can be turned off (by specifying cc_val=0), for example
+By default a continuity correction is applied (cc.val=0.5). The
+continuity correction can be turned off (by specifying cc.val=0), for example
 in cases of extreme allele frequencies in which the continuity correction can
 lead to excessive type 1 error rates.
-\item The exact test (method_sig='Exact') based on the exact calculations
+\item The exact test (test.type='Exact') based on the exact calculations
 contained in the function \code{\link[HardyWeinberg]{HWExactStats}} of the R
 package HardyWeinberg, and described in Wigginton  et al. (2005). The exact
 test is recommended in most cases (Wigginton  et al., 2005).
-Three different methods to estimate p-values (pvalue_type) in the Exact test
+Three different methods to estimate p-values (pvalue.type) in the Exact test
 can be used:
 \itemize{
 \item 'dost' p-value is computed as twice the tail area of a one-sided test.
@@ -178,10 +179,7 @@ Tests of Hardy-Weinberg Equilibrium. American Journal of Human Genetics
 \code{\link{gl.report.hwe}}
 
 Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.ld}()},
-\code{\link{gl.filter.pa}()}
+\code{\link{gl.filter.allna}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
