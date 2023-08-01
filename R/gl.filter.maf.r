@@ -161,7 +161,7 @@ gl.filter.maf <- function(x,
         }
         #x <- utils.recalc.maf(x, verbose = 0)
         pop.list <- seppop(x)
-        #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+        #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
         
         # getting populations with more than ind.limit
         ind_per_pop <- which(unlist(lapply(pop.list, nInd))>=ind.limit)
