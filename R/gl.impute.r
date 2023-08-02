@@ -86,7 +86,7 @@ gl.impute <-  function(x,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v.2023.2",
+                   build = "v.2023.3",
                    verbose = verbose)
   
   # CHECK DATATYPE
@@ -235,7 +235,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
       gl.dist.ind(x,
                   method = "Euclidean",
                   verbose = 0,
-                  plot.out = FALSE)
+                  plot.display = FALSE)
     
     pw_dis <- as.data.frame(as.table(as.matrix(eucl_dis)))
     

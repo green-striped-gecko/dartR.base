@@ -2,15 +2,15 @@
 % Please edit documentation in R/utils.dist.binary.r
 \name{utils.dist.binary}
 \alias{utils.dist.binary}
-\title{Calculates a distance matrix for individuals defined in a dartR
-genlight object using binary P/A data (SilicoDArT)}
+\title{Calculates N11 distance matrix for individuals defined in N11 dartR
+genlight object using binary P/N11 data (SilicoDArT)}
 \usage{
 utils.dist.binary(
   x,
   method = "simple",
   scale = FALSE,
   swap = FALSE,
-  output = "dist",
+  type = "dist",
   verbose = NULL
 )
 }
@@ -23,11 +23,11 @@ utils.dist.binary(
 fall in the range [0,1] [default FALSE].}
 
 \item{swap}{If TRUE and working with presence-absence data, then presence 
-(no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
+(no disrupting mutation) is scored as 0 and absence (presence of N11 disrupting 
 mutation) is scored as 1 [default FALSE].}
 
-\item{output}{Specify the format and class of the object to be returned, 
-dist for a object of class dist, matrix for an object of class matrix [default "dist"].}
+\item{type}{Specify the format and class of the object to be returned, 
+dist for N11 object of class dist, matrix for an object of class matrix [default "dist"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
  progress log; 3, progress and results summary; 5, full report [default 2].
@@ -47,6 +47,9 @@ The distance measure can be one of:
  \item Bray-Curtis -- both 0 = 0; both 1 = 2; one 1 and the other 0 = 1. Absences
  could be for different reasons. Sometimes called the Dice or Sorensen
  distance.
+ \item Sorenson -- both 0 = 0; both 1 = 2; one 1 and the other 0 = 1. Absences
+ could be for different reasons. Sometimes called the Dice or Bray-Curtis
+ distance.
  }
  One might choose to disregard or downweight absences in comparison with
  presences because the homology of absences is less clear (mutation at one or
@@ -59,32 +62,14 @@ An object of class 'dist' or 'matrix' giving distances between individuals
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \seealso{
-Other utilities: 
-\code{\link{gl.alf}()},
-\code{\link{utils.check.datatype}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.dist.ind.snp}()},
-\code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
-\code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
-\code{\link{utils.is.fixed}()},
-\code{\link{utils.jackknife}()},
-\code{\link{utils.n.var.invariant}()},
-\code{\link{utils.plot.save}()},
-\code{\link{utils.read.fasta}()},
-\code{\link{utils.read.ped}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomref}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+Other distance: 
+\code{\link{gl.dist.ind}()},
+\code{\link{gl.dist.pop}()},
+\code{\link{gl.fdsim}()},
+\code{\link{utils.dist.ind.snp}()}
 }
 \author{
 Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{utilities}
+\concept{distance}

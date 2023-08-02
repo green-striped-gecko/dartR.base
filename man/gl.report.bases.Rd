@@ -19,7 +19,7 @@ gl.report.bases(
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
+\item{plot.display}{If TRUE, resultant plots are displayed in the plot window
 [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options

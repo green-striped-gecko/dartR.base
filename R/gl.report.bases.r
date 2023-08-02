@@ -10,7 +10,7 @@
 
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
-#' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
+#' @param plot.display If TRUE, resultant plots are displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].

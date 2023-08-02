@@ -1,7 +1,7 @@
 #' @name utils.dist.binary
-#' @title Calculates a distance matrix for individuals defined in a dartR
-#' genlight object using binary P/A data (SilicoDArT)
-#' @family utilities
+#' @title Calculates N11 distance matrix for individuals defined in N11 dartR
+#' genlight object using binary P/N11 data (SilicoDArT)
+#' @family distance
 
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
@@ -11,10 +11,10 @@
 #' @param scale If TRUE and method='euclidean', the distance will be scaled to 
 #'  fall in the range [0,1] [default FALSE].
 #' @param swap If TRUE and working with presence-absence data, then presence 
-#' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
+#' (no disrupting mutation) is scored as 0 and absence (presence of N11 disrupting 
 #' mutation) is scored as 1 [default FALSE].
-#' @param output Specify the format and class of the object to be returned, 
-#' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
+#' @param type Specify the format and class of the object to be returned, 
+#' dist for N11 object of class dist, matrix for an object of class matrix [default "dist"].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report [default 2].
 #'  
@@ -32,6 +32,9 @@
 #'  Absences could be for different reasons.
 #'  \item Bray-Curtis -- both 0 = 0; both 1 = 2; one 1 and the other 0 = 1. Absences
 #'  could be for different reasons. Sometimes called the Dice or Sorensen
+#'  distance.
+#'  \item Sorenson -- both 0 = 0; both 1 = 2; one 1 and the other 0 = 1. Absences
+#'  could be for different reasons. Sometimes called the Dice or Bray-Curtis
 #'  distance.
 #  \item Phi -- binary analogue of the Pearson Correlation coefficient.
 #'  }
@@ -55,7 +58,7 @@ utils.dist.binary <- function(x,
                               method = "simple",
                               scale=FALSE,
                               swap=FALSE,
-                              output="dist",
+                              type="dist",
                               verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -63,7 +66,7 @@ utils.dist.binary <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -80,7 +83,8 @@ utils.dist.binary <- function(x,
         "euclidean",
         "simple",
         "jaccard",
-        "bray-curtis"
+        "bray-curtis",
+        "sorenson"
 #       ,"phi"
     ))) {
         if (verbose >= 2) {
@@ -128,25 +132,28 @@ utils.dist.binary <- function(x,
             a10 <- ((row1 + row2) == 1) * row1
             a01 <- ((row1 + row2) == 1) * row2
             a00 <- (row1 + row2) == 0
-            a <- sum(a11 == 1, na.rm = TRUE)
-            b <- sum(a01 == 1, na.rm = TRUE)
-            c <- sum(a10 == 1, na.rm = TRUE)
-            d <- sum(a00 == 1, na.rm = TRUE)
-            # a;b;c;d
+            N11 <- sum(a11 == 1, na.rm = TRUE)
+            N01 <- sum(a01 == 1, na.rm = TRUE)
+            N10 <- sum(a10 == 1, na.rm = TRUE)
+            N00 <- sum(a00 == 1, na.rm = TRUE)
+            # N11;N01;N10;N00
+            L <- N11+N01+N10+N00
             if (method == "euclidean") {
                 if(scale==TRUE){
-                    dd[j,i] <- sqrt((b+c)/(a + b + c + d))
+                    dd[j,i] <- sqrt((N01+N10)/L)
                 } else {
-                    dd[j,i] <- sqrt(b+c)
+                    dd[j,i] <- sqrt(N01+N10)
                 }
             } else if (method == "simple") {
-                dd[j,i] <- 1 - ((a + d) / (a + b + c + d))
+                dd[j,i] <- (N01 + N10)/L
             } else if (method == "jaccard") {
-                dd[j,i] <- 1 - (a / (a + b + c))
+                dd[j,i] <- (N01 + N10)/(L - N00)
             } else if (method == "bray-curtis") {
-                dd[j,i] <- 1 - 2 * a / (2 * a + b + c)
+                dd[j,i] <- 1 - 2 * N11 / (2 * N11 + N01 + N10)
+            } else if (method == "sorenson"){
+                dd[j,i] <- (N01 + N10/(L - N00 + N11))
             # } else if (method == "phi") {
-            #     dd[j,i] <- 1 - ((a * d - b * c) / sqrt((a + b) * (a + c) * (d + b) * (d + c)))
+            #     dd[j,i] <- 1 - ((N11 * N00 - N01 * N10) / sqrt((N11 + N01) * (N11 + N10) * (N00 + N01) * (N00 + N10)))
             } else {
                 # Programming error
                 stop(error("Fatal Error: Notify dartR development team\n"))
@@ -156,11 +163,11 @@ utils.dist.binary <- function(x,
         dd[i,j] <- dd[j,i]
     }
 
-    if(output=="dist"){
+    if(type=="dist"){
       dd <- as.dist(dd)
-      if(verbose >= 2){cat(report("  Returning a stats::dist object\n"))}
+      if(verbose >= 2){cat(report("  Returning N11 stats::dist object\n"))}
     } else {
-        if(verbose >= 2){cat(report("  Returning a square matrix object\n"))}
+        if(verbose >= 2){cat(report("  Returning N11 square matrix object\n"))}
     }
     
     # FLAG SCRIPT END
