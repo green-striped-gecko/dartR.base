@@ -1,5 +1,7 @@
 #' @name gl.fdsim
 #' @title Estimates the rate of false positives in a fixed difference analysis
+#' @family distance
+
 #' @description
 #' This function takes two populations and generates allele frequency profiles
 #' for them. It then samples an allele frequency for each, at random, and
@@ -13,7 +15,7 @@
 #' positives, given the observed allele frequency profiles and the sample sizes.
 #'  The probability of the observed count of fixed differences is greater than
 #' the expected number of false positives is calculated.
-
+#'
 #' @param x Name of the genlight containing the SNP genotypes [required].
 #' @param poppair Labels of two populations for comparison in the form
 #' c(popA,popB) [required].
@@ -25,8 +27,19 @@
 #' [default 1000].
 #' @param delta The threshold value for the minor allele frequency to regard the
 #'  difference between two populations to be fixed [default 0.02].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report [default 2].
+#' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
+#' begin and end; 2, progress log; 3, progress and results summary; 5, full
+#' report [default 2 or as specified using gl.set.verbosity].
+#' 
+#' @author Custodian: Arthur Georges (Post to
+#'  \url{https://groups.google.com/d/forum/dartr})
+#'  
+#' @examples
+#' fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
+#' sympatric=TRUE,verbose=3)
+#' 
+#' @importFrom stats pnorm rbinom
+#' @export
 #' @return A list containing the following square matrices
 #'         [[1]] observed fixed differences;
 #'         [[2]] mean expected number of false positives for each comparison;
@@ -34,12 +47,6 @@
 #'         comparison;
 #'         [[4]] probability the observed fixed differences arose by chance for
 #'         each comparison.
-#' @export
-#' @author Custodian: Arthur Georges (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
-#' @examples
-#' fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
-#' sympatric=TRUE,verbose=3)
 
 gl.fdsim <-  function(x,
                       poppair,
@@ -55,8 +62,8 @@ gl.fdsim <-  function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jackson",
-                     verbosity = verbose)
+                     build = "v.2023.3",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -111,7 +118,7 @@ gl.fdsim <-  function(x,
     }
     
     # Calculate the percentage frequencies
-    rf <- gl.percent.freq(pair, verbose = 0)
+    rf <- gl.allele.freq(pair, percent=TRUE, by='popxloc', verbose = 0)
     
     # Disaggregate the data for the two populations
     rfA <- rf[rf$popn == poppair[1], ]

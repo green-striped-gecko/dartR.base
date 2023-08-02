@@ -1,6 +1,8 @@
 #' @name gl.filter.heterozygosity
 #' @title Filters individuals with average heterozygosity greater than a
 #'  specified upper threshold or less than a specified lower threshold
+#'  @family matched filter
+
 #' @description
 #' Calculates the observed heterozygosity for each individual in a genlight
 #' object and filters individuals based on specified threshold values.
@@ -12,15 +14,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return The filtered genlight object.
-#' @export
+#' 
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' @importFrom plyr join
-#' @family filter functions
+
 #' @examples
 #'  result <- gl.filter.heterozygosity(testset.gl,t.upper=0.06,verbose=3)
 #'  tmp <- gl.report.heterozygosity(result,method='ind')
+#'  
+#' @importFrom plyr join
+#' @export
+#' @return The filtered genlight object.
 
 gl.filter.heterozygosity <- function(x,
                                      t.upper = 0.7,
@@ -32,8 +36,8 @@ gl.filter.heterozygosity <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <-

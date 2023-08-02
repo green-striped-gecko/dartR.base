@@ -49,10 +49,12 @@ initial common restriction enzyme recognition sequence is ignored.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},

@@ -3,7 +3,8 @@
 \name{gl.filter.heterozygosity}
 \alias{gl.filter.heterozygosity}
 \title{Filters individuals with average heterozygosity greater than a
- specified upper threshold or less than a specified lower threshold}
+ specified upper threshold or less than a specified lower threshold
+ @family matched filter}
 \usage{
 gl.filter.heterozygosity(x, t.upper = 0.7, t.lower = 0, verbose = NULL)
 }
@@ -29,16 +30,9 @@ Use gl.report.heterozygosity to determine the appropriate thresholds.
 \examples{
  result <- gl.filter.heterozygosity(testset.gl,t.upper=0.06,verbose=3)
  tmp <- gl.report.heterozygosity(result,method='ind')
-}
-\seealso{
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
-\code{\link{gl.filter.pa}()}
+ 
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}

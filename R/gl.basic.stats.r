@@ -1,21 +1,26 @@
-#' Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
+#' @name gl.basic.stats
+#' @title Calculates basic statistics for each loci (Hs, Ho, Fis etc.)
+#' @family basic statistics
 
+#' @description
 #' Based on function \code{\link[hierfstat]{basic.stats}}. Check ?basic.stats
-#' for help.
+#' for help and \code{\link[hierfstat]{basic.stats}} for details.#' 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param digits Number of digits that should be returned [default 4].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return Several tables and lists with all basic stats.
-#' \code{\link[hierfstat]{basic.stats}} for details.
-#' @author Bernd Gruber (bugs? Post to
+#' 
+#' @author Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' if (!(requireNamespace("hierfstat", quietly = TRUE))) {
 #' out <- gl.basic.stats(possums.gl[1:10,1:100])
 #' }
+#' 
 #' @export
+#' @return Several tables and lists with all basic stats.
 
 gl.basic.stats <- function(x,
                            digits = 4,
@@ -26,8 +31,8 @@ gl.basic.stats <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

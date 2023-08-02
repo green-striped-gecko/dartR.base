@@ -4,17 +4,7 @@
 \alias{gl.recalc.metrics}
 \title{Recalculates locus metrics when individuals or populations are deleted from a
  genlight \{adegenet\} object
-When individuals,or populations, are deleted from a genlight object, the
-locus metrics no longer apply. For example, the Call Rate may be different
-considering the subset of individuals, compared with the full set. This
- script recalculates those affected locus metrics, namely, avgPIC, CallRate,
-freqHets, freqHomRef, freqHomSnp, OneRatioRef, OneRatioSnp, PICRef and
- PICSnp.
- Metrics that remain unaltered are RepAvg and TrimmedSeq as they are
-  unaffected by the removal of individuals.
-The script optionally removes resultant monomorphic loci or loci
-with all values missing and deletes them (using gl.filter.monomorphs.r).
-The script returns a genlight object with the recalculated locus metadata.}
+ @family environment}
 \usage{
 gl.recalc.metrics(x, mono.rm = FALSE, verbose = NULL)
 }
@@ -31,8 +21,6 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object with the recalculated locus metadata.
 }
 \description{
-Recalculates locus metrics when individuals or populations are deleted from a
- genlight \{adegenet\} object
 When individuals,or populations, are deleted from a genlight object, the
 locus metrics no longer apply. For example, the Call Rate may be different
 considering the subset of individuals, compared with the full set. This
@@ -47,6 +35,7 @@ The script returns a genlight object with the recalculated locus metadata.
 }
 \examples{
   gl <- gl.recalc.metrics(testset.gl, verbose=2)
+  
 }
 \seealso{
 \code{\link{gl.filter.monomorphs}}

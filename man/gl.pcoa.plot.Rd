@@ -154,9 +154,6 @@ gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 }
 \seealso{
 \code{\link{gl.pcoa}}
-
-Other Exploration/visualisation functions: 
-\code{\link{gl.smearplot}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

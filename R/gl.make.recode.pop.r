@@ -13,8 +13,8 @@
 #' @param x Name of the genlight object [required].
 #' @param out.recode.file File name of the output file (including extension)
 #'  [default recode_pop_table.csv].
-#' @param outpath Path where to save the output file
-#' [default tempdir(), mandated by CRAN]. 
+#' @param outpath Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()] 
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -49,17 +49,20 @@
 # Function ---------------
 gl.make.recode.pop <- function(x,
                                out.recode.file = "recode_pop_table.csv",
-                               outpath = tempdir(),
+                               outpath = NULL,
                                verbose = NULL) {
   # Preliminaries --------------------
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
+    # SET WORKING DIRECTORY
+    outpath <- gl.check.wd(outpath,verbose=0)
+    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

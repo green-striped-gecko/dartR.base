@@ -19,7 +19,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' out <- gl2bayescan(testset.gl)
+#' out <- gl2bayescan(testset.gl, outpath = tempdir())
 #' 
 #' @references
 #' Foll M and OE Gaggiotti (2008) A genome scan method to identify selected loci
@@ -44,7 +44,7 @@ gl2bayescan <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -60,7 +60,7 @@ gl2bayescan <- function(x,
     }
     
     # Prepare the data
-    mat <- gl.percent.freq(x, verbose = verbose)
+    mat <- gl.allele.freq(x, percent=TRUE, by='popxloc', verbose = verbose)
     mat <- mat[order(mat$popn),]
     
     # convert to character so it can be used in the for loop

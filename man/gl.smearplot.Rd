@@ -6,59 +6,76 @@
 \usage{
 gl.smearplot(
   x,
-  ind_labels = FALSE,
-  group_pop = FALSE,
-  ind_labels_size = 10,
-  plot_colors = NULL,
-  posi = "bottom",
-  save2tmp = FALSE,
+  plot.display = TRUE,
+  ind.labels = FALSE,
+  label.size = 10,
+  plot.theme = theme_dartR(),
+  plot.colors = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
+  het.only = FALSE,
+  legend = "bottom",
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP or presence/absence
-(SilicoDArT) data [required].}
+\item{x}{Name of the genlight object [required].}
 
-\item{ind_labels}{If TRUE, individuals are labelled with indNames(x) [default FALSE].}
+\item{plot.display}{If TRUE, the plot is displayed in the plot window
+[default TRUE].}
 
-\item{group_pop}{If ind_labels is TRUE, group by population [default TRUE].}
+\item{ind.labels}{If TRUE, individual IDs are shown [default FALSE].}
 
-\item{ind_labels_size}{Size of the individual labels [default 10].}
+\item{label.size}{Size of the individual labels [default 10].}
 
-\item{plot_colors}{Vector with four color names for homozygotes for the
-reference allele, heterozygotes, homozygotes for the alternative allele and
-for missing values (NA), e.g. gl.colors(4) [default NULL].
-Can be set to "hetonly", which defines colors to only show heterozygotes in the genlight object}
+\item{plot.theme}{Theme for the plot. See Details for options
+[default theme_dartR()].}
 
-\item{posi}{Position of the legend: “left”, “top”, “right”, “bottom” or
+\item{plot.colors}{List of four color names for the column fill for homozygous reference,
+heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].}
+
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]#'}
+
+\item{het.only}{If TRUE, show only the heterozygous state [default FALSE]}
+
+\item{legend}{Position of the legend: “left”, “top”, “right”, “bottom” or
 'none' [default = 'bottom'].}
 
-\item{save2tmp}{If TRUE, saves plot to the session temporary directory
-(tempdir) [default FALSE].}
-
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default NULL].}
+progress log; 3, progress and results summary; 5, full report
+[default 2 or as specified using gl.set.verbosity]}
 }
 \value{
-Returns unaltered genlight object
+Returns the ggplot object
 }
 \description{
 Each locus is color coded for scores of 0, 1, 2 and NA for SNP data and 0, 1
-and NA for presence/absence (SilicoDArT) data. Individual labels can be added
-and individuals can be grouped by population.
-Plot may become cluttered if ind_labels If there are too many individuals, 
-it is best to use ind_labels_size = 0.
+and NA for presence/absence (SilicoDArT) data. Individual labels can be added.
+Plot may become cluttered if ind.labels If there are too many individuals, 
+it is best to use ind.labels = FALSE.
+
+Works with both SNP data and P/A data (SilicoDArT)
 }
 \examples{
-gl.smearplot(testset.gl,ind_labels=FALSE)
-gl.smearplot(testset.gs[1:10,],ind_labels=TRUE)
+gl.smearplot(testset.gl,ind.labels=FALSE)
+gl.smearplot(testset.gs,ind.labels=FALSE)
+gl.smearplot(testset.gl[1:10,],ind.labels=TRUE)
+gl.smearplot(testset.gs[1:10,],ind.labels=TRUE)
 }
 \seealso{
-Other Exploration/visualisation functions: 
-\code{\link{gl.pcoa.plot}()}
+Other graphics: 
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{Exploration/visualisation functions}
+\concept{graphics}

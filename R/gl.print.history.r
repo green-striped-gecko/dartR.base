@@ -1,4 +1,6 @@
-#' Prints history of a genlight object
+#' @name gl.print.history
+#' @title Prints history of a genlight object
+#' @family environment
 
 #' @param x A genlight object (with history) [optional].
 #' @param history Either a link to a history slot
@@ -6,12 +8,10 @@
 #' used [c(1,3,4) uses the first, third and forth entry from x\@other$history].
 #' If no history is provided the complete history of x is used (recreating the
 #' identical object x) [optional].
-#' @return Prints a table with all history records. Currently the style cannot
-#' be changed.
-#' @export
-#' @importFrom gridExtra grid.table ttheme_default
+#' 
 #' @author Bernd Gruber (bugs? Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #' \donttest{
 #' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
@@ -24,6 +24,11 @@
 #' #history=gl3@other$history[c(2,3)], verbose=1)
 #' #gl.print.history(bc.fil)
 #' }
+#' 
+#' @importFrom gridExtra grid.table ttheme_default
+#' @export
+#' @return Prints a table with all history records. Currently the style cannot
+#' be changed.
 
 gl.print.history <- function(x = NULL,
                              history = NULL) {

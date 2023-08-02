@@ -12,9 +12,10 @@ gl.test.heterozygosity(
   alpha2 = 0.01,
   plot.out = TRUE,
   max_plots = 6,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  plot.theme = theme_dartR(),
+  plot.colors = gl.select.colors(ncolors = 2, verbose = 0),
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -34,14 +35,16 @@ each comparison [default TRUE].}
 
 \item{max_plots}{Maximum number of plots to print per page [default 6].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
+\item{plot.colors}{List of two color names for the borders and fill of the
 plots [default gl.colors(2)].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -62,11 +65,11 @@ If plot.out = TRUE, plots are created showing the sampling distribution for
 the difference between each pair of heterozygosities, marked with the
 critical limits alpha1 and alpha2, the observed heterozygosity, and the zero
 value (if in range).
-Plots and table are saved to the temporal directory (tempdir) and can be
-accessed with the function  and listed with the
-function . Note that they can be accessed only
-in the current R session because tempdir is cleared each time that the R
-session is closed.
+  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+specified for the plot to be saved.
+ If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+ directory; otherwise to the tempdir(). 
  Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}

@@ -1,6 +1,8 @@
 #' @name gl.filter.hwe
 #' @title Filters loci that show significant departure from Hardy-Weinberg
 #'  Equilibrium
+#'  @family matched filter
+
 #' @description
 #' This function filters out loci showing significant departure from H-W
 #' proportions based on observed frequencies of reference homozygotes,
@@ -15,24 +17,25 @@
 #' with population names, 'each', 'all' (see details) [default 'each'].
 #' @param n.pop.threshold The minimum number of populations where the same locus 
 #' has to be out of H-W proportions to be removed [default 1].
-#' @param method_sig Method for determining statistical significance: 
+#' @param test.type Method for determining statistical significance: 
 #' 'ChiSquare'
 #' or 'Exact' [default 'Exact'].
-#' @param multi_comp Whether to adjust p-values for multiple comparisons
+#' @param mult.comp.adj Whether to adjust p-values for multiple comparisons
 #' [default FALSE].
-#' @param multi_comp_method Method to adjust p-values for multiple comparisons:
+#' @param mult.comp.adj.method Method to adjust p-values for multiple comparisons:
 #' 'holm', 'hochberg', 'hommel', 'bonferroni', 'BH', 'BY', 'fdr'
 #' (see details) [default 'fdr'].
-#' @param alpha_val Level of significance for testing [default 0.05].
-#' @param pvalue_type Type of p-value to be used in the Exact method.
+#' @param alpha Level of significance for testing [default 0.05].
+#' @param pvalue.type Type of p-value to be used in the Exact method.
 #' Either 'dost','selome','midp' (see details) [default 'midp'].
-#' @param cc_val The continuity correction applied to the ChiSquare test
+#' @param cc.val The continuity correction applied to the ChiSquare test
 #'  [default 0.5].
-#' @param min_sample_size Minimum number of individuals per population in which
+#' @param n.min Minimum number of individuals per population in which
 #' perform H-W tests [default 5].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
+#' 
 #' @details
 #'  There are several factors that can cause deviations from Hardy-Weinberg
 #'  proportions including: mutation, finite population size, selection,
@@ -56,17 +59,17 @@
 #' Two different statistical methods to test for deviations from Hardy Weinberg
 #' proportions:
 #' \itemize{
-#' \item The classical chi-square test (method_sig='ChiSquare') based on the
+#' \item The classical chi-square test (test.type='ChiSquare') based on the
 #' function \code{\link[HardyWeinberg]{HWChisq}} of the R package HardyWeinberg.
-#' By default a continuity correction is applied (cc_val=0.5). The
-#' continuity correction can be turned off (by specifying cc_val=0), for example
+#' By default a continuity correction is applied (cc.val=0.5). The
+#' continuity correction can be turned off (by specifying cc.val=0), for example
 #' in cases of extreme allele frequencies in which the continuity correction can
 #' lead to excessive type 1 error rates.
-#' \item The exact test (method_sig='Exact') based on the exact calculations
+#' \item The exact test (test.type='Exact') based on the exact calculations
 #' contained in the function \code{\link[HardyWeinberg]{HWExactStats}} of the R
 #' package HardyWeinberg, and described in Wigginton  et al. (2005). The exact
 #' test is recommended in most cases (Wigginton  et al., 2005).
-#' Three different methods to estimate p-values (pvalue_type) in the Exact test
+#' Three different methods to estimate p-values (pvalue.type) in the Exact test
 #' can be used:
 #' \itemize{
 #' \item 'dost' p-value is computed as twice the tail area of a one-sided test.
@@ -157,13 +160,13 @@
 gl.filter.hwe <- function(x,
                           subset = "each",
                           n.pop.threshold = 1,
-                          method_sig = "Exact",
-                          multi_comp = FALSE,
-                          multi_comp_method = "BY",
-                          alpha_val = 0.05,
-                          pvalue_type = "midp",
-                          cc_val = 0.5,
-                          min_sample_size = 5,
+                          test.type = "Exact",
+                          mult.comp.adj = FALSE,
+                          mult.comp.adj.method = "BY",
+                          alpha = 0.05,
+                          pvalue.type = "midp",
+                          cc.val = 0.5,
+                          n.min = 5,
                           verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -171,8 +174,8 @@ gl.filter.hwe <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -198,14 +201,14 @@ gl.filter.hwe <- function(x,
         )
     }
     
-    if (alpha_val < 0 | alpha_val > 1) {
+    if (alpha < 0 | alpha > 1) {
         cat(
             warn(
                 "    Warning: level of significance per locus alpha must be an 
                 integer between 0 and 1, set to 0.05\n"
             )
         )
-        alpha_val <- 0.05
+        alpha <- 0.05
     }
     
     # DO THE JOB
@@ -306,7 +309,7 @@ gl.filter.hwe <- function(x,
     # testing whether populations have small sample size
     n_ind_pops_temp <- unlist(lapply(poplist, nInd))
     n_ind_pops <-
-        n_ind_pops_temp[which(n_ind_pops_temp <= min_sample_size)]
+        n_ind_pops_temp[which(n_ind_pops_temp <= n.min)]
     
     if (length(n_ind_pops) > 0) {
         if (verbose >= 2) {
@@ -315,7 +318,7 @@ gl.filter.hwe <- function(x,
                     " Warning: population",
                     names(n_ind_pops),
                     "has less than",
-                    min_sample_size,
+                    n.min,
                     "individuals... skipped\n"
                 )
             )
@@ -364,15 +367,15 @@ gl.filter.hwe <- function(x,
             length(y[which(y == 2)])
         })
         
-        if (method_sig == "ChiSquare") {
+        if (test.type == "ChiSquare") {
             p.values <- apply(mat_HWE, 1, function(x) {
                 HardyWeinberg::HWChisq(x, verbose = F)$pval
             })
         }
         
-        if (method_sig == "Exact") {
+        if (test.type == "Exact") {
             p.values <-
-                HardyWeinberg::HWExactStats(mat_HWE, pvaluetype = pvalue_type)
+                HardyWeinberg::HWExactStats(mat_HWE, pvaluetype = pvalue.type)
         }
         
         total <- rowSums(mat_HWE, na.rm = T)
@@ -413,24 +416,24 @@ gl.filter.hwe <- function(x,
     }
     result <- result[-1, ]
     
-    if (multi_comp == TRUE) {
+    if (mult.comp.adj == TRUE) {
         result$Prob.adj <-
-            stats::p.adjust(result$Prob, method = multi_comp_method)
+            stats::p.adjust(result$Prob, method = mult.comp.adj.method)
     }
     
-    result[which(result$Prob < alpha_val), "Sig"] <- "sig"
-    result[which(result$Prob > alpha_val), "Sig"] <- "no_sig"
-    result[which(result$Prob.adj < alpha_val), "Sig.adj"] <- "sig"
-    result[which(result$Prob.adj > alpha_val), "Sig.adj"] <-
+    result[which(result$Prob < alpha), "Sig"] <- "sig"
+    result[which(result$Prob > alpha), "Sig"] <- "no_sig"
+    result[which(result$Prob.adj < alpha), "Sig.adj"] <- "sig"
+    result[which(result$Prob.adj > alpha), "Sig.adj"] <-
         "no_sig"
     
     df <- result
     #### Report the results
-    if (multi_comp == F) {
-        df <- df[which(df$Prob <= alpha_val), ]
+    if (mult.comp.adj == F) {
+        df <- df[which(df$Prob <= alpha), ]
     }
-    if (multi_comp == T) {
-        df <- df[which(df$Prob.adj <= alpha_val), ]
+    if (mult.comp.adj == T) {
+        df <- df[which(df$Prob.adj <= alpha), ]
     }
     npop <-NULL #needs to be defined to avoid cran check error
     dt <- data.table(df)
@@ -448,24 +451,24 @@ gl.filter.hwe <- function(x,
     
     #### Report the results
     if (verbose >= 2) {
-        if (multi_comp == TRUE) {
+        if (mult.comp.adj == TRUE) {
             cat(
                 "  Deleted",
                 length(failed.loci),
                 "loci with significant departure from HWE, after correction for
                 multiple tests using the",
-                multi_comp_method,
+                mult.comp.adj.method,
                 "method at experiment-wide alpha =",
-                alpha_val,
+                alpha,
                 "\n"
             )
         }
-        if (multi_comp == FALSE) {
+        if (mult.comp.adj == FALSE) {
             cat(
                 "  Deleted",
                 length(failed.loci),
                 "loci with significant departure from HWE at alpha =",
-                alpha_val,
+                alpha,
                 "applied locus by locus\n"
             )
         }

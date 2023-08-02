@@ -17,6 +17,7 @@
 #' @param ncolors number of colors to be displayed and returned [default 9 or nPop(gl)].
 #' @param select select bu number the colors to retain in the output vector; 
 #' can repeat colors. [default NULL].
+#' @param plot.display if TRUE, plot the colours in the plot window [default=TRUE]
 #' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -101,6 +102,7 @@ gl.select.colors <- function(x = NULL,
                              palette = NULL,
                              ncolors = NULL,
                              select = NULL,
+                             plot.display=TRUE,
                              verbose = NULL) {
 # Preliminaries -----------------
     # SET VERBOSITY
@@ -109,8 +111,8 @@ gl.select.colors <- function(x = NULL,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
-                     verbosity = verbose)
+                     build = "v.2023.3",
+                     verbose = verbose)
     
     # CHECK PACKAGES
     pkg <- "RColorBrewer"
@@ -138,34 +140,6 @@ gl.select.colors <- function(x = NULL,
     if (!is.null(x)) {
       datatype <- utils.check.datatype(x)
     }
-    
-    # if(is.null(library)){
-    #   library="scales"
-    #   palette="hue_pl"
-    #   if (verbose >= 2) {
-    #     cat(
-    #       warn(
-    #         "  Warning: Color library not specified, 
-    #         set to 'scales' with palette 'hue_pl'\n
-    #         Refer to help for suggested libraries\n"
-    #       )
-    #     )
-    #   }
-    # } else {
-    #   if(is.null(palette)){
-    #     if (verbose >= 2) {
-    #       cat(
-    #         warn(
-    #           "  Warning: A color library has been specified, 
-    #         but not a palette. If a library is specified,
-    #         a palette must also be specified. Library reset 
-    #         to 'scales' with palette 'hue_pl'\n
-    #         Refer to help for suggested libraries and palettes\n"
-    #         )
-    #       )
-    #     }
-    #   }
-    # }
     
     if (is.null(ncolors)) {
       if (!is.null(x)) {
@@ -430,7 +404,7 @@ gl.select.colors <- function(x = NULL,
           }
         }
         
-        if(verbose >=1){scales::show_col(colors)}
+        if(verbose >=1 && plot.display==TRUE){scales::show_col(colors)}
 
     # FLAG SCRIPT END ----------------
     

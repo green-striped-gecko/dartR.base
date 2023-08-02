@@ -2,27 +2,52 @@
 % Please edit documentation in R/utils.flag.start.r
 \name{utils.flag.start}
 \alias{utils.flag.start}
-\title{utils.flag.start}
+\title{A utility script to flag the start of a script}
 \usage{
-utils.flag.start(func = NULL, build = NULL, verbosity = NULL)
+utils.flag.start(func = NULL, build = NULL, verbose = NULL)
 }
 \arguments{
 \item{func}{Name of the function that is starting [required].}
 
 \item{build}{Name of the build [default NULL].}
 
-\item{verbosity}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default 2].}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default 2 or as specified using gl.set.verbosity]}
 }
 \value{
 calling function name
 }
 \description{
-utils.flag.start
-
 A utility script to flag the start of a script
+}
+\seealso{
+Other utilities: 
+\code{\link{gl.alf}()},
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{utilities}

@@ -1,10 +1,34 @@
 #' @name gl.fixed.diff
 #' @title Generates a matrix of fixed differences and associated statistics for
 #'  populations taken pairwise
+#' @family fixed difference analysis
+
 #' @description
 #' This script takes SNP data or sequence tag P/A data grouped into populations
 #' in a genlight object (DArTSeq) and generates a matrix of fixed differences
 #' between populations taken pairwise
+#' 
+#' @param x Name of the genlight object containing SNP genotypes or tag P/A data
+#' (SilicoDArT) or an object of class 'fd' [required].
+#' @param tloc Threshold defining a fixed difference (e.g. 0.05 implies 95:5 vs
+#'  5:95 is fixed) [default 0].
+#' @param test If TRUE, calculate p values for the observed fixed differences
+#' [default FALSE].
+#' @param reps Number of replications to undertake in the simulation to estimate
+#' probability of false positives [default 1000].
+#' @param delta Threshold value for the true population minor allele frequency
+#' (MAF) from which resultant sample fixed differences are considered true
+#' positives [default 0.02].
+#' @param alpha Level of significance used to display non-significant
+#' differences between populations as they are compared pairwise [default 0.05].
+#' @param mono.rm If TRUE, loci that are monomorphic across all individuals are
+#' removed before beginning computations [default TRUE].
+#' @param pb If TRUE, show a progress bar on time consuming loops
+#' [default FALSE].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
 #' A fixed difference at a locus occurs when two populations share no alleles or
 #' where all members of one population has a sequence tag scored, and all
@@ -39,26 +63,19 @@
 #' tloc=0.05 means that SNP allele frequencies of 95,5 and 5,95 percent will be
 #' regarded as fixed when comparing two populations at a locus.
 
-#' @param x Name of the genlight object containing SNP genotypes or tag P/A data
-#' (SilicoDArT) or an object of class 'fd' [required].
-#' @param tloc Threshold defining a fixed difference (e.g. 0.05 implies 95:5 vs
-#'  5:95 is fixed) [default 0].
-#' @param test If TRUE, calculate p values for the observed fixed differences
-#' [default FALSE].
-#' @param reps Number of replications to undertake in the simulation to estimate
-#' probability of false positives [default 1000].
-#' @param delta Threshold value for the true population minor allele frequency
-#' (MAF) from which resultant sample fixed differences are considered true
-#' positives [default 0.02].
-#' @param alpha Level of significance used to display non-significant
-#' differences between populations as they are compared pairwise [default 0.05].
-#' @param mono.rm If TRUE, loci that are monomorphic across all individuals are
-#' removed before beginning computations [default TRUE].
-#' @param pb If TRUE, show a progress bar on time consuming loops
-#' [default FALSE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' @author Custodian: Arthur Georges -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#' 
+#' @examples
+#' \donttest{
+#' fd <- gl.fixed.diff(testset.gl, tloc=0, verbose=3 )
+#' fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose=3 )
+#' }
+#' 
+#' @seealso \code{\link{utils.is.fixed}}
+#' 
+#' @import utils
+#' @export
 #' @return A list of Class 'fd' containing the gl object and square matrices,
 #' as follows:
 #' \enumerate{
@@ -74,16 +91,6 @@
 #'        \item $prob -- if test=TRUE, the significance of the count of fixed
 #'        differences [by simulation])
 #'         }
-#' @import utils
-#' @export
-#' @author Custodian: Arthur Georges -- Post to
-#' \url{https://groups.google.com/d/forum/dartr}
-#' @examples
-#' \donttest{
-#' fd <- gl.fixed.diff(testset.gl, tloc=0, verbose=3 )
-#' fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose=3 )
-#' }
-#' @seealso \code{\link{utils.is.fixed}}
 
 gl.fixed.diff <- function(x,
                           tloc = 0,
@@ -101,7 +108,7 @@ gl.fixed.diff <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Jody",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <-
@@ -188,7 +195,7 @@ gl.fixed.diff <- function(x,
     # DO THE JOB
     
     # Calculate percent allele frequencies
-    ftable <- gl.percent.freq(x, verbose = 0)
+    ftable <- gl.allele.freq(x, percent=TRUE, by='popxloc', verbose = 0) 
     
     # GENERATE A MATRIX OF PAIRWISE FIXED DIFFERENCES
     

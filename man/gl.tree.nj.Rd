@@ -2,13 +2,11 @@
 % Please edit documentation in R/gl.tree.nj.r
 \name{gl.tree.nj}
 \alias{gl.tree.nj}
-\title{Outputs an nj tree to summarize genetic similarity among populations
-This function is a wrapper for the nj function or package ape applied to Euclidean
-distances calculated from the genlight object.}
+\title{Outputs an nj tree to summarize genetic similarity among populations}
 \usage{
 gl.tree.nj(
   x,
-  d_mat = NULL,
+  dist.matrix = NULL,
   type = "phylogram",
   outgroup = NULL,
   labelsize = 0.7,
@@ -19,7 +17,7 @@ gl.tree.nj(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{d_mat}{Distance matrix [default NULL].}
+\item{dist.matrix}{Distance matrix [default NULL].}
 
 \item{type}{Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
 [default "phylogram"].}
@@ -33,20 +31,19 @@ gl.tree.nj(
 \item{treefile}{Name of the file for the tree topology using Newick format 
 [default NULL].}
 
-\item{verbose}{Specify the level of verbosity: 0, silent, fatal errors only; 
-1, flag function begin and end; 2, progress log; 3, progress and results 
-summary; 5, full report [default 2].}
+\item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
+begin and end; 2, progress log; 3, progress and results summary; 5, full
+report [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 A tree file of class phylo.
 }
 \description{
-Outputs an nj tree to summarize genetic similarity among populations
 This function is a wrapper for the nj function or package ape applied to Euclidean
 distances calculated from the genlight object.
 }
 \details{
-An euclidean distance matrix is calculated by default [d_mat = NULL]. 
+An euclidean distance matrix is calculated by default [dist.matrix = NULL]. 
 Optionally the user can use as input for the tree any other distance matrix
 using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
 }
@@ -58,8 +55,19 @@ using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
   gl.tree.nj(testset.gs,type='fan')
   }
   res <- gl.tree.nj(platypus.gl)
+  
+}
+\seealso{
+Other graphics: 
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()}
 }
 \author{
 Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{graphics}

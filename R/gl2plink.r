@@ -72,7 +72,7 @@
 #' test$position <- test$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
 #' # assigning a dummy name for chromosomes
 #' test$chromosome <- as.factor("1")
-#' gl2plink(test)
+#' gl2plink(test, outpath=tempdir())
 #' }
 #' 
 #' @references
@@ -106,7 +106,7 @@ gl2plink <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

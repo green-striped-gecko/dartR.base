@@ -2,15 +2,7 @@
 % Please edit documentation in R/gl.filter.pa.r
 \name{gl.filter.pa}
 \alias{gl.filter.pa}
-\title{Filters loci that contain private (and fixed alleles) between two populations
-This script is meant to be used prior to \code{gl.nhybrids} to maximise the
-information content of the SNPs used to identify hybrids (currently
- newhybrids does allow only 200 SNPs). The idea is to use first all loci that
-  have fixed alleles between the potential source populations and then 'fill
-   up' to 200 loci using loci that have private alleles between those. The
-   functions filters for those loci (if invers is set to TRUE, the opposite
-   is returned (all loci that are not fixed and have no private alleles - not
-    sure why yet, but maybe useful.)}
+\title{Filters loci that contain private (and fixed alleles) between two populations}
 \usage{
 gl.filter.pa(x, pop1, pop2, invers = FALSE, verbose = NULL)
 }
@@ -33,7 +25,6 @@ The reduced genlight dataset, containing now only fixed and private
 alleles.
 }
 \description{
-Filters loci that contain private (and fixed alleles) between two populations
 This script is meant to be used prior to \code{gl.nhybrids} to maximise the
 information content of the SNPs used to identify hybrids (currently
  newhybrids does allow only 200 SNPs). The idea is to use first all loci that
@@ -46,17 +37,22 @@ information content of the SNPs used to identify hybrids (currently
 \examples{
 result <- gl.filter.pa(testset.gl, pop1=pop(testset.gl)[1], 
 pop2=pop(testset.gl)[2],verbose=3)
+
 }
 \seealso{
-Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()}
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Authors: Bernd Gruber & Ella Kelly (University of Melbourne);
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
+\concept{matched filter}

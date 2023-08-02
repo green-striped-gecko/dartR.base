@@ -91,6 +91,7 @@ Danecek, P., Auton, A., Abecasis, G., Albers, C. A., Banks, E., DePristo, M.
 }
 \seealso{
 Other linker: 
+\code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
@@ -107,7 +108,8 @@ Other linker:
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
-\code{\link{gl2structure}()}
+\code{\link{gl2structure}()},
+\code{\link{gl2treemix}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to

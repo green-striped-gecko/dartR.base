@@ -11,8 +11,7 @@ gl.report.reproducibility(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
-    verbose = 0),
+  plot.colors = NULL,
   plot.dir = NULL,
   plot.file = NULL,
   verbose = NULL
@@ -28,7 +27,7 @@ gl.report.reproducibility(
 theme_dartR()].}
 
 \item{plot.colors}{Vector with two color names for the borders and fill
-[default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+[default c("#2171B5", "#6BAED6")].}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
 by the global working directory or tempdir()]}
@@ -83,6 +82,7 @@ Other matched report:
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}

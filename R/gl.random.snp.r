@@ -44,7 +44,7 @@ gl.random.snp <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Jackson",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -97,7 +97,7 @@ gl.random.snp <- function(x,
         
         # plot before randomisation
         p1 <-
-            gl.smearplot(hold_plot, posi = "none", verbose = 0)
+            gl.smearplot(hold_plot, legend = "none", verbose = 0)
         p1 <-
             p1 + ggtitle("Pre-randomisation") + theme(
                 axis.title.x = element_blank(),

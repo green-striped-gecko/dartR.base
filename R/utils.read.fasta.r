@@ -1,21 +1,18 @@
 #' @name utils.read.fasta
-#' @title An internal script [Custodian to provide a title]
+#' @title An internal script to read a fastA file into a genlight object
 #' @family utilities
 #' 
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 #'
-#' @param file Custodian to provide other parameter descriptions
-#' @param parallel Custodian to provide other parameter descriptions
-#' @param n.cores Custodian to provide other parameter descriptions
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#' @param file Name of the fastA file [required]
+#' @param parallel Switch to deactivate parallel version. It might not be worth
+#' to run it parallel most of the times [default FALSE]
+#' @param n.cores Number of cores to use in parallel [default 4]
+#' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
+#' begin and end; 2, progress log; 3, progress and results summary; 5, full
+#' report [default 2 or as specified using gl.set.verbosity].
 #'  
-#' #[Custodian to provide other parameter descriptions]
-
-#' @details
-#' #[Custodian to provide details]
-#' 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 

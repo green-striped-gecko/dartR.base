@@ -15,8 +15,8 @@ gl.map.interactive(
   ind.circle.cols = NULL,
   ind.circle.cex = 10,
   ind.circle.transparency = 0.8,
-  palette_links = NULL,
-  leg_title = NULL,
+  palette.links = NULL,
+  legend.title = NULL,
   provider = "Esri.NatGeoWorldMap",
   verbose = NULL
 )
@@ -56,10 +56,10 @@ individuals alternatively between blue and red using the genlight object
 \item{ind.circle.transparency}{Transparency of circles between 0=invisible 
 and 1=no transparency. Defaults to 0.8.}
 
-\item{palette_links}{Color palette for the links in case a matrix is provided
+\item{palette.links}{Color palette for the links in case a matrix is provided
 [default NULL].}
 
-\item{leg_title}{Legend's title for the links in case a matrix is provided
+\item{legend.title}{Legend's title for the links in case a matrix is provided
 [default NULL].}
 
 \item{provider}{Passed to leaflet [default "Esri.NatGeoWorldMap"].}
@@ -78,7 +78,7 @@ Creates an interactive map (based on latlon) from a genlight object
 A wrapper around the \pkg{leaflet} package. For possible background 
 maps check as specified via the provider:
 \url{http://leaflet-extras.github.io/leaflet-providers/preview/index.html}
-The palette_links argument can be any of the following:
+The palette.links argument can be any of the following:
 A character vector of RGB or named colors. Examples: palette(), 
 c("#000000", "#0000FF", "#FFFFFF"), topo.colors(10)
 The name of an RColorBrewer palette, e.g. "BuPu" or "Greens".
@@ -93,7 +93,18 @@ gl.map.interactive(bandicoot.gl)
 cols <- c("red","blue","yellow")[as.numeric(pop(platypus.gl))]
 gl.map.interactive(platypus.gl, ind.circle.cols=cols, ind.circle.cex=10, 
 ind.circle.transparency=0.5)
+
+}
+\seealso{
+Other graphics: 
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
 Bernd Gruber -- Post to \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{graphics}
