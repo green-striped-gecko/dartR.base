@@ -29,7 +29,7 @@ gl.check.wd <- function(
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v.2023.2",
+                   build = "v.2023.3",
                    verbose = verbose)
   # DO THE JOB
   # SET wd or GET it from global
@@ -49,11 +49,7 @@ gl.check.wd <- function(
       wd <- wd
     } else {
       # If not a valid directory path, display a warning message and set wd to tempdir()
-      cat(
-        warn(
-          "Warning: The path to the working directory does not exist! Set to tempdir().\n"
-        )
-      )
+      cat(warn("Warning: The path to the working directory does not exist! Set to tempdir().\n"))
       wd <- tempdir()
     }
   }
