@@ -196,10 +196,16 @@
 #'    if bootstrap replicates are too few. Consider increasing then number of
 #'    bootstrap replicates to at least 200.
 #'    
-#'    Error "estimated adjustment 'w' is infinite" means that the estimated 
-#'    adjustment ‘w’ for the BCa bootstrap confidence interval is infinite, 
-#'    which can happen when the empirical influence values are zero or very 
-#'    close to zero. This can be caused by various reasons, such as:
+#'    The "bca" interval is often cited as the best for theoretical reasons, 
+#'    however it may produce unstable results if the bootstrap distribution
+#'     is skewed or has extreme values. For example, you might get the warning 
+#'     "extreme order statistics used as endpoints". In this case, you may want 
+#'     to use a different method or check your data for outliers.
+#'    
+#'    The error "estimated adjustment 'w' is infinite" means that the estimated 
+#'    adjustment ‘w’ for the "bca" interval is infinite, which can happen when 
+#'    the empirical influence values are zero or very close to zero. This can 
+#'    be caused by various reasons, such as:
 #'    
 #'    The number of bootstrap replicates is too small, the statistic of interest
 #'     is constant or nearly constant across the bootstrap samples, the data 
@@ -210,7 +216,7 @@
 #' Increasing the number of bootstrap replicates, using a different type of 
 #' bootstrap confidence interval or removing or transforming the outliers or
 #'  extreme values. 
-#'
+#'  
 #'  \strong{Plotting}
 #'
 #'  The plot can be customised by including any parameter(s) from the function
@@ -282,8 +288,8 @@
 #' @return Two lists, the first list contains matrices with genetic statistics
 #' taken pairwise by population, the second list contains tables with the
 #' genetic statistics for each pair of populations. If nboots > 0, tables with
-#' the four statistics calculated with High Confidence Intervals (HCI) and Low
-#' Confidence Intervals (LCI).
+#' the four statistics calculated with Low Confidence Intervals (LCI) and High 
+#' Confidence Intervals (HCI).
 #'
 # ----------------------
 # Function
@@ -441,7 +447,7 @@ gl.report.fstat <- function(x,
     })
     CI <- Map(cbind, stat_pop, res_CI)
     CI <- lapply(CI, function(y) {
-      colnames(y) <-  c("Value", "HCI", "LCI")
+      colnames(y) <-  c("Value", "LCI", "HCI")
       return(y)
     })
     names(CI) <- pairs_pops_names
@@ -451,7 +457,7 @@ gl.report.fstat <- function(x,
   if (npops <= 2 & nboots > 0) {
     stat_pop <- pairpop_res
     CI <- cbind(stat_pop, res_CI)
-    colnames(CI) <-  c("Value", "HCI", "LCI")
+    colnames(CI) <-  c("Value", "LCI", "HCI")
   }
   
   mat_pops <-
