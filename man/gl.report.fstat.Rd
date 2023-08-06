@@ -67,7 +67,7 @@ gplots).}
 Two lists, the first list contains matrices with genetic statistics
 taken pairwise by population, the second list contains tables with the
 genetic statistics for each pair of populations. If nboots > 0, tables with
-the four statistics calculated with Low Confidence Intervals (LCI) and High 
+the four statistics calculated with Low Confidence Intervals (LCI) and High
 Confidence Intervals (HCI).
 }
 \description{
@@ -92,9 +92,9 @@ Even though Fst and its relatives can predict evolutionary processes
    analysed (Alcala & Rosenberg, 2017) and are not monotonic
    (Sherwin et al., 2017). Recent approaches have been developed to
    accommodate these mathematical restrictions (G'ST; "Gst_H"; Hedrick, 2005,
-and Jost's D; "Dest"; Jost, 2008). More recently, novel approaches based on 
-information theory (Mutual Information; Sherwin et al., 2017) and allele 
-frequencies (Allele Frequency Difference; Berner, 2019) have distinct 
+and Jost's D; "Dest"; Jost, 2008). More recently, novel approaches based on
+information theory (Mutual Information; Sherwin et al., 2017) and allele
+frequencies (Allele Frequency Difference; Berner, 2019) have distinct
 properties that make them valuable resources to interpret genetic
  differentiation between populations.
 
@@ -235,28 +235,28 @@ The studentized bootstrap interval ("stud") was not included in the CI types
   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
    if bootstrap replicates are too few. Consider increasing then number of
    bootstrap replicates to at least 200.
-   
-   The "bca" interval is often cited as the best for theoretical reasons, 
+
+   The "bca" interval is often cited as the best for theoretical reasons,
    however it may produce unstable results if the bootstrap distribution
-    is skewed or has extreme values. For example, you might get the warning 
-    "extreme order statistics used as endpoints". In this case, you may want 
+    is skewed or has extreme values. For example, you might get the warning
+    "extreme order statistics used as endpoints". In this case, you may want
     to use a different method or check your data for outliers.
-   
-   The error "estimated adjustment 'w' is infinite" means that the estimated 
-   adjustment ‘w’ for the "bca" interval is infinite, which can happen when 
-   the empirical influence values are zero or very close to zero. This can 
+
+   The error "estimated adjustment 'w' is infinite" means that the estimated
+   adjustment ‘w’ for the "bca" interval is infinite, which can happen when
+   the empirical influence values are zero or very close to zero. This can
    be caused by various reasons, such as:
-   
+
    The number of bootstrap replicates is too small, the statistic of interest
-    is constant or nearly constant across the bootstrap samples, the data 
+    is constant or nearly constant across the bootstrap samples, the data
     contains outliers or extreme values.
-    
+
     You can try some possible solutions, such as:
-    
-Increasing the number of bootstrap replicates, using a different type of 
+
+Increasing the number of bootstrap replicates, using a different type of
 bootstrap confidence interval or removing or transforming the outliers or
- extreme values. 
- 
+ extreme values.
+
  \strong{Plotting}
 
  The plot can be customised by including any parameter(s) from the function

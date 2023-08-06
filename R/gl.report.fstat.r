@@ -52,9 +52,9 @@
 #'    analysed (Alcala & Rosenberg, 2017) and are not monotonic
 #'    (Sherwin et al., 2017). Recent approaches have been developed to
 #'    accommodate these mathematical restrictions (G'ST; "Gst_H"; Hedrick, 2005,
-#' and Jost's D; "Dest"; Jost, 2008). More recently, novel approaches based on 
-#' information theory (Mutual Information; Sherwin et al., 2017) and allele 
-#' frequencies (Allele Frequency Difference; Berner, 2019) have distinct 
+#' and Jost's D; "Dest"; Jost, 2008). More recently, novel approaches based on
+#' information theory (Mutual Information; Sherwin et al., 2017) and allele
+#' frequencies (Allele Frequency Difference; Berner, 2019) have distinct
 #' properties that make them valuable resources to interpret genetic
 #'  differentiation between populations.
 #'
@@ -195,28 +195,28 @@
 #'   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
 #'    if bootstrap replicates are too few. Consider increasing then number of
 #'    bootstrap replicates to at least 200.
-#'    
-#'    The "bca" interval is often cited as the best for theoretical reasons, 
+#'
+#'    The "bca" interval is often cited as the best for theoretical reasons,
 #'    however it may produce unstable results if the bootstrap distribution
-#'     is skewed or has extreme values. For example, you might get the warning 
-#'     "extreme order statistics used as endpoints". In this case, you may want 
+#'     is skewed or has extreme values. For example, you might get the warning
+#'     "extreme order statistics used as endpoints". In this case, you may want
 #'     to use a different method or check your data for outliers.
-#'    
-#'    The error "estimated adjustment 'w' is infinite" means that the estimated 
-#'    adjustment ‘w’ for the "bca" interval is infinite, which can happen when 
-#'    the empirical influence values are zero or very close to zero. This can 
+#'
+#'    The error "estimated adjustment 'w' is infinite" means that the estimated
+#'    adjustment ‘w’ for the "bca" interval is infinite, which can happen when
+#'    the empirical influence values are zero or very close to zero. This can
 #'    be caused by various reasons, such as:
-#'    
+#'
 #'    The number of bootstrap replicates is too small, the statistic of interest
-#'     is constant or nearly constant across the bootstrap samples, the data 
+#'     is constant or nearly constant across the bootstrap samples, the data
 #'     contains outliers or extreme values.
-#'     
+#'
 #'     You can try some possible solutions, such as:
-#'     
-#' Increasing the number of bootstrap replicates, using a different type of 
+#'
+#' Increasing the number of bootstrap replicates, using a different type of
 #' bootstrap confidence interval or removing or transforming the outliers or
-#'  extreme values. 
-#'  
+#'  extreme values.
+#'
 #'  \strong{Plotting}
 #'
 #'  The plot can be customised by including any parameter(s) from the function
@@ -288,7 +288,7 @@
 #' @return Two lists, the first list contains matrices with genetic statistics
 #' taken pairwise by population, the second list contains tables with the
 #' genetic statistics for each pair of populations. If nboots > 0, tables with
-#' the four statistics calculated with Low Confidence Intervals (LCI) and High 
+#' the four statistics calculated with Low Confidence Intervals (LCI) and High
 #' Confidence Intervals (HCI).
 #'
 # ----------------------
@@ -328,7 +328,7 @@ gl.report.fstat <- function(x,
   pop_names <- popNames(x)[which(table(pop(x)) > 1)]
   
   if (length(pop_names) < nPop(x)) {
-    if(verbose >= 2){
+    if (verbose >= 2) {
       cat(warn("   Keeping populations with more than one individuals.\n"))
     }
     x <- gl.keep.pop(x,
@@ -396,7 +396,7 @@ gl.report.fstat <- function(x,
             t = pairpop_boot[[pop_n]]$t[, stat_n]
           )
           
-          res_CI[[pop_n]][stat_n, ] <-
+          res_CI[[pop_n]][stat_n,] <-
             tail(as.vector(res_CI_tmp[[4]]), 2)
           
         }
@@ -435,7 +435,7 @@ gl.report.fstat <- function(x,
             t = pairpop_boot$t[, stat_n]
           )
         
-        res_CI[stat_n, ] <-  tail(as.vector(res_CI_tmp[[4]]), 2)
+        res_CI[stat_n,] <-  tail(as.vector(res_CI_tmp[[4]]), 2)
         
       }
       
@@ -467,7 +467,7 @@ gl.report.fstat <- function(x,
   
   if (npops > 2) {
     for (i in 1:length(mat_pops)) {
-      mat_pops[[i]][lower.tri(mat_pops[[i]])] <- pairpop_res[i, ]
+      mat_pops[[i]][lower.tri(mat_pops[[i]])] <- pairpop_res[i,]
       colnames(mat_pops[[i]]) <-
         rownames(mat_pops[[i]]) <- names(pops)
       mat_pops[[i]][upper.tri(mat_pops[[i]])] <-
@@ -532,8 +532,8 @@ gl.report.fstat <- function(x,
     cexRow = font.size,
     cexCol = font.size,
     na.color = "gray",
-    symkey=F,
-    symbreaks=F,
+    symkey = FALSE,
+    symbreaks = FALSE,
     verbose = verbose,
     ...
   )
