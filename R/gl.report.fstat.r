@@ -327,8 +327,10 @@ gl.report.fstat <- function(x,
   # keeping populations with more than 1 individuals
   pop_names <- popNames(x)[which(table(pop(x)) > 1)]
   
-  if (length(pop_names) < nPop(x) & verbose >= 2) {
-    cat(warn("   Keeping populations with more than one individuals.\n"))
+  if (length(pop_names) < nPop(x)) {
+    if(verbose >= 2){
+      cat(warn("   Keeping populations with more than one individuals.\n"))
+    }
     x <- gl.keep.pop(x,
                      pop.list = pop_names,
                      verbose = verbose)
@@ -530,7 +532,10 @@ gl.report.fstat <- function(x,
     cexRow = font.size,
     cexCol = font.size,
     na.color = "gray",
-    verbose = verbose
+    symkey=F,
+    symbreaks=F,
+    verbose = verbose,
+    ...
   )
   
   # PLOT THE RESULTS -----------------
