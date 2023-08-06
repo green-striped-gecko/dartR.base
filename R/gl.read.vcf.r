@@ -64,11 +64,15 @@ gl.read.vcf <- function(vcf.file,
         }
       
         # identify which SNPs have more than 2 alleles
-        if("AC" %in% colnames(info)){
-          more_alleles <- grep(",",info$AC)
-          info <- info[-more_alleles,]
-          info[] <- lapply(info, as.numeric)
-        }
+        # if("AC" %in% colnames(info)){
+        #   more_alleles <- grep(",",info$AC)
+        #   info <- info[-more_alleles,]
+        #   info[] <- lapply(info, as.numeric)
+        # }
+        # 
+        ALT <- vcfR::getALT(vcf)
+        more_alleles <- which(stringr::str_length(ALT) >1)
+        info <- info[-more_alleles,]
         
         ploidy(x) <- 2
         x <- gl.compliance.check(x)
