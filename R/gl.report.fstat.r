@@ -199,8 +199,9 @@
 #'    The "bca" interval is often cited as the best for theoretical reasons,
 #'    however it may produce unstable results if the bootstrap distribution
 #'     is skewed or has extreme values. For example, you might get the warning
-#'     "extreme order statistics used as endpoints". In this case, you may want
-#'     to use a different method or check your data for outliers.
+#'     "extreme order statistics used as endpoints" or the error "estimated 
+#'     adjustment 'a' is NA". In this case, you may want to use more bootstrap 
+#'     replicates or a different method or check your data for outliers.
 #'
 #'    The error "estimated adjustment 'w' is infinite" means that the estimated
 #'    adjustment ‘w’ for the "bca" interval is infinite, which can happen when
@@ -341,9 +342,13 @@ gl.report.fstat <- function(x,
   
   # bootstrapping function
   pop.diff <- function(x, indices) {
+    pop.diff_fun <- function(y){
+      pop_diff <- utils.basic.stats(y)
+      return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
+    }
     x2 <- x[, indices]
-    pop_diff <- utils.basic.stats(x2)
-    return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
+    res_pop.diff_fun <- pop.diff_fun(x2)
+    return(res_pop.diff_fun)
   }
   
   # DO THE JOB
@@ -423,8 +428,7 @@ gl.report.fstat <- function(x,
       
       # confidence intervals
       for (stat_n in 1:4) {
-        # tryCatch(
-        #   expr = {
+        
         res_CI_tmp <-
           boot::boot.ci(
             boot.out = pairpop_boot,

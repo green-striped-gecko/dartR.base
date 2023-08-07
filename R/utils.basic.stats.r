@@ -1,10 +1,12 @@
 #' @name utils.basic.stats
-#' @title Calculates mean observed heterozygosity, mean expected heterozygosity and Fis
-#'  per locus, per population and various population differentiation measures
+#' @title Calculates mean observed heterozygosity, mean expected heterozygosity 
+#' and FIS per locus, per population and various population differentiation 
+#' measures
 #'  @family utilities
 #'  
 #' @description 
-#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
+#'  END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 #' 
 #' @param x A genlight object containing the SNP genotypes [required].
 #' 
@@ -28,7 +30,8 @@ utils.basic.stats <- function(x) {
   n.ind <- table(pop(x))
   
   if(any(n.ind <= 1)){
-    cat(error(" There are populations with one individual. Please remove populations with one individual or merged them with other populations for his function to work\n"))
+    cat(error(" There are populations with one individual. Please remove populations with one individual or merged them with other populations for this function to work\n"))
+    stop()
   }
   
   pop.names <- popNames(x)
@@ -66,7 +69,6 @@ utils.basic.stats <- function(x) {
     colnames(Ho) <- pop.names
     mHo <- rowMeans(Ho, na.rm=TRUE)
   }else{
-    # names(Ho) <- pop.names
     mHo <- Ho
   }
   
