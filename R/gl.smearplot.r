@@ -45,6 +45,7 @@
 #' 
 # TEST
 # ddd <- matrix(data=0,nrow=10,ncol=10)
+# ddd[8,10] <- NA
 # ddd[9,10] <- 2
 # ddd[10,10] <- 2
 # ddd
@@ -136,74 +137,43 @@ gl.smearplot <- function(x,
   id_labels <- pretty(1:nInd(x), 5)
   
   locus <- id <- genotype <- NA
-  #labels_genotype <- as.character(unique(df.listing$genotype))
-  labels_genotype <- c("0","1","2")
-  labels_genotype[which(is.na(labels_genotype))] <- "Missing data"
-  labels_genotype["0"] <- "Homozygote reference"
-  labels_genotype["1"] <- "Heterozygote"
-  labels_genotype["2"] <- "Homozygote alternate"
   
-  #labels_silicodart <- as.character(unique(df.listing$genotype))
-  labels_silicodart <- c("0","1")
-  labels_silicodart[which(is.na(labels_genotype))] <- "Missing data"
-  labels_silicodart["0"] <- "Absence"
-  labels_silicodart["1"] <- "Presence"
-  
-  if (datatype == "SilicoDArT") {
-    if(het.only){
-      cat(warn("The het only option is applicable to SNP data only. Set to FALSE\n"))
-      het.only <- FALSE
+  # Assign colours and labels for genotypic data
+  labels_genotype <- as.character(unique(df.listing$genotype))
+  labels_genotype <- labels_genotype[!is.na(labels_genotype)]
+  labels_genotype <- labels_genotype[order(labels_genotype)]
+  #labels_genotype <- c("0","1","2")
+  plot.colors.hold <- plot.colors
+  tmp <- NULL
+  if(length(labels_genotype) < 3){
+    if("0" %in% labels_genotype){
+      tmp[1] <- plot.colors[1]
     }
-    if(ind.labels==TRUE){
-      p3 <-
-        ggplot(df.listing, aes(
-          x = locus,
-          y = id,
-          fill = genotype
-        )) + geom_raster() + scale_fill_discrete(
-          type = plot.colors[c(1, 3)],
-          na.value = plot.colors[4],
-          name = "Sequence Tag",
-          labels = labels_silicodart
-        ) + theme_dartR() + theme(
-          legend.position = legend,
-          axis.text.y = element_text(size = label.size)
-        ) +
-        scale_x_discrete(
-          breaks = loc_labels,
-          labels = as.character(loc_labels),
-          name = "Loci"
-        ) +
-        ylab("Individuals")
-    } else {
-      p3 <-
-        ggplot(df.listing, aes(
-          x = locus,
-          y = id,
-          fill = genotype
-        )) + geom_raster() + scale_fill_discrete(
-          type = plot.colors[c(1, 3)],
-          na.value = plot.colors[4],
-          name = "Sequence Tag",
-          labels = labels_silicodart
-        ) + theme_dartR() + theme(
-          legend.position = legend,
-          axis.text.y = element_text(size = label.size)
-        ) +
-        scale_x_discrete(
-          breaks = loc_labels,
-          labels = as.character(loc_labels),
-          name = "Loci"
-        ) +
-        scale_y_discrete(
-          breaks = id_labels,
-          labels = as.character(id_labels),
-          name = "Individuals",
-          position="left"
-        )
-      #ylab("Individuals")
+    if ("1" %in% labels_genotype){
+      if(is.null(tmp)){
+        tmp <- plot.colors[2]
+      } else {
+        tmp <- c(tmp,plot.colors[2])
+      }
     }
+    if ("2" %in% labels_genotype){
+      if(is.null(tmp)){
+        tmp <- plot.colors[3]
+      } else {
+        tmp <- c(tmp,plot.colors[3])
+      }
+    }
+    tmp <- c(tmp,plot.colors[4])
+    
+    plot.colors <- tmp
   }
+  n.colors <- length(plot.colors)
+  
+  labels_genotype[which(is.na(labels_genotype))] <- "Missing data"
+  labels_genotype[labels_genotype=="0"] <- "Homozygote reference"
+  labels_genotype[labels_genotype=="1"] <- "Heterozygote"
+  labels_genotype[labels_genotype=="2"] <- "Homozygote alternate"
+  
   
   if (datatype == "SNP") {
     if(ind.labels==TRUE){
@@ -215,9 +185,9 @@ gl.smearplot <- function(x,
         )) + geom_raster() + 
         scale_fill_discrete(
           type = plot.colors,
-          na.value = plot.colors[4],
+          na.value = plot.colors[n.colors],
           name = "Genotype",
-          labels = c("0", "1", "2")
+          labels = labels_genotype
           # ) + theme_dartR() + theme(
         ) + theme(
           legend.position = legend,
@@ -240,7 +210,7 @@ gl.smearplot <- function(x,
         )) + geom_raster() + 
         scale_fill_discrete(
           type = plot.colors,
-          na.value = plot.colors[4],
+          na.value = plot.colors[n.colors],
           name = "Genotype",
           labels = labels_genotype
           # ) + theme_dartR() + theme(
@@ -264,6 +234,72 @@ gl.smearplot <- function(x,
       #ylab("Individuals")
     }
   }
+  
+  # Assign labels for presence absence data
+  #labels_silicodart <- as.character(unique(df.listing$genotype))
+  labels_silicodart <- c("0","1")
+  labels_silicodart[which(is.na(labels_silicodart))] <- "Missing data"
+  labels_silicodart["0"] <- "Absence"
+  labels_silicodart["1"] <- "Presence"
+  
+  plot.colors <- plot.colors.hold
+  
+  if (datatype == "SilicoDArT") {
+    if(het.only){
+      cat(warn("The het only option is applicable to SNP data only. Set to FALSE\n"))
+      het.only <- FALSE
+    }
+    if(ind.labels==TRUE){
+      p3 <-
+        ggplot(df.listing, aes(
+          x = locus,
+          y = id,
+          fill = genotype
+        )) + geom_raster() + scale_fill_discrete(
+          type = plot.colors[c(1,3)],
+          na.value = plot.colors[4],
+          name = "Sequence Tag",
+          labels = labels_silicodart
+        ) + theme_dartR() + theme(
+          legend.position = legend,
+          axis.text.y = element_text(size = label.size)
+        ) +
+        scale_x_discrete(
+          breaks = loc_labels,
+          labels = as.character(loc_labels),
+          name = "Loci"
+        ) +
+        ylab("Individuals")
+    } else {
+      p3 <-
+        ggplot(df.listing, aes(
+          x = locus,
+          y = id,
+          fill = genotype
+        )) + geom_raster() + scale_fill_discrete(
+          type = plot.colors[c(1,3)],
+          na.value = plot.colors[4],
+          name = "Sequence Tag",
+          labels = labels_silicodart
+        ) + theme_dartR() + theme(
+          legend.position = legend,
+          axis.text.y = element_text(size = label.size)
+        ) +
+        scale_x_discrete(
+          breaks = loc_labels,
+          labels = as.character(loc_labels),
+          name = "Loci"
+        ) +
+        scale_y_discrete(
+          breaks = id_labels,
+          labels = as.character(id_labels),
+          name = "Individuals",
+          position="left"
+        )
+      #ylab("Individuals")
+    }
+  }
+  
   
   # if (ind.labels==TRUE & group.pop == TRUE) {
   #     p3 <- p3 + facet_wrap(~ pop,

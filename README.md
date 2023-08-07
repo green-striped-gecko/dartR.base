@@ -45,12 +45,7 @@ funding from the ACT Priority Investment Program, CSIRO and the
 University of Canberra.
 
 <p align="center">
-
-<img src="man/figures/UC.png" height="100"/>    
-<img src="man/figures/csiro_logo.png" height="100"/>    
-<img src="man/figures/DArT-removebg-preview.png" height="100"/>    
-<img src="man/figures/ACT.png" height="100"/>
-
+<img src='man/figures/institutions.png' width="800"/>
 </p>
 
 ## Installation
