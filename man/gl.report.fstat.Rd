@@ -269,13 +269,10 @@ bootstrap confidence interval or removing or transforming the outliers or
 
  > \code{res <- gl.report.fstat(platypus.gl, palette.divergent = viridis)}
 
-If a plot.file is given, the plot arising from this function is saved as an
- "RDS" binary file using the function \link[base]{saveRDS} (package base);
-  can be reloaded with function \link[base]{readRDS} (package base). A file
-  name must be specified for the plot to be saved.
-
- If a plot directory (plot.dir) is specified, the gplot binary is saved to
- that directory; otherwise to the tempdir().
+  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" #' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+specified for the plot to be saved.
+ If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+ directory; otherwise to the tempdir(). 
 
  Your plot might not shown in full because your 'Plots' pane is too small
  (in RStudio).
