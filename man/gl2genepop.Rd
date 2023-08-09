@@ -44,15 +44,15 @@ software externally. As a feature, the genepop file is also returned as an
 invisible data.frame by the function.
 }
 \examples{
-\dontrun{
+\donttest{
 require("dartR.data")
 # SNP data
-geno <- gl2genepop(testset.gl[1:3,1:9])
+geno <- gl2genepop(possums.gl[1:3,1:9], outpath = tempdir())
 head(geno)
 test <- gl.filter.callrate(platypus.gl,threshold = 1)
 popNames(test)
 gl2genepop(test, pop.order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
-           output.format="3_digits")
+           output.format="3_digits", outpath = tempdir())
 }
 
 }

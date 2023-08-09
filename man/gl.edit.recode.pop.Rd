@@ -71,6 +71,7 @@ a pop.recode.table. The amended recode table is then applied to the genlight
 object.
 }
 \examples{
+#this is an interactive example
 \dontrun{
 gl <- gl.edit.recode.pop(testset.gl)
 gs <- gl.edit.recode.pop(testset.gs)

@@ -29,7 +29,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE)
+#' gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE, )
 #' \dontrun{
 #' ##running with the related package
 #' #install.packages('related', repos='http://R-Forge.R-project.org')

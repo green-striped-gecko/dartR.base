@@ -13,10 +13,8 @@
 #' 
 #' @examples
 #' #takes some time at the first run of the function...
-#' \dontrun{
-#' res <- gl.propShared(bandicoot.gl)
-#' res[1:5,1:7] #show only a small part of the matrix
-#' }
+#' #res <- gl.propShared(bandicoot.gl)
+#' #res[1:5,1:7] #show only a small part of the matrix
 #' 
 #' @export
 #' @return A similarity matrix 

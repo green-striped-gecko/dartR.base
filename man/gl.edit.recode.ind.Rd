@@ -64,6 +64,7 @@ The function returns a dartR genlight object with the new population assignments
 and the recalculated locus metadata.
 }
 \examples{
+#this is an interactive example
 \dontrun{
 gl <- gl.edit.recode.ind(testset.gl)
 gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')

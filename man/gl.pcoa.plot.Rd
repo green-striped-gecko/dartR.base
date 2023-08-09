@@ -121,7 +121,7 @@ Points displayed in the ordination can be identified if the option
 The interactive option is automatically enabled for 3D plotting.
 }
 \examples{
-\dontrun{
+\donttest{
 # SET UP DATASET
 gl <- testset.gl
 levels(pop(gl))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),

@@ -79,7 +79,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # SET UP DATASET
 #' gl <- testset.gl
 #' levels(pop(gl))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),

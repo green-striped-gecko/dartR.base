@@ -53,6 +53,7 @@
 
 # Examples --------------
 #' @examples
+#' #this is an interactive example
 #' \dontrun{
 #' gl <- gl.edit.recode.ind(testset.gl)
 #' gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')

@@ -40,16 +40,17 @@ calculate a certain quantity for that subset (redo a
 1000 times)
 }
 \examples{
-\dontrun{
+\donttest{
 #bootstrap for 2 possums populations to check effect of sample size on fixed alleles
 gl.set.verbosity(0)
-pp <- possums.gl[1:60,]
+pp <- possums.gl[c(1:30,91:120),]
 nrep <- 1:10
 nss <- seq(1,10,2)
 res <- expand.grid(nrep=nrep, nss=nss)
 for (i in 1:nrow(res)) {
 dummy <- gl.sample(pp, nsample=res$nss[i], replace=TRUE)
-pas <- gl.report.pa(dummy, plot.out = F)
+dummy <- gl.compliance.check(dummy)
+pas <- gl.report.pa(dummy, plot.display= FALSE)
 res$fixed[i] <- pas$fixed[1]
 }
 boxplot(fixed ~ nss, data=res)
