@@ -35,10 +35,9 @@ file.
 This function only caters for \code{ploidy=2}.
 }
 \examples{
-\donttest{
 require("dartR.data")
-gl2bayesAss(platypus.gl, outpath=tempdir())
-}
+#only the first 100 due to check time
+gl2bayesAss(platypus.gl[,1:100], outpath=tempdir())
 }
 \references{
 Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs: 
