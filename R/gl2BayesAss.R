@@ -20,8 +20,10 @@
 #'  \url{https://groups.google.com/d/forum/dartr})
 #'  
 #' @examples
+#' \donttest{
 #' require("dartR.data")
 #' gl2bayesAss(platypus.gl, outpath=tempdir())
+#' }
 #' @references
 #' Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs: 
 #' Contemporary migration reconfigured in BayesAss for next-generation sequence data. 
