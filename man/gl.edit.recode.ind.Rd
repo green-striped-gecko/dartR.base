@@ -65,7 +65,7 @@ and the recalculated locus metadata.
 }
 \examples{
 #this is an interactive example
-\dontrun{
+if(interactive()){
 gl <- gl.edit.recode.ind(testset.gl)
 gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')
 }

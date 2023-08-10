@@ -22,9 +22,10 @@ This script calculates an individual based distance matrix. It uses an C++
 }
 \examples{
 #takes some time at the first run of the function...
-#res <- gl.propShared(bandicoot.gl)
-#res[1:5,1:7] #show only a small part of the matrix
-
+\donttest{
+res <- gl.propShared(bandicoot.gl)
+res[1:5,1:7] #show only a small part of the matrix
+}
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
