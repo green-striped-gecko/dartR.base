@@ -345,15 +345,20 @@ gl.report.fstat <- function(x,
   # https://bookdown.org/rdpeng/rprogdatascience/
   # scoping-rules-of-r.html#lexical-scoping-why-does-it-matter
   
-  pop.diff <- function(x, indices) {
-    pop.diff_fun <- function(y){
-      pop_diff <- utils.basic.stats(y)
-      return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
-    }
-    indece_fun <- indices
-    x2 <- x[, indece_fun]
-    res_pop.diff_fun <- pop.diff_fun(x2)
-    return(res_pop.diff_fun)
+  # pop.diff <- function(x, indices,pops.info) {
+  #   pop.diff_fun <- function(y){
+  #     pop_diff <- utils.basic.stats_2(y,pops_info)
+  #     return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
+  #   }
+  #   x2 <- x[, indices]
+  #   res_pop.diff_fun <- pop.diff_fun(x2)
+  #   return(res_pop.diff_fun)
+  # }
+  
+  pop.diff <- function(x, indices, pops.info) {
+    x2 <- x[, indices]
+    pop_diff <- utils.basic.stats_2(x2, pops_info = pops.info )
+    return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
   }
   
   # DO THE JOB
@@ -376,12 +381,18 @@ gl.report.fstat <- function(x,
     })
     
     if (nboots > 0) {
+      
       # bootstrapping
       pairpop_boot <- apply(pairs_pops, 1, function(y) {
         tpop <- rbind.dartR(pops[[y[1]]], pops[[y[2]]])
+        
+        df <- as.data.frame(as.matrix(tpop))
+        pops.info_tmp <- as.character(pop(tpop))
+        
         res_boots <- boot::boot(
-          data = tpop,
+          data = df,
           statistic = pop.diff,
+          pops.info = pops.info_tmp, 
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -422,9 +433,12 @@ gl.report.fstat <- function(x,
     if (nboots > 0) {
       res_CI <- as.data.frame(matrix(nrow = 4, ncol = 2))
       
+      df <- as.data.frame(as.matrix(tpop))
+      df$pop <- as.factor(as.character(pop(tpop)))
+      
       # bootstrapping
       pairpop_boot <- boot::boot(
-        data = tpop,
+        data = df,
         statistic = pop.diff,
         R = nboots,
         parallel = parallel,
