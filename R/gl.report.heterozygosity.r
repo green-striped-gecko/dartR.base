@@ -322,6 +322,14 @@ gl.report.heterozygosity <- function(x,
         FIS <- array(NA, length(sgl))
         FISSD <- array(NA, length(sgl))
         
+        # dataframes to store data for boxplots
+        Ho_df <- as.list(rep(NA,length(sgl)))
+        Ho.adj_df <- as.list(rep(NA,length(sgl)))
+        He_df <- as.list(rep(NA,length(sgl)))
+        uHe_df <- as.list(rep(NA,length(sgl)))
+        He.adj_df <- as.list(rep(NA,length(sgl)))
+        Fis_df <- as.list(rep(NA,length(sgl)))
+        
         # For each population
         for (i in 1:length(sgl)) {
             gl <- sgl[[i]]
@@ -341,23 +349,23 @@ gl.report.heterozygosity <- function(x,
                 (2 * as.numeric(n_ind[i]) / (2 * as.numeric(n_ind[i]) - 1)) * H
             ##########
             
-            Hexp[i] <- mean(H, na.rm = T)
+            Hexp[i] <- mean(H, na.rm = TRUE)
             ### CP ###
-            uHexp[i] <- mean(uH, na.rm = T)
+            uHexp[i] <- mean(uH, na.rm = TRUE)
             Hexp.adj[i] <-
                 Hexp[i] * n_loc[i] / (n_loc[i] + n.invariant)
-            HexpSD[i] <- sd(H, na.rm = T)
-            uHexpSD[i] <- sd(uH, na.rm = T)
+            HexpSD[i] <- sd(H, na.rm = TRUE)
+            uHexpSD[i] <- sd(uH, na.rm = TRUE)
             Hexp.adjSD[i] <-
                 sqrt((sum((
                     H - Hexp.adj[i]
                 ) ^ 2, na.rm = TRUE) + n.invariant * Hexp.adj[i] ^ 2) / 
                   (n_loc[i] + n.invariant - 1))
             ##########
-            FIS_temp <- 1 - (mean(unlist(Ho.loc[i]),na.rm = T) / 
-                               mean(uH,na.rm = T))
-            FIS[i] <- mean(FIS_temp, na.rm = T)
-            #FISSD[i] <- sd(FIS_temp, na.rm = T)
+            FIS_temp <- 1 - (mean(unlist(Ho.loc[i]),na.rm = TRUE) / 
+                               mean(uH,na.rm = TRUE))
+            FIS[i] <- mean(FIS_temp, na.rm = TRUE)
+            FISSD[i] <- sd(FIS_temp, na.rm = TRUE)
         }
         
         ### CP ###
@@ -380,8 +388,8 @@ gl.report.heterozygosity <- function(x,
                 uHeSD = round(uHexpSD, 6),
                 He.adj = round(Hexp.adj, 8),
                 He.adjSD = round(Hexp.adjSD, 8),
-                FIS = FIS
-                # FISSD = FISSD
+                FIS = FIS,
+                FISSD = FISSD
             )
         ##########
         
@@ -601,9 +609,8 @@ cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6))
                     "HeSD",
                     "uHe",
                     "uHeSD",
-                    "FIS"
-                    # ,
-                    # "FISSD"
+                    "FIS",
+                    "FISSD"
                 )], row.names = FALSE)
             }
         }
@@ -752,3 +759,4 @@ geom_histogram(bins =25,color = plot.colors.ind[1],fill =plot.colors.ind[2]) +
     
     invisible(df)
 }
+

@@ -341,12 +341,17 @@ gl.report.fstat <- function(x,
   class(x) <- "dartR"
   
   # bootstrapping function
+  # using lexical scoping to make parallel= "snow" work:
+  # https://bookdown.org/rdpeng/rprogdatascience/
+  # scoping-rules-of-r.html#lexical-scoping-why-does-it-matter
+  
   pop.diff <- function(x, indices) {
     pop.diff_fun <- function(y){
       pop_diff <- utils.basic.stats(y)
       return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
     }
-    x2 <- x[, indices]
+    indece_fun <- indices
+    x2 <- x[, indece_fun]
     res_pop.diff_fun <- pop.diff_fun(x2)
     return(res_pop.diff_fun)
   }
