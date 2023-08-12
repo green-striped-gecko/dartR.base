@@ -71,7 +71,7 @@
 #'     "Ho" - Observed heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Ho_equation.jpg}
+#'     \figure{Ho-equation.jpg}
 #'
 #'     where Pkii represents the proportion of homozygote i in sample k and np
 #'     the number of samples (i.e. populations).
@@ -80,62 +80,62 @@
 #'     "Hs" - Expected heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{He_equation.jpg}
+#'     \figure{He-equation.jpg}
 #'
-#'     \figure{He_equation_2.jpg}
+#'     \figure{He-equation_2.jpg}
 #'
 #'     \item
 #'     "Ht" - Overall heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Ht_equation.jpg}
+#'     \figure{Ht-equation.jpg}
 #'
-#'     \figure{Ht_equation_2.jpg}
+#'     \figure{Ht-equation_2.jpg}
 #'
 #'     \item
 #'     "Dst" - Amount of heterozygosity among samples (Nei, 1987, pp. 164–165)
 #'     is calculated as:
 #'
-#'     \figure{Dst_equation.jpg}
+#'     \figure{Dst-equation.jpg}
 #'
 #'     \item
 #'     "Htp" - Overall heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Htp_equation.jpg}
+#'     \figure{Htp-equation.jpg}
 #'
 #'     \item
 #'     "Dstp" - Amount of heterozygosity among samples corrected for sample size
 #'      (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Dstp_equation.jpg}
+#'     \figure{Dstp-equation.jpg}
 #'
 #'     \item
 #'     "Fst" - Nei's Gst (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Fst_equation.jpg}
+#'     \figure{Fst-equation.jpg}
 #'
 #'     \item
 #'     "Fstp" - Fst corrected for sample size (Nei, 1987, pp. 164–165) is
 #'     calculated as:
 #'
-#'     \figure{Fstp_equation.jpg}
+#'     \figure{Fstp-equation.jpg}
 #'
 #'     \item
 #'     "Fis" - Inbreeding coefficient is calculated as:
 #'
-#'     \figure{Fis_equation.jpg}
+#'     \figure{Fis-equation.jpg}
 #'
 #'     \item
 #'     "Dest" - Jost’s D (Jost, 2008) is calculated as:
 #'
-#'     \figure{Dest_equation.jpg}
+#'     \figure{Dest-equation.jpg}
 #'
 #'     \item
 #'     "Gst_max" - The maximum level that Gst can obtain for the observed amount
 #'      of genetic variation (Hedrick 2005) is calculated as:
 #'
-#'     \figure{GstMax_equation.jpg}
+#'     \figure{GstMax-equation.jpg}
 #'
 #'     where k is the number of subpopulations.
 #'
@@ -143,7 +143,7 @@
 #'     "Gst_H" - Gst standardized by the maximum level that it can obtain for the
 #'     observed amount of genetic variation (Hedrick 2005) is calculated as:
 #'
-#'     \figure{Gst_H.jpg}
+#'     \figure{Gst-H.jpg}
 #'
 #'     }
 #'
