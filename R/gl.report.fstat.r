@@ -82,7 +82,7 @@
 #'
 #'     \figure{He-equation.jpg}
 #'
-#'     \figure{He-equation_2.jpg}
+#'     \figure{He-equation-2.jpg}
 #'
 #'     \item
 #'     "Ht" - Overall heterozygosity corrected for sample size
@@ -90,7 +90,7 @@
 #'
 #'     \figure{Ht-equation.jpg}
 #'
-#'     \figure{Ht-equation_2.jpg}
+#'     \figure{Ht-equation-2.jpg}
 #'
 #'     \item
 #'     "Dst" - Amount of heterozygosity among samples (Nei, 1987, pp. 164–165)
