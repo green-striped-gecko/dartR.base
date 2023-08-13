@@ -83,7 +83,7 @@
 #' @author Custodian: Carlo Pacioni -- Post to
 #'   \url{https://groups.google.com/d/forum/dartr}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' require("dartR.data")
 #' res <- gl.diagnostics.hwe(x = gl.filter.allna(platypus.gl[,1:50]), 
 #' stdErr=FALSE, n.cores=1)

@@ -14,9 +14,8 @@
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' \dontrun{
-#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR.data'))
-#' }
+#' # you need to provide the path to the vcf file
+#' #obj <- gl.read.vcf("yourvcffile.vcf", package='dartR.data'))
 #' 
 #' @export
 #' @return A genlight object.

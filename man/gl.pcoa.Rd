@@ -11,7 +11,7 @@ gl.pcoa(
   correction = NULL,
   mono.rm = TRUE,
   parallel = FALSE,
-  n.cores = 16,
+  n.cores = 1,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
   plot_colors = gl.colors(2),
@@ -148,22 +148,17 @@ modern reference is Jolliffe (2002). PCoA was developed by Gower (1966) while
 the best modern reference is Legendre & Legendre (1998).
 }
 \examples{
-\dontrun{
-gl <- possums.gl
 # PCA (using SNP genlight object)
+gl <- possums.gl
 pca <- gl.pcoa(possums.gl[1:50,],verbose=2)
 gl.pcoa.plot(pca,gl)
+\donttest{
 gs <- testset.gs
 levels(pop(gs))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),
 rep('MDB',8),rep('Coast',6),'Em.subglobosa','Em.victoriae')
 # PCA (using SilicoDArT genlight object)
 pca <- gl.pcoa(gs)
 gl.pcoa.plot(pca,gs)
-# Collapsing pops to OTUs using Fixed Difference Analysis (using fd object)
-fd <- gl.fixed.diff(testset.gl)
-fd <- gl.collapse(fd)
-pca <- gl.pcoa(fd)
-gl.pcoa.plot(pca,fd$gl)
 # Using a distance matrix
 D <- gl.dist.ind(testset.gs, method='jaccard')
 pcoa <- gl.pcoa(D,correction="cailliez")

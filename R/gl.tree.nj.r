@@ -99,6 +99,7 @@ gl.tree.nj <- function(x,
                 mai = c(0, 0, 0, 0),
                 pty = "m"
             )
+		on.exit(par(op))
         ape::plot.phylo(tree, type = type, cex = labelsize)
     } else {
         # Just plot the tree unrooted
@@ -121,7 +122,7 @@ gl.tree.nj <- function(x,
     }
     
     # Reset the par options
-    par(op)
+	#now done by on exit
     
     # FLAG SCRIPT END
     
