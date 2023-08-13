@@ -1,5 +1,5 @@
 #' @name gl.smearplot
-#' @title Smear plot of SNP or presence/absence (SilicoDArT) data
+#' @title Smear plot
 #' @family graphics
 
 #' @description
