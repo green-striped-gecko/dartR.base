@@ -58,7 +58,9 @@ Other data manipulation:
 \code{\link{gl.recode.pop}()},
 \code{\link{gl.rename.pop}()},
 \code{\link{gl.sample}()},
-\code{\link{gl.sort}()}
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind.v2}()},
+\code{\link{gl.subsample.loc.v2}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

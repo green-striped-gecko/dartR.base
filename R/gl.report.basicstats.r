@@ -41,6 +41,11 @@ gl.report.basicstats <- function(x,
     cat(report("Loci:",nLoc(x),"\n"))
     cat(report("Individuals:",nInd(x),"\n"))
     cat(report("Populations:",nPop(x),"\n"))
+    cat("\n")
+    
+    # Report average read depth
+    cat(report("Average Read Depth:",mean(x@other$loc.metrics$rdepth)))
+    cat("\n")
     
     # Report composition
     cat(report("Values: "))
@@ -54,6 +59,33 @@ gl.report.basicstats <- function(x,
     rownames(tmp) <- "percent"
     print(tmp)
     cat("\n")
+    
+    # Report Monomorphic loci
+    if (datatype == "SilicoDArT") {
+      mat <- as.matrix(x)
+      mono.count <- 0
+      for (i in 1:nLoc(x)) {
+        row <- mat[, i]  # Row for each locus
+        if (all(row == 0, na.rm = TRUE) |
+            all(row == 1, na.rm = TRUE)) {
+            mono.count <- mono.count + 1
+        }
+      }
+    }
+    
+    # SNP data
+    if (datatype == "SNP") {
+      mat <- as.matrix(x)
+      mono.count <- 0
+      for (i in 1:nLoc(x)) {
+        row <- mat[, i]  # Row for each locus
+        if (all(row == 0, na.rm = TRUE) |
+            all(row == 2, na.rm = TRUE)) {
+          mono.count <- mono.count + 1
+        }
+      }
+    }
+    cat(report("Monomorphic Loci:",mono.count,"\n"))
     
     # Report allNA
     # Loci
@@ -79,7 +111,7 @@ gl.report.basicstats <- function(x,
       }
     }
     cat(report("Individuals all NA:",na.counter,"\n"))
-    if(na.counter > 0){cat(indlist,"\n")}
+    if(na.counter > 0){cat(ind.list,"\n")}
     cat("\n")
     
     # Report sample sizes
@@ -115,6 +147,16 @@ gl.report.basicstats <- function(x,
     cat(report("Individuals all NA across loci by Population\n"))
     print(tmp)
     cat("\n")
+    
+   # List locus metrics
+    cat(report("Locus Metrics\n"))
+    cat(names(x@other$loc.metrics),sep=", ")
+    cat("\n\n")
+    
+    # List individual metrics
+    cat(report("Individual Metrics\n"))
+    cat(names(x@other$ind.metrics),sep=", ")
+    cat("\n\n")
     
    # Report history
    cat(report("History\n")) 
