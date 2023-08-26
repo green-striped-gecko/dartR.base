@@ -85,7 +85,7 @@ gl.subsample.loc <- function(x,
   #   if (verbose >= 1) {
   #     cat(report("Completed:", funname, "\n"))
   #   }
-  # }
+  # } 
     
   return(x2)
 }
