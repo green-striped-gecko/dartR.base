@@ -126,7 +126,7 @@ df <- gl.report.heterozygosity(platypus.gl)
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
-\code{\link{gl.report.basicstats}()},
+\code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()}
 }
 \author{

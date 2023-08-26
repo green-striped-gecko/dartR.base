@@ -1,9 +1,10 @@
-#' @name gl.report.basicstats
+#' @name gl.report.basics
 #' @title Basic statistics for a genlight object
 #' @family unmatched report
 
 #' @description
 #' Calculates basic statistics for a genlight object. 
+#' 
 #' @param x Name of the genlight object  [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -13,12 +14,13 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' gl.report.basicstats(testset.gl)
+#' gl.report.basics(platypus.gl)
 #' 
+# @import tibble
 #' @export
 #' @return NULL
 
-gl.report.basicstats <- function(x,
+gl.report.basics <- function(x,
                            verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -150,12 +152,14 @@ gl.report.basicstats <- function(x,
     
    # List locus metrics
     cat(report("Locus Metrics\n"))
-    cat(names(x@other$loc.metrics),sep=", ")
+    cat(names(x@other$loc.metrics),"\n",sep=", ")
+    print(tibble::tibble(x@other$loc.metrics))
     cat("\n\n")
     
     # List individual metrics
     cat(report("Individual Metrics\n"))
-    cat(names(x@other$ind.metrics),sep=", ")
+    cat(names(x@other$ind.metrics),"\n",sep=", ")
+    print(tibble::tibble(x@other$ind.metrics))
     cat("\n\n")
     
    # Report history

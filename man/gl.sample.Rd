@@ -74,8 +74,8 @@ Other data manipulation:
 \code{\link{gl.recode.pop}()},
 \code{\link{gl.rename.pop}()},
 \code{\link{gl.sort}()},
-\code{\link{gl.subsample.ind.v2}()},
-\code{\link{gl.subsample.loc.v2}()}
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()}
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})

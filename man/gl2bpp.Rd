@@ -65,15 +65,6 @@ like those done by the programme BPP, are meant to be used with sequence
     Be mindful that there is little information in the literature on the
      validity of this method.
 }
-\examples{
-require(dartR.data)
-test <- platypus.gl
-test <- gl.filter.callrate(test,threshold = 1)
-test <- gl.filter.monomorphs(test)
-test <- gl.subsample.loci(test,n=25)
-gl2bpp(x = test)
-
-}
 \references{
 \itemize{
 \item Ellegren, Hans, et al. "The genomic landscape of species divergence in 

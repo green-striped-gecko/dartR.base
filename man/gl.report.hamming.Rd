@@ -86,7 +86,7 @@ gl.report.hamming(testset.gs[,1:100])
 }
 #' # SNP data
 test <- platypus.gl
-test <- gl.subsample.loci(platypus.gl,n=50)
+test <- gl.subsample.loc(platypus.gl,n=50)
 result <- gl.report.hamming(test, verbose=3)
 result <- gl.report.hamming(test, plot.file="ttest", verbose=3)
 }

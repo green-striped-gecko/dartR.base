@@ -53,12 +53,12 @@
 #'  \url{https://groups.google.com/d/forum/dartr})
 #'  
 #' @examples
-#' require(dartR.data)
-#' test <- platypus.gl
-#' test <- gl.filter.callrate(test,threshold = 1)
-#' test <- gl.filter.monomorphs(test)
-#' test <- gl.subsample.loci(test,n=25)
-#' gl2bpp(x = test)
+# require(dartR.data)
+# test <- platypus.gl
+# test <- gl.filter.callrate(test,threshold = 1)
+# test <- gl.filter.monomorphs(test)
+# test <- gl.subsample.loc(test,n=25)
+# gl2bpp(x = test)
 #' 
 #' @references
 #' \itemize{
@@ -121,7 +121,8 @@ gl2bpp <- function(x,
     }
   }
   
-  if (length(x@other$loc.metrics$TrimmedSequence) != nLoc(x)) {
+  if (length(x@other$loc.metrics$TrimmedSequence
+             ) != nLoc(x)) {
     stop(
       error(
         "Fatal Error: Data must include Trimmed Sequences for each loci in a column called 'TrimmedSequence' in the @other$loc.metrics slot.\n"

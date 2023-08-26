@@ -30,8 +30,6 @@
 #'   result <- gl.filter.taglength(testset.gs,lower=60)
 #'   gl.report.taglength(result)
 #'   }
-#'   test <- gl.subsample.loci(platypus.gl, n =100)
-#'   res <- gl.report.taglength(test)
 #'   
 #' @export
 #' @return Returns a genlight object retaining loci with a sequence tag length
