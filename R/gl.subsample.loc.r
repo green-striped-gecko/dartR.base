@@ -34,36 +34,36 @@ gl.subsample.loc <- function(x,
                               error.check = TRUE,
                               verbose = NULL) {
 
-  # if(error.check){
-  #   
-  #   # SET VERBOSITY
-  #   verbose <- gl.check.verbosity(verbose)
-  #   
-  #   # FLAG SCRIPT START
-  #   funname <- match.call()[[1]]
-  #   utils.flag.start(func = funname,
-  #                    build = "v.2023.3",
-  #                    verbose = verbose)
-  #   
-  #   # CHECK DATATYPE
-  #   datatype <- utils.check.datatype(x, verbose = verbose)
-  #   
-  #   # FUNCTION SPECIFIC ERROR CHECKING
-  #   
-  #   if (n <= 0 | n > nLoc(x)) {
-  #     if (verbose >= 1) {cat(warn("Subsample size must be in the range 1 to",nLoc(x),"\n"))}
-  #     if (verbose >= 1) {cat(warn("  Set to",nLoc(x),"\n"))}
-  #     n <- nLoc(x)
-  #   }
-  #   
-  #   if (verbose >= 2) {
-  #     if (replace){
-  #       if (verbose >= 2) {cat(report("  Subsampling",n,"loci at random from a",datatype,"object with replacement\n"))}
-  #     } else {
-  #       if (verbose >= 2) {cat(report("  Subsampling",n,"loci at random from a",datatype,"object without replacement\n"))}
-  #     }
-  #   }
-  # }
+  if(error.check){
+
+    # SET VERBOSITY
+    verbose <- gl.check.verbosity(verbose)
+
+    # FLAG SCRIPT START
+    funname <- match.call()[[1]]
+    utils.flag.start(func = funname,
+                     build = "v.2023.3",
+                     verbose = verbose)
+
+    # CHECK DATATYPE
+    datatype <- utils.check.datatype(x, verbose = verbose)
+
+    # FUNCTION SPECIFIC ERROR CHECKING
+
+    if (n <= 0 | n > nLoc(x)) {
+      if (verbose >= 1) {cat(warn("Subsample size must be in the range 1 to",nLoc(x),"\n"))}
+      if (verbose >= 1) {cat(warn("  Set to",nLoc(x),"\n"))}
+      n <- nLoc(x)
+    }
+
+    if (verbose >= 2) {
+      if (replace){
+        if (verbose >= 2) {cat(report("  Subsampling",n,"loci at random from a",datatype,"object with replacement\n"))}
+      } else {
+        if (verbose >= 2) {cat(report("  Subsampling",n,"loci at random from a",datatype,"object without replacement\n"))}
+      }
+    }
+  }
     
   # DO THE JOB
     
