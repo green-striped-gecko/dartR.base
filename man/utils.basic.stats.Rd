@@ -2,8 +2,9 @@
 % Please edit documentation in R/utils.basic.stats.r
 \name{utils.basic.stats}
 \alias{utils.basic.stats}
-\title{Calculates mean observed heterozygosity, mean expected heterozygosity and Fis
- per locus, per population and various population differentiation measures
+\title{Calculates mean observed heterozygosity, mean expected heterozygosity 
+and FIS per locus, per population and various population differentiation 
+measures
  @family utilities}
 \usage{
 utils.basic.stats(x)
@@ -15,7 +16,8 @@ utils.basic.stats(x)
 A list with with the statistics for each population
 }
 \description{
-WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
+ END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
 This is a re-implementation of \code{hierfstat::basics.stats} specifically 

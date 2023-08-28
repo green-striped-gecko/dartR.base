@@ -71,7 +71,7 @@
 #'     "Ho" - Observed heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Ho-equation.jpg}
+#'     \figure{Ho_equation.jpg}
 #'
 #'     where Pkii represents the proportion of homozygote i in sample k and np
 #'     the number of samples (i.e. populations).
@@ -80,62 +80,62 @@
 #'     "Hs" - Expected heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{He-equation.jpg}
+#'     \figure{He_equation.jpg}
 #'
-#'     \figure{He-equation-2.jpg}
+#'     \figure{He_equation_2.jpg}
 #'
 #'     \item
 #'     "Ht" - Overall heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Ht-equation.jpg}
+#'     \figure{Ht_equation.jpg}
 #'
-#'     \figure{Ht-equation-2.jpg}
+#'     \figure{Ht_equation_2.jpg}
 #'
 #'     \item
 #'     "Dst" - Amount of heterozygosity among samples (Nei, 1987, pp. 164–165)
 #'     is calculated as:
 #'
-#'     \figure{Dst-equation.jpg}
+#'     \figure{Dst_equation.jpg}
 #'
 #'     \item
 #'     "Htp" - Overall heterozygosity corrected for sample size
 #'     (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Htp-equation.jpg}
+#'     \figure{Htp_equation.jpg}
 #'
 #'     \item
 #'     "Dstp" - Amount of heterozygosity among samples corrected for sample size
 #'      (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Dstp-equation.jpg}
+#'     \figure{Dstp_equation.jpg}
 #'
 #'     \item
 #'     "Fst" - Nei's Gst (Nei, 1987, pp. 164–165) is calculated as:
 #'
-#'     \figure{Fst-equation.jpg}
+#'     \figure{Fst_equation.jpg}
 #'
 #'     \item
 #'     "Fstp" - Fst corrected for sample size (Nei, 1987, pp. 164–165) is
 #'     calculated as:
 #'
-#'     \figure{Fstp-equation.jpg}
+#'     \figure{Fstp_equation.jpg}
 #'
 #'     \item
 #'     "Fis" - Inbreeding coefficient is calculated as:
 #'
-#'     \figure{Fis-equation.jpg}
+#'     \figure{Fis_equation.jpg}
 #'
 #'     \item
 #'     "Dest" - Jost’s D (Jost, 2008) is calculated as:
 #'
-#'     \figure{Dest-equation.jpg}
+#'     \figure{Dest_equation.jpg}
 #'
 #'     \item
 #'     "Gst_max" - The maximum level that Gst can obtain for the observed amount
 #'      of genetic variation (Hedrick 2005) is calculated as:
 #'
-#'     \figure{GstMax-equation.jpg}
+#'     \figure{GstMax_equation.jpg}
 #'
 #'     where k is the number of subpopulations.
 #'
@@ -143,7 +143,7 @@
 #'     "Gst_H" - Gst standardized by the maximum level that it can obtain for the
 #'     observed amount of genetic variation (Hedrick 2005) is calculated as:
 #'
-#'     \figure{Gst-H.jpg}
+#'     \figure{Gst_H.jpg}
 #'
 #'     }
 #'
@@ -176,7 +176,7 @@
 #'  the range of plausible values and it has been found to be erratic in
 #'  practice, see for example the "Studentized (t) Intervals" section in:
 #'
-#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
 #'
 #'     Nice tutorials about the different types of CI can be found in:
 #'
@@ -184,7 +184,7 @@
 #'
 #'     and
 #'
-#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
 #'
 #'      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
 #'      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -229,10 +229,13 @@
 #'
 #'  > \code{res <- gl.report.fstat(platypus.gl, palette.divergent = viridis)}
 #'
-#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" #' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
-#' specified for the plot to be saved.
-#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
-#'  directory; otherwise to the tempdir(). 
+#' If a plot.file is given, the plot arising from this function is saved as an
+#'  "RDS" binary file using the function \link[base]{saveRDS} (package base);
+#'   can be reloaded with function \link[base]{readRDS} (package base). A file
+#'   name must be specified for the plot to be saved.
+#'
+#'  If a plot directory (plot.dir) is specified, the gplot binary is saved to
+#'  that directory; otherwise to the tempdir().
 #'
 #'  Your plot might not shown in full because your 'Plots' pane is too small
 #'  (in RStudio).
@@ -338,14 +341,24 @@ gl.report.fstat <- function(x,
   class(x) <- "dartR"
   
   # bootstrapping function
-  pop.diff <- function(x, indices) {
-    pop.diff_fun <- function(y){
-      pop_diff <- utils.basic.stats(y)
-      return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
-    }
+  # using lexical scoping to make parallel= "snow" work:
+  # https://bookdown.org/rdpeng/rprogdatascience/
+  # scoping-rules-of-r.html#lexical-scoping-why-does-it-matter
+  
+  # pop.diff <- function(x, indices,pops.info) {
+  #   pop.diff_fun <- function(y){
+  #     pop_diff <- utils.basic.stats_2(y,pops_info)
+  #     return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
+  #   }
+  #   x2 <- x[, indices]
+  #   res_pop.diff_fun <- pop.diff_fun(x2)
+  #   return(res_pop.diff_fun)
+  # }
+  
+  pop.diff <- function(x, indices, pops.info) {
     x2 <- x[, indices]
-    res_pop.diff_fun <- pop.diff_fun(x2)
-    return(res_pop.diff_fun)
+    pop_diff <- utils.basic.stats_2(x2, pops_info = pops.info )
+    return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
   }
   
   # DO THE JOB
@@ -368,12 +381,18 @@ gl.report.fstat <- function(x,
     })
     
     if (nboots > 0) {
+      
       # bootstrapping
       pairpop_boot <- apply(pairs_pops, 1, function(y) {
         tpop <- rbind.dartR(pops[[y[1]]], pops[[y[2]]])
+        
+        df <- as.data.frame(as.matrix(tpop))
+        pops.info_tmp <- as.character(pop(tpop))
+        
         res_boots <- boot::boot(
-          data = tpop,
+          data = df,
           statistic = pop.diff,
+          pops.info = pops.info_tmp, 
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -414,9 +433,12 @@ gl.report.fstat <- function(x,
     if (nboots > 0) {
       res_CI <- as.data.frame(matrix(nrow = 4, ncol = 2))
       
+      df <- as.data.frame(as.matrix(tpop))
+      df$pop <- as.factor(as.character(pop(tpop)))
+      
       # bootstrapping
       pairpop_boot <- boot::boot(
-        data = tpop,
+        data = df,
         statistic = pop.diff,
         R = nboots,
         parallel = parallel,

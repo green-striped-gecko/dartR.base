@@ -58,6 +58,9 @@ A dataframe containing population labels, heterozygosities and sample
 Calculates the expected heterozygosities for each population in a genlight
 object, and uses re-randomization to test the statistical significance of
 differences in heterozygosity between populations taken pairwise.
+
+Expected heterozygosity is calculated using the correction for sample size 
+following equation 2 from Nei 1978.
 }
 \details{
 \strong{ Function's output }
@@ -77,6 +80,10 @@ specified for the plot to be saved.
 }
 \examples{
 out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
+}
+\references{
+Nei, M. (1978). Estimation of average heterozygosity and genetic distance 
+from a small number of individuals. Genetics, 89(3), 583-590.
 }
 \author{
 Custodian: Luis Mijangos (Post to
