@@ -52,10 +52,9 @@
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
 #'  
-#' @examples
+# @examples
 # require(dartR.data)
-# test <- platypus.gl
-# test <- gl.filter.callrate(test,threshold = 1)
+# test <- gl.filter.callrate(platypus.gl,threshold = 1)
 # test <- gl.filter.monomorphs(test)
 # test <- gl.subsample.loc(test,n=25)
 # gl2bpp(x = test)
