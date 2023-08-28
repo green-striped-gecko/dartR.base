@@ -78,7 +78,6 @@ Other data manipulation:
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.rename.pop}()},
-\code{\link{gl.sample}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
 \code{\link{gl.subsample.loc}()}

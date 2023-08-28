@@ -1,6 +1,6 @@
 #' @name gl.subsample.loc
 #' @title Subsample loci from a genlight object
-#' @family data manipulation
+#' @family data manipulation 
 #' 
 #' @description 
 #' A function to subsample loci at random in a genlight object
@@ -74,18 +74,20 @@ gl.subsample.loc <- function(x,
   x2 <- x[,nums]
   # subsample the locus metrics [necessary because of replacment possibility]
   x2@other$loc.metrics <- x@other$loc.metrics[nums,]
+  # Remove unused factor levels
+  x2@other$loc.metrics[] <- lapply(x2@other$loc.metrics, function(x) if(is.factor(x)) factor(x) else x)
 
-  # if(error.check){
-  # # ADD TO HISTORY
-  #   nh <- length(x2@other$history)
-  #   x2@other$history[[nh + 1]] <- match.call()
-  #   
-  # # FLAG SCRIPT END ---------------
-  #   
-  #   if (verbose >= 1) {
-  #     cat(report("Completed:", funname, "\n"))
-  #   }
-  # } 
+  if(error.check){
+  # ADD TO HISTORY
+    nh <- length(x2@other$history)
+    x2@other$history[[nh + 1]] <- match.call()
+
+  # FLAG SCRIPT END ---------------
+
+    if (verbose >= 1) {
+      cat(report("Completed:", funname, "\n"))
+    }
+  }
     
   return(x2)
 }
