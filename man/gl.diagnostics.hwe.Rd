@@ -116,7 +116,7 @@ series of tests conducted (De Meeûs et al 2009).
 }
 }
 \examples{
-\dontrun{
+\donttest{
 require("dartR.data")
 res <- gl.diagnostics.hwe(x = gl.filter.allna(platypus.gl[,1:50]), 
 stdErr=FALSE, n.cores=1)

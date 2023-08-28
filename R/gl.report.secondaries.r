@@ -221,7 +221,7 @@ gl.report.secondaries <- function(x,
     colnames(secondaries_plot) <- "freqs"
     
     # Boxplot
-    if (plot.display) {
+   #if (plot.display) {
       p1 <-
         ggplot(secondaries_plot, aes(y = freqs)) + 
         geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + 
@@ -251,7 +251,7 @@ gl.report.secondaries <- function(x,
         ylab("Count") + 
         ggtitle("Observed Frequency of SNPs per Sequence Tag") + 
         plot.theme
-    }
+    #}
     
     # Plot Histogram with estimate of the zero class
     if (verbose >= 2) {

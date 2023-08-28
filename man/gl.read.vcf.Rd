@@ -22,9 +22,8 @@ object does not have individual metrics. You need to add them 'manually' to
 the other$ind.metrics slot.
 }
 \examples{
-\dontrun{
-obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR.data'))
-}
+# you need to provide the path to the vcf file
+#obj <- gl.read.vcf("yourvcffile.vcf", package='dartR.data'))
 
 }
 \seealso{

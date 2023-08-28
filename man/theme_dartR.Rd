@@ -20,6 +20,9 @@ theme_dartR(
 
 \item{base_rect_size}{base size for rect elements}
 }
+\value{
+a the standard dartR theme to be used in ggplots
+}
 \description{
 This is the theme used as default for dartR plots.
 This function controls all non-data display elements in the plots.

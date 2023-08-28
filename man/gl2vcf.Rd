@@ -78,6 +78,7 @@ Variant identifier is taken from locNames(x)
 }
 \examples{
 \dontrun{
+#this example needs plink installed to work
 require("dartR.data")
 gl2vcf(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
  snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')

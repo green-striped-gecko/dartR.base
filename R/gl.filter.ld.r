@@ -25,7 +25,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
 # @examples
-# \dontrun{
+# \donttest{
 # test <- bandicoot.gl
 # test <- gl.filter.callrate(test,threshold = 1)
 # res <- gl.report.ld.map(test)

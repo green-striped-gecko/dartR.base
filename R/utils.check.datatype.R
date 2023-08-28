@@ -32,12 +32,10 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
-#'  \dontrun{
 #' datatype <- utils.check.datatype(testset.gl)
 #' datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 #' fd <- gl.fixed.diff(testset.gl)
 #' datatype <- utils.check.datatype(fd,accept='fd')
-#'  }
 #'  
 #' @export
 #' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a

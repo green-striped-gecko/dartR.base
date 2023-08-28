@@ -10,7 +10,7 @@ utils.jackknife(
   unit = "loc",
   recalc = FALSE,
   mono.rm = FALSE,
-  n.cores = "auto",
+  n.cores = 1,
   verbose = NULL,
   ...
 )
@@ -27,7 +27,7 @@ loci, individuals or populations}
 
 \item{mono.rm}{If TRUE, remove monomorphic and all NA loci [default FALSE].}
 
-\item{n.cores}{The number of cores to use. If "auto" [default], it will 
+\item{n.cores}{The number of cores to use. If "auto", it will 
 use all but one available cores.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -50,11 +50,17 @@ estimate. This function can take the loci, the individuals or the populations
 as units over which to conduct resampling.
 bold{Note} that when n is very small, jackknife resampling is not recommended.
 Parallel computation is implemented. The argument code{n.cores} indicates the 
-number of core to use. If "auto" [default], it will use all but one available 
+number of core to use. If "auto", it will use all but one available 
 cores. If the number of units is small (e.g. a few populations), there is not 
 real advantage in using parallel computation. On the other hand, if the number 
 of units is large (e.g. thousands of loci), even with parallel computation, 
 this function can be very slow.
+}
+\examples{
+require("dartR.data")
+platMod.gl <- gl.filter.allna(platypus.gl) 
+chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
+recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 }
 \seealso{
 Other utilities: 

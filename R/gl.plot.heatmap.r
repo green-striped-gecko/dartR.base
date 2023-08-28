@@ -20,7 +20,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'    gl <- testset.gl[1:10,]
 #'    D <- dist(as.matrix(gl),upper=TRUE,diag=TRUE)
 #'    gl.plot.heatmap(D)
