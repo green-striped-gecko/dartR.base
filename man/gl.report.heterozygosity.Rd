@@ -62,9 +62,14 @@ that population. The calculations take into account missing values.
 Expected heterozygosity for a population takes the expected proportion of
 heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
 locus, then averages this across the loci for an average estimate for the
-population.
+population. 
+
+Expected heterozygosity is calculated using the correction for sample size 
+following equation 2 from Nei 1978. 
+
 Observed heterozygosity for individuals is calculated as the proportion of
 loci that are heterozygous for that individual.
+
 Finally, the loci that are invariant across all individuals in the dataset
 (that is, across populations), is typically unknown. This can render
 estimates of heterozygosity analysis specific, and so it is not valid to
@@ -73,8 +78,10 @@ is a similar problem faced by microsatellites. If you have an estimate of the
 number of invariant sequence tags (loci) in your data, such as provided by
 \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 parameter to standardize your estimates of heterozygosity.
+
 \strong{NOTE}: It is important to realise that estimation of adjusted
 heterozygosity requires that secondaries not to be removed.
+
 Heterozygosities and FIS (inbreeding coefficient) are calculated by locus
 within each population using the following equations:
 \itemize{
@@ -120,6 +127,10 @@ n.inv <- gl.report.secondaries(platypus.gl)
 gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 }
 df <- gl.report.heterozygosity(platypus.gl)
+}
+\references{
+Nei, M. (1978). Estimation of average heterozygosity and genetic distance 
+from a small number of individuals. Genetics, 89(3), 583-590.
 }
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
