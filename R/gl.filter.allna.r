@@ -142,7 +142,7 @@ gl.filter.allna <- function(x,
         loc.list <- loc.list[!is.na(loc.list)]
         if (verbose >= 3) {
             cat(
-                "  Loci that are missing (NA) across all individuals:",
+                "  ",na.counter,"loci that are missing (NA) across all individuals:",
                 paste(loc.list, collapse = ", "),
                 "\n"
             )

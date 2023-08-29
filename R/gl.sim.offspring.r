@@ -92,7 +92,9 @@ gl.sim.offspring <- function(fathers,
                      verbose = verbose)
     
     # CHECK DATATYPE
+    cat(report("father --"))
     datatype.dad <- utils.check.datatype(fathers, verbose = verbose)
+    cat(report("mother --"))
     datatype.mum <- utils.check.datatype(mothers, verbose = verbose)
     
     # CHECK BROODSIZE
@@ -114,26 +116,28 @@ gl.sim.offspring <- function(fathers,
   
   # Generate maternal haplotypes (ova)  
   mmat <- as.matrix(mothers)
-  mhet <- sum(mmat == 1)
-  if (!is.na(mhet)) {
-    mother.half <-
-      ifelse(mmat == 1, sample(c(0, 2), mhet, replace = T), mmat)
-  } else {
-    mother.half <- mmat
+  mhet <- sum(mmat == 1,na.rm=TRUE)
+  ova <- array(data=NA,dim=dim(mmat))
+  hold <- NULL
+  for (i in 1:broodsize){
+    ova <- ifelse(mmat == 1, sample(c(0, 2), mhet, replace = T), mmat) #ovum from each mother
+    ova <- rbind(hold,ova)
+    hold <- ova
   }
   
-  # Generate paternal haplotypes (sperm)
+  # Generate paternal haplotypes (sperm)  
   fmat <- as.matrix(fathers)
-  fhet <- sum(fmat == 1)
-  if (!is.na(fhet)) {
-    father.half <-
-      ifelse(fmat == 1, sample(c(0, 2), fhet, replace = T), fmat)
-  } else {
-    father.half <- fmat
+  fhet <- sum(fmat == 1,na.rm=TRUE)
+  sperm <- array(data=NA,dim=dim(fmat))
+  hold <- NULL
+  for (i in 1:broodsize){
+    sperm <- ifelse(fmat == 1, sample(c(0, 2), fhet, replace = T), fmat) #sperm from each father
+    sperm <- rbind(hold,sperm)
+    hold <- sperm
   }
-  
+
   # Generate offspring (zygote) genotypes, taking advantage of the dartR coding
-  offmat <- (mother.half + father.half) / 2
+  offmat <- (ova + sperm)/2
   
   gl2 <-
     new(
@@ -143,10 +147,14 @@ gl.sim.offspring <- function(fathers,
       loc.names = locNames(mothers),
       ploidy = rep(2, nrow(offmat))
     )
-  
+
   # set sex ratio
   sr <- factor(ifelse(runif(nInd(gl2)) < sexratio, "female", "male"))
   gl2@other$ind.metrics$sex <- sr
+  
+  if(compliance.check){
+    gl2 <- gl.compliance.check(gl2, verbose=0)
+  }  
   
   if(error.check){
     # ADD TO HISTORY
@@ -158,10 +166,6 @@ gl.sim.offspring <- function(fathers,
     if (verbose >= 1) {
       cat(report("Completed:", funname, "\n"))
     }
-  }
-  
-  if(compliance.check){
-    gl2 <- gl.compliance.check(gl2, verbose=0)
   }
   
   return(gl2)
