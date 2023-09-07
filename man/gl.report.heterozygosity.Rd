@@ -17,6 +17,7 @@ gl.report.heterozygosity(
   plot.theme = theme_dartR(),
   plot.colors.pop = gl.colors("dis"),
   plot.colors.ind = gl.colors(2),
+  error.bar = "SD",
   save2tmp = FALSE,
   verbose = NULL
 )

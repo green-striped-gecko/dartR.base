@@ -691,12 +691,12 @@ gl.report.heterozygosity <- function(x,
           ggtitle("Heterozygosities and FIS by Population")
         
         
-        if(error.bar=="SD"){
-          p3 +   geom_errorbar(aes(ymin=df$, 
-                                   ymax=len+sd),
-                               width=.2,
-                               position=position_dodge(.9)) 
-        }
+        # if(error.bar=="SD"){
+        #   p3 +   geom_errorbar(aes(ymin=df$, 
+        #                            ymax=len+sd),
+        #                        width=.2,
+        #                        position=position_dodge(.9)) 
+        # }
         
         
         

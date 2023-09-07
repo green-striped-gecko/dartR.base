@@ -112,7 +112,7 @@ properties that make them valuable resources to interpret genetic
     \emph{Ho} - Unbiased estimate of observed heterozygosity across 
     subpopulations (Nei, 1987, pp. 164, eq. 7.38) is calculated as:
 
-    \figure{Ho_equation.jpg}
+    \figure{Ho-equation.jpg}
 
     where \emph{Pkii} represents the proportion of homozygote \emph{ii} for 
     allele \emph{i} in individual \emph{k} and \emph{s} represents the number
@@ -123,7 +123,7 @@ properties that make them valuable resources to interpret genetic
     Hardy-Weinberg equilibrium across subpopulations (Nei, 1987, pp. 164,
      eq. 7.39) is calculated as:
 
-    \figure{Hs_equation.jpg}
+    \figure{Hs-equation.jpg}
     
     where \emph{ñ} is the harmonic mean of \emph{nk} (the number of 
     individuals in each subpopulation), \emph{pki} is the proportion 
@@ -134,75 +134,56 @@ properties that make them valuable resources to interpret genetic
     \emph{Ht} - Heterozygosity for the total population (Nei, 1987, pp. 164,
      eq. 7.40) is calculated as:
 
-    \figure{Ht_equation.jpg}
+    \figure{Ht-equation.jpg}
 
-<<<<<<< HEAD
-=======
-    \figure{Ht_equation_2.jpg}
-
-
->>>>>>> 88cbeaf8cc602b6837cb36b11bc7a1ff3c2a5b22
     \item
     \emph{Dst} - The average allele frequency differentiation between 
     populations (Nei, 1987, pp. 163) is calculated as:
 
-    \figure{Dst_equation.jpg}
-
+    \figure{Dst-equation.jpg}
 
     \item
     \emph{Htp} - Unbiased estimate of Heterozygosity for the total population
     (Nei, 1987, pp. 165) is calculated as:
 
-    \figure{Htp_equation.jpg}
-
+    \figure{Htp-equation.jpg}
 
     \item
     \emph{Dstp} - Unbiased estimate of the average allele frequency 
     differentiation between populations (Nei, 1987, pp. 165) is calculated
      as:
 
-    \figure{Dstp_equation.jpg}
-
+    \figure{Dstp-equation.jpg}
 
     \item
     \emph{Fst} - Measure of the extent of genetic differentiation 
     of subpopulations (Nei, 1987, pp. 162, eq. 7.34) is calculated as:
 
-    \figure{Fst_equation.jpg}
-
+    \figure{Fst-equation.jpg}
 
     \item
     \emph{Fstp} - Unbiased measure of the extent of genetic differentiation 
     of subpopulations (Nei, 1987, pp. 163, eq. 7.36) is calculated as:
 
-    \figure{Fstp_equation.jpg}
-
+    \figure{Fstp-equation.jpg}
 
     \item
     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
 
-    \figure{Dest_equation.jpg}
-
+    \figure{Dest-equation.jpg}
 
     \item
-    \emph{Gst_max} - The maximum level that Gst can obtain for the observed 
+    \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
     amount of genetic variation (Hedrick 2005, eq. 4a) is calculated as:
 
-    \figure{GstMax_equation.jpg}
+    \figure{GstMax-equation.jpg}
 
-<<<<<<< HEAD
-=======
-
-    where k is the number of subpopulations.
-
->>>>>>> 88cbeaf8cc602b6837cb36b11bc7a1ff3c2a5b22
     \item
-    \emph{Gst_H} - Gst standardized by the maximum level that it can obtain 
+    \emph{Gst-H} - Gst standardized by the maximum level that it can obtain 
     for the observed amount of genetic variation (Hedrick 2005, eq. 4b) is 
     calculated as:
 
-    \figure{Gst_H.jpg}
-
+    \figure{Gst-H.jpg}
 
     }
 
@@ -237,7 +218,6 @@ The studentized bootstrap interval ("stud") was not included in the CI types
 
    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
 
-
     Nice tutorials about the different types of CI can be found in:
 
     \url{https://www.datacamp.com/tutorial/bootstrap-r}
@@ -245,7 +225,6 @@ The studentized bootstrap interval ("stud") was not included in the CI types
     and
 
    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
-
 
      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -297,7 +276,6 @@ If a plot.file is given, the plot arising from this function is saved as an
 
  If a plot directory (plot.dir) is specified, the gplot binary is saved to
  that directory; otherwise to the tempdir().
-
 
  Your plot might not shown in full because your 'Plots' pane is too small
  (in RStudio).
