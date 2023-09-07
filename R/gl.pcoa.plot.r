@@ -79,7 +79,9 @@
 #'  \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
-#' \dontrun{
+#'  test <- gl.pcoa(platypus.gl)
+#'  gl.pcoa.plot(glPca = test, x = platypus.gl)
+#' \donttest{
 #' # SET UP DATASET
 #' gl <- testset.gl
 #' levels(pop(gl))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),
@@ -107,8 +109,6 @@
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 #'  pt.colors=col, pt.shapes=shp, axis.label.size=1)
 #'  }
-#'  test <- gl.pcoa(platypus.gl)
-#'  gl.pcoa.plot(glPca = test, x = platypus.gl)
 #' @seealso \code{\link{gl.pcoa}}
 #' @family Exploration/visualisation functions
 #' @rawNamespace import(data.table, except = c(melt,dcast))

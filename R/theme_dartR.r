@@ -11,7 +11,7 @@
 #' @param base_family base font family
 #' @param base_line_size base size for line elements
 #' @param base_rect_size base size for rect elements
-
+#' @return a the standard dartR theme to be used in ggplots
 #' @examples
 #' ggplot(data.frame(dummy=rnorm(1000)),aes(dummy)) +
 #' geom_histogram(binwidth=0.1) + theme_dartR()

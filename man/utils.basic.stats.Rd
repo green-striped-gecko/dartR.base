@@ -25,8 +25,8 @@ This is a re-implementation of \code{hierfstat::basics.stats} specifically
 version of \code{hierfstat::basics.stats} but it is much faster.
 }
 \examples{
-# require("dartR.data")
-# out <- utils.basic.stats(platypus.gl)
+require("dartR.data")
+out <- utils.basic.stats(platypus.gl)
 
 }
 \author{

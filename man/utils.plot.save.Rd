@@ -20,6 +20,9 @@ progress log; 3, progress and results summary; 5, full report
 \item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
 such as width and height, when the ggplot is to be saved.}
 }
+\value{
+returns NULL
+}
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }

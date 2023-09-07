@@ -136,17 +136,25 @@ properties that make them valuable resources to interpret genetic
 
     \figure{Ht_equation.jpg}
 
+<<<<<<< HEAD
+=======
+    \figure{Ht_equation_2.jpg}
+
+
+>>>>>>> 88cbeaf8cc602b6837cb36b11bc7a1ff3c2a5b22
     \item
     \emph{Dst} - The average allele frequency differentiation between 
     populations (Nei, 1987, pp. 163) is calculated as:
 
     \figure{Dst_equation.jpg}
 
+
     \item
     \emph{Htp} - Unbiased estimate of Heterozygosity for the total population
     (Nei, 1987, pp. 165) is calculated as:
 
     \figure{Htp_equation.jpg}
+
 
     \item
     \emph{Dstp} - Unbiased estimate of the average allele frequency 
@@ -155,11 +163,13 @@ properties that make them valuable resources to interpret genetic
 
     \figure{Dstp_equation.jpg}
 
+
     \item
     \emph{Fst} - Measure of the extent of genetic differentiation 
     of subpopulations (Nei, 1987, pp. 162, eq. 7.34) is calculated as:
 
     \figure{Fst_equation.jpg}
+
 
     \item
     \emph{Fstp} - Unbiased measure of the extent of genetic differentiation 
@@ -167,10 +177,12 @@ properties that make them valuable resources to interpret genetic
 
     \figure{Fstp_equation.jpg}
 
+
     \item
     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
 
     \figure{Dest_equation.jpg}
+
 
     \item
     \emph{Gst_max} - The maximum level that Gst can obtain for the observed 
@@ -178,12 +190,19 @@ properties that make them valuable resources to interpret genetic
 
     \figure{GstMax_equation.jpg}
 
+<<<<<<< HEAD
+=======
+
+    where k is the number of subpopulations.
+
+>>>>>>> 88cbeaf8cc602b6837cb36b11bc7a1ff3c2a5b22
     \item
     \emph{Gst_H} - Gst standardized by the maximum level that it can obtain 
     for the observed amount of genetic variation (Hedrick 2005, eq. 4b) is 
     calculated as:
 
     \figure{Gst_H.jpg}
+
 
     }
 
@@ -218,6 +237,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
 
    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
 
+
     Nice tutorials about the different types of CI can be found in:
 
     \url{https://www.datacamp.com/tutorial/bootstrap-r}
@@ -225,6 +245,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
     and
 
    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+
 
      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -276,6 +297,7 @@ If a plot.file is given, the plot arising from this function is saved as an
 
  If a plot directory (plot.dir) is specified, the gplot binary is saved to
  that directory; otherwise to the tempdir().
+
 
  Your plot might not shown in full because your 'Plots' pane is too small
  (in RStudio).
