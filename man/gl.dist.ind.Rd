@@ -19,7 +19,7 @@ gl.dist.ind(
 )
 }
 \arguments{
-\item{x}{Name of the genlight containing the SNP genotypes or presence-absence data [required].}
+\item{x}{Name of the genlight [required].}
 
 \item{method}{Specify distance measure [SNP: Euclidean; P/A: Simple].}
 
@@ -53,8 +53,8 @@ progress log ; 3, progress and results summary; 5, full report
 An object of class 'matrix' or dist' giving distances between individuals
 }
 \description{
-This script calculates various distances between individuals based on allele
- frequencies or presence-absence data
+Calculates various distances between individuals based on allele
+frequencies or presence-absence data
 }
 \details{
 The distance measure for SNP genotypes can be one of:
@@ -93,6 +93,6 @@ Other distance:
 \code{\link{utils.dist.ind.snp}()}
 }
 \author{
-Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+Author(s): Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{distance}

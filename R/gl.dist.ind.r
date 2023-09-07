@@ -3,10 +3,10 @@
 #' @family distance
 
 #' @description
-#' This script calculates various distances between individuals based on allele
-#'  frequencies or presence-absence data 
+#' Calculates various distances between individuals based on allele
+#' frequencies or presence-absence data 
 
-#' @param x Name of the genlight containing the SNP genotypes or presence-absence data [required].
+#' @param x Name of the genlight [required].
 #' @param method Specify distance measure [SNP: Euclidean; P/A: Simple].
 #' @param scale If TRUE, the distances are scaled to fall in the range [0,1] [default TRUE]
 #' @param swap If TRUE and working with presence-absence data, then presence 
@@ -49,7 +49,7 @@
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
 #'   and definitions.
 #' 
-#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+#' @author Author(s): Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
 #'  \donttest{
@@ -73,25 +73,6 @@ gl.dist.ind <- function(x,
                         plot.dir=NULL,
                         verbose = NULL) {
   
-    # CHECK IF PACKAGES ARE INSTALLED
-    # pkg <- "rrBLUP"
-    # if (!(requireNamespace(pkg, quietly = TRUE))) {
-    #     stop(error(
-    #         "Package ",
-    #         pkg,
-    #         " needed for this function to work. Please install it."
-    #     ))
-    # }
-    # 
-    # pkg <- "poppr"
-    # if (!(requireNamespace(pkg, quietly = TRUE))) {
-    #     stop(error(
-    #         "Package ",
-    #         pkg,
-    #         " needed for this function to work. Please install it."
-    #     ))
-    # }
-    
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     if(verbose==0){plot.display <- FALSE}
@@ -112,7 +93,7 @@ gl.dist.ind <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -142,16 +123,14 @@ gl.dist.ind <- function(x,
             "absolute"
         )
     )) {
-        cat(
-            warn(
-                " Warning: Method not in the list of options, set to Euclidean for SNP data; Simple Matching for Tag P/A data\n"
-            )
-        )
+        
         if (datatype == "SNP") {
             method <- "euclidean"
+            cat(warn(" Warning: Method not in the list of options, set to Euclidean Distance\n"))
         }
         if (datatype == "SilicoDArT") {
             method <- "simple"
+            cat(warn(" Warning: Method not in the list of options, set to Simple Matching Distance\n"))
         }
     }
     
@@ -340,35 +319,6 @@ gl.dist.ind <- function(x,
         cat("    Maximum Distance: ", round(max(dd), 2), "\n")
         cat("    Average Distance: ", round(mean(dd), 3), "\n\n")
     }
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # 
-    # # creating temp file names
-    # if (save2tmp) {
-    #     if (plot.display) {
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving to tempdir
-    #         saveRDS(list(match_call, p3), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report("  Saving the ggplot to session tempfile\n"))
-    #         }
-    #     }
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     saveRDS(list(match_call, dd), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving tabulation to session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # FLAG SCRIPT END
     

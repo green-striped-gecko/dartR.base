@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dist.ind.snp.r
 \name{utils.dist.ind.snp}
 \alias{utils.dist.ind.snp}
-\title{Calculates a distance matrix for individuals defined in a dartR
+\title{Calculates a distance matrix for individuals defined in a 
 genlight object using SNP data (DArTseq)}
 \usage{
 utils.dist.ind.snp(
