@@ -73,7 +73,8 @@ Other data manipulation:
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
 \code{\link{gl.rename.pop}()},
-\code{\link{gl.sort}()}
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.loc}()}
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})

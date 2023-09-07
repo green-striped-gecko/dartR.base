@@ -9,6 +9,10 @@ gl.report.heterozygosity(
   x,
   method = "pop",
   n.invariant = 0,
+  nboots = 0,
+  conf = 0.95,
+  CI.type = "bca",
+  ncpus = 1,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
   plot.colors.pop = gl.colors("dis"),
@@ -25,6 +29,17 @@ individual (method='ind') [default 'pop'].}
 
 \item{n.invariant}{An estimate of the number of invariant sequence tags used
 to adjust the heterozygosity rate [default 0].}
+
+\item{nboots}{Number of bootstrap replicates to obtain confident intervals
+[default 0].}
+
+\item{conf}{The confidence level of the required interval  [default 0.95].}
+
+\item{CI.type}{Method to estimate confident intervals. One of
+"norm", "basic", "perc" or "bca" [default "bca"].}
+
+\item{ncpus}{Number of processes to be used in parallel operation. If ncpus
+> 1 parallel operation is activated,see "Details" section [default 1].}
 
 \item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
@@ -62,10 +77,10 @@ that population. The calculations take into account missing values.
 Expected heterozygosity for a population takes the expected proportion of
 heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
 locus, then averages this across the loci for an average estimate for the
-population. 
+population.
 
-Expected heterozygosity is calculated using the correction for sample size 
-following equation 2 from Nei 1978. 
+Expected heterozygosity is calculated using the correction for sample size
+following equation 2 from Nei 1978.
 
 Observed heterozygosity for individuals is calculated as the proportion of
 loci that are heterozygous for that individual.
@@ -107,7 +122,7 @@ unbiased expected heterozygosity and FIS (Inbreeding coefficient) across populat
 together with a table of mean observed and expected heterozygosities and FIS
 by population and their respective standard deviations (SD).
 In the output, it is also reported by population: the number of loci used to
- estimate heterozygosity(nLoc), the number of polymorphic loci (polyLoc), 
+ estimate heterozygosity(n.Loc), the number of polymorphic loci (polyLoc),
  the number of monomorphic loci (monoLoc) and loci with all missing data
   (all_NALoc).
 Output for method='ind' is a histogram and a boxplot of heterozygosity across
@@ -129,7 +144,7 @@ gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 df <- gl.report.heterozygosity(platypus.gl)
 }
 \references{
-Nei, M. (1978). Estimation of average heterozygosity and genetic distance 
+Nei, M. (1978). Estimation of average heterozygosity and genetic distance
 from a small number of individuals. Genetics, 89(3), 583-590.
 }
 \seealso{
