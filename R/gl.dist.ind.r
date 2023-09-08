@@ -21,7 +21,7 @@
 #'  plots [default c("#2171B5","#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
-#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' @param plot.display Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log ; 3, progress and results summary; 5, full report
 #'   [default 2 or as specified using gl.set.verbosity].
