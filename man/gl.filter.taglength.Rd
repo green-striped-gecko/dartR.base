@@ -40,8 +40,6 @@ from 20 to 69 base pairs.
   result <- gl.filter.taglength(testset.gs,lower=60)
   gl.report.taglength(result)
   }
-  test <- gl.subsample.loci(platypus.gl, n =100)
-  res <- gl.report.taglength(test)
   
 }
 \author{

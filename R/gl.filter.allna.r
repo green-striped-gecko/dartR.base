@@ -57,7 +57,7 @@ gl.filter.allna <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Josh",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # recurrence clash
@@ -142,7 +142,7 @@ gl.filter.allna <- function(x,
         loc.list <- loc.list[!is.na(loc.list)]
         if (verbose >= 3) {
             cat(
-                "  Loci that are missing (NA) across all individuals:",
+                "  ",na.counter,"loci that are missing (NA) across all individuals:",
                 paste(loc.list, collapse = ", "),
                 "\n"
             )

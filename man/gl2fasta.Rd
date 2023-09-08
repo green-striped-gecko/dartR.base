@@ -8,7 +8,7 @@ gl2fasta(
   x,
   method = 1,
   outfile = "output.fasta",
-  outpath = NULL,
+  outpath = tempdir(),
   probar = FALSE,
   verbose = NULL
 )
@@ -21,8 +21,7 @@ gl2fasta(
 
 \item{outfile}{Name of the output file (fasta format) ["output.fasta"].}
 
-\item{outpath}{Path where to save the output file [default global working 
-directory or if not specified, tempdir()].}
+\item{outpath}{Path where to save the output file (set to tempdir by default)}
 
 \item{probar}{If TRUE, a progress bar will be displayed for long loops 
 [default = TRUE].}
@@ -40,24 +39,32 @@ information on base frequencies and transition and transversion ratios are
 required (for example, Maximum Likelihood methods). Where relevant,
 heterozygous loci are resolved before concatenation by either assigning
  ambiguity codes or by random allele assignment.
+}
+\details{
 Four methods are employed:
+
 Method 1 -- heterozygous positions are replaced by the standard ambiguity 
 codes. The resultant sequence fragments are concatenated across loci to
 generate a single combined sequence to be used in subsequent ML phylogenetic
 analyses.
+
 Method 2 -- the heterozygous state is resolved by randomly assigning one or
 the other SNP variant to the individual. The resultant sequence fragments are
 concatenated across loci to generate a single composite haplotype to be used
 in subsequent ML phylogenetic analyses.
+
 Method 3 -- heterozygous positions are replaced by the standard ambiguity
 codes. The resultant SNP bases are concatenated across loci to generate a
 single combined sequence to be used in subsequent MP phylogenetic analyses.
+
 Method 4 -- the heterozygous state is resolved by randomly assigning one or
 the other SNP variant to the individual. The resultant SNP bases are
 concatenated across loci to generate a single composite haplotype to be used
 in subsequent MP phylogenetic analyses.
+
 Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
  mis-identity are deleted.
+
 The script writes out the composite haplotypes for each individual as a
 fastA file. Requires 'TrimmedSequence' to be among the locus metrics
 (\code{@other$loc.metrics}) and information of the type of alleles (slot
@@ -65,42 +72,7 @@ loc.all e.g. 'G/A') and the position of the SNP in slot position of the
  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
  how to format these slots.)
 }
-\examples{
- \donttest{
-gl <- gl.filter.reproducibility(testset.gl,t=1)
-gl <- gl.filter.overshoot(gl,verbose=3)
-gl <- gl.filter.callrate(testset.gl,t=.98)
-gl <- gl.filter.monomorphs(gl)
-gl2fasta(gl, method=1, outfile='test.fasta',verbose=3, outpath=tempdir())
-}
-test <- gl.subsample.loci(platypus.gl,n=100)
-gl2fasta(test, , outpath=tempdir())
-
-}
-\seealso{
-Other linker: 
-\code{\link{gl2bayesAss}()},
-\code{\link{gl2bayescan}()},
-\code{\link{gl2bpp}()},
-\code{\link{gl2demerelate}()},
-\code{\link{gl2eigenstrat}()},
-\code{\link{gl2faststructure}()},
-\code{\link{gl2gds}()},
-\code{\link{gl2genalex}()},
-\code{\link{gl2genepop}()},
-\code{\link{gl2geno}()},
-\code{\link{gl2gi}()},
-\code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
-\code{\link{gl2related}()},
-\code{\link{gl2sa}()},
-\code{\link{gl2structure}()},
-\code{\link{gl2treemix}()},
-\code{\link{gl2vcf}()}
-}
 \author{
 Custodian: Luis Mijangos (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{linker}
