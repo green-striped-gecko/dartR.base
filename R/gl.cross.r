@@ -1,4 +1,4 @@
-#' @name gl.sim.offspring
+#' @name gl.cross
 #' @title Generates random crosses between fathers and mothers
 #' @family simulation
 #' 
@@ -64,13 +64,13 @@
 #' gl.fathers <- glSim(10, 20, ploidy=2)
 #' #Simulate 10 potential mothers
 #' gl.mothers <- glSim(10, 20, ploidy=2)
-#' gl.sim.offspring(gl.fathers, gl.mothers, 2, sexratio=0.5)
+#' gl.cross(gl.fathers, gl.mothers, 2, sexratio=0.5)
 #' 
 #' @importFrom stats runif
 #' @export
 #' @return A genlight object with n offspring of both sexes.
 
-gl.sim.offspring <- function(fathers,
+gl.cross <- function(fathers,
                              mothers,
                              broodsize=10,
                              sexratio = 0.5,
