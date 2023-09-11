@@ -35,7 +35,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
-#'  \dontrun{
+#'  \donttest{
 #' # SNP genotypes
 #' D <- gl.dist.pop(possums.gl, method='euclidean')
 #' D <- gl.dist.pop(possums.gl, method='euclidean',scale=TRUE)
@@ -373,8 +373,10 @@ gl.dist.pop <- function(x,
     # PRINTING OUTPUTS
     
         # using package patchwork
-        p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-        if (plot.display) {suppressWarnings(print(p3))}
+        
+        if (plot.display) {
+          p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
+          suppressWarnings(print(p3))}
         
         # Optionally save the plot ---------------------
         
