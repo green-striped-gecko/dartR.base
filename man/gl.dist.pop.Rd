@@ -60,7 +60,7 @@ The distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
   and definitions.
 }
 \examples{
- \dontrun{
+ \donttest{
 # SNP genotypes
 D <- gl.dist.pop(possums.gl, method='euclidean')
 D <- gl.dist.pop(possums.gl, method='euclidean',scale=TRUE)
