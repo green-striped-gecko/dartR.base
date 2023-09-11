@@ -229,7 +229,7 @@ gl.dist.ind <- function(x,
         mat <- utils.dist.binary(x, 
                                  method = method, 
                                  swap=swap, 
-                                 type="matrix", 
+                                 #type="matrix", 
                                  scale = scale, 
                                  verbose = 0)
         dd <- as.dist(mat)
