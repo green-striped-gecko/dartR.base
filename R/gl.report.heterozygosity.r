@@ -26,12 +26,12 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
-
+#'
 #' @details
 #' Observed heterozygosity for a population takes the proportion of
 #' heterozygous loci for each individual then averages over the individuals in
 #' that population. The calculations take into account missing values.
-
+#'
 #' Expected heterozygosity for a population takes the expected proportion of
 #' heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
 #' locus, then averages this across the loci for an average estimate for the

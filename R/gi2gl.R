@@ -29,7 +29,7 @@ gi2gl <- function(gi,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # STANDARD ERROR CHECKING

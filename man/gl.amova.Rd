@@ -38,10 +38,6 @@ to 'hack' StAMPP::stamppAmova to avoid a namespace conflict.
 out <- gl.amova(bandicoot.gl, permutations=1)
 
 }
-\seealso{
-Other basic statistics: 
-\code{\link{gl.basic.stats}()}
-}
 \author{
 Bernd Gruber (bugs? Post to 
 \url{https://groups.google.com/d/forum/dartr})

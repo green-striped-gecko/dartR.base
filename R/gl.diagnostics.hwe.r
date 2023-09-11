@@ -134,7 +134,7 @@ gl.diagnostics.hwe <- function(x,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "Jackson",
+                   build = "v.2023.3",
                    verbose = verbose)
   
   # CHECK DATATYPE

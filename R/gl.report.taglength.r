@@ -177,36 +177,6 @@ gl.report.taglength <- function(x,
                              verbose=verbose)
     }
     
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # 
-    # # creating temp file names
-    # if (save2tmp) {
-    #     if (plot.display) {
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving to tempdir
-    #         saveRDS(list(match_call, p3), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report("  Saving the ggplot to session tempfile\n"))
-    #         }
-    #     }
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     saveRDS(list(match_call, df), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving tabulation to session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
-    
     # FLAG SCRIPT END
     
     if (verbose >= 1) {
