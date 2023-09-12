@@ -326,6 +326,7 @@ Holsinger, K. E., & Weir, B. S. (2009). Genetics in geographically structured
 }
 \seealso{
 Other matched reports: 
+\code{\link{gl.mahal.assign}()},
 \code{\link{gl.report.bases}()},
 \code{\link{gl.report.monomorphs}()}
 }
