@@ -49,8 +49,7 @@
 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-
-#' @examples
+# @examples
 #'
 #' @importFrom MASS ginv
 #' @importFrom stats cov mahalanobis
