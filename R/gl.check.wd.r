@@ -29,7 +29,7 @@ gl.check.wd <- function(
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v.2023.2",
+                   build = "v.2023.3",
                    verbose = verbose)
   # DO THE JOB
   # SET wd or GET it from global
