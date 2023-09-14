@@ -414,6 +414,8 @@ gl.report.diversity <- function(x,
         i0 <- which(!is.na(p)) 
         two_H_alpha_all <- (1 - (p * p + (1 - p) * (1 - p)))
         
+        # mn <- msp2 <- mHo <- NULL
+        
         two_H_beta_es <- apply(pairs, 1, function(x) {
       i1 <- which(!is.na(colMeans(as.matrix(pops[[x[1]]]), na.rm = TRUE) / 2))
       i2 <- which(!is.na(colMeans(as.matrix(pops[[x[2]]]), na.rm = TRUE) / 2))
@@ -424,11 +426,12 @@ gl.report.diversity <- function(x,
                 (two_H_alpha_es[[x[1]]]$dummys[i1 %in% index] + 
                    two_H_alpha_es[[x[2]]]$dummys[i2 %in% index]) / 2
             
-            mHs <- mn/(mn - 1) * (1 - msp2 - mHo/2/mn)
+            # mHs <- mn/(mn - 1) * (1 - msp2 - mHo/2/mn)
             
             dummys <-
                 ((two_H_alpha_all[i0 %in% index] - m2Ha) / 
                    (1 - m2Ha)) * (npops / (npops - 1))
+            
             return(list(
                 estH = mean(dummys),
                 sdH = sd(dummys),

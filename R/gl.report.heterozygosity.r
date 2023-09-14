@@ -28,12 +28,14 @@
 #' [default gl.colors("dis")].
 #' @param plot.colors.ind List of two color names for the borders and fill of
 #' the plot by individual [default gl.colors(2)].
+#' @param error.bar statistic to be plotted as error bar either "SD" (standard 
+#' deviation) or "SE" (standard error) or "CI" (confident intervals)
+#'  [default "SD"].
 #' @param save2tmp If TRUE, saves any ggplots and listings to the session
 #' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
-
 #' @details
 #' Observed heterozygosity for a population takes the proportion of
 #' heterozygous loci for each individual then averages over the individuals in
@@ -103,7 +105,143 @@
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
+#'  
+#'   \strong{Error bars}
+#'  
+#'  The best method for presenting or assessing genetic statistics depends on 
+#'  the type of data you have and the specific questions you're trying to 
+#'  answer. Here's a brief overview of when you might use each method:
+#'  
+#'   \strong{1. Confidence Intervals ("CI"):}
+#'   
+#'  - Usage: Often used to convey the precision of an estimate.
+#'  
+#'  - Advantage: Confidence intervals give a range in which the true parameter 
+#'  (like a population mean) is likely to fall, given the data and a specified 
+#'  probability (like 95%).
+#'  
+#'  - In Context: For genetic statistics, if you're estimating a parameter,
+#'   a 95% CI gives you a range in which you're 95% confident the true parameter
+#'    lies.
+#'  
+#'   \strong{2. Standard Deviation ("SD"):}
+#'   
+#'  - Usage: Describes the amount of variation from the average in a set of data.
+#'  
+#'  - Advantage: Allows for an understanding of the spread of individual data
+#'   points around the mean.
+#'   
+#'  - In Context: If you're looking at the distribution of a quantitative trait 
+#'  (like height) in a population with a particular genotype, the SD can 
+#'  describe how much individual heights vary around the average height.
+#'  
+#'   \strong{3. Standard Error ("SE"):}
+#'   
+#'  - Usage: Describes the precision of the sample mean as an estimate of the 
+#'  population mean.
+#'  
+#'  - Advantage: Smaller than the SD in large samples; it takes into account 
+#'  both the SD and the sample size. 
+#'  
+#'  - In Context: If you want to know how accurately your sample mean represents
+#'   the population mean, you'd look at the SE.
+#'   
+#'    \strong{Recommendation:}
+#'    
+#'   - If you're trying to convey the precision of an estimate, confidence 
+#'   intervals are very useful.
+#'   
+#'   - For understanding variability within a sample, standard deviation is key.
+#'   
+#'   - To see how well a sample mean might estimate a population mean, consider 
+#'   the standard error.
+#'   
+#'   In practice, geneticists often use a combination of these methods to 
+#'   analyze and present their data, depending on their research questions and 
+#'   the nature of the data.
+#'   
+#'  \strong{Confident Intervals}
 #'
+#' The uncertainty of a parameter, in this case the mean of the statistic, can
+#' be summarised by a confidence interval (CI) which includes the true parameter
+#' value with a specified probability (i.e. confidence level; the parameter
+#' "conf" in this function).
+#'
+#' In this function, CI are obtained using Bootstrap which is an inference
+#' method that samples with replacement the data (i.e. loci) and calculates the
+#'  statistics every time.
+#'
+#'  This function uses the function \link[boot]{boot} (package boot) to perform
+#'  the bootstrap replicates and the function \link[boot]{boot.ci}
+#'  (package boot) to perform the calculations for the CI.
+#'
+#'  Four different types of nonparametric CI can be calculated
+#'   (parameter "CI.type" in this function):
+#'   \itemize{
+#'    \item First order normal approximation interval ("norm").
+#'    \item Basic bootstrap interval ("basic").
+#'    \item Bootstrap percentile interval ("perc").
+#'    \item Adjusted bootstrap percentile interval ("bca").
+#'    }
+#'
+#' The studentized bootstrap interval ("stud") was not included in the CI types
+#'  because it is computationally intensive, it may produce estimates outside
+#'  the range of plausible values and it has been found to be erratic in
+#'  practice, see for example the "Studentized (t) Intervals" section in:
+#'
+#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+#'
+#'     Nice tutorials about the different types of CI can be found in:
+#'
+#'     \url{https://www.datacamp.com/tutorial/bootstrap-r}
+#'
+#'     and
+#'
+#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+#'
+#'      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
+#'      (1997, p. 194) suggest that the number of bootstrap replicates should
+#'      be between 1000 and 2000.
+#'
+#'  \strong{It is important} to note that unreliable confident intervals will be
+#'   obtained if too few number of bootstrap replicates are used.
+#'   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
+#'    if bootstrap replicates are too few. Consider increasing then number of
+#'    bootstrap replicates to at least 200.
+#'
+#'    The "bca" interval is often cited as the best for theoretical reasons,
+#'    however it may produce unstable results if the bootstrap distribution
+#'     is skewed or has extreme values. For example, you might get the warning
+#'     "extreme order statistics used as endpoints" or the error "estimated
+#'     adjustment 'a' is NA". In this case, you may want to use more bootstrap
+#'     replicates or a different method or check your data for outliers.
+#'
+#'    The error "estimated adjustment 'w' is infinite" means that the estimated
+#'    adjustment ‘w’ for the "bca" interval is infinite, which can happen when
+#'    the empirical influence values are zero or very close to zero. This can
+#'    be caused by various reasons, such as:
+#'
+#'    The number of bootstrap replicates is too small, the statistic of interest
+#'     is constant or nearly constant across the bootstrap samples, the data
+#'     contains outliers or extreme values.
+#'
+#'     You can try some possible solutions, such as:
+#'
+#' Increasing the number of bootstrap replicates, using a different type of
+#' bootstrap confidence interval or removing or transforming the outliers or
+#'  extreme values.
+#'  
+#'  \strong{Parallelisation}
+#'
+#'  If the parameter ncpus > 1, parallelisation is enabled. In Windows, parallel
+#'   computing employs a "socket" approach that starts new copies of R on each
+#'    core. POSIX systems, on the other hand (Mac, Linux, Unix, and BSD),
+#'    utilise a "forking" approach that replicates the whole current version of
+#'     R and transfers it to a new core.
+#'
+#'     Opening and terminating R sessions in each core involves a significant
+#'     amount of processing time, therefore parallelisation in Windows machines
+#'    is only quicker than not usung parallelisation when nboots > 1000-2000.
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #'
@@ -273,6 +411,13 @@ gl.report.heterozygosity <- function(x,
                 incorrect\n"
       )
     )
+  }
+  
+  if( nboots == 0 & error.bar == "CI" ){
+    cat(error(
+"  Number of boostraps ('nboots' parameter) must be > 0 to calculate confident 
+   intervals \n"))
+    stop()
   }
   
   # DO THE JOB
@@ -561,6 +706,8 @@ gl.report.heterozygosity <- function(x,
     }
     
     ### CP ###
+    if(nboots > 0){
+    
     df <-
       data.frame(
         pop = popNames(x),
@@ -607,11 +754,61 @@ gl.report.heterozygosity <- function(x,
         FISLCI = round(stat_list[[6]], 6),
         FISHCI = round(stat_list[[12]], 6)
       )
+    }else{
+      
+      df <-
+        data.frame(
+          pop = popNames(x),
+          n.Ind = round(n_ind, 6),
+          n.Loc = n_loc,
+          n.Loc.adj = n_loc / (n_loc + n.invariant),
+          polyLoc = poly_loc ,
+          monoLoc = mono_loc ,
+          all_NALoc = all_na_loc,
+          
+          Ho = round(as.numeric(Ho),6),
+          HoSD = round(HoSD,6),
+          HoSE = round(HoSE, 6),
+          HoLCI = NA,
+          HoHCI = NA,
+          
+          Ho.adj = round(as.numeric(Ho.adj),6),
+          Ho.adjSD = round(Ho.adjSD,6),
+          Ho.adjSE = round(Ho.adjSE, 6),
+          Ho.adjLCI = NA,
+          Ho.adjHCI = NA,
+          
+          He = round(Hexp, 6),
+          HeSD = round(HexpSD, 6),
+          HeSE = round(HexpSE,6),
+          HeLCI = NA,
+          HeHCI = NA,
+          
+          uHe = round(uHexp, 6),
+          uHeSD = round(uHexpSD, 6),
+          uHeSE = round(uHexpSE ,6),
+          uHeLCI = NA,
+          uHeHCI = NA,
+          
+          He.adj = round(Hexp.adj, 6),
+          He.adjSD = round(Hexp.adjSD, 6),
+          He.adjSE = round(Hexp.adjSE, 6),
+          He.adjLCI = NA,
+          He.adjHCI = NA,
+          
+          FIS = round(FIS,6),
+          FISSD = round(FISSD,6),
+          FISSE = round(FISSE , 6),
+          FISLCI = NA,
+          FISHCI = NA
+        )
+    }
     ##########
     
     if (plot.display) {
       
-       value <- color <- variable <- He.adj <- NULL
+      error_L <- error_H <- value <- color <- variable <- He.adj <- NULL
+      
       # printing plots and reports assigning colors to populations
       if (is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop(length(levels(pop(x))))
@@ -622,58 +819,57 @@ gl.report.heterozygosity <- function(x,
       }
       
       if (n.invariant == 0) {
-        df.ordered <- df
-        df.ordered$color <- colors_pops
-        df.ordered <- df.ordered[order(df.ordered$Ho), ]
-        df.ordered$pop <-
-          factor(df.ordered$pop, levels = df.ordered$pop)
-        df.ordered <-
-          df.ordered[, c("pop", "n.Ind", "Ho", "uHe", "FIS", "color")]
-        df.ordered <-
-          reshape2::melt(df.ordered, id = c("pop", "color", "n.Ind"))
         
-        eb.ordered <- df
-        eb.ordered <- eb.ordered[order(eb.ordered$Ho), ]
-        eb.ordered$pop <-
-          factor(eb.ordered$pop, levels = eb.ordered$pop)
-        eb.ordered <-
-          eb.ordered[, c("pop", "n.Ind", "Ho", "uHe", "FIS", "color")]
-        eb.ordered <-
-          reshape2::melt(eb.ordered, id = c("pop", "color", "n.Ind"))
+        pop_list_plot <- df
+        pop_list_plot$pop <- as.factor(pop_list_plot$pop)
+        pop_list_plot$color <- colors_pops
         
-        colors_pops_plot <-
-          df.ordered[, c("pop", "color", "variable", "value")]
-        colors_pops_plot <-
-          colors_pops_plot[colors_pops_plot$variable == "Ho",]
-        colors_pops_plot <-
-          colors_pops_plot[order(as.character(colors_pops_plot$value)),]
+        pop_list_plot_stat <- pop_list_plot[,c("Ho", "uHe", "FIS", "n.Ind",  "pop",  "color")]
+        pop_list_plot_stat <- reshape2::melt(pop_list_plot_stat, id = c("pop", "color", "n.Ind"))
+        
+        if(error.bar=="SD"){
+          pop_list_plot_error <- pop_list_plot[,c("HoSD", "uHeSD", "FISSD","pop")]
+          pop_list_plot_error <- reshape2::melt(pop_list_plot_error,id = c("pop"))
+          colnames(pop_list_plot_error) <- c("pop","variable","error")
+          pop_list_plot_error <- pop_list_plot_error[,c("pop","error")]
+          pop_list_plot_stat <- cbind(pop_list_plot_stat,error=pop_list_plot_error$error)
+        }
+        
+        if(error.bar=="SE"){
+          pop_list_plot_error <- pop_list_plot[,c("HoSE","uHeSE","FISSE","pop")]
+          pop_list_plot_error <- reshape2::melt(pop_list_plot_error,id = c("pop"))
+          colnames(pop_list_plot_error) <- c("pop","variable","error")
+          pop_list_plot_error <- pop_list_plot_error[,c("pop","error")]
+          pop_list_plot_stat <- cbind(pop_list_plot_stat,error=pop_list_plot_error$error)
+          }
+        
+        if(error.bar=="CI"){
+          pop_list_plot_error_L <- pop_list_plot[,c("HoLCI","uHeLCI","FISLCI","pop")]
+          pop_list_plot_error_H <- pop_list_plot[,c("HoHCI","uHeHCI","FISHCI","pop")]
+          pop_list_plot_error_L <- reshape2::melt(pop_list_plot_error_L,id = c("pop"))
+          pop_list_plot_error_H <- reshape2::melt(pop_list_plot_error_H,id = c("pop"))
+          colnames(pop_list_plot_error_L) <- c("pop","variable_L","error_L")
+          colnames(pop_list_plot_error_H) <- c("pop","variable_H","error_H")
+          pop_list_plot_error <- cbind(pop_list_plot_error_L,pop_list_plot_error_H)
+          pop_list_plot_stat <- cbind(pop_list_plot_stat,
+                                      error_L = pop_list_plot_error$error_L,
+                                      error_H = pop_list_plot_error$error_H)
+          
+          }
         
         p3 <-
-          ggplot(df.ordered,
-                 aes(x = pop,
-                     y = value)) + geom_bar(
-                       position = "dodge2",
-                       stat = "identity",
-                       color = "black",
-                       fill = rep(colors_pops_plot$color, each =
-                                    3)
-                     ) +
-          scale_x_discrete(labels = paste(df.ordered$pop,
-                                          round(df.ordered$n.Ind,
+          ggplot(data = pop_list_plot_stat, aes(x = pop, 
+                                                y = value,
+                                                fill = pop)) +
+          geom_bar(stat = "identity", 
+                   color = "black", 
+                   position = position_dodge())+ 
+          facet_wrap(~variable, nrow=1) +
+          scale_fill_manual(values = pop_list_plot_stat$color) +
+          scale_x_discrete(labels = paste(pop_list_plot_stat$pop,
+                                          round(pop_list_plot_stat$n.Ind,
                                                 0),
                                           sep = " | ")) +
-          geom_text(
-            label = rep(c("Ho", "uHe", "FIS"), length(unique(
-              df.ordered$pop
-            ))),
-            position = position_dodge2(width = 0.9),
-            stat = "identity",
-            vjust = -0.50,
-            size = 4,
-            inherit.aes = TRUE,
-            fontface = "bold"
-          ) +
-          
           plot.theme +
           theme(
             axis.ticks.x = element_blank(),
@@ -687,26 +883,41 @@ gl.report.heterozygosity <- function(x,
             axis.ticks.y = element_blank(),
             axis.title.y = element_blank(),
             legend.position = "none"
-          ) + labs(fill = "Population") +
-          ggtitle("Heterozygosities and FIS by Population")
+          ) 
         
+        if(error.bar=="SD"){
+          p3 <- p3 + 
+            geom_errorbar(aes(ymin = value, 
+                              ymax = value + error), 
+                          width=0.5)+
+            ggtitle(label = "Heterozygosities and FIS by Population",
+                    subtitle = "Error bars show Standard Deviation")
+        }
         
-        # if(error.bar=="SD"){
-        #   p3 +   geom_errorbar(aes(ymin=df$, 
-        #                            ymax=len+sd),
-        #                        width=.2,
-        #                        position=position_dodge(.9)) 
-        # }
+        if(error.bar=="SE"){
+          p3 <- p3 + 
+            geom_errorbar(aes(ymin = value - error, 
+                              ymax = value + error), 
+                          width=0.5) +
+            ggtitle(label = "Heterozygosities and FIS by Population",
+                    subtitle = "Error bars show Standard Error")
+        }
         
-        
+        if(error.bar=="CI"){
+          p3 <- p3 + 
+            geom_errorbar(aes(ymin = error_L, 
+                              ymax = error_H), 
+                          width=0.5)+
+            ggtitle(label = "Heterozygosities and FIS by Population",
+                    subtitle = "Error bars show Confident Intervals")
+        }
         
       } else {
+
         df.ordered <- df
         df.ordered$color <- colors_pops
-        df.ordered <-
-          df.ordered[order(df.ordered$Ho.adj), ]
-        df.ordered$pop <-
-          factor(df.ordered$pop, levels = df.ordered$pop)
+        df.ordered <- df.ordered[order(df.ordered$Ho.adj), ]
+        df.ordered$pop <- factor(df.ordered$pop, levels = df.ordered$pop)
         p1 <-
           ggplot(df.ordered, aes(
             x = pop,
