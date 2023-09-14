@@ -43,6 +43,7 @@ gl.allele.freq(testset.gl,simple=TRUE)
 }
 \seealso{
 Other unmatched report: 
+\code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.heterozygosity}()}
 }

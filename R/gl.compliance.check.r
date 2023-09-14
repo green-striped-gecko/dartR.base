@@ -74,9 +74,9 @@ gl.compliance.check <- function(x,
     # if slot loc.all is empty
     if(datatype == "SNP" & is.null(x@loc.all)){
       x$loc.all <- rep("A/C",nLoc(x)) 
-      cat(warn(
-"  The slot loc.all, which stores allele name for each locus, is empty. 
-Creating a dummy variable (A/C) to insert in this slot. \n"))
+      if(verbose >= 2){
+      cat(warn("  The slot loc.all, which stores allele name for each locus, is empty. Creating a dummy variable (A/C) to insert in this slot. \n"))
+      }
     }
     
     # if loci have no name

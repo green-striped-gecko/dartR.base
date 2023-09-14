@@ -79,6 +79,7 @@ genlight object.
 Observed heterozygosity for a population takes the proportion of
 heterozygous loci for each individual then averages over the individuals in
 that population. The calculations take into account missing values.
+
 Expected heterozygosity for a population takes the expected proportion of
 heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
 locus, then averages this across the loci for an average estimate for the
@@ -294,6 +295,7 @@ from a small number of individuals. Genetics, 89(3), 583-590.
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()}
 }
 \author{

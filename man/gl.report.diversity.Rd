@@ -114,6 +114,7 @@ Broadens the Spectrum of Molecular Ecology and Evolution. TREE 32(12)
 \seealso{
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.basics}()},
 \code{\link{gl.report.heterozygosity}()}
 }
 \author{
