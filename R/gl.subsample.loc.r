@@ -74,7 +74,9 @@ gl.subsample.loc <- function(x,
   x2 <- x[,nums]
   # subsample the locus metrics [necessary because of replacment possibility]
   x2@other$loc.metrics <- x@other$loc.metrics[nums,]
-  
+  # Remove unused factor levels
+  x2@other$loc.metrics[] <- lapply(x2@other$loc.metrics, function(x) if(is.factor(x)) factor(x) else x)
+
   if(error.check){
     # ADD TO HISTORY
     nh <- length(x2@other$history)
