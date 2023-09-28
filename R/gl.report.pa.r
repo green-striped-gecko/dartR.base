@@ -587,7 +587,7 @@ gl.report.pa <- function(x,
   if (plot.display) {
     if (map.interactive & (method == "pairwise")) {
       labs <- popNames(x)
-      gl.map.interactive(x, matrix = mm, symmetric = FALSE)
+      print(gl.map.interactive(x, matrix = mm, symmetric = FALSE))
     }
     # using package patchwork
     print(p3)
