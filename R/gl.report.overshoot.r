@@ -49,19 +49,6 @@ gl.report.overshoot <- function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, accept = c("genlight", "SNP"), verbose = verbose)
     
-    # SCRIPT SPECIFIC ERROR CHECKING
-    
-    # if (datatype == "SilicoDArT") {
-    #     cat(error("  Detected Presence/Absence (SilicoDArT) data\n"))
-    #     stop(
-    #         error(
-    #             "Cannot identify overshoot arising from SNPS deleted with 
-    #             adaptors for fragment presence/absence data.
-    #            Please provide a SNP dataset.\n"
-    #         )
-    #     )
-    # }
-    
     if (length(x@other$loc.metrics$TrimmedSequence) != nLoc(x)) {
         stop(
             error(
@@ -105,28 +92,6 @@ gl.report.overshoot <- function(x,
     }
     
     df <- data.frame(locNames = locNames(xx))
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (save2tmp) {
-    #     # creating temp file names
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     # saving to tempdir
-    #     saveRDS(list(match_call, df), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(
-    #             report(
-    #                 "  Saving the overshot loci to the tempfile as",
-    #                 temp_table,
-    #                 "using saveRDS\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # FLAG SCRIPT END
     if (verbose >= 1) {

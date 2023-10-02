@@ -59,13 +59,13 @@
 #' 
 #' @author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #' 
-#' @examples
-#' #Simulate 10 potential fathers
-#' gl.fathers <- glSim(10, 20, ploidy=2)
-#' #Simulate 10 potential mothers
-#' gl.mothers <- glSim(10, 20, ploidy=2)
-#' gl.sim.crosses(gl.fathers, gl.mothers, 2, sexratio=0.5)
-#' 
+# @examples
+# #Simulate 10 potential fathers
+# gl.fathers <- glSim(10, 20, ploidy=2)
+# #Simulate 10 potential mothers
+# gl.mothers <- glSim(10, 20, ploidy=2)
+# gl.sim.crosses(gl.fathers, gl.mothers, 2, sexratio=0.5)
+
 #' @importFrom stats runif
 #' @export
 #' @return A genlight object with n offspring of both sexes.
