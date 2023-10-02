@@ -90,7 +90,7 @@ gl.filter.allna <- function(x,
     }
     na.counter <- 0
     nL <- nLoc(x)
-    loc.list <- vector("list", nL)
+    loc.list <- array(NA,nL)
     matrix <- as.matrix(x)
     l.names <- locNames(x)
     for (i in 1:nL) {

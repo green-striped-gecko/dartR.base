@@ -54,7 +54,7 @@
 #' 
 # @examples
 # gl <- gl.filter.allna(platypus.gl)
-# gl <- gl.report.maf(gl)
+# gl.report.maf(gl)
 #'
 #' @seealso \code{\link{gl.filter.maf}}
 
@@ -138,7 +138,7 @@ gl.report.maf <- function(x,
       verbose=3
       if(verbose >= 3){
       stats <- summary(z@other$loc.metrics$maf)
-      cat("  Reporting Minor Allele Frequency (MAF) by Locus for population",popNames(z),"\n")
+      cat(report("  Reporting Minor Allele Frequency (MAF) by Locus for population",popNames(z),"\n"))
       cat("  No. of loci =", nLoc(z), "\n")
       cat("  No. of individuals =", nInd(z), "\n")
       cat("    Minimum      : ", stats[1], "\n")
@@ -183,7 +183,7 @@ gl.report.maf <- function(x,
     
     # Print out some statistics
     stats <- summary(x2@other$loc.metrics$maf)
-    cat("  Reporting Minor Allele Frequency (MAF) by Locus\n")
+    cat(report("  Reporting Minor Allele Frequency (MAF) by Locus OVERALL\n"))
     cat("  No. of loci =", nLoc(x), "\n")
     cat("  No. of individuals =", nInd(x), "\n")
     cat("    Minimum      : ", stats[1], "\n")
