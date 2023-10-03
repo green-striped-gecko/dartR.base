@@ -8,6 +8,8 @@
 #' choosing thresholds for the filter function \code{\link{gl.filter.maf}}
 #' 
 #' @param x Name of the genlight object containing the SNP data [required].
+#' @param as.pop Temporarily assign another locus metric as the population for
+#' the purposes of deletions [default NULL].
 #' @param maf.limit Show histograms MAF range <= maf.limit [default 0.5].
 #' @param ind.limit Show histograms only for populations of size greater than
 #' ind.limit [default 5].
@@ -62,6 +64,7 @@
 #' @return An unaltered genlight object
 #' 
 gl.report.maf <- function(x,
+                          as.pop=NULL,
                           maf.limit = 0.5,
                           ind.limit = 5,
                           plot.display=TRUE,
@@ -113,6 +116,33 @@ gl.report.maf <- function(x,
             )
         )
         ind.limit <- 5
+    }
+    
+    # Population labels assigned?
+    if (is.null(as.pop)) {
+      if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "  Warning: Population assignments not detected, running compliance check\n"
+            )
+          )
+        }
+        x <- gl.compliance.check(x, verbose = 0)
+      }
+    }
+    
+    # Assign the new population list if as.pop is specified 
+    pop.hold <- pop(x)
+    if (!is.null(as.pop)) {
+      if (as.pop %in% names(x@other$ind.metrics)) {
+        pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
+        if (verbose >= 2) {
+          cat(report("  Temporarily assigning",as.pop,"as population\n"))
+        }
+      } else {
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+      }
     }
     
     # FLAG SCRIPT START
@@ -321,6 +351,15 @@ gl.report.maf <- function(x,
     df.maf <- lapply(sep.pop, FUN=tmpfun)
     df.maf <- as.data.frame(df.maf)
     rownames(df.maf) <- locNames(x)
+    
+    # Reassign the initial population list if as.pop is specified 
+    
+    if (!is.null(as.pop)) {
+      pop(x) <- pop.hold
+      if (verbose >= 2) {
+        cat(report("  Restoring population assignments to initial state\n"))
+      }
+    }
    
     # FLAG SCRIPT END
     
