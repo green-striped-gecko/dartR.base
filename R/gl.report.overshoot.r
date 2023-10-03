@@ -10,8 +10,6 @@
 #' resembles the adaptor.
 #' 
 #' @param x Name of the genlight object [required].
-# @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -34,9 +32,8 @@
 #' @export
 #' @return An unaltered genlight object
 
-gl.report.overshoot <- function(x,
-                                #save2tmp = FALSE,
-                                verbose = NULL) {
+gl.report.overshoot <- function(x,verbose = NULL) {
+  
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
