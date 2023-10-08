@@ -68,13 +68,11 @@ Loci are filtered out if they show HWE departure either in any one population
 (n.pop.threshold > 1).
 }
 \details{
-There are several factors that can cause deviations from Hardy-Weinberg
- proportions including: mutation, finite population size, selection,
+Several factors can cause deviations from Hardy-Weinberg
+ equilibrium including: mutation, finite population size, selection,
  population structure, age structure, assortative mating, sex linkage,
- nonrandom sampling and genotyping errors. Therefore, testing for
- Hardy-Weinberg proportions should be a process that involves a careful
- evaluation of the results, a good place to start is Waples (2015).
- Note that tests for H-W proportions are only valid if there is no population
+ nonrandom sampling and genotyping errors. Refer to Waples (2015).
+ Note that tests for departure from H-W equilibrium are only valid if there is no population
  substructure (assuming random mating) and have sufficient power only when
  there is sufficient sample size (n individuals > 15).
 Populations can be defined in three ways:
@@ -91,12 +89,12 @@ proportions:
 function \code{\link[HardyWeinberg]{HWChisq}} of the R package HardyWeinberg.
 By default a continuity correction is applied (cc.val=0.5). The
 continuity correction can be turned off (by specifying cc.val=0), for example
-in cases of extreme allele frequencies in which the continuity correction can
-lead to excessive type 1 error rates.
+when extreme allele frequencies occur continuity correction can
+lead to excessive Type I error rates.
 \item The exact test (test.type='Exact') based on the exact calculations
 contained in the function \code{\link[HardyWeinberg]{HWExactStats}} of the R
-package HardyWeinberg, and described in Wigginton  et al. (2005). The exact
-test is recommended in most cases (Wigginton  et al., 2005).
+package HardyWeinberg as described by Wigginton  et al. (2005). The exact
+test is recommended in most cases.
 Three different methods to estimate p-values (pvalue.type) in the Exact test
 can be used:
 \itemize{
