@@ -102,7 +102,7 @@ gl.filter.factorloadings <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE FOR THE genlight OBJECT
-  datatype <- utils.check.datatype(x, verbose = verbose)
+  datatype <- utils.check.datatype(x, verbose = verbose) 
   
   # CHECK DATATYPE FOR THE pca OBJECT
   datatype <- class(pca)
@@ -121,14 +121,14 @@ gl.filter.factorloadings <- function(x,
   
   # Pull the factor loadings into a dataframe
   factor.loadings <- data.frame(pca$loadings[,axis])
-  rownames(factor.loadings) <- locNames(x)
-  df <- cbind(rownames(factor.loadings),factor.loadings[,1])
+  #rownames(factor.loadings) <- locNames(x)
+  df <- cbind(locNames(x),factor.loadings[,1])
   df <- data.frame(df)
   colnames(df) <- c("locus","loading")
   df$loading <- as.numeric(df$loading)
   if(retain){
     tmp <- df[abs(df$loading) >= threshold,]
-    x2 <- gl.keep.loc(x,loclist<-tmp$locus,verbose=0)
+    x2 <- gl.drop.loc(x,loclist<-tmp$locus,verbose=0)
     if(verbose >= 2){cat(report("  Retaining",nLoc(x2),"of",nLoc(x),"loci with loadings greater than or equal to",threshold,"\n"))}
   } else {
     tmp <- df[abs(df$loading) < threshold,]
