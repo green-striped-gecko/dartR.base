@@ -1,14 +1,13 @@
-#' Outputs an nj tree to summarize genetic similarity among populations
+#' @name gl.tree.nj
+#' @title Outputs an nj tree to summarize genetic similarity among populations
+#' @family graphics
 
+#' @description
 #' This function is a wrapper for the nj function or package ape applied to Euclidean
 #' distances calculated from the genlight object.
-#' @details
-#' An euclidean distance matrix is calculated by default [d_mat = NULL]. 
-#' Optionally the user can use as input for the tree any other distance matrix
-#' using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
 
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param d_mat Distance matrix [default NULL].
+#' @param dist.matrix Distance matrix [default NULL].
 #' @param outgroup Vector containing the population names that are the outgroups
 #'  [default NULL].
 #' @param type Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
@@ -17,16 +16,18 @@
 #'  [default 0.7].
 #' @param treefile Name of the file for the tree topology using Newick format 
 #' [default NULL].
-#' @param verbose Specify the level of verbosity: 0, silent, fatal errors only; 
-#' 1, flag function begin and end; 2, progress log; 3, progress and results 
-#' summary; 5, full report [default 2].
-#' @return A tree file of class phylo.
-#' @importFrom stringr str_pad
-#' @importFrom ape nj root plot.phylo write.tree
-#' @importFrom graphics hist par
-#' @export
+#' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
+#' begin and end; 2, progress log; 3, progress and results summary; 5, full
+#' report [default 2 or as specified using gl.set.verbosity].
+#' 
+#' @details
+#' An euclidean distance matrix is calculated by default [dist.matrix = NULL]. 
+#' Optionally the user can use as input for the tree any other distance matrix
+#' using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
+#' 
 #' @author Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
 #'  \donttest{
 #' # SNP data
@@ -35,9 +36,15 @@
 #'   gl.tree.nj(testset.gs,type='fan')
 #'   }
 #'   res <- gl.tree.nj(platypus.gl)
+#'   
+#' @importFrom stringr str_pad
+#' @importFrom ape nj root plot.phylo write.tree
+#' @importFrom graphics hist par
+#' @export
+#' @return A tree file of class phylo.
 
 gl.tree.nj <- function(x,
-                       d_mat = NULL,
+                       dist.matrix = NULL,
                        type = "phylogram",
                        outgroup = NULL,
                        labelsize = 0.7,
@@ -49,15 +56,15 @@ gl.tree.nj <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jackson",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # DO THE JOB
     
-    if(is.null(d_mat)){
+    if(is.null(dist.matrix)){
       
       # Convert gl object to a matrix of allele frequencies, locus by population
       if (verbose >= 2) {
@@ -75,7 +82,7 @@ gl.tree.nj <- function(x,
       # row.names(d) <- c(paste(row.names(d),' ')) row.names(d) <- substr(row.names(d),1,10)
       
     }else{
-      d <- d_mat
+      d <- dist.matrix
     }
     
     # Plot the distances as an nj tree
@@ -92,6 +99,7 @@ gl.tree.nj <- function(x,
                 mai = c(0, 0, 0, 0),
                 pty = "m"
             )
+		on.exit(par(op))
         ape::plot.phylo(tree, type = type, cex = labelsize)
     } else {
         # Just plot the tree unrooted
@@ -114,7 +122,7 @@ gl.tree.nj <- function(x,
     }
     
     # Reset the par options
-    par(op)
+	#now done by on exit
     
     # FLAG SCRIPT END
     

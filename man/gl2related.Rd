@@ -44,9 +44,9 @@ therefore for comparisons between coancestry and related we suggest to use
 the command line version of coancestry.
 }
 \examples{
-gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE)
+gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE, )
 \dontrun{
-##running with the related package
+##running with the related package, use
 #install.packages('related', repos='http://R-Forge.R-project.org')
 library(related)
 coan <- coancestry(gtd, wang=1)
@@ -81,6 +81,7 @@ Other linker:
 \code{\link{gl2plink}()},
 \code{\link{gl2sa}()},
 \code{\link{gl2structure}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

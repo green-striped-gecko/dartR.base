@@ -8,7 +8,7 @@ gl.edit.recode.pop(
   x,
   pop.recode = NULL,
   out.recode.file = NULL,
-  outpath = tempdir(),
+  outpath = NULL,
   recalc = FALSE,
   mono.rm = FALSE,
   verbose = NULL
@@ -22,7 +22,8 @@ gl.edit.recode.pop(
 \item{out.recode.file}{Name of the file to output the new individual labels
 [default NULL].}
 
-\item{outpath}{Path where to save the output file [default tempdir(), mandated by CRAN].}
+\item{outpath}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{recalc}{If TRUE, recalculate the locus metadata statistics
 [default TRUE].}
@@ -70,7 +71,8 @@ a pop.recode.table. The amended recode table is then applied to the genlight
 object.
 }
 \examples{
-\dontrun{
+#this is an interactive example
+if(interactive()){
 gl <- gl.edit.recode.pop(testset.gl)
 gs <- gl.edit.recode.pop(testset.gs)
 }
@@ -87,6 +89,7 @@ Other data manipulation:
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
+\code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
@@ -96,7 +99,9 @@ Other data manipulation:
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
-\code{\link{gl.rename.pop}()}
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sort}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

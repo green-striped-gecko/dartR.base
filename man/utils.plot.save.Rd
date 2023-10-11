@@ -20,6 +20,9 @@ progress log; 3, progress and results summary; 5, full report
 \item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
 such as width and height, when the ggplot is to be saved.}
 }
+\value{
+returns NULL
+}
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
@@ -29,10 +32,12 @@ Uses saveRDS() to save the file with an .RDS extension; can be reloaded with gl.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
@@ -51,6 +56,6 @@ Other utilities:
 \code{\link{utils.transpose}()}
 }
 \author{
-Maintainer: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
+Custodian: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}

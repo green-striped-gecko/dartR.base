@@ -31,8 +31,8 @@
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
-#' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' @param plot.colors Vector with two color names for the borders and fill
+#' [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory in which to save files [default = working directory]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param bins Number of bins to display in histograms [default 25].
@@ -104,22 +104,33 @@ gl.filter.callrate <- function(x,
                                recursive = FALSE,
                                plot.display=TRUE,
                                plot.theme = theme_dartR(),
-                               plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                               plot.colors = NULL,
                                plot.file=NULL,
                                plot.dir=NULL,
                                bins = 25,
                                verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
+	
+    # SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -594,9 +605,7 @@ gl.filter.callrate <- function(x,
     
     # PRINTING OUTPUTS using package patchwork
     p3 <- (p1 / p2) + plot_layout(heights = c(1, 1))
-    if (plot.display) {
-        print(p3)
-    }
+    if (plot.display) {print(p3)}
     
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p3,
@@ -632,30 +641,6 @@ gl.filter.callrate <- function(x,
             }
         }
     }
-    
-    # # # Recalculate Call Rate to be safe x <- utils.recalc.callrate(x,verbose=0)
-    # 
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (plot.file & plot.display) {
-    #     # creating temp file names
-    #     temp_plot <- tempfile(pattern = "Plot_")
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     # saving to tempdir
-    #     saveRDS(list(match_call, p3), file = temp_plot)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # ADD TO HISTORY
     

@@ -1,9 +1,12 @@
 #' @name gl.impute
-#' @title Imputates missing data
+#' @title Imputes missing data
+#' @family data manipulation
+
 #' @description
 #' This function imputes genotypes on a population-by-population basis, where
 #' populations can be considered panmictic, or imputes the state for
 #' presence-absence data.
+#' 
 #' @param x Name of the genlight object containing the SNP or presence-absence
 #' data [required].
 #' @param method Imputation method, either "frequency" or "HW" or "neighbour" 
@@ -17,6 +20,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
 #' We recommend that imputation be performed on sampling locations, before
 #' any aggregation. Imputation is achieved by replacing missing values using
@@ -49,8 +53,6 @@
 #' imputed with method 'frequency' or 'HW'. Consider using the function 
 #' \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
 
-#' @return A genlight object with the missing data imputed.
-#' @export
 #' @author Custodian: Luis Mijangos 
 #' (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @examples
@@ -66,6 +68,9 @@
 #' gs <- gl.impute(gs, method="neighbour")
 #' }
 #' gs <- gl.impute(platypus.gl,method ="random")
+#' 
+#' @export
+#' @return A genlight object with the missing data imputed.
 
 gl.impute <-  function(x,
                        method = "neighbour",
@@ -81,8 +86,8 @@ gl.impute <-  function(x,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "Josh",
-                   verbosity = verbose)
+                   build = "v.2023.2",
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)

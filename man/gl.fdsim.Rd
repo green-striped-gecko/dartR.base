@@ -32,8 +32,9 @@ allopatric [default FALSE].}
 \item{delta}{The threshold value for the minor allele frequency to regard the
 difference between two populations to be fixed [default 0.02].}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default 2].}
+\item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
+begin and end; 2, progress log; 3, progress and results summary; 5, full
+report [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 A list containing the following square matrices
@@ -61,8 +62,10 @@ the expected number of false positives is calculated.
 \examples{
 fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
 sympatric=TRUE,verbose=3)
+
 }
 \author{
 Custodian: Arthur Georges (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{distance}

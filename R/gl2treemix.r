@@ -2,13 +2,14 @@
 #' @title Converts a genlight object to a treemix input file
 #' @family linker
 
+#' @description
 #' The output file contains the SNP data in the format expected by treemix --
 #' see the treemix manual. The file will be gzipped before in order to be
 #' recognised by treemix. Plotting functions provided with treemix will need to
 #'  be sourced from the treemix download page.
 
 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object [required].
 #' @param outfile File name of the output file (including gz extension)
 #' [default 'treemix_input.gz'].
 #' @param outpath Path where to save the output file [default global working 
@@ -34,27 +35,26 @@ gl2treemix <- function(x,
                        outfile = "treemix_input.gz",
                        outpath = NULL,
                        verbose = NULL) {
-    outfilespec <- file.path(outpath, outfile)
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # SET WORKING DIRECTORY
     outpath <- gl.check.wd(outpath,verbose=0)
-    outfile <- file.path(outpath, outfile)
+    outfilespec <- file.path(outpath, outfile)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # DO THE JOB
     
-    freq <- gl.percent.freq(x, verbose = verbose)
+    freq <- gl.allele.freq(x, percent=TRUE, by='popxloc', verbose = verbose)
     freq$ref <- freq$nobs * 2 - freq$sum
     freq$alt <- freq$sum
     freq$sum <- NULL

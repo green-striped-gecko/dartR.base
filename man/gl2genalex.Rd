@@ -38,7 +38,7 @@ The output csv file contains the snp data and other relevant lines suitable
 }
 \examples{
 \donttest{
-gl2genalex(testset.gl, outfile='testset.csv')
+gl2genalex(testset.gl, outfile='testset.csv', outpath=tempdir())
 }
 
 }
@@ -67,6 +67,7 @@ Other linker:
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
 \code{\link{gl2structure}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

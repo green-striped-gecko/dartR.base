@@ -36,10 +36,12 @@ Tolerance in the definition of a fixed difference is provided by the t
 \code{\link{gl.fixed.diff}}
 
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},

@@ -7,14 +7,14 @@
 #' from 20 to 69 base pairs. This function reports summary statistics of the tag
 #'  lengths.
 #' @param x Name of the genlight object containing the SNP [required].
-#' @param plot.out If TRUE, displays a plot to guide the decision on a filter
-#' threshold [default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
+#' [default TRUE].
+#' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
-#'  plots [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default c("#2171B5", "#6BAED6")].
+#' @param plot.dir Directory in which to save files [default = working directory]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity]
@@ -32,13 +32,12 @@
 #'  thresholds are provided. Output also includes a boxplot and a
 #'  histogram to guide in the selection of a threshold for filtering on tag
 #'  length.
+#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
 
-#'  Plots and table are saved to the temporal directory (tempdir) and can be
-#'  accessed with the function and listed with
-#'  the function . Note that they can be accessed
-#'  only in the current R session because tempdir is cleared each time that the
-#'  R session is closed.
-
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir(). 
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -57,19 +56,28 @@
 #' @return Returns unaltered genlight object
 
 gl.report.taglength <- function(x,
-                                plot.out = TRUE,
-                                plot_theme = theme_dartR(),
-                                plot_colors = gl.colors(2),
-                                save2tmp = FALSE,
+                                plot.display=TRUE,
+                                plot.theme = theme_dartR(),
+                                plot.colors = NULL,
+                                plot.file=NULL,
+                                plot.dir=NULL,
                                 verbose = NULL) {
-    # SET VERBOSITY
+  # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    
+  # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+	
+	# SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -91,26 +99,26 @@ gl.report.taglength <- function(x,
     tags <- x@other$loc.metrics$TrimmedSequence
     nchar.tags <- nchar(as.character(tags))
     
-    plot_tags <- data.frame(nchar.tags)
-    colnames(plot_tags) <- "tags"
+    plot.tags <- data.frame(nchar.tags)
+    colnames(plot.tags) <- "tags"
     
     # Boxplot
     p1 <-
-        ggplot(plot_tags, aes(y = tags)) + 
-      geom_boxplot(color = plot_colors[1], fill = plot_colors[2]) + 
-      coord_flip() + plot_theme + xlim(range = c(-1,1)) + 
+        ggplot(plot.tags, aes(y = tags)) + 
+      geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + 
+      coord_flip() + plot.theme + xlim(range = c(-1,1)) + 
       ylim(0, 100) + ylab(" ") + 
       theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
       ggtitle("SNP data - Tag Length")
     
     # Histogram
     p2 <-
-        ggplot(plot_tags, aes(x = tags)) + 
-      geom_histogram(bins = 50,color = plot_colors[1], fill = plot_colors[2]) + 
+        ggplot(plot.tags, aes(x = tags)) + 
+      geom_histogram(bins = 50,color = plot.colors[1], fill = plot.colors[2]) + 
       coord_cartesian(xlim = c(0,100)) + 
       xlab("Tag Length") + 
       ylab("Count") + 
-      plot_theme
+      plot.theme
     
     # Print out some statistics
     stats <- summary(nchar.tags)
@@ -155,42 +163,49 @@ gl.report.taglength <- function(x,
     rownames(df) <- NULL
     
     # PRINTING OUTPUTS
-    if (plot.out) {
+    if (plot.display) {
         # using package patchwork
         p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
         print(p3)
     }
     print(df)
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using 
-                    gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
+    
+    # # SAVE INTERMEDIATES TO TEMPDIR
+    # 
+    # # creating temp file names
+    # if (save2tmp) {
+    #     if (plot.display) {
+    #         temp_plot <- tempfile(pattern = "Plot_")
+    #         match_call <-
+    #             paste0(names(match.call()),
+    #                    "_",
+    #                    as.character(match.call()),
+    #                    collapse = "_")
+    #         # saving to tempdir
+    #         saveRDS(list(match_call, p3), file = temp_plot)
+    #         if (verbose >= 2) {
+    #             cat(report("  Saving the ggplot to session tempfile\n"))
+    #         }
+    #     }
+    #     temp_table <- tempfile(pattern = "Table_")
+    #     saveRDS(list(match_call, df), file = temp_table)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving tabulation to session tempfile\n"))
+    #         cat(
+    #             report(
+    #                 "  NOTE: Retrieve output files from tempdir using 
+    #                 gl.list.reports() and gl.print.reports()\n"
+    #             )
+    #         )
+    #     }
+    # }
     
     # FLAG SCRIPT END
     

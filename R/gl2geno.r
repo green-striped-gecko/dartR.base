@@ -21,9 +21,9 @@
 #' 
 #' @examples
 #' # SNP data
-#' gl2geno(testset.gl)
+#' gl2geno(testset.gl, outpath=tempdir())
 #' # Tag P/A data
-#' gl2geno(testset.gs)
+#' gl2geno(testset.gs, outpath=tempdir())
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)
@@ -42,7 +42,7 @@ gl2geno <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

@@ -1,6 +1,9 @@
 # SET THEME FOR PLOTS
-#' dartR theme
-
+#' @name theme_dartR
+#' @title Default theme for dartR plots
+#' @family environment
+#' 
+#' @description
 #' This is the theme used as default for dartR plots.
 #' This function controls all non-data display elements in the plots.
 
@@ -8,11 +11,14 @@
 #' @param base_family base font family
 #' @param base_line_size base size for line elements
 #' @param base_rect_size base size for rect elements
-#' @export
+#' @return a the standard dartR theme to be used in ggplots
 #' @examples
 #' ggplot(data.frame(dummy=rnorm(1000)),aes(dummy)) +
 #' geom_histogram(binwidth=0.1) + theme_dartR()
+#' 
+#' @export
 
+# Version v.2023.2
 
 # The half-line (base-fontsize / 2) sets up the basic vertical rhythm of the
 # theme. Most margins will be set to this value.  However, when we work with

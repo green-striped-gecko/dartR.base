@@ -9,7 +9,7 @@
 #' @param FUN the name of the function to be used to calculate the statistic
 #' @param unit The unit to use for resampling. One of c("loc", "ind", "pop"): 
 #' loci, individuals or populations
-#' @param n.cores The number of cores to use. If "auto" [default], it will 
+#' @param n.cores The number of cores to use. If "auto", it will 
 #' use all but one available cores.
 #' @param ... any additional arguments to be passed to FUN
 #' 
@@ -23,7 +23,7 @@
 #' bold{Note} that when n is very small, jackknife resampling is not recommended.
 
 #' Parallel computation is implemented. The argument code{n.cores} indicates the 
-#' number of core to use. If "auto" [default], it will use all but one available 
+#' number of core to use. If "auto", it will use all but one available 
 #' cores. If the number of units is small (e.g. a few populations), there is not 
 #' real advantage in using parallel computation. On the other hand, if the number 
 #' of units is large (e.g. thousands of loci), even with parallel computation, 
@@ -32,21 +32,20 @@
 #' @author Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-# @export
+#' @export
 #' @return A list of length n where each element is the output of FUN
-
-# Examples for testing
-# require("dartR.data")
-# platMod.gl <- gl.filter.allna(platypus.gl) 
-# chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
-# recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
+#' @examples
+#' require("dartR.data")
+#' platMod.gl <- gl.filter.allna(platypus.gl) 
+#' chk.pop <- utils.jackknife(x=platMod.gl, FUN="gl.alf", unit="pop", 
+#' recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 
 utils.jackknife <- function(x, 
                             FUN, 
                             unit="loc", 
                             recalc = FALSE, 
                             mono.rm = FALSE, 
-                            n.cores = "auto",
+                            n.cores = 1,
                             verbose = NULL, 
                             ...) {
   
@@ -57,7 +56,7 @@ utils.jackknife <- function(x,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "Jody",
-                   verbosity = verbose)
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
@@ -135,3 +134,4 @@ utils.jackknife <- function(x,
     return(jck)
   
 }
+

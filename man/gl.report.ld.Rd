@@ -3,7 +3,8 @@
 \name{gl.report.ld}
 \alias{gl.report.ld}
 \title{Calculates pairwise population based Linkage Disequilibrium across all loci
- using the specified number of cores}
+ using the specified number of cores
+ @family matched report}
 \usage{
 gl.report.ld(
   x,

@@ -97,7 +97,7 @@ test <- platypus.gl
 test$position <- test$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
 # assigning a dummy name for chromosomes
 test$chromosome <- as.factor("1")
-gl2plink(test)
+gl2plink(test, outpath=tempdir())
 }
 
 }
@@ -125,6 +125,7 @@ Other linker:
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
 \code{\link{gl2structure}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

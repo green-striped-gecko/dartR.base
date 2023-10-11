@@ -8,7 +8,8 @@
 
 #' @param x Name of the genlight [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report [default 2].
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity]
 #'  
 #' @details
 #' The locus metadata supplied by DArT has FreqHomRef included, but the
@@ -47,7 +48,7 @@ utils.recalc.freqhomref <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

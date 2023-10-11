@@ -1,8 +1,11 @@
 #' @name gl.diagnostics.hwe
 #' @title Provides descriptive stats and plots to diagnose potential problems
 #'   with Hardy-Weinberg proportions
+#'   @family matched report
+
 #' @description Different causes may be responsible for lack of Hardy-Weinberg
 #' proportions. This function helps diagnose potential problems.
+#' 
 #' @inheritParams gl.report.hwe
 #' @inheritParams utils.jackknife
 #' @param n.cores The number of cores to use. If "auto", it will 
@@ -10,11 +13,11 @@
 #' @param bins Number of bins to display in histograms [default 20].
 #' @param stdErr Whether standard errors for Fis and Fst should be computed 
 #' (default: TRUE)
-#' @param colors_hist List of two color names for the borders and fill of the
+#' @param colors.hist List of two color names for the borders and fill of the
 #'   histogram [default gl.colors(2)].
-#' @param colors_barplot Vector with two color names for the observed and
+#' @param colors.barplot Vector with two color names for the observed and
 #'   expected number of significant HWE tests [default gl.colors("2c")].
-#' @param plot_theme User specified theme [default theme_dartR()].
+#' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.dir Directory in which to save files [default = working directory]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension)
 #' [default NULL]
@@ -77,12 +80,10 @@
 #' tests whether there is at least one test that is truly significant in the
 #' series of tests conducted (De Meeûs et al 2009).
 #' }
-#' @return A list with the table with the summary of the HWE tests and (if 
-#' stdErr=TRUE) a named vector with the StdErrFis and StdErrFst.
 #' @author Custodian: Carlo Pacioni -- Post to
 #'   \url{https://groups.google.com/d/forum/dartr}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' require("dartR.data")
 #' res <- gl.diagnostics.hwe(x = gl.filter.allna(platypus.gl[,1:50]), 
 #' stdErr=FALSE, n.cores=1)
@@ -104,19 +105,21 @@
 #' Waples, R. S. (2015). Testing for Hardy–Weinberg proportions: have we lost
 #' the plot?. Journal of heredity, 106(1), 1-19.
 #'  }
+#'  
 #' @seealso \code{\link{gl.report.hwe}}
-#' @family reporting functions
+
 #' @rawNamespace import(data.table, except = c(melt,dcast))
 #' @export
+#' @return A list with the table with the summary of the HWE tests and (if 
+#' stdErr=TRUE) a named vector with the StdErrFis and StdErrFst.
 
 gl.diagnostics.hwe <- function(x,
                                alpha_val = 0.05,
                                bins = 20,
                                stdErr = TRUE,
-                               colors_hist = gl.colors(2),
-                               colors_barplot = gl.colors("2c"),
-                               
-                               plot_theme = theme_dartR(),
+                               colors.hist = gl.colors(2),
+                               colors.barplot = gl.colors("2c"),
+                               plot.theme = theme_dartR(),
                                n.cores = "auto",
                                plot.file=NULL,
                                plot.dir=NULL,                               
@@ -132,7 +135,7 @@ gl.diagnostics.hwe <- function(x,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "Jackson",
-                   verbosity = verbose)
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
@@ -152,8 +155,8 @@ gl.diagnostics.hwe <- function(x,
   
   p1 <-   ggplot(hweout, aes(Prob)) +
     geom_histogram(bins = bins,
-                   color = colors_hist[1],
-                   fill = colors_hist[2]) +
+                   color = colors.hist[1],
+                   fill = colors.hist[2]) +
     geom_hline(
       aes(
         yintercept = nrow(hweout) / (bins - 1),
@@ -167,7 +170,7 @@ gl.diagnostics.hwe <- function(x,
     xlab("Probability of departure from H-W proportions") +
     ylab("Count") +
     ggtitle("Distribution of p-values of HWE tests") +
-    plot_theme
+    plot.theme
   
   # Fst vs Fis scatter plot with linear regression
   # lpops <- seppop(x)
@@ -207,14 +210,14 @@ gl.diagnostics.hwe <- function(x,
     geom_col(position = "dodge2",
              alpha = 0.85,
              color = "black") +
-    scale_fill_manual(values = c("Observed" = colors_barplot[1],
-                                 "Null expectation" = colors_barplot[2])) +
+    scale_fill_manual(values = c("Observed" = colors.barplot[1],
+                                 "Null expectation" = colors.barplot[2])) +
     scale_y_log10() +
     xlab("Number of populations in which loci depart from HWE") +
     ylab("Count") +
     ggtitle(label =  "Number of significant HWE tests for\nthe same locus in 
             multiple populations")+
-    plot_theme 
+    plot.theme 
   
   # Collate HWE tests and Fis per locus and pop
   FisPops <- data.table(Fstats$Fis, keep.rownames = TRUE)
@@ -260,8 +263,8 @@ gl.diagnostics.hwe <- function(x,
   corr <- round(cor(Fstats$perloc$Fis, Fstats$perloc$Fst, 
                     "pairwise.complete.obs"), 3)
   p3 <- ggplot(Fstats$perloc, aes(Fst, Fis)) + 
-    geom_point(size=2,color=colors_barplot[1],alpha=0.5) + 
-    geom_smooth(method = "lm",color=colors_barplot[2],fill=colors_barplot[2],
+    geom_point(size=2,color=colors.barplot[1],alpha=0.5) + 
+    geom_smooth(method = "lm",color=colors.barplot[2],fill=colors.barplot[2],
                 size=1) +
     annotate("text", 
              x=min(Fstats$perloc$Fst, na.rm = TRUE) +
@@ -276,7 +279,7 @@ gl.diagnostics.hwe <- function(x,
     xlab("Fst") +
     ylab("Fis") +
     ggtitle("Fst vs Fis by locus") +
-    plot_theme
+    plot.theme
   if(stdErr) {
     jck <- utils.jackknife(x, FUN="utils.basic.stats", unit="loc", 
                            n.cores = n.cores)
@@ -330,7 +333,4 @@ gl.diagnostics.hwe <- function(x,
   } else {
     return(invisible(list(hwe_summary=hwe_summary)))
   }
-  
-  
-  
 }

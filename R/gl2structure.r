@@ -32,8 +32,7 @@
 #' Custodian Bernd Gruber
 #' 
 #' @examples
-#' #not run here
-#' #gl2structure(testset.gl)
+#' gl2structure(testset.gl[1:10,1:50], outpath=tempdir())
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)
@@ -58,7 +57,7 @@ gl2structure <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -67,8 +66,8 @@ gl2structure <- function(x,
     
     nInd <- nInd(x)
     if (is.null(ind.names)) {
-        ind.names <-ind.names(x)
-    }
+        ind.names <- indNames(x)
+    } 
     
     if (length(ind.names) != nInd) {
         stop(

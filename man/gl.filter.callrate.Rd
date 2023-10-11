@@ -14,8 +14,7 @@ gl.filter.callrate(
   recursive = FALSE,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors = gl.select.colors(library = "brewer", palette = "Blues", select = c(7, 5),
-    verbose = 0),
+  plot.colors = NULL,
   plot.file = NULL,
   plot.dir = NULL,
   bins = 25,
@@ -49,8 +48,8 @@ removing monomorphic loci. Only applies if method='ind' and mono.rm=TRUE
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot.colors}{List of two color names for the borders and fill of the
-plots [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].}
+\item{plot.colors}{Vector with two color names for the borders and fill
+[default c("#2171B5", "#6BAED6")].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
@@ -122,10 +121,12 @@ Resultant ggplot(s) and the tabulation(s) are saved to the session's
 
 Other matched filter: 
 \code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

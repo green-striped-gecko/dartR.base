@@ -1,4 +1,6 @@
-#' Creates an interactive map (based on latlon) from a genlight object
+#' @name gl.map.interactive
+#' @title Creates an interactive map (based on latlon) from a genlight object
+#' @family graphics
 
 #' @param x A genlight object (including coordinates within the latlon slot) 
 #' [required].
@@ -24,23 +26,21 @@
 #' @param ind.circle.cex (size or circles in pixels ) [default 10].
 #' @param ind.circle.transparency Transparency of circles between 0=invisible 
 #' and 1=no transparency. Defaults to 0.8.
-#' @param palette_links Color palette for the links in case a matrix is provided
+#' @param palette.links Color palette for the links in case a matrix is provided
 #'  [default NULL].
-#' @param leg_title Legend's title for the links in case a matrix is provided
+#' @param legend.title Legend's title for the links in case a matrix is provided
 #'  [default NULL].
 #' @param provider Passed to leaflet [default "Esri.NatGeoWorldMap"].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return plots a map
-#' @importFrom methods is
-#' @export
+#' 
 #' @details 
 #' A wrapper around the \pkg{leaflet} package. For possible background 
 #' maps check as specified via the provider:
 #' \url{http://leaflet-extras.github.io/leaflet-providers/preview/index.html}
 
-#' The palette_links argument can be any of the following:
+#' The palette.links argument can be any of the following:
 #' A character vector of RGB or named colors. Examples: palette(), 
 #' c("#000000", "#0000FF", "#FFFFFF"), topo.colors(10)
 
@@ -53,12 +53,17 @@
 #'  Examples: colorRamp(c("#000000", "#FFFFFF"), interpolate = "spline").
 
 #' @author Bernd Gruber -- Post to \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' require("dartR.data")
 #' gl.map.interactive(bandicoot.gl)
 #' cols <- c("red","blue","yellow")[as.numeric(pop(platypus.gl))]
 #' gl.map.interactive(platypus.gl, ind.circle.cols=cols, ind.circle.cex=10, 
 #' ind.circle.transparency=0.5)
+#' 
+#' @importFrom methods is
+#' @export
+#' @return plots a map
 
 gl.map.interactive <- function(x,
                                matrix = NULL,
@@ -70,8 +75,8 @@ gl.map.interactive <- function(x,
                                ind.circle.cols = NULL,
                                ind.circle.cex = 10,
                                ind.circle.transparency = 0.8,        
-                               palette_links = NULL,
-                               leg_title = NULL,
+                               palette.links = NULL,
+                               legend.title = NULL,
                                provider = "Esri.NatGeoWorldMap",
                                verbose = NULL) {
     
@@ -81,8 +86,8 @@ gl.map.interactive <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -205,13 +210,13 @@ individuals nor the number of populations."
                 xys <- df
             }
           
-          if(is.null(palette_links)){
-            palette_links <- 
+          if(is.null(palette.links)){
+            palette.links <- 
           gl.colors("div")(length(unique(unlist(unname(as.vector(matrix))))))
           }
             
           qpal <- leaflet::colorNumeric(
-            palette = palette_links,
+            palette = palette.links,
             domain = unique(unlist(unname(as.vector(matrix)))))
           
             if (symmetric) {
@@ -236,7 +241,7 @@ individuals nor the number of populations."
                 values = unique(unlist(unname(as.vector(matrix)))), 
                 group = "addPolylines", 
                 position = "bottomleft",
-                title = leg_title) 
+                title = legend.title) 
        
             }
             

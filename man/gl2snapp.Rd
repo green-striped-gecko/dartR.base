@@ -29,7 +29,7 @@ The output nexus file contains the SNP data and relevant PAUP command lines
 suitable for BEAUti.
 }
 \examples{
-gl2snapp(testset.gl)
+gl2snapp(testset.gl, outpath=tempdir())
 
 }
 \references{

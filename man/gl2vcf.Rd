@@ -78,6 +78,7 @@ Variant identifier is taken from locNames(x)
 }
 \examples{
 \dontrun{
+#this example needs plink installed to work
 require("dartR.data")
 gl2vcf(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
  snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
@@ -108,7 +109,8 @@ Other linker:
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
-\code{\link{gl2structure}()}
+\code{\link{gl2structure}()},
+\code{\link{gl2treemix}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to

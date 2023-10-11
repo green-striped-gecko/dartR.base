@@ -1,13 +1,16 @@
 #' @name gl.filter.ld
 #' @title Filters loci based on linkage disequilibrium (LD)
+#' @family matched filter
+#' 
 #' @description
 #' This function uses the statistic set in the parameter \code{stat_keep} from 
 #' function \code{\link{gl.report.ld.map}} to choose the SNP to keep when two 
 #' SNPs are in LD. When a SNP is selected to be filtered out in each pairwise 
 #' comparison, the function stores its  name in a list. In subsequent pairwise
 #'  comparisons, if the SNP is already in the list, the other SNP will be kept.
+#'  
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param ld_report Output from function \code{\link{gl.report.ld.map}} 
+#' @param ld.report Output from function \code{\link{gl.report.ld.map}} 
 #' [required].
 #' @param threshold Threshold value above which loci will be removed
 #' [default 0.2].
@@ -17,30 +20,33 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return The reduced genlight object.
+#' 
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
-#' @examples
-#' \dontrun{
-#' test <- bandicoot.gl
-#' test <- gl.filter.callrate(test,threshold = 1)
-#' res <- gl.report.ld.map(test)
-#' res_2 <- gl.filter.ld(x=test,ld_report = res)
-#' res_3 <- gl.report.ld.map(res_2)
-#' }
-#' if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
-#' test <- gl.filter.callrate(platypus.gl, threshold = 1)
-#' test <- gl.filter.monomorphs(test)
-#' test <- test[,1:250]
-#' report <- gl.report.ld.map(test)
-#' res <- gl.filter.ld(x=test,ld_report = report)
-#' }
+#'  
+# @examples
+# \donttest{
+# test <- bandicoot.gl
+# test <- gl.filter.callrate(test,threshold = 1)
+# res <- gl.report.ld.map(test)
+# res_2 <- gl.filter.ld(x=test,ld.report = res)
+# res_3 <- gl.report.ld.map(res_2)
+# }
+# if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
+# test <- gl.filter.callrate(platypus.gl, threshold = 1)
+# test <- gl.filter.monomorphs(test)
+# test <- test[,1:250]
+# report <- gl.report.ld.map(test)
+# res <- gl.filter.ld(x=test,ld.report = report)
+# }
+#' 
 #' @seealso \code{\link{gl.report.ld.map}}
-#' @family filter functions
+#' 
 #' @export
+#' @return The reduced genlight object.
 
 gl.filter.ld <- function(x,
-                         ld_report,
+                         ld.report,
                          threshold = 0.2,
                          pop.limit = ceiling(nPop(x) / 2),
                          verbose = NULL) {
@@ -53,8 +59,8 @@ gl.filter.ld <- function(x,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "Jody",
-                   verbosity = verbose)
+                   build = "v.2023.2",
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
@@ -73,9 +79,9 @@ gl.filter.ld <- function(x,
     }
   }
   
-  x <- gl.keep.pop(x,pop.list = as.character(unique(ld_report$pop)),verbose = 0)
+  x <- gl.keep.pop(x,pop.list = as.character(unique(ld.report$pop)),verbose = 0)
   
-  ld_tmp <- ld_report[ld_report$ld_stat >= threshold, ]
+  ld_tmp <- ld.report[ld.report$ld_stat >= threshold, ]
   ld_tmp$test_stat <- ld_tmp$locus_a.stat_keep >= ld_tmp$locus_b.stat_keep
   ld_tmp$pop <- as.factor(ld_tmp$pop)
   ld_tmp_pop <- split(ld_tmp, f = ld_tmp$pop)

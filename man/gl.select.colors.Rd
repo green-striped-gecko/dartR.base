@@ -10,6 +10,7 @@ gl.select.colors(
   palette = NULL,
   ncolors = NULL,
   select = NULL,
+  plot.display = TRUE,
   verbose = NULL
 )
 }
@@ -27,6 +28,8 @@ library, refer function help [default is library specific].}
 
 \item{select}{select bu number the colors to retain in the output vector; 
 can repeat colors. [default NULL].}
+
+\item{plot.display}{if TRUE, plot the colours in the plot window [default=TRUE]}
 
 \item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -94,7 +97,12 @@ colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,sel
 \code{\link{gl.select.shapes}}
 
 Other graphics: 
-\code{\link{gl.select.shapes}()}
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

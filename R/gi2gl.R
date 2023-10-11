@@ -1,17 +1,23 @@
-#' Converts a genind object into a genlight object
+#' @name gl2gi
+#' @title Converts a genind object into a genlight object
+#' @family linker
 
 #' @param gi A genind object [required].
 #' @param parallel Switch to deactivate parallel version. It might not be worth
 #' to run it parallel most of the times [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log ; 3, progress and results summary; 5, full report [default 2].
-#' @return A genlight object, with all slots filled.
-#' @export
+#' progress log; 3, progress and results summary; 5, full report
+#' [default 2 or as specified using gl.set.verbosity]
+#' 
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @details
 #' Be aware due to ambiguity which one is the reference allele a combination of
 #'  gi2gl(gl2gi(gl)) does not return an identical object (but in terms of
 #'  analysis this conversions are equivalent)
+#'  
+#' @export
+#' @return A genlight object, with all slots filled.
 
 gi2gl <- function(gi,
                   parallel = FALSE,
@@ -23,8 +29,8 @@ gi2gl <- function(gi,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # STANDARD ERROR CHECKING
     

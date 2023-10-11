@@ -53,7 +53,7 @@
 #' \donttest{
 #' require("dartR.data")
 #' gl2gds(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
-#' snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
+#' snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
 #' }
 #' 
 #' @importFrom SNPRelate snpgdsCreateGeno snpgdsOpen snpgdsSummary snpgdsClose
@@ -78,7 +78,7 @@ gl2gds <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

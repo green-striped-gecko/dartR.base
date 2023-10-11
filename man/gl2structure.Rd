@@ -53,8 +53,7 @@ Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
 (Version v1.1). Zenodo: doi.org/10.5281/zenodo.846816.
 }
 \examples{
-#not run here
-#gl2structure(testset.gl)
+gl2structure(testset.gl[1:10,1:50], outpath=tempdir())
 
 }
 \seealso{
@@ -76,6 +75,7 @@ Other linker:
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

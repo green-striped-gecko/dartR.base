@@ -1,21 +1,26 @@
-#' Converts a vcf file into a genlight object
-
-#' This function needs package vcfR, please install it. The converted genlight
+#' @name gl.read.vcf
+#' @title Converts a vcf file into a genlight object
+#' @family io
+#' 
+#' @description This function needs package vcfR, please install it. The converted genlight
 #' object does not have individual metrics. You need to add them 'manually' to
 #' the other$ind.metrics slot.
-#' @param vcffile A vcf file (works only for diploid data) [required].
+#' 
+#' @param vcf.file A vcf file (works only for diploid data) [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @return A genlight object.
-#' @export
+#' 
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
 #' @examples
-#' \dontrun{
-#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR.data'))
-#' }
+#' # you need to provide the path to the vcf file
+#' #obj <- gl.read.vcf("yourvcffile.vcf", package='dartR.data'))
+#' 
+#' @export
+#' @return A genlight object.
 
-gl.read.vcf <- function(vcffile,
+gl.read.vcf <- function(vcf.file,
                         verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -23,8 +28,8 @@ gl.read.vcf <- function(vcffile,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jackson",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     x <- NULL
     
@@ -37,7 +42,7 @@ gl.read.vcf <- function(vcffile,
         ))
         return(-1)
       } else {
-        vcf <- vcfR::read.vcfR(file = vcffile, verbose = verbose)
+        vcf <- vcfR::read.vcfR(file = vcf.file, verbose = verbose)
         myRef <- vcfR::getREF(vcf)
         myAlt <- vcfR::getALT(vcf)
         loc.all <- paste0(myRef,"/",myAlt)

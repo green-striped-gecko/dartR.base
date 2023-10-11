@@ -1,5 +1,8 @@
-#' Calculates pairwise population based Linkage Disequilibrium across all loci
+#' @name gl.report.ld
+#' @title Calculates pairwise population based Linkage Disequilibrium across all loci
 #'  using the specified number of cores
+#'  @family matched report
+
 #' @description
 #' This function is implemented in a parallel fashion to speed up the process.
 #' There is also the ability to restart the function if crashed by specifying
@@ -25,15 +28,17 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+#' 
+#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' 
+#' @import foreach
+#' @export
 #' @return Returns calculation of pairwise LD across all loci between
 #' subpopulations. This functions uses if specified many cores on your computer
 #' to speed up. And if save is used can restart (if save=TRUE is used) with the
 #' same command starting where it crashed. The final output is a data frame that
 #'  holds all statistics of pairwise LD between loci. (See ?LD in package
 #'  genetics for details).
-#' @export
-#' @import foreach
-#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 gl.report.ld <- function(x,
                          name = NULL,
@@ -81,7 +86,7 @@ gl.report.ld <- function(x,
         funname <- match.call()[[1]]
         utils.flag.start(func = funname,
                          build = "Jackson",
-                         verbosity = verbose)
+                         verbose = verbose)
         
         # CHECK DATATYPE
         datatype <-

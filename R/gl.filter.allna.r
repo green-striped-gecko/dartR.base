@@ -58,7 +58,7 @@ gl.filter.allna <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "Josh",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # recurrence clash
     # CHECK DATATYPE datatype <- utils.check.datatype(x,verbose=verbose) 

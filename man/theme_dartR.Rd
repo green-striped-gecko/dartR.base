@@ -2,9 +2,7 @@
 % Please edit documentation in R/theme_dartR.r
 \name{theme_dartR}
 \alias{theme_dartR}
-\title{dartR theme
-This is the theme used as default for dartR plots.
-This function controls all non-data display elements in the plots.}
+\title{Default theme for dartR plots}
 \usage{
 theme_dartR(
   base_size = 11,
@@ -22,12 +20,23 @@ theme_dartR(
 
 \item{base_rect_size}{base size for rect elements}
 }
+\value{
+a the standard dartR theme to be used in ggplots
+}
 \description{
-dartR theme
 This is the theme used as default for dartR plots.
 This function controls all non-data display elements in the plots.
 }
 \examples{
 ggplot(data.frame(dummy=rnorm(1000)),aes(dummy)) +
 geom_histogram(binwidth=0.1) + theme_dartR()
+
 }
+\seealso{
+Other environment: 
+\code{\link{gl.check.verbosity}()},
+\code{\link{gl.check.wd}()},
+\code{\link{gl.print.history}()},
+\code{\link{gl.set.wd}()}
+}
+\concept{environment}

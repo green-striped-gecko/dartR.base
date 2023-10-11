@@ -1,14 +1,18 @@
 #' @name gl.compliance.check
 #' @title Checks a genlight object to see if it complies with dartR
 #'  expectations and amends it to comply if necessary
+#'  @family environment
+
 #' @description
 #' This function will check to see that the genlight object conforms to
 #' expectation in regard to dartR requirements (see details), and if it does
 #' not, will rectify it.
+#' 
 #' @param x Name of the input genlight object [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
+#' 
 #' @details
 #' A genlight object used by dartR has a number of requirements that allow
 #' functions within the package to operate correctly. The genlight object
@@ -25,13 +29,16 @@
 #' \item Flags that indicate whether or not calculable locus metrics have been
 #' updated.
 #' }
-#' @return A genlight object that conforms to the expectations of dartR
-#' @export
+#' 
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
+#'  
 #' @examples
 #' x <- gl.compliance.check(testset.gl)
 #' x <- gl.compliance.check(testset.gs)
+#' 
+#' @export
+#' @return A genlight object that conforms to the expectations of dartR
 
 gl.compliance.check <- function(x,
                                 verbose = NULL) {
@@ -41,8 +48,8 @@ gl.compliance.check <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
-                     verbosity = verbose)
+                     build = "v.2023.2",
+                     verbose = verbose)
     
     # DO THE JOB
     

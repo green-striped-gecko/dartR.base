@@ -10,7 +10,8 @@ utils.recalc.avgpic(x, verbose = NULL)
 \item{x}{Name of the genlight [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report [default 2].}
+progress log; 3, progress and results summary; 5, full report
+[default 2 or as specified using gl.set.verbosity]}
 }
 \value{
 The modified genlight object.
@@ -41,10 +42,12 @@ homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
  frequency, \code{gl.recalc.rdepth} for recalculating average read depth
 
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},

@@ -49,10 +49,7 @@ using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
 }
 \seealso{
 Other filter functions: 
-\code{\link{gl.filter.heterozygosity}()},
-\code{\link{gl.filter.hwe}()},
-\code{\link{gl.filter.ld}()},
-\code{\link{gl.filter.pa}()}
+\code{\link{gl.filter.hwe}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

@@ -82,6 +82,7 @@ Other io:
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
+\code{\link{gl.read.vcf}()},
 \code{\link{gl.save}()},
 \code{\link{gl.write.csv}()},
 \code{\link{utils.read.dart}()}

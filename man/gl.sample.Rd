@@ -27,32 +27,57 @@ gl.sample(
 returns a genlight object with nsample samples from each populations.
 }
 \description{
-This is a convenience function to prepare a bootstrap approach in dartR. For a bootstrap approach it is often desirable to sample a defined number of individuals for each of the populations in a genlight object and then calculate a certain quantity for that subset (redo a 1000 times)
+A function to subsample individuals in a genlight object
 }
 \details{
 This is convenience function to facilitate a bootstrap approach
+
+This function is often used to support a bootstrap 
+approach in dartR. For a bootstrap approach it is often 
+desirable to sample a defined number of individuals for 
+each of the populations in a genlight object and then 
+calculate a certain quantity for that subset (redo a 
+1000 times)
 }
 \examples{
-\dontrun{
+\donttest{
 #bootstrap for 2 possums populations to check effect of sample size on fixed alleles
 gl.set.verbosity(0)
-pp <- possums.gl[1:60,]
+pp <- possums.gl[c(1:30,91:120),]
 nrep <- 1:10
 nss <- seq(1,10,2)
 res <- expand.grid(nrep=nrep, nss=nss)
 for (i in 1:nrow(res)) {
 dummy <- gl.sample(pp, nsample=res$nss[i], replace=TRUE)
-pas <- gl.report.pa(dummy, plot.out = F)
+dummy <- gl.compliance.check(dummy)
+pas <- gl.report.pa(dummy, plot.display= FALSE)
 res$fixed[i] <- pas$fixed[1]
 }
 boxplot(fixed ~ nss, data=res)
 }
 }
 \seealso{
-Other base dartR: 
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
 \code{\link{gl.sort}()}
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{base dartR}
+\concept{data manipulation}

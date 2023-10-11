@@ -27,15 +27,15 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' require("dartR.data")
 #' # SNP data
-#' geno <- gl2genepop(testset.gl[1:3,1:9])
+#' geno <- gl2genepop(possums.gl[1:3,1:9], outpath = tempdir())
 #' head(geno)
 #' test <- gl.filter.callrate(platypus.gl,threshold = 1)
 #' popNames(test)
 #' gl2genepop(test, pop.order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
-#'            output.format="3_digits")
+#'            output.format="3_digits", outpath = tempdir())
 #' }
 #' 
 #' @export
@@ -57,7 +57,7 @@ gl2genepop <- function (x,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "v.2023.2",
-                   verbosity = verbose)
+                   verbose = verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)

@@ -29,9 +29,9 @@ The function converts a genlight object (SNP or presence/absence
 }
 \examples{
 # SNP data
-gl2geno(testset.gl)
+gl2geno(testset.gl, outpath=tempdir())
 # Tag P/A data
-gl2geno(testset.gs)
+gl2geno(testset.gs, outpath=tempdir())
 
 }
 \seealso{
@@ -53,6 +53,7 @@ Other linker:
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
 \code{\link{gl2structure}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

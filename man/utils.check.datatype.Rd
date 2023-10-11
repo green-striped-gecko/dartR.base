@@ -43,19 +43,19 @@ Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
  TRUE.
 }
 \examples{
- \dontrun{
 datatype <- utils.check.datatype(testset.gl)
 datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 fd <- gl.fixed.diff(testset.gl)
 datatype <- utils.check.datatype(fd,accept='fd')
- }
  
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.alf}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.dist.ind.snp}()},
+\code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},

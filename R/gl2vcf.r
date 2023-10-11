@@ -48,6 +48,7 @@
 #' 
 #' @examples
 #' \dontrun{
+#' #this example needs plink installed to work
 #' require("dartR.data")
 #' gl2vcf(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
 #'  snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
@@ -84,7 +85,7 @@ gl2vcf <- function(x,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
-                     verbosity = verbose)
+                     verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)

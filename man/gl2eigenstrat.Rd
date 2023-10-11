@@ -66,7 +66,7 @@ as 0, will be removed.
 \donttest{
 require("dartR.data")
 gl2eigenstrat(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
-snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
+snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
 }
 
 }
@@ -99,6 +99,7 @@ Other linker:
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
 \code{\link{gl2structure}()},
+\code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }
 \author{

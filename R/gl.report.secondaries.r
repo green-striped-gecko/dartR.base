@@ -15,7 +15,7 @@
 #'   frequencies including an estimate of the zero class (no. of sequence tags
 #'   with no SNP scored).
 #'   
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object [required].
 #' @param nsim The number of simulations to estimate the mean of the Poisson
 #'   distribution [default 1000].
 #' @param taglength Typical length of the sequence tags [default 69].
@@ -23,7 +23,7 @@
 #' @param plot.theme Theme for the plot. See Details for options [default
 #'   theme_dartR()].
 #' @param plot.colors Vector with two color names for the borders and fill
-#' [default gl.select.colors(library="brewer",palette="Blues",select=c(7,5))].
+#' [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
@@ -115,24 +115,35 @@ gl.report.secondaries <- function(x,
                                   taglength = 69,
                                   plot.display = TRUE,
                                   plot.theme = theme_dartR(),
-                                  plot.colors = gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0),
+                                  plot.colors = NULL,
                                   plot.dir=NULL,
                                   plot.file=NULL,
                                   verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
+  if(verbose==0){plot.display <- FALSE}
   
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir,verbose=0)
   
+  # SET COLOURS
+  if(is.null(plot.colors)){
+    plot.colors <- c("#2171B5", "#6BAED6")
+  } else {
+    if(length(plot.colors) > 2){
+      if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+      plot.colors <- plot.colors[1:2]
+    }
+  }
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v.2023.2",
-                   verbosity = verbose)
+                   build = "v.2023.3",
+                   verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = c("genlight", "SNP"), verbose = verbose)
   
   # FUNCTION SPECIFIC ERROR CHECKING
   
@@ -210,7 +221,7 @@ gl.report.secondaries <- function(x,
     colnames(secondaries_plot) <- "freqs"
     
     # Boxplot
-    if (plot.display) {
+   #if (plot.display) {
       p1 <-
         ggplot(secondaries_plot, aes(y = freqs)) + 
         geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + 
@@ -240,7 +251,7 @@ gl.report.secondaries <- function(x,
         ylab("Count") + 
         ggtitle("Observed Frequency of SNPs per Sequence Tag") + 
         plot.theme
-    }
+    #}
     
     # Plot Histogram with estimate of the zero class
     if (verbose >= 2) {
@@ -322,7 +333,7 @@ gl.report.secondaries <- function(x,
       colnames(reconstructed_plot) <- c("freq", "count")
       
       # Barplot
-      if (plot.display) {
+      
         p3 <-
           ggplot(reconstructed_plot, aes(x = freq, y = count)) + 
           geom_col(color = plot.colors[1], fill = plot.colors[2]) + 
@@ -332,15 +343,13 @@ gl.report.secondaries <- function(x,
           plot.theme
         
         # PRINTING OUTPUTS using package patchwork
-        p4 <-
-          p1 / p2 / p3 + plot_layout(heights = c(1, 2, 2))
-        print(p4)
-      }
+        p4 <- p1 / p2 / p3 + plot_layout(heights = c(1, 2, 2))
+        if (plot.display) {print(p4)}
     }
     
     if (fail) {
       p4 <- p1 / p2
-      print(p4)
+      if (plot.display) {print(p4)}
     }
     
     if(!is.null(plot.file)){
@@ -350,41 +359,6 @@ gl.report.secondaries <- function(x,
                              verbose=verbose)
     }
     
-    #     # SAVE INTERMEDIATES TO TEMPDIR
-    #     if (plot.file) {
-    #         # creating temp file names
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         glout <- tempfile(pattern = "File_gl.secondaries_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving plot to tempdir
-    #         saveRDS(list(match_call, p4), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report(
-    #                 "  Saving the plot in ggplot format to the session 
-    #                 tempfile\n"
-    #             ))
-    #         }
-    #         # saving genlight object to tempdir
-    #         saveRDS(list(match_call, x.secondaries), file = glout)
-    #         if (verbose >= 2) {
-    #             cat(
-    #                 report(
-    #                     "  Saving the genlight object containing the filtered 
-    #                     loci to the session tempfile\n"
-    #                 )
-    #             )
-    #             cat(
-    #                 report(
-    #                     "  NOTE: Retrieve output files from tempdir using 
-    #                     gl.list.reports() and gl.print.reports()\n"
-    #                 )
-    #             )
-    #         }
-    #     }
     } else {
         k <- NA
         if (plot.display) {

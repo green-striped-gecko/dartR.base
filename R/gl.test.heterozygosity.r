@@ -14,12 +14,13 @@
 #' @param plot.out If TRUE, plots a sampling distribution of the differences for
 #' each comparison [default TRUE].
 #' @param max_plots Maximum number of plots to print per page [default 6].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.theme Theme for the plot. See Details for options
 #'  [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
+#' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -31,11 +32,12 @@
 #' critical limits alpha1 and alpha2, the observed heterozygosity, and the zero
 #' value (if in range).
 
-#' Plots and table are saved to the temporal directory (tempdir) and can be
-#' accessed with the function  and listed with the
-#' function . Note that they can be accessed only
-#' in the current R session because tempdir is cleared each time that the R
-#' session is closed.
+#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
+
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir(). 
 
 #'  Examples of other themes that can be used can be consulted in \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -57,9 +59,10 @@ gl.test.heterozygosity <- function(x,
                                    alpha2 = 0.01,
                                    plot.out = TRUE,
                                    max_plots = 6,
-                                   plot_theme = theme_dartR(),
-                                   plot_colors = gl.colors(2),
-                                   save2tmp = FALSE,
+                                   plot.theme = theme_dartR(),
+                                   plot.colors = gl.select.colors(ncolors=2, verbose=0),
+                                   plot.file=NULL,
+                                   plot.dir=NULL,
                                    verbose = NULL) {
     # TRAP COMMAND
     
@@ -68,6 +71,9 @@ gl.test.heterozygosity <- function(x,
     # SET VERBOSITY
     
     verbose <- gl.check.verbosity(verbose)
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
     # CHECKS DATATYPE
     
@@ -255,8 +261,8 @@ gl.test.heterozygosity <- function(x,
                         p_temp <-
                             ggplot(plot_values, aes(x = values)) + geom_histogram(
                                 bins = 50,
-                                color = plot_colors[1],
-                                fill = plot_colors[2]
+                                color = plot.colors[1],
+                                fill = plot.colors[2]
                             ) +
                             geom_vline(
                                 xintercept = u1quantile,
@@ -283,7 +289,7 @@ gl.test.heterozygosity <- function(x,
                                 color = "blue",
                                 size = 1
                             ) +
-                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot_theme + theme(plot.title = element_text(size = 12)) +
+                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot.theme + theme(plot.title = element_text(size = 12)) +
                             labs(title = title, subtitle = subtitle)
                     )
                     
@@ -298,10 +304,10 @@ gl.test.heterozygosity <- function(x,
                         p_temp <-
                             ggplot(plot_values, aes(x = values)) + geom_histogram(
                                 bins = 50,
-                                color = plot_colors[1],
-                                fill = plot_colors[2]
+                                color = plot.colors[1],
+                                fill = plot.colors[2]
                             ) +
-                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot_theme + theme(plot.title = element_text(size = 12)) +
+                            coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot.theme + theme(plot.title = element_text(size = 12)) +
                             labs(title = title, subtitle = subtitle) + geom_vline(
                                 aes(xintercept = u1quantile, color = "alpha1"),
                                 size = 1
@@ -376,40 +382,31 @@ gl.test.heterozygosity <- function(x,
             
             suppressWarnings(print(p_final))
             # SAVE INTERMEDIATES TO TEMPDIR
-            if (save2tmp) {
-                # creating temp file names
-                temp_plot <-
-                    tempfile(pattern = paste0("Plot_", seq_1[i], "_to_", seq_2[i]))
-                # saving to tempdir
-                suppressWarnings(saveRDS(list(match_call, p_final), file = temp_plot))
+            temp_plot <- paste0(plot.file,"_", seq_1[i], "_to_", seq_2[i])
+            if(!is.null(plot.file)){
+              tmp <- utils.plot.save(df,
+                                     dir=plot.dir,
+                                     file=temp_plot,
+                                     verbose=verbose)
+            }    
+        }
+            
                 if (verbose >= 2) {
                     cat(report("  Saving the ggplot to session tempfile\n"))
                 }
-            }
         }
-    }
+        
+    
     
     print(df)
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    if (save2tmp) {
-        # creating temp file names
-        temp_table <- tempfile(pattern = "Table_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
+    # Optionally save the plot ---------------------
+    
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(df,
+                             dir=plot.dir,
+                             file=paste0("table_",plot.file),
+                             verbose=verbose)
     }
     
     # FLAG SCRIPT END

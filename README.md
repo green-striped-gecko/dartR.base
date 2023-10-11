@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `dartR.base` <a href="https://green-striped-gecko.github.io/dartR/"><img src="man/figures/dartRlogo.png" align="right" height="140"/></a>
+# `dartR.base` <a href="https://green-striped-gecko.github.io/dartR/"><img src="man/figures/dartR_logo.png" align="right" height="140"/></a>
 
 ## An accessible genetic analysis platform for conservation, ecology and agriculture - dartR.base
 
@@ -45,12 +45,7 @@ funding from the ACT Priority Investment Program, CSIRO and the
 University of Canberra.
 
 <p align="center">
-
-<img src="man/figures/UC.png" height="100"/>    
-<img src="man/figures/csiro_logo.png" height="100"/>    
-<img src="man/figures/DArT-removebg-preview.png" height="100"/>    
-<img src="man/figures/ACT.png" height="100"/>
-
+<img src='man/figures/institutions.png' width="800"/>
 </p>
 
 ## Installation
