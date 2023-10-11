@@ -50,13 +50,13 @@ Currently the dartRverse consists of the following packages:
 -   dartR.spatial (spatial analysis)
 -   dartR.popgenomics (popgenomics analysis)
 
-`dartR` and its packages is a collaboration between the University of Canberra, CSIRO and
-Diversity Arrays Technology, and is supported with funding from the ACT
-Priority Investment Program, CSIRO and the University of Canberra.
+
+`dartR` and its packages are a collaboration between the University of Canberra, CSIRO, Diversity Arrays Technology, Arthur Rylah Institute for Environmental Research and Monash University. `dartR` is supported with funding from the ACT Priority Investment Program, CSIRO and the University of Canberra.
 
 <p align="center">
 <img src='man/figures/institutions.png' width="800"/>
-</p> 
+</p>
+
 
 ## Installation
 

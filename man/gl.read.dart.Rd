@@ -11,7 +11,7 @@ gl.read.dart(
   mono.rm = FALSE,
   nas = "-",
   topskip = NULL,
-  lastmetric = "RepAvg",
+  lastmetric = NULL,
   covfilename = NULL,
   service.row = 1,
   plate.row = 3,
@@ -32,13 +32,13 @@ gl.read.dart(
 
 \item{nas}{A character specifying NAs [default '-'].}
 
-\item{topskip}{A number specifying the number of initial rows to be skipped. [default NULL].}
+\item{topskip}{A number specifying the number of initial rows to be skipped
+[default NULL].}
 
-\item{lastmetric}{Specifies the last column of locus metadata. Can be specified 
-as a column number.
- [default 'RepAvg'].}
+\item{lastmetric}{Deprecated, specifies the last column of locus metadata. Can be 
+specified as a column number [default NULL].}
 
-\item{covfilename}{Depricated, sse ind.metafile parameter [NULL].}
+\item{covfilename}{Deprecated, sse ind.metafile parameter [NULL].}
 
 \item{service.row}{The row number for the DArT service
 is contained [default 1].}
@@ -62,9 +62,6 @@ into a genlight object of class dartR.
 \details{
 The function will determine automatically if the data are in Diversity Arrays
 one-row csv format or two-row csv format. 
-The number of locus metadata columns 
-in the input data is determined by a signature last column, by default 'RepAvg'.
-This can be alternatively specified using parameter 'lastmetric'. 
 The first 
 row of data is determined from the number of rows with an * in the first 
 column. This can be alternatively specified with the topskip parameter.

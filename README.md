@@ -1,7 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `dartR.base` <a href="https://green-striped-gecko.github.io/dartR/"><img src="man/figures/dartR_logo.png" align="right" height="140"/></a>
+
+# `dartR.base` <a href="https://green-striped-gecko.github.io/dartR/"><img src="man/figures/dartR-logo.png" align="right" height="140"/></a>
 
 ## An accessible genetic analysis platform for conservation, ecology and agriculture - dartR.base
 
@@ -39,8 +40,9 @@ dartRverse consists of the following packages:
 - dartR.spatial (spatial analysis)
 - dartR.popgenomics (popgenomics analysis)
 
-`dartR` and its packages is a collaboration between the University of
-Canberra, CSIRO and Diversity Arrays Technology, and is supported with
+`dartR` and its packages are a collaboration between the University of
+Canberra, CSIRO, Diversity Arrays Technology, Arthur Rylah Institute for
+Environmental Research and Monash University. `dartR` is supported with
 funding from the ACT Priority Investment Program, CSIRO and the
 University of Canberra.
 

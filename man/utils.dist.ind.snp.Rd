@@ -2,14 +2,14 @@
 % Please edit documentation in R/utils.dist.ind.snp.r
 \name{utils.dist.ind.snp}
 \alias{utils.dist.ind.snp}
-\title{Calculates a distance matrix for individuals defined in a dartR
+\title{Calculates a distance matrix for individuals defined in a 
 genlight object using SNP data (DArTseq)}
 \usage{
 utils.dist.ind.snp(
   x,
   method = "Euclidean",
   scale = FALSE,
-  output = "dist",
+  type = "dist",
   verbose = NULL
 )
 }
@@ -21,7 +21,7 @@ utils.dist.ind.snp(
 \item{scale}{If TRUE and method='Euclidean', the distance will be scaled to 
 fall in the range [0,1] [default FALSE].}
 
-\item{output}{Specify the format and class of the object to be returned, 
+\item{type}{Specify the format and class of the object to be returned, 
 dist for a object of class dist, matrix for an object of class matrix [default "dist"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -49,32 +49,13 @@ The distance measure can be one of:
  }
 }
 \seealso{
-Other utilities: 
-\code{\link{gl.alf}()},
-\code{\link{utils.check.datatype}()},
-\code{\link{utils.dart2genlight}()},
-\code{\link{utils.dist.binary}()},
-\code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
-\code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
-\code{\link{utils.is.fixed}()},
-\code{\link{utils.jackknife}()},
-\code{\link{utils.n.var.invariant}()},
-\code{\link{utils.plot.save}()},
-\code{\link{utils.read.fasta}()},
-\code{\link{utils.read.ped}()},
-\code{\link{utils.recalc.avgpic}()},
-\code{\link{utils.recalc.callrate}()},
-\code{\link{utils.recalc.freqhets}()},
-\code{\link{utils.recalc.freqhomref}()},
-\code{\link{utils.recalc.freqhomsnp}()},
-\code{\link{utils.recalc.maf}()},
-\code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+Other distance: 
+\code{\link{gl.dist.ind}()},
+\code{\link{gl.dist.pop}()},
+\code{\link{gl.fdsim}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{utilities}
+\concept{distance}

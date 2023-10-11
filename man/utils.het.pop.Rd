@@ -2,9 +2,10 @@
 % Please edit documentation in R/utils.het.pop.r
 \name{utils.het.pop}
 \alias{utils.het.pop}
+\alias{ind.count}
 \title{An internal function that calculates expected mean heterozygosity per population}
 \usage{
-utils.het.pop(x)
+ind.count(x)
 }
 \arguments{
 \item{x}{A genlight object containing the SNP genotypes [required].}
@@ -21,7 +22,6 @@ Other utilities:
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
-\code{\link{utils.dist.ind.snp}()},
 \code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.impute}},

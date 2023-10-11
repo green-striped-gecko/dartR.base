@@ -54,10 +54,9 @@
 #'  
 #' @examples
 #' require(dartR.data)
-#' test <- platypus.gl
-#' test <- gl.filter.callrate(test,threshold = 1)
+#' test <- gl.filter.callrate(platypus.gl,threshold = 1)
 #' test <- gl.filter.monomorphs(test)
-#' test <- gl.subsample.loci(test,n=25)
+#' test <- gl.subsample.loc(test,n=25)
 #' gl2bpp(x = test, outpath=tempdir())
 #' 
 #' @references
@@ -121,7 +120,8 @@ gl2bpp <- function(x,
     }
   }
   
-  if (length(x@other$loc.metrics$TrimmedSequence) != nLoc(x)) {
+  if (length(x@other$loc.metrics$TrimmedSequence
+             ) != nLoc(x)) {
     stop(
       error(
         "Fatal Error: Data must include Trimmed Sequences for each loci in a column called 'TrimmedSequence' in the @other$loc.metrics slot.\n"

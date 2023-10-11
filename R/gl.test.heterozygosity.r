@@ -5,6 +5,10 @@
 #' Calculates the expected heterozygosities for each population in a genlight
 #' object, and uses re-randomization to test the statistical significance of
 #' differences in heterozygosity between populations taken pairwise.
+#' 
+#' Expected heterozygosity is calculated using the correction for sample size 
+#' following equation 2 from Nei 1978. 
+#' 
 #' @param x A genlight object containing the SNP genotypes [required].
 #' @param nreps Number of replications of the re-randomization [default 1,000].
 #' @param alpha1 First significance level for comparison with diff=0 on plot
@@ -47,6 +51,10 @@
 #'  sizes
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
+#' @references 
+#' Nei, M. (1978). Estimation of average heterozygosity and genetic distance 
+#' from a small number of individuals. Genetics, 89(3), 583-590.
+#' 
 #' @examples
 #' out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
 #' @family Genetic variation within populations

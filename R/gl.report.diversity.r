@@ -34,30 +34,32 @@
 #'  equilibrium). If there is a deviation of an index, this links to a process
 #'  causing it, such as dispersal, selection or strong drift. For a detailed
 #'  explanation of all the indexes, we recommend resorting to the literature
-#'  provided below. Confidence intervals are +/- 1 standard deviation.
-
+#'  provided below. Error bars are +/- 1 standard deviation.
+#'  
 #'\strong{ Function's output }
-
+#'
 #' If the function's parameter "table" = "DH" (the default value) is used, the 
 #'  output of the function is 20 tables.
-
+#' 
 #'The first two show the number of loci used. The name of each of the rest of 
 #'the tables starts with three terms separated by underscores.
-
+#' 
 #'The first term refers to the q value (0 to 2).
-
+#' 
 #'The second term refers to whether it is the diversity measure (H) or its 
 #'transformation to Hill numbers (D). 
-
+#' 
 #'The third term refers to whether the diversity is calculated within 
 #'populations (alpha) or between populations (beta). 
-
+#' 
 #'In the case of alpha diversity tables, standard deviations have their own 
 #'table, which finishes with a fourth term: "sd".
-
+#' 
 #'In the case of beta diversity tables, standard deviations are in the upper 
 #'triangle of the matrix and diversity values are in the lower triangle of the 
 #'matrix.
+#'
+#'\strong{ Plotting }
 #'
 #'  Plot colours can be set with gl.select.colors().
 #'  
@@ -95,10 +97,10 @@
 gl.report.diversity <- function(x,
                                 plot.display = TRUE,
                                 plot.theme = theme_dartR(),
-                                library=NULL,
-                                palette=NULL,
-                                plot.dir=NULL,
-                                plot.file=NULL,
+                                library = NULL,
+                                palette =NULL,
+                                plot.dir = NULL,
+                                plot.file = NULL,
                                 pbar = TRUE,
                                 table = "DH",
                                 verbose = NULL) {
@@ -412,6 +414,8 @@ gl.report.diversity <- function(x,
         i0 <- which(!is.na(p)) 
         two_H_alpha_all <- (1 - (p * p + (1 - p) * (1 - p)))
         
+        # mn <- msp2 <- mHo <- NULL
+        
         two_H_beta_es <- apply(pairs, 1, function(x) {
       i1 <- which(!is.na(colMeans(as.matrix(pops[[x[1]]]), na.rm = TRUE) / 2))
       i2 <- which(!is.na(colMeans(as.matrix(pops[[x[2]]]), na.rm = TRUE) / 2))
@@ -422,9 +426,12 @@ gl.report.diversity <- function(x,
                 (two_H_alpha_es[[x[1]]]$dummys[i1 %in% index] + 
                    two_H_alpha_es[[x[2]]]$dummys[i2 %in% index]) / 2
             
+            # mHs <- mn/(mn - 1) * (1 - msp2 - mHo/2/mn)
+            
             dummys <-
                 ((two_H_alpha_all[i0 %in% index] - m2Ha) / 
                    (1 - m2Ha)) * (npops / (npops - 1))
+            
             return(list(
                 estH = mean(dummys),
                 sdH = sd(dummys),

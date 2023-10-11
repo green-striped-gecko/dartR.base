@@ -39,6 +39,7 @@ not be reliably scored)
 \code{\link{gl.filter.monomorphs}}
 
 Other matched reports: 
+\code{\link{gl.mahal.assign}()},
 \code{\link{gl.report.bases}()},
 \code{\link{gl.report.fstat}()}
 }
