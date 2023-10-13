@@ -7,6 +7,7 @@
 \usage{
 gl.dist.pop(
   x,
+  as.pop = NULL,
   method = "euclidean",
   scale = FALSE,
   type = "dist",
@@ -20,6 +21,9 @@ gl.dist.pop(
 }
 \arguments{
 \item{x}{Name of the genlight containing [required].}
+
+\item{as.pop}{Temporarily assign another locus metric as the population for
+the purposes of deletions [default NULL].}
 
 \item{method}{Specify distance measure [default euclidean].}
 

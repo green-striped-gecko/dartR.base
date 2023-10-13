@@ -68,41 +68,33 @@ gl.keep.pop <-  function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
-    # Function-specific error checking -----------    
+    # Function-specific error checking -----------   
+    
     # Population labels assigned?
     if (is.null(as.pop)) {
-        if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
-            stop(
-                error(
-                    "Fatal Error: Population assignments not detected, run gl.compliance.check() and revisit population assignments\n"
-                )
+      if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "  Warning: Population assignments not detected, running compliance check\n"
             )
+          )
         }
+        x <- gl.compliance.check(x, verbose = 0)
+      }
     }
     
     # Assign the new population list if as.pop is specified -----------
     pop.hold <- pop(x)
-    
     if (!is.null(as.pop)) {
-        if (as.pop %in% names(x@other$ind.metrics)) {
-            pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
-            if (verbose >= 2) {
-                cat(
-                    report(
-                        "  Temporarily setting population assignments to",
-                        as.pop,
-                        "as specified by the as.pop parameter\n"
-                    )
-                )
-            }
-        } else {
-            cat(
-                warn(
-                    "  Warning: individual metric assigned to 'pop' does not exist. Running compliance check\n"
-                )
-            )
-            x <- gl.compliance.check(x, verbose = 0)
+      if (as.pop %in% names(x@other$ind.metrics)) {
+        pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
+        if (verbose >= 2) {
+          cat(report("  Temporarily assigning",as.pop,"as population\n"))
         }
+      } else {
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+      }
     }
     
     if (verbose >= 2) {

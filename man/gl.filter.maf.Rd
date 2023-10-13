@@ -88,14 +88,6 @@ This script calculates the minor allele frequency for each locus and updates
 the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
 exists). It then uses the updated metadata for MAF to filter loci.
 }
-\examples{
-result <- gl.filter.monomorphs(testset.gl)
-\donttest{
-result <- gl.filter.maf(result, threshold=0.05, verbose=3)
-result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
-}
-
-}
 \seealso{
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},

@@ -9,7 +9,7 @@
 gl.filter.rdepth(
   x,
   lower = 5,
-  upper = 50,
+  upper = 1000,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
   plot.colors = NULL,
@@ -26,7 +26,7 @@ presence/absence data [required].}
 [default 5].}
 
 \item{upper}{Upper threshold value above which loci will be removed
-[default 50].}
+[default infinite=1000].}
 
 \item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
 [default TRUE].}
