@@ -59,6 +59,7 @@ using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
 }
 \seealso{
 Other graphics: 
+\code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
 \code{\link{gl.report.ld.map}()},
