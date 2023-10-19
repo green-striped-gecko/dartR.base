@@ -13,10 +13,10 @@
 #' individual (method='ind') [default 'pop'].
 #' @param n.invariant An estimate of the number of invariant sequence tags used
 #' to adjust the heterozygosity rate [default 0].
-#' @param nboots Number of bootstrap replicates to obtain confident intervals
+#' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
 #' @param conf The confidence level of the required interval  [default 0.95].
-#' @param CI.type Method to estimate confident intervals. One of
+#' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
 #' > 1 parallel operation is activated,see "Details" section [default 1].
@@ -39,7 +39,7 @@
 #'
 #' @details
 #' Observed heterozygosity for a population takes the proportion of
-#' heterozygous loci for each individual then averages over the individuals in
+#' heterozygous loci for each individual and averages it over all individuals in
 #' that population. The calculations take into account missing values.
 #'
 #' Expected heterozygosity for a population takes the expected proportion of
