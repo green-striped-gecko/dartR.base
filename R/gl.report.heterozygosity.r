@@ -47,8 +47,14 @@
 #' locus, then averages this across the loci for an average estimate for the
 #' population.
 #'
-#' Expected heterozygosity is calculated using the correction for sample size
-#' following equation 2 from Nei 1978.
+#' The unbiased expected heterozygosity is calculated using the correction for 
+#' sample size following equation 2 from Nei 1978.
+#' 
+#' Accuracy of all heterozygosity estimates is affected by small sample sizes,
+#' and so is their comparison between populations or repeated analysis. Expected
+#' heterozygosities are less affected because their calculations are based on 
+#' allele frequencies while observed heterozygosities are strongly susceptible 
+#' to sampling effects when the sample size is small.  
 #'
 #' Observed heterozygosity for individuals is calculated as the proportion of
 #' loci that are heterozygous for that individual.
@@ -56,20 +62,23 @@
 #' Finally, the loci that are invariant across all individuals in the dataset
 #' (that is, across populations), is typically unknown. This can render
 #' estimates of heterozygosity analysis specific, and so it is not valid to
-#' compare such estimates across species or even across different analyses. This
-#' is a similar problem faced by microsatellites. If you have an estimate of the
+#' compare such estimates across species or even across different analyses 
+#' (see Schimdt et al 2021). This is a similar problem faced by microsatellites. 
+#' If you have an estimate of the
 #' number of invariant sequence tags (loci) in your data, such as provided by
 #' \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
-#' parameter to standardize your estimates of heterozygosity.
+#' parameter to standardize your estimates of heterozygosity. This is called
+#' autosomal heterozygosities by Schimddt et al (2021).
 #'
-#' \strong{NOTE}: It is important to realise that estimation of adjusted
+#' \strong{NOTE}: It is important to realise that estimation of adjusted (autosomal)
 #' heterozygosity requires that secondaries not to be removed.
 #'
 #' Heterozygosities and FIS (inbreeding coefficient) are calculated by locus
-#' within each population using the following equations:
+#' within each population using the following equations, and then averaged across 
+#' all loci:
 #' \itemize{
-#' \item Observed heterozygosity (Ho) = number of homozygotes / n_Ind,
-#' where n_Ind is the number of individuals without missing data.
+#' \item Observed heterozygosity (Ho) = number of heterozygotes / n_Ind,
+#' where n_Ind is the number of individuals without missing data for that locus.
 #' \item Observed heterozygosity adjusted (Ho.adj) <- Ho * n_Loc /
 #'  (n_Loc + n.invariant),
 #' where n_Loc is the number of loci that do not have all missing data  and
@@ -82,7 +91,7 @@
 #' (n_Loc + n.invariant)
 #' \item Unbiased expected heterozygosity (uHe) = He * (2 * n_Ind /
 #' (2 * n_Ind - 1))
-#' \item Inbreeding coefficient (FIS) = 1 - (mean(Ho) / mean(uHe))
+#' \item Inbreeding coefficient (FIS) = 1 - Ho / uHe
 #' }
 
 #'\strong{ Function's output }
@@ -207,7 +216,7 @@
 #'  \strong{It is important} to note that unreliable confident intervals will be
 #'   obtained if too few number of bootstrap replicates are used.
 #'   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
-#'    if bootstrap replicates are too few. Consider increasing then number of
+#'    if bootstrap replicates are too few. Consider increasing the number of
 #'    bootstrap replicates to at least 200.
 #'
 #'    The "bca" interval is often cited as the best for theoretical reasons,
@@ -242,7 +251,7 @@
 #'
 #'     Opening and terminating R sessions in each core involves a significant
 #'     amount of processing time, therefore parallelisation in Windows machines
-#'    is only quicker than not usung parallelisation when nboots > 1000-2000.
+#'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #'
