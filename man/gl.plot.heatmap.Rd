@@ -45,6 +45,7 @@ dissimilarity matrix. This function is a wrapper for
 }
 \seealso{
 Other graphics: 
+\code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.report.ld.map}()},
 \code{\link{gl.select.colors}()},

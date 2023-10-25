@@ -82,14 +82,6 @@ object (mothers); specified broodsize; and desired offspring sex ratio.
 
 Set check.error to FALSE if using this script in simulations
 }
-\examples{
-#Simulate 10 potential fathers
-gl.fathers <- glSim(10, 20, ploidy=2)
-#Simulate 10 potential mothers
-gl.mothers <- glSim(10, 20, ploidy=2)
-gl.sim.crosses(gl.fathers, gl.mothers, 2, sexratio=0.5)
-
-}
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }

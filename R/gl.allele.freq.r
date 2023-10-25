@@ -168,7 +168,7 @@ gl.allele.freq <- function(x,
     
     if(by=='pop'){
       # Average statistics for each population
-      m <- aggregate(. ~ popn, data = m, FUN = function(x) mean(x, na.rm = TRUE))
+      m <- aggregate(. ~ popn, data = m, FUN = function(x) mean(x, na.rm = TRUE), na.action=na.pass)
       m$locus <- NULL
       m$sum <- NULL
       m$nobs <- round(m$nobs,1)
@@ -180,7 +180,8 @@ gl.allele.freq <- function(x,
       }
     } else if(by=='loc'){
       # Average statistics for each locus
-      m <- aggregate(. ~ locus, data = m, FUN = function(x) mean(x, na.rm = TRUE))
+      #m$frequency[is.na(m$frequency)] <- NA 
+      m <- aggregate(. ~ locus, data = m, FUN = function(x) mean(x, na.rm = TRUE), na.action=na.pass)
       m$popn <- NULL
       m$sum <- NULL
       m$nobs <- round(m$nobs,1)

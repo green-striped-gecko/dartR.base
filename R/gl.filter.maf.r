@@ -57,13 +57,13 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
-#' @examples
-#' result <- gl.filter.monomorphs(testset.gl)
-#' \donttest{
-#' result <- gl.filter.maf(result, threshold=0.05, verbose=3)
-#' result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
-#' }
-#' 
+# @examples
+# result <- gl.filter.monomorphs(testset.gl)
+# \donttest{
+# result <- gl.filter.maf(result, threshold=0.05, verbose=3)
+# result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
+# }
+#
 #' @export
 #' @return The reduced genlight dataset
 

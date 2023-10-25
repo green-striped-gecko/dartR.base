@@ -8,6 +8,8 @@
 #' frequencies (SNP genotypes) or frequency of presences in PA (SilicoDArT) data 
 #'  
 #' @param x Name of the genlight containing [required].
+#' @param as.pop Temporarily assign another locus metric as the population for
+#' the purposes of deletions [default NULL].
 #' @param method Specify distance measure [default euclidean].
 #' @param plot.display If TRUE, resultant plots are displayed in the plot window
 #' [default TRUE].
@@ -51,6 +53,7 @@
 #' @return An object of class 'dist' giving distances between populations
 
 gl.dist.pop <- function(x,
+                        as.pop=NULL,
                         method = "euclidean",
                         scale = FALSE,
                         type = "dist",
@@ -98,6 +101,33 @@ gl.dist.pop <- function(x,
     # CHECK DATATYPE
     datatype <-
         utils.check.datatype(x, accept = c("SNP","SilicoDArT"), verbose = verbose)
+    
+    # Population labels assigned?
+    if (is.null(as.pop)) {
+      if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "  Warning: Population assignments not detected, running compliance check\n"
+            )
+          )
+        }
+        x <- gl.compliance.check(x, verbose = 0)
+      }
+    }
+    
+    # Assign the new population list if as.pop is specified 
+    pop.hold <- pop(x)
+    if (!is.null(as.pop)) {
+      if (as.pop %in% names(x@other$ind.metrics)) {
+        pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
+        if (verbose >= 2) {
+          cat(report("  Temporarily assigning",as.pop,"as population\n"))
+        }
+      } else {
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+      }
+    }
     
     # DO THE JOB
     
@@ -386,6 +416,15 @@ gl.dist.pop <- function(x,
                                  file=plot.file,
                                  verbose=verbose)
         }
+    
+    # Reassign the initial population list if as.pop is specified
+    
+    if (!is.null(as.pop)) {
+      pop(x) <- pop.hold
+      if (verbose >= 2) {
+        cat(report("  Restoring population assignments to initial state\n"))
+      }
+    }
         
     if(type=="dist"){
     dd <- as.dist(dd)
