@@ -112,6 +112,7 @@ ld_res <- gl.report.ld.map(x,ld.max.pairwise = 10000000)
 \code{\link{gl.filter.ld}}
 
 Other graphics: 
+\code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
 \code{\link{gl.select.colors}()},

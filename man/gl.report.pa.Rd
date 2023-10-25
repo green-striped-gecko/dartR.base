@@ -14,6 +14,7 @@ gl.report.pa(
   plot.display = FALSE,
   plot.font = 14,
   map.interactive = FALSE,
+  provider = "Esri.NatGeoWorldMap",
   palette.discrete = NULL,
   plot.file = NULL,
   plot.dir = NULL,
@@ -50,6 +51,8 @@ larger than the simulated one. If number of individuals are different between
 
 \item{map.interactive}{Specify whether an interactive map showing private
 alleles between populations is to be produced [default FALSE].}
+
+\item{provider}{Passed to leaflet [default "Esri.NatGeoWorldMap"].}
 
 \item{palette.discrete}{A discrete palette for the color of populations or a
 list with as many colors as there are populations in the dataset
