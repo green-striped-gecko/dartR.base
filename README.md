@@ -1,7 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-
 # `dartR.base` <a href="https://green-striped-gecko.github.io/dartR/"><img src="man/figures/dartR-logo.png" align="right" height="140"/></a>
 
 ## An accessible genetic analysis platform for conservation, ecology and agriculture - dartR.base
@@ -33,12 +32,11 @@ autocorrelation.
 dartR.base is one of the core packages of the dartRverse. Currently the
 dartRverse consists of the following packages:
 
-- dartR.base (report, filter and input/output functions, basic
-  popgenomics)
+- dartR.base (report, filter and input/output functions, basic popgen)
 - dartR.data
 - dartR.sim (functions to simulate SNP data)
 - dartR.spatial (spatial analysis)
-- dartR.popgenomics (popgenomics analysis)
+- dartR.popgen (popgen analysis)
 
 `dartR` and its packages are a collaboration between the University of
 Canberra, CSIRO, Diversity Arrays Technology, Arthur Rylah Institute for
