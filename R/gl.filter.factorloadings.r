@@ -144,7 +144,7 @@ gl.filter.factorloadings <- function(x,
   # Calculate minimum and maximum graph cutoffs for callrate
   min <- min(df$loading)
   max <- max(df$loading)
-  
+  loading <- NULL
   p1 <-
     ggplot(df, aes(x = loading)) +
     geom_histogram(bins = bins,

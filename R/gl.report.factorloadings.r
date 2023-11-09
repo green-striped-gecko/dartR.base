@@ -126,6 +126,7 @@ gl.report.factorloadings <- function(pca,
 min <- min(df$loading)
 max <- max(df$loading)
 
+loading <- NULL
 # Boxplot
 p1 <-
   ggplot(df, aes(y = loading)) + 
