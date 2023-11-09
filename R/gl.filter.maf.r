@@ -1,6 +1,6 @@
 #' @name gl.filter.maf
 #' @title Filters loci on the basis of minor allele frequency (MAF) in a 
-#' genlight {adegenet} object
+#' genlight object
 #' @family matched filter
 
 #' @description

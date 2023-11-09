@@ -31,6 +31,7 @@
 #' 
 #' 
 #' @importFrom plyr rbind.fill
+#' @importFrom stats na.pass
 #' @export
 #' @return A matrix with allele (SNP data) or presence/absence frequencies
 #' (Tag P/A data) broken down by population and locus
