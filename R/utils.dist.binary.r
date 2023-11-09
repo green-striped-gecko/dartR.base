@@ -80,7 +80,7 @@ utils.dist.binary <- function(x,
         "euclidean",
         "simple",
         "jaccard",
-        "bray-curtis"
+        "sorensen"
 #       ,"phi"
     ))) {
         if (verbose >= 2) {
@@ -146,7 +146,7 @@ utils.dist.binary <- function(x,
                 dd[j,i] <- (N01 + N10)/(L - N00)
             } else if (method == "bray-curtis") {
                 dd[j,i] <- 1 - 2 * N11 / (2 * N11 + N01 + N10)
-            } else if (method == "sorenson"){
+            } else if (method == "sorensen"){
                 dd[j,i] <- (N01 + N10/(L - N00 + N11))
             # } else if (method == "phi") {
             #     dd[j,i] <- 1 - ((N11 * N00 - N01 * N10) / sqrt((N11 + N01) * (N11 + N10) * (N00 + N01) * (N00 + N10)))
