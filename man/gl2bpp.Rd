@@ -69,7 +69,7 @@ like those done by the programme BPP, are meant to be used with sequence
 require(dartR.data)
 test <- gl.filter.callrate(platypus.gl,threshold = 1)
 test <- gl.filter.monomorphs(test)
-test <- gl.subsample.loc(test,n=25)
+test <- gl.subsample_loc(test,n=25)
 gl2bpp(x = test, outpath=tempdir())
 
 }

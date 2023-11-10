@@ -43,7 +43,7 @@ Other data manipulation:
 \code{\link{gl.sample}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample_loc}()}
 }
 \author{
 Custodian: Arthur Georges (Post to

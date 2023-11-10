@@ -68,7 +68,7 @@ Other data manipulation:
 \code{\link{gl.sample}()},
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample_loc}()}
 }
 \author{
 Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})

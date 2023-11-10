@@ -53,7 +53,7 @@
 
 #' @examples
 #' # SNP data
-#' test <- gl.subsample-loc(platypus.gl,n=50)
+#' test <- gl.subsample_loc(platypus.gl,n=50)
 #' result <- gl.filter.hamming(test, threshold=0.6, verbose=3)
 
 #' @import patchwork
