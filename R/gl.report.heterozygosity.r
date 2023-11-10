@@ -298,9 +298,11 @@ gl.report.heterozygosity <- function(x,
   # bootstrapping function
   pop.het <- function(x,
                       indices,
-                      n.invariant) {
+                      n.invariant,
+                      aHet=FALSE) {
     pop.het_fun <- function(df,
-                            n.invariant) {
+                            n.invariant,
+                            aHet) {
       Ho.loc <- colMeans(df == 1, na.rm = TRUE)
       n_loc <- apply(df, 2, function(y) {
         sum(!is.na(y))
@@ -320,14 +322,19 @@ gl.report.heterozygosity <- function(x,
       
       FIS.loc <- 1 - (Ho.loc / He.loc)
       
-      all.res <- c(
-        Ho.loc = mean(Ho.loc, na.rm = TRUE),
-        Ho.adj.loc = mean(Ho.adj.loc, na.rm = TRUE),
-        He.loc = mean(He.loc, na.rm = TRUE),
-        uHe.loc = mean(uHe.loc, na.rm = TRUE),
-        Hexp.adj.loc = mean(Hexp.adj.loc, na.rm = TRUE),
-        FIS.loc = mean(FIS.loc, na.rm = TRUE)
-      )
+      if(aHet) {
+        all.res <- c(
+          Ho.adj.loc = mean(Ho.adj.loc, na.rm = TRUE),
+          Hexp.adj.loc = mean(Hexp.adj.loc, na.rm = TRUE)
+        )
+      } else {
+        all.res <- c(
+          Ho.loc = mean(Ho.loc, na.rm = TRUE),
+          He.loc = mean(He.loc, na.rm = TRUE),
+          uHe.loc = mean(uHe.loc, na.rm = TRUE),
+          FIS.loc = mean(FIS.loc, na.rm = TRUE)
+        )
+      }
       
       return(all.res)
     }
@@ -627,6 +634,7 @@ gl.report.heterozygosity <- function(x,
           data = df,
           statistic = pop.het,
           n.invariant = n.invariant,
+          aHet=n.invariant >0,
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -669,6 +677,7 @@ gl.report.heterozygosity <- function(x,
         statistic = pop.het,
         R = nboots,
         n.invariant = n.invariant,
+        aHet=n.invariant >0,
         parallel = parallel,
         ncpus = ncpus
       )
@@ -764,7 +773,7 @@ gl.report.heterozygosity <- function(x,
         FISLCI = round(stat_list[[6]], 6),
         FISHCI = round(stat_list[[12]], 6)
       )
-    }else{
+    } else {
       
       df <-
         data.frame(
@@ -987,58 +996,42 @@ gl.report.heterozygosity <- function(x,
       cat("\n  No. of loci =", nLoc(x), "\n")
       cat("  No. of individuals =", nInd(x), "\n")
       cat("  No. of populations =", nPop(x), "\n")
-      cat("    Minimum Observed Heterozygosity: ", round(min(df$Ho, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(min(df$Ho.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(max(df$Ho.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Average Observed Heterozygosity: ",
-          round(mean(df$Ho, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(mean(df$Ho.adj, na.rm = TRUE), 6), "]\n\n")
-      } else {
-        cat("\n\n")
-      }
-      cat("    Minimum Unbiased Expected Heterozygosity: ",
-          round(min(df$uHe, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(min(df$He.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Maximum Unbiased Expected Heterozygosity: ",
-          round(max(df$uHe, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(max(df$He.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Average Unbiased Expected Heterozygosity: ",
-          round(mean(df$uHe, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(mean(df$He.adj, na.rm = TRUE), 6), "]\n\n")
-      } else {
-        cat("\n\n")
-      }
+      if (n.invariant == 0) {
+      cat("    Minimum Observed Heterozygosity: ", round(min(df$Ho, na.rm = TRUE), 6), "\n")
+      cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6), "\n")
+      cat("    Average Observed Heterozygosity: ", round(mean(df$Ho, na.rm = TRUE), 6), "\n\n")
       
-      if (n.invariant > 0) {
+      cat("    Minimum Unbiased Expected Heterozygosity: ",
+          round(min(df$uHe, na.rm = TRUE), 6), "\n")
+      cat("    Maximum Unbiased Expected Heterozygosity: ",
+          round(max(df$uHe, na.rm = TRUE), 6), "\n")
+      cat("    Average Unbiased Expected Heterozygosity: ",
+          round(mean(df$uHe, na.rm = TRUE), 6), "\n")
+      cat("  Heterozygosity estimates not corrected for uncalled invariant loci\n")
+      
+      } else {
+        
+        cat("    Minimum Observed adjusted Heterozygosity: ", 
+            round(min(df$Ho.adj, na.rm = TRUE), 6), "\n")
+        cat("    Maximum Observed adjusted Heterozygosity: ", 
+            round(max(df$Ho.adj, na.rm = TRUE), 6), "\n")
+        cat("    Average Observed adjusted Heterozygosity: ",
+            round(mean(df$Ho.adj, na.rm = TRUE), 6), "\n\n")
+        cat("    Minimum Unbiased adjusted Expected Heterozygosity: ", 
+            round(min(df$He.adj, na.rm = TRUE), 6), "\n")
+        cat("    Maximum Unbiased adjusted Expected Heterozygosity: ", 
+            round(max(df$He.adj, na.rm = TRUE), 6), "\n")
+        cat("    Average Unbiased adjusted Expected Heterozygosity: ",
+            round(mean(df$He.adj, na.rm = TRUE), 6), "\n\n")
         cat(
           "  Average correction factor for invariant loci =",
           mean(n_loc / (n_loc + n.invariant), na.rm = TRUE),
           "\n"
         )
-      } else {
-        cat("  Heterozygosity estimates not corrected for uncalled invariant loci\n")
       }
-    }
-    
+      
+      
+     
     # PRINTING OUTPUTS
     if (plot.display) {
       suppressWarnings(print(p3))
