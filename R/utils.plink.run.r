@@ -8,7 +8,6 @@
 #' @param plink.path The path where the executable is. If plink is listed in
 #'   the PATH then there is no need for this. This is what the option "path"
 #'   means
-#' @param fn The root of the data file name
 #' @param out The root of the output file name
 #' @param syntax the flags to pass to plink call
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,

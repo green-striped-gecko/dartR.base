@@ -24,7 +24,6 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 #' @inheritParams utils.plink.run
-#' @inheritParams gl2migraten
 #' @return A genlight object with the SNP data and associated metadata included.
 #' @export
 #' @author Custodian: Carlo Pacioni -- Post to

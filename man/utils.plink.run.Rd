@@ -29,8 +29,6 @@ means}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report [default NULL].}
-
-\item{fn}{The root of the data file name}
 }
 \value{
 A character vector with the command used for PLINK.
