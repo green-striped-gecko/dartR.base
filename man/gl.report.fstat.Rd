@@ -153,7 +153,7 @@ properties that make them valuable resources to interpret genetic
     differentiation between populations (Nei, 1987, pp. 165) is calculated
      as:
 
-    \figure{Dstp_equation.jpg}
+    \figure{Dst_equation.jpg}
 
     \item
     \emph{Fst} - Measure of the extent of genetic differentiation 
@@ -170,7 +170,7 @@ properties that make them valuable resources to interpret genetic
     \item
     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
 
-    \figure{Dest_equation.jpg}
+    \figure{Dst_equation.jpg}
 
     \item
     \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
@@ -216,7 +216,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
  the range of plausible values and it has been found to be erratic in
  practice, see for example the "Studentized (t) Intervals" section in:
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
 
     Nice tutorials about the different types of CI can be found in:
 

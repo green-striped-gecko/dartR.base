@@ -199,7 +199,7 @@
 #'  the range of plausible values and it has been found to be erratic in
 #'  practice, see for example the "Studentized (t) Intervals" section in:
 #'
-#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
 #'
 #'     Nice tutorials about the different types of CI can be found in:
 #'
