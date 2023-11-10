@@ -115,7 +115,7 @@
 #'     differentiation between populations (Nei, 1987, pp. 165) is calculated
 #'      as:
 #'
-#'     \figure{Dstp_equation.jpg}
+#'     \figure{Dst_equation.jpg}
 #'
 #'     \item
 #'     \emph{Fst} - Measure of the extent of genetic differentiation 
@@ -132,7 +132,7 @@
 #'     \item
 #'     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
 #'
-#'     \figure{Dest_equation.jpg}
+#'     \figure{Dst_equation.jpg}
 #'
 #'     \item
 #'     \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
