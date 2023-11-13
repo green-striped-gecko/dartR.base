@@ -20,6 +20,7 @@
 #' individuals [optional].
 #' @param loc.metafile Name of the csv file containing the metrics for
 #' loci [optional].
+#' @param plink.flags additional possible parameters passed on to plink.
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
