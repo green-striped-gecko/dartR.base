@@ -1,8 +1,8 @@
 Package: dartR.base
 Type: Package
 Title: Analysing 'SNP' and 'Silicodart' Data - Basic Functions
-Version: 0.62
-Date: 2023-11-14
+Version: 0.63
+Date: 2023-11-15
 Authors@R: c(
             person("Bernd", "Gruber", email="bernd.gruber@canberra.edu.au", role=c("aut","cre")), 
             person("Arthur", "Georges", email="georges@aerg.edu.au", role="aut"),
