@@ -1,4 +1,4 @@
-#' @name gl.subsample_loc
+#' @name gl.subsample.loc
 #' @title Subsample loci from a genlight object
 #' @family data manipulation
 #' 
@@ -23,12 +23,12 @@
 #' @author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples 
-#' gl2 <- gl.subsample_loc(testset.gl, n=50, replace=TRUE, verbose=3)
+#' gl2 <- gl.subsample.loc(testset.gl, n=50, replace=TRUE, verbose=3)
 
 #' @export 
 #' @return Returns the subsampled genlight object
 
-gl.subsample_loc <- function(x,
+gl.subsample.loc <- function(x,
                              n,
                              replace=TRUE,
                              error.check = TRUE,

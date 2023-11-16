@@ -218,10 +218,10 @@ gl.dist.ind <- function(x,
                 cat(report("  Calculating distances based on the Jaccard Coefficient\n"))
             }
         }
-        if (method == "bray-curtis") {
+        if (method == "sorensen") {
             if (verbose >= 2) {
                 cat(report(
-                    "  Calculating the Bray-Curtis Distance\n"
+                    "  Calculating the Sorensen Distance\n"
                 ))
             }
         }
