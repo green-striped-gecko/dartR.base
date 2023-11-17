@@ -183,7 +183,7 @@ properties that make them valuable resources to interpret genetic
     for the observed amount of genetic variation (Hedrick 2005, eq. 4b) is 
     calculated as:
 
-    \figure{Gst_H.jpg}
+    \figure{GstH.jpg}
 
     }
 
