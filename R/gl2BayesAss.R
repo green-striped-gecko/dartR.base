@@ -91,3 +91,4 @@ gl2bayesAss <-  function(x,
   
   return(invisible(res))
   }
+

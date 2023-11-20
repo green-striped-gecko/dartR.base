@@ -93,7 +93,7 @@ utils.recalc.maf <- function(x,
         cat(report("  Recalculating Minor Allele Frequency (MAF)\n"))
     }
     
-    alf <- gl.alf(x)[, 2]
+    alf <- gl.allele.freq(x,simple=TRUE,verbose=0)[, 2]
     x@other$loc.metrics$maf <- ifelse(alf > 0.5, 1 - alf, alf)
     x@other$loc.metrics.flags$maf <- TRUE
     

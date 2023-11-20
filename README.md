@@ -32,15 +32,15 @@ autocorrelation.
 dartR.base is one of the core packages of the dartRverse. Currently the
 dartRverse consists of the following packages:
 
-- dartR.base (report, filter and input/output functions, basic
-  popgenomics)
+- dartR.base (report, filter and input/output functions, basic popgen)
 - dartR.data
 - dartR.sim (functions to simulate SNP data)
 - dartR.spatial (spatial analysis)
-- dartR.popgenomics (popgenomics analysis)
+- dartR.popgen (popgen analysis)
 
-`dartR` and its packages is a collaboration between the University of
-Canberra, CSIRO and Diversity Arrays Technology, and is supported with
+`dartR` and its packages are a collaboration between the University of
+Canberra, CSIRO, Diversity Arrays Technology, Arthur Rylah Institute for
+Environmental Research and Monash University. `dartR` is supported with
 funding from the ACT Priority Investment Program, CSIRO and the
 University of Canberra.
 

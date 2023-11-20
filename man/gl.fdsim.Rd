@@ -64,6 +64,12 @@ fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
 sympatric=TRUE,verbose=3)
 
 }
+\seealso{
+Other distance: 
+\code{\link{gl.dist.ind}()},
+\code{\link{gl.dist.pop}()},
+\code{\link{utils.dist.ind.snp}()}
+}
 \author{
 Custodian: Arthur Georges (Post to
  \url{https://groups.google.com/d/forum/dartr})

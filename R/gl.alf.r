@@ -21,7 +21,7 @@
 
 gl.alf <- function(x) {
   #cat(warn("Deprecated: Please use gl.allele.freq(x,simple=TRUE)\n"))
-  alf <- colMeans(as.matrix(x), na.rm = T) / 2
+  alf <- colMeans(as.matrix(x), na.rm = TRUE) / 2
   out <- data.frame(alf1 = 1 - alf, alf2 = alf)
   return(out)
 }

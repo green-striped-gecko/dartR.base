@@ -8,12 +8,17 @@
 #' statistics (see the "Details" section for further information).
 #'
 #' \itemize{
-#' \item "Fst" - Nei's Gst (Nei, 1987, pp. 164–165).
-#' \item "Fstp" - Fst corrected for sample size (Nei, 1987, pp. 164–165).
-#' \item "Dest" - Jost’s D (Jost, 2008).
-#' \item "Gst_H" - Gst standardized by the maximum level that it can obtain for
+#' \item \strong{Fst} - Measure of the degree of genetic differentiation of 
+#' subpopulations (Nei, 1987).
+#' \item \strong{Fstp} - Unbiased (i.e. corrected for sampling error, see 
+#' explanation below) Fst (Nei, 1987).
+#' \item \strong{Dest} - Jost’s D (Jost, 2008).
+#' \item \strong{Gst_H} - Gst standardized by the maximum level that it can obtain for
 #' the observed amount of genetic variation (Hedrick 2005).
 #' }
+#' 
+#' Sampling errors arise because allele frequencies in our samples differ from 
+#' those in the subpopulations from which they were taken (Holsinger, 2012).
 #'
 #' Confident Intervals are obtained using bootstrapping.
 #'
@@ -21,12 +26,10 @@
 #' @param nboots Number of bootstrap replicates to obtain confident intervals
 #' [default 0].
 #' @param conf The confidence level of the required interval  [default 0.95].
-#' @param CI.type Method to estimate the confident intervals (CI). One of
+#' @param CI.type Method to estimate confident intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
-#' @param parallel The type of parallel operation to be used. One of "no",
-#'  "multicore" or "snow". See details in the "Parallel operation" section from
-#'  the function \link[boot]{boot} (package boot) [default "no"].
-#' @param ncpus Number of processes to be used in parallel operation [default 1].
+#' @param ncpus Number of processes to be used in parallel operation. If ncpus
+#' > 1 parallel operation is activated,see "Details" section [default 1].
 #' @param plot.stat Statistic to plot. One of "Fst","Fstp","Dest" or "Gst_H"
 #' [default "Fstp"].
 #' @param plot.display If TRUE, a heatmap of the pairwise static chosen is
@@ -35,7 +38,7 @@
 #'  [default gl.colors("div")].
 #' @param font.size Size of font for the labels of horizontal and vertical axes
 #' of the heatmap [default 0.5].
-#' @param plot.dir Directory in which to save files [default = working directory].
+#' @param plot.dir Directory in which to save files [default working directory].
 #' @param plot.file Name for the RDS binary file to save (base name only,
 #' exclude extension) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -64,86 +67,85 @@
 #'
 #'     \strong{Statistics calculated}
 #'
-#'     The equations to calculate the statistics are shown below.
+#'     The equations used to calculate the statistics are shown below.
 #'
 #'      \itemize{
 #'      \item
-#'     "Ho" - Observed heterozygosity corrected for sample size
-#'     (Nei, 1987, pp. 164–165) is calculated as:
+#'     \emph{Ho} - Unbiased estimate of observed heterozygosity across 
+#'     subpopulations (Nei, 1987, pp. 164, eq. 7.38) is calculated as:
 #'
-#'     \figure{Ho-equation.jpg}
+#'     \figure{Hoequation.jpg}
 #'
-#'     where Pkii represents the proportion of homozygote i in sample k and np
-#'     the number of samples (i.e. populations).
-#'
-#'     \item
-#'     "Hs" - Expected heterozygosity corrected for sample size
-#'     (Nei, 1987, pp. 164–165) is calculated as:
-#'
-#'     \figure{He-equation.jpg}
-#'
-#'     \figure{He-equation-2.jpg}
+#'     where \emph{Pkii} represents the proportion of homozygote \emph{ii} for 
+#'     allele \emph{i} in individual \emph{k} and \emph{s} represents the number
+#'      of subpopulations.
 #'
 #'     \item
-#'     "Ht" - Overall heterozygosity corrected for sample size
-#'     (Nei, 1987, pp. 164–165) is calculated as:
+#'     \emph{Hs} - Unbiased estimate of the expected heterozygosity under 
+#'     Hardy-Weinberg equilibrium across subpopulations (Nei, 1987, pp. 164,
+#'      eq. 7.39) is calculated as:
 #'
-#'     \figure{Ht-equation.jpg}
-#'
-#'     \figure{Ht-equation-2.jpg}
-#'
-#'     \item
-#'     "Dst" - Amount of heterozygosity among samples (Nei, 1987, pp. 164–165)
-#'     is calculated as:
-#'
-#'     \figure{Dst-equation.jpg}
+#'     \figure{Hsequation.jpg}
+#'     
+#'     where \emph{ñ} is the harmonic mean of \emph{nk} (the number of 
+#'     individuals in each subpopulation), \emph{pki} is the proportion 
+#'     (sometimes misleadingly called frequency) of allele \emph{i} in 
+#'     subpopulation \emph{k}. 
 #'
 #'     \item
-#'     "Htp" - Overall heterozygosity corrected for sample size
-#'     (Nei, 1987, pp. 164–165) is calculated as:
+#'     \emph{Ht} - Heterozygosity for the total population (Nei, 1987, pp. 164,
+#'      eq. 7.40) is calculated as:
 #'
-#'     \figure{Htp-equation.jpg}
-#'
-#'     \item
-#'     "Dstp" - Amount of heterozygosity among samples corrected for sample size
-#'      (Nei, 1987, pp. 164–165) is calculated as:
-#'
-#'     \figure{Dstp-equation.jpg}
+#'     \figure{Htequation.jpg}
 #'
 #'     \item
-#'     "Fst" - Nei's Gst (Nei, 1987, pp. 164–165) is calculated as:
+#'     \emph{Dst} - The average allele frequency differentiation between 
+#'     populations (Nei, 1987, pp. 163) is calculated as:
 #'
-#'     \figure{Fst-equation.jpg}
+#'     \figure{Dstequation.jpg}
 #'
 #'     \item
-#'     "Fstp" - Fst corrected for sample size (Nei, 1987, pp. 164–165) is
+#'     \emph{Htp} - Unbiased estimate of Heterozygosity for the total population
+#'     (Nei, 1987, pp. 165) is calculated as:
+#'
+#'     \figure{Htpequation.jpg}
+#'
+#'     \item
+#'     \emph{Dstp} - Unbiased estimate of the average allele frequency 
+#'     differentiation between populations (Nei, 1987, pp. 165) is calculated
+#'      as:
+#'
+#'     \figure{Dstequation.jpg}
+#'
+#'     \item
+#'     \emph{Fst} - Measure of the extent of genetic differentiation 
+#'     of subpopulations (Nei, 1987, pp. 162, eq. 7.34) is calculated as:
+#'
+#'     \figure{Fstequation.jpg}
+#'
+#'     \item
+#'     \emph{Fstp} - Unbiased measure of the extent of genetic differentiation 
+#'     of subpopulations (Nei, 1987, pp. 163, eq. 7.36) is calculated as:
+#'
+#'     \figure{Fstpequation.jpg}
+#'
+#'     \item
+#'     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
+#'
+#'     \figure{Dstequation.jpg}
+#'
+#'     \item
+#'     \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
+#'     amount of genetic variation (Hedrick 2005, eq. 4a) is calculated as:
+#'
+#'     \figure{GstMaxequation.jpg}
+#'
+#'     \item
+#'     \emph{Gst-H} - Gst standardized by the maximum level that it can obtain 
+#'     for the observed amount of genetic variation (Hedrick 2005, eq. 4b) is 
 #'     calculated as:
 #'
-#'     \figure{Fstp-equation.jpg}
-#'
-#'     \item
-#'     "Fis" - Inbreeding coefficient is calculated as:
-#'
-#'     \figure{Fis-equation.jpg}
-#'
-#'     \item
-#'     "Dest" - Jost’s D (Jost, 2008) is calculated as:
-#'
-#'     \figure{Dest-equation.jpg}
-#'
-#'     \item
-#'     "Gst_max" - The maximum level that Gst can obtain for the observed amount
-#'      of genetic variation (Hedrick 2005) is calculated as:
-#'
-#'     \figure{GstMax-equation.jpg}
-#'
-#'     where k is the number of subpopulations.
-#'
-#'     \item
-#'     "Gst_H" - Gst standardized by the maximum level that it can obtain for the
-#'     observed amount of genetic variation (Hedrick 2005) is calculated as:
-#'
-#'     \figure{Gst-H.jpg}
+#'     \figure{GstH.jpg}
 #'
 #'     }
 #'
@@ -199,8 +201,8 @@
 #'    The "bca" interval is often cited as the best for theoretical reasons,
 #'    however it may produce unstable results if the bootstrap distribution
 #'     is skewed or has extreme values. For example, you might get the warning
-#'     "extreme order statistics used as endpoints" or the error "estimated 
-#'     adjustment 'a' is NA". In this case, you may want to use more bootstrap 
+#'     "extreme order statistics used as endpoints" or the error "estimated
+#'     adjustment 'a' is NA". In this case, you may want to use more bootstrap
 #'     replicates or a different method or check your data for outliers.
 #'
 #'    The error "estimated adjustment 'w' is infinite" means that the estimated
@@ -229,15 +231,30 @@
 #'
 #'  > \code{res <- gl.report.fstat(platypus.gl, palette.divergent = viridis)}
 #'
-#'   If a plot.file is given, the ggplot arising from this function is saved as an "RDS" #' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
-#' specified for the plot to be saved.
-#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
-#'  directory; otherwise to the tempdir(). 
+#' If a plot.file is given, the plot arising from this function is saved as an
+#'  "RDS" binary file using the function \link[base]{saveRDS} (package base);
+#'   can be reloaded with function \link[base]{readRDS} (package base). A file
+#'   name must be specified for the plot to be saved.
+#'
+#'  If a plot directory (plot.dir) is specified, the gplot binary is saved to
+#'  that directory; otherwise to the tempdir().
 #'
 #'  Your plot might not shown in full because your 'Plots' pane is too small
 #'  (in RStudio).
 #'  Increase the size of the 'Plots' pane before running the function.
 #'  Alternatively, use the parameter 'plot.file' to save the plot to a file.
+#'
+#'  \strong{Parallelisation}
+#'
+#'  If the parameter ncpus > 1, parallelisation is enabled. In Windows, parallel
+#'   computing employs a "socket" approach that starts new copies of R on each
+#'    core. POSIX systems, on the other hand (Mac, Linux, Unix, and BSD),
+#'    utilise a "forking" approach that replicates the whole current version of
+#'     R and transfers it to a new core.
+#'
+#'     Opening and terminating R sessions in each core involves a significant
+#'     amount of processing time, therefore parallelisation in Windows machines
+#'    is only quicker than not usung parallelisation when nboots > 1000-2000.
 #'
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -265,6 +282,8 @@
 #' \item
 #' Hedrick, P. W. (2005). A standardized genetic differentiation measure.
 #' Evolution, 59(8), 1633-1638.
+#' \item 
+#' Holsinger, K. E. (2012). Lecture notes in population genetics.
 #' \item
 #' Holsinger, K. E., & Weir, B. S. (2009). Genetics in geographically structured
 #'  populations: defining, estimating and interpreting FST. Nature Reviews
@@ -296,7 +315,6 @@ gl.report.fstat <- function(x,
                             nboots = 0,
                             conf = 0.95,
                             CI.type = "bca",
-                            parallel = "no",
                             ncpus = 1,
                             plot.stat = "Fstp",
                             plot.display = TRUE,
@@ -338,15 +356,120 @@ gl.report.fstat <- function(x,
   class(x) <- "dartR"
   
   # bootstrapping function
-  pop.diff <- function(x, indices) {
-    pop.diff_fun <- function(y){
-      pop_diff <- utils.basic.stats(y)
-      return(pop_diff$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
+  pop.diff <- function(x,
+                       indices,
+                       pops.info) {
+    pop.diff_fun <- function(df,
+                             pops.info) {
+      df$pop <- as.factor(pops.info)
+      n.ind <- table(df$pop)
+      
+      pop.names <- names(n.ind)
+      sgl_mat <- split(df, f = df$pop)
+      sgl_mat <- lapply(sgl_mat, function(x) {
+        x[, -ncol(x)]
+      })
+      pop.vec <- 1:length(pop.names)
+      
+      n.pop <- lapply(pop.vec, function(y) {
+        apply(sgl_mat[[y]], 2, function(x) {
+          all(is.na(x))
+        })
+      })
+      
+      n.pop <- Reduce("+", n.pop)
+      n.pop <- length(pop.names) - n.pop
+      
+      np <- lapply(pop.vec, function(y) {
+        colSums(!is.na(sgl_mat[[y]]))
+      })
+      
+      np <- Reduce(cbind, np)
+      
+      mn <- apply(np, 1, function(y) {
+        1 / mean(1 / y)
+      })
+      
+      Ho <- lapply(pop.vec, function(y) {
+        colMeans(sgl_mat[[y]] == 1, na.rm = TRUE)
+      })
+      Ho <- Reduce(cbind, Ho)
+      colnames(Ho) <- pop.names
+      mHo <- rowMeans(Ho, na.rm = TRUE)
+      
+      q <- lapply(pop.vec, function(y) {
+        colMeans(sgl_mat[[y]], na.rm = TRUE) / 2
+      })
+      
+      Hs <- lapply(pop.vec, function(y) {
+        n <- nrow(sgl_mat[[y]]) - colSums(apply(sgl_mat[[y]], 2, is.na))
+        Hs <- 2 * (1 - q[[y]]) * q[[y]] - Ho[, y] / 2 / n
+        return(n / (n - 1) * Hs)
+      })
+      
+      Hs <- Reduce(cbind, Hs)
+      colnames(Hs) <- pop.names
+      q_m <- Reduce(cbind, q)
+      sd2 <- q_m ^ 2 + (1 - q_m) ^ 2
+      msp2 <- rowMeans(sd2, na.rm = TRUE)
+      mHs <- mn / (mn - 1) * (1 - msp2 - mHo / 2 / mn)
+      q_mean <- rowMeans(Reduce(cbind, q), na.rm = TRUE)
+      Ht <- 2 * (1 - q_mean) * q_mean
+      Ht <- Ht + mHs / mn / n.pop - mHo / 2 / mn / n.pop
+      Dst <- Ht - mHs
+      Dstp <- n.pop / (n.pop - 1) * Dst
+      Htp <- mHs + Dstp
+      Fst <- Dst / Ht
+      Gst_max <- ((n.pop - 1) * (1 - mHs)) / (n.pop - 1 + mHs)
+      Fstp <- Dstp / Htp
+      Gst_H <- Fstp / Gst_max
+      Dest <- Dstp / (1 - mHs)
+      res <-
+        cbind(mHo, mHs, Ht, Dst, Htp, Dstp, Fst, Fstp, Dest, Gst_max, Gst_H)
+      
+      colnames(res) <-
+        c("Ho",
+          "Hs",
+          "Ht",
+          "Dst",
+          "Htp",
+          "Dstp",
+          "Fst",
+          "Fstp",
+          "Dest",
+          "Gst_max",
+          "Gst_H")
+      
+      overall <- colMeans(res, na.rm = TRUE)
+      overall["Fst"] <- overall["Dst"] / overall["Ht"]
+      overall["Dest"] <- overall["Dstp"] / (1 - overall["Hs"])
+      overall["Fstp"] <- overall["Dstp"] / overall["Htp"]
+      overall["Gst_H"] <- overall["Fstp"] / overall["Gst_max"]
+      
+      all.res <- list(overall = round(overall, 4))
+      
+      return(all.res$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
     }
-    x2 <- x[, indices]
-    res_pop.diff_fun <- pop.diff_fun(x2)
-    return(res_pop.diff_fun)
+    
+    df <- x[, indices]
+    
+    res <- pop.diff_fun(df,
+                        pops.info)
+    
+    return(res)
+    
   }
+  
+  # setting parallel
+  # if(ncpus>1){
+  if (grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
+    parallel <- "multicore"
+  }
+  ## if windows
+  if (!grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
+    parallel <- "snow"
+  }
+  # }
   
   # DO THE JOB
   
@@ -371,9 +494,14 @@ gl.report.fstat <- function(x,
       # bootstrapping
       pairpop_boot <- apply(pairs_pops, 1, function(y) {
         tpop <- rbind.dartR(pops[[y[1]]], pops[[y[2]]])
+        
+        df <- as.data.frame(as.matrix(tpop))
+        pops.info_tmp <- as.character(pop(tpop))
+        
         res_boots <- boot::boot(
-          data = tpop,
+          data = df,
           statistic = pop.diff,
+          pops.info = as.character(pop(tpop)),
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -398,7 +526,7 @@ gl.report.fstat <- function(x,
             t = pairpop_boot[[pop_n]]$t[, stat_n]
           )
           
-          res_CI[[pop_n]][stat_n,] <-
+          res_CI[[pop_n]][stat_n, ] <-
             tail(as.vector(res_CI_tmp[[4]]), 2)
           
         }
@@ -414,10 +542,14 @@ gl.report.fstat <- function(x,
     if (nboots > 0) {
       res_CI <- as.data.frame(matrix(nrow = 4, ncol = 2))
       
+      df <- as.data.frame(as.matrix(tpop))
+      pops.info_tmp <- as.character(pop(tpop))
+      
       # bootstrapping
       pairpop_boot <- boot::boot(
-        data = tpop,
+        data = df,
         statistic = pop.diff,
+        pops.info = as.character(pop(tpop)),
         R = nboots,
         parallel = parallel,
         ncpus = ncpus
@@ -425,7 +557,6 @@ gl.report.fstat <- function(x,
       
       # confidence intervals
       for (stat_n in 1:4) {
-        
         res_CI_tmp <-
           boot::boot.ci(
             boot.out = pairpop_boot,
@@ -436,7 +567,7 @@ gl.report.fstat <- function(x,
             t = pairpop_boot$t[, stat_n]
           )
         
-        res_CI[stat_n,] <-  tail(as.vector(res_CI_tmp[[4]]), 2)
+        res_CI[stat_n, ] <-  tail(as.vector(res_CI_tmp[[4]]), 2)
         
       }
       
@@ -468,7 +599,7 @@ gl.report.fstat <- function(x,
   
   if (npops > 2) {
     for (i in 1:length(mat_pops)) {
-      mat_pops[[i]][lower.tri(mat_pops[[i]])] <- pairpop_res[i,]
+      mat_pops[[i]][lower.tri(mat_pops[[i]])] <- pairpop_res[i, ]
       colnames(mat_pops[[i]]) <-
         rownames(mat_pops[[i]]) <- names(pops)
       mat_pops[[i]][upper.tri(mat_pops[[i]])] <-

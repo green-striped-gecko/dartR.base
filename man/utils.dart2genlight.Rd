@@ -48,7 +48,6 @@ Other utilities:
 \code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dist.binary}()},
-\code{\link{utils.dist.ind.snp}()},
 \code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},

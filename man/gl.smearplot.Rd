@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.smearplot.r
 \name{gl.smearplot}
 \alias{gl.smearplot}
-\title{Smear plot of SNP or presence/absence (SilicoDArT) data}
+\title{Smear plot}
 \usage{
 gl.smearplot(
   x,
@@ -67,6 +67,7 @@ gl.smearplot(testset.gs[1:10,],ind.labels=TRUE)
 }
 \seealso{
 Other graphics: 
+\code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
 \code{\link{gl.report.ld.map}()},

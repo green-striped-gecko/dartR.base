@@ -7,37 +7,44 @@
 \usage{
 gl.dist.pop(
   x,
+  as.pop = NULL,
   method = "euclidean",
-  plot.out = TRUE,
   scale = FALSE,
-  output = "dist",
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  type = "dist",
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{Name of the genlight containing the SNP genotypes [required].}
+\item{x}{Name of the genlight containing [required].}
+
+\item{as.pop}{Temporarily assign another locus metric as the population for
+the purposes of deletions [default NULL].}
 
 \item{method}{Specify distance measure [default euclidean].}
-
-\item{plot.out}{If TRUE, display a histogram of the genetic distances, and a
-whisker plot [default TRUE].}
 
 \item{scale}{If TRUE and method='Euclidean', the distance will be scaled to 
 fall in the range [0,1] [default FALSE].}
 
-\item{output}{Specify the format and class of the object to be returned, 
-dist for a object of class dist, matrix for an object of class matrix [default "dist"].}
+\item{type}{Specify the type of output, dist or matrix [default dist]}
 
-\item{plot_theme}{User specified theme [default theme_dartR()].}
+\item{plot.display}{If TRUE, resultant plots are displayed in the plot window
+[default TRUE].}
 
-\item{plot_colors}{Vector with two color names for the borders and fill
-[default gl.colors(2)].}
+\item{plot.theme}{Theme for the plot. See Details for options
+[default theme_dartR()].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default c("#2171B5","#6BAED6")].}
+
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -48,31 +55,36 @@ An object of class 'dist' giving distances between populations
 }
 \description{
 This script calculates various distances between populations based on allele
-frequencies (SNP genotypes) or frequency of presences in presence-absence data 
-(Euclidean and Fixed-diff distances only).
+frequencies (SNP genotypes) or frequency of presences in PA (SilicoDArT) data
 }
 \details{
 The distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
-'nei' and 'chord'. Refer to the documentation of functions
-  described in the the dartR Distance Analysis tutorial for algorithms
+'nei' and 'chord'. Refer to the documentation of functions in
+  https://doi.org/10.1101/2023.03.22.533737 for algorithms
   and definitions.
 }
 \examples{
+ \donttest{
 # SNP genotypes
-
-D <- gl.dist.pop(possums.gl[1:90,1:100], method='euclidean')
-\donttest{
-D <- gl.dist.pop(possums.gl[1:90,1:100], method='euclidean',scale=TRUE)
+D <- gl.dist.pop(possums.gl, method='euclidean')
+D <- gl.dist.pop(possums.gl, method='euclidean',scale=TRUE)
 D <- gl.dist.pop(possums.gl, method='nei')
 D <- gl.dist.pop(possums.gl, method='reynolds')
 D <- gl.dist.pop(possums.gl, method='chord')
 D <- gl.dist.pop(possums.gl, method='fixed-diff')
 #Presence-Absence data [only 10 individuals due to speed]
 D <- gl.dist.pop(testset.gs[1:10,], method='euclidean')
-res <- gl.dist.pop(platypus.gl)
 }
+
+}
+\seealso{
+Other distance: 
+\code{\link{gl.dist.ind}()},
+\code{\link{gl.fdsim}()},
+\code{\link{utils.dist.ind.snp}()}
 }
 \author{
 author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{distance}

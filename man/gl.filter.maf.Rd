@@ -3,7 +3,7 @@
 \name{gl.filter.maf}
 \alias{gl.filter.maf}
 \title{Filters loci on the basis of minor allele frequency (MAF) in a 
-genlight {adegenet} object}
+genlight object}
 \usage{
 gl.filter.maf(
   x,
@@ -87,14 +87,6 @@ The reduced genlight dataset
 This script calculates the minor allele frequency for each locus and updates
 the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
 exists). It then uses the updated metadata for MAF to filter loci.
-}
-\examples{
-result <- gl.filter.monomorphs(testset.gl)
-\donttest{
-result <- gl.filter.maf(result, threshold=0.05, verbose=3)
-result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
-}
-
 }
 \seealso{
 Other matched filter: 

@@ -10,7 +10,6 @@ gl.report.fstat(
   nboots = 0,
   conf = 0.95,
   CI.type = "bca",
-  parallel = "no",
   ncpus = 1,
   plot.stat = "Fstp",
   plot.display = TRUE,
@@ -30,14 +29,11 @@ gl.report.fstat(
 
 \item{conf}{The confidence level of the required interval  [default 0.95].}
 
-\item{CI.type}{Method to estimate the confident intervals (CI). One of
+\item{CI.type}{Method to estimate confident intervals. One of
 "norm", "basic", "perc" or "bca" [default "bca"].}
 
-\item{parallel}{The type of parallel operation to be used. One of "no",
-"multicore" or "snow". See details in the "Parallel operation" section from
-the function \link[boot]{boot} (package boot) [default "no"].}
-
-\item{ncpus}{Number of processes to be used in parallel operation [default 1].}
+\item{ncpus}{Number of processes to be used in parallel operation. If ncpus
+> 1 parallel operation is activated,see "Details" section [default 1].}
 
 \item{plot.stat}{Statistic to plot. One of "Fst","Fstp","Dest" or "Gst_H"
 [default "Fstp"].}
@@ -51,7 +47,7 @@ displayed in the plot window [default TRUE].}
 \item{font.size}{Size of font for the labels of horizontal and vertical axes
 of the heatmap [default 0.5].}
 
-\item{plot.dir}{Directory in which to save files [default = working directory].}
+\item{plot.dir}{Directory in which to save files [default working directory].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only,
 exclude extension) [default NULL].}
@@ -75,12 +71,17 @@ This function calculates four genetic differentiation between populations
 statistics (see the "Details" section for further information).
 
 \itemize{
-\item "Fst" - Nei's Gst (Nei, 1987, pp. 164–165).
-\item "Fstp" - Fst corrected for sample size (Nei, 1987, pp. 164–165).
-\item "Dest" - Jost’s D (Jost, 2008).
-\item "Gst_H" - Gst standardized by the maximum level that it can obtain for
+\item \strong{Fst} - Measure of the degree of genetic differentiation of 
+subpopulations (Nei, 1987).
+\item \strong{Fstp} - Unbiased (i.e. corrected for sampling error, see 
+explanation below) Fst (Nei, 1987).
+\item \strong{Dest} - Jost’s D (Jost, 2008).
+\item \strong{Gst_H} - Gst standardized by the maximum level that it can obtain for
 the observed amount of genetic variation (Hedrick 2005).
 }
+
+Sampling errors arise because allele frequencies in our samples differ from 
+those in the subpopulations from which they were taken (Holsinger, 2012).
 
 Confident Intervals are obtained using bootstrapping.
 }
@@ -104,86 +105,85 @@ properties that make them valuable resources to interpret genetic
 
     \strong{Statistics calculated}
 
-    The equations to calculate the statistics are shown below.
+    The equations used to calculate the statistics are shown below.
 
      \itemize{
      \item
-    "Ho" - Observed heterozygosity corrected for sample size
-    (Nei, 1987, pp. 164–165) is calculated as:
+    \emph{Ho} - Unbiased estimate of observed heterozygosity across 
+    subpopulations (Nei, 1987, pp. 164, eq. 7.38) is calculated as:
 
-    \figure{Ho-equation.jpg}
+    \figure{Hoequation.jpg}
 
-    where Pkii represents the proportion of homozygote i in sample k and np
-    the number of samples (i.e. populations).
-
-    \item
-    "Hs" - Expected heterozygosity corrected for sample size
-    (Nei, 1987, pp. 164–165) is calculated as:
-
-    \figure{He-equation.jpg}
-
-    \figure{He-equation-2.jpg}
+    where \emph{Pkii} represents the proportion of homozygote \emph{ii} for 
+    allele \emph{i} in individual \emph{k} and \emph{s} represents the number
+     of subpopulations.
 
     \item
-    "Ht" - Overall heterozygosity corrected for sample size
-    (Nei, 1987, pp. 164–165) is calculated as:
+    \emph{Hs} - Unbiased estimate of the expected heterozygosity under 
+    Hardy-Weinberg equilibrium across subpopulations (Nei, 1987, pp. 164,
+     eq. 7.39) is calculated as:
 
-    \figure{Ht-equation.jpg}
-
-    \figure{Ht-equation-2.jpg}
-
-    \item
-    "Dst" - Amount of heterozygosity among samples (Nei, 1987, pp. 164–165)
-    is calculated as:
-
-    \figure{Dst-equation.jpg}
+    \figure{Hsequation.jpg}
+    
+    where \emph{ñ} is the harmonic mean of \emph{nk} (the number of 
+    individuals in each subpopulation), \emph{pki} is the proportion 
+    (sometimes misleadingly called frequency) of allele \emph{i} in 
+    subpopulation \emph{k}. 
 
     \item
-    "Htp" - Overall heterozygosity corrected for sample size
-    (Nei, 1987, pp. 164–165) is calculated as:
+    \emph{Ht} - Heterozygosity for the total population (Nei, 1987, pp. 164,
+     eq. 7.40) is calculated as:
 
-    \figure{Htp-equation.jpg}
-
-    \item
-    "Dstp" - Amount of heterozygosity among samples corrected for sample size
-     (Nei, 1987, pp. 164–165) is calculated as:
-
-    \figure{Dstp-equation.jpg}
+    \figure{Htequation.jpg}
 
     \item
-    "Fst" - Nei's Gst (Nei, 1987, pp. 164–165) is calculated as:
+    \emph{Dst} - The average allele frequency differentiation between 
+    populations (Nei, 1987, pp. 163) is calculated as:
 
-    \figure{Fst-equation.jpg}
+    \figure{Dstequation.jpg}
 
     \item
-    "Fstp" - Fst corrected for sample size (Nei, 1987, pp. 164–165) is
+    \emph{Htp} - Unbiased estimate of Heterozygosity for the total population
+    (Nei, 1987, pp. 165) is calculated as:
+
+    \figure{Htpequation.jpg}
+
+    \item
+    \emph{Dstp} - Unbiased estimate of the average allele frequency 
+    differentiation between populations (Nei, 1987, pp. 165) is calculated
+     as:
+
+    \figure{Dstequation.jpg}
+
+    \item
+    \emph{Fst} - Measure of the extent of genetic differentiation 
+    of subpopulations (Nei, 1987, pp. 162, eq. 7.34) is calculated as:
+
+    \figure{Fstequation.jpg}
+
+    \item
+    \emph{Fstp} - Unbiased measure of the extent of genetic differentiation 
+    of subpopulations (Nei, 1987, pp. 163, eq. 7.36) is calculated as:
+
+    \figure{Fstpequation.jpg}
+
+    \item
+    \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
+
+    \figure{Dstequation.jpg}
+
+    \item
+    \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
+    amount of genetic variation (Hedrick 2005, eq. 4a) is calculated as:
+
+    \figure{GstMaxequation.jpg}
+
+    \item
+    \emph{Gst-H} - Gst standardized by the maximum level that it can obtain 
+    for the observed amount of genetic variation (Hedrick 2005, eq. 4b) is 
     calculated as:
 
-    \figure{Fstp-equation.jpg}
-
-    \item
-    "Fis" - Inbreeding coefficient is calculated as:
-
-    \figure{Fis-equation.jpg}
-
-    \item
-    "Dest" - Jost’s D (Jost, 2008) is calculated as:
-
-    \figure{Dest-equation.jpg}
-
-    \item
-    "Gst_max" - The maximum level that Gst can obtain for the observed amount
-     of genetic variation (Hedrick 2005) is calculated as:
-
-    \figure{GstMax-equation.jpg}
-
-    where k is the number of subpopulations.
-
-    \item
-    "Gst_H" - Gst standardized by the maximum level that it can obtain for the
-    observed amount of genetic variation (Hedrick 2005) is calculated as:
-
-    \figure{Gst-H.jpg}
+    \figure{GstH.jpg}
 
     }
 
@@ -239,8 +239,8 @@ The studentized bootstrap interval ("stud") was not included in the CI types
    The "bca" interval is often cited as the best for theoretical reasons,
    however it may produce unstable results if the bootstrap distribution
     is skewed or has extreme values. For example, you might get the warning
-    "extreme order statistics used as endpoints" or the error "estimated 
-    adjustment 'a' is NA". In this case, you may want to use more bootstrap 
+    "extreme order statistics used as endpoints" or the error "estimated
+    adjustment 'a' is NA". In this case, you may want to use more bootstrap
     replicates or a different method or check your data for outliers.
 
    The error "estimated adjustment 'w' is infinite" means that the estimated
@@ -269,15 +269,30 @@ bootstrap confidence interval or removing or transforming the outliers or
 
  > \code{res <- gl.report.fstat(platypus.gl, palette.divergent = viridis)}
 
-  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" #' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
-specified for the plot to be saved.
- If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the tempdir(). 
+If a plot.file is given, the plot arising from this function is saved as an
+ "RDS" binary file using the function \link[base]{saveRDS} (package base);
+  can be reloaded with function \link[base]{readRDS} (package base). A file
+  name must be specified for the plot to be saved.
+
+ If a plot directory (plot.dir) is specified, the gplot binary is saved to
+ that directory; otherwise to the tempdir().
 
  Your plot might not shown in full because your 'Plots' pane is too small
  (in RStudio).
  Increase the size of the 'Plots' pane before running the function.
  Alternatively, use the parameter 'plot.file' to save the plot to a file.
+
+ \strong{Parallelisation}
+
+ If the parameter ncpus > 1, parallelisation is enabled. In Windows, parallel
+  computing employs a "socket" approach that starts new copies of R on each
+   core. POSIX systems, on the other hand (Mac, Linux, Unix, and BSD),
+   utilise a "forking" approach that replicates the whole current version of
+    R and transfers it to a new core.
+
+    Opening and terminating R sessions in each core involves a significant
+    amount of processing time, therefore parallelisation in Windows machines
+   is only quicker than not usung parallelisation when nboots > 1000-2000.
 }
 \examples{
 res <- gl.report.fstat(platypus.gl)
@@ -303,6 +318,8 @@ Efron B, Tibshirani RJ (1993). An Introduction to the Bootstrap. Chapman and
 \item
 Hedrick, P. W. (2005). A standardized genetic differentiation measure.
 Evolution, 59(8), 1633-1638.
+\item 
+Holsinger, K. E. (2012). Lecture notes in population genetics.
 \item
 Holsinger, K. E., & Weir, B. S. (2009). Genetics in geographically structured
  populations: defining, estimating and interpreting FST. Nature Reviews
@@ -323,7 +340,9 @@ Holsinger, K. E., & Weir, B. S. (2009). Genetics in geographically structured
 }
 \seealso{
 Other matched reports: 
+\code{\link{gl.mahal.assign}()},
 \code{\link{gl.report.bases}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.monomorphs}()}
 }
 \author{

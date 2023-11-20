@@ -10,12 +10,12 @@
 #'@param filename File containing the SNP data (csv file) [required].
 #'@param ind.metafile File that contains additional information on individuals
 #' [required].
-#'@param covfilename Depricated, sse ind.metafile parameter [NULL].
+#'@param covfilename Deprecated, sse ind.metafile parameter [NULL].
 #'@param nas A character specifying NAs [default '-'].
-#'@param topskip A number specifying the number of initial rows to be skipped. [default NULL].
-#'@param lastmetric Specifies the last column of locus metadata. Can be specified 
-#'as a column number.
-#'  [default 'RepAvg'].
+#'@param topskip A number specifying the number of initial rows to be skipped
+#' [default NULL].
+#'@param lastmetric Deprecated, specifies the last column of locus metadata. Can be 
+#'specified as a column number [default NULL].
 #'@param service.row The row number for the DArT service
 #'is contained [default 1].
 #'@param plate.row The row number the plate well [default 3].
@@ -30,10 +30,6 @@
 #' @details
 #'The function will determine automatically if the data are in Diversity Arrays
 #'one-row csv format or two-row csv format. 
-
-#'The number of locus metadata columns 
-#'in the input data is determined by a signature last column, by default 'RepAvg'.
-#'This can be alternatively specified using parameter 'lastmetric'. 
 
 #'The first 
 #'row of data is determined from the number of rows with an * in the first 
@@ -66,19 +62,35 @@
 
 # ------------------------
 # Function
+
 gl.read.dart <- function(filename,
                          ind.metafile = NULL,
                          recalc = TRUE,
                          mono.rm = FALSE,
                          nas = "-",
                          topskip = NULL,
-                         lastmetric = "RepAvg",
+                         lastmetric = NULL,
                          covfilename = NULL,
                          service.row = 1,
                          plate.row = 3,
                          probar = FALSE,
                          verbose = NULL) {
 # Preliminaries -----------------
+  
+  # Function kindly provided by Andrew Kowalczyk
+  
+  getLastMarkerMetaDataField <- function(filepath){
+    top <- read.csv(filepath,
+                    header = FALSE,
+                    nrows = 20,
+                    stringsAsFactors = FALSE)
+    
+    last_metric <- top[last(which(top[,1]=="*"))+1, last(which(top[1,]=="*"))]  
+    return(last_metric)
+  }
+  
+  lastmetric <- getLastMarkerMetaDataField(filename)
+  
   # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -94,7 +106,7 @@ gl.read.dart <- function(filename,
     
     # DO THE JOB ----------------------
     
-    # Deal with the depricated covfilename parameter
+    # Deal with the deprecated covfilename parameter
     if (is.null(ind.metafile)) {
         ind.metafile <- covfilename
     }
@@ -123,7 +135,8 @@ gl.read.dart <- function(filename,
         cat(report("  ",nrow(glout),"rows and",ncol(glout),"columns of data read\n"))
     }
     
-    # Setting the recalc flags (TRUE=up-to-date, FALSE=no longer valid) for all locus metrics capable of being recalculated
+    # Setting the recalc flags (TRUE=up-to-date, FALSE=no longer valid) for all 
+    # locus metrics capable of being recalculated
     recalc.flags <-
         c(
             "AvgPIC",
@@ -145,9 +158,28 @@ gl.read.dart <- function(filename,
         data.frame(matrix(TRUE, nrow = 1, ncol = length(recalc.flags)))
     names(glout@other$loc.metrics.flags) <- recalc.flags
     glout@other$verbose <- 2
-    
     # Calculate locus metrics not provided by DArT 
     #Calculate Read Depth
+    # calculating "by hand" rather than getting them from DArT's report because
+    # sometimes they are not reported
+    # OneRatioRef	The proportion of samples for which the genotype score is "1", 
+    # in the Reference allele row	
+    # OneRatioSnp	The proportion of samples for which the genotype score is "1", 
+    # in the SNP allele row	
+    glout@other$loc.metrics$OneRatioRef  <- apply(as.matrix(glout),2,
+                                                  function(y){
+                                                    (sum(!is.na(y[y==0])) + 
+                                                       sum(!is.na(y[y==1])) )/
+                                                      sum(!is.na(y))
+                                                  })
+    
+    glout@other$loc.metrics$OneRatioSnp  <- apply(as.matrix(glout),2,
+                                                  function(y){
+                                                    (sum(!is.na(y[y==2])) + 
+                                                       sum(!is.na(y[y==1])) )/ 
+                                                      sum(!is.na(y))
+                                                  })
+    
     if (is.null(glout@other$loc.metrics$rdepth)) {
         if (verbose >= 2) {
             cat(report(
@@ -240,6 +272,8 @@ gl.read.dart <- function(filename,
     if (is.null(glout@other$history)) {
         glout@other$history <- list(match.call())
     }
+    
+    glout <- gl.compliance.check(glout)
     
     # FLAG SCRIPT END ---------------------
     if (verbose > 0) {

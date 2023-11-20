@@ -17,7 +17,7 @@
 #' @export
 #' @return The verbosity, in variable verbose
 
-# Version v.2023.2
+# Version v.2023.3
 
 gl.check.verbosity <- function(x = NULL) {
     # SET VERBOSITY or GET it from global
@@ -42,5 +42,4 @@ gl.check.verbosity <- function(x = NULL) {
     }
     
     return(verbose)
-    
 }

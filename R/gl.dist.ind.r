@@ -1,8 +1,31 @@
 #' @name gl.dist.ind
 #' @title Calculates a distance matrix for individuals defined in a genlight object
+#' @family distance
+
 #' @description
-#' This script calculates various distances between individuals based on allele
-#'  frequencies or presence-absence data 
+#' Calculates various distances between individuals based on allele
+#' frequencies or presence-absence data 
+
+#' @param x Name of the genlight [required].
+#' @param method Specify distance measure [SNP: Euclidean; P/A: Simple].
+#' @param scale If TRUE, the distances are scaled to fall in the range [0,1] [default TRUE]
+#' @param swap If TRUE and working with presence-absence data, then presence 
+#' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
+#' mutation) is scored as 1 [default FALSE].
+#' @param type Specify the type of output, dist or matrix [default dist]
+#' @param plot.display If TRUE, resultant plots are displayed in the plot window
+#' [default TRUE].
+#' @param plot.theme Theme for the plot. See Details for options
+#' [default theme_dartR()].
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default c("#2171B5","#6BAED6")].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'  progress log ; 3, progress and results summary; 5, full report
+#'   [default 2 or as specified using gl.set.verbosity].
+#'   
 #' @details
 #' The distance measure for SNP genotypes can be one of:
 #' \itemize{
@@ -22,70 +45,55 @@
 #'  \item Bray-Curtis Distance [method="Bray-Curtis"]
 #'  }
 
-#' Refer to the dartR Technical Note on Distances in Genetics.
-
-#' @param x Name of the genlight containing the SNP genotypes or presence-absence data [required].
-#' @param method Specify distance measure [SNP: Euclidean; P/A: Simple].
-#' @param scale If TRUE, the distances are scaled to fall in the range [0,1] [default TRUE]
-#' @param swap If TRUE and working with presence-absence data, then presence 
-#' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
-#' mutation) is scored as 1 [default FALSE].
-#' @param output Specify the format and class of the object to be returned, 
-#' 'dist' for a object of class dist, 'matrix' for an object of class matrix [default "dist"].
-#' @param plot.out If TRUE, display a histogram and a boxplot of the genetic distances [TRUE].
-#' @param plot_theme User specified theme [default theme_dartR].
-#' @param plot_colors Vector with two color names for the borders and fill [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots to the session temporary directory [default FALSE].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log ; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' @return An object of class 'matrix' or dist' giving distances between individuals
-#' @export
-#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+#' Refer to the documentation of functions in
+#'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
+#'   and definitions.
+#' 
+#' @author Author(s): Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+#' 
 #' @examples
 #' \donttest{
 #' D <- gl.dist.ind(testset.gl[1:20,], method='manhattan')
 #' D <- gl.dist.ind(testset.gs[1:20,], method='Jaccard',swap=TRUE)
 #' }
 #' D <- gl.dist.ind(testset.gl[1:20,], method='euclidean',scale=TRUE)
+#' 
+#' @export
+#' @return An object of class 'matrix' or dist' giving distances between individuals
 
 gl.dist.ind <- function(x,
                         method = NULL,
                         scale = FALSE,
                         swap=FALSE,
-                        output="dist",
-                        plot.out = TRUE,
-                        plot_theme = theme_dartR(),
-                        plot_colors = gl.colors(2),
-                        save2tmp = FALSE,
+                        type="dist",
+                        plot.display = TRUE,
+                        plot.theme = theme_dartR(),
+                        plot.colors = NULL,
+                        plot.file=NULL,
+                        plot.dir=NULL,
                         verbose = NULL) {
-    
-    # CHECK IF PACKAGES ARE INSTALLED
-    # pkg <- "rrBLUP"
-    # if (!(requireNamespace(pkg, quietly = TRUE))) {
-    #     stop(error(
-    #         "Package ",
-    #         pkg,
-    #         " needed for this function to work. Please install it."
-    #     ))
-    # }
-    # 
-    # pkg <- "poppr"
-    # if (!(requireNamespace(pkg, quietly = TRUE))) {
-    #     stop(error(
-    #         "Package ",
-    #         pkg,
-    #         " needed for this function to work. Please install it."
-    #     ))
-    # }
-    
+  
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
+    # SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -115,16 +123,14 @@ gl.dist.ind <- function(x,
             "absolute"
         )
     )) {
-        cat(
-            warn(
-                " Warning: Method not in the list of options, set to Euclidean for SNP data; Simple Matching for Tag P/A data\n"
-            )
-        )
+        
         if (datatype == "SNP") {
             method <- "euclidean"
+            cat(warn(" Warning: Method not in the list of options, set to Euclidean Distance\n"))
         }
         if (datatype == "SilicoDArT") {
             method <- "simple"
+            cat(warn(" Warning: Method not in the list of options, set to Simple Matching Distance\n"))
         }
     }
     
@@ -185,16 +191,6 @@ gl.dist.ind <- function(x,
             }
         }        
         
-        # 
-        # # Calculate the genetic relatedness G matrix
-        # if (method == "relatedness") {
-        #     dd <- rrBLUP::A.mat(as.matrix(x) - 1)
-        #     if (verbose >= 2) {
-        #         cat(report(
-        #             "  Calculating relatedness among individuals (G matrix)\n"
-        #         ))
-        #     }
-        # }
         dd <- as.dist(dd)
         
         # # Revert to original order ord <- rank(pop(x)) mat <- as.matrix(dd)[ord, ord] dd <- as.dist(mat)
@@ -222,31 +218,24 @@ gl.dist.ind <- function(x,
                 cat(report("  Calculating distances based on the Jaccard Coefficient\n"))
             }
         }
-        if (method == "bray-curtis") {
+        if (method == "sorensen") {
             if (verbose >= 2) {
                 cat(report(
-                    "  Calculating the Bray-Curtis Distance\n"
+                    "  Calculating the Sorensen Distance\n"
                 ))
             }
         }
-        # if (method == "phi") {
-        #     if (verbose >= 2) {
-        #         cat(report(
-        #             "  Calculating the Pearson Phi Index (= Binary correlation\n"
-        #         ))
-        #     }
-        # }
+
         mat <- utils.dist.binary(x, 
                                  method = method, 
                                  swap=swap, 
-                                 output="matrix", 
+                                 #type="matrix", 
                                  scale = scale, 
                                  verbose = 0)
         dd <- as.dist(mat)
     }
     
     # PLOT
-    if (plot.out) {
         if (datatype == "SNP") {
             title_plot <-
                 paste0("SNP data (DArTSeq)\nInter-individual ",
@@ -274,15 +263,14 @@ gl.dist.ind <- function(x,
         }
         values <- NULL
         df_plot <- data.frame(values = as.vector(mat))
-        # colnames(df_plot) <- 'values'
-        
+ 
         # Boxplot
         p1 <-
             ggplot(df_plot, aes(y = values)) + 
-            geom_boxplot(color = plot_colors[1], 
-            fill = plot_colors[2]) + 
+            geom_boxplot(color = plot.colors[1], 
+            fill = plot.colors[2]) + 
             coord_flip() + 
-            plot_theme + 
+            plot.theme + 
             xlim(range = c(-1,1)) + 
             ylim(min(df_plot$values, na.rm = TRUE),
             max(df_plot$values, na.rm = TRUE)) + 
@@ -295,21 +283,28 @@ gl.dist.ind <- function(x,
         p2 <-
             ggplot(df_plot, aes(x = values)) + 
             geom_histogram(bins = 100,
-                           color = plot_colors[1],
-                           fill = plot_colors[2]) + 
+                           color = plot.colors[1],
+                           fill = plot.colors[2]) + 
             xlim(min(df_plot$values, na.rm = TRUE), 
                  max(df_plot$values, na.rm = TRUE)) + 
             xlab("Distance") + 
             ylab("Count") + 
-            plot_theme
+            plot.theme
         
         # PRINTING OUTPUTS
-        if (plot.out) {
+        
             # using package patchwork
             p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-            suppressWarnings(print(p3))
-        }
-    }
+            if (plot.display) {suppressWarnings(print(p3))}
+            
+            # Optionally save the plot ---------------------
+            
+            if(!is.null(plot.file)){
+              tmp <- utils.plot.save(p3,
+                                     dir=plot.dir,
+                                     file=plot.file,
+                                     verbose=verbose)
+            }
     
     # SUMMARY Print out some statistics
     if (verbose >= 3) {
@@ -325,45 +320,16 @@ gl.dist.ind <- function(x,
         cat("    Average Distance: ", round(mean(dd), 3), "\n\n")
     }
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, dd), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
-    }
-    
     # FLAG SCRIPT END
     
-    if(output=="matrix"){
+    if(type=="matrix"){
         if(verbose >= 2){
             cat(report("  Returning a square matrix\n"))
         }
         dimnames(mat) <- list(indNames(x), indNames(x))
         final <- mat
     }
-    if(output!="matrix"){
+    if(type!="matrix"){
         if(verbose >= 2){
             cat(report("  Returning a stat::dist object\n"))
         }

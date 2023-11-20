@@ -86,7 +86,7 @@ utils.recalc.freqhets <- function(x,
     if (verbose >= 2) {
         cat(report("  Recalculating locus metric freqHets\n"))
     }
-    x@other$loc.metrics$FreqHets <- colMeans(t == 1, na.rm = T)
+    x@other$loc.metrics$FreqHets <- colMeans(t == 1, na.rm = TRUE)
     x@other$loc.metrics.flags$FreqHets <- TRUE
     
     # FLAG SCRIPT END

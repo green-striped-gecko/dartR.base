@@ -1,59 +1,67 @@
 #' @name gl.dist.pop
 #' @title Calculates a distance matrix for populations with SNP genotypes in a
 #'  genlight object
+#' @family distance
+
 #' @description
 #' This script calculates various distances between populations based on allele
-#' frequencies (SNP genotypes) or frequency of presences in presence-absence data 
-#' (Euclidean and Fixed-diff distances only). 
-#' @details
-#' The distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
-#' 'nei' and 'chord'. Refer to the documentation of functions
-#'   described in the the dartR Distance Analysis tutorial for algorithms
-#'   and definitions.
-
-#' @param x Name of the genlight containing the SNP genotypes [required].
+#' frequencies (SNP genotypes) or frequency of presences in PA (SilicoDArT) data 
+#'  
+#' @param x Name of the genlight containing [required].
+#' @param as.pop Temporarily assign another locus metric as the population for
+#' the purposes of deletions [default NULL].
 #' @param method Specify distance measure [default euclidean].
-#' @param plot.out If TRUE, display a histogram of the genetic distances, and a
-#'  whisker plot [default TRUE].
+#' @param plot.display If TRUE, resultant plots are displayed in the plot window
+#' [default TRUE].
 #' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
 #'  fall in the range [0,1] [default FALSE].
-#' @param output Specify the format and class of the object to be returned, 
-#' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
-#' @param plot_theme User specified theme [default theme_dartR()].
-#' @param plot_colors Vector with two color names for the borders and fill
-#' [default gl.colors(2)].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#'  temporary directory (tempdir) [default FALSE].
+#' @param type Specify the type of output, dist or matrix [default dist]
+#' @param plot.theme Theme for the plot. See Details for options
+#' [default theme_dartR()].
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default c("#2171B5","#6BAED6")].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()]
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log ; 3, progress and results summary; 5, full report
 #'   [default 2 or as specified using gl.set.verbosity].
-#' @return An object of class 'dist' giving distances between populations
-#' @export
+#'   
+#' @details
+#' The distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
+#' 'nei' and 'chord'. Refer to the documentation of functions in
+#'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
+#'   and definitions.
+#'   
 #' @author author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' @examples 
-#' # SNP genotypes
 #' 
-#' D <- gl.dist.pop(possums.gl[1:90,1:100], method='euclidean')
-#' \donttest{
-#' D <- gl.dist.pop(possums.gl[1:90,1:100], method='euclidean',scale=TRUE)
+#' @examples
+#'  \donttest{
+#' # SNP genotypes
+#' D <- gl.dist.pop(possums.gl, method='euclidean')
+#' D <- gl.dist.pop(possums.gl, method='euclidean',scale=TRUE)
 #' D <- gl.dist.pop(possums.gl, method='nei')
 #' D <- gl.dist.pop(possums.gl, method='reynolds')
 #' D <- gl.dist.pop(possums.gl, method='chord')
 #' D <- gl.dist.pop(possums.gl, method='fixed-diff')
 #' #Presence-Absence data [only 10 individuals due to speed]
 #' D <- gl.dist.pop(testset.gs[1:10,], method='euclidean')
-#' res <- gl.dist.pop(platypus.gl)
 #' }
+#' 
+#' @export
+#' @return An object of class 'dist' giving distances between populations
 
 gl.dist.pop <- function(x,
+                        as.pop=NULL,
                         method = "euclidean",
-                        plot.out = TRUE,
                         scale = FALSE,
-                        output="dist",
-                        plot_theme = theme_dartR(),
-                        plot_colors = gl.colors(2),
-                        save2tmp = FALSE,
+                        type = "dist",
+                        plot.display=TRUE,
+                        plot.theme = theme_dartR(),
+                        plot.colors = NULL,
+                        plot.file=NULL,
+                        plot.dir=NULL,
                         verbose = NULL) {
 
     # CHECK IF PACKAGES ARE INSTALLED
@@ -69,6 +77,20 @@ gl.dist.pop <- function(x,
     
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display=FALSE}
+    
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+    
+    # SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
+    }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
@@ -80,7 +102,32 @@ gl.dist.pop <- function(x,
     datatype <-
         utils.check.datatype(x, accept = c("SNP","SilicoDArT"), verbose = verbose)
     
-    # FUNCTION SPECIFIC ERROR CHECKING
+    # Population labels assigned?
+    if (is.null(as.pop)) {
+      if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "  Warning: Population assignments not detected, running compliance check\n"
+            )
+          )
+        }
+        x <- gl.compliance.check(x, verbose = 0)
+      }
+    }
+    
+    # Assign the new population list if as.pop is specified 
+    pop.hold <- pop(x)
+    if (!is.null(as.pop)) {
+      if (as.pop %in% names(x@other$ind.metrics)) {
+        pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
+        if (verbose >= 2) {
+          cat(report("  Temporarily assigning",as.pop,"as population\n"))
+        }
+      } else {
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+      }
+    }
     
     # DO THE JOB
     
@@ -92,12 +139,13 @@ gl.dist.pop <- function(x,
             "chord",
             "fixed-diff"
         )
-
+    
+    method <- tolower(method)
     if (!(method %in% available_methods)) {
         cat(error("Fatal Error: Specified distance method is not among those 
-                available.\n"))
-            stop("Specify one of ",paste(available_methods, 
-                collapse = ", ")," or fixed-diff.\n")
+                available (",available_methods,"), set to Euclidean.\n"))
+      method <- "euclidean"
+
     }
     # hard.min.p <- 0.25
 
@@ -112,13 +160,14 @@ gl.dist.pop <- function(x,
             cat(report(paste(
                 "  Calculating distances: ", method, "\n"
             )))
+        }
+        if(verbose >= 3){
             cat(report(
-                "  Refer to the dartR Distance Analysis tutorial for algorithms\n"
+                "  Refer to https://doi.org/10.1101/2023.03.22.533737 for algorithms\n"
             ))
         }
     
     # Calculate allele frequencies for each population and locus
-    #f <- gl.percent.freq(x, verbose = 0)
     f <- gl.allele.freq(x,percent=TRUE,by="popxloc",verbose=0)
     # Select only pop, locus, frequency columns
     f <- f[, c("popn", "locus", "frequency")]
@@ -155,7 +204,7 @@ gl.dist.pop <- function(x,
     # x <- adegenet::genind2genpop(x)
     # D_check <- adegenet::dist.genpop(x,4) # Rogers D
     # hist(D_check,breaks=50)
-    # D <- gl.dist.pop(testset.gl, method='euclidean',output="matrix",scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='euclidean',type="matrix",scale=TRUE)
     # D[upper.tri(D)] <- t(D)[upper.tri(D)]
     # hist(D/2,breaks=50)
     # #VALIDATED [with minor differences, missing handling?]
@@ -199,7 +248,7 @@ gl.dist.pop <- function(x,
     # D_check <- adegenet::dist.genpop(x,3) # Reynolds in common use
     # D_check <- -log(1-D_check) # Proportional to divergence time
     # hist(D_check,breaks=50)
-    # D <- gl.dist.pop(testset.gl, method='reynolds',output='matrix',scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='reynolds',type='matrix',scale=TRUE)
     # D[upper.tri(D)] <- t(D)[upper.tri(D)]
     # hist(D,breaks=50)
     # #VALIDATED [with minor difference, missing handling?]
@@ -241,7 +290,7 @@ gl.dist.pop <- function(x,
     # x <- adegenet::genind2genpop(x)
     # D_check <- adegenet::dist.genpop(x,1) 
     # hist(D_check,breaks=50)
-    # D <- gl.dist.pop(testset.gl, method='nei',output='matrix',scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='nei',type='matrix',scale=TRUE)
     # hist(D,breaks=50)
     # #VALIDATED [with minor difference, missing handling?]
     
@@ -278,7 +327,7 @@ gl.dist.pop <- function(x,
     # D_check <- adegenet::dist.genpop(x,2) # Angular or Edwards?
     # #D_check <- -log(1-D_check) # Proportional to divergence time
     # hist(D_check,breaks=50)
-    # D <- gl.dist.pop(testset.gl, method='chord',output='matrix',scale=TRUE)
+    # D <- gl.dist.pop(testset.gl, method='chord',type='matrix',scale=TRUE)
     # D[upper.tri(D)] <- t(D)[upper.tri(D)]
     # hist(D,breaks=50)
     # #VALIDATED [with minor difference, missing handling?]
@@ -303,7 +352,7 @@ gl.dist.pop <- function(x,
 
     # PLOT Plot Box-Whisker plot
     
-    if (plot.out) {
+    if (plot.display) {
         if (datatype == "SNP") {
             title_plot <- paste0("SNP data\nUsing ", method, " distance")
         } else {
@@ -319,9 +368,9 @@ gl.dist.pop <- function(x,
         
         # Boxplot
         p1 <- ggplot(df_plot, aes(y = values)) +
-        geom_boxplot(color = plot_colors[1], fill = plot_colors[2]) +
+        geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) +
         coord_flip()  +
-        plot_theme  +
+        plot.theme  +
         xlim(range = c(-1,1)) + 
         ylim(min(df_plot$values, na.rm = TRUE),max(df_plot$values, na.rm = TRUE)) + 
         ylab(" ") + 
@@ -330,11 +379,11 @@ gl.dist.pop <- function(x,
         
         # Histogram
         p2 <- ggplot(df_plot, aes(x = values)) +
-        geom_histogram(bins = 20,color = plot_colors[1], fill = plot_colors[2]) +
+        geom_histogram(bins = 20,color = plot.colors[1], fill = plot.colors[2]) +
         xlim(min(df_plot$values, na.rm = TRUE), max(df_plot$values, na.rm = TRUE)) +
         xlab("Distance Metric") +
         ylab("Count") +
-        plot_theme
+        plot.theme
     }
     
     # SUMMARY Print out some statistics
@@ -351,50 +400,40 @@ gl.dist.pop <- function(x,
         cat("    Average Distance: ", round(mean(dd,na.rm=TRUE), 3), "\n")
     }
     
-    # SAVE INTERMEDIATES TO TEMPDIR
-    
-    # creating temp file names
-    if (save2tmp) {
-        if (plot.out) {
-            temp_plot <- tempfile(pattern = "Plot_")
-            match_call <-
-                paste0(names(match.call()),
-                       "_",
-                       as.character(match.call()),
-                       collapse = "_")
-            # saving to tempdir
-            saveRDS(list(match_call, p3), file = temp_plot)
-            if (verbose >= 2) {
-                cat(report("  Saving the ggplot to session tempfile\n"))
-            }
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, dd), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to session tempfile\n"))
-            cat(
-                report(
-                    "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-                )
-            )
-        }
-    }
-    
     # PRINTING OUTPUTS
-    if (plot.out) {
-        # using package patchwork
-        p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-        suppressWarnings(print(p3))
-    }
     
-    if(output=="dist"){
-        dd <- as.dist(dd)
+        # using package patchwork
+        
+        if (plot.display) {
+          p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
+          suppressWarnings(print(p3))}
+        
+        # Optionally save the plot ---------------------
+        
+        if(!is.null(plot.file)){
+          tmp <- utils.plot.save(p3,
+                                 dir=plot.dir,
+                                 file=plot.file,
+                                 verbose=verbose)
+        }
+    
+    # Reassign the initial population list if as.pop is specified
+    
+    if (!is.null(as.pop)) {
+      pop(x) <- pop.hold
+      if (verbose >= 2) {
+        cat(report("  Restoring population assignments to initial state\n"))
+      }
+    }
+        
+    if(type=="dist"){
+    dd <- as.dist(dd)
         if(verbose >= 2){cat(report("  Returning a stats::dist object\n"))}
     } else {
         dd <- as.matrix(dd)
         if(verbose >= 2){cat(report("  Returning a square matrix object\n"))}
     }
-    
+   
     # FLAG SCRIPT END
     
     if (verbose > 0) {

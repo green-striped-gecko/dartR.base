@@ -1,7 +1,7 @@
 #' @name utils.dist.ind.snp
-#' @title Calculates a distance matrix for individuals defined in a dartR
+#' @title Calculates a distance matrix for individuals defined in a 
 #' genlight object using SNP data (DArTseq)
-#' @family utilities
+#' @family distance
 #' 
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
@@ -10,7 +10,7 @@
 #' @param method Specify distance measure [default Euclidean].
 #' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
 #'  fall in the range [0,1] [default FALSE].
-#' @param output Specify the format and class of the object to be returned, 
+#' @param type Specify the format and class of the object to be returned, 
 #' dist for a object of class dist, matrix for an object of class matrix [default "dist"].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report [default 2].
@@ -45,7 +45,7 @@
 utils.dist.ind.snp <- function(x,
                               method = "Euclidean",
                               scale=FALSE,
-                              output="dist",
+                              type="dist",
                               verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -53,7 +53,7 @@ utils.dist.ind.snp <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -147,7 +147,7 @@ utils.dist.ind.snp <- function(x,
         dd[i,j] <- dd[j,i]
     }
 
-    if(output=="dist"){
+    if(type=="dist"){
       dd <- as.dist(dd)
       if(verbose >= 2){cat(report("  Returning a stats::dist object\n"))}
     } else {

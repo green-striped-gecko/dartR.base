@@ -67,10 +67,9 @@ like those done by the programme BPP, are meant to be used with sequence
 }
 \examples{
 require(dartR.data)
-test <- platypus.gl
-test <- gl.filter.callrate(test,threshold = 1)
+test <- gl.filter.callrate(platypus.gl,threshold = 1)
 test <- gl.filter.monomorphs(test)
-test <- gl.subsample.loci(test,n=25)
+test <- gl.subsample.loc(test,n=25)
 gl2bpp(x = test, outpath=tempdir())
 
 }
@@ -89,7 +88,6 @@ Other linker:
 \code{\link{gl2bayescan}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
-\code{\link{gl2fasta}()},
 \code{\link{gl2faststructure}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genalex}()},

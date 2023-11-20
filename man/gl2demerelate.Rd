@@ -31,7 +31,6 @@ Other linker:
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2eigenstrat}()},
-\code{\link{gl2fasta}()},
 \code{\link{gl2faststructure}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genalex}()},

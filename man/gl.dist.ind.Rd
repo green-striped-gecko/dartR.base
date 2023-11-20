@@ -9,16 +9,17 @@ gl.dist.ind(
   method = NULL,
   scale = FALSE,
   swap = FALSE,
-  output = "dist",
-  plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
-  save2tmp = FALSE,
+  type = "dist",
+  plot.display = TRUE,
+  plot.theme = theme_dartR(),
+  plot.colors = NULL,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{Name of the genlight containing the SNP genotypes or presence-absence data [required].}
+\item{x}{Name of the genlight [required].}
 
 \item{method}{Specify distance measure [SNP: Euclidean; P/A: Simple].}
 
@@ -28,27 +29,32 @@ gl.dist.ind(
 (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 mutation) is scored as 1 [default FALSE].}
 
-\item{output}{Specify the format and class of the object to be returned, 
-'dist' for a object of class dist, 'matrix' for an object of class matrix [default "dist"].}
+\item{type}{Specify the type of output, dist or matrix [default dist]}
 
-\item{plot.out}{If TRUE, display a histogram and a boxplot of the genetic distances [TRUE].}
+\item{plot.display}{If TRUE, resultant plots are displayed in the plot window
+[default TRUE].}
 
-\item{plot_theme}{User specified theme [default theme_dartR].}
+\item{plot.theme}{Theme for the plot. See Details for options
+[default theme_dartR()].}
 
-\item{plot_colors}{Vector with two color names for the borders and fill [default gl.colors(2)].}
+\item{plot.colors}{List of two color names for the borders and fill of the
+plots [default c("#2171B5","#6BAED6")].}
 
-\item{save2tmp}{If TRUE, saves any ggplots to the session temporary directory [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+ [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 An object of class 'matrix' or dist' giving distances between individuals
 }
 \description{
-This script calculates various distances between individuals based on allele
- frequencies or presence-absence data
+Calculates various distances between individuals based on allele
+frequencies or presence-absence data
 }
 \details{
 The distance measure for SNP genotypes can be one of:
@@ -67,7 +73,9 @@ The distance measure for Sequence Tag Presence/Absence data (binary) can be one 
  \item Jaccard Distance [method="Jaccard"]
  \item Bray-Curtis Distance [method="Bray-Curtis"]
  }
-Refer to the dartR Technical Note on Distances in Genetics.
+Refer to the documentation of functions in
+  https://doi.org/10.1101/2023.03.22.533737 for algorithms
+  and definitions.
 }
 \examples{
 \donttest{
@@ -75,7 +83,15 @@ D <- gl.dist.ind(testset.gl[1:20,], method='manhattan')
 D <- gl.dist.ind(testset.gs[1:20,], method='Jaccard',swap=TRUE)
 }
 D <- gl.dist.ind(testset.gl[1:20,], method='euclidean',scale=TRUE)
+
+}
+\seealso{
+Other distance: 
+\code{\link{gl.dist.pop}()},
+\code{\link{gl.fdsim}()},
+\code{\link{utils.dist.ind.snp}()}
 }
 \author{
-Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+Author(s): Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{distance}

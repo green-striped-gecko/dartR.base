@@ -1,6 +1,6 @@
 #' @name gl.filter.maf
 #' @title Filters loci on the basis of minor allele frequency (MAF) in a 
-#' genlight {adegenet} object
+#' genlight object
 #' @family matched filter
 
 #' @description
@@ -57,13 +57,13 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
-#' @examples
-#' result <- gl.filter.monomorphs(testset.gl)
-#' \donttest{
-#' result <- gl.filter.maf(result, threshold=0.05, verbose=3)
-#' result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
-#' }
-#' 
+# @examples
+# result <- gl.filter.monomorphs(testset.gl)
+# \donttest{
+# result <- gl.filter.maf(result, threshold=0.05, verbose=3)
+# result <- gl.filter.maf(result, by.pop=TRUE, threshold=0.05, verbose=3)
+# }
+#
 #' @export
 #' @return The reduced genlight dataset
 
@@ -490,28 +490,7 @@ geom_histogram(bins = bins, color = plot.colors[1],fill=plot.colors[2]) +
                              file=plot.file,
                              verbose=verbose)
     }
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (plot.file & plot.display) {
-    #     # creating temp file names
-    #     temp_plot <- tempfile(pattern = "Plot_")
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     # saving to tempdir
-    #     saveRDS(list(match_call, p3), file = temp_plot)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
-    
+     
     # ADD TO HISTORY
     nh <- length(x2@other$history)
     x2@other$history[[nh + 1]] <- match.call()

@@ -21,7 +21,7 @@
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges; Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
@@ -43,17 +43,6 @@ gl.filter.overshoot <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, accept = c("genlight", "SNP"), verbose = verbose)
-    
-    # STANDARD ERROR CHECKING
-    
-    # if (datatype == "SilicoDArT") {
-    #     stop(
-    #         error(
-    #             "  Detected Presence/Absence (SilicoDArT) data. Please supply a 
-    #             SNP dataset\n"
-    #         )
-    #     )
-    # }
     
     # SCRIPT SPECIFIC ERROR CHECKING
     
@@ -110,39 +99,6 @@ gl.filter.overshoot <- function(x,
       x2 <- x[, index]
       # updating loc.metrics
       x2@other$loc.metrics <- x@other$loc.metrics[index, ]
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (save2tmp) {
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     
-    #     temp_table <-
-    #         tempfile(pattern = paste0(
-    #             "Table",
-    #             paste0(
-    #                 names(match.call()),
-    #                 "_",
-    #                 as.character(match.call()),
-    #                 collapse = "_"
-    #             ),
-    #             "_"
-    #         ))
-    #     saveRDS(data.frame(locNames = locNames(x2)), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report(
-    #             "  Saving the overshot loci to the current session tempfile\n"
-    #         ))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # ADD TO HISTORY
     nh <- length(x2@other$history)

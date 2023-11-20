@@ -10,7 +10,7 @@ utils.dist.binary(
   method = "simple",
   scale = FALSE,
   swap = FALSE,
-  output = "dist",
+  type = "dist",
   verbose = NULL
 )
 }
@@ -26,8 +26,8 @@ fall in the range [0,1] [default FALSE].}
 (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 mutation) is scored as 1 [default FALSE].}
 
-\item{output}{Specify the format and class of the object to be returned, 
-dist for a object of class dist, matrix for an object of class matrix [default "dist"].}
+\item{type}{Specify the format and class of the object to be returned, 
+dist for N11 object of class dist, matrix for an object of class matrix [default "dist"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
  progress log; 3, progress and results summary; 5, full report [default 2].
@@ -63,7 +63,6 @@ Other utilities:
 \code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
-\code{\link{utils.dist.ind.snp}()},
 \code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},

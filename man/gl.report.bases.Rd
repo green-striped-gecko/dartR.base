@@ -19,7 +19,7 @@ gl.report.bases(
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
+\item{plot.display}{If TRUE, resultant plots are displayed in the plot window
 [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
@@ -44,7 +44,7 @@ such as width and height, when the ggplot is to be saved.}
 The unchanged genlight object
 }
 \description{
-This script calculates the frequencies of the four DNA nucleotide bases:
+Calculates the frequencies of the four DNA nucleotide bases:
 adenine (A), cytosine (C), 'guanine (G) and thymine (T), and the frequency of
 transitions (Ts) and transversions (Tv) in a DArT genlight object.
 }
@@ -75,11 +75,13 @@ specified for the plot to be saved.
   out <- gl.report.bases(testset.gl)
   col <- gl.select.colors(select=c(6,1),palette=rainbow)
   out <- gl.report.bases(testset.gl,plot.colors=col)
-  #' # Tag P/A data
+# Tag P/A data
   out <- gl.report.bases(testset.gs)
 }
 \seealso{
 Other matched reports: 
+\code{\link{gl.mahal.assign}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.monomorphs}()}
 }

@@ -1,98 +1,85 @@
-#' @name gl2fasta
-#' @title Concatenates DArT trimmed sequences and outputs a FASTA file
-#' @family linker
-
-#' @description
+#' Concatenates DArT trimmed sequences and outputs a FASTA file
+#'
 #' Concatenated sequence tags are useful for phylogenetic methods where
 #' information on base frequencies and transition and transversion ratios are
 #' required (for example, Maximum Likelihood methods). Where relevant,
 #' heterozygous loci are resolved before concatenation by either assigning
 #'  ambiguity codes or by random allele assignment.
-
+#'
 #' Four methods are employed:
-
+#'
 #' Method 1 -- heterozygous positions are replaced by the standard ambiguity 
 #' codes. The resultant sequence fragments are concatenated across loci to
 #' generate a single combined sequence to be used in subsequent ML phylogenetic
 #' analyses.
-
+#'
 #' Method 2 -- the heterozygous state is resolved by randomly assigning one or
 #' the other SNP variant to the individual. The resultant sequence fragments are
 #' concatenated across loci to generate a single composite haplotype to be used
 #' in subsequent ML phylogenetic analyses.
-
+#'
 #' Method 3 -- heterozygous positions are replaced by the standard ambiguity
 #' codes. The resultant SNP bases are concatenated across loci to generate a
 #' single combined sequence to be used in subsequent MP phylogenetic analyses.
-
+#'
 #' Method 4 -- the heterozygous state is resolved by randomly assigning one or
 #' the other SNP variant to the individual. The resultant SNP bases are
 #' concatenated across loci to generate a single composite haplotype to be used
 #' in subsequent MP phylogenetic analyses.
-
+#'
 #' Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
 #'  mis-identity are deleted.
-
+#'
 #' The script writes out the composite haplotypes for each individual as a
 #' fastA file. Requires 'TrimmedSequence' to be among the locus metrics
 #' (\code{@other$loc.metrics}) and information of the type of alleles (slot
 #' loc.all e.g. 'G/A') and the position of the SNP in slot position of the
 #'  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
 #'  how to format these slots.)
-
+#'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method One of 1 | 2 | 3 | 4. Type method=0 for a list of options 
 #' [method=1].
 #' @param outfile Name of the output file (fasta format) ["output.fasta"].
-#' @param outpath Path where to save the output file [default global working 
-#' directory or if not specified, tempdir()].
+#' @param outpath Path where to save the output file (set to tempdir by default)
 #' @param probar If TRUE, a progress bar will be displayed for long loops 
 #' [default = TRUE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report 
 #'  [default 2 or as specified using gl.set.verbosity].
-#'  
-#' @author Custodian: Luis Mijangos (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
-#'  
-#' @examples
-#'  \donttest{
-#' gl <- gl.filter.reproducibility(testset.gl,t=1)
-#' gl <- gl.filter.overshoot(gl,verbose=3)
-#' gl <- gl.filter.callrate(testset.gl,t=.98)
-#' gl <- gl.filter.monomorphs(gl)
-#' gl2fasta(gl, method=1, outfile='test.fasta',verbose=3, outpath=tempdir())
-#' }
-#' test <- gl.subsample.loci(platypus.gl,n=100)
-#' gl2fasta(test, , outpath=tempdir())
-#' 
+#' @return A new gl object with all loci rendered homozygous.
+#' @export
 #' @importFrom utils combn edit flush.console getTxtProgressBar read.csv setTxtProgressBar txtProgressBar write.csv write.table
 #' @importFrom graphics axis barplot box image lines text
 #' @importFrom methods new
 #' @importFrom stats dist nobs optimize pchisq variable.names
 #' @import stringr
-#' @export
-#' @return A new gl object with all loci rendered homozygous.
+#' @author Custodian: Luis Mijangos (Post to
+#'  \url{https://groups.google.com/d/forum/dartr})
+# @examples
+#  \donttest{
+# gl <- gl.filter.reproducibility(testset.gl,t=1)
+# gl <- gl.filter.overshoot(gl,verbose=3)
+# gl <- gl.filter.callrate(testset.gl,t=.98)
+# gl <- gl.filter.monomorphs(gl)
+# gl2fasta(gl, method=1, outfile='test.fasta',verbose=3)
+# }
 
 gl2fasta <- function(x,
                      method = 1,
                      outfile = "output.fasta",
-                     outpath = NULL,
+                     outpath = tempdir(),
                      probar = FALSE,
                      verbose = NULL) {
-    
+    outfilespec <- file.path(outpath, outfile)
 
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
-    # SET WORKING DIRECTORY
-    outpath <- gl.check.wd(outpath,verbose=0)
-    outfilespec <- file.path(outpath, outfile)
-    
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
