@@ -298,9 +298,11 @@ gl.report.heterozygosity <- function(x,
   # bootstrapping function
   pop.het <- function(x,
                       indices,
-                      n.invariant) {
+                      n.invariant,
+                      aHet=FALSE) {
     pop.het_fun <- function(df,
-                            n.invariant) {
+                            n.invariant,
+                            aHet) {
       Ho.loc <- colMeans(df == 1, na.rm = TRUE)
       n_loc <- apply(df, 2, function(y) {
         sum(!is.na(y))
@@ -320,14 +322,19 @@ gl.report.heterozygosity <- function(x,
       
       FIS.loc <- 1 - (Ho.loc / He.loc)
       
-      all.res <- c(
-        Ho.loc = mean(Ho.loc, na.rm = TRUE),
-        Ho.adj.loc = mean(Ho.adj.loc, na.rm = TRUE),
-        He.loc = mean(He.loc, na.rm = TRUE),
-        uHe.loc = mean(uHe.loc, na.rm = TRUE),
-        Hexp.adj.loc = mean(Hexp.adj.loc, na.rm = TRUE),
-        FIS.loc = mean(FIS.loc, na.rm = TRUE)
-      )
+      if(aHet) {
+        all.res <- c(
+          Ho.adj.loc = mean(Ho.adj.loc, na.rm = TRUE),
+          Hexp.adj.loc = mean(Hexp.adj.loc, na.rm = TRUE)
+        )
+      } else {
+        all.res <- c(
+          Ho.loc = mean(Ho.loc, na.rm = TRUE),
+          He.loc = mean(He.loc, na.rm = TRUE),
+          uHe.loc = mean(uHe.loc, na.rm = TRUE),
+          FIS.loc = mean(FIS.loc, na.rm = TRUE)
+        )
+      }
       
       return(all.res)
     }
@@ -335,7 +342,8 @@ gl.report.heterozygosity <- function(x,
     df <- x[, indices]
     
     res <- pop.het_fun(df,
-                       n.invariant = n.invariant)
+                       n.invariant = n.invariant,
+                       aHet=aHet)
     
     return(res)
     
@@ -524,7 +532,6 @@ gl.report.heterozygosity <- function(x,
       poly_loc <-  c(poly_loc, nLoc(y_temp))
       mono_loc <- c(mono_loc, (nLoc(hold) - nLoc(y_temp) - length(loc.list_NA)))
       all_na_loc <- c(all_na_loc, length(loc.list_NA))
-      
     }
     
     # Apply correction CP ###
@@ -612,14 +619,52 @@ gl.report.heterozygosity <- function(x,
       
     }
     
-    # bootstrapping
-    # creating matrices to store CI
+    # Prep for results
+    df.base <-
+      data.frame(
+        pop = popNames(x),
+        n.Ind = round(n_ind, 6),
+        n.Loc = n_loc,
+        n.Loc.adj = n_loc / (n_loc + n.invariant),
+        polyLoc = poly_loc ,
+        monoLoc = mono_loc ,
+        all_NALoc = all_na_loc)
+    
+    if (n.invariant == 0) {
+      df.params <- data.frame(
+        Ho = round(as.numeric(Ho),6),
+        HoSD = round(HoSD,6),
+        HoSE = round(HoSE, 6),
+            
+        He = round(Hexp, 6),
+        HeSD = round(HexpSD, 6),
+        HeSE = round(HexpSE,6),
+       
+        uHe = round(uHexp, 6),
+        uHeSD = round(uHexpSD, 6),
+        uHeSE = round(uHexpSE ,6),
+       
+        FIS = round(FIS,6),
+        FISSD = round(FISSD,6),
+        FISSE = round(FISSE , 6)
+    )
+    } else {
+      df.params <- data.frame(
+        Ho.adj = round(as.numeric(Ho.adj),6),
+        Ho.adjSD = round(Ho.adjSD,6),
+        Ho.adjSE = round(Ho.adjSE, 6),
+        
+        He.adj = round(Hexp.adj, 6),
+        He.adjSD = round(Hexp.adjSD, 6),
+        He.adjSE = round(Hexp.adjSE, 6)
+        )
+    }
+    
+    df <- cbind(df.base, df.params)
     npops <- nPop(x)
-    res_CI <- replicate(npops,
-                        as.data.frame(matrix(nrow = 6, ncol = 2)),
-                        simplify = FALSE)
-  
-    if (npops > 1 & nboots > 0) {
+    
+    # bootstrapping
+    if (nboots > 0) {
       pop_boot <- lapply(sgl, function(y) {
         df <- as.data.frame(as.matrix(y))
         
@@ -627,6 +672,7 @@ gl.report.heterozygosity <- function(x,
           data = df,
           statistic = pop.het,
           n.invariant = n.invariant,
+          aHet = n.invariant > 0,
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -635,10 +681,21 @@ gl.report.heterozygosity <- function(x,
       })
       
       # confidence intervals
-      pop_res <- rbind(Ho, Ho.adj, Hexp, uHexp,Hexp.adj, FIS)
+      
+      # creating matrices to store CI
+      nparams <- ncol(pop_boot[[1]]$t)
+      res_CI <- replicate(npops,
+                          as.data.frame(matrix(nrow = nparams, ncol = 2)),
+                          simplify = FALSE)
+      
+      if(nparams == 4) {
+        pop_res <- rbind(Ho, Hexp, uHexp, FIS)
+      } else {
+        pop_res <- rbind(Ho.adj, Hexp.adj)
+      }
       
       for (pop_n in 1:length(sgl)) {
-        for (stat_n in 1:6) {
+        for (stat_n in seq_len(nparams)) {
           res_CI_tmp <- boot::boot.ci(
             boot.out = pop_boot[[pop_n]],
             conf = conf,
@@ -654,166 +711,26 @@ gl.report.heterozygosity <- function(x,
         }
       }
       
-      
-    }
-    
-    if (npops == 1 & nboots > 0) {
-      # observed values
-      pop_res <- rbind(Ho, Ho.adj, Hexp, uHexp,Hexp.adj, FIS)
-      res_CI <- as.data.frame(matrix(nrow = 6, ncol = 2))
-      df <- as.data.frame(as.matrix(sgl[[1]]))
-      
-      # bootstrapping
-      pop_boot <- boot::boot(
-        data = df,
-        statistic = pop.het,
-        R = nboots,
-        n.invariant = n.invariant,
-        parallel = parallel,
-        ncpus = ncpus
-      )
-      
-      # confidence intervals
-      for (stat_n in 1:6) {
-        res_CI_tmp <-
-          boot::boot.ci(
-            boot.out = pop_boot,
-            conf = conf,
-            type = CI.type,
-            index = stat_n,
-            t0 =  pop_res[stat_n],
-            t = pop_boot$t[, stat_n]
-          )
-        
-        res_CI[stat_n,] <- tail(as.vector(res_CI_tmp[[4]]), 2)
-        
-      }
-    }
-    
-     if (npops > 2 & nboots > 0) {
-      names(res_CI) <- popNames(x)
-      
-      CI <- lapply(res_CI, function(y) {
-        y <-  c(y[,1],y[,2])
-        return(y)
+      # Build df with CI
+      params_names <- names(df.params)[grep(pattern = "SD|SE", x = names(df.params), invert = TRUE)]
+      lCI_df <- lapply(seq_len(nparams), function(rn, lres=res_CI, nms=params_names) {
+        df <- do.call(rbind, lapply(lres, "[", rn,))
+        names(df) <- paste0(params_names[rn], c("LCI", "HCI"))
+        return(df)
       })
+      df.CI <- do.call(cbind, lCI_df)
+      df <- cbind(df, df.CI)
       
-      stat_list <- as.list(1:12)
-      for(stat_i in 1:12){
-        stat_list[[stat_i]] <- unlist(lapply(CI,"[",stat_i))
+      # set up name order for df
+      sfx <- c("", "SD", "SE", "LCI", "HCI")
+      nms.order <- vector("character", length = nparams * length(sfx))
+      for(rn in seq_len(nparams)) {
+        nms.order[seq_len(length(sfx)) + length(sfx) * (rn - 1)] <- 
+          paste0(params_names[rn], sfx)
       }
-      
-     }
-    
-    if (npops == 1 & nboots > 0) {
-      CI <- c(res_CI[,1],res_CI[,2])
-      
-      stat_list <- as.list(1:12)
-      for(stat_i in 1:12){
-        stat_list[[stat_i]] <- CI[stat_i]
-      }
-  
+      # cbind CI to existing results
+      df <- df[, c(names(df.base), nms.order)]
     }
-    
-    ### CP ###
-    if(nboots > 0){
-    
-    df <-
-      data.frame(
-        pop = popNames(x),
-        n.Ind = round(n_ind, 6),
-        n.Loc = n_loc,
-        n.Loc.adj = n_loc / (n_loc + n.invariant),
-        polyLoc = poly_loc ,
-        monoLoc = mono_loc ,
-        all_NALoc = all_na_loc,
-        
-        Ho = round(as.numeric(Ho),6),
-        HoSD = round(HoSD,6),
-        HoSE = round(HoSE, 6),
-        HoLCI = round(stat_list[[1]], 6),
-        HoHCI = round(stat_list[[7]], 6),
-        
-        Ho.adj = round(as.numeric(Ho.adj),6),
-        Ho.adjSD = round(Ho.adjSD,6),
-        Ho.adjSE = round(Ho.adjSE, 6),
-        Ho.adjLCI = round(stat_list[[2]], 6),
-        Ho.adjHCI = round(stat_list[[8]], 6),
-        
-        He = round(Hexp, 6),
-        HeSD = round(HexpSD, 6),
-        HeSE = round(HexpSE,6),
-        HeLCI = round(stat_list[[3]], 6),
-        HeHCI = round(stat_list[[9]], 6),
-        
-        uHe = round(uHexp, 6),
-        uHeSD = round(uHexpSD, 6),
-        uHeSE = round(uHexpSE ,6),
-        uHeLCI = round(stat_list[[4]], 6),
-        uHeHCI = round(stat_list[[10]], 6),
-        
-        He.adj = round(Hexp.adj, 6),
-        He.adjSD = round(Hexp.adjSD, 6),
-        He.adjSE = round(Hexp.adjSE, 6),
-        He.adjLCI = round(stat_list[[5]], 6),
-        He.adjHCI = round(stat_list[[11]], 6),
-        
-        FIS = round(FIS,6),
-        FISSD = round(FISSD,6),
-        FISSE = round(FISSE , 6),
-        FISLCI = round(stat_list[[6]], 6),
-        FISHCI = round(stat_list[[12]], 6)
-      )
-    }else{
-      
-      df <-
-        data.frame(
-          pop = popNames(x),
-          n.Ind = round(n_ind, 6),
-          n.Loc = n_loc,
-          n.Loc.adj = n_loc / (n_loc + n.invariant),
-          polyLoc = poly_loc ,
-          monoLoc = mono_loc ,
-          all_NALoc = all_na_loc,
-          
-          Ho = round(as.numeric(Ho),6),
-          HoSD = round(HoSD,6),
-          HoSE = round(HoSE, 6),
-          HoLCI = NA,
-          HoHCI = NA,
-          
-          Ho.adj = round(as.numeric(Ho.adj),6),
-          Ho.adjSD = round(Ho.adjSD,6),
-          Ho.adjSE = round(Ho.adjSE, 6),
-          Ho.adjLCI = NA,
-          Ho.adjHCI = NA,
-          
-          He = round(Hexp, 6),
-          HeSD = round(HexpSD, 6),
-          HeSE = round(HexpSE,6),
-          HeLCI = NA,
-          HeHCI = NA,
-          
-          uHe = round(uHexp, 6),
-          uHeSD = round(uHexpSD, 6),
-          uHeSE = round(uHexpSE ,6),
-          uHeLCI = NA,
-          uHeHCI = NA,
-          
-          He.adj = round(Hexp.adj, 6),
-          He.adjSD = round(Hexp.adjSD, 6),
-          He.adjSE = round(Hexp.adjSE, 6),
-          He.adjLCI = NA,
-          He.adjHCI = NA,
-          
-          FIS = round(FIS,6),
-          FISSD = round(FISSD,6),
-          FISSE = round(FISSE , 6),
-          FISLCI = NA,
-          FISHCI = NA
-        )
-    }
-    ##########
     
     if (plot.display) {
       
@@ -987,58 +904,43 @@ gl.report.heterozygosity <- function(x,
       cat("\n  No. of loci =", nLoc(x), "\n")
       cat("  No. of individuals =", nInd(x), "\n")
       cat("  No. of populations =", nPop(x), "\n")
-      cat("    Minimum Observed Heterozygosity: ", round(min(df$Ho, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(min(df$Ho.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(max(df$Ho.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Average Observed Heterozygosity: ",
-          round(mean(df$Ho, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(mean(df$Ho.adj, na.rm = TRUE), 6), "]\n\n")
-      } else {
-        cat("\n\n")
-      }
-      cat("    Minimum Unbiased Expected Heterozygosity: ",
-          round(min(df$uHe, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(min(df$He.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Maximum Unbiased Expected Heterozygosity: ",
-          round(max(df$uHe, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(max(df$He.adj, na.rm = TRUE), 6), "]\n")
-      } else {
-        cat("\n")
-      }
-      cat("    Average Unbiased Expected Heterozygosity: ",
-          round(mean(df$uHe, na.rm = TRUE), 6))
-      if (n.invariant > 0) {
-        cat("   [Corrected:", round(mean(df$He.adj, na.rm = TRUE), 6), "]\n\n")
-      } else {
-        cat("\n\n")
-      }
+      if (n.invariant == 0) {
+      cat("    Minimum Observed Heterozygosity: ", round(min(df$Ho, na.rm = TRUE), 6), "\n")
+      cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6), "\n")
+      cat("    Average Observed Heterozygosity: ", round(mean(df$Ho, na.rm = TRUE), 6), "\n\n")
       
-      if (n.invariant > 0) {
+      cat("    Minimum Unbiased Expected Heterozygosity: ",
+          round(min(df$uHe, na.rm = TRUE), 6), "\n")
+      cat("    Maximum Unbiased Expected Heterozygosity: ",
+          round(max(df$uHe, na.rm = TRUE), 6), "\n")
+      cat("    Average Unbiased Expected Heterozygosity: ",
+          round(mean(df$uHe, na.rm = TRUE), 6), "\n")
+      cat("  Heterozygosity estimates not corrected for uncalled invariant loci\n")
+      
+      } else {
+        
+        cat("    Minimum Observed adjusted Heterozygosity: ", 
+            round(min(df$Ho.adj, na.rm = TRUE), 6), "\n")
+        cat("    Maximum Observed adjusted Heterozygosity: ", 
+            round(max(df$Ho.adj, na.rm = TRUE), 6), "\n")
+        cat("    Average Observed adjusted Heterozygosity: ",
+            round(mean(df$Ho.adj, na.rm = TRUE), 6), "\n\n")
+        cat("    Minimum Unbiased adjusted Expected Heterozygosity: ", 
+            round(min(df$He.adj, na.rm = TRUE), 6), "\n")
+        cat("    Maximum Unbiased adjusted Expected Heterozygosity: ", 
+            round(max(df$He.adj, na.rm = TRUE), 6), "\n")
+        cat("    Average Unbiased adjusted Expected Heterozygosity: ",
+            round(mean(df$He.adj, na.rm = TRUE), 6), "\n\n")
         cat(
           "  Average correction factor for invariant loci =",
           mean(n_loc / (n_loc + n.invariant), na.rm = TRUE),
           "\n"
         )
-      } else {
-        cat("  Heterozygosity estimates not corrected for uncalled invariant loci\n")
       }
     }
-    
+      
+      
+     
     # PRINTING OUTPUTS
     if (plot.display) {
       suppressWarnings(print(p3))
