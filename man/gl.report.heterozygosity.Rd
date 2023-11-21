@@ -9,6 +9,8 @@ gl.report.heterozygosity(
   x,
   method = "pop",
   n.invariant = 0,
+  subsample.pop = FALSE,
+  n.limit = 10,
   nboots = 0,
   conf = 0.95,
   CI.type = "bca",
@@ -17,19 +19,24 @@ gl.report.heterozygosity(
   plot.theme = theme_dartR(),
   plot.colors.pop = gl.colors("dis"),
   plot.colors.ind = gl.colors(2),
+  plot.file = NULL,
+  plot.dir = NULL,
   error.bar = "SD",
-  save2tmp = FALSE,
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP [required].}
+\item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{method}{Calculate heterozygosity by population (method='pop') or by
 individual (method='ind') [default 'pop'].}
 
 \item{n.invariant}{An estimate of the number of invariant sequence tags used
 to adjust the heterozygosity rate [default 0].}
+
+\item{subsample.pop}{[default FALSE].}
+
+\item{n.limit}{[default 10].}
 
 \item{nboots}{Number of bootstrap replicates to obtain confidence intervals
 [default 0].}
@@ -40,7 +47,7 @@ to adjust the heterozygosity rate [default 0].}
 "norm", "basic", "perc" or "bca" [default "bca"].}
 
 \item{ncpus}{Number of processes to be used in parallel operation. If ncpus
-> 1 parallel operation is activated,see "Details" section [default 1].}
+> 1 parallel operation is activated, see "Details" section [default 1].}
 
 \item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
@@ -54,12 +61,15 @@ as many colors as there are populations in the dataset
 \item{plot.colors.ind}{List of two color names for the borders and fill of
 the plot by individual [default gl.colors(2)].}
 
-\item{error.bar}{statistic to be plotted as error bar either "SD" (standard 
-deviation) or "SE" (standard error) or "CI" (confident intervals)
- [default "SD"].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, 
+exclude extension) [default NULL].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()].}
+
+\item{error.bar}{Statistic to be plotted as error bar either "SD" (standard 
+deviation) or "SE" (standard error) or "CI" (confidence intervals)
+ [default "SD"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -132,18 +142,29 @@ the alternative allele.
 \item Inbreeding coefficient (FIS) = 1 - Ho / uHe
 }
 \strong{ Function's output }
+
 Output for method='pop' is an ordered barchart of observed heterozygosity,
-unbiased expected heterozygosity and FIS (Inbreeding coefficient) across populations
-together with a table of mean observed and expected heterozygosities and FIS
-by population and their respective standard deviations (SD).
+unbiased expected heterozygosity and FIS (Inbreeding coefficient) across 
+populations together with a table of mean observed and expected 
+heterozygosities and FIS by population and their respective standard 
+deviations (SD).
 In the output, it is also reported by population: the number of loci used to
- estimate heterozygosity(n.Loc), the number of polymorphic loci (polyLoc),
+ estimate heterozygosity (n.Loc), the number of polymorphic loci (polyLoc),
  the number of monomorphic loci (monoLoc) and loci with all missing data
   (all_NALoc).
+  
 Output for method='ind' is a histogram and a boxplot of heterozygosity across
 individuals.
- Plots and table are saved to the session temporary directory (tempdir)
- Examples of other themes that can be used can be consulted in \itemize{
+
+If a plot.file is given, the ggplot arising from this function is saved as an 
+"RDS" binary file using saveRDS(); can be reloaded with readRDS(). A file 
+name must be specified for the plot to be saved.
+
+If a plot directory (plot.dir) is specified, the ggplot binary is saved to 
+that directory; otherwise to the tempdir(). 
+ 
+ Examples of other themes that can be used can be consulted in: 
+ \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
@@ -160,10 +181,10 @@ individuals.
  
  - Advantage: Confidence intervals give a range in which the true parameter 
  (like a population mean) is likely to fall, given the data and a specified 
- probability (like 95%).
+ probability (like 95\%).
  
  - In Context: For genetic statistics, if you're estimating a parameter,
-  a 95% CI gives you a range in which you're 95% confident the true parameter
+  a 95\% CI gives you a range in which you're 95\% confident the true parameter
    lies.
  
   \strong{2. Standard Deviation ("SD"):}
@@ -202,7 +223,7 @@ individuals.
   analyze and present their data, depending on their research questions and 
   the nature of the data.
   
- \strong{Confident Intervals}
+ \strong{Confidence Intervals}
 
 The uncertainty of a parameter, in this case the mean of the statistic, can
 be summarised by a confidence interval (CI) which includes the true parameter
@@ -245,7 +266,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
      (1997, p. 194) suggest that the number of bootstrap replicates should
      be between 1000 and 2000.
 
- \strong{It is important} to note that unreliable confident intervals will be
+ \strong{It is important} to note that unreliable confidence intervals will be
   obtained if too few number of bootstrap replicates are used.
   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
    if bootstrap replicates are too few. Consider increasing the number of
@@ -296,8 +317,13 @@ gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 df <- gl.report.heterozygosity(platypus.gl)
 }
 \references{
-Nei, M. (1978). Estimation of average heterozygosity and genetic distance
-from a small number of individuals. Genetics, 89(3), 583-590.
+\itemize{
+\item Nei, M. (1978). Estimation of average heterozygosity and genetic 
+distance from a small number of individuals. Genetics, 89(3), 583-590.
+\item Schmidt, T. L., Jasper, M. E., Weeks, A. R., & Hoffmann, A. A. (2021).
+ Unbiased population heterozygosity estimates from genome‐wide sequence data.
+  Methods in Ecology and Evolution, 12(10), 1888-1898.
+  }
 }
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
