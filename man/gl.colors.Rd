@@ -2,18 +2,36 @@
 % Please edit documentation in R/gl.colors.r
 \name{gl.colors}
 \alias{gl.colors}
-\title{This is a helper function that supports the creation of color palettes for all plotting functions.}
+\title{Returns a list of colors for use in plots}
 \usage{
-gl.colors(type = 2)
+gl.colors(type = 2, verbose = NULL)
 }
 \arguments{
-\item{type}{the type of color or palette. Can be "2" [two colors], "2c" [two colors contrast], "3" [three colors], "4" [four colors], "pal" [need to be specify the palette type and the number of colors ]. A palette of colors can be specified via "div" [divergent], "dis" [discrete], "con" [convergent], "vir" [viridis]. Be aware a palette needs the number of colors specified as well. It returns a function and therefore the number of colors needs to be a part of the function call. Check the examples to see how this works.}
+\item{type}{Type of color (2, 3 or 4 colors, or palette, see description) [default 2].}
+
+\item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-returns colors as a vector to be used in other functions
+returns colors as a vector
 }
 \description{
-This is a helper function that supports the creation of color palettes for all plotting functions.
+Creates a vector of colors in hex (e.g. "#3B9AB2" "#78B7C5") based on user selected category 
+(parameter type).
+ \itemize{
+ \item "2" [two colors]
+ \item "2c" [two colors contrast]
+ \item "3" [three colors]
+ \item  4" [four colors]
+ \item "pal" [need to be specify the palette type and the number of colors]
+ }
+ 
+A palette of colors 
+can be specified via "div" [divergent], "dis" [discrete], "con" [convergent], "vir" [viridis]. 
+Be aware a palette needs the number of colors specified as well. It returns a function 
+and therefore the number of colors needs to be a part of the function call. 
+Check the examples to see how this works.
 }
 \examples{
 gl.colors(2)
@@ -24,3 +42,18 @@ gl.colors(type="dis")(5)
 #seven divergent colors
 gl.colors("div")(7)
 }
+\seealso{
+Other graphics: 
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
+}
+\author{
+Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
+}
+\concept{graphics}

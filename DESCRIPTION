@@ -1,8 +1,8 @@
 Package: dartR.base
 Type: Package
 Title: Analysing 'SNP' and 'Silicodart' Data - Basic Functions
-Version: 0.53
-Date: 2023-09-13
+Version: 0.65
+Date: 2023-11-16
 Authors@R: c(
             person("Bernd", "Gruber", email="bernd.gruber@canberra.edu.au", role=c("aut","cre")), 
             person("Arthur", "Georges", email="georges@aerg.edu.au", role="aut"),
@@ -56,7 +56,6 @@ Suggests:
     lattice,
     leaflet,
     leaflet.minicharts,
-    maptools,
     markdown,
     mmod,
     networkD3,

@@ -11,6 +11,7 @@
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default c("#2171B5","#6BAED6")].
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -33,8 +34,8 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
-#' require("dartR.data")
-#' res <- gl.randomize.snps(platypus.gl[1:5,1:5],verbose = 5)
+#' gl <- gl.filter.monomorphs(testset.gl)
+#' res <- gl.randomize.snps(gl,verbose = 5)
 
 #' @export
 

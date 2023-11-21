@@ -112,7 +112,7 @@ properties that make them valuable resources to interpret genetic
     \emph{Ho} - Unbiased estimate of observed heterozygosity across 
     subpopulations (Nei, 1987, pp. 164, eq. 7.38) is calculated as:
 
-    \figure{Ho-equation.jpg}
+    \figure{Hoequation.jpg}
 
     where \emph{Pkii} represents the proportion of homozygote \emph{ii} for 
     allele \emph{i} in individual \emph{k} and \emph{s} represents the number
@@ -123,7 +123,7 @@ properties that make them valuable resources to interpret genetic
     Hardy-Weinberg equilibrium across subpopulations (Nei, 1987, pp. 164,
      eq. 7.39) is calculated as:
 
-    \figure{Hs-equation.jpg}
+    \figure{Hsequation.jpg}
     
     where \emph{ñ} is the harmonic mean of \emph{nk} (the number of 
     individuals in each subpopulation), \emph{pki} is the proportion 
@@ -134,56 +134,56 @@ properties that make them valuable resources to interpret genetic
     \emph{Ht} - Heterozygosity for the total population (Nei, 1987, pp. 164,
      eq. 7.40) is calculated as:
 
-    \figure{Ht-equation.jpg}
+    \figure{Htequation.jpg}
 
     \item
     \emph{Dst} - The average allele frequency differentiation between 
     populations (Nei, 1987, pp. 163) is calculated as:
 
-    \figure{Dst-equation.jpg}
+    \figure{Dstequation.jpg}
 
     \item
     \emph{Htp} - Unbiased estimate of Heterozygosity for the total population
     (Nei, 1987, pp. 165) is calculated as:
 
-    \figure{Htp-equation.jpg}
+    \figure{Htpequation.jpg}
 
     \item
     \emph{Dstp} - Unbiased estimate of the average allele frequency 
     differentiation between populations (Nei, 1987, pp. 165) is calculated
      as:
 
-    \figure{Dstp-equation.jpg}
+    \figure{Dstequation.jpg}
 
     \item
     \emph{Fst} - Measure of the extent of genetic differentiation 
     of subpopulations (Nei, 1987, pp. 162, eq. 7.34) is calculated as:
 
-    \figure{Fst-equation.jpg}
+    \figure{Fstequation.jpg}
 
     \item
     \emph{Fstp} - Unbiased measure of the extent of genetic differentiation 
     of subpopulations (Nei, 1987, pp. 163, eq. 7.36) is calculated as:
 
-    \figure{Fstp-equation.jpg}
+    \figure{Fstpequation.jpg}
 
     \item
     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
 
-    \figure{Dest-equation.jpg}
+    \figure{Dstequation.jpg}
 
     \item
     \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
     amount of genetic variation (Hedrick 2005, eq. 4a) is calculated as:
 
-    \figure{GstMax-equation.jpg}
+    \figure{GstMaxequation.jpg}
 
     \item
     \emph{Gst-H} - Gst standardized by the maximum level that it can obtain 
     for the observed amount of genetic variation (Hedrick 2005, eq. 4b) is 
     calculated as:
 
-    \figure{Gst-H.jpg}
+    \figure{GstH.jpg}
 
     }
 
@@ -216,7 +216,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
  the range of plausible values and it has been found to be erratic in
  practice, see for example the "Studentized (t) Intervals" section in:
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
 
     Nice tutorials about the different types of CI can be found in:
 
@@ -224,7 +224,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
 
     and
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package}
+   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
 
      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -342,6 +342,7 @@ Holsinger, K. E., & Weir, B. S. (2009). Genetics in geographically structured
 Other matched reports: 
 \code{\link{gl.mahal.assign}()},
 \code{\link{gl.report.bases}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.monomorphs}()}
 }
 \author{

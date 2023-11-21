@@ -6,6 +6,7 @@
 \usage{
 gl.report.maf(
   x,
+  as.pop = NULL,
   maf.limit = 0.5,
   ind.limit = 5,
   plot.display = TRUE,
@@ -19,6 +20,9 @@ gl.report.maf(
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
+
+\item{as.pop}{Temporarily assign another locus metric as the population for
+the purposes of deletions [default NULL].}
 
 \item{maf.limit}{Show histograms MAF range <= maf.limit [default 0.5].}
 

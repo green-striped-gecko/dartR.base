@@ -19,7 +19,7 @@
 #' @param lower Lower threshold value below which loci will be removed
 #'  [default 5].
 #' @param upper Upper threshold value above which loci will be removed
-#'  [default 50].
+#'  [default infinite=1000].
 #' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
@@ -61,7 +61,7 @@
 
 gl.filter.rdepth <-  function(x,
                               lower = 5,
-                              upper = 50,
+                              upper = 1000,
                               plot.display=TRUE,
                               plot.theme = theme_dartR(),
                               plot.colors = NULL,
@@ -122,7 +122,6 @@ gl.filter.rdepth <-  function(x,
     # PLOT HISTOGRAMS, BEFORE AFTER
     if (plot.display) {
         plotvar <- rdepth
-        # min <- min(plotvar,lower) min <- trunc(min*100)/100
         max <- max(plotvar, upper, na.rm = TRUE)
         max <- ceiling(max / 10) * 10
         if (datatype == "SNP") {
@@ -194,35 +193,6 @@ gl.filter.rdepth <-  function(x,
             factor(pop(x2))
         )), "\n"))
     }
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (plot.file & plot.display) {
-    #     temp_plot <-
-    #         tempfile(pattern = paste0(
-    #             "Plot",
-    #             paste0(
-    #                 names(match.call()),
-    #                 "_",
-    #                 as.character(match.call()),
-    #                 collapse = "_"
-    #             ),
-    #             "_"
-    #         ))
-    #     
-    #     # saving to tempdir
-    #     saveRDS(p3, file = temp_plot)
-    #     if (verbose >= 2) {
-    #         cat(report(
-    #             "  Saving the plot in ggplot format to the session tempfile\n"
-    #         ))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # ADD TO HISTORY
     nh <- length(x2@other$history)

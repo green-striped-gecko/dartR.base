@@ -8,6 +8,8 @@
 #' choosing thresholds for the filter function \code{\link{gl.filter.maf}}
 #' 
 #' @param x Name of the genlight object containing the SNP data [required].
+#' @param as.pop Temporarily assign another locus metric as the population for
+#' the purposes of deletions [default NULL].
 #' @param maf.limit Show histograms MAF range <= maf.limit [default 0.5].
 #' @param ind.limit Show histograms only for populations of size greater than
 #' ind.limit [default 5].
@@ -53,14 +55,16 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 # @examples
-# gl <- gl.report.maf(platypus.gl)
-#' 
+# gl <- gl.filter.allna(platypus.gl)
+# gl.report.maf(gl)
+#'
 #' @seealso \code{\link{gl.filter.maf}}
 
 #' @export
 #' @return An unaltered genlight object
 #' 
 gl.report.maf <- function(x,
+                          as.pop=NULL,
                           maf.limit = 0.5,
                           ind.limit = 5,
                           plot.display=TRUE,
@@ -72,19 +76,21 @@ gl.report.maf <- function(x,
                           verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
+    if(verbose==0){plot.display <- FALSE}
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
 	
-	# SET COLOURS
+    # SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
+      plot.colors <- c("#2171B5", "#6BAED6")
+    } else {
+      if(length(plot.colors) > 2){
+        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
+        plot.colors <- plot.colors[1:2]
+      }
     }
-    
-    if(verbose==0){
-      plot.display <- FALSE
-    }
-    
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
@@ -112,6 +118,33 @@ gl.report.maf <- function(x,
         ind.limit <- 5
     }
     
+    # Population labels assigned?
+    if (is.null(as.pop)) {
+      if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "  Warning: Population assignments not detected, running compliance check\n"
+            )
+          )
+        }
+        x <- gl.compliance.check(x, verbose = 0)
+      }
+    }
+    
+    # Assign the new population list if as.pop is specified 
+    pop.hold <- pop(x)
+    if (!is.null(as.pop)) {
+      if (as.pop %in% names(x@other$ind.metrics)) {
+        pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
+        if (verbose >= 2) {
+          cat(report("  Temporarily assigning",as.pop,"as population\n"))
+        }
+      } else {
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+      }
+    }
+    
     # FLAG SCRIPT START
     
     if (verbose >= 1) {
@@ -124,25 +157,44 @@ gl.report.maf <- function(x,
     
     # DO THE JOB
     
+    # Separate the populations into a list
     pops_maf <- seppop(x)
-    #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
-    mafs_plots <- lapply(pops_maf, function(z) {
-        z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)
-        z <- gl.filter.monomorphs(z, verbose = 0)
-        z <- gl.recalc.metrics(z, verbose = 0)
-        mafs_per_pop_temp <- z$other$loc.metrics$maf
-        mafs_per_pop <-
-            mafs_per_pop_temp[mafs_per_pop_temp < maf.limit]
-        p_temp <-
-            ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) +
-            geom_histogram(bins = bins, color = plot.colors[1], fill = plot.colors[2]) +
-            xlab("MAF") +
-            ylab("Count") +
-            xlim(0, maf.limit) +
-            plot.theme +
-            ggtitle(paste(popNames(z), "\nn =", nInd(z)))
-        return(p_temp)
-    })
+    # Define a function to calculate MAF for each population
+    tmpfun <- function(z) {
+      z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)
+      z <- gl.filter.monomorphs(z, verbose = 0)
+      z <- gl.recalc.metrics(z, verbose = 0)
+      # Print out some statistics
+      verbose=3
+      if(verbose >= 3){
+      stats <- summary(z@other$loc.metrics$maf)
+      cat(report("  Reporting Minor Allele Frequency (MAF) by Locus for population",popNames(z),"\n"))
+      cat("  No. of loci =", nLoc(z), "\n")
+      cat("  No. of individuals =", nInd(z), "\n")
+      cat("    Minimum      : ", stats[1], "\n")
+      cat("    1st quantile : ", stats[2], "\n")
+      cat("    Median       : ", stats[3], "\n")
+      cat("    Mean         : ", stats[4], "\n")
+      cat("    3r quantile  : ", stats[5], "\n")
+      cat("    Maximum      : ", stats[6], "\n")
+      cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(z))) / (nLoc(z) * nInd(z)), 2), "\n\n")
+      }
+      # Create the plot for each population
+      mafs_per_pop_tmp <- z$other$loc.metrics$maf
+      mafs_per_pop <-
+        mafs_per_pop_tmp[mafs_per_pop_tmp < maf.limit]
+      plot.tmp <-
+        ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) +
+        geom_histogram(bins = bins, color = plot.colors[1], fill = plot.colors[2]) +
+        xlab("MAF") +
+        ylab("Count") +
+        xlim(0, maf.limit) +
+        plot.theme +
+        ggtitle(paste(popNames(z), "\nn =", nInd(z)))
+      return(plot.tmp)
+    }
+      
+    mafs_plots <- lapply(pops_maf, FUN=tmpfun)
     
     # Check for status -- any populations with ind > ind.limit; and is nPop > 1
     
@@ -151,6 +203,7 @@ gl.report.maf <- function(x,
     test_pop <- as.data.frame(cbind(pop = names(ind_per_pop), ind_per_pop))
     test_pop$ind_per_pop <- as.numeric(test_pop$ind_per_pop)
     
+    # Calculate MAF for overall dataset
     x2 <- x
     x2$other$loc.metrics <- as.data.frame(x2$other$loc.metrics)
     x2 <- gl.filter.monomorphs(x2, verbose = 0)
@@ -160,7 +213,7 @@ gl.report.maf <- function(x,
     
     # Print out some statistics
     stats <- summary(x2@other$loc.metrics$maf)
-    cat("  Reporting Minor Allele Frequency (MAF) by Locus\n")
+    cat(report("  Reporting Minor Allele Frequency (MAF) by Locus OVERALL\n"))
     cat("  No. of loci =", nLoc(x), "\n")
     cat("  No. of individuals =", nInd(x), "\n")
     cat("    Minimum      : ", stats[1], "\n")
@@ -169,9 +222,7 @@ gl.report.maf <- function(x,
     cat("    Mean         : ", stats[4], "\n")
     cat("    3r quantile  : ", stats[5], "\n")
     cat("    Maximum      : ", stats[6], "\n")
-    cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(
-        x
-    ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
+    cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(x))) / (nLoc(x) * nInd(x)), 2), "\n\n")
     
     # Determine the loss of loci for a given threshold using quantiles
     quantile_res <- quantile(maf$maf, probs = seq(0, 1, 1 / 20),type=1)
@@ -287,35 +338,29 @@ gl.report.maf <- function(x,
                              verbose=verbose)
     }
     
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # 
-    # # creating temp file names
-    # if(!is.null(plot.file)){
-    #     if (plot.display) {
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving to tempdir
-    #         saveRDS(list(match_call, p3), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report("  Saving the ggplot to session tempfile\n"))
-    #         }
-    #     }
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     saveRDS(list(match_call, df), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving tabulation to session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
+    # Create a dataframe with the minor allele frequencies for each population and locus
+    sep.pop <- seppop(x)
     
+    # Define a function to calculate MAF by population
+    tmpfun <- function(z) {
+      z <- gl.recalc.metrics(z,verbose=0)
+      df <- z@other$loc.metrics$maf
+      return (df)
+    }
+    # getting summary stats by population
+    df.maf <- lapply(sep.pop, FUN=tmpfun)
+    df.maf <- as.data.frame(df.maf)
+    rownames(df.maf) <- locNames(x)
+    
+    # Reassign the initial population list if as.pop is specified 
+    
+    if (!is.null(as.pop)) {
+      pop(x) <- pop.hold
+      if (verbose >= 2) {
+        cat(report("  Restoring population assignments to initial state\n"))
+      }
+    }
+   
     # FLAG SCRIPT END
     
     if (verbose >= 1) {
@@ -323,6 +368,6 @@ gl.report.maf <- function(x,
     }
     
     # RETURN
-    invisible(x)
+    invisible(df.maf) 
     
 }

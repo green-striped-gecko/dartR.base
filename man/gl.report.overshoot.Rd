@@ -8,8 +8,7 @@
 gl.report.overshoot(x, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object [required].
-temporary directory (tempdir) [default FALSE].}
+\item{x}{Name of the genlight object [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
