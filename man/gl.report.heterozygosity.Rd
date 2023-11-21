@@ -34,9 +34,11 @@ individual (method='ind') [default 'pop'].}
 \item{n.invariant}{An estimate of the number of invariant sequence tags used
 to adjust the heterozygosity rate [default 0].}
 
-\item{subsample.pop}{[default FALSE].}
+\item{subsample.pop}{Whether subsample populations to estimate observed 
+heterozygosity (see Details) [default FALSE].}
 
-\item{n.limit}{[default 10].}
+\item{n.limit}{Minimum number of individuals that should have a population to 
+perform subsampling to estimate heterozygosity [default 10].}
 
 \item{nboots}{Number of bootstrap replicates to obtain confidence intervals
 [default 0].}
@@ -77,7 +79,7 @@ progress log; 3, progress and results summary; 5, full report
 }
 \value{
 A dataframe containing population labels, heterozygosities, FIS,
-their standard deviations and sample sizes
+their standard deviations and sample sizes.
 }
 \description{
 Calculates the observed, expected and unbiased expected (i.e.
@@ -168,6 +170,13 @@ that directory; otherwise to the tempdir().
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
+ 
+ \strong{Subsampling populations}
+ 
+To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
+observed heterozygosity estimates, the function subsamples individuals,
+ without replacement. The subsampling is repeated 10 times for each sample
+  size n. This approach is an implementation of Schmidt et al (2021). 
  
   \strong{Error bars}
  
@@ -313,6 +322,7 @@ df <- gl.report.heterozygosity(platypus.gl)
 df <- gl.report.heterozygosity(platypus.gl,method='ind')
 n.inv <- gl.report.secondaries(platypus.gl)
 gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
+gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
 }
 df <- gl.report.heterozygosity(platypus.gl)
 }

@@ -13,8 +13,10 @@
 #' individual (method='ind') [default 'pop'].
 #' @param n.invariant An estimate of the number of invariant sequence tags used
 #' to adjust the heterozygosity rate [default 0].
-#' @param subsample.pop [default FALSE].
-#' @param n.limit [default 10].
+#' @param subsample.pop Whether subsample populations to estimate observed 
+#' heterozygosity (see Details) [default FALSE].
+#' @param n.limit Minimum number of individuals that should have a population to 
+#' perform subsampling to estimate heterozygosity [default 10].
 #' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
 #' @param conf The confidence level of the required interval  [default 0.95].
@@ -126,6 +128,13 @@
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
+#'  
+#'  \strong{Subsampling populations}
+#'  
+#' To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
+#' observed heterozygosity estimates, the function subsamples individuals,
+#'  without replacement. The subsampling is repeated 10 times for each sample
+#'   size n. This approach is an implementation of Schmidt et al (2021). 
 #'  
 #'   \strong{Error bars}
 #'  
@@ -283,6 +292,7 @@
 #' df <- gl.report.heterozygosity(platypus.gl,method='ind')
 #' n.inv <- gl.report.secondaries(platypus.gl)
 #' gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
+#' gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
 #' }
 #' df <- gl.report.heterozygosity(platypus.gl)
 
@@ -290,7 +300,7 @@
 
 #' @export
 #' @return A dataframe containing population labels, heterozygosities, FIS,
-#' their standard deviations and sample sizes
+#' their standard deviations and sample sizes.
 
 gl.report.heterozygosity <- function(x,
                                      method = "pop",
@@ -817,7 +827,6 @@ gl.report.heterozygosity <- function(x,
             theme(
               axis.ticks.x = element_blank(),
               axis.text.x = element_text(
-                # hjust = 1,
                 face = "bold",
                 size = 12
               ),
@@ -931,8 +940,6 @@ gl.report.heterozygosity <- function(x,
       }
     }
       
-      
-     
     # PRINTING OUTPUTS
     if (plot.display) {
       suppressWarnings(print(p3))
@@ -1056,6 +1063,9 @@ gl.report.heterozygosity <- function(x,
       print(p3)
     }
     if (verbose >= 2) {
+      if(subsample.pop==TRUE){
+        print(res_sub, row.names = FALSE)
+      }
       print(df, row.names = FALSE)
     }
   }
@@ -1079,6 +1089,10 @@ gl.report.heterozygosity <- function(x,
   }
   
   # RETURN
+  if(subsample.pop==TRUE){
+   return(invisible(list(res_sub,df)))
+  }else{
+  return(invisible(df))
+  }
   
-  invisible(df)
 }
