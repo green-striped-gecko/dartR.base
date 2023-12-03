@@ -42,6 +42,7 @@ Produces a nexus file contains the SNP calls and relevant PAUP command lines
 suitable for for the software package BEAUti.
 }
 \details{
+{
 Snapper is a phylogenetic approach implemented in Beauti/BEAST that can
 handle larger SNP datasets than can SNAPP. This script produces a nexus file 
 for Beauti which allows options to be set and creates the xml file for BEAST.
@@ -99,13 +100,43 @@ used, then some form of thinning will be required. Of course, multiple SNPs on a
 sequence tag will be linked, so filtering all but one SNP per sequence tag is required
 (gl.filter.secondaries).
 
+The workflow is
+
+ \itemize{
+ \item "1" Execute gl2snapper()
+ \item "2" Install beast2
+ \item "3" Run beauti in the beast2 bin
+ \item "4" Set the template to snapper [File | Template | Snapper]
+ \item "5" Load the nexus file produced by gl2snapper()
+ \item "6" Select and set the parameters you consider appropriate
+ \item "7" Save the xml file [File | Save As]
+ \item "8" Run beast
+ \item "9" Load the xml file and execute
+ \item "10" When beast is finished, examine the diagnostics with Tracer
+ \item "11" Visualize the resultant trees using DensiTree and FigTree. 
+ }
+ 
+ If using the command line to run beast, the command is beast -threads myxmlfile. Progress can be monitored
+ with awk selecting the first two columns, piped to tail. When beast is finished, transfer the log and tree
+ files to a windows platform and use Tracer, DensiTree and FigTree as above.
+
 gl2snapper does not work with SilicoDArT data.
+}
+}
+\examples{
+x <- gl.filter.monomorphs(testset.gl)
+gl2snapper(x, outfile="test.nex", outpath=tempdir())
+
 }
 \references{
 Bryant, D., Bouckaert, R., Felsenstein, J., Rosenberg, N.A. and
 RoyChoudhury, A. (2012). Inferring species trees directly from biallelic
 genetic markers: bypassing gene trees in a full coalescent analysis.
  Molecular Biology and Evolution 29:1917-1932.
+ 
+ Rambaut A, Drummond AJ, Xie D, Baele G and Suchard MA (2018) Posterior 
+ summarisation in Bayesian phylogenetics using Tracer 1.7. Systematic Biology. 
+ syy032. doi:10.1093/sysbio/syy032
 }
 \author{
 Custodian: Arthur Georges (Post to

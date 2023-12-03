@@ -20,7 +20,7 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 #' 
-#' @details
+#' @details {
 #'Snapper is a phylogenetic approach implemented in Beauti/BEAST that can
 #'handle larger SNP datasets than can SNAPP. This script produces a nexus file 
 #'for Beauti which allows options to be set and creates the xml file for BEAST.
@@ -88,7 +88,7 @@
 #'  \item "5" Load the nexus file produced by gl2snapper()
 #'  \item "6" Select and set the parameters you consider appropriate
 #'  \item "7" Save the xml file [File | Save As]
-#'  \Item "8" Run beast
+#'  \item "8" Run beast
 #'  \item "9" Load the xml file and execute
 #'  \item "10" When beast is finished, examine the diagnostics with Tracer
 #'  \item "11" Visualize the resultant trees using DensiTree and FigTree. 
@@ -99,13 +99,14 @@
 #'  files to a windows platform and use Tracer, DensiTree and FigTree as above.
 #'
 #'gl2snapper does not work with SilicoDArT data.
-#'
+#'}
 #' 
 #' @author Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-# gl2snapper(testset.gl, outpath=tempdir())
+#' x <- gl.filter.monomorphs(testset.gl)
+#' gl2snapper(x, outfile="test.nex", outpath=tempdir())
 #' 
 #' @references Bryant, D., Bouckaert, R., Felsenstein, J., Rosenberg, N.A. and
 #' RoyChoudhury, A. (2012). Inferring species trees directly from biallelic
@@ -116,6 +117,7 @@
 #'  summarisation in Bayesian phylogenetics using Tracer 1.7. Systematic Biology. 
 #'  syy032. doi:10.1093/sysbio/syy032
 #'  
+#' @import stats
 #' @export
 #' @return  returns no value (i.e. NULL)
 
@@ -153,26 +155,26 @@ gl2snapper <- function(x,
         cat(warn(" Warning: Names for some entities are not unique, rendering unique\n"))
         dupes <- duplicated(indNames(x)) | duplicated(indNames(x), fromLast = TRUE)
         if(any(dupes)) {
-          suffixes <- base::ave(indNames(x)[dupes], indNames(x)[dupes], FUN = seq_along)
+          suffixes <- stats::ave(indNames(x)[dupes], indNames(x)[dupes], FUN = seq_along)
           indNames(x)[dupes] <- paste0(indNames(x)[dupes], "_", suffixes)
         }
       }
     
     # PREPROCESSING
     # Remove autapomorphies
-    if(rm.autoapomorphies){
+    if(rm.autapomorphies){
       freqs <- gl.allele.freq(x,by = "popxloc")
       subset <- freqs[freqs$frequency<0.99,]
       subset <- subset[subset$frequency>0.0001,]
       tbl <- table(subset$locus)
       single_count_loci <- names(tbl[tbl == 1])
       x <- gl.drop.loc(x,loc.list = single_count_loci)
-      cat(report(" Autoapomorphic loci removed:",length(single_count_loci),"\n"))
+      cat(report(" Autapomorphic loci removed:",length(single_count_loci),"\n"))
     }
     
     # Subsample loci 
     if(!is.null(nloc)){
-      x <- gl.subsample.loc(x,n=nloc,subsample=FALSE,verbose=0)
+      x <- gl.subsample.loc(x,n=nloc,replace=FALSE,verbose=0)
       cat(report(" Loci subsampled at random:",nloc,"retained\n"))
     }
 
