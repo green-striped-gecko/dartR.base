@@ -95,7 +95,7 @@
 #'  }
 #'  
 #'  If using the command line to run beast, the command is beast -threads myxmlfile. Progress can be monitored
-#'  with awk selecting the first two columns, piped to tail. When beast is finished, transfer the log and tree
+#'  with awk (awk '{print $1, $2}' snapper.log |tail). When beast is finished, transfer the log and tree
 #'  files to a windows platform and use Tracer, DensiTree and FigTree as above.
 #'
 #'gl2snapper does not work with SilicoDArT data.
