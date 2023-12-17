@@ -131,7 +131,7 @@ gl.impute <-  function(x,
               report(
                 "  Method= 'frequency':",
                 number_imputations,
-                "values imputed.\n"
+                "values to be imputed.\n"
               )
             )
           }
@@ -165,7 +165,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
             cat(report(
               "  Method= 'HW':",
               number_imputations,
-              "values imputed.\n"
+              "values to be imputed.\n"
             ))
           }
         }
@@ -225,7 +225,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
         cat(report(
           "  Method= 'neighbour':",
           number_imputations,
-          "values imputed.\n"
+          "values to be imputed.\n"
         ))
       }
     }
@@ -299,7 +299,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
         cat(report(
           "  Method= 'random':",
           number_imputations,
-          "values imputed.\n"
+          "values to be imputed.\n"
         ))
       }
     }
