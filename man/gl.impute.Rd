@@ -42,7 +42,7 @@ presence-absence data.
 \details{
 We recommend that imputation be performed on sampling locations, before
 any aggregation. Imputation is achieved by replacing missing values using
-either of two methods:
+either of four methods:
 \itemize{
 \item If "frequency", genotypes scored as missing at a locus in an individual
  are imputed using the average allele frequencies at that locus in the 
@@ -55,15 +55,16 @@ only to genotype data.
  and so on until all missing values are replaced.
 \item if "random", missing data are substituted by random values (0, 1 or 2). 
 }
-  The nearest neighbour is the one with the smallest Euclidean distance in 
-  all the dataset.
+  The nearest neighbour is the one at the smallest Euclidean distancefrom 
+  the focal individual
   The advantage of this approach is that it works regardless of how many
   individuals are in the population to which the focal individual belongs,
   and the displacement of the individual is haphazard as opposed to:
   (a) Drawing the individual toward the population centroid (HW and Frequency).
   (b) Drawing the individual toward the global centroid (glPCA).
 Note that loci that are missing for all individuals in a population are not 
-imputed with method 'frequency' or 'HW'. Consider using the function 
+imputed with method 'frequency' or 'HW' and can give unpredictable results
+for particular individuals using 'neighbour'. Consider using the function 
 \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
 }
 \examples{
