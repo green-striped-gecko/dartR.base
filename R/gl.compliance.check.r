@@ -278,6 +278,16 @@ gl.compliance.check <- function(x,
         ))
     }
     
+    # Check SNP position
+    if(is.null(x$position) & "SnpPosition" %in% names(x$other$loc.metrics)){
+      x$position <- x$other$loc.metrics$SnpPosition
+      if (verbose >= 2) {
+        cat(report(
+          "  Assigning SNP position using slot gl$other$loc.metrics$SnpPosition \n"
+        ))
+      }
+    }
+    
     # ADD TO HISTORY
     nh <- length(x@other$history)
     x@other$history[[nh + 1]] <- match.call()
