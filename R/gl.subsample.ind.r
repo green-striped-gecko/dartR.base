@@ -81,19 +81,23 @@ gl.subsample.ind <- function(x,
   if (!by.pop){
     # Generate a random set of n numbers
       nums <- sample(1:nInd(x), size = n, replace = replace)
+      ind.list <- indNames[nums]
     # Subsample the genlight object
-    x2 <- x[nums,]
+      x2 <- gl.keep.ind(x,ind.list=ind.list,verbose=0)
+    #x2@other <- x@other[nums,]
   } else {
     popcount <- 1
     for (popn in popNames(x)){
       tmp <- gl.keep.pop(x,pop.list=popn,verbose=0)
       # Generate a random set of n numbers
       nums <- sample(1:nInd(tmp), size = n, replace = replace)
-      tmp <- tmp[nums,]
+      ind.list <- indNames[nums]
+      tmp <- gl.keep.ind(x,ind.list=ind.list,verbose=0)
+      #tmp <- tmp[nums,]
       if(popcount == 1){
         x2 <- tmp
       } else {
-        x2 <- rbind(x2,tmp)
+        x2 <- join(x2,tmp,verbose=0)
       }
       popcount <- popcount + 1
     }
