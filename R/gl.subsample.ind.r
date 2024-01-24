@@ -81,7 +81,7 @@ gl.subsample.ind <- function(x,
   if (!by.pop){
     # Generate a random set of n numbers
       nums <- sample(1:nInd(x), size = n, replace = replace)
-      ind.list <- indNames[nums]
+      ind.list <- indNames(x)[nums]
     # Subsample the genlight object
       x2 <- gl.keep.ind(x,ind.list=ind.list,verbose=0)
     #x2@other <- x@other[nums,]
@@ -91,18 +91,21 @@ gl.subsample.ind <- function(x,
       tmp <- gl.keep.pop(x,pop.list=popn,verbose=0)
       # Generate a random set of n numbers
       nums <- sample(1:nInd(tmp), size = n, replace = replace)
-      ind.list <- indNames[nums]
-      tmp <- gl.keep.ind(x,ind.list=ind.list,verbose=0)
+      ind.list <- indNames(tmp)[nums]
+      tmp <- gl.keep.ind(tmp,ind.list=ind.list,verbose=0)
       #tmp <- tmp[nums,]
       if(popcount == 1){
         x2 <- tmp
       } else {
-        x2 <- join(x2,tmp,verbose=0)
+        hold <- x2@other$ind.metrics
+        x2 <- rbind(x2,tmp)
+        x2@other$ind.metrics <- rbind(hold,tmp@other$ind.metrics)
       }
       popcount <- popcount + 1
     }
   }
-  
+  x2@other$loc.metrics <- x@other$loc.metrics
+
   if(error.check){
     # ADD TO HISTORY
     nh <- length(x2@other$history)
