@@ -163,7 +163,7 @@ gl.allele.freq <- function(x,
     m$loc_order <- as.numeric(as.character(m$loc_order))
     
     m <- m[order(m$loc_order, m$popn),]
-    m <- m[,-ncol(m)]
+    # m <- m[,-ncol(m)]
     
     rownames(m) <- NULL
     
@@ -182,7 +182,14 @@ gl.allele.freq <- function(x,
     } else if(by=='loc'){
       # Average statistics for each locus
       #m$frequency[is.na(m$frequency)] <- NA 
-      m <- aggregate(. ~ locus, data = m, FUN = function(x) mean(x, na.rm = TRUE), na.action=na.pass)
+      m <- aggregate(. ~ locus, 
+                     data = m,
+                     FUN = function(x) mean(x, na.rm = TRUE),
+                     na.action=na.pass)
+      # reorder by loci
+      m <- m[order(m$loc_order),]
+      # calculating allele frequency
+      m$frequency <- colMeans(as.matrix(x), na.rm = TRUE) / 2
       m$popn <- NULL
       m$sum <- NULL
       m$nobs <- round(m$nobs,1)
