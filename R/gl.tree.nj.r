@@ -47,7 +47,7 @@
 
 gl.tree.nj <- function(x,
                        dist.matrix = NULL,
-                       method="mj",
+                       method="nj",
                        type = "phylogram",
                        outgroup = NULL,
                        labelsize = 0.7,
