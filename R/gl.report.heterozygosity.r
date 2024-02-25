@@ -695,7 +695,7 @@ gl.report.heterozygosity <- function(x,
     }
     
     if (plot.display) {
-      res.mean <- subsample <- error_L <- error_H <- value <- color <- variable <- He.adj <- NULL
+      res.mean <- subsample <- error_L <- error_H <- value <- color <- variable <- He.adj <- res_SE <- NULL
       
       # printing plots and reports assigning colors to populations
       if (is(plot.colors.pop, "function")) {
