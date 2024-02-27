@@ -6,7 +6,7 @@
 \usage{
 gl.report.ld.map(
   x,
-  ld.max.pairwise = NULL,
+  ld.max.pairwise = 1e+06,
   maf = 0.05,
   ld.stat = "R.squared",
   ind.limit = 10,
@@ -26,7 +26,7 @@ gl.report.ld.map(
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{ld.max.pairwise}{Maximum distance in number of base pairs at which LD 
-should be calculated [default NULL].}
+should be calculated [default 1000000].}
 
 \item{maf}{Minor allele frequency (by population) threshold to filter out 
 loci. If a value > 1 is provided it will be interpreted as MAC (i.e. the

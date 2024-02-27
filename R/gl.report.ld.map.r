@@ -24,7 +24,7 @@
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param ld.max.pairwise Maximum distance in number of base pairs at which LD 
-#' should be calculated [default NULL].
+#' should be calculated [default 1000000].
 #' @param maf Minor allele frequency (by population) threshold to filter out 
 #' loci. If a value > 1 is provided it will be interpreted as MAC (i.e. the
 #'  minimum number of times an allele needs to be observed) [default 0.05].
@@ -81,7 +81,7 @@
 #' @return A dataframe with information for each SNP pair in LD. 
 
 gl.report.ld.map <- function(x,
-                           ld.max.pairwise = NULL,
+                           ld.max.pairwise = 1000000,
                            maf = 0.05,
                            ld.stat = "R.squared",
                            ind.limit = 10,

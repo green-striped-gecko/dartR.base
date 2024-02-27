@@ -241,7 +241,7 @@ gl.report.maf <- function(x,
   
   # Determine the loss of loci for a given threshold using quantiles
   quantile_res <-
-    quantile(maf$maf, probs = seq(0, 1, 1 / 20), type = 1)
+    quantile(maf$maf, probs = seq(0, 1, 1 / 20), type = 1,na.rm = TRUE)
   retained <- unlist(lapply(quantile_res, function(y) {
     res <- length(maf$maf[maf$maf >= y])
   }))
