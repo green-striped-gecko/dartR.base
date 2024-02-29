@@ -10,7 +10,7 @@
 #' @param plot.out Specify if plot is to be produced [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
 #' @param plot_colors Vector with two color names for the borders and fill
-#' [default two_colors].
+#' [default c("#2171B5", "#6BAED6")].
 #' @param bins Number of bins to display in histograms [default 100].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -55,7 +55,7 @@ gl.report.replicates <- function(x,
                                  perc_geno = 0.99,
                                  plot.out = TRUE,
                                  plot_theme = theme_dartR(),
-                                 plot_colors = two_colors,
+                                 plot_colors = c("#2171B5", "#6BAED6"),
                                  bins = 100,
                                  verbose = NULL
 ){
