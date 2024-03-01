@@ -13,7 +13,7 @@
 
 #' @param x Name of the genlight object [required].
 #' @param ind.labels If TRUE, individual IDs are shown [default FALSE].
-# @param group.pop If ind.labels is TRUE, group by population [default TRUE].
+#' @param group.pop If ind.labels is TRUE, group by population [default TRUE].
 #' @param label.size Size of the individual labels [default 10].
 #' @param het.only If TRUE, show only the heterozygous state [default FALSE]
 #' @param plot.display If TRUE, the plot is displayed in the plot window
@@ -58,7 +58,7 @@ gl.smearplot <- function(x,
                         plot.display=TRUE,
                         ind.labels = FALSE,
                         label.size = 10,
-                        #group.pop = FALSE, 
+                        group.pop = FALSE, 
                         plot.theme = theme_dartR(),
                         plot.colors = NULL,
                         plot.file=NULL,
@@ -301,12 +301,12 @@ gl.smearplot <- function(x,
     }
     
     
-    # if (ind.labels==TRUE & group.pop == TRUE) {
-    #     p3 <- p3 + facet_wrap(~ pop,
-    #                           ncol = 1,
-    #                           dir = "v",
-    #                           scales = "free_y")
-    # }
+    if (ind.labels==TRUE & group.pop == TRUE) {
+        p3 <- p3 + facet_wrap(~ pop,
+                              ncol = 1,
+                              dir = "v",
+                              scales = "free_y")
+    }
     
     # PRINTING OUTPUTS
     print(p3)

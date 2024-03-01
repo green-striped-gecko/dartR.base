@@ -662,9 +662,10 @@ gl.report.heterozygosity <- function(x,
             boot.out = pop_boot[[pop_n]],
             conf = conf,
             type = CI.type,
-            index = stat_n,
-            t0 =  pop_res[stat_n, pop_n],
-            t = pop_boot[[pop_n]]$t[, stat_n]
+            index = stat_n
+            # ,
+            # t0 =  pop_res[stat_n, pop_n],
+            # t = pop_boot[[pop_n]]$t[, stat_n]
           )
           
           res_CI[[pop_n]][stat_n,] <-
