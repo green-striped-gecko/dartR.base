@@ -106,9 +106,9 @@ gl.filter.taglength <- function(x,
     # Remove SNP loci with rdepth < threshold
     if (verbose > 1) {
         cat(report(
-            "  Removing loci with taglength <",
+            "  Removing loci with taglength between",
             lower,
-            "and >",
+            "and",
             upper,
             "\n"
         ))
@@ -127,9 +127,9 @@ gl.filter.taglength <- function(x,
     if (verbose > 2) {
         cat("  Summary of filtered dataset\n")
         cat(paste(
-            "    Sequence Tag Length >=",
+            "    Sequence Tag Length between",
             lower,
-            "and Sequence Tag Length <=",
+            "and",
             upper,
             "\n"
         ))

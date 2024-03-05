@@ -350,11 +350,10 @@ gl.test.heterozygosity <- function(x,
                                     alpha2 = "firebrick1"
                                 ),
                                 labels = c(
-                                    "Zero value",
-                                    "Observed",
                                     paste("Sig. ", alpha1),
-                                    paste("Sig. ",
-                                          alpha2)
+                                    paste("Sig. ", alpha2),
+                                    "Zero value",
+                                    "Observed"
                                 )
                             ) + guides(color = guide_legend(
                                 override.aes = list(size = 5),

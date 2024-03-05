@@ -8,18 +8,22 @@
 #' for each population or the observed heterozygosity for each individual in a
 #' genlight object.
 
-#' @param x Name of the genlight object containing the SNP [required].
+#' @param x Name of the genlight object containing the SNP data [required].
 #' @param method Calculate heterozygosity by population (method='pop') or by
 #' individual (method='ind') [default 'pop'].
 #' @param n.invariant An estimate of the number of invariant sequence tags used
 #' to adjust the heterozygosity rate [default 0].
+#' @param subsample.pop Whether subsample populations to estimate observed 
+#' heterozygosity (see Details) [default FALSE].
+#' @param n.limit Minimum number of individuals that should have a population to 
+#' perform subsampling to estimate heterozygosity [default 10].
 #' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
 #' @param conf The confidence level of the required interval  [default 0.95].
 #' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
-#' > 1 parallel operation is activated,see "Details" section [default 1].
+#' > 1 parallel operation is activated, see "Details" section [default 1].
 #' @param plot.display Specify if plot is to be produced [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
@@ -28,11 +32,13 @@
 #' [default gl.colors("dis")].
 #' @param plot.colors.ind List of two color names for the borders and fill of
 #' the plot by individual [default gl.colors(2)].
-#' @param error.bar statistic to be plotted as error bar either "SD" (standard 
-#' deviation) or "SE" (standard error) or "CI" (confident intervals)
+#' @param error.bar Statistic to be plotted as error bar either "SD" (standard 
+#' deviation) or "SE" (standard error) or "CI" (confidence intervals)
 #'  [default "SD"].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()].
+#' @param plot.file Name for the RDS binary file to save (base name only, 
+#' exclude extension) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -95,26 +101,40 @@
 #' }
 
 #'\strong{ Function's output }
-
+#'
 #' Output for method='pop' is an ordered barchart of observed heterozygosity,
-#' unbiased expected heterozygosity and FIS (Inbreeding coefficient) across populations
-#' together with a table of mean observed and expected heterozygosities and FIS
-#' by population and their respective standard deviations (SD).
+#' unbiased expected heterozygosity and FIS (Inbreeding coefficient) across 
+#' populations together with a table of mean observed and expected 
+#' heterozygosities and FIS by population and their respective standard 
+#' deviations (SD).
 
 #' In the output, it is also reported by population: the number of loci used to
-#'  estimate heterozygosity(n.Loc), the number of polymorphic loci (polyLoc),
+#'  estimate heterozygosity (n.Loc), the number of polymorphic loci (polyLoc),
 #'  the number of monomorphic loci (monoLoc) and loci with all missing data
 #'   (all_NALoc).
-
+#'   
 #' Output for method='ind' is a histogram and a boxplot of heterozygosity across
 #' individuals.
-
-#'  Plots and table are saved to the session temporary directory (tempdir)
-
-#'  Examples of other themes that can be used can be consulted in \itemize{
+#' 
+#' If a plot.file is given, the ggplot arising from this function is saved as an 
+#' "RDS" binary file using saveRDS(); can be reloaded with readRDS(). A file 
+#' name must be specified for the plot to be saved.
+#' 
+#' If a plot directory (plot.dir) is specified, the ggplot binary is saved to 
+#' that directory; otherwise to the tempdir(). 
+#'  
+#'  Examples of other themes that can be used can be consulted in: 
+#'  \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
+#'  
+#'  \strong{Subsampling populations}
+#'  
+#' To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
+#' observed heterozygosity estimates, the function subsamples individuals,
+#'  without replacement. The subsampling is repeated 10 times for each sample
+#'   size n. This approach is an implementation of Schmidt et al (2021). 
 #'  
 #'   \strong{Error bars}
 #'  
@@ -128,10 +148,10 @@
 #'  
 #'  - Advantage: Confidence intervals give a range in which the true parameter 
 #'  (like a population mean) is likely to fall, given the data and a specified 
-#'  probability (like 95%).
+#'  probability (like 95\%).
 #'  
 #'  - In Context: For genetic statistics, if you're estimating a parameter,
-#'   a 95% CI gives you a range in which you're 95% confident the true parameter
+#'   a 95\% CI gives you a range in which you're 95\% confident the true parameter
 #'    lies.
 #'  
 #'   \strong{2. Standard Deviation ("SD"):}
@@ -170,7 +190,7 @@
 #'   analyze and present their data, depending on their research questions and 
 #'   the nature of the data.
 #'   
-#'  \strong{Confident Intervals}
+#'  \strong{Confidence Intervals}
 #'
 #' The uncertainty of a parameter, in this case the mean of the statistic, can
 #' be summarised by a confidence interval (CI) which includes the true parameter
@@ -213,7 +233,7 @@
 #'      (1997, p. 194) suggest that the number of bootstrap replicates should
 #'      be between 1000 and 2000.
 #'
-#'  \strong{It is important} to note that unreliable confident intervals will be
+#'  \strong{It is important} to note that unreliable confidence intervals will be
 #'   obtained if too few number of bootstrap replicates are used.
 #'   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
 #'    if bootstrap replicates are too few. Consider increasing the number of
@@ -252,12 +272,18 @@
 #'     Opening and terminating R sessions in each core involves a significant
 #'     amount of processing time, therefore parallelisation in Windows machines
 #'    is only quicker than not using parallelisation when nboots > 1000-2000.
+#'    
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #'
 #' @references
-#' Nei, M. (1978). Estimation of average heterozygosity and genetic distance
-#' from a small number of individuals. Genetics, 89(3), 583-590.
+#' \itemize{
+#' \item Nei, M. (1978). Estimation of average heterozygosity and genetic 
+#' distance from a small number of individuals. Genetics, 89(3), 583-590.
+#' \item Schmidt, T. L., Jasper, M. E., Weeks, A. R., & Hoffmann, A. A. (2021).
+#'  Unbiased population heterozygosity estimates from genome‐wide sequence data.
+#'   Methods in Ecology and Evolution, 12(10), 1888-1898.
+#'   }
 #'
 #' @examples
 #'  \donttest{
@@ -266,6 +292,7 @@
 #' df <- gl.report.heterozygosity(platypus.gl,method='ind')
 #' n.inv <- gl.report.secondaries(platypus.gl)
 #' gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
+#' gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
 #' }
 #' df <- gl.report.heterozygosity(platypus.gl)
 
@@ -273,11 +300,13 @@
 
 #' @export
 #' @return A dataframe containing population labels, heterozygosities, FIS,
-#' their standard deviations and sample sizes
+#' their standard deviations and sample sizes.
 
 gl.report.heterozygosity <- function(x,
                                      method = "pop",
                                      n.invariant = 0,
+                                     subsample.pop = FALSE,
+                                     n.limit = 10,
                                      nboots = 0,
                                      conf = 0.95,
                                      CI.type = "bca",
@@ -286,88 +315,12 @@ gl.report.heterozygosity <- function(x,
                                      plot.theme = theme_dartR(),
                                      plot.colors.pop = gl.colors("dis"),
                                      plot.colors.ind = gl.colors(2),
+                                     plot.file = NULL,
+                                     plot.dir = NULL,
                                      error.bar = "SD",
-                                     save2tmp = FALSE,
                                      verbose = NULL) {
-  # standard error function
-  std.error <- function(x) {
-    res <- sd(x, na.rm = TRUE) / sqrt(length(x))
-    return(res)
-  }
   
-  # bootstrapping function
-  pop.het <- function(x,
-                      indices,
-                      n.invariant,
-                      aHet=FALSE) {
-    pop.het_fun <- function(df,
-                            n.invariant,
-                            aHet) {
-      Ho.loc <- colMeans(df == 1, na.rm = TRUE)
-      n_loc <- apply(df, 2, function(y) {
-        sum(!is.na(y))
-      })
-      Ho.adj.loc <- Ho.loc * n_loc / (n_loc + n.invariant)
-      q_freq <- colMeans(df, na.rm = TRUE) / 2
-      p_freq <- 1 - q_freq
-      He.loc <- 2 * p_freq * q_freq
-      n_ind <- apply(df, 2, function(y) {
-        sum(!is.na(y))
-      })
-      ### CP ### Unbiased He (i.e. corrected for sample size) hard
-      # coded for diploid
-      uHe.loc <-
-        (2 * as.numeric(n_ind) / (2 * as.numeric(n_ind) - 1)) * He.loc
-      Hexp.adj.loc <- He.loc * n_loc / (n_loc + n.invariant)
-      
-      FIS.loc <- 1 - (Ho.loc / He.loc)
-      
-      if(aHet) {
-        all.res <- c(
-          Ho.adj.loc = mean(Ho.adj.loc, na.rm = TRUE),
-          Hexp.adj.loc = mean(Hexp.adj.loc, na.rm = TRUE)
-        )
-      } else {
-        all.res <- c(
-          Ho.loc = mean(Ho.loc, na.rm = TRUE),
-          He.loc = mean(He.loc, na.rm = TRUE),
-          uHe.loc = mean(uHe.loc, na.rm = TRUE),
-          FIS.loc = mean(FIS.loc, na.rm = TRUE)
-        )
-      }
-      
-      return(all.res)
-    }
-    
-    df <- x[, indices]
-    
-    res <- pop.het_fun(df,
-                       n.invariant = n.invariant,
-                       aHet=aHet)
-    
-    return(res)
-    
-  }
-  
-  # Counting individuals function
-  ind.count <- function(x) {
-    # the loci that are completely missing
-    loci.na <-
-      which(colSums(is.na(as.matrix(x))) == nrow(as.matrix(x)))
-    # the number of samples in the matrix the number of non-genotyped
-    # samples remove the loci that are completely missing
-    if (length(loci.na) > 0) {
-      nind <-
-        mean(nrow(as.matrix(x)) -
-               colSums(is.na(as.matrix(x)))[-loci.na])
-      # the number of samples in the matrix the number of
-      # non-genotyped samples
-    } else {
-      nind <- mean(nrow(as.matrix(x)) - colSums(is.na(as.matrix(x))))
-    }
-    
-    return(nind)
-  }
+  # Utils functions are in utils.het.report.r
   
   # setting parallel
   # if (ncpus > 1) {
@@ -382,6 +335,10 @@ gl.report.heterozygosity <- function(x,
   
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
+  if(verbose==0){plot.display <- FALSE}
+  
+  # SET WORKING DIRECTORY
+  plot.dir <- gl.check.wd(plot.dir,verbose=0)
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
@@ -433,7 +390,7 @@ gl.report.heterozygosity <- function(x,
   
   if( nboots == 0 & error.bar == "CI" ){
     cat(error(
-"  Number of boostraps ('nboots' parameter) must be > 0 to calculate confident 
+"  Number of boostraps ('nboots' parameter) must be > 0 to calculate confidence 
    intervals \n"))
     stop()
   }
@@ -458,6 +415,11 @@ gl.report.heterozygosity <- function(x,
       }
       pop(x) <- array("pop1", dim = nInd(x))
       pop(x) <- as.factor(pop(x))
+    }
+    
+    # Subsampling populations as in Schmidt (2021)
+    if(subsample.pop==TRUE){
+    res_sub <- utils.subsample.pop(x,n.limit = n.limit)
     }
     
     # Split the genlight object into a list of populations
@@ -700,9 +662,10 @@ gl.report.heterozygosity <- function(x,
             boot.out = pop_boot[[pop_n]],
             conf = conf,
             type = CI.type,
-            index = stat_n,
-            t0 =  pop_res[stat_n, pop_n],
-            t = pop_boot[[pop_n]]$t[, stat_n]
+            index = stat_n
+            # ,
+            # t0 =  pop_res[stat_n, pop_n],
+            # t = pop_boot[[pop_n]]$t[, stat_n]
           )
           
           res_CI[[pop_n]][stat_n,] <-
@@ -733,8 +696,7 @@ gl.report.heterozygosity <- function(x,
     }
     
     if (plot.display) {
-      
-      error_L <- error_H <- value <- color <- variable <- He.adj <- NULL
+      res.mean <- subsample <- error_L <- error_H <- value <- color <- variable <- He.adj <- res_SE <- NULL
       
       # printing plots and reports assigning colors to populations
       if (is(plot.colors.pop, "function")) {
@@ -836,7 +798,47 @@ gl.report.heterozygosity <- function(x,
                               ymax = error_H), 
                           width=0.5)+
             ggtitle(label = "Heterozygosities and FIS by Population",
-                    subtitle = "Error bars show Confident Intervals")
+                    subtitle = "Error bars show Confidence Intervals")
+        }
+        
+        # Subsampling populations as in Schmidt (2021)
+        if(subsample.pop==TRUE){
+          
+          res_sub_plot <- res_sub
+          res_sub_plot$pop <- as.factor(res_sub_plot$pop)
+          res_sub_plot$subsample <- as.factor(res_sub_plot$subsample )
+          res_sub_plot$color <- rep(colors_pops,each=5)
+          
+          res_sub_plot_2 <- reshape2::melt(res_sub_plot, id = c("pop", "color", "subsample","res_SE"))
+          
+          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value))+
+            
+            geom_bar(stat = "identity", 
+                     color = "black", 
+                     fill = res_sub_plot_2$color,
+                     position = position_dodge())+ 
+            facet_wrap(~variable, nrow=1) +
+            facet_wrap(~pop)+
+            geom_errorbar(aes(ymin = value, 
+                              ymax = value + res_SE), 
+                          width=0.5)+
+            ggtitle(label = "Observed heterozygosity in populations subsamples",
+                    subtitle = "Error bars show Standard Error") +
+            plot.theme +
+            theme(
+              axis.ticks.x = element_blank(),
+              axis.text.x = element_text(
+                face = "bold",
+                size = 12
+              ),
+              axis.title.x = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.title.y = element_blank(),
+              legend.position = "none"
+            )
+          
+          p3 <-  p3 / p4
+          
         }
         
       } else {
@@ -939,8 +941,6 @@ gl.report.heterozygosity <- function(x,
       }
     }
       
-      
-     
     # PRINTING OUTPUTS
     if (plot.display) {
       suppressWarnings(print(p3))
@@ -986,6 +986,7 @@ gl.report.heterozygosity <- function(x,
     c.hets <- array(NA, nInd(x))
     c.hom0 <- array(NA, nInd(x))
     c.hom2 <- array(NA, nInd(x))
+    c.nloc <- array(NA, nInd(x))
     for (i in 1:nInd(x)) {
       c.na[i] <- sum(is.na(m[i, ]))
       c.hets[i] <-
@@ -994,13 +995,14 @@ gl.report.heterozygosity <- function(x,
         sum(m[i, ] == 0, na.rm = TRUE) / (nLoc(x) - c.na[i])
       c.hom2[i] <-
         sum(m[i, ] == 2, na.rm = TRUE) / (nLoc(x) - c.na[i])
+      c.nloc[i] <- (nLoc(x) - c.na[i])
     }
     
     # Join the sample sizes with the heterozygosities
     df <-
-      cbind.data.frame(x@ind.names, c.hets, c.hom0, c.hom2)
+      cbind.data.frame(x@ind.names, c.hets, c.hom0, c.hom2,c.nloc)
     names(df) <-
-      c("ind.name", "Ho", "f.hom.ref", "f.hom.alt")
+      c("ind.name", "Ho", "f.hom.ref", "f.hom.alt","n.Loc")
     
     # Boxplot
     if (plot.display) {
@@ -1064,39 +1066,20 @@ gl.report.heterozygosity <- function(x,
       print(p3)
     }
     if (verbose >= 2) {
+      if(subsample.pop==TRUE){
+        print(res_sub, row.names = FALSE)
+      }
       print(df, row.names = FALSE)
     }
   }
   
-  # SAVE INTERMEDIATES TO TEMPDIR
-  if (save2tmp) {
-    # creating temp file names
-    if (plot.display) {
-      temp_plot <- tempfile(pattern = "Plot_")
-    }
-    temp_table <- tempfile(pattern = "Table_")
-    match_call <-
-      paste0(names(match.call()),
-             "_",
-             as.character(match.call()),
-             collapse = "_")
-    # saving to tempdir
-    if (plot.display) {
-      saveRDS(list(match_call, p3), file = temp_plot)
-      if (verbose >= 2) {
-        cat(report("  Saving the ggplot to session tempfile\n"))
-      }
-    }
-    saveRDS(list(match_call, df), file = temp_table)
-    if (verbose >= 2) {
-      cat(report("  Saving tabulation to session tempfile\n"))
-      cat(
-        report(
-          "  NOTE: Retrieve output files from tempdir using
-                    gl.list.reports() and gl.print.reports()\n"
-        )
-      )
-    }
+  # Optionally save the plot ---------------------
+  
+  if(!is.null(plot.file)){
+    tmp <- utils.plot.save(p3,
+                           dir=plot.dir,
+                           file=plot.file,
+                           verbose=verbose)
   }
   
   if (verbose >= 3) {
@@ -1109,6 +1092,10 @@ gl.report.heterozygosity <- function(x,
   }
   
   # RETURN
+  if(subsample.pop==TRUE){
+   return(invisible(list(res_sub,df)))
+  }else{
+  return(invisible(df))
+  }
   
-  invisible(df)
 }

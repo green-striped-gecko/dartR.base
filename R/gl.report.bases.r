@@ -17,11 +17,12 @@
 #' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default c("#2171B5","#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()]
-#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#' by the global working directory or tempdir()].
+#' @param plot.file Name for the RDS binary file to save (base name only, 
+#' exclude extension) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#'  [default NULL, unless specified using gl.set.verbosity]
+#'  [default NULL, unless specified using gl.set.verbosity].
 #' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
 #'  such as width and height, when the ggplot is to be saved.
 
@@ -209,7 +210,7 @@ gl.report.bases <- function(x,
     } else {
         cat(paste("  Transitions  :", round(ts, 2), "\n"))
         cat(paste("  Transversions:", round(tv, 2), "\n"))
-        cat(paste("  tv/ts ratio:", round(ratio, 4), "\n\n"))
+        cat(paste("  ts/tv ratio:", round(ratio, 4), "\n\n"))
     }
     
     # Plot the results ----------------- 

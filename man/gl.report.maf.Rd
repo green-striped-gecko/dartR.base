@@ -36,10 +36,11 @@ ind.limit [default 5].}
 \item{plot.colors}{Vector with color names for the borders and fill
 [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()]}
+\item{plot.dir}{Directory to save the plot RDS files
+[default as specified by the global working directory or tempdir()]}
 
-\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
+\item{plot.file}{Filename (minus extension) for the RDS plot file
+[Required for plot save].}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 
@@ -56,27 +57,34 @@ population and an overall histogram to assist the decision of
 choosing thresholds for the filter function \code{\link{gl.filter.maf}}
 }
 \details{
-The function \code{\link{gl.filter.maf}} will filter out the
- loci with MAF below a specified threshold.
+The function \code{\link{gl.filter.maf}} will filter out the loci with MAF
+below a specified threshold.
+
 \strong{ Function's output }
+
  The minimum, maximum, mean and a tabulation of MAF quantiles against
  thresholds rate are provided. Output also includes a boxplot and a
  histogram.
- This function reports the
- MAF for each of several quantiles. Quantiles are
+
+ This function reports the  MAF for each of several quantiles. Quantiles are
  partitions of a finite set of values into q subsets of (nearly) equal sizes.
  In this function q = 20. Quantiles are useful measures because they are less
  susceptible to long-tailed distributions and outliers.
- 
+
  Plot colours can be set with gl.select.colors().
- 
-  If plot.file is specified, plots are saved to the directory specified by the user, or the global
-  default working directory set by gl.set.wd() or to the tempdir().
+
+  If plot.file is specified, plots are saved to the directory specified by
+  the user, or the global default working directory set by gl.set.wd() or to
+  the tempdir().
 
 Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
+}
+\examples{
+gl <- gl.filter.allna(platypus.gl)
+gl.report.maf(gl)
 }
 \seealso{
 \code{\link{gl.filter.maf}}
@@ -93,7 +101,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Arthur Georges (Post to 
+Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{matched report}

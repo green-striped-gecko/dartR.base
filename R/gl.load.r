@@ -41,15 +41,13 @@ gl.load <- function(file,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     cat(report("  Loaded object of type", datatype, "from", file, "\n"))
-    
-    x <- gl.compliance.check(x)
-    
+
     # FLAG SCRIPT END
     
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
     
-    invisible(x)
+    invisible(x) 
     
 }

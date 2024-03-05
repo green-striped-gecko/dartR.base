@@ -24,7 +24,7 @@
 #' @details
 #' We recommend that imputation be performed on sampling locations, before
 #' any aggregation. Imputation is achieved by replacing missing values using
-#' either of two methods:
+#' either of four methods:
 #' \itemize{
 #' \item If "frequency", genotypes scored as missing at a locus in an individual
 #'  are imputed using the average allele frequencies at that locus in the 
@@ -38,8 +38,8 @@
 #' \item if "random", missing data are substituted by random values (0, 1 or 2). 
 #' }
 
-#'   The nearest neighbour is the one with the smallest Euclidean distance in 
-#'   all the dataset.
+#'   The nearest neighbour is the one at the smallest Euclidean distancefrom 
+#'   the focal individual
 
 #'   The advantage of this approach is that it works regardless of how many
 #'   individuals are in the population to which the focal individual belongs,
@@ -50,7 +50,8 @@
 #'   (b) Drawing the individual toward the global centroid (glPCA).
 
 #' Note that loci that are missing for all individuals in a population are not 
-#' imputed with method 'frequency' or 'HW'. Consider using the function 
+#' imputed with method 'frequency' or 'HW' and can give unpredictable results
+#' for particular individuals using 'neighbour'. Consider using the function 
 #' \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
 
 #' @author Custodian: Luis Mijangos 
@@ -130,7 +131,7 @@ gl.impute <-  function(x,
               report(
                 "  Method= 'frequency':",
                 number_imputations,
-                "values imputed.\n"
+                "values to be imputed.\n"
               )
             )
           }
@@ -164,7 +165,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
             cat(report(
               "  Method= 'HW':",
               number_imputations,
-              "values imputed.\n"
+              "values to be imputed.\n"
             ))
           }
         }
@@ -205,7 +206,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     pop_list <- list()
     
     for (y in pop_list_temp) {
-      loci_all_nas <- sum(glNA(y) > nInd(y))
+      loci_all_nas <- sum(glNA(y) >= nInd(y))
       nas_number <- sum(glNA(y)) / 2
       number_imputations <- nas_number - (loci_all_nas * nInd(y))
     }
@@ -224,7 +225,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
         cat(report(
           "  Method= 'neighbour':",
           number_imputations,
-          "values imputed.\n"
+          "values to be imputed.\n"
         ))
       }
     }
@@ -298,7 +299,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
         cat(report(
           "  Method= 'random':",
           number_imputations,
-          "values imputed.\n"
+          "values to be imputed.\n"
         ))
       }
     }
