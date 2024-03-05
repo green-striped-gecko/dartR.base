@@ -312,7 +312,7 @@ gl.report.ld.map <- function(x,
   if (plot.display) {
     
     if(is.null(histogram.colors)){
-      histogram.colors <- gl.colors(2)
+      histogram.colors <- gl.colors(2,verbose = 0)
     }
     
     if(is.null(plot.theme)){
@@ -320,7 +320,7 @@ gl.report.ld.map <- function(x,
     }
     
     if(is.null(boxplot.colors)){
-      boxplot.colors <- gl.colors("dis")(length(levels(pop(x))))
+      boxplot.colors <- gl.colors("dis",verbose = 0)(length(levels(pop(x))))
     }
     
     if (is(boxplot.colors, "function")) {
