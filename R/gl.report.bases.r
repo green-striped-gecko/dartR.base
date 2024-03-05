@@ -210,7 +210,7 @@ gl.report.bases <- function(x,
     } else {
         cat(paste("  Transitions  :", round(ts, 2), "\n"))
         cat(paste("  Transversions:", round(tv, 2), "\n"))
-        cat(paste("  tv/ts ratio:", round(ratio, 4), "\n\n"))
+        cat(paste("  ts/tv ratio:", round(ratio, 4), "\n\n"))
     }
     
     # Plot the results ----------------- 

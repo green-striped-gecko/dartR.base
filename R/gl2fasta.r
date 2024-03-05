@@ -128,30 +128,31 @@ gl2fasta <- function(x,
   "Fatal Error: Data must include type of alleles in the @loc.all slot.\n"))
     }
     
-    if (method == 1 && verbose >= 2) {
-        cat(
+    if (method == 1) {
+        if(verbose >=2){cat(
             report(
                 "  Assigning ambiguity codes to heterozygote SNPs, concatenating trimmed sequence\n"
             )
-        )
-    } else if (method == 2 && verbose >= 2) {
-        cat(
+        )}
+    } else if (method == 2) {
+      if(verbose >=2){cat(
             report(
                 "  Randomly allocating heterozygotes (1) to homozygotic state (0 or 2), concatenating trimmed sequence\n"
             )
-        )
-    } else if (method == 3 && verbose >= 2) {
-        cat(
+        )}
+    } else if (method == 3) {
+      if(verbose >=2){cat(
             report(
                 "  Assigning ambiguity codes to heterozygote SNPs, concatenating SNPs\n"
             )
-        )
-    } else if (method == 4 && verbose >= 2) {
-        cat(
+        )}
+    } else if (method == 4) {
+      if(verbose >=2){cat(
             report(
                 "  Randomly allocating heterozygotes (1) to homozygotic state (0 or 2), concatenating SNPs\n"
             )
         )
+      }
     } else {
         if (verbose >= 2) {
             cat(warn("Method not properly specified\n"))
