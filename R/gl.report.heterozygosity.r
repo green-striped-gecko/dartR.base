@@ -662,9 +662,10 @@ gl.report.heterozygosity <- function(x,
             boot.out = pop_boot[[pop_n]],
             conf = conf,
             type = CI.type,
-            index = stat_n,
-            t0 =  pop_res[stat_n, pop_n],
-            t = pop_boot[[pop_n]]$t[, stat_n]
+            index = stat_n
+            # ,
+            # t0 =  pop_res[stat_n, pop_n],
+            # t = pop_boot[[pop_n]]$t[, stat_n]
           )
           
           res_CI[[pop_n]][stat_n,] <-
@@ -985,6 +986,7 @@ gl.report.heterozygosity <- function(x,
     c.hets <- array(NA, nInd(x))
     c.hom0 <- array(NA, nInd(x))
     c.hom2 <- array(NA, nInd(x))
+    c.nloc <- array(NA, nInd(x))
     for (i in 1:nInd(x)) {
       c.na[i] <- sum(is.na(m[i, ]))
       c.hets[i] <-
@@ -993,13 +995,14 @@ gl.report.heterozygosity <- function(x,
         sum(m[i, ] == 0, na.rm = TRUE) / (nLoc(x) - c.na[i])
       c.hom2[i] <-
         sum(m[i, ] == 2, na.rm = TRUE) / (nLoc(x) - c.na[i])
+      c.nloc[i] <- (nLoc(x) - c.na[i])
     }
     
     # Join the sample sizes with the heterozygosities
     df <-
-      cbind.data.frame(x@ind.names, c.hets, c.hom0, c.hom2)
+      cbind.data.frame(x@ind.names, c.hets, c.hom0, c.hom2,c.nloc)
     names(df) <-
-      c("ind.name", "Ho", "f.hom.ref", "f.hom.alt")
+      c("ind.name", "Ho", "f.hom.ref", "f.hom.alt","n.Loc")
     
     # Boxplot
     if (plot.display) {

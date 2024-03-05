@@ -72,7 +72,7 @@ gl.subsample.loc <- function(x,
   nums <- sample(1:nLoc(x), size = n, replace = replace)
   # subsample the data
   x2 <- x[,nums]
-  # subsample the locus metrics [necessary because of replacment possibility]
+  # subsample the locus metrics [necessary because of replacement possibility]
   x2@other$loc.metrics <- x@other$loc.metrics[nums,]
   
   # Remove unused factor levels

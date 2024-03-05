@@ -8,7 +8,8 @@
 #' count of fixed allelic differences and the mean absolute allele frequency
 #' differences (AFD) between pairs of populations.
 #' 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object containing the SNP or SilicoDArT data
+#'  [required].
 #' @param x2 If two separate genlight objects are to be compared this can be
 #' provided here, but they must have the same number of SNPs [default NULL].
 #' @param method Method to calculate private alleles: 'pairwise' comparison or
@@ -255,21 +256,18 @@ gl.report.pa <- function(x,
       
       p1 <- as.matrix(pops[[i1]])
       p2 <- as.matrix(pops[[i2]])
-      p1alf <- colMeans(p1, na.rm = TRUE) / 2
-      p2alf <- colMeans(p2, na.rm = TRUE) / 2
+      
+      if(datatype1 == "SilicoDArT"){
+        p1alf <- colMeans(p1, na.rm = TRUE) 
+        p2alf <- colMeans(p2, na.rm = TRUE) 
+        
+      }else{
+        p1alf <- colMeans(p1, na.rm = TRUE) / 2
+        p2alf <- colMeans(p2, na.rm = TRUE) / 2
+      }
       
       pall[i, c("N1","N2")] <- c(nrow(p1), nrow(p2))
-      # pall[i, "fixed"] <- sum(abs(p1alf - p2alf) == 1, na.rm = T)
-      
-      # pall[i, "priv1"] <- sum(p2alf == 0 &
-      #                     p1alf != 0, na.rm = T) + sum(p2alf == 1 &
-      #                                                 p1alf != 1, na.rm = T)
-      # pall[i, "priv2"] <- sum(p1alf == 0 &
-      #                     p2alf != 0, na.rm = T) + sum(p1alf == 1 &
-      #                                                  p2alf != 1, na.rm = T)
-      
-      # Changing code to get the names of the SNP with fixed differences and 
-      # private alleles
+
       pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                              which(p2alf == 1 & p1alf != 1)))))
       pop1_pop2_pa_loc.names <- locNames(x)[pop1_pop2_pa]
@@ -290,9 +288,16 @@ gl.report.pa <- function(x,
       pall[i, "totalpriv"] <- pall[i, 8] + pall[i, 9]
       pall[i, "AFD"] <- round(mean(abs(p1alf - p2alf), na.rm = TRUE), 3)
       
-      pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
-      pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
-      pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+      if(datatype1 == "SilicoDArT"){
+        
+        pall[i,"Chao1"] <- NA
+        pall[i,"Chao2"] <- NA
+      }else{
+        pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
+        pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
+        pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
+        
+      }
       #### bootstrap test to check for asymmetry of private alleles
       if (test.asym)
       {
@@ -458,8 +463,15 @@ gl.report.pa <- function(x,
         
         p1 <- as.matrix(pops[[i1]])
         p2 <- as.matrix(pops[[i2]])
-        p1alf <- colMeans(p1, na.rm = T) / 2
-        p2alf <- colMeans(p2, na.rm = T) / 2
+        
+        if(datatype1 == "SilicoDArT"){
+          p1alf <- colMeans(p1, na.rm = TRUE) 
+          p2alf <- colMeans(p2, na.rm = TRUE) 
+          
+        }else{
+          p1alf <- colMeans(p1, na.rm = TRUE) / 2
+          p2alf <- colMeans(p2, na.rm = TRUE) / 2
+        }
         
         pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                                which(p2alf == 1 & p1alf != 1)))))
@@ -479,16 +491,6 @@ gl.report.pa <- function(x,
         pall_loc.names[[y]][["fd"]] <- pop1_pop2_fd_loc.names
         
         pall[i, 5:6] <- c(nrow(p1), nrow(p2))
-        # pall[i, 7] <- sum(abs(p1alf - p2alf) == 1, na.rm = T)
-        # 
-        # pall[i, 8] <- sum(p2alf == 0 &
-        #                     p1alf != 0, na.rm = T) + 
-        #   sum(p2alf == 1 & p1alf != 1, na.rm = T)
-        # 
-        # pall[i, 9] <- sum(p1alf == 0 &
-        #                     p2alf != 0, na.rm = T) + 
-        #   sum(p1alf == 1 & p2alf != 1, na.rm = T)
-        
         pall[i, 10] <- pall[i, 8] + pall[i, 9]
         pall[i, 11] <-
           round(mean(abs(p1alf - p2alf), na.rm = T), 3)

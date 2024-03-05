@@ -118,5 +118,5 @@ gl.colors <- function(
     cat(report("Completed:", funname, "\n"))
   }
   
-return(cols)  
+return(invisible(cols))
 }
