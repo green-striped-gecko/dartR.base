@@ -224,8 +224,8 @@ gl.diagnostics.hwe <- function(x,
   
   # fix the headings when there is only one pop
   if (length(levels(pop(x))) == 1) {
-    FisPops[, dumpop := NULL]
-    setnames(FisPops, "1", levels(pop(x)))
+    #FisPops[, dumpop := NULL]
+    setnames(FisPops, "round(Fis, 4)", levels(pop(x)))
   }
   setnames(FisPops, "rn", "Locus")
   FisPopsLong <-
