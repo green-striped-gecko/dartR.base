@@ -64,13 +64,13 @@ gl.filter.reproducibility <- function(x,
 	
 	# SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0)
     }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v2023.v3",
                      verbose = verbose)
     
     # CHECK DATATYPE

@@ -50,6 +50,6 @@ gl.load <- function(file,
         cat(report("Completed:", funname, "\n"))
     }
     
-    invisible(x)
+    invisible(x) 
     
 }
