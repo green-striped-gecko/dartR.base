@@ -40,11 +40,11 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object with the SNP data and associated metadata included.
 }
 \description{
-This function imports PLINK data into a genlight object and appends 
+This function imports PLINK data into a genlight object and append 
 available metadata.
 }
 \details{
-This function handles .ped or .bed files (with the associated files -- 
+This function handles .ped or .bed file (with the associate files - 
 e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be 
 installed and it is used to convert the .ped into a .bed, which is then
  converted into a genlight.

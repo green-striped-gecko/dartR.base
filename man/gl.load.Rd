@@ -4,11 +4,13 @@
 \alias{gl.load}
 \title{Loads an object from compressed binary format produced by gl.save()}
 \usage{
-gl.load(file, verbose = NULL)
+gl.load(file, compliance = FALSE, verbose = NULL)
 }
 \arguments{
 \item{file}{Name of the file to receive the binary version of the object
 [required].}
+
+\item{compliance}{Whether to make compliance check [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
