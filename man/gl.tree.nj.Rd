@@ -2,11 +2,12 @@
 % Please edit documentation in R/gl.tree.nj.r
 \name{gl.tree.nj}
 \alias{gl.tree.nj}
-\title{Outputs an nj tree to summarize genetic similarity among populations}
+\title{Outputs a tree to summarize genetic similarity among populations (e.g. phenogram)}
 \usage{
 gl.tree.nj(
   x,
   dist.matrix = NULL,
+  method = "nj",
   type = "phylogram",
   outgroup = NULL,
   labelsize = 0.7,
@@ -18,6 +19,8 @@ gl.tree.nj(
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{dist.matrix}{Distance matrix [default NULL].}
+
+\item{method}{Clustering method -- nj, neighbor-joining tree; UGPMA, UGPMA tree [default 'nj'].}
 
 \item{type}{Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
 [default "phylogram"].}
@@ -39,7 +42,7 @@ report [default 2 or as specified using gl.set.verbosity].}
 A tree file of class phylo.
 }
 \description{
-This function is a wrapper for the nj function or package ape applied to Euclidean
+This function is a wrapper for the nj function in package ape and hclust function in stats applied to Euclidean
 distances calculated from the genlight object.
 }
 \details{
