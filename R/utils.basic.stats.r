@@ -136,7 +136,7 @@ utils.basic.stats <- function(x) {
   Dest <- Dstp/(1 - mHs)
   # Dest <- ((Htp-mHs)/(1-mHs)) * (n.pop/(n.pop-1))
   
-  Fis <- (Hs/Ho)/Hs
+  Fis <- (Hs-Ho)/Hs
   
   mFis <- 1 - (mHo/mHs)
   
