@@ -42,6 +42,8 @@ gl.save <- function(x,
     
     # DO THE JOB
     
+    attributes(class(x))<- list(package="dartR.base")
+    
     saveRDS(x, file)
     cat(report("  Saved object of type", datatype, "to", file, "\n"))
     

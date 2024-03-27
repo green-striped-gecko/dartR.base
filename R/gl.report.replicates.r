@@ -115,7 +115,7 @@ gl.report.replicates <- function(x,
   
   colnames(mat_same) <- indNames(x)
   rownames(mat_same) <- indNames(x)
-  
+  perc <- NULL
   col_same <- as.data.frame(as.table(mat_same))
   colnames(col_same) <- c("ind1","ind2","perc")
   col_noNas <- as.data.frame(as.table(SameGenoNA_tmp))
