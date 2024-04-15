@@ -9,6 +9,7 @@ gl.smearplot(
   plot.display = TRUE,
   ind.labels = FALSE,
   label.size = 10,
+  group.pop = FALSE,
   plot.theme = theme_dartR(),
   plot.colors = NULL,
   plot.file = NULL,
@@ -27,6 +28,8 @@ gl.smearplot(
 \item{ind.labels}{If TRUE, individual IDs are shown [default FALSE].}
 
 \item{label.size}{Size of the individual labels [default 10].}
+
+\item{group.pop}{If ind.labels is TRUE, group by population [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}

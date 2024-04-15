@@ -64,13 +64,13 @@ gl.filter.reproducibility <- function(x,
 	
 	# SET COLOURS
     if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5))
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5),verbose=0)
     }
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v2023.v3",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -116,21 +116,24 @@ gl.filter.reproducibility <- function(x,
     # Tag presence/absence data
     if (datatype == "SilicoDArT") {
         repeatability <- x@other$loc.metrics$Reproducibility
-        for (i in 1:nLoc(x)) {
-            if (repeatability[i] < threshold) {
-                loc.list[i] <- locNames(x)[i]
-            }
-        }
+        # for (i in 1:nLoc(x)) {
+        #     if (repeatability[i] < threshold) {
+        #         loc.list[i] <- locNames(x)[i]
+        #     }
+        # }
+        
+        loc.list <- locNames(x)[which(repeatability < threshold)]
     }
     
     # SNP data
     if (datatype == "SNP") {
         repeatability <- x@other$loc.metrics$RepAvg
-        for (i in 1:nLoc(x)) {
-            if (repeatability[i] < threshold) {
-                loc.list[i] <- locNames(x)[i]
-            }
-        }
+        # for (i in 1:nLoc(x)) {
+        #     if (repeatability[i] < threshold) {
+        #         loc.list[i] <- locNames(x)[i]
+        #     }
+        # }
+        loc.list <- locNames(x)[which(repeatability < threshold)]
     }
     
     # Remove NAs from list of loci to be discarded

@@ -1,13 +1,14 @@
 #' @name gl.tree.nj
-#' @title Outputs an nj tree to summarize genetic similarity among populations
+#' @title Outputs a tree to summarize genetic similarity among populations (e.g. phenogram)
 #' @family graphics
 
 #' @description
-#' This function is a wrapper for the nj function or package ape applied to Euclidean
+#' This function is a wrapper for the nj function in package ape and hclust function in stats applied to Euclidean
 #' distances calculated from the genlight object.
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param dist.matrix Distance matrix [default NULL].
+#' @param method Clustering method -- nj, neighbor-joining tree; UGPMA, UGPMA tree [default 'nj'].
 #' @param outgroup Vector containing the population names that are the outgroups
 #'  [default NULL].
 #' @param type Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
@@ -40,11 +41,13 @@
 #' @importFrom stringr str_pad
 #' @importFrom ape nj root plot.phylo write.tree
 #' @importFrom graphics hist par
+#' @importFrom stats hclust
 #' @export
 #' @return A tree file of class phylo.
 
 gl.tree.nj <- function(x,
                        dist.matrix = NULL,
+                       method="nj",
                        type = "phylogram",
                        outgroup = NULL,
                        labelsize = 0.7,
@@ -61,6 +64,12 @@ gl.tree.nj <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
+    
+    method <- tolower(method)
+    if(method != "nj" && method != "ugpma"){
+      cat(warn("  Warning: method must be one of nj or ugpma. Set to nj. \n"))
+      method <- "nj"
+    }
     
     # DO THE JOB
     
@@ -79,14 +88,22 @@ gl.tree.nj <- function(x,
         cat(report("  Computing Euclidean distances\n"))
       }
       d <- round(as.matrix(dist(t)), 4)
+      d <- as.dist(d)
       # row.names(d) <- c(paste(row.names(d),' ')) row.names(d) <- substr(row.names(d),1,10)
       
     }else{
       d <- dist.matrix
     }
     
-    # Plot the distances as an nj tree
-    tree <- ape::nj(d)
+    if(method=="ugpma"){
+      # Plot the distances as a UGPMA tree
+      hc <- stats::hclust(d, method="average")
+      tree <- as.phylo(hc)
+    } else {
+      # Plot the distances as an nj tree
+      tree <- ape::nj(d)
+    }
+    
     if (!is.null(outgroup)) {
         # Function plot.phylo{ape} has the labels all of the same length outgroup <- stringr::str_pad(outgroup, nchar(tree$tip.label[1]),
         # side = c('right'), pad = ' ') # Truncate to 10 characters outgroup <- substr(outgroup,1,10) Root the tree
@@ -120,6 +137,7 @@ gl.tree.nj <- function(x,
         }
         ape::write.tree(tree, file = treefile)
     }
+    
     
     # Reset the par options
 	#now done by on exit

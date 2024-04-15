@@ -3,7 +3,7 @@
 \name{gl.report.fstat}
 \alias{gl.report.fstat}
 \title{Reports various statistics of genetic differentiation between
-populations with confident intervals}
+populations with confidence intervals}
 \usage{
 gl.report.fstat(
   x,
@@ -24,12 +24,12 @@ gl.report.fstat(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{nboots}{Number of bootstrap replicates to obtain confident intervals
+\item{nboots}{Number of bootstrap replicates to obtain confidence intervals
 [default 0].}
 
 \item{conf}{The confidence level of the required interval  [default 0.95].}
 
-\item{CI.type}{Method to estimate confident intervals. One of
+\item{CI.type}{Method to estimate confidence intervals. One of
 "norm", "basic", "perc" or "bca" [default "bca"].}
 
 \item{ncpus}{Number of processes to be used in parallel operation. If ncpus
@@ -83,7 +83,7 @@ the observed amount of genetic variation (Hedrick 2005).
 Sampling errors arise because allele frequencies in our samples differ from 
 those in the subpopulations from which they were taken (Holsinger, 2012).
 
-Confident Intervals are obtained using bootstrapping.
+Confidence Intervals are obtained using bootstrapping.
 }
 \details{
 Even though Fst and its relatives can predict evolutionary processes
@@ -187,7 +187,7 @@ properties that make them valuable resources to interpret genetic
 
     }
 
- \strong{Confident Intervals}
+ \strong{Confidence Intervals}
 
 The uncertainty of a parameter, in this case the mean of the statistic, can
 be summarised by a confidence interval (CI) which includes the true parameter
@@ -230,7 +230,7 @@ The studentized bootstrap interval ("stud") was not included in the CI types
      (1997, p. 194) suggest that the number of bootstrap replicates should
      be between 1000 and 2000.
 
- \strong{It is important} to note that unreliable confident intervals will be
+ \strong{It is important} to note that unreliable confidence intervals will be
   obtained if too few number of bootstrap replicates are used.
   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
    if bootstrap replicates are too few. Consider increasing then number of
@@ -292,7 +292,7 @@ If a plot.file is given, the plot arising from this function is saved as an
 
     Opening and terminating R sessions in each core involves a significant
     amount of processing time, therefore parallelisation in Windows machines
-   is only quicker than not usung parallelisation when nboots > 1000-2000.
+   is only quicker than not using parallelisation when nboots > 1000-2000.
 }
 \examples{
 res <- gl.report.fstat(platypus.gl)
