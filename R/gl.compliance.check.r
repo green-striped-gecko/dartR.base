@@ -134,6 +134,30 @@ gl.compliance.check <- function(x,
         }
     }
     
+    # Check that the population variable exists, and if it does not, create it
+    # with a single population 'pop1'
+    
+    if (verbose >= 2) {
+      cat(report("  Checking for population assignments\n"))
+    }
+    if (is.null(pop(x)) |
+        is.na(length(pop(x))) | length(pop(x)) <= 0) {
+      if (verbose >= 1) {
+        cat(
+          warn(
+            "  Population assignments not detected, individuals assigned
+                    to a single population labelled 'pop1'\n"
+          )
+        )
+      }
+      pop(x) <- array("pop1", dim = nInd(x))
+      pop(x) <- as.factor(pop(x))
+    } else {
+      if (verbose >= 1) {
+        cat(report("    Population assignments confirmed\n"))
+      }
+    }
+    
     # Check for the locus metrics, and create if they do not exist.
     # Check for the locus metrics flags, and create if they do not exist.
     # Check for the verbosity flag, and create if it does not exist.
@@ -234,30 +258,6 @@ gl.compliance.check <- function(x,
     
     # convert the ind.metric slot into a dataframe
     x@other$ind.metrics <- as.data.frame(x@other$ind.metrics)
-
-    # Check that the population variable exists, and if it does not, create it
-    # with a single population 'pop1'
-    
-    if (verbose >= 2) {
-        cat(report("  Checking for population assignments\n"))
-    }
-    if (is.null(pop(x)) |
-        is.na(length(pop(x))) | length(pop(x)) <= 0) {
-        if (verbose >= 1) {
-            cat(
-                warn(
-                    "  Population assignments not detected, individuals assigned
-                    to a single population labelled 'pop1'\n"
-                )
-            )
-        }
-        pop(x) <- array("pop1", dim = nInd(x))
-        pop(x) <- as.factor(pop(x))
-    } else {
-        if (verbose >= 1) {
-            cat(report("    Population assignments confirmed\n"))
-        }
-    }
     
     # check if coordinates are in the right place and not misspell
     if (!is.null(x@other$latlong)) {
@@ -276,6 +276,16 @@ gl.compliance.check <- function(x,
             "  Spelling of coordinates checked and changed if necessary to 
             lat/lon\n"
         ))
+    }
+    
+    # Check SNP position
+    if(is.null(x$position) & "SnpPosition" %in% names(x$other$loc.metrics)){
+      x$position <- x$other$loc.metrics$SnpPosition
+      if (verbose >= 2) {
+        cat(report(
+          "  Assigning SNP position using slot gl$other$loc.metrics$SnpPosition \n"
+        ))
+      }
     }
     
     # ADD TO HISTORY

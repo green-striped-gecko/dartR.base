@@ -2,8 +2,8 @@
 % Please edit documentation in R/gl.filter.maf.r
 \name{gl.filter.maf}
 \alias{gl.filter.maf}
-\title{Filters loci on the basis of minor allele frequency (MAF) in a 
-genlight object}
+\title{Filters loci on the basis of minor allele frequency (MAF) or minor
+allele count (MAC)}
 \usage{
 gl.filter.maf(
   x,
@@ -25,24 +25,24 @@ gl.filter.maf(
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{threshold}{Threshold MAF -- loci with a MAF less than the threshold
-will be removed. If a value > 1 is provided it will be 
-interpreted as MAC (i.e. the minimum number of times an allele needs to be 
-observed) [default 0.01].}
+will be removed. If a value > 1 is provided it will be interpreted as MAC
+(i.e. the minimum number of times an allele needs to be observed)
+[default 0.01].}
 
 \item{by.pop}{Whether MAF should be calculated by population [default FALSE].}
 
-\item{pop.limit}{Minimum number of populations in which MAF should be less 
-than the threshold for a locus to be filtered out. Only used if by.pop=TRUE. 
-The default value is half of the populations [default ceiling(nPop(x)/2)].}
+\item{pop.limit}{Minimum number of populations in which MAF should be less
+than the threshold for a locus to be filtered out. Only used if by.pop
+= TRUE. The default value is half of the populations
+[default ceiling(nPop(x)/2)].}
 
-\item{ind.limit}{Minimum number of individuals that a population should 
+\item{ind.limit}{Minimum number of individuals that a population should
 contain to calculate MAF. Only used if by.pop=TRUE [default 10].}
 
-\item{recalc}{Recalculate the locus metadata statistics if any individuals
-are deleted in the filtering [default FALSE].}
+\item{recalc}{Recalculate the locus metadata statistics [default FALSE].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
-[default TRUE].}
+\item{plot.display}{If TRUE, histograms of base composition are displayed in
+the plot window [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
@@ -50,35 +50,17 @@ are deleted in the filtering [default FALSE].}
 \item{plot.colors}{List of two color names for the borders and fill of the
 plots [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+\item{plot.file}{Name for the RDS binary file to save (base name only,
+exclude extension) [default NULL].}
 
-\item{plot.dir}{Directory in which to save files [default = working directory]}
+\item{plot.dir}{Directory in which to save files
+[default = working directory].}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default 2, unless specified using gl.set.verbosity].
- 
- @details 
-Careful consideration needs to be given to the settings to be used for this 
-fucntion. When the filter is applied globally (i.e. \code{by.pop=FALSE}) but 
-the data include multiple population, there is the risk to remove markers 
-because the allele frequencies is low (at global level) but the allele 
-frequencies
-for the same markers may be high within some of the populations (especially 
-if 
-the per-population sample size is small). Similarly, not always it is a 
-sensible choice to run this function using \code{by.pop=TRUE} because allele 
-that are rare in a population may be very common in other, but the (possible) 
-allele frequencies will depend on the sample size within each population. 
-Where the purpose of filtering for MAF is to remove possible spurious alleles 
-(i.e. sequencing errors), it is perhaps better to filter based on the number 
-of times an allele is observed (MAC, Minimum Allele Count), under the 
-assumption that if an allele is observed >MAC, it is fairly rare to be an 
-error.
-\bold{From v2.1} The threshold can take values > 1. In this case, these are 
-interpreted as a threshold for MAC.}
+ [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
 The reduced genlight dataset
@@ -87,6 +69,29 @@ The reduced genlight dataset
 This script calculates the minor allele frequency for each locus and updates
 the locus metadata for FreqHomRef, FreqHomSnp, FreqHets and MAF (if it
 exists). It then uses the updated metadata for MAF to filter loci.
+}
+\details{
+Careful consideration needs to be given to the settings to be used for this
+function. When the filter is applied globally (i.e. \code{by.pop=FALSE}) but
+the data include multiple population, there is the risk to remove markers
+because the allele frequencies is low (at global level) but the allele
+frequencies for the same markers may be high within some of the populations
+(especially if the per-population sample size is small). Similarly, not
+always it is a sensible choice to run this function using \code{by.pop=TRUE}
+because allele that are rare in a population may be very common in other,
+but the (possible) allele frequencies will depend on the sample size within
+each population. Where the purpose of filtering for MAF is to remove possible
+ spurious alleles (i.e. sequencing errors), it is perhaps better to filter
+  based on the number of times an allele is observed (MAC, Minimum Allele
+  Count), under the assumption that if an allele is observed > MAC, it is
+  fairly rare to be an error.
+
+\bold{From v2.1} The threshold can take values > 1. In this case, these are
+interpreted as a threshold for MAC.
+}
+\examples{
+result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
+result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
 }
 \seealso{
 Other matched filter: 

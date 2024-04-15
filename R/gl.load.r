@@ -10,6 +10,7 @@
 
 #' @param file Name of the file to receive the binary version of the object
 #' [required].
+#' @param compliance Whether to make compliance check [default FALSE]. 
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -26,6 +27,7 @@
 #' @return The loaded object
 
 gl.load <- function(file,
+                    compliance = FALSE,
                     verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -42,7 +44,9 @@ gl.load <- function(file,
     datatype <- utils.check.datatype(x, verbose = verbose)
     cat(report("  Loaded object of type", datatype, "from", file, "\n"))
     
+    if(compliance){
     x <- gl.compliance.check(x)
+    }
     
     # FLAG SCRIPT END
     
@@ -50,6 +54,6 @@ gl.load <- function(file,
         cat(report("Completed:", funname, "\n"))
     }
     
-    invisible(x)
+    invisible(x) 
     
 }

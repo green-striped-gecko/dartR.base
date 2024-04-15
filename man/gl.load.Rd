@@ -4,11 +4,13 @@
 \alias{gl.load}
 \title{Loads an object from compressed binary format produced by gl.save()}
 \usage{
-gl.load(file, verbose = NULL)
+gl.load(file, compliance = FALSE, verbose = NULL)
 }
 \arguments{
 \item{file}{Name of the file to receive the binary version of the object
 [required].}
+
+\item{compliance}{Whether to make compliance check [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -34,7 +36,6 @@ Other io:
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.read.silicodart}()},
-\code{\link{gl.read.vcf}()},
 \code{\link{gl.save}()},
 \code{\link{gl.write.csv}()},
 \code{\link{utils.read.dart}()}

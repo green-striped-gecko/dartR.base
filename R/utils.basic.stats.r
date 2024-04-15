@@ -113,17 +113,17 @@ utils.basic.stats <- function(x) {
   }
 
    # option 1 as hierfstat basic.stats
-   # Ht <- 2 * (1-q_mean) * q_mean
-   # Ht <- Ht + mHs / mn /n.pop - mHo / 2 / mn / n.pop
-   # Dst <- Ht - mHs
-   # Dstp <- n.pop/(n.pop - 1) * Dst
-   # Htp <- mHs + Dstp
-   
-   # option 2 as in Nei 1987
    Ht <- 2 * (1-q_mean) * q_mean
-   Htp <- Ht + (mHs / mn) - (mHo / (2 * mn * n.pop))
-   Dstp <- (n.pop*(Htp-mHs))/(n.pop-1)
+   Ht <- Ht + mHs / mn /n.pop - mHo / 2 / mn / n.pop
    Dst <- Ht - mHs
+   Dstp <- n.pop/(n.pop - 1) * Dst
+   Htp <- mHs + Dstp
+
+   # option 2 as in Nei 1987
+   # Ht <- 2 * (1-q_mean) * q_mean
+   # Htp <- Ht + (mHs / mn) - (mHo / (2 * mn * n.pop))
+   # Dstp <- (n.pop*(Htp-mHs))/(n.pop-1)
+   # Dst <- Ht - mHs
    
   Fst <- Dst / Ht
   
@@ -133,10 +133,10 @@ utils.basic.stats <- function(x) {
   
   Gst_H <- Fstp / Gst_max
   
-  # Dest <- Dstp/(1 - mHs)
-  Dest <- ((Htp-mHs)/(1-mHs)) * (n.pop/(n.pop-1))
+  Dest <- Dstp/(1 - mHs)
+  # Dest <- ((Htp-mHs)/(1-mHs)) * (n.pop/(n.pop-1))
   
-  Fis <- (Hs/Ho)/Hs
+  Fis <- (Hs-Ho)/Hs
   
   mFis <- 1 - (mHo/mHs)
   
@@ -169,9 +169,9 @@ utils.basic.stats <- function(x) {
   overall <- colMeans(res, na.rm=TRUE)
   overall["Fst"] <- overall["Dst"] / overall["Ht"]
   overall["Fis"] <- 1 - (overall["Ho"] / overall["Hs"])
-  # overall["Dest"] <- (overall["Dstp"] / (1 - overall["Hs"]))
-  overall["Dest"] <- (overall["Dstp"] / (1 - overall["Hs"])) * 
-    (mean(n.pop)/(mean(n.pop)-1))
+  overall["Dest"] <- (overall["Dstp"] / (1 - overall["Hs"]))
+  # overall["Dest"] <- (overall["Dstp"] / (1 - overall["Hs"])) * 
+  #   (mean(n.pop)/(mean(n.pop)-1))
   overall["Fstp"] <- overall["Dstp"] / overall["Htp"]
   overall["Gst_H"] <- overall["Fstp"] / overall["Gst_max"]
   

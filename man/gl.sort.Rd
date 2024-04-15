@@ -9,9 +9,9 @@ gl.sort(x, sort.by = "pop", order.by = NULL, verbose = NULL)
 \arguments{
 \item{x}{genlight object containing SNP/silicodart genotypes}
 
-\item{sort.by}{either "ind", "pop". Default is pop}
+\item{sort.by}{either "ind", "pop" [default "pop"].}
 
-\item{order.by}{that is used to order individuals or loci. Depening on the order.by parameter, this needs to be a vector of length of nPop(genlight) for populations or  nInd(genlight) for individuals. If not specified alphabetical order of populations or individuals is used. For sort.by="ind" order.by can be also a vector specifying the order for each individual (for example another ind.metrics)}
+\item{order.by}{that is used to order individuals or loci. Depending on the order.by parameter, this needs to be a vector of length of nPop(genlight) for populations or  nInd(genlight) for individuals. If not specified alphabetical order of populations or individuals is used. For sort.by="ind" order.by can be also a vector specifying the order for each individual (for example another ind.metrics)}
 
 \item{verbose}{set verbosity}
 }

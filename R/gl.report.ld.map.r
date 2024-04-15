@@ -24,7 +24,7 @@
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param ld.max.pairwise Maximum distance in number of base pairs at which LD 
-#' should be calculated [default NULL].
+#' should be calculated [default 1000000].
 #' @param maf Minor allele frequency (by population) threshold to filter out 
 #' loci. If a value > 1 is provided it will be interpreted as MAC (i.e. the
 #'  minimum number of times an allele needs to be observed) [default 0.05].
@@ -81,7 +81,7 @@
 #' @return A dataframe with information for each SNP pair in LD. 
 
 gl.report.ld.map <- function(x,
-                           ld.max.pairwise = NULL,
+                           ld.max.pairwise = 1000000,
                            maf = 0.05,
                            ld.stat = "R.squared",
                            ind.limit = 10,
@@ -137,7 +137,15 @@ gl.report.ld.map <- function(x,
   # by default SNPs are mapped to a reference genome
   SNP_map <- TRUE
   
-  if(is.null(ld.max.pairwise)){
+  if(is.null(ld.max.pairwise) |
+     is.null(x$chromosome)){
+    cat(warn(
+      "  There is no information in the chromosome/position slot of the genlight object.
+      Assigning the same chromosome ('1') to all the SNPs in the dataset.
+      Assigning a sequence from 1 to n loci as the position of each SNP.
+      Calculating LD for all possible SNP pair combinations"
+
+    ))
     x$position <- 1:nLoc(x)
     x$chromosome <- as.factor(rep("1",nLoc(x)))
     # SNPs are not mapped to a reference genome
@@ -312,7 +320,7 @@ gl.report.ld.map <- function(x,
   if (plot.display) {
     
     if(is.null(histogram.colors)){
-      histogram.colors <- gl.colors(2)
+      histogram.colors <- gl.colors(2,verbose = 0)
     }
     
     if(is.null(plot.theme)){
@@ -320,7 +328,7 @@ gl.report.ld.map <- function(x,
     }
     
     if(is.null(boxplot.colors)){
-      boxplot.colors <- gl.colors("dis")(length(levels(pop(x))))
+      boxplot.colors <- gl.colors("dis",verbose = 0)(length(levels(pop(x))))
     }
     
     if (is(boxplot.colors, "function")) {

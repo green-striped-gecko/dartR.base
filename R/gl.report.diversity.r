@@ -6,7 +6,8 @@
 #'This script takes a genlight object and calculates alpha and beta diversity
 #'for q = 0:2. Formulas are taken from Sherwin et al. 2017. The paper describes
 #'nicely the relationship between the different q levels and how they relate to
-#'population genetic processes such as dispersal and selection.
+#'population genetic processes such as dispersal and selection. The citation 
+#'below also includes a link to a 3-minute video that explains, q, D and H.
 
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
@@ -44,10 +45,22 @@
 #'The first two show the number of loci used. The name of each of the rest of 
 #'the tables starts with three terms separated by underscores.
 #' 
-#'The first term refers to the q value (0 to 2).
+#' The first term refers to the q value (0 to 2).  The q values identify 
+#' different ways of summarising diversity (H): q=0 is simply the number of 
+#' alleles per locus, with no information about their relative proportions; q=2
+#'  is the expected heterozygosity, ie the chance of drawing two different 
+#'  alleles at random from the population; q=1 is the Shannon measure of 
+#'  ‘surprise, relating to how likely it is that the next allele drawn will be
+#'   one  that has not been seen before (Sherwin et al 2017, 2021, and 
+#'   associated video). 
 #' 
-#'The second term refers to whether it is the diversity measure (H) or its 
-#'transformation to Hill numbers (D). 
+#' The second term refers to whether it is the diversity measure (H) or its 
+#' transformation to Hill numbers (D)  The D value tells you how many 
+#' equally-frequent alleles there would need to be to give the corresponding
+#'  H-value (in the actual population)  The D-values are all in units of 
+#'  numbers of alleles, so they can be plotted against the q-value to get a
+#'   rich representation of the diversity  (Box 1, Fig II in Sherwin et al 
+#'   2017, 2021, and associated video).
 #' 
 #'The third term refers to whether the diversity is calculated within 
 #'populations (alpha) or between populations (beta). 
@@ -75,16 +88,18 @@
 #'  Contributors: William B. Sherwin, Alexander Sentinella
 
 #' @examples
-#' div <- gl.report.diversity(bandicoot.gl[1:10,1:100],library='brewer', table=FALSE,pbar=FALSE)
+#' div <- gl.report.diversity(bandicoot.gl,library='brewer', table=FALSE,pbar=FALSE)
 #' div$zero_H_alpha
 #' div$two_H_beta
 #' names(div)
 
 #' @references
-#'Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017). Information Theory
-#' Broadens the Spectrum of Molecular Ecology and Evolution. TREE 32(12)
-#'  948-963. doi:10.1016/j.tree.2017.09.12
-
+#' Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017, 2021). Information
+#'  Theory Broadens the Spectrum of Molecular Ecology and Evolution. TREE
+#'   32(12) 948-963. doi:10.1016/j.tree.2017.09.12 AND TREE 36:955-6 
+#'   doi.org/10.1016/j.tree.2021.07.005 AND 3-Minute video:
+#'   ars.els-cdn.com/content/image/1-s2.0-S0169534717302550-mmc2.mp4
+#' 
 #' @import reshape2
 
 #' @export

@@ -82,6 +82,18 @@ gl.filter.ld <- function(x,
   x <- gl.keep.pop(x,pop.list = as.character(unique(ld.report$pop)),verbose = 0)
   
   ld_tmp <- ld.report[ld.report$ld_stat >= threshold, ]
+  if(nrow(ld_tmp) == 0){
+    cat(report(paste(
+      " No pair of loci were found to be in LD using a threshold of",
+      threshold,"\n","Returning an unaltered genlight object\n ")))
+    # FLAG SCRIPT END
+    
+    if (verbose > 0) {
+      cat(report("Completed:", funname, "\n"))
+    }
+    
+    return(invisible(x_hold))
+  }else{
   ld_tmp$test_stat <- ld_tmp$locus_a.stat_keep >= ld_tmp$locus_b.stat_keep
   ld_tmp$pop <- as.factor(ld_tmp$pop)
   ld_tmp_pop <- split(ld_tmp, f = ld_tmp$pop)
@@ -133,5 +145,6 @@ gl.filter.ld <- function(x,
   }
   
   return(invisible(x2))
+}
   
 }

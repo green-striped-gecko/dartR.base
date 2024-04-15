@@ -1,7 +1,7 @@
 #' @name gl.report.fstat
 #' @title
 #' Reports various statistics of genetic differentiation between
-#' populations with confident intervals
+#' populations with confidence intervals
 #' @family matched reports
 #' @description
 #' This function calculates four genetic differentiation between populations
@@ -20,13 +20,13 @@
 #' Sampling errors arise because allele frequencies in our samples differ from 
 #' those in the subpopulations from which they were taken (Holsinger, 2012).
 #'
-#' Confident Intervals are obtained using bootstrapping.
+#' Confidence Intervals are obtained using bootstrapping.
 #'
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param nboots Number of bootstrap replicates to obtain confident intervals
+#' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
 #' @param conf The confidence level of the required interval  [default 0.95].
-#' @param CI.type Method to estimate confident intervals. One of
+#' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
 #' > 1 parallel operation is activated,see "Details" section [default 1].
@@ -149,7 +149,7 @@
 #'
 #'     }
 #'
-#'  \strong{Confident Intervals}
+#'  \strong{Confidence Intervals}
 #'
 #' The uncertainty of a parameter, in this case the mean of the statistic, can
 #' be summarised by a confidence interval (CI) which includes the true parameter
@@ -192,7 +192,7 @@
 #'      (1997, p. 194) suggest that the number of bootstrap replicates should
 #'      be between 1000 and 2000.
 #'
-#'  \strong{It is important} to note that unreliable confident intervals will be
+#'  \strong{It is important} to note that unreliable confidence intervals will be
 #'   obtained if too few number of bootstrap replicates are used.
 #'   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
 #'    if bootstrap replicates are too few. Consider increasing then number of
@@ -254,7 +254,7 @@
 #'
 #'     Opening and terminating R sessions in each core involves a significant
 #'     amount of processing time, therefore parallelisation in Windows machines
-#'    is only quicker than not usung parallelisation when nboots > 1000-2000.
+#'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #'
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -629,14 +629,14 @@ gl.report.fstat <- function(x,
     if (nboots > 0 & npops > 2) {
       print(list(
         Stat_matrices = mat_pops,
-        Confident_Intervals = CI
+        Confidence_Intervals = CI
       ))
     }
     
     if (nboots > 0 & npops <= 2) {
       print(list(
         Stat_tables = data.frame(pairpop_res),
-        Confident_Intervals = CI
+        Confidence_Intervals = CI
       ))
     }
     
@@ -719,13 +719,13 @@ gl.report.fstat <- function(x,
   if (nboots > 0 & npops > 2) {
     return(list(
       Stat_matrices = mat_pops,
-      Confident_Intervals = CI
+      Confidence_Intervals = CI
     ))
   }
   
   if (nboots > 0 & npops <= 2) {
     return(list(Stat_tables = pairpop_res,
-                Confident_Intervals = CI))
+                Confidence_Intervals = CI))
   }
   
   if (nboots == 0 & npops > 2) {
