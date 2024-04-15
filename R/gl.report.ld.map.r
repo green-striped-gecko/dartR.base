@@ -137,7 +137,15 @@ gl.report.ld.map <- function(x,
   # by default SNPs are mapped to a reference genome
   SNP_map <- TRUE
   
-  if(is.null(ld.max.pairwise)){
+  if(is.null(ld.max.pairwise) |
+     is.null(x$chromosome)){
+    cat(warn(
+      "  There is no information in the chromosome/position slot of the genlight object.
+      Assigning the same chromosome ('1') to all the SNPs in the dataset.
+      Assigning a sequence from 1 to n loci as the position of each SNP.
+      Calculating LD for all possible SNP pair combinations"
+
+    ))
     x$position <- 1:nLoc(x)
     x$chromosome <- as.factor(rep("1",nLoc(x)))
     # SNPs are not mapped to a reference genome
