@@ -21,9 +21,9 @@
 #' @param plot.out If TRUE, a diagnostic plot is displayed showing a scree plot
 #' for the "informative" axes and a histogram of eigenvalues of the remaining 
 #' "noise" axes [Default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.theme Theme for the plot. See Details for options
 #'  [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
+#' @param plot.colors List of two color names for the borders and fill of the
 #'  plot [default gl.colors(2)].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
@@ -192,8 +192,8 @@ gl.pcoa <- function(x,
                     parallel = FALSE,
                     n.cores = 1,
                     plot.out = TRUE,
-                    plot_theme = theme_dartR(),
-                    plot_colors = gl.colors(2),
+                    plot.theme = theme_dartR(),
+                    plot.colors = gl.colors(2),
                     plot.file=NULL,
                     plot.dir=NULL,
                     verbose = NULL) {
@@ -549,10 +549,10 @@ gl.pcoa <- function(x,
     
     p1 <-
         ggplot(df, aes(x = eigenvalue, y = percent)) + 
-      geom_line(color = plot_colors[2]) + 
-      geom_point(color = plot_colors[1], size = 4) +
+      geom_line(color = plot.colors[2]) + 
+      geom_point(color = plot.colors[1], size = 4) +
         geom_hline(yintercept = 10, color = "blue") + 
-      plot_theme + xlab(xlab) + 
+      plot.theme + xlab(xlab) + 
       ylab(ylab) + 
       ggtitle(title)
     
@@ -564,9 +564,9 @@ gl.pcoa <- function(x,
     
     p2 <-
         ggplot(as.data.frame(eig.raw.noise), aes(x = eig.raw.noise)) + 
-      geom_histogram(bins = 50, color = plot_colors[1], fill = plot_colors[2]) +
+      geom_histogram(bins = 50, color = plot.colors[1], fill = plot.colors[2]) +
         geom_vline(xintercept = 0, color = "blue") +
-      plot_theme + 
+      plot.theme + 
       xlab("Eigenvalue") + 
       ylab("Count") + 
       ggtitle(main)
