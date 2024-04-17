@@ -70,10 +70,6 @@ In order to ensure that replicated individuals are properly identified, it's
  the second histogram. This means that there should be bins with zero counts 
  between these two peaks.
 }
-\examples{
-res_rep <- gl.report.replicates(platypus.gl, loc_threshold = 500, 
-perc_geno = 0.85)
-}
 \seealso{
 Other report functions: 
 \code{\link{gl.report.pa}()}
