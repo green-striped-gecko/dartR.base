@@ -33,7 +33,7 @@ progress log; 3, progress and results summary; 5, full report
 The reduced genlight object.
 }
 \description{
-This function uses the statistic set in the parameter \code{stat_keep} from 
+This function uses the statistic set in the parameter \code{stat.keep} from 
 function \code{\link{gl.report.ld.map}} to choose the SNP to keep when two 
 SNPs are in LD. When a SNP is selected to be filtered out in each pairwise 
 comparison, the function stores its  name in a list. In subsequent pairwise
