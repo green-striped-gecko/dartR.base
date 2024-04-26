@@ -3,7 +3,7 @@
 #' @family matched filter
 #' 
 #' @description
-#' This function uses the statistic set in the parameter \code{stat_keep} from 
+#' This function uses the statistic set in the parameter \code{stat.keep} from 
 #' function \code{\link{gl.report.ld.map}} to choose the SNP to keep when two 
 #' SNPs are in LD. When a SNP is selected to be filtered out in each pairwise 
 #' comparison, the function stores its  name in a list. In subsequent pairwise
@@ -81,7 +81,7 @@ gl.filter.ld <- function(x,
   
   x <- gl.keep.pop(x,pop.list = as.character(unique(ld.report$pop)),verbose = 0)
   
-  ld_tmp <- ld.report[ld.report$ld_stat >= threshold, ]
+  ld_tmp <- ld.report[ld.report$ld.stat >= threshold, ]
   if(nrow(ld_tmp) == 0){
     cat(report(paste(
       " No pair of loci were found to be in LD using a threshold of",
@@ -94,7 +94,7 @@ gl.filter.ld <- function(x,
     
     return(invisible(x_hold))
   }else{
-  ld_tmp$test_stat <- ld_tmp$locus_a.stat_keep >= ld_tmp$locus_b.stat_keep
+  ld_tmp$test_stat <- ld_tmp$locus_a.stat.keep >= ld_tmp$locus_b.stat.keep
   ld_tmp$pop <- as.factor(ld_tmp$pop)
   ld_tmp_pop <- split(ld_tmp, f = ld_tmp$pop)
   
