@@ -19,7 +19,7 @@
 #' @param plot.display If TRUE, the plot is displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
+#' [default NULL].
 #' @param plot.colors List of four color names for the column fill for homozygous reference,
 #' heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
@@ -59,7 +59,7 @@ gl.smearplot <- function(x,
                         ind.labels = FALSE,
                         label.size = 10,
                         group.pop = FALSE, 
-                        plot.theme = theme_dartR(),
+                        plot.theme = NULL,
                         plot.colors = NULL,
                         plot.file=NULL,
                         plot.dir=NULL,
@@ -306,6 +306,10 @@ gl.smearplot <- function(x,
                               ncol = 1,
                               dir = "v",
                               scales = "free_y")
+    }
+    
+    if(!is.null(plot.theme)){
+      p3 <- p3 + plot.theme
     }
     
     # PRINTING OUTPUTS

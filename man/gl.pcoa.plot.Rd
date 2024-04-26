@@ -24,7 +24,8 @@ gl.pcoa.plot(
   pt.shapes = NULL,
   label.size = 1,
   axis.label.size = 1.5,
-  save2tmp = FALSE,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
@@ -33,8 +34,7 @@ gl.pcoa.plot(
 eigenvalues [required].}
 
 \item{x}{Name of the genlight object or fd object containing the SNP
-genotypes or Tag P/A (SilicoDArT) genotypes or the Distance Matrix used to
-generate the ordination [required].}
+genotypes or Tag P/A (SilicoDArT) genotypes [required to gain access to metadata].}
 
 \item{scale}{If TRUE, scale the x and y axes in proportion to \% variation
 explained [default FALSE].}
@@ -81,8 +81,11 @@ mouse-over to identify points [default FALSE].}
 \item{axis.label.size}{Specify the size of the displayed axis labels
 [default 1.5].}
 
-\item{save2tmp}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Name for the RDS binary file to save (base name only, 
+exclude extension) [default NULL].}
+
+\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+by the global working directory or tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -119,6 +122,12 @@ Points displayed in the ordination can be identified if the option
  friendly. Identification of points is by moving the mouse over them. Refer
  to the plotly package for further information.
 The interactive option is automatically enabled for 3D plotting.
+
+If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+specified for the plot to be saved.
+If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+ directory; otherwise to the tempdir().
 }
 \examples{
  test <- gl.pcoa(platypus.gl)
@@ -142,7 +151,7 @@ scale=TRUE)
 gl.pcoa.plot(pca, gl, pop.labels='none',scale=TRUE)
 gl.pcoa.plot(pca, gl, axis.label.size=1.2, interactive=TRUE)
 gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, xaxis=1, yaxis=2, zaxis=3)
-# color AND SHAPE ADJUSTMENTS
+# COLOR AND SHAPE ADJUSTMENTS
 shp <- gl.select.shapes(select=c(16,17,17,0,2))
 col <- gl.select.colors(library='brewer',palette='Spectral',ncolors=11,
 select=c(1,9,3,11,11))
@@ -150,6 +159,10 @@ gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop',
 pt.colors=col, pt.shapes=shp, axis.label.size=1, hadjust=1.5,vadjust=1)
 gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
  pt.colors=col, pt.shapes=shp, axis.label.size=1)
+# DISTANCE MATRIX
+ D <- gl.dist.ind(gl)
+ pco <- gl.pcoa(D)
+ gl.pcoa.plot(pco,gl,ellipse=TRUE)
  }
 }
 \seealso{

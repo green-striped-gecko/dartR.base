@@ -13,8 +13,8 @@ gl.pcoa(
   parallel = FALSE,
   n.cores = 1,
   plot.out = TRUE,
-  plot_theme = theme_dartR(),
-  plot_colors = gl.colors(2),
+  plot.theme = theme_dartR(),
+  plot.colors = gl.colors(2),
   plot.file = NULL,
   plot.dir = NULL,
   verbose = NULL
@@ -42,10 +42,10 @@ Windows) [default FALSE].}
 for the "informative" axes and a histogram of eigenvalues of the remaining 
 "noise" axes [Default TRUE].}
 
-\item{plot_theme}{Theme for the plot. See Details for options
+\item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot_colors}{List of two color names for the borders and fill of the
+\item{plot.colors}{List of two color names for the borders and fill of the
 plot [default gl.colors(2)].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
