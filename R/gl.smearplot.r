@@ -189,11 +189,7 @@ gl.smearplot <- function(x,
             name = "Genotype",
             labels = labels_genotype
             # ) + theme_dartR() + theme(
-          ) + theme(
-            legend.position = legend,
-            #axis.text.y = element_text(size = label.size)
-            axis.text.y = element_text(size = label.size)
-          ) +
+          ) + 
           scale_x_discrete(
             breaks = loc_labels,
             labels = as.character(loc_labels),
@@ -201,6 +197,17 @@ gl.smearplot <- function(x,
             position="bottom"
           ) +
         ylab("Individuals")
+        
+        if(!is.null(plot.theme)){
+          p3 <- p3 + plot.theme
+        }
+        
+        p3 <- p3  + theme(
+          legend.position = legend,
+          #axis.text.y = element_text(size = label.size)
+          axis.text.y = element_text(size = label.size)
+        ) 
+        
       } else {
         p3 <-
             ggplot(df.listing, aes(
@@ -214,11 +221,7 @@ gl.smearplot <- function(x,
                 name = "Genotype",
                 labels = labels_genotype
            # ) + theme_dartR() + theme(
-            ) + theme(
-                legend.position = legend,
-                #axis.text.y = element_text(size = label.size)
-                axis.text.y = element_text(size = label.size)
-            ) +
+            ) + 
             scale_x_discrete(
                 breaks = loc_labels,
                 labels = as.character(loc_labels),
@@ -232,6 +235,16 @@ gl.smearplot <- function(x,
                 position="left"
           )
         #ylab("Individuals")
+        
+        if(!is.null(plot.theme)){
+          p3 <- p3 + plot.theme
+        }
+        
+        p3 <- p3  + theme(
+          legend.position = legend,
+          #axis.text.y = element_text(size = label.size)
+          axis.text.y = element_text(size = label.size)
+        ) 
       }
     }
     
@@ -260,16 +273,28 @@ gl.smearplot <- function(x,
             na.value = plot.colors[4],
             name = "Sequence Tag",
             labels = labels_silicodart
-          ) + theme_dartR() + theme(
-            legend.position = legend,
-            axis.text.y = element_text(size = label.size)
-          ) +
+          ) + 
+          # theme_dartR() + theme(
+          #   legend.position = legend,
+          #   axis.text.y = element_text(size = label.size)
+          # ) +
           scale_x_discrete(
             breaks = loc_labels,
             labels = as.character(loc_labels),
             name = "Loci"
           ) +
           ylab("Individuals")
+        
+        if(!is.null(plot.theme)){
+          p3 <- p3 + plot.theme
+        }
+        
+        p3 <- p3  + theme(
+          legend.position = legend,
+          #axis.text.y = element_text(size = label.size)
+          axis.text.y = element_text(size = label.size)
+        ) 
+        
       } else {
         p3 <-
           ggplot(df.listing, aes(
@@ -281,10 +306,11 @@ gl.smearplot <- function(x,
             na.value = plot.colors[4],
             name = "Sequence Tag",
             labels = labels_silicodart
-          ) + theme_dartR() + theme(
-            legend.position = legend,
-            axis.text.y = element_text(size = label.size)
-          ) +
+          ) + 
+          # theme_dartR() + theme(
+          #   legend.position = legend,
+          #   axis.text.y = element_text(size = label.size)
+          # ) +
           scale_x_discrete(
             breaks = loc_labels,
             labels = as.character(loc_labels),
@@ -297,6 +323,17 @@ gl.smearplot <- function(x,
             position="left"
           )
         #ylab("Individuals")
+        
+        if(!is.null(plot.theme)){
+          p3 <- p3 + plot.theme
+        }
+        
+        p3 <- p3  + theme(
+          legend.position = legend,
+          #axis.text.y = element_text(size = label.size)
+          axis.text.y = element_text(size = label.size)
+        ) 
+        
       }
     }
     
@@ -306,10 +343,6 @@ gl.smearplot <- function(x,
                               ncol = 1,
                               dir = "v",
                               scales = "free_y")
-    }
-    
-    if(!is.null(plot.theme)){
-      p3 <- p3 + plot.theme
     }
     
     # PRINTING OUTPUTS
