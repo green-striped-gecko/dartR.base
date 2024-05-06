@@ -208,8 +208,7 @@ gl.report.hwe <- function(x,
        cat(error(
          "Package",
          pkg,
-         " needed for this function to work. Please install it using:\n 
-         devtools::install_github('mijangos81/ggtern')"))
+         " needed for this function to work. Please install it.\n"))
        return(-1)
      }
     
