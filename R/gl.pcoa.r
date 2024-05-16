@@ -273,10 +273,10 @@ gl.pcoa <- function(x,
         }
     }
     
-    if(pc.select=="Tracy-Widom"){
-      cat(warn("  Note: The Tracy-Widom Criterion for determining informative axes is not yet implemented. Selecting 'broken-stick criterion'\n"))
-      pc.select <- "broken-stick"
-    }
+    # if(pc.select=="Tracy-Widom"){
+    #   cat(warn("  Note: The Tracy-Widom Criterion for determining informative axes is not yet implemented. Selecting 'broken-stick criterion'\n"))
+    #   pc.select <- "broken-stick"
+    # }
     
     # FUNCTIONS
     
@@ -358,7 +358,8 @@ gl.pcoa <- function(x,
       return(result)
     }
 
-    tw.statistics <- function(eigenvalues,M,alpha=0.05,plot=FALSE) {
+    tw.statistics <- function(eigenvalues,alpha=0.05,plot=TRUE) {
+      
       # Returns two vectors, one holding the eigenvalues of "informative" dimensions,
       # the other holding the eigenvalues of the "noise" dimensions. Criterion is
       # statistical significance under the Tracy-Widom distribution (implemented by
@@ -370,52 +371,48 @@ gl.pcoa <- function(x,
       # structure and eigenanalysis. PLoS Genetics, 2, e190. 
       # https://doi.org/10.1371/journal.pgen.0020190
       
-      if(length(eigenvalues)>M){
-        #cat(sprintf('The size of the matrix M (%d) has to be > number of eigenvalues (%d)!',M,length(eigenvalues)))
-        cat("Fatal Error: Contact the custodian\n")
-        return()
-      }
+      # Takes M as the number of eigenvalues
+      M <- length(eigenvalues)
       
       # Sum eigenvalues and squared eigenvalues
-      s <- sum(eigenvalues)
+      s  <- sum(eigenvalues)
       s2 <- sum(eigenvalues**2.)
       
       # Initialise lists to store values
-      index<-1:length(eigenvalues)
-      p.value<-c()
-      tw.stat<-c()
+      index <- 1:length(eigenvalues)
+      p.value <- c()
+      tw.stat <- c()
       
       # Checks TW statistics for each eigenvalue
       for(i in index){
         Mp <- M-i+1
         nhat <- (Mp+2)*s**2./(Mp*s2 - s**2.)
         lambda <- eigenvalues[i]*Mp/s
+        # Fix effective n for very small eigenvalues
+        if(nhat<1.){
+          nhat <- 1.
+        }
         mu <- (sqrt(nhat-1.) + sqrt(Mp))**2./nhat
         sigma <- (sqrt(nhat-1.) + sqrt(Mp))*(1./sqrt(nhat-1) + 1./sqrt(Mp))**(1./3)/nhat
-        if(is.nan(mu) | is.nan(sigma)){
-          #cat(sprintf('\nObtained NaN in Tracy-Widom Statistics. Perhaps M (size parameter) is incorrect? '))
-          cat("Fatal Error: Contact the custodian\n")
-          return()
-        }
-        
         # TW statistic
         x <- (lambda-mu)/sigma
-        
         # Gets pvalue of the Tracy-Widom statistics
         pvalue <- twtest(x)
-        
         # Updates sum of eigenvalues
         s <- s - eigenvalues[i]
         s2 <- s2 - eigenvalues[i]**2.
-        p.value[i]<-pvalue
-        tw.stat[i]<-x
+        p.value[i] <- pvalue
+        tw.stat[i] <- x
       }
+      
+      # Adjust pvalues
+      p.value <- stats::p.adjust(p.value)
       
       # Creates dataframe with eigenvalues and filter into noisy/structure base on pvalue>alpha
       df <- data.frame(index,eigenvalues,tw.stat,p.value)
-      idx <- which(p.value>=alpha)[1]
-      struc <- df[1:idx,]
-      noise <- df[(idx+1):length(eigenvalues),]
+      idx <- which(p.value>alpha)[1]
+      struc <- df[1:(idx-1),]
+      noise <- df[(idx):length(eigenvalues),]
       struc$structure <- 'structured'
       noise$structure <- 'noisy'
       
@@ -429,7 +426,6 @@ gl.pcoa <- function(x,
           theme(legend.title=element_blank())
         print(p1)
       }
-      
       return(list('struct'=struc,'noise'=noise))
     }
     
@@ -474,7 +470,6 @@ gl.pcoa <- function(x,
       return(list('struct'=struc,'noise'=noise))
     }
     
-    
     # DO THE JOB
     
     ######## DISTANCE ANALYSIS
@@ -517,7 +512,7 @@ gl.pcoa <- function(x,
         } else {
             eig.raw <- pco$values$Corr_eig
         }
-        M=length(eig.raw)+1
+        # M=length(eig.raw)+1
         
         # Identify the number of axes with explanatory value
         
@@ -534,8 +529,9 @@ gl.pcoa <- function(x,
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
           eig.raw.noise <- tmp$noise$eigenvalues
         } else if(pc.select=="Tracy-Widom"){
+          # M <- nInd(x)
           eig.raw.pos <- eig.raw[eig.raw >= 0]
-          tmp <- tw.statistics(eig.raw.pos,M=M)
+          tmp <- tw.statistics(eig.raw.pos)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
           eig.raw.noise <- tmp$noise$eigenvalues
@@ -685,8 +681,7 @@ gl.pcoa <- function(x,
         
         # Extract relevant variables
         eig.raw <- pca$eig
-        M=length(eig.raw)+1
-        
+
         # Identify the number of axes with explanatory value
         # Identify the number of axes with explanatory value
         
@@ -703,8 +698,9 @@ gl.pcoa <- function(x,
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
           eig.raw.noise <- tmp$noise$eigenvalues
         } else if(pc.select=="Tracy-Widom"){
+          # M <- nInd(x)
           eig.raw.pos <- eig.raw[eig.raw >= 0]
-          tmp <- tw.statistics(eig.raw.pos,M=M)
+          tmp <- tw.statistics(eig.raw.pos)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
           eig.raw.noise <- tmp$noise$eigenvalues
