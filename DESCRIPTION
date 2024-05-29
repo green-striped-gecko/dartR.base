@@ -89,7 +89,8 @@ Suggests:
     viridis,
     fields,
     testthat (>= 3.0.0), 
-    ggtern
+    ggtern,
+    SNPassoc
 License: GPL (>= 3)
 LazyData: true
 RoxygenNote: 7.3.1
