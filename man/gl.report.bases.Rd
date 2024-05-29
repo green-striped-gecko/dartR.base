@@ -58,18 +58,17 @@ there is no directionality, that is C->T is the same as T->C, because the
 reference state is arbitrary.
 For presence/absence data (SilicoDArT), it is not possible to count
 transversions or transitions or transversions/transitions ratio because the
- SNP data are not available, only a single sequence tag per locus.
+SNP data are not available, only a single sequence tag per locus. Only base frequencies
+are provided.
  A color vector can be obtained with gl.select.colors() and then passed to the function
  with the plot.colors parameter.
-Themes can be obtained from in \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
- \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
- }
-  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
 binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
 specified for the plot to be saved.
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the tempdir().
+ directory; otherwise to the tempdir(). 
+To avoid issues from inadvertent use of this function in an assignment statement,
+the function returns the genlight object unaltered.
 }
 \examples{
 # SNP data
@@ -87,7 +86,7 @@ Other matched reports:
 \code{\link{gl.report.monomorphs}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s); Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched reports}
