@@ -8,6 +8,7 @@ object, or to a distance matrix (PCoA)}
 gl.pcoa(
   x,
   nfactors = 5,
+  pc.select = "broken-stick",
   correction = NULL,
   mono.rm = TRUE,
   parallel = FALSE,
@@ -26,6 +27,9 @@ a distance matrix of type dist [required].}
 
 \item{nfactors}{Number of axes to retain in the output of factor scores
 [default 5].}
+
+\item{pc.select}{Method for identifying substantial PC axes. One of Kaiser-Guttman,
+broken-stick, Tracy-Widom [default broken-stick]}
 
 \item{correction}{Method applied to correct for negative eigenvalues, either
 'lingoes' or 'cailliez' [Default NULL].}
@@ -211,7 +215,7 @@ points in space. Philosophical Magazine. Series 6, vol. 2, no. 11, pp.
 \code{\link{gl.pcoa.plot}}
 }
 \author{
-Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
+Author(s): Arthur Georges and Jesus Castrejon. Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{data exploration functions}
