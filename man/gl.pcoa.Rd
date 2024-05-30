@@ -135,7 +135,9 @@ dimensions to be retained in the visual summaries. Various approaches are availa
 for identifying which axes are informative (in terms of containing biologically
 significant variation) and which are noise axes. The simplest method is to consider
 only those axes that explain more variance than the original variables on average as
-being informative (the Kaiser-Guttman criterion).
+being informative (pc.select="Kaiser-Guttman"). A second method (the default) is
+the broken-stick method (pc.select="broken-stick"). A third method is the Tracy-Widom
+statistical approach (pc.select="Tracy-Widom").
 
 Once you have the informative axes identified, a judgement call is made as to how
 many dimensions to retain and present as results. This requires a decision on how 
