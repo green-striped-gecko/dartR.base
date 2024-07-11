@@ -1,8 +1,8 @@
 Package: dartR.base
 Type: Package
 Title: Analysing 'SNP' and 'Silicodart' Data - Basic Functions
-Version: 0.88
-Date: 2024-03-07
+Version: 0.96
+Date: 2024-05-30
 Authors@R: c(
             person("Bernd", "Gruber", email="bernd.gruber@canberra.edu.au", role=c("aut","cre")), 
             person("Arthur", "Georges", email="georges@aerg.edu.au", role="aut"),
@@ -32,7 +32,7 @@ Description: Facilitates the import and analysis of 'SNP' (single nucleotide 'po
 Encoding: UTF-8
 Depends: R (>= 3.5), adegenet (>= 2.0.0), ggplot2, dplyr, dartR.data
 biocViews:
-Imports: ape,crayon,data.table,foreach,gridExtra,methods,patchwork,plyr,reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,MASS
+Imports: ape,crayon,data.table,foreach,gridExtra,methods,patchwork,plyr,reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,MASS,SNPassoc
 Suggests: 
     boot,
     devtools,
@@ -91,7 +91,6 @@ Suggests:
     testthat (>= 3.0.0), 
     ggtern
 License: GPL (>= 3)
-LazyData: true
 RoxygenNote: 7.3.1
 NeedsCompilation: no
 Packaged: 2021-04-28 23:28:46 UTC; s425824
