@@ -183,7 +183,7 @@ gl2snapper <- function(x,
     if (verbose >= 2) {
         cat(paste(
             report(
-                "  Extacting SNP data and creating records for each individual\n"
+                "  Extracting SNP data and creating records for each individual\n"
             )
         ))
     }
