@@ -442,16 +442,23 @@ gl.pcoa <- function(x,
       
       # Set number of eigenvalues
       n <- length(eigenvalues)
-      index<-1:n
-      
+      index <- 1:n
       # Calculate expected lengths under Broken stick approach
       broken.sticks <- sum(eigenvalues)*rev(cumsum(1/n:1))/n
-      
       # Creates dataframe with eigenvalues and filter noise/structure based on BS lengths
       df <- data.frame(index,eigenvalues,broken.sticks)
-      idx <- which(eigenvalues<broken.sticks)[1]
-      struc <- df[1:idx-1,]
-      noise <- df[idx:length(eigenvalues),]
+      #taking the number of the eigenvalue that is less than the broken sticks
+      idx <- eigenvalues>broken.sticks
+      idx2 <- which(eigenvalues>broken.sticks)
+      #testing whether there is a gap 
+      test1 <- which((c(idx2[-1],idx2[1]) - idx2)>2)
+      # if there is a gap 
+      if(length(test1) > 0){
+        idx[(test1+1):length(idx)] <- FALSE
+      }
+      #setting false to everything that is after the gap
+      struc <- df[which(idx==TRUE),]
+      noise <- df[which(idx==FALSE),]
       struc$structure <- 'structured'
       noise$structure <- 'noisy'
       
@@ -524,7 +531,7 @@ gl.pcoa <- function(x,
           eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
         } else if(pc.select=="broken-stick"){
           eig.raw.pos <- eig.raw[eig.raw >= 0]
-          tmp <- bs.statistics(eig.raw.pos)
+          tmp <- bs.statistics(eigenvalues = eig.raw.pos)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
           eig.raw.noise <- tmp$noise$eigenvalues
@@ -693,7 +700,7 @@ gl.pcoa <- function(x,
           eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
         } else if(pc.select=="broken-stick"){
           eig.raw.pos <- eig.raw[eig.raw >= 0]
-          tmp <- bs.statistics(eig.raw.pos)
+          tmp <- bs.statistics(eigenvalues = eig.raw.pos,plot = T)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
           eig.raw.noise <- tmp$noise$eigenvalues
@@ -809,3 +816,4 @@ gl.pcoa <- function(x,
     class(p.object) <- "glPca"
     invisible(p.object)
 }
+
