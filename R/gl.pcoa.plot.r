@@ -566,7 +566,7 @@ gl.pcoa.plot <- function(glPca,
               s1 <- (max(df$PCoAy)-min(df$PCoAy))
               s2 <- (max(df$PCoAx)-min(df$PCoAx))
               r <- s1/s2
-              plott <- plott + coord_fixed(ratio = r)
+              plott <- plott + coord_fixed(ratio = 1)
               # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
               # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
               # r <- s1/s2
@@ -630,7 +630,7 @@ gl.pcoa.plot <- function(glPca,
               s1 <- (max(df$PCoAy)-min(df$PCoAy))
               s2 <- (max(df$PCoAx)-min(df$PCoAx))
               r <- s1/s2
-              plott <- plott + coord_fixed(ratio = r)
+              plott <- plott + coord_fixed(ratio = 1)
               # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
               # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
               # r <- s1/s2
@@ -722,7 +722,7 @@ gl.pcoa.plot <- function(glPca,
               s1 <- (max(df$PCoAy)-min(df$PCoAy))
               s2 <- (max(df$PCoAx)-min(df$PCoAx))
               r <- s1/s2
-              plott <- plott + coord_fixed(ratio = r)
+              plott <- plott + coord_fixed(ratio = 1)
               # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
               # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
               # r <- s1/s2
@@ -790,7 +790,7 @@ gl.pcoa.plot <- function(glPca,
               s1 <- (max(df$PCoAy)-min(df$PCoAy))
               s2 <- (max(df$PCoAx)-min(df$PCoAx))
               r <- s1/s2
-              plott <- plott + coord_fixed(ratio = r)
+              plott <- plott + coord_fixed(ratio = 1)
               # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
               # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
               # r <- s1/s2
