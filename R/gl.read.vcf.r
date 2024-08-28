@@ -14,6 +14,9 @@
 #' pop: specifies the population membership of each individual. lat and lon
 #' specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 #' columns with individual metadata can be imported (e.g. age, gender).
+#' Note also that this function checks to see if there are input of mode, missing input of mode 
+#' will issue the user with an error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+#' Please carefully check the data if "dosage" mode is used.
 #' @return A genlight object.
 #' @export
 #' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
