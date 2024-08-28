@@ -8,7 +8,7 @@
 #' @param x Name of the vcfR object [defined in function \code{\link{gl.read.vcf}}].
 #' @param mode2 genotype: all heterozygous sites will be coded as 1 regardless ploidy level, 
 #' dosage: sites will be codes as copy number of alternate allele [defined in function \code{\link{gl.read.vcf}}].
-#' 
+#' @param n.cores Number of cores [default 1]
 #' @details
 #' This function uses parameters from \code{\link{gl.read.vcf}} for conversion
 #' Note also that this function checks to see if there are input of mode, missing input of mode 
