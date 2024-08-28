@@ -20,7 +20,6 @@
 
 #' @examples
 #' datatype <- utils.vcfr2genlight.polyploid(x=vcfr, mode2="genotype")
-#' @export
 #' @references
 #' \itemize{
 #' \item Knaus, B. J., & Grünwald, N. J. (2017). 
