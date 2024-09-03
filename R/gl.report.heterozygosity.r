@@ -19,7 +19,9 @@
 #' perform subsampling to estimate heterozygosity [default 10].
 #' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
-#' @param conf The confidence level of the required interval  [default 0.95].
+#' @param boot.method boostraping across individuals ("ind") or across loci
+#'  ("loc") [default "ind"].
+#' @param conf The confidence level of the required interval [default 0.95].
 #' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
@@ -308,6 +310,7 @@ gl.report.heterozygosity <- function(x,
                                      subsample.pop = FALSE,
                                      n.limit = 10,
                                      nboots = 0,
+                                     boot.method = "ind",
                                      conf = 0.95,
                                      CI.type = "bca",
                                      ncpus = 1,
@@ -635,6 +638,7 @@ gl.report.heterozygosity <- function(x,
           statistic = pop.het,
           n.invariant = n.invariant,
           aHet = n.invariant > 0,
+          boot_method = boot.method,
           R = nboots,
           parallel = parallel,
           ncpus = ncpus

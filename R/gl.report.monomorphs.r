@@ -104,7 +104,7 @@ gl.report.monomorphs <- function(x,
     cat("\n  No. of loci:", nLoc(hold), "\n")
     cat("    Polymorphic loci:", nLoc(x), "\n")
     cat("    Monomorphic loci:", nLoc(hold) - nLoc(x), "\n")
-    cat("    Loci scored all NA:", length(na.counter), "\n")
+    cat("    Loci scored all NA:", na.counter, "\n")
     cat("  No. of individuals:", nInd(x), "\n")
     cat("  No. of populations:", nPop(x), "\n\n")
     

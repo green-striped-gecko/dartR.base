@@ -338,7 +338,7 @@ gl.smearplot <- function(x,
     }
     
     
-    if (ind.labels==TRUE & group.pop == TRUE) {
+    if (group.pop == TRUE) {
         p3 <- p3 + facet_wrap(~ pop,
                               ncol = 1,
                               dir = "v",

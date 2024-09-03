@@ -6,7 +6,7 @@
 #' @param loc_threshold Minimum number of loci required to asses that two 
 #' individuals are replicates [default 100].
 #' @param perc_geno Mimimum percentage of genotypes in which two individuals 
-#' should be the same [default 0.99]. 
+#' should be the same [default 0.95]. 
 #' @param plot.out Specify if plot is to be produced [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
 #' @param plot_colors Vector with two color names for the borders and fill
@@ -54,7 +54,7 @@
 
 gl.report.replicates <- function(x,
                                  loc_threshold = 100,
-                                 perc_geno = 0.99,
+                                 perc_geno = 0.95,
                                  plot.out = TRUE,
                                  plot_theme = theme_dartR(),
                                  plot_colors = c("#2171B5", "#6BAED6"),
@@ -129,7 +129,14 @@ gl.report.replicates <- function(x,
   col_same_hold <- col_same
   
   col_same <- col_same[which(col_same$nloc > loc_threshold),]
+  
   col_same <- col_same[which(col_same$perc > perc_geno),]
+  
+  if(nrow(col_same)==0){
+    msg <- paste("There are no pair of individuals that have", perc_geno, 
+    "percentage of loci with the same genotype. Please choose a lower threshold. ")
+    return(msg)
+  }
   
   col_same <- col_same[order(col_same$perc,decreasing = TRUE),]
   

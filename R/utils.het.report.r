@@ -2,6 +2,7 @@
 pop.het <- function(x,
                     indices,
                     n.invariant,
+                    boot_method = "loc",
                     aHet=FALSE) {
   
   pop.het_fun <- function(df,
@@ -43,8 +44,12 @@ pop.het <- function(x,
     return(all.res)
   }
   
-  df <- x[, indices]
-  
+  if(boot_method == "loc"){
+    df <- x[, indices]
+  }else{
+    df <- x[indices,]
+  }
+
   res <- pop.het_fun(df,
                      n.invariant = n.invariant,
                      aHet=aHet)

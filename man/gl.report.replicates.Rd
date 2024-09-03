@@ -7,7 +7,7 @@
 gl.report.replicates(
   x,
   loc_threshold = 100,
-  perc_geno = 0.99,
+  perc_geno = 0.95,
   plot.out = TRUE,
   plot_theme = theme_dartR(),
   plot_colors = c("#2171B5", "#6BAED6"),
@@ -22,7 +22,7 @@ gl.report.replicates(
 individuals are replicates [default 100].}
 
 \item{perc_geno}{Mimimum percentage of genotypes in which two individuals 
-should be the same [default 0.99].}
+should be the same [default 0.95].}
 
 \item{plot.out}{Specify if plot is to be produced [default TRUE].}
 
