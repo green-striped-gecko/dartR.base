@@ -43,14 +43,14 @@
 #'   class(x)[1].
 
 utils.check.datatype <- function(x,
-                                 accept = c("genlight", "SNP", "SilicoDArT"),
+                                 accept = c("genlight", "SNP", "SilicoDArT","dartR"),
                                  verbose = NULL) {
     #### SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     #### CHECK THE TYPE OF OBJECT ####
     
-    if (is(x, "genlight")) {
+    if (is(x, "genlight") |is(x, "dartR")) {
         if (is.null(ploidy(x))) {
             stop(
                 error(
@@ -166,3 +166,4 @@ utils.check.datatype <- function(x,
     
     invisible(datatype)
 }
+
