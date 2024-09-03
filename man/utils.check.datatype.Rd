@@ -6,7 +6,7 @@
 \usage{
 utils.check.datatype(
   x,
-  accept = c("genlight", "SNP", "SilicoDArT"),
+  accept = c("genlight", "SNP", "SilicoDArT", "dartR"),
   verbose = NULL
 )
 }
