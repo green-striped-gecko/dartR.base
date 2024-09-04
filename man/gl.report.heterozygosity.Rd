@@ -12,6 +12,7 @@ gl.report.heterozygosity(
   subsample.pop = FALSE,
   n.limit = 10,
   nboots = 0,
+  boot.method = "ind",
   conf = 0.95,
   CI.type = "bca",
   ncpus = 1,
@@ -43,7 +44,10 @@ perform subsampling to estimate heterozygosity [default 10].}
 \item{nboots}{Number of bootstrap replicates to obtain confidence intervals
 [default 0].}
 
-\item{conf}{The confidence level of the required interval  [default 0.95].}
+\item{boot.method}{boostraping across individuals ("ind") or across loci
+("loc") [default "ind"].}
+
+\item{conf}{The confidence level of the required interval [default 0.95].}
 
 \item{CI.type}{Method to estimate confidence intervals. One of
 "norm", "basic", "perc" or "bca" [default "bca"].}

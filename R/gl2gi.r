@@ -90,10 +90,10 @@ gl2gi <- function(x,
             ind.names = x@ind.names,
             pop = x@pop,
             ploidy = 2,
-            NA.char = "-"
+            NA.char = "-",
+            loc.names = locNames(x)
         )  #, probar=probar)
     gen@other <- x@other
-    locNames(gen) <- locNames(x)
     
     # FLAG SCRIPT END
     
