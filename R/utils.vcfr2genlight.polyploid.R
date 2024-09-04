@@ -16,10 +16,12 @@
 #' @author Custodian: Ching Ching Lau -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
+#' \dontrun{
 #' datatype <- utils.vcfr2genlight.polyploid(x=vcfr, mode2="genotype")
+#' }
 #' @references
 #' \itemize{
-#' \item Knaus, B. J., & Grünwald, N. J. (2017). 
+#' \item Knaus, B. J., & Grunwald, N. J. (2017). 
 #' vcfr: a package to manipulate and visualize variant call format data in R. 
 #' Molecular ecology resources, 17(1), 44-53.
 #' \item Knaus, B. J., Grunwald, N. J., Anderson, E. C., 
@@ -27,6 +29,7 @@
 #' \href{https://github.com/knausb/vcfR/blob/master/R/vcfR_conversion.R}{vcfR}
 #' }
 #' @return genlight object
+#' @export
 
 utils.vcfr2genlight.polyploid <- function(x, n.cores=1, mode2=mode) {
     bi <- vcfR::is.biallelic(x)

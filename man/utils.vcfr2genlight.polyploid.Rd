@@ -28,11 +28,13 @@ Please carefully check the data if "dosage" mode is used. (codes were modified f
 'vcfR2genlight' in vcfR packge to convert polyploid data)
 }
 \examples{
+\dontrun{
 datatype <- utils.vcfr2genlight.polyploid(x=vcfr, mode2="genotype")
+}
 }
 \references{
 \itemize{
-\item Knaus, B. J., & Grünwald, N. J. (2017). 
+\item Knaus, B. J., & Grunwald, N. J. (2017). 
 vcfr: a package to manipulate and visualize variant call format data in R. 
 Molecular ecology resources, 17(1), 44-53.
 \item Knaus, B. J., Grunwald, N. J., Anderson, E. C., 
