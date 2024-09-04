@@ -20,7 +20,7 @@
 #' 
 #' @examples
 #' # SNP data
-#' gl2gapit(platypus.gl, outpath=tempdir())
+#' gl2gapit(bandicoot.gl, outpath=tempdir())
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)

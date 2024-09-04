@@ -38,7 +38,7 @@ The function converts a genlight object (SNP or presence/absence
 }
 \examples{
 # SNP data
-gl2gapit(platypus.gl, outpath=tempdir())
+gl2gapit(bandicoot.gl, outpath=tempdir())
 
 # SNP data
 gl2geno(testset.gl, outpath=tempdir())
