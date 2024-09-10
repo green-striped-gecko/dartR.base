@@ -1,29 +1,29 @@
 #' @name gl.add.indmetrics
 #' @title Adds metadata into a genlight object
 #' @description
-#' This function adds the metadata information to the slot ind.metrics and 
-#' populates population and coordinates information slots if the they are 
+#' This function adds the metadata information to the slot ind.metrics and
+#' populates population and coordinates information slots if the they are
 #' found in the metadata.
 #' @param x Name of the genlight object containing the SNP data, or the genind
 #'  object containing the SilocoDArT data [required].
-#' @param ind.metafile path and name of CSV file containing the metadata 
+#' @param ind.metafile path and name of CSV file containing the metadata
 #' information for each individual (see details for explanation) [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' 
+#'
 #' @details
-#' The ind.metadata file needs to have very specific headings. First a column 
+#' The ind.metadata file needs to have very specific headings. First a column
 #' with a heading named 'id'. Here the ids must match the ids in the genlight
-#'  object, e.g. \code{indNames(your_genlight)}. The following column headings 
-#'  are optional: 
+#'  object, e.g. \code{indNames(your_genlight)}. The following column headings
+#'  are optional:
 #'  \itemize{
-#'  \item 'pop' - specifies the population membership of each individual. 
+#'  \item 'pop' - specifies the population membership of each individual.
 #'  \item 'lat' - latitude coordinates (in decimal degrees WGS1984 format).
 #'  \item 'lon' - longitude coordinates (in decimal degrees WGS1984 format).
 #'  }
-#'  
-#'  Additional columns with individual metadata can be imported (e.g. age, 
+#'
+#'  Additional columns with individual metadata can be imported (e.g. age,
 #'  sex, etc).
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -37,11 +37,10 @@
 
 gl.add.indmetrics <- function(x,
                               ind.metafile,
-                              verbose = NULL){ 
-  
+                              verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
-
+  
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
@@ -54,9 +53,9 @@ gl.add.indmetrics <- function(x,
   # DO THE JOB
   if (!is.null(ind.metafile)) {
     if (verbose >= 2) {
-      cat(report(
-        paste("Adding individual metrics:", ind.metafile, ".\n")
-      ))
+      cat(report(paste(
+        "Adding individual metrics:", ind.metafile, ".\n"
+      )))
     }
     ###### population and individual file to link AAnumbers to populations...
     ind.cov <-
@@ -126,15 +125,13 @@ gl.add.indmetrics <- function(x,
         }
         ord2 <-
           match(ind.cov[ord, id.col], indNames(x))
-        x <- x[ord2, ]
+        x <- x[ord2,]
       } else {
-        stop(error(
-          "Fatal Error: Individual ids are not matching!!!!\n"
-        ))
+        stop(error("Fatal Error: Individual ids are not matching!!!!\n"))
       }
     }
     
-    pop.col <-match("pop", names(ind.cov))
+    pop.col <- match("pop", names(ind.cov))
     
     if (is.na(pop.col)) {
       if (verbose >= 1) {
@@ -152,22 +149,18 @@ gl.add.indmetrics <- function(x,
       }
     }
     
-    lat.col <-match("lat", names(ind.cov))
-    lon.col <-match("lon", names(ind.cov))
+    lat.col <- match("lat", names(ind.cov))
+    lon.col <- match("lon", names(ind.cov))
     if (verbose >= 2) {
       if (is.na(lat.col)) {
-        cat(
-          warn(
-            "Warning: Individual metrics do not include a latitude (lat) column\n"
-          )
-        )
+        cat(warn(
+          "Warning: Individual metrics do not include a latitude (lat) column\n"
+        ))
       }
       if (is.na(lon.col)) {
-        cat(
-          warn(
-            "Warning: Individual metrics do not include a longitude (lon) column\n"
-          )
-        )
+        cat(warn(
+          "Warning: Individual metrics do not include a longitude (lon) column\n"
+        ))
       }
     }
     if (!is.na(lat.col) & !is.na(lon.col)) {
@@ -178,25 +171,21 @@ gl.add.indmetrics <- function(x,
       }
     }
     
-    # known.col <- names( ind.cov) %in% c('id','pop', 'lat', 'lon') known.col <- ifelse(is.na(known.col), , known.col) other.col <-
-    # names(ind.cov)[!known.col]
     other.col <- names(ind.cov)
     if (length(other.col) > 0) {
-      
-      x@other$ind.metrics <- ind.cov[ord, other.col, drop = FALSE]
+      # conserving previous ind.metrics
+      x@other$ind.metrics <- as.data.frame(cbind(x@other$ind.metrics,ind.cov[ord, other.col, drop = FALSE]))
       rownames(x@other$ind.metrics) <- ind.cov[ord, id.col]
       if (verbose >= 2) {
         cat(report(
-          paste(
-            " Added ",
-            other.col,
-            " to the other$ind.metrics slot.\n"
-          )
+          paste(" Added ",
+                other.col,
+                " to the other$ind.metrics slot.\n")
         ))
       }
     }
   }
-
+  
   # ADD TO HISTORY
   nh <- length(x@other$history)
   x@other$history[[nh + 1]] <- match.call()
@@ -207,6 +196,6 @@ gl.add.indmetrics <- function(x,
     cat(report("Completed:", funname, "\n"))
   }
   
-  return(x) 
+  return(x)
   
 }

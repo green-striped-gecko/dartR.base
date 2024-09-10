@@ -10,7 +10,7 @@ gl.add.indmetrics(x, ind.metafile, verbose = NULL)
 \item{x}{Name of the genlight object containing the SNP data, or the genind
 object containing the SilocoDArT data [required].}
 
-\item{ind.metafile}{path and name of CSV file containing the metadata 
+\item{ind.metafile}{path and name of CSV file containing the metadata
 information for each individual (see details for explanation) [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -21,22 +21,22 @@ progress log ; 3, progress and results summary; 5, full report
 A genlight object with metadata information for each individual.
 }
 \description{
-This function adds the metadata information to the slot ind.metrics and 
-populates population and coordinates information slots if the they are 
+This function adds the metadata information to the slot ind.metrics and
+populates population and coordinates information slots if the they are
 found in the metadata.
 }
 \details{
-The ind.metadata file needs to have very specific headings. First a column 
+The ind.metadata file needs to have very specific headings. First a column
 with a heading named 'id'. Here the ids must match the ids in the genlight
- object, e.g. \code{indNames(your_genlight)}. The following column headings 
- are optional: 
+ object, e.g. \code{indNames(your_genlight)}. The following column headings
+ are optional:
  \itemize{
- \item 'pop' - specifies the population membership of each individual. 
+ \item 'pop' - specifies the population membership of each individual.
  \item 'lat' - latitude coordinates (in decimal degrees WGS1984 format).
  \item 'lon' - longitude coordinates (in decimal degrees WGS1984 format).
  }
- 
- Additional columns with individual metadata can be imported (e.g. age, 
+
+ Additional columns with individual metadata can be imported (e.g. age,
  sex, etc).
 }
 \examples{
