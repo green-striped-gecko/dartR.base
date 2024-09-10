@@ -132,6 +132,8 @@ gl.add.indmetrics <- function(x,
     }
     
     pop.col <- match("pop", names(ind.cov))
+    # saving old pop
+    ind.cov$pop_old <- x@pop
     
     if (is.na(pop.col)) {
       if (verbose >= 1) {
@@ -164,8 +166,18 @@ gl.add.indmetrics <- function(x,
       }
     }
     if (!is.na(lat.col) & !is.na(lon.col)) {
-      x@other$latlon <- ind.cov[ord, c(lat.col, lon.col)]
-      rownames(x@other$latlon) <- ind.cov[ord, id.col]
+      # saving old lat and lon
+      if(is.null(x@other$latlon)){
+        x@other$latlon <- ind.cov[ord, c(lat.col, lon.col)]
+        rownames(x@other$latlon) <- ind.cov[ord, id.col]
+      }else{
+        latlon_tmp <- x@other$latlon
+        colnames(latlon_tmp) <- c("lat_old","lon_old")
+        ind.cov <- as.data.frame(cbind(ind.cov,latlon_tmp))
+        x@other$latlon <- ind.cov[ord, c(lat.col, lon.col)]
+        rownames(x@other$latlon) <- ind.cov[ord, id.col]
+      }
+
       if (verbose >= 2) {
         cat(report("  Added latlon data.\n"))
       }
@@ -174,7 +186,7 @@ gl.add.indmetrics <- function(x,
     other.col <- names(ind.cov)
     if (length(other.col) > 0) {
       # conserving previous ind.metrics
-      x@other$ind.metrics <- as.data.frame(cbind(x@other$ind.metrics,ind.cov[ord, other.col, drop = FALSE]))
+      x@other$ind.metrics <- ind.cov[ord, other.col, drop = FALSE]
       rownames(x@other$ind.metrics) <- ind.cov[ord, id.col]
       if (verbose >= 2) {
         cat(report(
