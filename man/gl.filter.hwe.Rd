@@ -177,7 +177,8 @@ Tests of Hardy-Weinberg Equilibrium. American Journal of Human Genetics
 \code{\link{gl.report.hwe}}
 
 Other filter functions: 
-\code{\link{gl.filter.allna}()}
+\code{\link{gl.filter.allna}()},
+\code{\link{gl.report.allna}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to

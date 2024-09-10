@@ -32,7 +32,7 @@
 #' @details
 #' This function expects a genlight object, containing either SNP data or
 #' SilicoDArT (=presence/absence data).
-
+#' 
 #' Callrate is summarized by locus or by individual to allow sensible decisions
 #' on thresholds for filtering taking into consideration consequential loss of
 #' data. The summary is in the form of a tabulation and plots.
@@ -43,7 +43,7 @@
 #' 
 #' To avoid issues from inadvertent use of this function in an assignment statement,
 #' the function returns the genlight object unaltered.
-
+#' 
 # Plot themes can be obtained from:
 #  \itemize{
 #  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
@@ -56,7 +56,7 @@
 #' If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
 #' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
 #' specified for the plot to be saved.
-
+#' 
 #'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
 #'  directory; otherwise to the tempdir(). 
 #' 
