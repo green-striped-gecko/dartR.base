@@ -25,7 +25,7 @@
 
 #' @param x Name of the input genlight object [required].
 #' @param by.pop If TRUE, loci that are all missing in any one population
-#' are deleted [default FALSE]
+#' are reported [default FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].

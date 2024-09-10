@@ -11,7 +11,7 @@ gl.report.allna(x, by.pop = FALSE, verbose = NULL)
 \item{x}{Name of the input genlight object [required].}
 
 \item{by.pop}{If TRUE, loci that are all missing in any one population
-are deleted [default FALSE]}
+are reported [default FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
