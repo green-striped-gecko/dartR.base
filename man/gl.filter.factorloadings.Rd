@@ -28,8 +28,8 @@ SilocoDArT data [required].}
 
 \item{axis}{Axis in the ordination used to display the factor loadings [default 1]}
 
-\item{threshold}{Remove [retain=FALSE] or retain [retain=TRUE] only those loci that
-load high (greater than the threshold) against the specified axis [required].}
+\item{threshold}{Numeric value for the factor loadings. This value is the
+ABSOLUTE value of the factor loadings [required].}
 
 \item{retain}{If true, the resultant genlight object holds only the loci that load
 high on the specified axis; if FALSE, the resultant genlight object has the
