@@ -11,8 +11,8 @@
 #' SilocoDArT data [required].
 #' @param pca Name of the glPCA object containing factor loadings [required].
 #' @param axis Axis in the ordination used to display the factor loadings [default 1]
-#' @param threshold Remove [retain=FALSE] or retain [retain=TRUE] only those loci that
-#' load high (greater than the threshold) against the specified axis [required].
+#' @param threshold Numeric value for the factor loadings. This value is the
+#'  ABSOLUTE value of the factor loadings [required].
 #' @param retain If true, the resultant genlight object holds only the loci that load
 #' high on the specified axis; if FALSE, the resultant genlight object has the
 #' loci loading high on the specified axis filtered out [default FALSE].
