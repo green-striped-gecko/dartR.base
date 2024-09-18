@@ -45,8 +45,7 @@ the populations defined in the genlight object (typically OTUs).
      alignments. This can have an impact of distance measures depending on how missing values are managed.
      To minimize this effect, you might elect to filter on tag length using this parameter.
      
-     subst.model : Use this parameter to specify the substitution model, selecting from the list used by
-     {ape}
+     subst.model : Use this parameter to specify the substitution model, selecting from the list used by package ape.
      
      \itemize{
      \item
@@ -75,10 +74,10 @@ the populations defined in the genlight object (typically OTUs).
       logdet: The Log-Det distance, developed by Lockhart et al. (1994), is related to BH87. However, this distance is symmetric. Formulae from Gu and Li (1996) are used. dist.logdet in phangorn uses a different implementation that gives substantially different distances for low-diverging sequences.
      \item
       paralin: Lake (1994) developed the paralinear distance which can be viewed as another variant of the Barry–Hartigan distance.
-     }
-     
+     \item
      pairwise.missing : If TRUE, then missing values in the sequence (NNNs) will be accommodated in the calculations pair of taxa at a time; otherwise, the 
      deletion of data at positions in the sequence will be global (deleted if any missing data at the position in any individual).
+}
 }
 \examples{
 

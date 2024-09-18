@@ -1,4 +1,4 @@
-#' @name gl.report.heterozygosity
+#' @name gl.report.polyploid_heterozygosity
 #' @title Reports observed, expected and unbiased heterozygosities and FIS
 #' (inbreeding coefficient) by population or by individual from SNP data
 #' @family unmatched report
@@ -19,9 +19,7 @@
 #' perform subsampling to estimate heterozygosity [default 10].
 #' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
-#' @param boot.method boostraping across individuals ("ind") or across loci
-#'  ("loc") [default "ind"].
-#' @param conf The confidence level of the required interval [default 0.95].
+#' @param conf The confidence level of the required interval  [default 0.95].
 #' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
@@ -65,7 +63,7 @@
 #' to sampling effects when the sample size is small.  
 #'
 #' Observed heterozygosity for individuals is calculated as the proportion of
-#' loci that are heterozygous for that individual.
+#' heterozygous gametes that could be produced by that individual.
 #'
 #' Finally, the loci that are invariant across all individuals in the dataset
 #' (that is, across populations), is typically unknown. This can render
@@ -85,7 +83,7 @@
 #' within each population using the following equations, and then averaged across 
 #' all loci:
 #' \itemize{
-#' \item Observed heterozygosity (Ho) = number of heterozygotes / n_Ind,
+#' \item Observed heterozygosity (Ho) = number of heterozygous gametes / all combinations of gametes,
 #' where n_Ind is the number of individuals without missing data for that locus.
 #' \item Observed heterozygosity adjusted (Ho.adj) <- Ho * n_Loc /
 #'  (n_Loc + n.invariant),
@@ -188,7 +186,6 @@
 #'   - To see how well a sample mean might estimate a population mean, consider 
 #'   the standard error.
 #'   
-#'   In practice, geneticists often use a combination of these methods to 
 #'   analyze and present their data, depending on their research questions and 
 #'   the nature of the data.
 #'   
@@ -275,28 +272,26 @@
 #'     amount of processing time, therefore parallelisation in Windows machines
 #'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #'    
-#' @author Custodian: Luis Mijangos (Post to
+#' @author Custodian: Ching Ching Lau (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
+#' 
 #'
 #' @references
 #' \itemize{
-#' \item Nei, M. (1978). Estimation of average heterozygosity and genetic 
-#' distance from a small number of individuals. Genetics, 89(3), 583-590.
-#' \item Schmidt, T. L., Jasper, M. E., Weeks, A. R., & Hoffmann, A. A. (2021).
-#'  Unbiased population heterozygosity estimates from genome‐wide sequence data.
-#'   Methods in Ecology and Evolution, 12(10), 1888-1898.
+#' \item Moody, M. E., Mueller, L. D., & Soltis, D. E. (1993). 
+#' Genetic variation and random drift in autotetraploid populations. Genetics, 134(2), 649-657.
 #'   }
 #'
 #' @examples
 #'  \donttest{
 #' require("dartR.data")
-#' df <- gl.report.heterozygosity(platypus.gl)
-#' df <- gl.report.heterozygosity(platypus.gl,method='ind')
+#' df <- gl.report.polyploid_heterozygosity(platypus.gl)
+#' df <- gl.report.polyploid_heterozygosity(platypus.gl,method='ind')
 #' n.inv <- gl.report.secondaries(platypus.gl)
-#' gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
-#' gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
+#' gl.report.polyploid_heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
+#' gl.report.polyploid_heterozygosity(platypus.gl, subsample.pop = TRUE)
 #' }
-#' df <- gl.report.heterozygosity(platypus.gl)
+#' df <- gl.report.polyploid_heterozygosity(platypus.gl)
 
 #' @seealso \code{\link{gl.filter.heterozygosity}}
 
@@ -304,13 +299,12 @@
 #' @return A dataframe containing population labels, heterozygosities, FIS,
 #' their standard deviations and sample sizes.
 
-gl.report.heterozygosity <- function(x,
+gl.report.polyploid_heterozygosity <- function(x,
                                      method = "pop",
                                      n.invariant = 0,
                                      subsample.pop = FALSE,
                                      n.limit = 10,
                                      nboots = 0,
-                                     boot.method = "ind",
                                      conf = 0.95,
                                      CI.type = "bca",
                                      ncpus = 1,
@@ -440,26 +434,35 @@ gl.report.heterozygosity <- function(x,
     
     # Calculate heterozygosity for each population in the list
     # CP = Carlo Pacioni CP ###
-    Ho.loc <-
+    # function to calculate gametic heterozygosity
+    gamete_het <- function(x){
+      ploidy <- t(t(unname(ploidy(x))))
+      ploidy_matrix <- matrix(rep(choose(ploidy, 2), nLoc(x)), nrow=nInd(x), ncol=nLoc(x))
+      homo_count <- ploidy[,1]-as.matrix(x)
+      gamete_het <- (homo_count*as.matrix(x))/ploidy_matrix
+      return(gamete_het)}
+    
+    
+    Ho.loc.gamete <-
       lapply(sgl, function(x)
-        colMeans(as.matrix(x) == 1, na.rm = TRUE))
+        colMeans(gamete_het(x) > 0, na.rm = TRUE))
 
     Ho <-
       unlist(lapply(sgl, function(x)
         mean(
-          colMeans(as.matrix(x) == 1, na.rm = TRUE), na.rm = TRUE
+          colMeans(gamete_het(x) > 0 , na.rm = TRUE), na.rm = TRUE
         )))
     
     ### CP ### observed heterozygosity standard deviation
     HoSD <-
       unlist(lapply(sgl, function(x)
         sd(
-          colMeans(as.matrix(x) == 1, na.rm = TRUE), na.rm = TRUE
+          colMeans(gamete_het(x) > 0, na.rm = TRUE), na.rm = TRUE
         )))
     
     HoSE <- unlist(lapply(sgl, function(x)
       std.error(colMeans(
-        as.matrix(x) == 1, na.rm = TRUE
+        gamete_het(x) > 0, na.rm = TRUE
       ))))
     
     ##########
@@ -507,7 +510,7 @@ gl.report.heterozygosity <- function(x,
     Ho.adjSD <-
       sqrt((
         mapply(function(x, Mean)
-          sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc, Mean = Ho.adj) +
+          sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc.gamete, Mean = Ho.adj) +
           n.invariant * Ho.adj ^
           2
       ) / (n_loc +
@@ -576,7 +579,7 @@ gl.report.heterozygosity <- function(x,
                (n_loc[i] + n.invariant - 1))
       Hexp.adjSE[i] <- Hexp.adjSD[i] / sqrt(poly_loc[i]+mono_loc[i])
     
-      FIS_temp <- (uH - Ho.loc[[i]]) /  uH 
+      FIS_temp <- (uH - Ho.loc.gamete[[i]]) /  uH 
       Fis_df[[i]] <- FIS_temp
       FIS[i] <- mean(FIS_temp, na.rm = TRUE)
       FISSD[i] <- sd(FIS_temp, na.rm = TRUE)
@@ -638,7 +641,6 @@ gl.report.heterozygosity <- function(x,
           statistic = pop.het,
           n.invariant = n.invariant,
           aHet = n.invariant > 0,
-          boot_method = boot.method,
           R = nboots,
           parallel = parallel,
           ncpus = ncpus

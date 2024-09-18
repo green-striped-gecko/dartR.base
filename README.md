@@ -37,6 +37,7 @@ dartRverse consists of the following packages:
 - dartR.sim (functions to simulate SNP data)
 - dartR.spatial (spatial analysis)
 - dartR.popgen (popgen analysis)
+- dartR.sexlinked (identify and filter sexlinked markers)
 
 `dartR` and its packages are a collaboration between the University of
 Canberra, CSIRO, Diversity Arrays Technology, Arthur Rylah Institute for
@@ -84,4 +85,4 @@ Have fun working with `dartR`!
 
 Cheers,
 
-Bernd, Arthur, Luis, Carlo & Olly
+Bernd, Arthur, Luis, Carlo, Diana & Olly

@@ -91,7 +91,7 @@ interpreted as a threshold for MAC.
 }
 \examples{
 result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
-result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
+#result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
 }
 \seealso{
 Other matched filter: 

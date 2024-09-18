@@ -2,13 +2,14 @@
 pop.het <- function(x,
                     indices,
                     n.invariant,
+                    boot_method = "loc",
                     aHet=FALSE) {
   
   pop.het_fun <- function(df,
                           n.invariant,
                           aHet) {
     Ho.loc <- colMeans(df == 1, na.rm = TRUE)
-    n_loc <- apply(df, 2, function(y) {
+    n_loc <- apply(df, 1, function(y) {
       sum(!is.na(y))
     })
     Ho.adj.loc <- Ho.loc * n_loc / (n_loc + n.invariant)
@@ -43,8 +44,12 @@ pop.het <- function(x,
     return(all.res)
   }
   
-  df <- x[, indices]
-  
+  if(boot_method == "loc"){
+    df <- x[, indices]
+  }else{
+    df <- x[indices,]
+  }
+
   res <- pop.het_fun(df,
                      n.invariant = n.invariant,
                      aHet=aHet)

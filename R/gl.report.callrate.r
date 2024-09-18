@@ -8,7 +8,7 @@
 #' failure to call a SNP because of a mutation at one or both of the restriction
 #' enzyme recognition sites. P/A datasets (SilicoDArT) have missing values
 #' because it was not possible to call whether a sequence tag was amplified or
-#' not. This function tabulates the number of missing values as quantiles.
+#' not. 
 #' 
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
@@ -32,26 +32,35 @@
 #' @details
 #' This function expects a genlight object, containing either SNP data or
 #' SilicoDArT (=presence/absence data).
-
+#' 
 #' Callrate is summarized by locus or by individual to allow sensible decisions
 #' on thresholds for filtering taking into consideration consequential loss of
 #' data. The summary is in the form of a tabulation and plots.
 #' 
+#' The table of quantiles is useful for deciding a threshold for subsequent filtering
+#' as it provides an indication of the percentages of loci that will be retained and 
+#' lost. 
+#' 
 #' To avoid issues from inadvertent use of this function in an assignment statement,
 #' the function returns the genlight object unaltered.
-
-#' Plot themes can be obtained from:
-#'  \itemize{
-#'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
-#'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
-#'  }
-#'  
-#'  Plot colours can be set with gl.select.colors().
-#'  
-#'  If plot.file is specified, plots are saved to the directory specified by the user, or the global
-#'  default working directory set by gl.set.wd() or to the tempdir().
 #' 
-#' @author Custodian: Arthur Georges -- Post to
+# Plot themes can be obtained from:
+#  \itemize{
+#  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
+#  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
+#  }
+#'  
+#'  A color vector can be obtained with gl.select.colors() and then passed to the function
+#'  with the plot.colors parameter.
+#'  
+#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
+#' 
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir(). 
+#' 
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
@@ -77,7 +86,6 @@
 #' @importFrom stats aggregate
 #' @export
 #' @return Returns unaltered genlight object
-# END HEADER INFORMATION --------------------
 
 gl.report.callrate <- function(x,
                                method = "loc",
@@ -90,8 +98,7 @@ gl.report.callrate <- function(x,
                                bins = 50,
                                verbose = NULL,
                                ...) {
-  
-  # PRELIMINARIES ---------------------------
+
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   

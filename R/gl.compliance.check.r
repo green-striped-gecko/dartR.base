@@ -62,9 +62,9 @@ gl.compliance.check <- function(x,
         } else if (unique(ploidy(x)) == 1) {
             ploidy(x) <- rep(1, nInd(x))
         } else {
-            stop(error(
-                "Ploidy cannot be determined, please check your input file"
-            ))
+          # allow polyploidy
+          cat(warn("  The ploidy level > 2, check your data if it is not what you expect"))
+          ploidy(x) <- ploidy(x)
         }
     }
     

@@ -11,6 +11,8 @@
 #'  a distance matrix of type dist [required].
 #' @param nfactors Number of axes to retain in the output of factor scores
 #' [default 5].
+#' @param pc.select Method for identifying substantial PC axes. One of Kaiser-Guttman,
+#' broken-stick, Tracy-Widom [default broken-stick]
 #' @param correction Method applied to correct for negative eigenvalues, either
 #'  'lingoes' or 'cailliez' [Default NULL].
 #' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
@@ -21,9 +23,9 @@
 #' @param plot.out If TRUE, a diagnostic plot is displayed showing a scree plot
 #' for the "informative" axes and a histogram of eigenvalues of the remaining 
 #' "noise" axes [Default TRUE].
-#' @param plot_theme Theme for the plot. See Details for options
+#' @param plot.theme Theme for the plot. See Details for options
 #'  [default theme_dartR()].
-#' @param plot_colors List of two color names for the borders and fill of the
+#' @param plot.colors List of two color names for the borders and fill of the
 #'  plot [default gl.colors(2)].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
@@ -101,7 +103,9 @@
 #' for identifying which axes are informative (in terms of containing biologically
 #' significant variation) and which are noise axes. The simplest method is to consider
 #' only those axes that explain more variance than the original variables on average as
-#' being informative (the Kaiser-Guttman criterion).
+#' being informative (pc.select="Kaiser-Guttman"). A second method (the default) is
+#' the broken-stick method (pc.select="broken-stick"). A third method is the Tracy-Widom
+#' statistical approach (pc.select="Tracy-Widom").
 #' 
 #' Once you have the informative axes identified, a judgement call is made as to how
 #' many dimensions to retain and present as results. This requires a decision on how 
@@ -139,7 +143,7 @@
 #' the best modern reference is Legendre & Legendre (1998).
 
 #'@return An object of class pcoa containing the eigenvalues and factor scores
-#'@author Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
+#'@author Author(s): Arthur Georges and Jesus Castrejon. Custodian: Arthur Georges (Post to
 #'\url{https://groups.google.com/d/forum/dartr})
 #'@examples
 #' # PCA (using SNP genlight object)
@@ -187,23 +191,25 @@
 
 gl.pcoa <- function(x,
                     nfactors = 5,
+                    pc.select="broken-stick",
                     correction = NULL,
                     mono.rm = TRUE,
                     parallel = FALSE,
                     n.cores = 1,
                     plot.out = TRUE,
-                    plot_theme = theme_dartR(),
-                    plot_colors = gl.colors(2),
+                    plot.theme = theme_dartR(),
+                    plot.colors = gl.colors(2),
                     plot.file=NULL,
                     plot.dir=NULL,
                     verbose = NULL) {
+  
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Josh",
+                     build = "2024V1",
                      verbose = verbose)
     
     # SET WORKING DIRECTORY
@@ -267,6 +273,210 @@ gl.pcoa <- function(x,
         }
     }
     
+    # if(pc.select=="Tracy-Widom"){
+    #   cat(warn("  Note: The Tracy-Widom Criterion for determining informative axes is not yet implemented. Selecting 'broken-stick criterion'\n"))
+    #   pc.select <- "broken-stick"
+    # }
+    
+    # FUNCTIONS
+    
+    twtest <- function(x){
+      # Returns the p-value of the Tracy Widom statistics 
+      # (righ-side cumulative function). The function uses linear interpolation 
+      # over the tables reported originally by Patterson et al (2006).
+      
+      # The package RMTstat provides the same values (1-ptw(x)) with more precision but for smaller values
+      
+      # twtest(0.6)
+      
+      # Author: Jesus Castrejon
+      
+      # This array holds a pre-calculated table for the Tracy-Widom distribution.
+      # Each group of three numbers corresponds to a value `x` from the distribution,
+      # the density at `x`, and the cumulative distribution up to `x`.
+      twtable <- c(-8.000000000,1.000000000,0.000000000,-7.900000000,1.000000000,0.000000000,-7.800000000,1.000000000,0.000000000,-7.700000000,1.000000000,0.000000000,-7.600000000,1.000000000,0.000000000,
+                   -7.500000000,1.000000000,0.000000001,-7.400000000,1.000000000,0.000000002,-7.300000000,0.999999999,0.000000005,-7.200000000,0.999999999,0.000000010,-7.100000000,0.999999997,0.000000019,
+                   -7.000000000,0.999999995,0.000000039,-6.900000000,0.999999989,0.000000076,-6.800000000,0.999999978,0.000000146,-6.700000000,0.999999958,0.000000276,-6.600000000,0.999999920,0.000000511,
+                   -6.500000000,0.999999849,0.000000932,-6.400000000,0.999999723,0.000001670,-6.300000000,0.999999498,0.000002942,-6.200000000,0.999999105,0.000005097,-6.100000000,0.999998431,0.000008683,
+                   -6.000000000,0.999997293,0.000014554,-5.900000000,0.999995401,0.000024005,-5.800000000,0.999992309,0.000038969,-5.700000000,0.999987331,0.000062279,-5.600000000,0.999979441,0.000098012,
+                   -5.500000000,0.999967125,0.000151923,-5.400000000,0.999948187,0.000231995,-5.300000000,0.999919496,0.000349097,-5.200000000,0.999876655,0.000517756,-5.100000000,0.999813597,0.000757035,
+                   -5.000000000,0.999722082,0.001091485,-4.900000000,0.999591101,0.001552137,-4.800000000,0.999406175,0.002177466,-4.700000000,0.999148569,0.003014256,-4.600000000,0.998794427,0.004118267,
+                   -4.500000000,0.998313849,0.005554591,-4.400000000,0.997669962,0.007397591,-4.300000000,0.996818016,0.009730295,-4.200000000,0.995704571,0.012643159,-4.100000000,0.994266851,0.016232112,
+                   -4.000000000,0.992432322,0.020595851,-3.900000000,0.990118582,0.025832397,-3.800000000,0.987233631,0.032034971,-3.700000000,0.983676579,0.039287325,-3.600000000,0.979338843,0.047658716,
+                   -3.500000000,0.974105853,0.057198759,-3.400000000,0.967859270,0.067932445,-3.300000000,0.960479677,0.079855636,-3.200000000,0.951849687,0.092931337,-3.100000000,0.941857369,0.107087044,
+                   -3.000000000,0.930399881,0.122213418,-2.900000000,0.917387157,0.138164458,-2.800000000,0.902745495,0.154759279,-2.700000000,0.886420892,0.171785501,-2.600000000,0.868381957,0.189004169,
+                   -2.500000000,0.848622271,0.206156009,-2.400000000,0.827162053,0.222968755,-2.300000000,0.804049066,0.239165233,-2.200000000,0.779358684,0.254471803,-2.100000000,0.753193114,0.268626779,
+                   -2.000000000,0.725679802,0.281388431,-1.900000000,0.696969061,0.292542221,-1.800000000,0.667231036,0.301906945,-1.700000000,0.636652122,0.309339558,-1.600000000,0.605430961,0.314738516,
+                   -1.500000000,0.573774198,0.318045543,-1.400000000,0.541892124,0.319245849,-1.300000000,0.509994383,0.318366852,-1.200000000,0.478285870,0.315475570,-1.100000000,0.446962951,0.310674866,
+                   -1.000000000,0.416210105,0.304098784,-0.900000000,0.386197065,0.295907232,-0.800000000,0.357076521,0.286280263,-0.700000000,0.328982392,0.275412215,-0.600000000,0.302028689,0.263505933,
+                   -0.500000000,0.276308949,0.250767272,-0.400000000,0.251896179,0.237400053,-0.300000000,0.228843301,0.223601597,-0.200000000,0.207183986,0.209558915,-0.100000000,0.186933854,0.195445624,
+                   0.000000000,0.168091934,0.181419571,0.100000000,0.150642330,0.167621190,0.200000000,0.134556018,0.154172511,0.300000000,0.119792709,0.141176787,0.400000000,0.106302721,0.128718659,
+                   0.500000000,0.094028817,0.116864772,0.600000000,0.082907953,0.105664756,0.700000000,0.072872924,0.095152500,0.800000000,0.063853860,0.085347620,0.900000000,0.055779577,0.076257058,
+                   1.000000000,0.048578763,0.067876743,1.100000000,0.042180992,0.060193257,1.200000000,0.036517582,0.053185457,1.300000000,0.031522284,0.046826015,1.400000000,0.027131832,0.041082856,
+                   1.500000000,0.023286351,0.035920459,1.600000000,0.019929640,0.031301023,1.700000000,0.017009350,0.027185487,1.800000000,0.014477062,0.023534398,1.900000000,0.012288293,0.020308645,
+                   2.000000000,0.010402429,0.017470054,2.100000000,0.008782605,0.014981856,2.200000000,0.007395547,0.012809046,2.300000000,0.006211384,0.010918644,2.400000000,0.005203434,0.009279861,
+                   2.500000000,0.004347977,0.007864200,2.600000000,0.003624031,0.006645482,2.700000000,0.003013114,0.005599836,2.800000000,0.002499018,0.004705636,2.900000000,0.002067590,0.003943413,
+                   3.000000000,0.001706520,0.003295741,3.100000000,0.001405143,0.002747112,3.200000000,0.001154255,0.002283795,3.300000000,0.000945945,0.001893694,3.400000000,0.000773431,0.001566204,
+                   3.500000000,0.000630927,0.001292071,3.600000000,0.000513508,0.001063253,3.700000000,0.000416999,0.000872795,3.800000000,0.000337871,0.000714702,3.900000000,0.000273152,0.000583831,
+                   4.000000000,0.000220344,0.000475784,4.100000000,0.000177359,0.000386816,4.200000000,0.000142452,0.000313749,4.300000000,0.000114170,0.000253894,4.400000000,0.000091308,0.000204987,
+                   4.500000000,0.000072871,0.000165125,4.600000000,0.000058035,0.000132716,4.700000000,0.000046124,0.000106431,4.800000000,0.000036582,0.000085163,4.900000000,0.000028955,0.000067996,
+                   5.000000000,0.000022872,0.000054172,5.100000000,0.000018030,0.000043066,5.200000000,0.000014185,0.000034164,5.300000000,0.000011138,0.000027045,5.400000000,0.000008728,0.000021365,
+                   5.500000000,0.000006826,0.000016843,5.600000000,0.000005328,0.000013250,5.700000000,0.000004151,0.000010403,5.800000000,0.000003228,0.000008151,5.900000000,0.000002505,0.000006374,
+                   6.000000000,0.000001941,0.000004974,6.100000000,0.000001501,0.000003874,6.200000000,0.000001158,0.000003011,6.300000000,0.000000892,0.000002336,6.400000000,0.000000686,0.000001809,
+                   6.500000000,0.000000527,0.000001398,6.600000000,0.000000403,0.000001078,6.700000000,0.000000308,0.000000830,6.800000000,0.000000235,0.000000638,6.900000000,0.000000179,0.000000489,
+                   7.000000000,0.000000136,0.000000375,7.100000000,0.000000104,0.000000286,7.200000000,0.000000079,0.000000218,7.300000000,0.000000059,0.000000166,7.400000000,0.000000045,0.000000126,
+                   7.500000000,0.000000034,0.000000096,7.600000000,0.000000025,0.000000073,7.700000000,0.000000019,0.000000055,7.800000000,0.000000014,0.000000041,7.900000000,0.000000011,0.000000031,
+                   8.000000000,0.000000008,0.000000023)
+      # If the input `x` is 8 or greater, the function returns 0 because the table 
+      # does not include values at or beyond this point.
+      if(x >= 8){
+        return(0)
+      }
+      
+      i <- 0
+      # Search through twtable to find the right index where the value of `x` 
+      # fits between entries in the table.
+      while(i < 162 & x >= twtable[(i)*3+1]){
+        i <- i+1
+      }
+      # lower boundary 
+      z0 = twtable[(i-1)*3 + 2]
+      # upper boundary
+      z1 = twtable[(i)*3 + 2]
+      # If at the end of the table, return the density at the lower boundary.
+      if(i == 162){
+        return(z0)
+        # x is less than the smallest x in the table, return the density at 
+        # the upper boundary
+      } else if(i == 0){
+        return(z1)
+        # x is within the range of the table, interpolate
+      } else{
+        # Linear interpolation to find the density at x
+        result <- z0 + (z1- z0)*(x - twtable[(i-1)*3+1])/(twtable[(i)*3+1] - twtable[(i-1)*3+1])
+      }
+      return(result)
+    }
+
+    tw.statistics <- function(eigenvalues,alpha=0.05,plot=TRUE) {
+      
+      # Returns two vectors, one holding the eigenvalues of "informative" dimensions,
+      # the other holding the eigenvalues of the "noise" dimensions. Criterion is
+      # statistical significance under the Tracy-Widom distribution (implemented by
+      #Patterson, 2006.
+      
+      # Author: Jesus Castrejon
+      
+      # Reference: Patterson, N., Price, A. L., & Reich, D. (2006). Population 
+      # structure and eigenanalysis. PLoS Genetics, 2, e190. 
+      # https://doi.org/10.1371/journal.pgen.0020190
+      
+      # Takes M as the number of eigenvalues
+      M <- length(eigenvalues)
+      
+      # Sum eigenvalues and squared eigenvalues
+      s  <- sum(eigenvalues)
+      s2 <- sum(eigenvalues**2.)
+      
+      # Initialise lists to store values
+      index <- 1:length(eigenvalues)
+      p.value <- c()
+      tw.stat <- c()
+      
+      # Checks TW statistics for each eigenvalue
+      for(i in index){
+        Mp <- M-i+1
+        nhat <- (Mp+2)*s**2./(Mp*s2 - s**2.)
+        lambda <- eigenvalues[i]*Mp/s
+        # Fix effective n for very small eigenvalues
+        if(nhat<1.){
+          nhat <- 1.
+        }
+        mu <- (sqrt(nhat-1.) + sqrt(Mp))**2./nhat
+        sigma <- (sqrt(nhat-1.) + sqrt(Mp))*(1./sqrt(nhat-1) + 1./sqrt(Mp))**(1./3)/nhat
+        # TW statistic
+        x <- (lambda-mu)/sigma
+        # Gets pvalue of the Tracy-Widom statistics
+        pvalue <- twtest(x)
+        # Updates sum of eigenvalues
+        s <- s - eigenvalues[i]
+        s2 <- s2 - eigenvalues[i]**2.
+        p.value[i] <- pvalue
+        tw.stat[i] <- x
+      }
+      
+      # Adjust pvalues
+      p.value <- stats::p.adjust(p.value)
+      
+      # Creates dataframe with eigenvalues and filter into noisy/structure base on pvalue>alpha
+      df <- data.frame(index,eigenvalues,tw.stat,p.value)
+      idx <- which(p.value>alpha)[1]
+      struc <- df[1:(idx-1),]
+      noise <- df[(idx):length(eigenvalues),]
+      struc$structure <- 'structured'
+      noise$structure <- 'noisy'
+      
+      # Plots eigenvalues
+      if(plot){
+        p1 <- ggplot() +  
+          geom_point(data=struc, aes(x=index,y = eigenvalues,color = structure)) +
+          geom_point(data=noise, aes(x=index,y = eigenvalues,color = structure)) +
+          scale_y_continuous(trans='log10') + 
+          scale_color_manual(values=c("blue","red", "green"))+
+          theme(legend.title=element_blank())
+        print(p1)
+      }
+      return(list('struct'=struc,'noise'=noise))
+    }
+    
+    bs.statistics <- function(eigenvalues,plot=FALSE){
+      # Returns two vectors, one holding the eigenvalues of "informative" dimensions,
+      # the other holding the eigenvalues of the "noise" dimensions. Criterion is
+      # based on the broken-stick algorithm (Macarthur, 1957).
+      
+      # Author: Jesus Castrejon
+      
+      # Reference: Macarthur, R. (1957). On the relative abundance of bird species. 
+      # Proceedings of the National Academy of Sciences USA, 43, 293–295. 
+      # https://doi.org/10.1073/pnas.43.3.293
+      
+      # Set number of eigenvalues
+      n <- length(eigenvalues)
+      index <- 1:n
+      # Calculate expected lengths under Broken stick approach
+      broken.sticks <- sum(eigenvalues)*rev(cumsum(1/n:1))/n
+      # Creates dataframe with eigenvalues and filter noise/structure based on BS lengths
+      df <- data.frame(index,eigenvalues,broken.sticks)
+      #taking the number of the eigenvalue that is less than the broken sticks
+      idx <- eigenvalues>broken.sticks
+      idx2 <- which(eigenvalues>broken.sticks)
+      #testing whether there is a gap 
+      test1 <- which((c(idx2[-1],idx2[1]) - idx2)>2)
+      # if there is a gap 
+      if(length(test1) > 0){
+        idx[(test1+1):length(idx)] <- FALSE
+      }
+      #setting false to everything that is after the gap
+      struc <- df[which(idx==TRUE),]
+      noise <- df[which(idx==FALSE),]
+      struc$structure <- 'structured'
+      noise$structure <- 'noisy'
+      
+      # Creates Plot of eigenvalues
+      if(plot){
+        p1 <- ggplot() +  
+          geom_point(data=struc, aes(x=index,y = eigenvalues,color = structure)) +
+          geom_point(data=noise, aes(x=index,y = eigenvalues,color = structure)) +
+          geom_line(data=df, aes(x=index,y = broken.sticks,color = 'broken sticks'),linetype="dashed") +
+          scale_y_continuous(trans='log10') + 
+          scale_color_manual(values=c("black","blue", "red")) +
+          theme(legend.title=element_blank())
+        print(p1)
+      }
+      
+      return(list('struct'=struc,'noise'=noise))
+    }
+    
     # DO THE JOB
     
     ######## DISTANCE ANALYSIS
@@ -284,7 +494,7 @@ gl.pcoa <- function(x,
                     )
                 )
                 title <-
-                    "PCoA on Distance Matrix (no correction)\nScree Plot (informative axes only)"
+                    paste0("PCoA on Distance Matrix (no correction)\nScree Plot\n (informative axes only -- ",pc.select,"criterion)")
             } else {
                 cat(
                     report(
@@ -297,12 +507,10 @@ gl.pcoa <- function(x,
                     paste0(
                         "PCoA on Distance Matrix(",
                         correction,
-                        ")\nScree Plot (informative axes only)"
-                    )
+                        ")\nScree Plot (informative axes only -- ",pc.select,"criterion)")
             }
         }
-        pco <-
-            ape::pcoa(D, correction = correction, rn = labels(D))
+        pco <-ape::pcoa(D, correction = correction, rn = labels(D))
         
         # Extract relevant variables
         
@@ -311,13 +519,33 @@ gl.pcoa <- function(x,
         } else {
             eig.raw <- pco$values$Corr_eig
         }
+        # M=length(eig.raw)+1
         
-        # Identify the number of axes with explanatory value greater than the original variables on average
-        eig.raw.pos <- eig.raw[eig.raw >= 0]
-        eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
-        eig.top <- eig.raw.pos[eig.raw.pos > mean(eig.raw.pos)]
-        eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
-        eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
+        # Identify the number of axes with explanatory value
+        
+        if(pc.select=="Kaiser-Guttman"){
+          eig.raw.pos <- eig.raw[eig.raw >= 0]
+          eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
+          eig.top <- eig.raw.pos[eig.raw.pos > mean(eig.raw.pos)] 
+          eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+          eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
+        } else if(pc.select=="broken-stick"){
+          eig.raw.pos <- eig.raw[eig.raw >= 0]
+          tmp <- bs.statistics(eigenvalues = eig.raw.pos)
+          eig.top <- tmp$struct$eigenvalues
+          eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+          eig.raw.noise <- tmp$noise$eigenvalues
+        } else if(pc.select=="Tracy-Widom"){
+          # M <- nInd(x)
+          eig.raw.pos <- eig.raw[eig.raw >= 0]
+          tmp <- tw.statistics(eig.raw.pos)
+          eig.top <- tmp$struct$eigenvalues
+          eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+          eig.raw.noise <- tmp$noise$eigenvalues
+        } else {
+          stop("Error: incorrect specification for model of significant eigenvalues. Set to Tracy-Widom\n")
+          pc.select <- "Tracy-Widom"
+        }  
         
         if (any(eig.raw < 0)) {
             if (verbose >= 2) {
@@ -374,7 +602,7 @@ gl.pcoa <- function(x,
                     paste(
                         "  Uncorrected ordination yielded",
                         length(eig.top),
-                        "informative dimensions from",
+                        "informative dimensions(",pc.select,"criterion) from",
                         nInd(x) - 1,
                         "original dimensions\n"
                     )
@@ -384,7 +612,7 @@ gl.pcoa <- function(x,
                     paste(
                         "  Ordination yielded",
                         length(eig.top),
-                        "informative dimensions from",
+                        "informative dimensions(",pc.select,"criterion) from",
                         dim(as.matrix(D))[1],
                         "original dimensions\n"
                     )
@@ -431,7 +659,7 @@ gl.pcoa <- function(x,
                     )
                 )}
                 title <-
-                    "PCA on SNP Genotypes\nScree Plot (informative axes only)"
+                    paste0("PCA on SNP Genotypes\nScree Plot\n (informative axes only -- ",pc.select," criterion)")
             }
             if (datatype == "SilicoDArT") {
                 if (verbose >= 2) {cat(
@@ -440,7 +668,7 @@ gl.pcoa <- function(x,
                     )
                 )}
                 title <-
-                    "PCA on Tag P/A Data\nScree Plot (informative axes only)"
+                    paste0("PCA on Tag P/A Data\nScree Plot\n (informative axes only -- ",pc.select," criterion)")
             }
             
         pca <-
@@ -449,81 +677,67 @@ gl.pcoa <- function(x,
                   parallel = parallel,
                   n.cores = n.cores)
         
-        # Identify the number of axes with explanatory value greater than the original variables on average
+        # # Identify the number of axes with explanatory value greater than the original variables on average
+        # 
+        # 
+        # eig.raw.pos <- eig.raw[eig.raw >= 0]
+        # eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
+        # eig.top <- eig.raw.pos[eig.raw.pos >= mean(eig.raw.pos)]
+        # eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+        # eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
+        
+        # Extract relevant variables
         eig.raw <- pca$eig
+
+        # Identify the number of axes with explanatory value
+        # Identify the number of axes with explanatory value
         
-        eig.raw.pos <- eig.raw[eig.raw >= 0]
-        eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
-        eig.top <- eig.raw.pos[eig.raw.pos >= mean(eig.raw.pos)]
-        eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
-        eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
+        if(pc.select=="Kaiser-Guttman"){
+          eig.raw.pos <- eig.raw[eig.raw >= 0]
+          eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
+          eig.top <- eig.raw.pos[eig.raw.pos > mean(eig.raw.pos)] 
+          eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+          eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
+        } else if(pc.select=="broken-stick"){
+          eig.raw.pos <- eig.raw[eig.raw >= 0]
+          tmp <- bs.statistics(eigenvalues = eig.raw.pos,plot = T)
+          eig.top <- tmp$struct$eigenvalues
+          eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+          eig.raw.noise <- tmp$noise$eigenvalues
+        } else if(pc.select=="Tracy-Widom"){
+          # M <- nInd(x)
+          eig.raw.pos <- eig.raw[eig.raw >= 0]
+          tmp <- tw.statistics(eig.raw.pos)
+          eig.top <- tmp$struct$eigenvalues
+          eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
+          eig.raw.noise <- tmp$noise$eigenvalues
+        } else {
+          stop("Error: incorrect specification for model of significant eigenvalues. Set to Tracy-Widom\n")
+          pc.select <- "Tracy-Widom"
+        }  
         
-        if (any(eig.raw < 0)) {
-            if (verbose >= 2) {
-                problem <- (-sum(eig.raw[eig.raw < 0]) / mean(eig.raw[1:3])) * 100
-                cat(
-                    warn(
-                        "  Warning: Some eigenvalues negative -- sum to",
-                        round(problem, 2),
-                        "% of the mean eigenvalue for PCA axes 1-3\n"
-                    )
-                )
-                cat(
-                    report(
-                        "    Tolerable negative eigenvalues should sum to much less than the eigenvalues of displayed PCA axes (say, less than 20%)\n"
-                    )
-                )
-                if (problem > 20) {
-                    cat(
-                        report(
-                            "    If the stress (negative eigenvalues) is considered a problem, and you might reasonably choose to ignore it, you have the following options:\n"
-                        )
-                    )
-                    cat(
-                        report(
-                            "    (a) Apply more stringent filtering on Call Rate and repeat the PCA; or\n"
-                        )
-                    )
-                    cat(
-                        report(
-                            "    (b) Undertake a PCoA with an appropriate distance measure and a transformation (correction) to eliminate the negative eigenvalues; or\n"
-                        )
-                    )
-                    cat(
-                        report(
-                            "    (c) Interperate the visual representation of the ordination with caution, seeking corroborating evidence.\n"
-                        )
-                    )
-                }
-            }
+        if (any(eig.raw < 0) && verbose >= 2) {
+          problem <- (-sum(eig.raw[eig.raw < 0]) / mean(eig.raw[1:3])) * 100
+          cat(warn("  Warning: Some eigenvalues negative -- they sum to", round(problem, 2), "% of the mean eigenvalue for PCA axes 1-3\n"))
+          cat(report("    Tolerable negative eigenvalues should sum to much less than the eigenvalues of displayed PCA axes (say, less than 20%)\n"))
+          if (problem > 20) {
+            cat(report("    If the stress (negative eigenvalues) is considered a problem, and you might reasonably choose to ignore it, you have the following options:\n"))
+            cat(report("    (a) Apply more stringent filtering on Call Rate and repeat the PCA; or\n"))
+            cat(report("    (b) Undertake a PCoA with an appropriate distance measure and a transformation (correction) to eliminate the negative eigenvalues; or\n"))
+            cat(report("    (c) Interpret the visual representation of the ordination with caution, seeking corroborating evidence.\n"))
+          }
         }
         
         e <- pca$eig[pca$eig > sum(pca$eig / length(pca$eig))]
+        e <- eig.top
         e <- round(e * 100 / sum(pca$eig), 1)
         if (verbose >= 3) {
-            cat(
-                paste(
-                    "  Ordination yielded",
-                    length(e),
-                    "informative dimensions from",
-                    nInd(x) - 1,
-                    "original dimensions\n"
-                )
-            )
-            cat(paste("    PCA Axis 1 explains", e[1], "% of the total variance\n"))
-            cat(paste(
-                "    PCA Axis 1 and 2 combined explain",
-                e[1] + e[2],
-                "% of the total variance\n"
-            ))
-            cat(
-                paste(
-                    "    PCA Axis 1-3 combined explain",
-                    e[1] + e[2] + e[3],
-                    "% of the total variance\n"
-                )
-            )
+          cat(paste("  Ordination yielded", length(e), "informative dimensions(", pc.select, "criterion) from", nInd(x) - 1, "original dimensions\n"))
+          cat(paste("    PCA Axis 1 explains", e[1], "% of the total variance\n"))
+          cat(paste("    PCA Axis 1 and 2 combined explain", e[1] + e[2], "% of the total variance\n"))
+          cat(paste("    PCA Axis 1-3 combined explain", e[1] + e[2] + e[3], "% of the total variance\n"))
         }
+        
         # Construct a universal output file
         p.object <- list()
         p.object$scores <- pca$scores
@@ -548,11 +762,11 @@ gl.pcoa <- function(x,
     ylab <- paste("Percentage Contribution")
     
     p1 <-
-        ggplot(df, aes(x = eigenvalue, y = percent)) + 
-      geom_line(color = plot_colors[2]) + 
-      geom_point(color = plot_colors[1], size = 4) +
+      ggplot(df, aes(x = eigenvalue, y = percent)) + 
+      geom_line(color = plot.colors[2]) + 
+      geom_point(color = plot.colors[1], size = 4) +
         geom_hline(yintercept = 10, color = "blue") + 
-      plot_theme + xlab(xlab) + 
+      plot.theme + xlab(xlab) + 
       ylab(ylab) + 
       ggtitle(title)
     
@@ -563,13 +777,20 @@ gl.pcoa <- function(x,
     }
     
     p2 <-
-        ggplot(as.data.frame(eig.raw.noise), aes(x = eig.raw.noise)) + 
-      geom_histogram(bins = 50, color = plot_colors[1], fill = plot_colors[2]) +
+      ggplot(as.data.frame(eig.raw.noise), aes(x = eig.raw.noise)) + 
+      geom_histogram(bins = 50, color = plot.colors[1], fill = plot.colors[2]) +
         geom_vline(xintercept = 0, color = "blue") +
-      plot_theme + 
+      plot.theme + 
       xlab("Eigenvalue") + 
       ylab("Count") + 
       ggtitle(main)
+    
+    if(any(eig.raw.noise==0)){
+      if(verbose>=2){
+        cat(warn("Warning: Some eigenvalues are zero, which suggests redundancy in the SNP loci\n"))
+        cat(warn("  This may arise if there are duplicate individuals or clones in the dataset. Worth checking.\n"))    
+      }
+    }
     
     # printing outputs
     p3 <- (p1 / p2)
@@ -595,3 +816,4 @@ gl.pcoa <- function(x,
     class(p.object) <- "glPca"
     invisible(p.object)
 }
+

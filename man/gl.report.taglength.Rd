@@ -43,25 +43,26 @@ from 20 to 69 base pairs. This function reports summary statistics of the tag
  lengths.
 }
 \details{
-The function \code{\link{gl.filter.taglength}} will filter out the
- loci with a tag length below a specified threshold.
-Quantiles are partitions of a finite set of values into q subsets of (nearly)
-equal sizes. In this function q = 20. Quantiles are useful measures because
-they are less susceptible to long-tailed distributions and outliers.
+This function reports sequence tag lengths for a genlight object. It is a companion
+function to \code{\link{gl.filter.taglength}} which can be used to filter out 
+loci with a tag length less than a specified threshold.
+The table of quantiles is useful for deciding a threshold for subsequent filtering
+as it provides an indication of the percentages of loci that will be retained and 
+lost. 
 \strong{ Function's output }
  The minimum, maximum, mean and a tabulation of tag length quantiles against
- thresholds are provided. Output also includes a boxplot and a
+ thresholds are output to the console. The output also includes a boxplot and a
  histogram to guide in the selection of a threshold for filtering on tag
  length.
-  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+ 
+If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
 binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
 specified for the plot to be saved.
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
  directory; otherwise to the tempdir(). 
- Examples of other themes that can be used can be consulted in \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
- \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
- }
+ 
+To avoid issues from inadvertent use of this function in an assignment statement,
+the function returns the genlight object unaltered.
 }
 \examples{
 out <- gl.report.taglength(testset.gl)
@@ -71,6 +72,7 @@ out <- gl.report.taglength(testset.gl)
 \code{\link{gl.filter.taglength}}
 
 Other matched report: 
+\code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
@@ -82,7 +84,7 @@ Other matched report:
 \code{\link{gl.report.secondaries}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}

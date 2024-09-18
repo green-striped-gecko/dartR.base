@@ -32,12 +32,18 @@
 #'  friendly. Identification of points is by moving the mouse over them. Refer
 #'  to the plotly package for further information.
 #' The interactive option is automatically enabled for 3D plotting.
+#' 
+#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' specified for the plot to be saved.
+
+#' If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir(). 
 
 #' @param glPca Name of the PCA or PCoA object containing the factor scores and
 #' eigenvalues [required].
 #' @param x Name of the genlight object or fd object containing the SNP
-#' genotypes or Tag P/A (SilicoDArT) genotypes or the Distance Matrix used to
-#' generate the ordination [required].
+#' genotypes or Tag P/A (SilicoDArT) genotypes [required to gain access to metadata].
 #' @param scale If TRUE, scale the x and y axes in proportion to \% variation
 #' explained [default FALSE].
 #' @param ellipse If TRUE, display ellipses to encapsulate points for each
@@ -67,8 +73,10 @@
 #' @param label.size Specify the size of the point labels [default 1].
 #' @param axis.label.size Specify the size of the displayed axis labels
 #' [default 1.5].
-#' @param save2tmp If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
+#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' by the global working directory or tempdir()].
+#' @param plot.file Name for the RDS binary file to save (base name only, 
+#' exclude extension) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
@@ -100,7 +108,7 @@
 #' gl.pcoa.plot(pca, gl, pop.labels='none',scale=TRUE)
 #' gl.pcoa.plot(pca, gl, axis.label.size=1.2, interactive=TRUE)
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, xaxis=1, yaxis=2, zaxis=3)
-#' # color AND SHAPE ADJUSTMENTS
+#' # COLOR AND SHAPE ADJUSTMENTS
 #' shp <- gl.select.shapes(select=c(16,17,17,0,2))
 #' col <- gl.select.colors(library='brewer',palette='Spectral',ncolors=11,
 #' select=c(1,9,3,11,11))
@@ -108,6 +116,10 @@
 #' pt.colors=col, pt.shapes=shp, axis.label.size=1, hadjust=1.5,vadjust=1)
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 #'  pt.colors=col, pt.shapes=shp, axis.label.size=1)
+#'# DISTANCE MATRIX
+#'  D <- gl.dist.ind(gl)
+#'  pco <- gl.pcoa(D)
+#'  gl.pcoa.plot(pco,gl,ellipse=TRUE)
 #'  }
 #' @seealso \code{\link{gl.pcoa}}
 #' @family Exploration/visualisation functions
@@ -132,7 +144,8 @@ gl.pcoa.plot <- function(glPca,
                          pt.shapes = NULL,
                          label.size = 1,
                          axis.label.size = 1.5,
-                         save2tmp = FALSE,
+                         plot.file=NULL,
+                         plot.dir=NULL,
                          verbose = NULL) {
     
     hold_x <- x
@@ -144,20 +157,41 @@ gl.pcoa.plot <- function(glPca,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Josh",
+                     build = "2024_v1",
                      verbose = verbose)
     
     # CHECK DATATYPE
+    # Check the glPca parameter object
     datatype1 <-
         utils.check.datatype(glPca, accept = c("glPca","list"),
                              verbose = verbose)
+    # Further refine the data type -- is it a PCA or is it a PCoA object
+    if(datatype1=="glPca"){
+      if(is.null(glPca$loadings)){
+        datatype1 <- "PCoA"
+      } else {
+        datatype1 <- "PCA"
+      }
+    }
+    
+    # Check the genlight object type, parameter x
     datatype2 <-
         utils.check.datatype(x,
                              accept = c("SNP", "SilicoDArT", "fd",
-                                        "dist","list"),
+                                        "list"),
                              verbose = verbose)
     
+    # If an fd object, pull out the genlight object
+    if (datatype2 == "fd") {
+      x <- x$fd
+      datatype2 <-
+        utils.check.datatype(x, accept = c("SNP", "SilicoDArT", "fd", "list"),
+                             verbose = 0)
+    }
+    
     # SCRIPT SPECIFIC ERROR CHECKING
+    
+    # Required packages
     pkg <- "directlabels"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
       cat(error(
@@ -167,7 +201,6 @@ gl.pcoa.plot <- function(glPca,
       ))
       return(-1)
     }
-    
     
     if (interactive | !is.null(zaxis)) {
         pkg <- "plotly"
@@ -205,6 +238,11 @@ gl.pcoa.plot <- function(glPca,
         glPca <- glPca[[1]]
     }
     
+    # Check parameter values
+    
+    axis.label.size <- axis.label.size * 10
+    PCoAx <- PCoAy <- NULL
+    
     if (pop.labels != "none" &&
         pop.labels != "ind" &&
         pop.labels != "pop" && pop.labels != "legend") {
@@ -215,24 +253,28 @@ gl.pcoa.plot <- function(glPca,
         )
         pop.labels <- "pop"
     }
+    
     if (plevel < 0 | plevel > 1) {
         cat(warn(
             "  Warning: Parameter 'plevel' must fall between 0 and 1, set to 0.95\n"
         ))
         plevel <- 0.95
     }
+    
     if (hadjust < 0 | hadjust > 3) {
         cat(warn(
             "  Warning: Parameter 'hadjust' must fall between 0 and 3, set to 1.5\n"
         ))
         hadjust <- 1.5
     }
+    
     if (vadjust < 0 | hadjust > 3) {
         cat(warn(
             "  Warning: Parameter 'vadjust' must fall between 0 and 3, set to 1.5\n"
         ))
         vadjust <- 1.5
     }
+    
     if (xaxis < 1 | xaxis > ncol(glPca$scores)) {
         cat(
             warn(
@@ -243,6 +285,7 @@ gl.pcoa.plot <- function(glPca,
         )
         xaxis <- 1
     }
+    
     if (yaxis < 1 | yaxis > ncol(glPca$scores)) {
         cat(
             warn(
@@ -253,6 +296,7 @@ gl.pcoa.plot <- function(glPca,
         )
         yaxis <- 2
     }
+    
     if (!is.null(zaxis)) {
         if (zaxis < 1 | zaxis > ncol(glPca$scores)) {
             cat(
@@ -266,7 +310,12 @@ gl.pcoa.plot <- function(glPca,
         }
     }
     
-    # Assign the new population list if as.pop is specified
+    # Assign the new populations if as.pop is specified
+    if(!is.null(as.pop)){
+      if(!(datatype2 %in% c("SNP","SilicoDArT"))){
+        cat(warn("  Warning: as.pop parameter specified, only appropriate for SNP and SilicoDArT genlight objects. Ignored \n"))
+      }
+    }
     if(datatype2 %in% c("SNP","SilicoDArT")){
         pop.hold <- pop(x)
         if (!is.null(as.pop)) {
@@ -291,92 +340,88 @@ gl.pcoa.plot <- function(glPca,
         }
     }
     
-    # If an fd object, pull out the genlight object
-    if (datatype2 == "fd") {
-        x <- x$fd
-        datatype2 <- utils.check.datatype(x, verbose = 0)
-    }
-    axis.label.size <- axis.label.size * 10
+
+    # Comment: The script now has either a genlight object (genlight, fd) with the population labels or it has a distance matrix or list
+    # object that needs to be attended to separately to identify population labels.
     
     # DO THE JOB
     # Set NULL to variables to pass CRAN checks
     gen <- NULL  
     
     if(datatype1=="list"){
+      
+      gen_number <- length(hold_x)
+      df_sim <- as.data.frame(matrix(ncol = 5))
+      colnames(df_sim) <- c("PCoAx","PCoAy","ind","pop","gen")
+      
+      test_pos_neg <- as.data.frame(matrix(nrow = gen_number,ncol = 3 ))
+      colnames(test_pos_neg) <- c("gen","test_x","test_y")
+      
+      # the direction of the PCA axes are chosen at random 
+      # this is to set the same direction in every generation
+      # first get the individual with more variance for axis x and y 
+      # for the first generation of the simulations
+      ind_x_axis <- which.max(abs(hold_glPca[[1]]$scores[,xaxis]))
+      ind_y_axis <- which.max(abs(hold_glPca[[1]]$scores[,yaxis]))
+      
+      # check whether is positive or negative
+      test_pos_neg[1, "test_x"] <- 
+        if(hold_glPca[[1]]$scores[ind_x_axis,xaxis]>=0)"positive"else"negative"
+      test_pos_neg[1, "test_y"]  <- 
+        if(hold_glPca[[1]]$scores[ind_y_axis,yaxis]>=0)"positive"else"negative"
+      for(sim_i in 1:gen_number){
+        glPca <- hold_glPca[[sim_i]]
+        x <- hold_x[[sim_i]]
+        m <- cbind(glPca$scores[, xaxis], glPca$scores[, yaxis])
+        df <- data.frame(m)
+        # Convert the eigenvalues to percentages
+        # s <- sum(glPca$eig[glPca$eig >= 0])
+        # e <- round(glPca$eig * 100 / s, 1)
+        # Labels for the axes and points
+        xlab <- paste("PCA Axis", xaxis)
+        ylab <- paste("PCA Axis", yaxis)
+        ind <- indNames(x)
+        pop <- factor(pop(x))
+        gen <- unique(x$other$sim.vars$generation)
+        df <- cbind(df, ind, pop,unique(x$other$sim.vars$generation))
+        colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop","gen")
         
-        gen_number <- length(hold_x)
-        df_sim <- as.data.frame(matrix(ncol = 5))
-        colnames(df_sim) <- c("PCoAx","PCoAy","ind","pop","gen")
+        test_pos_neg[ sim_i, "test_x"] <- 
+          if(hold_glPca[[sim_i]]$scores[ind_x_axis,xaxis]>=0)"positive"else"negative"
+        test_pos_neg[ sim_i, "test_y"]  <- 
+          if(hold_glPca[[sim_i]]$scores[ind_y_axis,yaxis]>=0)"positive"else"negative"
         
-        test_pos_neg <- as.data.frame(matrix(nrow = gen_number,ncol = 3 ))
-        colnames(test_pos_neg) <- c("gen","test_x","test_y")
-        
-        # the direction of the PCA axes are chosen at random 
-        # this is to set the same direction in every generation
-        # first get the individual with more variance for axis x and y 
-        # for the first generation of the simulations
-        ind_x_axis <- which.max(abs(hold_glPca[[1]]$scores[,xaxis]))
-        ind_y_axis <- which.max(abs(hold_glPca[[1]]$scores[,yaxis]))
-        
-        # check whether is positive or negative
-        test_pos_neg[1, "test_x"] <- 
-            if(hold_glPca[[1]]$scores[ind_x_axis,xaxis]>=0)"positive"else"negative"
-        test_pos_neg[1, "test_y"]  <- 
-            if(hold_glPca[[1]]$scores[ind_y_axis,yaxis]>=0)"positive"else"negative"
-        for(sim_i in 1:gen_number){
-            glPca <- hold_glPca[[sim_i]]
-            x <- hold_x[[sim_i]]
-            m <- cbind(glPca$scores[, xaxis], glPca$scores[, yaxis])
-            df <- data.frame(m)
-            # Convert the eigenvalues to percentages
-            # s <- sum(glPca$eig[glPca$eig >= 0])
-            # e <- round(glPca$eig * 100 / s, 1)
-            # Labels for the axes and points
-                xlab <- paste("PCA Axis", xaxis)
-                ylab <- paste("PCA Axis", yaxis)
-                ind <- indNames(x)
-                pop <- factor(pop(x))
-                gen <- unique(x$other$sim.vars$generation)
-                df <- cbind(df, ind, pop,unique(x$other$sim.vars$generation))
-                colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop","gen")
-
-                test_pos_neg[ sim_i, "test_x"] <- 
-                    if(hold_glPca[[sim_i]]$scores[ind_x_axis,xaxis]>=0)"positive"else"negative"
-                test_pos_neg[ sim_i, "test_y"]  <- 
-                    if(hold_glPca[[sim_i]]$scores[ind_y_axis,yaxis]>=0)"positive"else"negative"
-                
         if(test_pos_neg[1, "test_x"] != test_pos_neg[ sim_i, "test_x"]){
-                    df$PCoAx <- df$PCoAx * -1
-                    # test_pos_neg[ sim_i, "test_x"] <- test_pos_neg[ axis_ind-1, "test_x"] 
-                }
-
-                if(test_pos_neg[ 1, "test_y"] != test_pos_neg[ sim_i, "test_y"]){
-                    df$PCoAy <- df$PCoAy * -1
-                    
-                    # test_pos_neg[ sim_i, "test_y"] <- test_pos_neg[ axis_ind-1, "test_y"] 
-                }
-
-                df_sim <- rbind(df_sim,df)
+          df$PCoAx <- df$PCoAx * -1
+          # test_pos_neg[ sim_i, "test_x"] <- test_pos_neg[ axis_ind-1, "test_x"] 
         }
-         df_sim <- tibble::as_tibble(df_sim)
-         df_sim <- df_sim[-1,]
         
-        p  <- ggplot(df_sim, aes(PCoAx, PCoAy, colour = pop)) +
-                        geom_point(size=3) +
-            labs(title = 'Generation: {frame_time}', x = xlab, y = ylab) +
-            gganimate::transition_time(gen) +
-            gganimate::ease_aes('linear')
-        return(p)
+        if(test_pos_neg[ 1, "test_y"] != test_pos_neg[ sim_i, "test_y"]){
+          df$PCoAy <- df$PCoAy * -1
+          
+          # test_pos_neg[ sim_i, "test_y"] <- test_pos_neg[ axis_ind-1, "test_y"] 
         }
-    
-    PCoAx <- PCoAy <- NULL
+        
+        df_sim <- rbind(df_sim,df)
+      }
+      df_sim <- tibble::as_tibble(df_sim)
+      df_sim <- df_sim[-1,]
+      
+      p  <- ggplot(df_sim, aes(PCoAx, PCoAy, colour = pop)) +
+        geom_point(size=3) +
+        labs(title = 'Generation: {frame_time}', x = xlab, y = ylab) +
+        gganimate::transition_time(gen) +
+        gganimate::ease_aes('linear')
+      return(p)
+    }
+    # End if datatype1=="list"
     
     # Create a dataframe to hold the required scores
     if (is.null(zaxis)) {
-        m <- cbind(glPca$scores[, xaxis], glPca$scores[, yaxis])
+      m <- cbind(glPca$scores[, xaxis], glPca$scores[, yaxis])
     } else {
-        m <-
-            cbind(glPca$scores[, xaxis], glPca$scores[, yaxis], glPca$scores[, zaxis])
+      m <-
+        cbind(glPca$scores[, xaxis], glPca$scores[, yaxis], glPca$scores[, zaxis])
     }
     df <- data.frame(m)
     
@@ -387,49 +432,64 @@ gl.pcoa.plot <- function(glPca,
     # Labels for the axes and points
     
     if (datatype2 == "SNP" | datatype2 == "SilicoDArT") {
+      if(datatype1 == "PCA"){
         xlab <- paste("PCA Axis", xaxis, "(", e[xaxis], "%)")
         ylab <- paste("PCA Axis", yaxis, "(", e[yaxis], "%)")
         if (!is.null(zaxis)) {
-            zlab <- paste("PCA Axis", zaxis, "(", e[zaxis], "%)")
+          zlab <- paste("PCA Axis", zaxis, "(", e[zaxis], "%)")
         }
-        
         ind <- indNames(x)
         pop <- factor(pop(x))
         df <- cbind(df, ind, pop)
         if (is.null(zaxis)) {
-            colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop")
+          colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop")
         } else {
-            colnames(df) <- c("PCoAx", "PCoAy", "PCoAz", "ind", "pop")
+          colnames(df) <- c("PCoAx", "PCoAy", "PCoAz", "ind", "pop")
         }
-        
-    } else {
-        # datatype2 == 'dist'
+      } else {
         xlab <- paste("PCoA Axis", xaxis, "(", e[xaxis], "%)")
         ylab <- paste("PCoA Axis", yaxis, "(", e[yaxis], "%)")
         if (!is.null(zaxis)) {
-            zlab <- paste("PCA Axis", zaxis, "(", e[zaxis], "%)")
+          zlab <- paste("PCoA Axis", zaxis, "(", e[zaxis], "%)")
         }
-        
-        ind <- rownames(as.matrix(x))
-        pop <- ind
+        ind <- indNames(x)
+        pop <- factor(pop(x))
         df <- cbind(df, ind, pop)
         if (is.null(zaxis)) {
-            colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop")
+          colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop")
         } else {
-            colnames(df) <- c("PCoAx", "PCoAy", "PCoAz", "ind", "pop")
+          colnames(df) <- c("PCoAx", "PCoAy", "PCoAz", "ind", "pop")
         }
-        if (interactive) {
-            cat(
-                warn(
-                    "  Sorry, interactive labels are not available for an ordination generated from a Distance Matrix\n"
-                )
-            )
-            cat(warn(
-                "  Labelling the plot with names taken from the Distance Matrix\n"
-            ))
-        }
-        pop.labels <- "pop"
-    }
+      }
+    } 
+    
+    # if(datatype2=="dist"){
+    #   xlab <- paste("PCoA Axis", xaxis, "(", e[xaxis], "%)")
+    #   ylab <- paste("PCoA Axis", yaxis, "(", e[yaxis], "%)")
+    #   if (!is.null(zaxis)) {
+    #     zlab <- paste("PCA Axis", zaxis, "(", e[zaxis], "%)")
+    #   }
+    #   
+    #   ind <- rownames(as.matrix(x))
+    #   pop <- ind
+    #   df <- cbind(df, ind, pop)
+    #   if (is.null(zaxis)) {
+    #     colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop")
+    #   } else {
+    #     colnames(df) <- c("PCoAx", "PCoAy", "PCoAz", "ind", "pop")
+    #   }
+    #   if (interactive) {
+    #     cat(
+    #       warn(
+    #         "  Sorry, interactive labels are not available for an ordination generated from a Distance Matrix\n"
+    #       )
+    #     )
+    #     cat(warn(
+    #       "  Labelling the plot with names taken from the Distance Matrix\n"
+    #     ))
+    #   }
+    #   pop.labels <- "pop"
+    # }
     
     ####### 2D PLOT
     if (is.null(zaxis)) {
@@ -503,11 +563,18 @@ gl.pcoa.plot <- function(glPca,
                 theme(legend.position = "none")
             # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
             if (scale == TRUE) {
-                plott <- plott + coord_fixed(ratio = e[yaxis]/ e[xaxis])
+              s1 <- (max(df$PCoAy)-min(df$PCoAy))
+              s2 <- (max(df$PCoAx)-min(df$PCoAx))
+              r <- s1/s2
+              plott <- plott + coord_fixed(ratio = 1)
+              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
+              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
+              # r <- s1/s2
+              # plott <- plott + coord_fixed(ratio = r)
             }
             # Add ellipses if requested
             if (ellipse == TRUE) {
-                plott <- plott + stat_ellipse(type = "norm", level = plevel)
+              plott <- plott + stat_ellipse(type = "norm", level = plevel)
             }
         }
         
@@ -557,10 +624,19 @@ gl.pcoa.plot <- function(glPca,
                     )
                 ) +
                 labs(x = xlab, y = ylab) + geom_hline(yintercept = 0) + geom_vline(xintercept = 0) + theme(legend.position = "none")
+            
             # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
             if (scale == TRUE) {
-              plott <- plott + coord_fixed(ratio = e[yaxis]/ e[xaxis])
+              s1 <- (max(df$PCoAy)-min(df$PCoAy))
+              s2 <- (max(df$PCoAx)-min(df$PCoAx))
+              r <- s1/s2
+              plott <- plott + coord_fixed(ratio = 1)
+              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
+              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
+              # r <- s1/s2
+              # plott <- plott + coord_fixed(ratio = r)
             }
+            
             # Add ellipses if requested
             if (ellipse == TRUE) {
                 plott <-
@@ -641,9 +717,16 @@ gl.pcoa.plot <- function(glPca,
             }
             plott <-
                 plott + geom_hline(yintercept = 0) + geom_vline(xintercept = 0)
-            # Scale the axes in proportion to % explained, if requested if(scale==TRUE)
+            # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
             if (scale == TRUE) {
-              plott <- plott + coord_fixed(ratio = e[yaxis]/ e[xaxis])
+              s1 <- (max(df$PCoAy)-min(df$PCoAy))
+              s2 <- (max(df$PCoAx)-min(df$PCoAx))
+              r <- s1/s2
+              plott <- plott + coord_fixed(ratio = 1)
+              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
+              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
+              # r <- s1/s2
+              # plott <- plott + coord_fixed(ratio = r)
             }
             # Add ellipses if requested
             if (ellipse == TRUE) {
@@ -702,9 +785,16 @@ gl.pcoa.plot <- function(glPca,
             }
             plott <-
                 plott + geom_hline(yintercept = 0) + geom_vline(xintercept = 0) + theme(legend.position = "none")
-            # Scale the axes in proportion to % explained, if requested if(scale==TRUE)
+            # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
             if (scale == TRUE) {
-              plott <- plott + coord_fixed(ratio = e[yaxis]/ e[xaxis])
+              s1 <- (max(df$PCoAy)-min(df$PCoAy))
+              s2 <- (max(df$PCoAx)-min(df$PCoAx))
+              r <- s1/s2
+              plott <- plott + coord_fixed(ratio = 1)
+              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
+              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
+              # r <- s1/s2
+              # plott <- plott + coord_fixed(ratio = r)
             }
             # Add ellipses if requested
             if (ellipse == TRUE) {
@@ -766,26 +856,35 @@ gl.pcoa.plot <- function(glPca,
         }
     }
     
-    # creating temp file names
-    if (save2tmp) {
-        temp_plot <- tempfile(pattern = "Plot_")
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
-        # saving to tempdir
-        saveRDS(list(match_call, plott), file = temp_plot)
-        if (verbose >= 2) {
-            cat(report("  Saving the ggplot to the session tempfile\n"))
-        }
-        temp_table <- tempfile(pattern = "Table_")
-        saveRDS(list(match_call, df), file = temp_table)
-        if (verbose >= 2) {
-            cat(report("  Saving tabulation to the session tempfile\n"))
-            # cat(report(' NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n'))
-        }
+    # # creating temp file names
+    # if (save2tmp) {
+    #     temp_plot <- tempfile(pattern = "Plot_")
+    #     match_call <-
+    #         paste0(names(match.call()),
+    #                "_",
+    #                as.character(match.call()),
+    #                collapse = "_")
+    #     # saving to tempdir
+    #     saveRDS(list(match_call, plott), file = temp_plot)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving the ggplot to the session tempfile\n"))
+    #     }
+    #     temp_table <- tempfile(pattern = "Table_")
+    #     saveRDS(list(match_call, df), file = temp_table)
+    #     if (verbose >= 2) {
+    #         cat(report("  Saving tabulation to the session tempfile\n"))
+    #         # cat(report(' NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n'))
+    #     }
+    # }
+    
+    # Optionally save the plot ---------------------
+    if(!is.null(plot.file)){
+      tmp <- utils.plot.save(plott,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
     }
+    
     # FLAG SCRIPT END
     
     # # Reassign the initial population list if as.pop is specified if (!is.null(as.pop)){ pop(x) <- pop.hold if (verbose >= 3)
@@ -798,4 +897,3 @@ gl.pcoa.plot <- function(glPca,
     return(plott)
     # invisible(NULL)
 }
-

@@ -26,7 +26,7 @@
 #' Gonzalez, J.R., Armengol, L., Sol?, X., Guin?, E., Mercader, J.M., Estivill,
 #' X. and Moreno, V. (2017). SNPassoc: an R package to perform whole genome
 #' association studies. Bioinformatics 23:654-655.
-#' 
+#' @importFrom SNPassoc setupSNP
 #' @export
 #' @return Returns an object of class 'snp' to be used with SNPassoc.
 
@@ -44,58 +44,58 @@ gl2sa <- function(x,
         )
     }
     
-    # #Change 'if (FALSE) {' below to 'if (TRUE) {' to run the function.
-    # if (installed) {
-    #     # CHECK IF PACKAGES ARE INSTALLED
-    #     if (!(requireNamespace("parallel", quietly = TRUE))) {
-    #         stop(
-    #             error(
-    #                 "Package parallel needed for this function to work. Please install it."
-    #             )
-    #         )
-    #     }
-    #     
-    #     if (!(requireNamespace("pegas", quietly = TRUE))) {
-    #         stop(error(
-    #             "Package pegas needed for this function to work. Please install it."
-    #         ))
-    #     }
-    #     
-    #     if (!(requireNamespace("SNPassoc", quietly = TRUE))) {
-    #         stop(
-    #             error(
-    #                 "To use this function you need to install package: SNPassoc. Please refer to the help of the function for instructions (?gl2sa)."
-    #             )
-    #         )
-    #     } else {
-    #         # SET VERBOSITY
-    #         verbose <- gl.check.verbosity(verbose)
-    #         
-    #         # FLAG SCRIPT START
-    #         funname <- match.call()[[1]]
-    #         utils.flag.start(func = funname,
-    #                          build = "Jody",
-    #                          verbose = verbose)
-    #         
-    #         # CHECK DATATYPE
-    #         datatype <- utils.check.datatype(x, verbose = verbose)
-    #         
-    #         # DO THE JOB
-    #         
-    #         if (verbose >= 2) {
-    #             cat(report("  Writing data to SNPassoc object\n"))
-    #         }
-    #         pop <- gl2gi(x)
-    #         xxx <- pegas::as.loci(pop)[,-1]
-    #         sa <- SNPassoc::setupSNP(data.frame(xxx), 1:ncol(xxx), )
-    #         
-    #         # FLAG SCRIPT END
-    #         
-    #         if (verbose > 0) {
-    #             cat(report("Completed:", funname, "\n"))
-    #         }
-    #         
-    #         return(sa)
-    #     }
-    # }
+    #Change 'if (FALSE) {' below to 'if (TRUE) {' to run the function.
+    if (installed) {
+        # CHECK IF PACKAGES ARE INSTALLED
+        if (!(requireNamespace("parallel", quietly = TRUE))) {
+            stop(
+                error(
+                    "Package parallel needed for this function to work. Please install it."
+                )
+            )
+        }
+
+        if (!(requireNamespace("pegas", quietly = TRUE))) {
+            stop(error(
+                "Package pegas needed for this function to work. Please install it."
+            ))
+        }
+
+        if (!(requireNamespace("SNPassoc", quietly = TRUE))) {
+            stop(
+                error(
+                    "To use this function you need to install package: SNPassoc. Please refer to the help of the function for instructions (?gl2sa)."
+                )
+            )
+        } else {
+            # SET VERBOSITY
+            verbose <- gl.check.verbosity(verbose)
+
+            # FLAG SCRIPT START
+            funname <- match.call()[[1]]
+            utils.flag.start(func = funname,
+                             build = "Jody",
+                             verbose = verbose)
+
+            # CHECK DATATYPE
+            datatype <- utils.check.datatype(x, verbose = verbose)
+
+            # DO THE JOB
+
+            if (verbose >= 2) {
+                cat(report("  Writing data to SNPassoc object\n"))
+            }
+            pop <- gl2gi(x)
+            xxx <- pegas::as.loci(pop)[,-1]
+            sa <- SNPassoc::setupSNP(data.frame(xxx), 1:ncol(xxx), )
+
+            # FLAG SCRIPT END
+
+            if (verbose > 0) {
+                cat(report("Completed:", funname, "\n"))
+            }
+
+            return(sa)
+        }
+    }
 }

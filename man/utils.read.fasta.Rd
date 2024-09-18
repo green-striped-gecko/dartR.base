@@ -46,7 +46,8 @@ Other utilities:
 \code{\link{utils.recalc.freqhomsnp}()},
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+\code{\link{utils.transpose}()},
+\code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to

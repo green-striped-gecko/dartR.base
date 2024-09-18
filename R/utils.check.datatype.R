@@ -43,14 +43,14 @@
 #'   class(x)[1].
 
 utils.check.datatype <- function(x,
-                                 accept = c("genlight", "SNP", "SilicoDArT"),
+                                 accept = c("genlight", "SNP", "SilicoDArT","dartR"),
                                  verbose = NULL) {
     #### SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
     #### CHECK THE TYPE OF OBJECT ####
     
-    if (is(x, "genlight")) {
+    if (is(x, "genlight") |is(x, "dartR")) {
         if (is.null(ploidy(x))) {
             stop(
                 error(
@@ -71,12 +71,18 @@ utils.check.datatype <- function(x,
                 cat(report(" with SNP data\n"))
             }
             datatype <- "SNP"
+        } else if (is.null(ploidy(x))==F) {
+          if (verbose >= 2) {
+            cat(report(" with SNP data\n"))
+          }
+          datatype <- "SNP"
         } else {
-            stop(
-                error(
-                    "Fatal Error -- SNP or SilicoDArT coding misspecified, run gl <- gl.compliance.check(gl)"
-                )
+          stop(
+            error(
+              "Fatal Error -- SNP or SilicoDArT coding misspecified, run gl <- gl.compliance.check(gl)"
             )
+          )
+
         }
         # Check for individuals or loci scoring all missing values (NA)
         if (verbose > 1) {
@@ -166,3 +172,4 @@ utils.check.datatype <- function(x,
     
     invisible(datatype)
 }
+
