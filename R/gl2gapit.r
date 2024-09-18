@@ -26,7 +26,6 @@
 #' # assigning SNP position
 #' t1$position <- t1$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
 #'res <- gl2gapit(t1)
-
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)
