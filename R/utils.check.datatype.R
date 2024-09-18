@@ -71,12 +71,18 @@ utils.check.datatype <- function(x,
                 cat(report(" with SNP data\n"))
             }
             datatype <- "SNP"
+        } else if (is.null(ploidy(x))==F) {
+          if (verbose >= 2) {
+            cat(report(" with SNP data\n"))
+          }
+          datatype <- "SNP"
         } else {
-            stop(
-                error(
-                    "Fatal Error -- SNP or SilicoDArT coding misspecified, run gl <- gl.compliance.check(gl)"
-                )
+          stop(
+            error(
+              "Fatal Error -- SNP or SilicoDArT coding misspecified, run gl <- gl.compliance.check(gl)"
             )
+          )
+
         }
         # Check for individuals or loci scoring all missing values (NA)
         if (verbose > 1) {
