@@ -61,7 +61,7 @@ perform subsampling to estimate heterozygosity [default 10].}
 [default theme_dartR()].}
 
 \item{plot.colors.pop}{A color palette for population plots or a list with
-as many colors as there are populations in the dataset
+as many colors as there are populations in the dataset 
 [default gl.colors("dis")].}
 
 \item{plot.colors.ind}{List of two color names for the borders and fill of

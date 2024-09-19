@@ -30,7 +30,7 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors.pop A color palette for population plots or a list with
-#' as many colors as there are populations in the dataset
+#' as many colors as there are populations in the dataset 
 #' [default gl.colors("dis")].
 #' @param plot.colors.ind List of two color names for the borders and fill of
 #' the plot by individual [default gl.colors(2)].
