@@ -92,11 +92,12 @@ gl.report.allelenum <- function(x,
     )
   }
   
-  df <-NULL
-  min_pop <- NULL
-  allele_count_all <- NULL
+  
   # Split the genlight object into a list of populations
   sgl <- seppop(x)
+  
+  min_pop <- NULL
+  allele_count_all <- NULL
   
   for (l in 1:length(sgl)) {
     # convert genlight to SNP matrix
