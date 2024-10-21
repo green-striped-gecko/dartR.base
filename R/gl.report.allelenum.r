@@ -92,18 +92,23 @@ gl.report.allelenum <- function(x,
     )
   }
   
-    df <-NULL
-    # Split the genlight object into a list of populations
-    sgl <- seppop(x)
-    for (l in 1:length(sgl)) {
+  df <-NULL
+  min_pop <- NULL
+  allele_count_all <- NULL
+  # Split the genlight object into a list of populations
+  sgl <- seppop(x)
+  
+  for (l in 1:length(sgl)) {
     # convert genlight to SNP matrix
-    m <- as.matrix(sgl[[l]])
+    m <- as(sgl[[l]], 'matrix')
     allele_count <- reshape2::melt(m) 
+    allele_count$pop <- sgl[[l]]$pop[1]
     colnames(allele_count)[c(2,3)] <- c("site", "genotype")
     
     # summarise allele count and richness
-    allele_count2 <-allele_count[,-1] %>% group_by(site, genotype) %>% count()
-    colnames(allele_count2)[3] <- "n"
+    allele_count2 <-allele_count[,-1] %>% group_by(site, genotype, pop) %>% count()
+    allele_count2 <- na.omit(allele_count2)
+    colnames(allele_count2)[4] <- "n"
     allele_count2$ref_allele <- NA
     allele_count2$alt_allele <- NA
     # calculate number of alternate and reference allele, assuming diploid
@@ -113,31 +118,35 @@ gl.report.allelenum <- function(x,
     allele_count2[which(allele_count2$genotype==0),'alt_allele'] <- 0
     allele_count2[which(allele_count2$genotype==1),'alt_allele'] <- allele_count2[which(allele_count2$genotype==1),'n']
     allele_count2[which(allele_count2$genotype==2),'alt_allele'] <- (allele_count2[which(allele_count2$genotype==2),'n']*2)
-    allele_count3 <- allele_count2 %>% group_by(site) %>% summarise(all_ref_allele=sum(ref_allele), all_alt_allele=sum(alt_allele))
-    popsize_per_snp <- allele_count3 %>% group_by(site) %>% summarise(raw_count=sum(all_ref_allele, all_alt_allele))
-    
-    # calculate allele richness
-    summary_pop_allele <- (merge(popsize_per_snp, allele_count3))
-    summary_pop_allele$ref_site_richness <- (1-choose(((summary_pop_allele$raw_count*2)-(summary_pop_allele$all_ref_allele*2)),summary_pop_allele$raw_count)/choose((summary_pop_allele$raw_count*2),summary_pop_allele$raw_count))
-    summary_pop_allele$alt_site_richness <- (1-choose(((summary_pop_allele$raw_count*2)-(summary_pop_allele$all_alt_allele*2)),summary_pop_allele$raw_count)/choose((summary_pop_allele$raw_count*2),summary_pop_allele$raw_count))
-    summary_pop_allele$sum_site_richness <- (summary_pop_allele$ref_site_richness+summary_pop_allele$alt_site_richness)
-    summary_pop_allele$pop <- sgl[[l]]$pop[1]
-    df <- rbind(df, summary_pop_allele)}
+    allele_count3 <- allele_count2 %>% dplyr::group_by(site) %>% summarise(pop=pop, all_ref_allele=sum(ref_allele), all_alt_allele=sum(alt_allele))
+    allele_count_all <- rbind(allele_count_all, distinct(allele_count3, site, .keep_all = T) )
+    popsize_per_snp <- allele_count_all %>% group_by(site, pop) %>% summarise(raw_count=(all_ref_allele + all_alt_allele))
+    min_pop <-  min(popsize_per_snp %>% group_by(pop) %>% summarise(min_pop=min(raw_count))%>%select(min_pop)) }
   
-    # output
-    richness <- tidyr::pivot_wider(df[,c('pop','sum_site_richness', 'site')], names_from=pop, values_from=sum_site_richness)
-    richness_summary <- data.frame(sum_richness=colSums(richness[,-c(1)], na.rm = T), mean_richness=colMeans(richness[,-c(1)], na.rm = T))
-    richness_summary$pop <- rownames(richness_summary)
-    
-    # assign original populaiton size
-    richness_summary$popsize <- NA
-    for (i in 1:nrow(richness_summary)){
-      richness_summary$popsize[i] <- nInd(sgl[[richness_summary$pop[i]]])
-    }
-    raw_count_ref <- tidyr::pivot_wider(df[,c('pop','all_ref_allele', 'site')], names_from=pop, values_from=all_ref_allele)
-    raw_count_alt <- tidyr::pivot_wider(df[,c('pop','all_alt_allele', 'site')], names_from=pop, values_from=all_alt_allele)
-    res <- list(richness, richness_summary, raw_count_ref, raw_count_alt)
-    names(res) <- c("Richness per site", "Richness per population", "Raw reference allele count", "Raw alternate allele count")
+  
+  #min_pop <- min(popsize_per_snp$raw_count)
+  
+  # calculate allele richness
+  summary_pop_allele <- ((merge(popsize_per_snp, allele_count_all)))
+  summary_pop_allele$ref_site_richness <- (1-choose(((summary_pop_allele$raw_count*2)-(summary_pop_allele$all_alt_allele*2)),min_pop)/choose((summary_pop_allele$raw_count*2),min_pop))
+  summary_pop_allele$alt_site_richness <- (1-choose(((summary_pop_allele$raw_count*2)-(summary_pop_allele$all_ref_allele*2)),min_pop)/choose((summary_pop_allele$raw_count*2),min_pop))
+  summary_pop_allele$`sum_site_richness` <- (summary_pop_allele$ref_site_richness+summary_pop_allele$alt_site_richness)
+  #summary_pop_allele=NULL
+
+  # output
+  richness <- tidyr::pivot_wider(summary_pop_allele[,c('pop','sum_site_richness', 'site')], names_from=pop, values_from=sum_site_richness)
+  richness_summary <- data.frame(sum_richness=colSums(richness[,-c(1)], na.rm = T), mean_richness=colMeans(richness[,-c(1)], na.rm = T))
+  richness_summary$pop <- rownames(richness_summary)
+  
+  # assign original populaiton size
+  richness_summary$popsize <- NA
+  for (i in 1:nrow(richness_summary)){
+    richness_summary$popsize[i] <- nInd(sgl[[richness_summary$pop[i]]])
+  }
+  raw_count_ref <- tidyr::pivot_wider(summary_pop_allele[,c('pop','all_ref_allele', 'site')], names_from=pop, values_from=all_ref_allele)
+  raw_count_alt <- tidyr::pivot_wider(summary_pop_allele[,c('pop','all_alt_allele', 'site')], names_from=pop, values_from=all_alt_allele)
+  res <- list(richness, richness_summary, raw_count_ref, raw_count_alt)
+  names(res) <- c("Richness per site", "Richness per population", "Raw reference allele count", "Raw alternate allele count")
   
     # error bar
     if(error.bar=="SD") {
