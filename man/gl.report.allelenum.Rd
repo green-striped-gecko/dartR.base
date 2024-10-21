@@ -8,23 +8,25 @@ gl.report.allelenum(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.file = NULL,
   plot.dir = NULL,
+  plot.file = NULL,
   error.bar = "SD",
-  verbose = NULL
+  verbose = 2
 )
 }
 \arguments{
+\item{x}{A genlight file (works only for diploid data) [required].}
+
 \item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, 
-exclude extension) [default NULL].}
-
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
 by the global working directory or tempdir()].}
+
+\item{plot.file}{Name for the RDS binary file to save (base name only, 
+exclude extension) [default NULL].}
 
 \item{error.bar}{Statistic to be plotted as error bar either "SD" (standard 
 deviation) or "SE" (standard error) or "CI" (confidence intervals)
@@ -33,13 +35,8 @@ deviation) or "SE" (standard error) or "CI" (confidence intervals)
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
-
-\item{gl}{A genlight file (works only for diploid data) [required].}
 }
 \value{
-A dataframe containing population labels, raw allele count, alleic richness,
-and sample sizes.
-
 A dataframe containing richness per site, richness per population, raw reference allele count,
 raw alternate allele count.
 }

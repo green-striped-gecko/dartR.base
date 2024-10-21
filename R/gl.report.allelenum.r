@@ -1,7 +1,7 @@
 #' Report allelic richness per population from a genlight object
 #'
 #' This function needs package adegenet, please install it. 
-#' @param gl A genlight file (works only for diploid data) [required].
+#' @param x A genlight file (works only for diploid data) [required].
 #' @param plot.display Specify if plot is to be produced [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
@@ -21,8 +21,6 @@
 #' \item raw allele count
 #' \item allelic richness}
 #' @export
-#' @return A dataframe containing population labels, raw allele count, alleic richness,
-#' and sample sizes.
 #' @author Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @references 
 #' \itemize{
@@ -38,10 +36,10 @@
 gl.report.allelenum <- function(x,
                                 plot.display = TRUE,
                                 plot.theme = theme_dartR(),
-                                plot.file = NULL,
                                 plot.dir = NULL,
+                                plot.file = NULL,
                                 error.bar = "SD",
-                                verbose = NULL) {
+                                verbose = 2) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
