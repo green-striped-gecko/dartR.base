@@ -26,6 +26,8 @@
 #' @param test.asym.boot number of bootstraps [default 100]
 #'  [default FALSE].
 #' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
+#' @param matrix.pa Whether to generate a matrix of private alleles
+#'  [default FALSE].
 #' @param plot.font Numeric font size in pixels for the node text labels
 #' [default 14].
 #' @param map.interactive Specify whether an interactive map showing private
@@ -131,7 +133,7 @@ gl.report.pa <- function(x,
                          test.asym = FALSE,
                          test.asym.boot = 100,
                          plot.display = FALSE,
-                         matrix_pa = FALSE , 
+                         matrix.pa = FALSE , 
                          plot.font = 14,
                          map.interactive = FALSE,
                          provider = "Esri.NatGeoWorldMap",
@@ -629,7 +631,7 @@ gl.report.pa <- function(x,
   
   if (loc.names == TRUE |
       plot.display == TRUE |
-      matrix_pa == TRUE) {
+      matrix.pa == TRUE) {
     
     output_list <- list(table = output_list)
     
@@ -643,9 +645,9 @@ gl.report.pa <- function(x,
                        list(plot = p3))
     }
     
-    if (matrix_pa == TRUE) {
+    if (matrix.pa == TRUE) {
       output_list <- c(output_list,
-                       list(matrix_pa = mm))
+                       list(matrix.pa = mm))
     }
     
   }
