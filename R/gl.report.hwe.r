@@ -8,7 +8,7 @@
 #' homozygotes.
 
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param subset How to perform H-W tests, either in each population ("each"), 
+#' @param subset Whether to perform H-W tests within each population ("each"), 
 #' or taking all individuals as one population ("all") (see details) 
 #' [default 'each'].
 #' @param method_sig Method for determining statistical significance: 
