@@ -81,6 +81,43 @@ gl.report.shannon <- function(x,
   #  pop(x) <- as.factor(pop(x))
   #}
   
+  d.chao <- function(A, lev, q) {
+    tot <- sum(A)
+    eA <- A / tot
+    eA <- eA[eA > 0]
+    if (is.vector(A)) {
+      cA <- A
+      N <- 1
+    } else{
+      cA <- colSums(A)
+      N <- nrow(A)
+    }
+    ecA <- cA / tot
+    ecA <- ecA[ecA > 0]
+    if (lev == 'alpha') {
+      if (q != 1) {
+        Da <- (1 / N) * (sum(eA ^ q)) ^ (1 / (1 - q))
+        D.value <- Da
+      } else{
+        Da <- exp(-sum(eA * log(eA)) - log(N))
+        D.value <- Da
+      }
+    }
+    if (lev == 'beta') {
+      D.value <- d.chao(A, lev = 'gamma', q) / d.chao(A, lev = 'alpha', q)
+    }
+    if (lev == 'gamma') {
+      if (q != 1) {
+        Dg <- (sum(ecA ^ q)) ^ (1 / (1 - q))
+        D.value <- Dg
+      } else{
+        Dg <- exp(-sum(ecA * log(ecA)))
+        D.value <- Dg
+      }
+    }
+    D.value
+  }
+  
   # SNP diversity
   if (verbose >= 2) {
     cat(
@@ -91,15 +128,15 @@ gl.report.shannon <- function(x,
     )
   }
   
-  x <- dartR.data::platypus.gl
   x_mat <- as.matrix(x)
   ID <- rownames(x_mat)
   div_mat <- matrix(0, nrow(x_mat), order)
+  list_order <- order-1
   for (n in 1:nrow(x_mat)) {
     otu <- x_mat[n, ]
     otu <- otu[otu > 0]
     otu <- otu[!is.na(otu)]
-    for (q in 0:(order-1)) {
+    for (q in 0:list_order) {
       div_mat[n, q + 1] <- d.chao(A = otu, lev = level, q)
     }
   }
@@ -107,7 +144,7 @@ gl.report.shannon <- function(x,
   # output
   div_mat <- as.data.frame(div_mat)
   div_mat <- as.data.frame(cbind(ID, div_mat))
-  colnames(div_mat) <- c("ID", paste0("q", c(0:(order-1))))
+  colnames(div_mat) <- c("ID", paste0("q", c(0:list_order)))
   
   div_mat2 <- reshape2::melt(div_mat)
   colnames(div_mat2)[c(2,3)] <- c("Order", "SNP_diversity")
@@ -150,4 +187,4 @@ gl.report.shannon <- function(x,
     suppressWarnings(print(p1))}
   
   # RETURN
-  return(invisible(div_mat2))}
+  return(invisible(div_mat))}
