@@ -101,7 +101,7 @@ gl.report.allelenum <- function(x,
   
   for (l in 1:length(sgl)) {
     # convert genlight to SNP matrix
-    m <- as(sgl[[l]], 'matrix')
+    m <- as.matrix(sgl[[l]])
     allele_count <- reshape2::melt(m) 
     allele_count$pop <- sgl[[l]]$pop[1]
     colnames(allele_count)[c(2,3)] <- c("site", "genotype")
