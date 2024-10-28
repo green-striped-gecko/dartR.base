@@ -82,7 +82,7 @@ gl.report.shannon <- function(x,
   #  pop(x) <- as.factor(pop(x))
   #}
   
-  # d.chao function are codes from Online Supplementary Information (OSI) for:
+  # Codes of calculation are from Online Supplementary Information (OSI) for:
   # Ma ZS, Li LW and Zhang YP (2019) Defining Individual-Level Genetic
   # Diversity and Similarity Profiles. Scientific Reports
   
@@ -127,8 +127,7 @@ gl.report.shannon <- function(x,
   if (verbose >= 2) {
     cat(
       report(
-        "  Calculating SNP diversity, averaged across
-                    loci, for each individual\n"
+        "  Calculating SNP diversity for each individual\n"
       )
     )
   }
