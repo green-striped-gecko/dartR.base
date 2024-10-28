@@ -1,4 +1,5 @@
-#' Report SNP diversity from a genlight object
+#' Report SNP diversity from a genlight object, with reference to Ma, Z., Li, L., & Zhang, Y. P. (2020). Defining individual-level 
+#' genetic diversity and similarity profiles. Scientific reports, 10(1), 5805.
 #'
 #' This function needs package adegenet, please install it. 
 #' @param x A genlight file (works only for diploid data) [required].
@@ -19,7 +20,7 @@
 #' \itemize{
 #' \item SNP diversity per individuals}
 #' @export
-#' @author (Post to
+#' @author Ching Ching Lau (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' @references 
 #' \itemize{
@@ -80,6 +81,10 @@ gl.report.shannon <- function(x,
   #  pop(x) <- array("pop1", dim = nInd(x))
   #  pop(x) <- as.factor(pop(x))
   #}
+  
+  # d.chao function are codes from Online Supplementary Information (OSI) for:
+  # Ma ZS, Li LW and Zhang YP (2019) Defining Individual-Level Genetic
+  # Diversity and Similarity Profiles. Scientific Reports
   
   d.chao <- function(A, lev, q) {
     tot <- sum(A)
