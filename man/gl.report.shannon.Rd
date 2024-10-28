@@ -2,7 +2,8 @@
 % Please edit documentation in R/gl.report.shannon.r
 \name{gl.report.shannon}
 \alias{gl.report.shannon}
-\title{Report SNP diversity from a genlight object}
+\title{Report SNP diversity from a genlight object, with reference to Ma, Z., Li, L., & Zhang, Y. P. (2020). Defining individual-level 
+genetic diversity and similarity profiles. Scientific reports, 10(1), 5805.}
 \usage{
 gl.report.shannon(
   x,
@@ -29,16 +30,16 @@ by the global working directory or tempdir()]..}
 \item{plot.file}{Name for the RDS binary file to save (base name only, 
 exclude extension) [default NULL].}
 
-\item{level}{the types of SNP diversity to report. [default 'alpha', also accept 'beta', 'gamma'].}
+\item{level}{The types of SNP diversity to report. [default 'alpha', also accept 'beta', 'gamma'].}
 
-\item{order}{the number of order to report. Starts from 0. [default 5].}
+\item{order}{The number of order to report. Starts from 0. [default 5].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-A dataframe containing SNP diversity per individuals
+A dataframe containing SNP diversity per individual
 }
 \description{
 This function needs package adegenet, please install it.
@@ -46,7 +47,7 @@ This function needs package adegenet, please install it.
 \details{
 details
 \itemize{
-\item SNP diversity per individuals}
+\item SNP diversity per individual}
 }
 \examples{
 \dontrun{
@@ -59,6 +60,6 @@ obj <- gl.report.shannon(gl)
 genetic diversity and similarity profiles. Scientific reports, 10(1), 5805.}
 }
 \author{
-(Post to
+Ching Ching Lau (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }

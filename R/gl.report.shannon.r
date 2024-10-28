@@ -10,15 +10,15 @@
 #' by the global working directory or tempdir()]..
 #' @param plot.file Name for the RDS binary file to save (base name only, 
 #' exclude extension) [default NULL].
-#' @param level the types of SNP diversity to report. [default 'alpha', also accept 'beta', 'gamma'].
-#' @param order the number of order to report. Starts from 0. [default 5].
+#' @param level The types of SNP diversity to report. [default 'alpha', also accept 'beta', 'gamma'].
+#' @param order The number of order to report. Starts from 0. [default 5].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 #' @details
 #' details
 #' \itemize{
-#' \item SNP diversity per individuals}
+#' \item SNP diversity per individual}
 #' @export
 #' @author Ching Ching Lau (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -26,7 +26,7 @@
 #' \itemize{
 #' \item Ma, Z., Li, L., & Zhang, Y. P. (2020). Defining individual-level 
 #' genetic diversity and similarity profiles. Scientific reports, 10(1), 5805.}
-#' @return A dataframe containing SNP diversity per individuals
+#' @return A dataframe containing SNP diversity per individual
 #' @examples
 #' \dontrun{
 #' obj <- gl.report.shannon(gl)
@@ -73,7 +73,7 @@ gl.report.shannon <- function(x,
   #    cat(
   #      warn(
   #        "  No population assignments detected,
-  #                           individuals assigned to a single population
+  #                           individual assigned to a single population
   #                      labelled 'pop1'\n"
   #      )
   #    )
@@ -128,7 +128,7 @@ gl.report.shannon <- function(x,
     cat(
       report(
         "  Calculating SNP diversity, averaged across
-                    loci, for each individuals\n"
+                    loci, for each individual\n"
       )
     )
   }
@@ -167,7 +167,7 @@ gl.report.shannon <- function(x,
                     legend.position = "none"
                   ) + facet_grid(~Order) +
     labs(fill = "Order", y=paste0(level, " diversity")) +
-    ggtitle(paste0(level, " diversity per individuals for different orders"))
+    ggtitle(paste0(level, " diversity per individual for different orders"))
 
   
   # Optionally save the plot ---------------------
