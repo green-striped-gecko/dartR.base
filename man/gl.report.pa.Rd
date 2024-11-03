@@ -12,6 +12,7 @@ gl.report.pa(
   test.asym = FALSE,
   test.asym.boot = 100,
   plot.display = FALSE,
+  matrix.pa = FALSE,
   plot.font = 14,
   map.interactive = FALSE,
   provider = "Esri.NatGeoWorldMap",
@@ -47,6 +48,9 @@ larger than the simulated one. If number of individuals are different between
 
 \item{plot.display}{Specify if Sankey plot is to be produced [default FALSE].}
 
+\item{matrix.pa}{Whether to generate a matrix of private alleles
+[default FALSE].}
+
 \item{plot.font}{Numeric font size in pixels for the node text labels
 [default 14].}
 
@@ -70,7 +74,7 @@ report [default 2 or as specified using gl.set.verbosity].}
 \value{
 A data.frame. Each row shows, for each pair of populations the number
  of individuals in each population, the number of loci with fixed differences
- (same for both populations) in pop1 (compared to pop2) and vice versa. Same
+ (same for both populations) in pop1 (compared to pop2) and viceversa. Same
  for private alleles and finally the absolute mean allele frequency
  difference between loci (AFD). If loc.names = TRUE, loci names with private
   alleles and fixed differences are reported in a list in addition to the 
