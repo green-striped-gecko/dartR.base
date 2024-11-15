@@ -29,11 +29,9 @@
 #' @return A dataframe containing richness per site, richness per population, raw reference allele count,
 #' raw alternate allele count.
 #' @examples
-#' \dontrun{
-#' obj <- gl.report.allelenum(gl)
-#' }
+#'  gl.report.allelerich(possums.gl)
 
-gl.report.allelenum <- function(x,
+gl.report.allelerich <- function(x,
                                 plot.display = TRUE,
                                 plot.theme = theme_dartR(),
                                 plot.dir = NULL,
