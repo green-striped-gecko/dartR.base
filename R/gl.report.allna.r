@@ -64,13 +64,11 @@ gl.report.allna <- function(x,
   if (verbose >= 2) {
     if (by.pop == FALSE) {
       cat(report(
-        "  Identifying loci and individuals scored all
-                missing (NA)\n"
+        "  Identifying loci and individuals scored all missing (NA)\n"
       ))
     } else {
       cat(report(
-        "  Identifying loci that are all missing (NA)
-                    in any one population\n"
+        "  Identifying loci that are all missing (NA) in any one population\n"
       ))
     }
   }
@@ -157,7 +155,7 @@ gl.report.allna <- function(x,
     }
     loc.list <- unique(loc.list)
       cat("\n  Loci all NA in one or more populations:",
-          length(loc.list))
+          length(loc.list),"\n")
   }
   
   # FLAG SCRIPT END
