@@ -35,7 +35,7 @@ gl.load <- function(file,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2024.1",
                      verbose = verbose)
     
     x <- readRDS(file)

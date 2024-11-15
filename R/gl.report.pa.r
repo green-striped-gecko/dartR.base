@@ -26,6 +26,8 @@
 #' @param test.asym.boot number of bootstraps [default 100]
 #'  [default FALSE].
 #' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
+#' @param matrix.pa Whether to generate a matrix of private alleles
+#'  [default FALSE].
 #' @param plot.font Numeric font size in pixels for the node text labels
 #' [default 14].
 #' @param map.interactive Specify whether an interactive map showing private
@@ -118,7 +120,7 @@
 #' @export
 #' @return A data.frame. Each row shows, for each pair of populations the number
 #'  of individuals in each population, the number of loci with fixed differences
-#'  (same for both populations) in pop1 (compared to pop2) and vice versa. Same
+#'  (same for both populations) in pop1 (compared to pop2) and viceversa. Same
 #'  for private alleles and finally the absolute mean allele frequency
 #'  difference between loci (AFD). If loc.names = TRUE, loci names with private
 #'   alleles and fixed differences are reported in a list in addition to the 
@@ -130,20 +132,20 @@ gl.report.pa <- function(x,
                          loc.names = FALSE,
                          test.asym = FALSE,
                          test.asym.boot = 100,
-                         plot.display=FALSE,
+                         plot.display = FALSE,
+                         matrix.pa = FALSE , 
                          plot.font = 14,
                          map.interactive = FALSE,
                          provider = "Esri.NatGeoWorldMap",
                          palette.discrete = NULL,
-                         plot.file=NULL,
-                         plot.dir=NULL,
+                         plot.file = NULL,
+                         plot.dir = NULL,
                          verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
 
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir,verbose=0)  
-  
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
@@ -213,8 +215,6 @@ gl.report.pa <- function(x,
     rgb(red = colMat[1, ]/255, green = colMat[2, ]/255, blue = colMat[3, 
     ]/255)
   }
-  
-  
   
   # DO THE JOB For method 'pairwise'
   if (method == "pairwise") {
@@ -299,15 +299,13 @@ gl.report.pa <- function(x,
         
       }
       #### bootstrap test to check for asymmetry of private alleles
-      if (test.asym)
-      {
+      if (test.asym){
         asym <- NA
         p1a <- NA
         p2a <- NA
         dd <- rbind(pops[[i1]], pops[[i2]])
         
-        for (bb in 1:test.asym.boot)
-        {
+        for (bb in 1:test.asym.boot){
         ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:nrow(dd))]))
         tt <- table(pop(dd))
         p1 <- ab[1:tt[1],]
@@ -376,8 +374,12 @@ gl.report.pa <- function(x,
       nodes$name <- gsub("src_", "", nodes$name)
       nodes$name <- gsub("trgt_", "", nodes$name)
       
-      if (is.null(palette.discrete)) colors_pops <- gl.select.colors(x, verbose=0) else 
+      if (is.null(palette.discrete)){
+         colors_pops <- gl.select.colors(x, verbose=0)
+      } else {
         colors_pops <- palette.discrete
+      }
+      
       colors_pops <- paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
       
       colorScal <- paste("d3.scaleOrdinal().range([", colors_pops, "])")
@@ -589,7 +591,7 @@ gl.report.pa <- function(x,
   
   # PRINTING OUTPUTS
   if (plot.display) {
-    if (map.interactive & (method == "pairwise")) {
+    if (map.interactive & method == "pairwise") {
       labs <- popNames(x)
       print(gl.map.interactive(x, 
                                matrix = mm,
@@ -612,13 +614,10 @@ gl.report.pa <- function(x,
   
   if(!is.null(plot.file)){
     tmp <- utils.plot.save(p3,
-                           dir=plot.dir,
-                           file=plot.file,
-                           verbose=verbose)
+                           dir = plot.dir,
+                           file = plot.file,
+                           verbose = verbose)
   }
-  
-  
-  
   
   # FLAG SCRIPT END
   
@@ -628,14 +627,31 @@ gl.report.pa <- function(x,
   
   # RETURN
   
-  if(loc.names==TRUE){
+  output_list <- df
+  
+  if (loc.names == TRUE |
+      plot.display == TRUE |
+      matrix.pa == TRUE) {
     
-    return(invisible(list(table=df,names_loci=pall_loc.names)))
+    output_list <- list(table = output_list)
     
-  }else{
+    if (loc.names == TRUE) {
+      output_list <- c(output_list,
+                       list(names_loci = pall_loc.names))
+    }
     
-   return(df)
+    if (plot.display == TRUE) {
+      output_list <- c(output_list,
+                       list(plot = p3))
+    }
+    
+    if (matrix.pa == TRUE) {
+      output_list <- c(output_list,
+                       list(matrix.pa = mm))
+    }
     
   }
+  
+  return(invisible(output_list))
   
 }

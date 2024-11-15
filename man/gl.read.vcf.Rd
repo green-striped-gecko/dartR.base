@@ -4,13 +4,17 @@
 \alias{gl.read.vcf}
 \title{Converts a vcf file into a genlight object}
 \usage{
-gl.read.vcf(vcffile, ind.metafile = NULL, verbose = NULL, mode = NULL)
+gl.read.vcf(vcffile, ind.metafile = NULL, verbose = NULL, mode = "genotype")
 }
 \arguments{
 \item{vcffile}{A vcf file (works only for diploid data) [required].}
 
 \item{ind.metafile}{Optional file in csv format with metadata for each
 individual (see details for explanation) [default NULL].}
+
+\item{mode}{"genotype" all heterozygous sites will be coded as 1 regardless ploidy level, 
+dosage: sites will be codes as copy number of alternate allele [default 2, 
+unless specified using gl.set.verbosity].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report

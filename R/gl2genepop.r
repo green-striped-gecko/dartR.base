@@ -83,6 +83,8 @@ gl2genepop <- function (x,
   
   # DO THE JOB
   #ordering populations
+  # filtering all loci with all NAs to avoid crashing the function
+  x <- gl.filter.allna(x,verbose =0 )
   
   if(length(pop.order)==1){
     x <- x[order(pop(x)), ]

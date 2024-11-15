@@ -38,6 +38,7 @@ gl.report.overshoot(testset.gl)
 \code{\link{gl.filter.overshoot}}
 
 Other matched report: 
+\code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},

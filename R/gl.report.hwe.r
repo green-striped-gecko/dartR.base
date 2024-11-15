@@ -8,8 +8,9 @@
 #' homozygotes.
 
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param subset Way to group individuals to perform H-W tests. Either a vector
-#' with population names, 'each', 'all' (see details) [default 'each'].
+#' @param subset Whether to perform H-W tests within each population ("each"), 
+#' or taking all individuals as one population ("all") (see details) 
+#' [default 'each'].
 #' @param method_sig Method for determining statistical significance: 
 #' 'ChiSquare'
 #' or 'Exact' [default 'Exact'].

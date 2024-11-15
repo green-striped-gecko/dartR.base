@@ -20,7 +20,12 @@
 #' 
 #' @examples
 #' # SNP data
-#' gl2gapit(platypus.gl, outpath=tempdir())
+#'t1 <- platypus.gl
+#' # assigning chromosomet1
+#'t1$chromosome <- t1$other$loc.metrics$Chrom_Platypus_Chrom_NCBIv1
+#' # assigning SNP position
+#' t1$position <- t1$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
+#'res <- gl2gapit(t1)
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)

@@ -94,6 +94,7 @@ result <- gl.report.hamming(test, plot.file="ttest", verbose=3)
 \code{\link{gl.filter.hamming}}
 
 Other matched report: 
+\code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},

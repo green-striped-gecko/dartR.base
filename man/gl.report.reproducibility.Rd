@@ -77,6 +77,7 @@ The function displays a table of minimum, maximum, mean and quantiles for
 \code{\link{gl.filter.reproducibility}}
 
 Other matched report: 
+\code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
