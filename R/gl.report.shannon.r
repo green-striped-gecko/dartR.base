@@ -151,20 +151,21 @@ gl.report.shannon <- function(x,
   colnames(div_mat) <- c("ID", paste0("q", c(0:list_order)))
   
   div_mat2 <- reshape2::melt(div_mat)
-  colnames(div_mat2)[c(2,3)] <- c("Order", "SNP_diversity")
+  Ord <- SNP_diversity <- NA
+  colnames(div_mat2)[c(2,3)] <- c("Ord", "SNP_diversity")
   
   
   p1 <-
     ggplot(div_mat2, aes(
       x = ID,
-    )) + geom_bar(aes(y = SNP_diversity, fill=Order), position = "dodge",
+    )) + geom_bar(aes(y = SNP_diversity, fill=Ord), position = "dodge",
                   stat = "identity") + plot.theme + theme(
                     axis.ticks.x = element_blank(),
                     axis.text.x = element_blank(),
                     axis.title.x = element_blank(),
                     axis.ticks.y = element_blank(),
                     legend.position = "none"
-                  ) + facet_grid(~Order) +
+                  ) + facet_grid(~Ord) +
     labs(fill = "Order", y=paste0(level, " diversity")) +
     ggtitle(paste0(level, " diversity per individual for different orders"))
 

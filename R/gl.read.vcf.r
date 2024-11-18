@@ -5,8 +5,7 @@
 #' @param ind.metafile Optional file in csv format with metadata for each
 #' individual (see details for explanation) [default NULL].
 #' @param mode "genotype" all heterozygous sites will be coded as 1 regardless ploidy level, 
-#' dosage: sites will be codes as copy number of alternate allele [default 2, 
-#' unless specified using gl.set.verbosity].
+#' dosage: sites will be codes as copy number of alternate allele [default genotype]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
@@ -30,7 +29,7 @@
 
 gl.read.vcf <- function(vcffile,
                         ind.metafile = NULL,
-                        mode=NULL,
+                        mode="genotype",
                         verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)

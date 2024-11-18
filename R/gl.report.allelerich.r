@@ -21,6 +21,7 @@
 #' \item raw allele count
 #' \item allelic richness}
 #' @export
+#' @importFrom dplyr group_by select summarise distinct
 #' @author Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @references 
 #' \itemize{
@@ -80,6 +81,11 @@ gl.report.allelerich <- function(x,
     pop(x) <- as.factor(pop(x))
   }
   
+  #define some global variables...
+  site <- genotype <- ref_allele <- alt_allele <- raw_count <-  sum_site_richness <- 
+  sum_richness <- popsize <- mean_richness <- all_ref_allele <- all_alt_allele <-  NA
+  
+  
   # ALLELIC RICHNESS
   if (verbose >= 2) {
     cat(
@@ -97,6 +103,8 @@ gl.report.allelerich <- function(x,
   min_pop <- NULL
   allele_count_all <- NULL
   
+  
+  
   for (l in 1:length(sgl)) {
     # convert genlight to SNP matrix
     m <- as.matrix(sgl[[l]])
@@ -105,7 +113,7 @@ gl.report.allelerich <- function(x,
     colnames(allele_count)[c(2,3)] <- c("site", "genotype")
     
     # summarise allele count and richness
-    allele_count2 <-allele_count[,-1] %>% group_by(site, genotype, pop) %>% count()
+    allele_count2 <-allele_count[,-1] %>% dplyr::group_by(site, genotype, pop) %>% count()
     allele_count2 <- na.omit(allele_count2)
     colnames(allele_count2)[4] <- "n"
     allele_count2$ref_allele <- NA
