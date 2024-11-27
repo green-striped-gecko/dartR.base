@@ -21,16 +21,20 @@
 #' Please carefully check the data if "dosage" mode is used.
 #' @return A genlight object.
 #' @export
-#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @author Bernd Gruber, Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @examples
 #' \dontrun{
-#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'))
+#' # read in vcf and convert to format as DArT data
+#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv")
+#' # read in vcf and convert to format as dosage
+#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv", mode="dosage")
 #' }
 
 gl.read.vcf <- function(vcffile,
                         ind.metafile = NULL,
                         mode="genotype",
                         verbose = NULL) {
+
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   

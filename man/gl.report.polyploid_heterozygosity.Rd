@@ -26,7 +26,7 @@ gl.report.polyploid_heterozygosity(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing the SNP data that converted to dosage mode [required].}
 
 \item{method}{Calculate heterozygosity by population (method='pop') or by
 individual (method='ind') [default 'pop'].}
@@ -322,8 +322,10 @@ df <- gl.report.polyploid_heterozygosity(platypus.gl,method='ind')
 n.inv <- gl.report.secondaries(platypus.gl)
 gl.report.polyploid_heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 gl.report.polyploid_heterozygosity(platypus.gl, subsample.pop = TRUE)
+# to calculate on polyploid data
+obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv", mode="dosage")
+df <- gl.report.polyploid_heterozygosity(obj)
 }
-df <- gl.report.polyploid_heterozygosity(platypus.gl)
 }
 \references{
 \itemize{
