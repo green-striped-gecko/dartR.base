@@ -1,5 +1,5 @@
 #' Converts a vcf file into a genlight object
-#'
+#',
 #' This function needs package vcfR, please install it. 
 #' @param vcffile A vcf file (works only for diploid data) [required].
 #' @param ind.metafile Optional file in csv format with metadata for each
