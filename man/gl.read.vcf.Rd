@@ -45,5 +45,5 @@ obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafil
 }
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Bernd Gruber, Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
 }
