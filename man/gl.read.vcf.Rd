@@ -4,7 +4,7 @@
 \alias{gl.read.vcf}
 \title{Converts a vcf file into a genlight object}
 \usage{
-gl.read.vcf(vcffile, ind.metafile = NULL, mode = "genotype", verbose = 2)
+gl.read.vcf(vcffile, ind.metafile = NULL, mode = "genotype", verbose = NULL)
 }
 \arguments{
 \item{vcffile}{A vcf file (works only for diploid data) [required].}

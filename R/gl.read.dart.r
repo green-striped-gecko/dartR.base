@@ -88,8 +88,9 @@ gl.read.dart <- function(filename,
     last_metric <- top[last(which(top[,1]=="*"))+1, last(which(top[1,]=="*"))]  
     return(last_metric)
   }
-  
+  if(is.null(lastmetric)){
   lastmetric <- getLastMarkerMetaDataField(filename)
+  }
   
   # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)

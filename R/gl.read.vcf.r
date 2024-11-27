@@ -33,7 +33,8 @@
 gl.read.vcf <- function(vcffile,
                         ind.metafile = NULL,
                         mode="genotype",
-                        verbose = 2) {
+                        verbose = NULL) {
+
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
