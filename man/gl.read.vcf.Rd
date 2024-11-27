@@ -4,7 +4,7 @@
 \alias{gl.read.vcf}
 \title{Converts a vcf file into a genlight object}
 \usage{
-gl.read.vcf(vcffile, ind.metafile = NULL, verbose = NULL, mode = "genotype")
+gl.read.vcf(vcffile, ind.metafile = NULL, mode = "genotype", verbose = 2)
 }
 \arguments{
 \item{vcffile}{A vcf file (works only for diploid data) [required].}
@@ -13,15 +13,10 @@ gl.read.vcf(vcffile, ind.metafile = NULL, verbose = NULL, mode = "genotype")
 individual (see details for explanation) [default NULL].}
 
 \item{mode}{"genotype" all heterozygous sites will be coded as 1 regardless ploidy level, 
-dosage: sites will be codes as copy number of alternate allele [default 2, 
-unless specified using gl.set.verbosity].}
+dosage: sites will be codes as copy number of alternate allele [default genotype]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
-
-\item{mode}{genotype: all heterozygous sites will be coded as 1 regardless ploidy level, 
-dosage: sites will be codes as copy number of alternate allele
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
@@ -43,7 +38,10 @@ Please carefully check the data if "dosage" mode is used.
 }
 \examples{
 \dontrun{
-obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'))
+# read in vcf and convert to format as DArT data
+obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv")
+# read in vcf and convert to format as dosage
+obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv", mode="dosage")
 }
 }
 \author{
