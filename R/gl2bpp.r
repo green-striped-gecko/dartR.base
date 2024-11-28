@@ -163,7 +163,7 @@ gl2bpp <- function(x,
   
   #sort loci by snp position in case there are secondaries to be merged
   
-  x <- x[,order(x@position)]
+  #x <- x[,order(x@position)]
   
   
 
@@ -388,14 +388,17 @@ gl2bpp <- function(x,
     tc <- table(cloneid)
     sn <- names(tc[tc > 1])
 
-        
+    if (length(sn)>0) {    
     for (xx in 1:length(sn))
     {
     dell <- NULL
     ssl <- NA
     cc <- 1
+    
+    a <- strsplit(b2, "-")
+    bb2 <- unlist(lapply(a, "[",1))
       
-    sl <- which(substr(b2,1, 8) == sn[xx])
+    sl <- which(bb2 == sn[xx])
     
     ll <- b2[sl]
     
@@ -446,8 +449,8 @@ gl2bpp <- function(x,
     close(con)
    
     
-    
-  }
+    } #if length sn > 0 
+  } # if merge.secondaries
   
   
     
