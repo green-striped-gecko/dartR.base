@@ -163,7 +163,7 @@ gl2bpp <- function(x,
   
   #sort loci by snp position in case there are secondaries to be merged
   
-  #x <- x[,order(x@position)]
+  x <- x[,order(x@position)]
   
   
 
@@ -426,7 +426,7 @@ gl2bpp <- function(x,
       #fill in the rest...
       seq <- paste0(seq,substr(sequence[index][ii],snppos[ii-1]+1,nchar(sequence[index][ii])))
       #now combine and erase the lines 
-      
+
       ssl[cc] <- paste0("sec-", strsplit(bppf[sl[index][1]]," ")[[1]][1]," ", seq)
       cc <- cc+1
     }
@@ -434,7 +434,7 @@ gl2bpp <- function(x,
     
     #delete the others (and the first line)
     dell <- sl[-c(1:nInd(x))]
-    dell <- c(dell,  dell[seq(1,length(dell),3)]-1)  #add the first line
+    dell <- c(min(dell)-1, dell)  #add the first line
     
     b2 <- b2[-dell] 
     
