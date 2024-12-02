@@ -4,7 +4,7 @@
 \alias{gl.read.vcf}
 \title{Converts a vcf file into a genlight object}
 \usage{
-gl.read.vcf(vcffile, ind.metafile = NULL, verbose = NULL)
+gl.read.vcf(vcffile, ind.metafile = NULL, verbose = NULL, mode = NULL)
 }
 \arguments{
 \item{vcffile}{A vcf file (works only for diploid data) [required].}
@@ -14,6 +14,10 @@ individual (see details for explanation) [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
+
+\item{mode}{genotype: all heterozygous sites will be coded as 1 regardless ploidy level, 
+dosage: sites will be codes as copy number of alternate allele
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
@@ -29,6 +33,9 @@ The following column headings are optional.
 pop: specifies the population membership of each individual. lat and lon
 specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
+Note also that this function checks to see if there are input of mode, missing input of mode 
+will issue the user with an error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+Please carefully check the data if "dosage" mode is used.
 }
 \examples{
 \dontrun{

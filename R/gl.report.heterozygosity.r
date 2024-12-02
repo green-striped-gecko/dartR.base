@@ -1087,7 +1087,7 @@ gl.report.heterozygosity <- function(x,
   }
   
   if (verbose >= 3) {
-    cat(report("  Returning a dataframe with heterozygosity values\n"))
+    cat(report("  Returning a dataframe with heterozygosity values"))
   }
   
   # FLAG SCRIPT END

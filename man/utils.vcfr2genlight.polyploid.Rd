@@ -37,7 +37,7 @@ vcfr: a package to manipulate and visualize variant call format data in R.
 Molecular ecology resources, 17(1), 44-53.
 \item Knaus, B. J., Grunwald, N. J., Anderson, E. C., 
 Winter, D. J., Kamvar, Z. N., & Tabima, J. F. (2023). Package ‘vcfR’.
-\href{https://github.com/knausb/vcfR/blob/master/R/vcfR_conversion.R}
+\href{https://github.com/knausb/vcfR/blob/master/R/vcfR_conversion.R}{vcfR}
 }
 }
 \seealso{
