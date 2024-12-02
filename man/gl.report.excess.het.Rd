@@ -39,8 +39,8 @@ progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-1. Table with information of excessively-heterozygous loci
-2. Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci).\n 
+1. Table with information of excessively-heterozygous loci \cr
+2. Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci).\cr
 3. A vector with the names of loci to be remove by \code{\link{gl.filter.excess.het}}
 }
 \description{

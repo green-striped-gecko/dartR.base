@@ -55,8 +55,8 @@
 #' @seealso \code{\link{gl.filter.excess.het}}
 #' @importFrom stats aggregate
 #' @export
-#' @return 1. Table with information of excessively-heterozygous loci
-#' 2. Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci).\n 
+#' @return 1. Table with information of excessively-heterozygous loci \cr
+#' 2. Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci).\cr
 #' 3. A vector with the names of loci to be remove by \code{\link{gl.filter.excess.het}}
 
 gl.report.excess.het <- function(x,
