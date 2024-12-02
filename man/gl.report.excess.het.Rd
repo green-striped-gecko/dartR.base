@@ -67,7 +67,7 @@ that directory; otherwise to the tempdir().
  the function with the plot.colors parameter.
 }
 \examples{
-filtered.table <- gl.report.excess.het(platypus.gl, Yates = TRUE)
+filtered.table <- gl.report.excess.het(LBP, Yates = TRUE)
 }
 \references{
 \itemize{

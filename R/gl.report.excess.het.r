@@ -51,7 +51,7 @@
 #' }
 #'
 #' @examples
-#' filtered.table <- gl.report.excess.het(platypus.gl, Yates = TRUE)
+#' filtered.table <- gl.report.excess.het(LBP, Yates = TRUE)
 #' @seealso \code{\link{gl.filter.excess.het}}
 #' @importFrom stats aggregate
 #' @export

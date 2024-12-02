@@ -31,9 +31,9 @@
 #' and conduct sex assignment. Molecular Ecology Resources.
 #' }
 #' @examples
-#' filtered.gl <- gl.filter.excess.het(x = platypus.gl, Yates = TRUE)
+#' filtered.gl <- gl.filter.excess.het(x = LBP, Yates = TRUE)
 #' # Use below function to output information of the loci with Yates's continuity correction specified 
-#' filtered.table <- gl.report.excess.het(x = platypus.gl, Yates = TRUE)
+#' filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)
 #' @seealso \code{\link{gl.filter.callrate}}
 #' @importFrom stats aggregate
 #' @export
