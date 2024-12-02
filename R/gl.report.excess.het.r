@@ -121,13 +121,11 @@ gl.report.excess.het <- function(x,
 
   p1 <- ggplot(data.frame(loc=fhe,Index=1:nLoc(x)), aes(x= Index,y = loc)) + 
   geom_point(fill=plot.colors[2], colour=plot.colors[1], pch=21) +
-  ylim(0,1) + 
   plot.theme +
-  theme(axis.title.y = element_blank(),
-            axis.title.x = element_blank(),
-            axis.ticks.x = element_blank()) +
-      labs(title="BEFORE")
-  
+  ylim(0,1) + 
+  theme(axis.ticks.x = element_blank()) +
+    labs(title="BEFORE", x="Index", y="Locus heterozygosity")
+
   # Results per population
   populations <- as.vector(unique(x@other$ind.metrics$pop))
   n0   <- vector()
@@ -244,30 +242,14 @@ gl.report.excess.het <- function(x,
       
     p2 <- ggplot(data.frame(loc=fhe,Index=1:nLoc(x2)), aes(x= Index,y = loc)) + 
       geom_point(fill=plot.colors[2], colour=plot.colors[1], pch=21) +
-      ylim(0,1) + 
       plot.theme +
-      theme(axis.title.y = element_blank(),
-            axis.title.x = element_blank(),
-            axis.ticks.x = element_blank()) +
-      labs(title="AFTER")
+      ylim(0,1) + 
+      theme(axis.ticks.x = element_blank()) +
+      labs(title="AFTER", x="Index", y="Locus heterozygosity")
     
-    plot.list <- list()
-    plot.list[["p1"]] <- p1
-    plot.list[["p2"]] <- p2
-
-    p <- plot.list %>% purrr::map(function(x) {
-      ggplot2::ggplot_gtable(ggplot2::ggplot_build(x))
-    })
-    maxWidth <- do.call(grid::unit.pmax, purrr::map(p, function(x) x$widths[2:3]))
-    for (i in 1:length(p)) p[[i]]$widths[2:3] <- maxWidth
-    p$bottom <- "Index"
-    p$left <- "Locus heterozygosity"
-    
-    # PRINTING OUTPUTS
-    if (plot.display) {
-      options(nrow=2)
-      suppressWarnings(do.call(gridExtra::grid.arrange, p))
-    }
+    # using package patchwork
+    p3 <- (p1 / p2) 
+    if (plot.display) {print(p3)}
     
     if (verbose >= 3) {
         print(list('results.table' = table.filter,
@@ -281,13 +263,9 @@ gl.report.excess.het <- function(x,
   # Optionally save the plot ---------------------
   
   if(!is.null(plot.file)){
-    tmp <- utils.plot.save(p1,
+    tmp <- utils.plot.save(p3,
                            dir=plot.dir,
-                           file=paste0(plot.file, "BEF"),
-                           verbose=verbose)
-    tmp2 <- utils.plot.save(p2,
-                           dir=plot.dir,
-                           file=paste0(plot.file, "AFT"),
+                           file=plot.file,
                            verbose=verbose)
   }
   
