@@ -41,7 +41,7 @@ filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)
 \references{
 \itemize{
 \item https://github.com/drobledoruiz/conservation_genomics/tree/main/filter.excess.het
-\item Robledo‐Ruiz, D. A., Austin, L., Amos, J. N., Castrejón‐Figueroa, J., Harley, D. K., Magrath, M. J., ... & Pavlova, A. (2023). 
+\item Robledo‐Ruiz, D. A., Austin, L., Amos, J. N., Castrejón‐Figueroa, J., Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023). 
 Easy‐to‐use R functions to separate reduced‐representation genomic datasets into sex‐linked and autosomal loci, 
 and conduct sex assignment. Molecular Ecology Resources.
 }
