@@ -39,15 +39,16 @@ progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci). 
-and a vector with the names of loci to be remove by \code{\link{gl.filter.excess.het}}
+1. Table with information of excessively-heterozygous loci
+2. Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci).\n 
+3. A vector with the names of loci to be remove by \code{\link{gl.filter.excess.het}}
 }
 \description{
 Calculates excess of heterozygosity in a genlight object
 }
 \details{
-Loci with observed heterozygosity >50% and > expected heterozygosity would be indicated as excess (p-value <= 0.05). 
-\code{\link{gl.filter.excess.het}}, you can remove the loci with excess of heterozygosity from genlight object
+Loci with observed heterozygosity larger than 0.5 and expected heterozygosity would be indicated as excess (p-value <= 0.05). 
+You can remove the loci with excess of heterozygosity from genlight object using \code{\link{gl.filter.excess.het}}
 
 \strong{ Function's output }
 
