@@ -3,8 +3,7 @@
 #' @family matched report
 #'
 #' @description Calculates excess of heterozygosity in a genlight object and remove those loci
-#' @param x Name of the genlight object containing the SNP or presence/absence
-#'  (SilicoDArT) data [required].
+#' @param x A genlight object containing the SNP genotypes [required].
 #' @param Yates Whether to use Yates's continuity correction [default FALSE].
 #' @param mono.rm Remove monomorphic loci after analysis is complete
 #' [default FALSE].

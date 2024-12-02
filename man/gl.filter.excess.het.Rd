@@ -13,8 +13,7 @@ gl.filter.excess.het(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP or presence/absence
-(SilicoDArT) data [required].}
+\item{x}{A genlight object containing the SNP genotypes [required].}
 
 \item{Yates}{Whether to use Yates's continuity correction [default FALSE].}
 
