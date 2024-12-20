@@ -8,7 +8,7 @@
 #' for each population or the observed heterozygosity for each individual in a
 #' genlight object.
 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object containing the SNP data that converted to dosage mode [required].
 #' @param method Calculate heterozygosity by population (method='pop') or by
 #' individual (method='ind') [default 'pop'].
 #' @param n.invariant An estimate of the number of invariant sequence tags used
@@ -290,8 +290,10 @@
 #' n.inv <- gl.report.secondaries(platypus.gl)
 #' gl.report.polyploid_heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 #' gl.report.polyploid_heterozygosity(platypus.gl, subsample.pop = TRUE)
+#' # to calculate on polyploid data
+#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv", mode="dosage")
+#' df <- gl.report.polyploid_heterozygosity(obj)
 #' }
-#' df <- gl.report.polyploid_heterozygosity(platypus.gl)
 
 #' @seealso \code{\link{gl.filter.heterozygosity}}
 

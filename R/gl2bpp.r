@@ -388,14 +388,17 @@ gl2bpp <- function(x,
     tc <- table(cloneid)
     sn <- names(tc[tc > 1])
 
-        
+    if (length(sn)>0) {    
     for (xx in 1:length(sn))
     {
     dell <- NULL
     ssl <- NA
     cc <- 1
+    
+    a <- strsplit(b2, "-")
+    bb2 <- unlist(lapply(a, "[",1))
       
-    sl <- which(substr(b2,1, 8) == sn[xx])
+    sl <- which(bb2 == sn[xx])
     
     ll <- b2[sl]
     
@@ -423,7 +426,7 @@ gl2bpp <- function(x,
       #fill in the rest...
       seq <- paste0(seq,substr(sequence[index][ii],snppos[ii-1]+1,nchar(sequence[index][ii])))
       #now combine and erase the lines 
-      
+
       ssl[cc] <- paste0("sec-", strsplit(bppf[sl[index][1]]," ")[[1]][1]," ", seq)
       cc <- cc+1
     }
@@ -431,7 +434,7 @@ gl2bpp <- function(x,
     
     #delete the others (and the first line)
     dell <- sl[-c(1:nInd(x))]
-    dell <- c(dell,  dell[seq(1,length(dell),3)]-1)  #add the first line
+    dell <- c(min(dell)-1, dell)  #add the first line
     
     b2 <- b2[-dell] 
     
@@ -446,8 +449,8 @@ gl2bpp <- function(x,
     close(con)
    
     
-    
-  }
+    } #if length sn > 0 
+  } # if merge.secondaries
   
   
     
