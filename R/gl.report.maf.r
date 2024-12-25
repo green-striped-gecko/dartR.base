@@ -159,6 +159,8 @@ gl.report.maf <- function(x,
   
   # Separate the populations into a list
   pops_maf <- seppop(x)
+  pop_ind <- which(lapply(pops_maf,nInd) == 1)
+  pops_maf <-  pops_maf[-pop_ind]
   # Define a function to calculate MAF for each population
   tmpfun <- function(z) {
     z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)
