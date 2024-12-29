@@ -48,6 +48,7 @@ using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
 }
 \seealso{
 Other matched report: 
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
