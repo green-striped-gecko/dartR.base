@@ -20,7 +20,7 @@ gl.map.interactive(
   provider = "Esri.NatGeoWorldMap",
   raster.image = NULL,
   raster.opacity = 0.5,
-  raster.colors = NULL,
+  raster.colors = (scales::viridis_pal(option = "D"))(255),
   verbose = NULL
 )
 }
