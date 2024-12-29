@@ -81,7 +81,7 @@ gl.map.interactive <- function(x,
                                provider = "Esri.NatGeoWorldMap",
                                raster.image = NULL,
                                raster.opacity = 0.5,
-                               raster.colors = NULL,
+                               raster.colors = scales::viridis_pal(option = "D")(255),
                                verbose = NULL) {
     
     # SET VERBOSITY
@@ -307,15 +307,15 @@ individuals nor the number of populations."
         
         plot.map <- m %>% leaflet::addProviderTiles(provider)
         if(!is.null(raster.image)){
-          if(is.null(raster.colors)){
-            raster.colors <- scales::viridis_pal(option = "D")
-          }
+          # if(is.null(raster.colors)){
+          #   raster.colors <- scales::viridis_pal(option = "D")(255)
+          # }
           
           r <- raster::raster(raster.image)
           plot.map <- plot.map  %>% 
             leaflet::addRasterImage(r, 
                                     opacity = raster.opacity,
-                                    colors = raster.colors(256))
+                                    colors = raster.colors)
           
         } 
         
