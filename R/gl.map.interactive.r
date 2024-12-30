@@ -31,7 +31,7 @@
 #' @param raster.opacity The opacity of the raster, expressed from 0 to 1 
 #' [default 0.5].
 #' @param raster.colors The color palette to use to color the raster values
-#'  [default NULL].
+#'  [default scales::viridis_pal(option = "D")(255)].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
