@@ -99,6 +99,8 @@ gl.report.reproducibility <- function(x,
                     the locus metrics, cannot be calculated!"
           )
         )
+      }else{
+        repeatability <- x@other$loc.metrics$Reproducibility
       }
     }
     if (datatype == "SNP") {
@@ -109,6 +111,8 @@ gl.report.reproducibility <- function(x,
                     locus metrics, cannot be calculated!"
           )
         )
+      }else{
+        repeatability <- x@other$loc.metrics$RepAvg
       }
     }
     
