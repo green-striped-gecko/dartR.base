@@ -652,8 +652,13 @@ gl.report.pa <- function(x,
     }
     
     if (matrix.pa == TRUE) {
-      output_list <- c(output_list,
-                       list(matrix.pa = mm))
+      if(method == "pairwise"){
+        output_list <- c(output_list,
+                         list(matrix.pa = mm))
+      }else{
+        output_list <- c(output_list,
+                         list(matrix.pa = NA))
+      }
     }
     
   }
