@@ -623,21 +623,20 @@ gl.pcoa <- function(x,
                 round(eig.raw.pos.pc[1], 1),
                 "% of the total variance\n"
             ))
-            cat(
+            if(length(eig.top >= 2)){cat(
                 paste(
                     "    PCoA Axis 1 and 2 combined explain",
                     round(eig.raw.pos.pc[1] + eig.raw.pos.pc[2], 1),
-                    "% of the total variance\n"
-                )
-            )
-            cat(paste(
+                    "% of the total variance\n"))
+            }
+            if(length(eig.top >= 3)){cat(paste(
                 "    PCoA Axis 1-3 combined explain",
                 round(
                     eig.raw.pos.pc[1] + eig.raw.pos.pc[2] + eig.raw.pos.pc[3],
                     1
                 ),
-                "% of the total variance\n"
-            ))
+                "% of the total variance\n"))
+            }
         }
         # Construct a universal output file
         p.object <- list()
