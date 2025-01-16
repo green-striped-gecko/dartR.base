@@ -42,10 +42,11 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-#' @examples
-#' csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
-#' ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
-#' gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
+# @examples
+#Taken out, will not build
+# csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
+# ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
+# gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
 #' 
 #' @export
 #' @return A genlight object with the SNP data and associated metadata included.
