@@ -223,9 +223,11 @@ gl.read.csv <- function(filename,
         s1 <- paste(data, collapse = " ")
         s2 <- unlist(strsplit(s1, " "))
         tmp <- table(s2)
-        if (!(names(tmp) == "0" ||
-              names(tmp) == "1" ||
-              names(tmp) == "2" || names(tmp) == "NA")) {
+        if ( any(names(tmp) %in% c("0","1","2","NA"))==FALSE){
+          # !(names(tmp) == "0" ||
+          #     names(tmp) == "1" ||
+          #     names(tmp) == "2" ||
+          #     names(tmp) == "NA")) {
             cat(
                 error(
                     "Fatal Error: Genotypes must be defined by the numbers 0, 1, 2 or missing NA\n"
