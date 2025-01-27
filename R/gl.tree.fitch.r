@@ -52,8 +52,9 @@
 #' 
 #' \dontrun{
 #' tmp <- gl.filter.monomorphs(testset.gl)
-#' gl.phylip(x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
-#' node.label.cex=0.5,terminal.label.cex=0.6,global.rearrange = FALSE, bstrap=100)
+#' D <- gl.dist.phylo(testset.gl,subst.model="F81")
+#' gl.phylip(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
+#' node.label.cex=0.5,terminal.label.cex=0.6,global.rearrange = FALSE, bstrap=10)
 #' }
 #' 
 # Testing
@@ -64,7 +65,7 @@
 # gl.tree.fitch(D=dd,phylip.path="D:/workspace/R/phylip-3.695/exe")
 # gl.tree.fitch(D=dd,phylip.path="D:/workspace/R/phylip-3.695/exe",global.rearrange = TRUE)
 # gl.tree.fitch(D=dd,phylip.path="D:/workspace/R/phylip-3.695/exe",outgroup="EmvicVictJasp")
-# gl.tree.fitch(D=dd,x=gl,plot.type="tidy",bstrap=2,phylip.path="D:/workspace/R/phylip-3.695/exe",outgroup="EmvicVictJasp",verbose=3)
+# gl.tree.fitch(D=dd,x=gl,plot.type="tidy",bstrap=5,phylip.path="D:/workspace/R/phylip-3.695/exe",outgroup="EmvicVictJasp",verbose=3)
 #' 
 #' @import ape
 #' 
