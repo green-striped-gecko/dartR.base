@@ -429,60 +429,152 @@ gl.pcoa <- function(x,
       return(list('struct'=struc,'noise'=noise))
     }
     
-    bs.statistics <- function(eigenvalues,plot=FALSE){
-      # Returns two vectors, one holding the eigenvalues of "informative" dimensions,
-      # the other holding the eigenvalues of the "noise" dimensions. Criterion is
-      # based on the broken-stick algorithm (Macarthur, 1957).
-      
+    # bs.statistics <- function(eigenvalues,plot=FALSE){
+    #   # Returns two vectors, one holding the eigenvalues of "informative" dimensions,
+    #   # the other holding the eigenvalues of the "noise" dimensions. Criterion is
+    #   # based on the broken-stick algorithm (Macarthur, 1957).
+    #   
+    #   # Author: Jesus Castrejon
+    #   
+    #   # Reference: Macarthur, R. (1957). On the relative abundance of bird species. 
+    #   # Proceedings of the National Academy of Sciences USA, 43, 293–295. 
+    #   # https://doi.org/10.1073/pnas.43.3.293
+    #   
+    #   # Set number of eigenvalues
+    #   n <- length(eigenvalues)
+    #   index <- 1:n
+    #   # Calculate expected lengths under Broken stick approach
+    #   broken.sticks <- sum(eigenvalues)*rev(cumsum(1/n:1))/n
+    #   # Creates dataframe with eigenvalues and filter noise/structure based on BS lengths
+    #   df <- data.frame(index,eigenvalues,broken.sticks)
+    #   #taking the number of the eigenvalue that is less than the broken sticks
+    #   idx <- eigenvalues>broken.sticks
+    #   idx2 <- which(eigenvalues>broken.sticks)
+    #   if (length(idx2) == 0) { #Suggested by ChatGPT
+    #     struc <- data.frame()
+    #     noise <- df
+    #   }
+    #   #testing whether there is a gap 
+    #   #test1 <- which((c(idx2[-1],idx2[1])-idx2)>2)
+    #   test1 <- which(diff(idx2) > 2) # Suggested by ChatGPT
+    #   # if there is a gap 
+    #   if(length(test1) > 0){
+    #     idx[(test1+1):length(idx)] <- FALSE
+    #   }
+    #   #setting false to everything that is after the gap
+    #   struc <- df[which(idx==TRUE),]
+    #   noise <- df[which(idx==FALSE),]
+    #   struc$structure <- 'structured'
+    #   noise$structure <- 'noisy'
+    #   
+    #   # Creates Plot of eigenvalues
+    #   if(plot){
+    #     p1 <- ggplot() +  
+    #       geom_point(data=struc, aes(x=index,y = eigenvalues,color = structure)) +
+    #       geom_point(data=noise, aes(x=index,y = eigenvalues,color = structure)) +
+    #       geom_line(data=df, aes(x=index,y = broken.sticks,color = 'broken sticks'),linetype="dashed") +
+    #       scale_y_continuous(trans='log10') + 
+    #       scale_color_manual(values=c("black","blue", "red")) +
+    #       theme(legend.title=element_blank())
+    #     print(p1)
+    #   }
+    #   
+    #   return(list('struct'=struc,'noise'=noise))
+    # }
+    
+    bs.statistics <- function(eigenvalues, plot = FALSE, gap_threshold = 2) {
+      # Function to separate eigenvalues into "structured" and "noisy" dimensions 
+      # using the Broken Stick algorithm (MacArthur, 1957).
+      #
+      # INPUTS:
+      #   - eigenvalues: A numeric vector of eigenvalues (e.g., from PCA or related analyses).
+      #   - plot: A logical flag (TRUE/FALSE) to indicate whether to generate a plot
+      #           of eigenvalues, broken stick values, and their classifications.
+      #   - gap_threshold: An integer specifying the minimum gap between consecutive
+      #                    eigenvalues (indices) to classify as noise (default = 2).
+      #
+      # OUTPUT:
+      #   - A list containing two data frames:
+      #       - 'struct': Data frame of eigenvalues classified as "structured".
+      #       - 'noise': Data frame of eigenvalues classified as "noisy".
+      #
       # Author: Jesus Castrejon
-      
-      # Reference: Macarthur, R. (1957). On the relative abundance of bird species. 
-      # Proceedings of the National Academy of Sciences USA, 43, 293–295. 
+      # Enhanced by ChatGPT for clarity, robustness, and parameterization.
+      #
+      # Reference: MacArthur, R. (1957). On the relative abundance of bird species.
+      # Proceedings of the National Academy of Sciences USA, 43, 293–295.
       # https://doi.org/10.1073/pnas.43.3.293
       
-      # Set number of eigenvalues
+      ### Step 1: Initialization ###
+      # Number of eigenvalues and their indices
       n <- length(eigenvalues)
       index <- 1:n
-      # Calculate expected lengths under Broken stick approach
-      broken.sticks <- sum(eigenvalues)*rev(cumsum(1/n:1))/n
-      # Creates dataframe with eigenvalues and filter noise/structure based on BS lengths
-      df <- data.frame(index,eigenvalues,broken.sticks)
-      #taking the number of the eigenvalue that is less than the broken sticks
-      idx <- eigenvalues>broken.sticks
-      idx2 <- which(eigenvalues>broken.sticks)
-      #testing whether there is a gap 
-      test1 <- which((c(idx2[-1],idx2[1]) - idx2)>2)
-      # if there is a gap 
-      if(length(test1) > 0){
-        idx[(test1+1):length(idx)] <- FALSE
+      
+      ### Step 2: Calculate Broken Stick Thresholds ###
+      # Broken stick model for expected eigenvalue lengths
+      broken.sticks <- sum(eigenvalues) * rev(cumsum(1 / n:1)) / n
+      
+      # Create a data frame to hold eigenvalues and their thresholds
+      df <- data.frame(index = index, 
+                       eigenvalues = eigenvalues, 
+                       broken.sticks = broken.sticks)
+      
+      ### Step 3: Classify Eigenvalues as "Structured" or "Noisy" ###
+      # Logical vector: TRUE if eigenvalue > broken stick threshold
+      idx <- eigenvalues > broken.sticks
+      idx2 <- which(idx)  # Indices of eigenvalues greater than the thresholds
+      
+      # Handle edge case: No eigenvalues greater than thresholds
+      if (length(idx2) == 0) {
+        # Return all eigenvalues as "noisy" if no structure is detected
+        return(list(struct = data.frame(), noise = df))
       }
-      #setting false to everything that is after the gap
-      struc <- df[which(idx==TRUE),]
-      noise <- df[which(idx==FALSE),]
+      
+      # Identify gaps in structured indices
+      # - A "gap" occurs if the difference between consecutive indices > gap_threshold
+      gaps <- which(diff(idx2) > gap_threshold)
+      
+      # If gaps exist, mark all eigenvalues after the gap as "noisy"
+      if (length(gaps) > 0) {
+        idx[(gaps[1] + 1):length(idx)] <- FALSE
+      }
+      
+      # Separate structured and noisy eigenvalues based on updated idx
+      struc <- df[idx, ]
+      noise <- df[!idx, ]
+      
+      # Add classification labels to each subset
       struc$structure <- 'structured'
       noise$structure <- 'noisy'
       
-      # Creates Plot of eigenvalues
-      if(plot){
-        p1 <- ggplot() +  
-          geom_point(data=struc, aes(x=index,y = eigenvalues,color = structure)) +
-          geom_point(data=noise, aes(x=index,y = eigenvalues,color = structure)) +
-          geom_line(data=df, aes(x=index,y = broken.sticks,color = 'broken sticks'),linetype="dashed") +
-          scale_y_continuous(trans='log10') + 
-          scale_color_manual(values=c("black","blue", "red")) +
-          theme(legend.title=element_blank())
+      ### Step 4: Optional Plotting ###
+      if (plot) {
+        # Generate a plot to visualize structured and noisy eigenvalues
+        library(ggplot2)
+        p1 <- ggplot() +
+          geom_point(data = struc, aes(x = index, y = eigenvalues, color = structure)) +
+          geom_point(data = noise, aes(x = index, y = eigenvalues, color = structure)) +
+          geom_line(data = df, aes(x = index, y = broken.sticks, color = 'broken sticks'), 
+                    linetype = "dashed") +
+          scale_y_continuous(trans = 'log10') +  # Log scale for eigenvalues
+          scale_color_manual(values = c("black", "blue", "red")) + 
+          theme_minimal() +
+          theme(legend.title = element_blank()) +
+          labs(title = "Broken Stick Analysis",
+               x = "Index",
+               y = "Eigenvalues (log10 scale)")
         print(p1)
       }
       
-      return(list('struct'=struc,'noise'=noise))
+      ### Step 5: Return Results ###
+      return(list(struct = struc, noise = noise))
     }
     
     # DO THE JOB
     
     ######## DISTANCE ANALYSIS
     
-    if (datatype == "dist")
-    {
+    if (datatype == "dist"){
         D <- x
         
         # Calculate the pcoa
@@ -510,7 +602,7 @@ gl.pcoa <- function(x,
                         ")\nScree Plot (informative axes only -- ",pc.select,"criterion)")
             }
         }
-        pco <-ape::pcoa(D, correction = correction, rn = labels(D))
+        pco <- ape::pcoa(D, correction = correction, rn = labels(D))
         
         # Extract relevant variables
         
@@ -549,7 +641,7 @@ gl.pcoa <- function(x,
         
         if (any(eig.raw < 0)) {
             if (verbose >= 2) {
-                problem <- (-sum(eig.raw[eig.raw < 0]) / mean(eig.raw[1:3])) * 100
+                problem <- (-sum(eig.raw[eig.raw < 0])*100 / mean(eig.raw[1:3]))
                 cat(
                     warn(
                         "  Warning: Some eigenvalues negative -- sum to",
