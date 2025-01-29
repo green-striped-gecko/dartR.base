@@ -26,6 +26,7 @@
 #' @param method Method = 1, nexus file with two lines per individual; method =
 #'  2, nexus file with one line per individual, ambiguity codes for SNP
 #'  genotypes, 0 or 1 for presence/absence data [default 2].
+#'  @param nreps Number of bootstrap replicates [default 10000]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
@@ -36,7 +37,7 @@
 #' @examples
 #' gg <- testset.gl[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
-#' gl2svdquartets(gg, outpath=tempdir())
+#' gl2svdquartets(gg, outpath=tempdir(),nreps=100)
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)
@@ -45,6 +46,7 @@ gl2svdquartets <- function(x,
                            outfile = "svd.nex",
                            outpath = NULL,
                            method = 2,
+                           nreps=10000,
                            verbose = NULL) {
    
     # SET VERBOSITY
@@ -81,6 +83,12 @@ gl2svdquartets <- function(x,
         )
         method <- 2
     }
+    
+    # Render lables consistent with PAUP
+    pop(x) <- gsub(" ", "_", pop(x))
+    pop(x) <- gsub("\\(", "_", pop(x))
+    pop(x) <- gsub(")", "_", pop(x))
+    indNames(x) <- gsub(" ","_",indNames(x))
     
     # DO THE JOB
     
@@ -283,7 +291,7 @@ gl2svdquartets <- function(x,
     cat("    speciesTree=yes\n")
     cat("    partition=pops\n")
     cat("    bootstrap=standard\n")
-    cat("    nreps=10000\n")
+    cat("    nreps=",nreps,"\n")
     cat("    ambigs=distribute\n")
     cat("    treeFile=svd.tre;\n")
     cat("savetrees file=svd_boot.tre from=1 to=1 maxdecimals=2;\n")
