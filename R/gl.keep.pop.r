@@ -68,7 +68,7 @@ gl.keep.pop <-  function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
-          if (!is(x, "dartR")) {
+    if (!is(x, "dartR")) {
         class(x) <- "dartR"  
         if (verbose>2) {
           cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
