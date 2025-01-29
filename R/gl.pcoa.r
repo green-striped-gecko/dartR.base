@@ -862,7 +862,7 @@ gl.pcoa <- function(x,
       ggtitle(title)
     
     if (any(eig.raw < 0)) {
-        main <- "Noise Axes -- Warning: some eigenvalues < 0"
+        main <- "Noise Axes -- Warning: some eigenvalues < 0, not shown"
     } else {
         main <- "Noise Axes -- all eigenvalues positive"
     }
