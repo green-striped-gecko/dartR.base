@@ -124,6 +124,15 @@ gl.report.callrate <- function(x,
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
   
+  if (!is(x, "dartR")) {
+    class(x) <- "dartR"  
+    if (verbose>2) {
+      cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+      cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+    }
+  }
+  
   # FUNCTION SPECIFIC ERROR CHECKING
   
   # Ib case the call rate is not up to date, recalculate
@@ -230,10 +239,12 @@ gl.report.callrate <- function(x,
     
     ind.means <- as.data.frame(ind.means)
     ind.means$Individual <- rownames(ind.means)
-    names(ind.means) <- c("CallRate","Individual")
+   # ind.means$Population <- pop(x)[indNames(x) %in% ind.means$Individual]
+    ind.means$Population <- pop(x)
+    names(ind.means) <- c("CallRate","Individual","Population")
     ind.means <- ind.means[order(ind.means$CallRate), ]
     rownames(ind.means) <- NULL
-    ind.means <- ind.means[, c("Individual","CallRate")] 
+    ind.means <- ind.means[, c("Individual","Population","CallRate")] 
       cat(report("Listing",ind.to.list,"individuals with the lowest CallRates\n"))
       cat(report("  Use this list to see which individuals will be lost on filtering by individual\n"))
       cat(report("  Set ind.to.list parameter to see more individuals\n"))
