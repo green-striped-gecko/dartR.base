@@ -118,6 +118,7 @@ gl2svdquartets <- function(x,
         if (verbose >= 2) {
             cat(report(paste("    Sorting ....\n")))
         }
+        x <- gl.sort(x,sort.by="pop")
         df <- data.frame(as.matrix(x))
         df <- cbind(indNames(x), pop(x), df)
         df <- df[order(df$pop), ]
