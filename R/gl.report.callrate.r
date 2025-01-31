@@ -160,6 +160,33 @@ gl.report.callrate <- function(x,
       as.matrix(x)
     )) / (nLoc(x) * nInd(x)), 4), "\n\n")
     
+    # Determine the loss of loci for a given threshold using quantiles
+    quantile_res <- quantile(callrate, probs = seq(0, 1, 1 / 20),type=1,na.rm = TRUE)
+    retained <- unlist(lapply(quantile_res, function(y) {
+      res <- length(callrate[callrate >= y])
+    }))
+    pc.retained <- round(retained * 100 / nLoc(x), 1)
+    filtered <- nLoc(x) - retained
+    pc.filtered <- 100 - pc.retained
+    df <-
+      data.frame(as.numeric(sub("%", "", names(quantile_res))),
+                 quantile_res,
+                 retained,
+                 pc.retained,
+                 filtered,
+                 pc.filtered)
+    colnames(df) <-
+      c("Quantile",
+        "Threshold",
+        "Retained",
+        "Percent",
+        "Filtered",
+        "Percent")
+    df <- df[order(-df$Quantile), ]
+    df$Quantile <- paste0(df$Quantile, "%")
+    rownames(df) <- NULL
+    print(df)
+    
     # Prepare the plots ------------------------
     # get title for plots
     if (datatype == "SNP") {
