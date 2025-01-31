@@ -81,15 +81,18 @@ gl2parsimony <- function(x,
         }
 
       # Sort the data on population
+        x <- gl.sort(x,sort.by="pop")
         if (verbose >= 2) {
             cat(report(paste("    Sorting ....\n")))
         }
-        df <- data.frame(as.matrix(x))
-        df <- cbind(indNames(x), pop(x), df)
-        df <- df[order(df$pop), ]
-        indlabels <- df[, 1]
-        poplabels <- df[, 2]
-        m <- df[, 3:(nLoc(x) + 2)]
+ #        df <- data.frame(as.matrix(x))
+ #        df <- cbind(indNames(x), pop(x), df)
+ #        names(df)[2] <- "id"
+ #        names(df)[2] <- "pop"
+ #        df <- df[order(df$pop), ]
+ #        indlabels <- df[, 1]
+ #        poplabels <- df[, 2]
+ # #       m <- df[, 3:(nLoc(x) + 2)]
         
     if (all(x@ploidy == 1)) {
         # progressively add the scores (0 0r 1 or NA)
@@ -100,13 +103,13 @@ gl2parsimony <- function(x,
         }
         
         str <- array(NA, nInd(x))
-        for (ind in 1:nInd(x)) {
-            str[ind] <-
-                paste(as.character(as.matrix(x)[ind, ]),
+        for (i in 1:nInd(x)) {
+            str[i] <-
+                paste(as.character(as.matrix(x)[i, ]),
                       collapse = "",
                       sep = "")
-            str[ind] <- gsub("NA", "?", str[ind])
-            str[ind] <- paste(indNames(x)[ind], "   ", str[ind])
+            str[i] <- gsub("NA", "?", str[i])
+            str[i] <- paste(indNames(x)[i], "   ", str[i])
         }
         ambseq <- str
         poplabels <- pop(x)
@@ -137,7 +140,7 @@ gl2parsimony <- function(x,
     cat("#nexus\n")
     cat("BEGIN DATA;\n")
     cat(paste0("     dimensions ntax = ", nInd(x), " nchar = ", nLoc(x), " ;\n"))
-    cat("     format datatype = dna gap = - ;\n\n")
+    cat("     format datatype = standard gap = - ;\n\n")
     cat("matrix\n")
     for (i in 1:nInd(x)) {
       cat(paste0(ambseq[i], "\n"))
@@ -156,7 +159,7 @@ gl2parsimony <- function(x,
     cat("lset nthreads=3;\n")
     cat("set criterion=parsimony;\n")
     cat("hsearch addseq=random nreps=100 swap=tbr multrees=yes;\n")
-    cat("bootstrap nreps=",nreps," search=heuristic addseq=random;\n")
+    cat("bootstrap nreps=",nreps," search=heuristic;\n")
     cat("savetrees file=parsimony_boot.tre from=1 to=1 maxdecimals=2;\n")
     cat("log stop;\n")
     cat("quit;\n")
