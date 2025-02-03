@@ -66,6 +66,16 @@ gl.drop.pop <-  function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
+    
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
+
     # Function-specific error checking -----------    
 
     # Population labels assigned?
@@ -152,35 +162,32 @@ gl.drop.pop <-  function(x,
         }
     }
     # End block -----------
-# REPORT A SUMMARY -------------
     
+    # REPORT A SUMMARY ----------------
     if (verbose >= 3) {
-        if (!is.null(as.pop)) {
-            cat("  Summary of recoded dataset\n")
-            cat(paste("    No. of loci:", nLoc(x), "\n"))
-            cat(paste("    No. of individuals:", nInd(x), "\n"))
-            cat(paste(
-                "    No. of levels of",
-                as.pop,
-                "remaining: ",
-                nPop(x),
-                "\n"
-            ))
-            cat(paste("    Original no. of populations", nPop(hold), "\n"))
-            cat(paste(
-                "    No. of populations remaining: ",
-                length(unique((
-                    pop.hold
-                ))),
-                "\n"
-            ))
-        } else {
-            cat("  Summary of recoded dataset\n")
-            cat(paste("    No. of loci:", nLoc(x), "\n"))
-            cat(paste("    No. of individuals:", nInd(x), "\n"))
-            cat(paste("    Original no. of populations", nPop(hold), "\n"))
-            cat(paste("    No. of populations remaining: ", nPop(x), "\n"))
-        }
+      if (!is.null(as.pop)) {
+        cat("  Summary of recoded dataset\n")
+        cat(paste("    Original no. of populations", nPop(hold), "\n"))
+        cat(paste("    Selecting populations to delete based on",as.pop,"\n"))
+        cat(paste("    No. of levels of",as.pop,"remaining: ",nPop(x),"\n"))
+        cat(paste("  Original No. of loci:", nLoc(hold), "\n"))
+        cat(paste("    Deleted monomorphic loci arising (if mono.rm=TRUE):", nLoc(hold)-nLoc(x), "\n"))
+        cat(paste("  Final No. of Loci:", nLoc(x), "\n"))
+        cat(paste("  Original No. of individuals:", nInd(hold), "\n"))
+        cat(paste("    Deleted:", nInd(hold)-nInd(x), "\n"))
+        cat(paste("  Final No. of individuals:", nInd(x), "\n"))
+      } else {
+        cat("  Summary of recoded dataset\n")
+        cat(paste("  Original no. of populations", nPop(hold), "\n"))
+        cat(paste("     No. of populations deleted:",nPop(hold)-nPop(x),"\n"))
+        cat(paste("  Final No. of Populations:", nPop(x), "\n"))
+        cat(paste("  Original No. of loci:", nLoc(hold), "\n"))
+        cat(paste("    Deleted monomorphic loci arising (if mono.rm=TRUE):", nLoc(hold)-nLoc(x), "\n"))
+        cat(paste("  Final No. of Loci:", nLoc(x), "\n"))
+        cat(paste("  Original No. of individuals:", nInd(hold), "\n"))
+        cat(paste("    Deleted:", nInd(hold)-nInd(x), "\n"))
+        cat(paste("  Final No. of individuals:", nInd(x), "\n"))
+      }
     }
     
     # Reassign the initial population list if as.pop is specified ----

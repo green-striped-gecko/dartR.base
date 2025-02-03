@@ -48,21 +48,7 @@ utils.check.datatype <- function(x,
     #### SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
-    #### CHECK THE TYPE OF OBJECT ####
-    
-    if(is(x,"genlight")){
-    
-        if (!is(x, "dartR")) {
-        class(x) <- "dartR"  
-        if (verbose>2) {
-          cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
-        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
-                 please use function dartR2gl\n"))
-        }
-      }
-    }
-    
-    if (is(x, "dartR")) {
+    if (is(x, "dartR") | is(x,"genlight")) {
         if (is.null(ploidy(x))) {
             stop(
                 error(
