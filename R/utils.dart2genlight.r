@@ -83,11 +83,11 @@ utils.dart2genlight <- function(dart,
         }
     }
     
-    if (sum(c("SNP", "SnpPosition") %in% names(sraw)) != 2) {
-        stop(error(
-            "Could not find SNP or SnpPosition in Dart file. Check you headers!!!"
-        ))
-    }
+    # if (sum(c("SNP", "SnpPosition") %in% names(sraw)) != 2) {
+    #     stop(error(
+    #         "Could not find SNP or SnpPosition in Dart file. Check you headers!!!"
+    #     ))
+    # }
     
     if (verbose >= 2) {
         cat(report("Starting conversion....\n"))
@@ -116,7 +116,17 @@ utils.dart2genlight <- function(dart,
     esl <-seq(nrows, nrow(sdata), nrows)
     
     pos <- sraw$SnpPosition[esl]
-    alleles <- as.character(sraw$SNP)[esl]
+    
+    metrics_names <- colnames(sraw)
+    
+    if("SNP" %in% metrics_names){
+      alleles <- as.character(sraw$SNP)[esl]
+    }
+    
+    if("Variant" %in% metrics_names){
+      alleles <- as.character(sraw$Variant)[esl]
+    }
+    
     a1 <- substr(alleles, nchar(alleles) - 2, nchar(alleles))
     a2 <- sub(">", "/", a1)
     locname <- paste(sraw$uid[esl], a2, sep = "-")
