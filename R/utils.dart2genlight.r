@@ -202,7 +202,7 @@ utils.dart2genlight <- function(dart,
                      stringsAsFactors = T)
         # is there an entry for every individual
         
-        id.col <-match("id", names(ind.cov))
+        id.col <- match("id", names(ind.cov))
         
         if (is.na(id.col)) {
             stop(error("Fatal Error: There is no id column\n"))
@@ -287,10 +287,11 @@ utils.dart2genlight <- function(dart,
           if(any(is.na(pop_tmp))){
             pop_na <- which(is.na(pop_tmp))
             pop_tmp[pop_na] <- "pop1"
+            ind_na <- indNames(x)[pop_na]
             if (verbose >= 1) {
               cat(
                 warn(
-                  "Warning: At least one individual has 'NA' as population, assigning 'pop1' as population to these individuals\n"
+                  "  Warning: individuals",paste(indNames(gout)[pop_na],collapse = ", "),"have 'NA' as population, assigning 'pop1' as population to these individuals.\n"
                 )
               )
             }
@@ -298,15 +299,16 @@ utils.dart2genlight <- function(dart,
           if(any(pop_tmp=="")){
             pop_na <- which(pop_tmp=="")
             pop_tmp[pop_na] <- "pop1"
+            ind_na <- indNames(x)[pop_na]
             if (verbose >= 1) {
               cat(
                 warn(
-                  "Warning: At least one individual has blank as population, assigning 'pop1' as population to these individuals\n"
-                )
+                  "  Warning: individuals",paste(indNames(gout)[pop_na],collapse = ", "),"have blank as population, assigning 'pop1' as population to these individuals.\n"
+                  )
               )
             }
-          }
-            pop(gout) <- as.factor(pop_tmp)
+            }
+          pop(gout) <- as.factor(pop_tmp)
             if (verbose >= 2) {
                 cat(report(" Added population assignments.\n"))
             }
