@@ -271,19 +271,42 @@ utils.dart2genlight <- function(dart,
             }
         }
         
-        pop.col <-match("pop", names(ind.cov))
+        pop.col <- match("pop", names(ind.cov))
         
         if (is.na(pop.col)) {
             if (verbose >= 1) {
                 cat(
                     warn(
-                        "Warning: There is no pop column, created one with all pop1 as default for all individuals\n"
+                        "Warning: There is no pop column, created one with all 'pop1' as default for all individuals\n"
                     )
                 )
             }
             pop(gout) <- factor(rep("pop1", nInd(gout)))
         } else {
-            pop(gout) <- as.factor(ind.cov[ord, pop.col])
+          pop_tmp <- as.character(ind.cov[ord, pop.col])
+          if(any(is.na(pop_tmp))){
+            pop_na <- which(is.na(pop_tmp))
+            pop_tmp[pop_na] <- "pop1"
+            if (verbose >= 1) {
+              cat(
+                warn(
+                  "Warning: At least one individual has 'NA' as population, assigning 'pop1' as population to these individuals\n"
+                )
+              )
+            }
+          }
+          if(any(pop_tmp=="")){
+            pop_na <- which(pop_tmp=="")
+            pop_tmp[pop_na] <- "pop1"
+            if (verbose >= 1) {
+              cat(
+                warn(
+                  "Warning: At least one individual has blank as population, assigning 'pop1' as population to these individuals\n"
+                )
+              )
+            }
+          }
+            pop(gout) <- as.factor(pop_tmp)
             if (verbose >= 2) {
                 cat(report(" Added population assignments.\n"))
             }
