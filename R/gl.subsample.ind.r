@@ -10,8 +10,11 @@
 #' (SilicoDArT) data [required].
 #' @param n Number of individuals to include in the subsample [default NULL]
 #' @param replace If TRUE, sampling is with replacement [default TRUE]
-#' @param by.pop If FALSE, ignore population settings [default TRUE]. 
+#' @param by.pop If FALSE, ignore population settings when subsampling; if TRUE, subsample
+#' each population to n individuals [default TRUE]. 
 #' @param error.check If TRUE, will undertake error checks on input paramaters [default TRUE]
+#' @param mono.rm If TRUE and error.check is TRUE, monomorphic loci arising from the deletion of individuals
+#' will be filtered from the resultant genlight object [default FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
@@ -36,6 +39,7 @@ gl.subsample.ind <- function(x,
                   replace = TRUE,
                   by.pop = TRUE,
                   error.check = TRUE,
+                  mono.rm=FALSE,
                   verbose = NULL) {
   
   if(error.check){
@@ -50,6 +54,15 @@ gl.subsample.ind <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose=verbose)
+    
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
     
     # FUNCTION SPECIFIC ERROR CHECKING
     
@@ -107,6 +120,12 @@ gl.subsample.ind <- function(x,
   x2@other$loc.metrics <- x@other$loc.metrics
 
   if(error.check){
+    
+    # FILTER MONOMORPHS
+    if(mono.rm==TRUE){
+      x <- gl.filter.monomorphs(x,verbose=verbose)
+    }
+    
     # ADD TO HISTORY
     nh <- length(x2@other$history)
     x2@other$history[[nh + 1]] <- match.call()
