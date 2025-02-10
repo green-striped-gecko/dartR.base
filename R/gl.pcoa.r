@@ -623,6 +623,7 @@ gl.pcoa <- function(x,
           eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
         } else if(pc.select=="broken-stick"){
           eig.raw.pos <- eig.raw[eig.raw >= 0]
+          eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
           tmp <- bs.statistics(eigenvalues = eig.raw.pos)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
@@ -630,6 +631,7 @@ gl.pcoa <- function(x,
         } else if(pc.select=="Tracy-Widom"){
           # M <- nInd(x)
           eig.raw.pos <- eig.raw[eig.raw >= 0]
+          eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
           tmp <- tw.statistics(eig.raw.pos)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
@@ -791,6 +793,7 @@ gl.pcoa <- function(x,
           eig.raw.noise <- eig.raw[eig.raw <= mean(eig.raw)]
         } else if(pc.select=="broken-stick"){
           eig.raw.pos <- eig.raw[eig.raw >= 0]
+          eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
           tmp <- bs.statistics(eigenvalues = eig.raw.pos,plot = T)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
@@ -798,6 +801,7 @@ gl.pcoa <- function(x,
         } else if(pc.select=="Tracy-Widom"){
           # M <- nInd(x)
           eig.raw.pos <- eig.raw[eig.raw >= 0]
+          eig.raw.pos.pc <- eig.raw.pos * 100 / sum(eig.raw.pos)
           tmp <- tw.statistics(eig.raw.pos)
           eig.top <- tmp$struct$eigenvalues
           eig.top.pc <- round(eig.top * 100 / sum(eig.raw.pos), 1)
