@@ -631,8 +631,13 @@ gl.report.heterozygosity <- function(x,
     # bootstrapping
     if (nboots > 0) {
       pop_boot <- lapply(sgl, function(y) {
-        df <- as.data.frame(as.matrix(y))
         
+        df <- as.matrix(y)
+        
+        if(boot.method == "loc"){
+          df <- t(df)
+        }
+
         res_boots <- boot::boot(
           data = df,
           statistic = pop.het,

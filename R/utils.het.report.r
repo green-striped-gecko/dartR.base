@@ -1,5 +1,5 @@
 # bootstrapping function
-pop.het <- function(x,
+pop.het <- function(df,
                     indices,
                     n.invariant,
                     boot_method = "loc",
@@ -8,6 +8,7 @@ pop.het <- function(x,
   pop.het_fun <- function(df,
                           n.invariant,
                           aHet) {
+
     Ho.loc <- colMeans(df == 1, na.rm = TRUE)
     n_loc <- apply(df, 1, function(y) {
       sum(!is.na(y))
@@ -21,11 +22,10 @@ pop.het <- function(x,
     })
     ### CP ### Unbiased He (i.e. corrected for sample size) hard
     # coded for diploid
-    uHe.loc <-
-      (2 * as.numeric(n_ind) / (2 * as.numeric(n_ind) - 1)) * He.loc
+    uHe.loc <- (2 * as.numeric(n_ind) / (2 * as.numeric(n_ind) - 1)) * He.loc
     Hexp.adj.loc <- He.loc * n_loc / (n_loc + n.invariant)
     
-    FIS.loc <- 1 - (Ho.loc / He.loc)
+    FIS.loc <- 1 - (Ho.loc / uHe.loc)
     
     if(aHet) {
       all.res <- c(
@@ -44,15 +44,15 @@ pop.het <- function(x,
     return(all.res)
   }
   
+  df <- df[indices,]
+  
   if(boot_method == "loc"){
-    df <- x[, indices]
-  }else{
-    df <- x[indices,]
+    df <- t(df)
   }
 
   res <- pop.het_fun(df,
                      n.invariant = n.invariant,
-                     aHet=aHet)
+                     aHet = aHet)
   
   return(res)
   
