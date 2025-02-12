@@ -24,11 +24,11 @@
 #' [default 'ind']
 #' @param nreps Specify the number of replicate analyses to run in search of
 #' the shortest tree [default 100]
-#' @param nthreads Specify the number of threads to use in search of
-#' the shortest tree [default: if out.type='bash'; 32; otherwise 3]
 #' @param nbootstraps Number of bootstrap replicates [default 1000]
-#' @param ncpus Number of cpus to use for parallel processing [default if out.type='bash'; 32; otherwise NULL]
+#' @param ncpus Number of cores to use for parallel processing [default 1]
+#' @param mem Memory to use for each process [default 4Gb per core]
 #' @param server If out.type='bash', provide the name of the linux server [default 'gadi']
+#' @param base.dir.name Name of the base directory on the server to act as the workspace [default NULL]
 #' @param test If TRUE, the analysis will run with a small subset of the data [default FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -39,31 +39,30 @@
 #' is the name of the file PAUP will use to deliver the results of the analysis, in
 #' the directory specified by outpath. 
 #' 
-#' The output type (out.type) can be 'standard', which uses
+#' The output type (out.type) can be 'standard' which uses
 #' default PAUP parameters to construct the boot.tre file. Or it can be 'newick' to add the 
 #' parameter format=newick whereby the boot.tre file contains the final tree in newick
 #' format. This is useful for passing the results to a tree graphics program such as
-#' Mega 11 in order to format the tree for publication. Or it can be 'bash' which creates
+#' Mega 11 to format the tree for publication. Or it can be 'bash' which creates
 #' a number of files to facilitate parallel processing on a supercomputer.
 #' 
 #' The parameter nreps specifies the number of replicates to run in search of the
-#' shortest tree in each bootstrap iteration. The companion parameter nthreads specifies the
-#' number of threads to use in search of the shortest tree in each bootstrap iteration. If
-#' out.type=bash, the default is 32 threads; otherwise it is 3 threads.
+#' shortest tree in each bootstrap iteration. The default is 100.
 #' 
 #' The parameter nbootstraps specifies tne number of bootstrap replicates to run to generate 
 #' a measure of node support. The default is 1000. The companion parameter ncpus specifies how
-#' many cpus to use for parallel processing when out.type='bash'. The default is 32 if out.type='bash';
-#' 1 otherwise. Note that the number of cpus must divide evenly into the number of bootstrap replicates.
+#' many cpus to use for parallel processing when out.type='bash'. The default is 1. 
+#' Note that the number of cpus must divide evenly into the number of bootstrap replicates.
 #' 
-#' The parameter tip.labels specifies whether the teminals in the tree should be
+#' The parameter tip.labels specifies whether the terminals in the tree should be
 #' labelled with the individual names, or the population names (multiple tips will
-#' have the same label), or a combination of the two. Including the population name
+#' have the same label -- which can cause problems at the point of generating a 
+#' consensus tree), or a combination of the two. Including the population name
 #' in the terminal tip labels will assist in collapsing the tree to have populations
 #' as the terminals after checking fidelity of populations to supported clades. This
 #' can be done in Mega 11.
 #' 
-#' The parameter server is to allow for future development as users modify the bash
+#' The parameter 'server' is to allow for future development as users modify the bash
 #' scripts to suit other multitasking environments. This script works only for the
 #' Gadi server on the Australian National Computing Infrastructure (NCI).
 #' 
@@ -90,10 +89,11 @@ gl2paup.parsimony <- function(x,
                          out.type="standard",
                          tip.labels="ind",
                          nreps=100,
-                         nthreads=NULL,
                          nbootstraps=1000,
-                         ncpus=NULL,
+                         ncpus=1,
+                         mem=4,
                          server="gadi",
+                         base.dir.name=NULL,
                          test=FALSE,
                          verbose = NULL) {
    
@@ -127,7 +127,8 @@ gl2paup.parsimony <- function(x,
         if(verbose>=2){cat(report("  Test run only\n"))}
         nreps <- 1
         nbootstraps <- 10
-        ncpus <- 5
+        ncpus <- 10
+        mem <- ncpus*4
         qtl <- quantile((table(pop(x))),0.75)
         qtl.names <- names(table(pop(x))[table(pop(x))>=qtl])
         x <- gl.keep.pop(x, pop.list=qtl.names,mono.rm=TRUE,verbose=0)
@@ -139,10 +140,11 @@ gl2paup.parsimony <- function(x,
 
 
     # Check for monomorphic loci
-    if(nLoc(x) != nLoc(gl.filter.monomorphs(x,verbose=0))){
-        cat(warn(
-            "  Warning: genlight object may contain monomorphic loci\n"
-        ))
+    tmp <- gl.filter.monomorphs(x,verbose=0)
+    if(nLoc(x) != nLoc(tmp)){
+      cat(warn(
+        "  Warning: genlight object may contain monomorphic loci\n"
+      ))
     }
     
     # FUNCTION SPECIFIC ERROR CHECKING
@@ -151,28 +153,17 @@ gl2paup.parsimony <- function(x,
       cat(warn("Warning: Output format (out.type) must be one of 'standard' or 'newick' or 'bash', set to 'standard'\n"))
       out.type <- "standard"
     }
-    if(out.type=='bash'){
-      if(is.null(nthreads)){
-        nthreads <- 32
-        if(verbose > 2){cat(report("  Set nthreads=32\n"))}
-      }
-      if(is.null(ncpus)){
-        ncpus <- 20
-        if(verbose > 2){cat(report("  Set ncpus=20\n"))}
-      }
-    } else {
-      if(is.null(nthreads)){
-        nthreads <- 3
-        if(verbose > 2){cat(report("  Set nthreads=3\n"))}
-      }
-      if(is.null(ncpus)){
-        ncpus <- 1
-        if(verbose > 2){cat(report("  Set ncpus=1\n"))}
-      }
-    }
+    
     if(out.type=='bash'){
       if((nbootstraps %% ncpus) != 0){
         cat(error("Fatal Error: The number of bootstraps",nbootstraps,"must be a multiple of the number of cpus",ncpus,"\n"))
+      }
+    }
+    
+    if(out.type=="bash"){
+      if(is.null(base.dir.name)){
+        cat(error("Fatal Error: a base name for the working directory on",server,"is required\n"))
+        stop()
       }
     }
     
@@ -192,6 +183,7 @@ gl2paup.parsimony <- function(x,
     }
     
     # Render lables consistent with PAUP
+    pop(x) <- as.character(pop(x))
     pop(x) <- gsub(" ", "_", pop(x))
     pop(x) <- gsub("\\(", "_", pop(x))
     pop(x) <- gsub(")", "_", pop(x))
@@ -285,13 +277,14 @@ gl2paup.parsimony <- function(x,
     cat("end;\n\n")
     cat("begin paup;\n")
     cat(paste0("log file=",outfileprefix,".log;\n"))
-    cat("set criterion=parsimony;\n")
+    cat("set criterion=parsimony storebrlens=yes increase=auto storetreewts=yes;\n")
+
     cat("set autoclose=yes;\n")
     #cat("hsearch addseq=random nreps=",nreps," swap=tbr multrees=yes;\n")
     if(out.type=="bash"){
       cat(paste0("bootstrap nreps=",nbootstraps/ncpus," search=heuristic / start=stepwise addseq=random nreps=",nreps," swap=TBR;\n"))
     } else {
-      cat(paste0("bootstrap nreps=",nbootstraps," search=heuristic / start=stepwise addseq=random nreps=",nreps," swap=TBR;\n"))
+      cat(paste0("bootstrap nreps=",nbootstraps," search=heuristic brlens=yes / start=stepwise addseq=random nreps=",nreps," swap=TBR;\n"))
     }
     cat(paste0("savetrees file=",outfileprefix,"_bootstrap.tre;\n"))
     cat("log stop;\n")
@@ -325,27 +318,22 @@ gl2paup.parsimony <- function(x,
 
     writeLines("# Locate the _bootstrap.nex file", con)
     writeLines("NEX_FILE=$(ls *_bootstrap.nex 2>/dev/null)", con)
-    writeLines("", con)
 
     writeLines("# Ensure exactly one _bootstrap.nex file exists", con)
     writeLines("if [[ $(echo \"$NEX_FILE\" | wc -l) -ne 1 ]]; then", con)
     writeLines("  echo 'Error: There should be exactly one _bootstrap.nex file.'", con)
     writeLines("  exit 1", con)
     writeLines("fi", con)
-    writeLines("", con)
 
     writeLines("# Read the template file into a variable", con)
     writeLines("NEX_CONTENT=$(cat \"$NEX_FILE\")", con)
-    writeLines("", con)
 
     writeLines("# Calculate the number of bootstrap iterations dynamically", con)
     writeLines(paste0("NUM_ITERATIONS=", num_iterations), con)
-    writeLines("", con)
 
     writeLines("# Loop to generate bootstrap files", con)
     writeLines("for i in $(seq 1 $NUM_ITERATIONS); do", con)
     writeLines("  BOOTSTRAP_FILE=\"bootstrap${i}.nex\"", con)
-    writeLines("", con)
 
     writeLines("  # Replace log file and tree file names dynamically", con)
     # writeLines("  MODIFIED_NEX=$(echo \"$NEX_CONTENT\" | \
@@ -358,11 +346,9 @@ gl2paup.parsimony <- function(x,
 
     writeLines("  # Write modified Nexus file", con)
     writeLines("  echo \"$MODIFIED_NEX\" > \"$BOOTSTRAP_FILE\"", con)
-    writeLines("", con)
 
     writeLines("  echo \"Generated: $BOOTSTRAP_FILE\"", con)
     writeLines("done", con)
-    writeLines("", con)
 
     writeLines("echo \"All bootstrap Nexus files have been created successfully!\"", con)
 
@@ -385,30 +371,31 @@ gl2paup.parsimony <- function(x,
     con <- file(outfilespec3, open = "wb")
 
     writeLines("#!/bin/bash\n", con)
-    writeLines(paste0("NUM_BOOTSTRAPS=", ncpus,"\n"), con)
+    writeLines(paste0("NUM_BOOTSTRAPS=",nbootstraps/ncpus,"\n"), con)
 
-    writeLines("for i in $(seq 1 $NUM_BOOTSTRAPS); do\n", con)
+    writeLines("for i in $(seq 1 $NUM_BOOTSTRAPS); do", con)
     writeLines("JOB_FILE=\"bootstrap_job${i}.pbs\"\n", con)  # No escaping needed
 
     # Begin `cat <<EOT` block correctly (no escaping inside EOT)
-    writeLines("  cat <<EOT > \"$JOB_FILE\"\n", con)
+    writeLines("cat <<EOT > \"$JOB_FILE\"\n", con)
     writeLines("#!/bin/bash\n", con)
 
     # PBS directives
-    writeLines("#PBS -P xl04\n", con)
-    writeLines("#PBS -q normal\n", con)
-    writeLines("#PBS -l ncpus=48\n", con)
-    writeLines("#PBS -l mem=190GB\n", con)
-    writeLines("#PBS -l walltime=10:00:00\n", con)
-    writeLines("#PBS -j oe\n", con)
-    writeLines(paste0("#PBS -N ", outfileprefix, "_bootstrap_job${i}\n"), con)  # No escaping needed
+    writeLines("#PBS -P xl04", con)
+    writeLines("#PBS -q normal", con)
+    writeLines(paste0("#PBS -l ncpus=",ncpus), con)
+    writeLines(paste0("#PBS -l mem=",mem,"GB"), con)
+    writeLines("#PBS -l walltime=48:00:00", con)
+    writeLines("#PBS -j oe", con)
+    writeLines(paste0("#PBS -o ",base.dir.name,"/pbslogs"), con)
+    writeLines(paste0("#PBS -N ", outfileprefix, "_bootstrap_job${i}"), con)  # No escaping needed
     writeLines("#PBS -l storage=gdata/xl04+gdata/if89\n", con)
 
     # Load PAUP module
     writeLines("module load paup\n", con)
 
     # Navigate to the working directory
-    writeLines("cd /g/data/xl04/bpadata/\n", con)
+    writeLines("cd /g/data/xl04/ag3760/parsimony/\n", con)
 
     # Run PAUP with correct variable expansion (NO escaping needed inside EOT)
     writeLines("/g/data/if89/apps/paup/4a168/paup -n bootstrap${i}.nex\n", con)
@@ -419,126 +406,18 @@ gl2paup.parsimony <- function(x,
     writeLines("EOT\n", con)  # Correctly close EOT (no escaping)
 
     # Submit the job (escaping needed since it's outside EOT)
-    writeLines("qsub $JOB_FILE\n", con)
+    writeLines("qsub $JOB_FILE", con)
     writeLines("echo \"Submitted bootstrap job ${i}\"\n", con)
-    writeLines("done\n", con)
-    writeLines("echo \"All bootstrap Nexus files have been created successfully!\"\n")
+    writeLines("done", con)
+    writeLines("echo \"All jobs have been submitted to the queue for execution!\"\n", con)
 
     # Close the file connection
     close(con)
-
 
     if (verbose > 2) {
       cat(report("  Generator bash script", outfilespec3, "written to generate", ncpus, "tree files\n"))
     }
 
-    # ###### WRITE THE SCRIPT TO GENERATE THE BOOTSTRAPPED FILES AND THEN SUBMIT JOBS TO CREATE THE TREES
-    # 
-    # # Define the output file name for the generated bash script
-    # outfilespec5 <- paste0("generator_", outfileprefix, "_maketrees.sh")
-    # 
-    # # Ensure `ncpus` is defined
-    # num_iterations <- as.integer(nbootstraps / ncpus)  # Calculate iterations per CPU
-    # 
-    # # Open a connection to write in binary mode (ensures Unix `LF` line endings)
-    # con <- file(outfilespec5, open = "wb")
-    # 
-    # # Write the Bash script using `writeLines()`
-    # writeLines("#!/bin/bash", con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Locate the _bootstrap.nex file", con)
-    # writeLines("NEX_FILE=$(ls *_bootstrap.nex 2>/dev/null)", con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Ensure exactly one _bootstrap.nex file exists", con)
-    # writeLines("if [[ $(echo \"$NEX_FILE\" | wc -l) -ne 1 ]]; then", con)
-    # writeLines("  echo 'Error: There should be exactly one _bootstrap.nex file.'", con)
-    # writeLines("  exit 1", con)
-    # writeLines("fi", con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Read the template file into a variable", con)
-    # writeLines("NEX_CONTENT=$(cat \"$NEX_FILE\")", con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Calculate the number of bootstrap iterations dynamically", con)
-    # writeLines(paste0("NUM_BOOTSTRAPS=", num_iterations), con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Loop to generate bootstrap files", con)
-    # writeLines("for i in $(seq 1 $NUM_BOOTSTRAPS); do", con)
-    # writeLines("  BOOTSTRAP_FILE=\"bootstrap${i}.nex\"", con)
-    # writeLines("", con)
-    # 
-    # writeLines("  # Replace log file and tree file names dynamically", con)
-    # writeLines("  MODIFIED_NEX=$(echo \"$NEX_CONTENT\" | \\", con)
-    # writeLines("    sed 's/log file=[^ ;]*/log file=bootstrap'\"$i\"'.log replace;/g' | \\", con)
-    # writeLines("    sed 's/savetrees file=[^ ;]*/savetrees file=bootstrap'\"$i\"'.tre;/g')", con)
-    # writeLines("", con)
-    # 
-    # writeLines("  # Write modified Nexus file", con)
-    # writeLines("  echo \"$MODIFIED_NEX\" > \"$BOOTSTRAP_FILE\"", con)
-    # writeLines("", con)
-    # 
-    # writeLines("  echo \"Generated: $BOOTSTRAP_FILE\"", con)
-    # writeLines("", con)
-    # 
-    # writeLines("  # Create PBS job script", con)
-    # writeLines("  JOB_FILE=\"bootstrap_job${i}.pbs\"", con)
-    # writeLines("", con)
-    # 
-    # writeLines("  cat <<EOT > \"$JOB_FILE\"", con)
-    # writeLines("#!/bin/bash", con)
-    # writeLines("#PBS -P xl04", con)
-    # writeLines("#PBS -q normal", con)
-    # writeLines("#PBS -l ncpus=48", con)
-    # writeLines("#PBS -l mem=190GB", con)
-    # writeLines("#PBS -l walltime=10:00:00", con)
-    # writeLines("#PBS -j oe", con)
-    # writeLines(paste0("#PBS -N ", outfileprefix, "_bootstrap_job${i}"), con)
-    # writeLines("#PBS -l storage=gdata/xl04+gdata/if89", con)
-    # writeLines("", con)
-    # writeLines("module load paup", con)
-    # writeLines("", con)
-    # writeLines("cd /g/data/xl04/bpadata/", con)
-    # writeLines("", con)
-    # writeLines("/g/data/if89/apps/paup/4a168/paup -n bootstrap${i}.nex", con)
-    # writeLines("", con)
-    # writeLines("echo \"Bootstrap job ${i} completed successfully\"", con)
-    # writeLines("EOT", con)
-    # writeLines("", con)
-    # 
-    # writeLines("  # Submit the job", con)
-    # writeLines("  qsub \"$JOB_FILE\"", con)
-    # writeLines("  echo \"Submitted bootstrap job ${i}\"", con)
-    # writeLines("", con)
-    # 
-    # writeLines("done", con)
-    # writeLines("", con)
-    # 
-    # writeLines("echo \"All bootstrap jobs have been submitted.\"", con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Wait for all jobs to complete before deleting the bootstrap Nexus files", con)
-    # writeLines("echo \"Waiting for all bootstrap jobs to finish...\"", con)
-    # writeLines("while [[ $(qstat -u $USER | grep \"" , outfileprefix, "_bootstrap_job\" | wc -l) -gt 0 ]]; do", con)
-    # writeLines("  sleep 60  # Wait for 60 seconds before checking again", con)
-    # writeLines("done", con)
-    # writeLines("", con)
-    # 
-    # writeLines("# Delete bootstrap*.nex files after job completion", con)
-    # writeLines("rm -f bootstrap*.nex", con)
-    # writeLines("echo \"Deleted all bootstrap Nexus files.\"", con)
-    # 
-    # # Close the file connection
-    # close(con)
-    # 
-    # # Optional verbosity message
-    # if (verbose > 2) {
-    #   cat(report("  Generator bash script", outfilespec5, "written to generate and submit PAUP bootstrap tree jobs on",server,"\n"))
-    # }
-    # 
     ###### WRITE THE SCRIPT TO CALCULATE THE CONSENSUS TREE
 
     outfilespec4 <- paste0("generator_", outfileprefix, "_consensus.sh")
@@ -547,54 +426,48 @@ gl2paup.parsimony <- function(x,
     con <- file(outfilespec4, open = "wb")
 
     # PBS job settings
-    writeLines("#!/bin/bash\n", con)
-    writeLines("#PBS -P xl04\n", con)
-    writeLines("#PBS -q normal\n", con)
-    writeLines("#PBS -l ncpus=48\n", con)
-    writeLines("#PBS -l mem=190GB\n", con)
-    writeLines("#PBS -l walltime=10:00:00\n", con)
-    writeLines("#PBS -j oe\n", con)
-    writeLines("#PBS -N paup_consensus_job\n", con)
+    writeLines("#PBS -P xl04", con)
+    writeLines("#PBS -q normal", con)
+    writeLines(paste0("#PBS -l ncpus=",ncpus), con)
+    writeLines(paste0("#PBS -l mem=",mem,"GB"), con)
+    writeLines("#PBS -l walltime=48:00:00", con)
+    writeLines("#PBS -j oe", con)
+    writeLines(paste0("#PBS -o ",base.dir.name,"/pbslogs"), con)
+    writeLines(paste0("#PBS -N ", outfileprefix, "_bootstrap_job${i}"), con)  # No escaping needed
     writeLines("#PBS -l storage=gdata/xl04+gdata/if89\n", con)
-    writeLines("\n", con)  # Blank line
 
     writeLines("module load paup\n", con)
-    writeLines("\n", con)  # Blank line
 
     # Navigate to working directory
-    writeLines("cd /g/data/xl04/bpadata/\n", con)
-    writeLines("\n", con)  # Blank line
+    writeLines(paste0("cd ",base.dir.name,"\n"), con)
 
     # Create PAUP Nexus file dynamically using a Bash loop
-    writeLines("echo 'begin paup;' > final_consensus.nex\n", con)
-    writeLines("echo 'log file=consensus.log;' >> final_consensus.nex\n", con)
-    writeLines("echo 'set criterion=parsimony;' >> final_consensus.nex\n", con)
-    writeLines("echo '' >> final_consensus.nex\n", con)
-    writeLines("echo 'set storebrlens=yes;' >> final_consensus.nex\n", con)
-    writeLines("echo 'set increase=auto;' >> final_consensus.nex\n", con)
+    writeLines("echo 'begin paup;' > final_consensus.nex", con)
+    writeLines("echo 'log file=consensus.log;' >> final_consensus.nex", con)
+    writeLines("echo 'set criterion=parsimony;' >> final_consensus.nex", con)
+    writeLines("echo '' >> final_consensus.nex", con)
+    writeLines("echo 'set storebrlens=yes;' >> final_consensus.nex", con)
+    writeLines("echo 'set increase=auto;' >> final_consensus.nex", con)
     writeLines("echo '[Load all bootstrap trees dynamically]' >> final_consensus.nex\n", con)
 
     # Loop over existing bootstrap trees and append to PAUP file
-    writeLines("for file in bootstrap*.tre; do\n", con)
-    writeLines("  if [[ -f \"$file\" ]]; then\n", con)
-    writeLines("    echo \"gettrees file=$file mode=7;\" >> final_consensus.nex\n", con)
-    writeLines("  fi\n", con)
+    writeLines("for file in bootstrap*.tre; do", con)
+    writeLines("  if [[ -f \"$file\" ]]; then", con)
+    writeLines("    echo \"gettrees file=$file mode=7;\" >> final_consensus.nex", con)
+    writeLines("  fi", con)
     writeLines("done\n", con)
-    writeLines("\n", con)  # Blank line
 
     # Add consensus command to PAUP script
-    writeLines("echo '' >> final_consensus.nex\n", con)
-    writeLines("echo '[Calculate majority-rule consensus tree with bootstrap values]' >> final_consensus.nex\n", con)
-    writeLines("echo 'contree all / strict=no majrule=yes percent=50 treefile=final_consensus.nwk format=newick replace;' >> final_consensus.nex\n", con)
-    writeLines("echo '' >> final_consensus.nex\n", con)
-    writeLines("echo 'log stop;' >> final_consensus.nex\n", con)
-    writeLines("echo 'quit;' >> final_consensus.nex\n", con)
+    writeLines("echo '' >> final_consensus.nex", con)
+    writeLines("echo '[Calculate majority-rule consensus tree with bootstrap values]' >> final_consensus.nex", con)
+    writeLines("echo 'contree all / strict=no majrule=yes percent=50 treefile=final_consensus.nwk format=newick replace;' >> final_consensus.nex", con)
+    writeLines("echo '' >> final_consensus.nex", con)
+    writeLines("echo 'log stop;' >> final_consensus.nex", con)
+    writeLines("echo 'quit;' >> final_consensus.nex", con)
     writeLines("echo 'end;' >> final_consensus.nex\n", con)
-    writeLines("\n", con)  # Blank line
 
     # Run PAUP with the generated consensus Nexus file
     writeLines("/g/data/if89/apps/paup/4a168/paup -n final_consensus.nex\n", con)
-    writeLines("\n", con)  # Blank line
 
     writeLines("echo 'Consensus tree computation completed successfully'\n", con)
 
