@@ -42,7 +42,7 @@ utils.collapse.matrix <- function(D,
   
   # CHECK DATATYPE
   datatype1 <-
-    utils.check.datatype(x, accept = c("SNP","silicodart"),verbose = verbose)
+    utils.check.datatype(x, accept = c("SNP","SilicoDArT"),verbose = verbose)
   
   if (!is(x, "dartR")) {
     class(x) <- "dartR"  
