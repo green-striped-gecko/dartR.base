@@ -136,7 +136,9 @@
 #' To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
 #' observed heterozygosity estimates, the function subsamples individuals,
 #'  without replacement. The subsampling is repeated 10 times for each sample
-#'   size n. This approach is an implementation of Schmidt et al (2021). 
+#'   size n. This approach is not an implementation of Schmidt et al (2021). 
+#'   Please refer to this paper for additional complexities in estimating
+#'   heterozygosity using SNP data.
 #'  
 #'   \strong{Error bars}
 #'  
