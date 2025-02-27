@@ -314,19 +314,6 @@ bootstrap confidence interval or removing or transforming the outliers or
     amount of processing time, therefore parallelisation in Windows machines
    is only quicker than not using parallelisation when nboots > 1000-2000.
 }
-\examples{
- \donttest{
-require("dartR.data")
-df <- gl.report.polyploid_heterozygosity(platypus.gl)
-df <- gl.report.polyploid_heterozygosity(platypus.gl,method='ind')
-n.inv <- gl.report.secondaries(platypus.gl)
-gl.report.polyploid_heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
-gl.report.polyploid_heterozygosity(platypus.gl, subsample.pop = TRUE)
-# to calculate on polyploid data
-obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv", mode="dosage")
-df <- gl.report.polyploid_heterozygosity(obj)
-}
-}
 \references{
 \itemize{
 \item Moody, M. E., Mueller, L. D., & Soltis, D. E. (1993). 

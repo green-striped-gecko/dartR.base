@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.dist.pop.r
 \name{gl.dist.pop}
 \alias{gl.dist.pop}
-\title{Calculates a distance matrix for populations with SNP genotypes in a
+\title{Calculates a distance matrix for populations with SNP or Silicodart genotypes in a
  genlight object}
 \usage{
 gl.dist.pop(
@@ -20,7 +20,7 @@ gl.dist.pop(
 )
 }
 \arguments{
-\item{x}{Name of the genlight containing [required].}
+\item{x}{Name of the genlight object [required].}
 
 \item{as.pop}{Temporarily assign another locus metric as the population for
 the purposes of deletions [default NULL].}
@@ -30,7 +30,7 @@ the purposes of deletions [default NULL].}
 \item{scale}{If TRUE and method='Euclidean', the distance will be scaled to 
 fall in the range [0,1] [default FALSE].}
 
-\item{type}{Specify the type of output, dist or matrix [default dist]}
+\item{type}{Specify the type of output, dist or matrix [default 'dist']}
 
 \item{plot.display}{If TRUE, resultant plots are displayed in the plot window
 [default TRUE].}
@@ -58,8 +58,8 @@ This script calculates various distances between populations based on allele
 frequencies (SNP genotypes) or frequency of presences in PA (SilicoDArT) data
 }
 \details{
-The distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
-'nei' and 'chord'. Refer to the documentation of functions in
+For SNP data, the distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
+'nei' and 'chord'. For SilicoDArT data, the distance measure can be one of 'Refer to the documentation of functions in
   https://doi.org/10.1101/2023.03.22.533737 for algorithms
   and definitions.
 }

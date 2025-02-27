@@ -46,6 +46,7 @@ Kamvar, Z. N., & Tabima, J. F. (2023). Package 'vcfR'.
 Other utilities: 
 \code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
+\code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},

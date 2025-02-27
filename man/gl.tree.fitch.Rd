@@ -89,8 +89,9 @@ in the tree and plots these on the tree.
 
 \dontrun{
 tmp <- gl.filter.monomorphs(testset.gl)
-gl.phylip(x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
-node.label.cex=0.5,terminal.label.cex=0.6,global.rearrange = FALSE, bstrap=100)
+D <- gl.dist.phylo(testset.gl,subst.model="F81")
+gl.phylip(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
+node.label.cex=0.5,terminal.label.cex=0.6,global.rearrange = FALSE, bstrap=10)
 }
 
 

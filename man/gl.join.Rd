@@ -4,12 +4,15 @@
 \alias{gl.join}
 \title{Combines two dartR genlight objects}
 \usage{
-gl.join(x1, x2, verbose = NULL)
+gl.join(x1, x2, method = "sidebyside", verbose = NULL)
 }
 \arguments{
 \item{x1}{Name of the first genlight object [required].}
 
 \item{x2}{Name of the first genlight object [required].}
+
+\item{method}{If method='sidebyside' then combine the two by bringing the loci together against the same set of individuals;
+If method='end2end' then combine the two by bringing two sets of individuals together against the same set of loci [default 'sidebyside']}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -28,6 +31,13 @@ where the files have been split because of size limitations. The data is read
 in from multiple csv files, then the resultant genlight objects are combined.
 This function works with both SNP and Tag P/A data.
 }
+\details{
+This script joins two genlight objects together along with the associated metadata. if method='sidebyside' (the default), the individuals 
+in the two genlight objects must be the same and in the same order. The loci are combined.
+
+If method='end2end', the loci in the two genlight objects must be the same and in the same order. The data for the two sets of individuals
+are combined. Note that if two individuals have the same names, they will be made unique.#'
+}
 \examples{
 x1 <- testset.gl[,1:100]
 x1@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
@@ -37,6 +47,15 @@ x2@other$loc.metrics <-  testset.gl@other$loc.metrics[101:150,]
 nLoc(x2)
 gl <- gl.join(x1, x2, verbose=2)
 nLoc(gl)
+
+x1 <- testset.gl[,1:100]
+x1@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
+nLoc(x1)
+x2 <- testset.gl[,1:100]
+x2@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
+nLoc(x2)
+gl <- gl.join(x1, x2, method="end2end", verbose=2)
+nInd(gl)
 
 }
 \seealso{

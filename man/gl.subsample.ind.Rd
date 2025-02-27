@@ -10,6 +10,7 @@ gl.subsample.ind(
   replace = TRUE,
   by.pop = TRUE,
   error.check = TRUE,
+  mono.rm = FALSE,
   verbose = NULL
 )
 }
@@ -21,9 +22,13 @@ gl.subsample.ind(
 
 \item{replace}{If TRUE, sampling is with replacement [default TRUE]}
 
-\item{by.pop}{If FALSE, ignore population settings [default TRUE].}
+\item{by.pop}{If FALSE, ignore population settings when subsampling; if TRUE, subsample
+each population to n individuals [default TRUE].}
 
 \item{error.check}{If TRUE, will undertake error checks on input paramaters [default TRUE]}
+
+\item{mono.rm}{If TRUE and error.check is TRUE, monomorphic loci arising from the deletion of individuals
+will be filtered from the resultant genlight object [default FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
