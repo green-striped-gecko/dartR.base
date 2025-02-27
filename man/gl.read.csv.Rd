@@ -52,12 +52,6 @@ Note that the locus metadata will be complemented by calculable statistics
 corresponding to those that would be provided by Diversity Arrays Technology
 (e.g. CallRate).
 }
-\examples{
-csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
-ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
-gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
-
-}
 \seealso{
 Other io: 
 \code{\link{gl.load}()},

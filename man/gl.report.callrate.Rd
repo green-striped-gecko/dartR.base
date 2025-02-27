@@ -68,7 +68,11 @@ data. The summary is in the form of a tabulation and plots.
 
 The table of quantiles is useful for deciding a threshold for subsequent filtering
 as it provides an indication of the percentages of loci that will be retained and 
-lost. 
+lost.
+
+In the case of method='ind', a list of individuals to be deleted is provided. To
+manage the screen output, this list is limited to ind.to.list individuals (or nInd(x))
+whichever is the smaller.
 
 To avoid issues from inadvertent use of this function in an assignment statement,
 the function returns the genlight object unaltered.

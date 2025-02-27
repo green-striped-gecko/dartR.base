@@ -25,6 +25,7 @@ A utility script to flag the start of a script
 Other utilities: 
 \code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
+\code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.hamming}()},
