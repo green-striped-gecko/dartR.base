@@ -48,7 +48,7 @@ gl.filter.monomorphs <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
-    cat(warn("  Loci with all NA scores will be removed here, no action required\n"))
+    #cat(warn("  Loci with all NA scores will be removed here, no action required\n"))
     
     # DO THE JOB
     
