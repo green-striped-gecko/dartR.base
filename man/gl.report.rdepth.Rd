@@ -69,7 +69,6 @@ df <- gl.report.rdepth(testset.gs)
 \code{\link{gl.filter.rdepth}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
