@@ -130,6 +130,7 @@ Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017, 2021). Information
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.basics}()},
+\code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.polyploid_heterozygosity}()}
 }

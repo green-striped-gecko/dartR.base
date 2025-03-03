@@ -145,6 +145,7 @@ alternative to FST for quantifying genetic population differentiation. Genes,
 }
 \seealso{
 Other matched report: 
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},

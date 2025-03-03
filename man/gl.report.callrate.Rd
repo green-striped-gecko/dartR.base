@@ -103,6 +103,7 @@ specified for the plot to be saved.
 \code{\link{gl.filter.callrate}}
 
 Other matched report: 
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},

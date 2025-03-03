@@ -346,6 +346,7 @@ Other unmatched report:
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
+\code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.polyploid_heterozygosity}()}
 }
 \author{
