@@ -99,7 +99,7 @@ utils.collapse.matrix <- function(D,
     }
   }
   
-  if(class(D)=='dist'){
+  if (is(D,'dist')){
     pop.mat <- as.dist(pop.mat)
     if(verbose >= 3){cat(report("  Returning object of class 'dist'\n"))}
   }  else {

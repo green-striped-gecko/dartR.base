@@ -550,7 +550,6 @@ gl.pcoa <- function(x,
       ### Step 4: Optional Plotting ###
       if (plot) {
         # Generate a plot to visualize structured and noisy eigenvalues
-        library(ggplot2)
         p1 <- ggplot() +
           geom_point(data = struc, aes(x = index, y = eigenvalues, color = structure)) +
           geom_point(data = noise, aes(x = index, y = eigenvalues, color = structure)) +

@@ -25,8 +25,9 @@ directory or if not specified, tempdir()].}
 
 \item{method}{Method = 1, nexus file with two lines per individual; method =
 2, nexus file with one line per individual, ambiguity codes for SNP
-genotypes, 0 or 1 for presence/absence data [default 2].
-@param nbootstraps Number of bootstrap replicates [default 10000]}
+genotypes, 0 or 1 for presence/absence data [default 2].}
+
+\item{nbootstraps}{Number of bootstrap replicates [default 10000]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report

@@ -118,7 +118,7 @@ gl.report.excess.het <- function(x,
   n2 <- rowSums(gen == 2, na.rm = TRUE)
   
   fhe <- n1/(n0 + n1 + n2)
-
+  Index <- loc <-NULL
   p1 <- ggplot(data.frame(loc=fhe,Index=1:nLoc(x)), aes(x= Index,y = loc)) + 
   geom_point(fill=plot.colors[2], colour=plot.colors[1], pch=21) +
   plot.theme +

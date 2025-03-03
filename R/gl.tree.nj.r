@@ -88,7 +88,7 @@ gl.tree.nj <- function(x,
     # DO THE JOB
     
     if(by.pop==FALSE){
-      popNames(x) <- IndNames(x)
+      popNames(x) <- indNames(x)
       if (verbose >= 2) {
         cat(report("  Tree constructed for individuals\n"))
       }
