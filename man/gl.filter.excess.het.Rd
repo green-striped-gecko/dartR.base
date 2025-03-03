@@ -50,6 +50,7 @@ and conduct sex assignment. Molecular Ecology Resources.
 \code{\link{gl.filter.callrate}}
 
 Other matched report: 
+\code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
