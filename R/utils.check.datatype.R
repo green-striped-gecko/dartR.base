@@ -48,9 +48,7 @@ utils.check.datatype <- function(x,
     #### SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
-    #### CHECK THE TYPE OF OBJECT ####
-    
-    if (is(x, "genlight") |is(x, "dartR")) {
+    if (is(x, "dartR") | is(x,"genlight")) {
         if (is.null(ploidy(x))) {
             stop(
                 error(

@@ -12,12 +12,15 @@ gl.map.interactive(
   pop.labels = TRUE,
   pop.labels.cex = 12,
   ind.circles = TRUE,
-  ind.circle.cols = NULL,
+  ind.circle.cols = rainbow,
   ind.circle.cex = 10,
   ind.circle.transparency = 0.8,
   palette.links = NULL,
   legend.title = NULL,
   provider = "Esri.NatGeoWorldMap",
+  raster.image = NULL,
+  raster.opacity = 0.5,
+  raster.colors = (scales::viridis_pal(option = "D"))(255),
   verbose = NULL
 )
 }
@@ -43,15 +46,10 @@ populations [default TRUE].}
 
 \item{ind.circles}{Should individuals plotted as circles [default TRUE].}
 
-\item{ind.circle.cols}{Colors of circles. Colors can be provided as usual by 
-names (e.g. "black") and are re-cycled. So a color c("blue","red") colors 
-individuals alternatively between blue and red using the genlight object
- order of individuals. For transparency see parameter 
- ind.circle.transparency. Defaults to rainbow colors by population  if not
-  provided. If you want to have your own colors for each population, check
-   the platypus.gl example below.}
+\item{ind.circle.cols}{Colors of circles. A color palette or a vectot with
+as many colors as there are populations in the dataset [default rainbow].}
 
-\item{ind.circle.cex}{(size or circles in pixels ) [default 10].}
+\item{ind.circle.cex}{Size or circles in pixels [default 10].}
 
 \item{ind.circle.transparency}{Transparency of circles between 0=invisible 
 and 1=no transparency. Defaults to 0.8.}
@@ -63,6 +61,15 @@ and 1=no transparency. Defaults to 0.8.}
 [default NULL].}
 
 \item{provider}{Passed to leaflet [default "Esri.NatGeoWorldMap"].}
+
+\item{raster.image}{Path to a georeferenced raster image to plot 
+[default NULL].}
+
+\item{raster.opacity}{The opacity of the raster, expressed from 0 to 1 
+[default 0.5].}
+
+\item{raster.colors}{The color palette to use to color the raster values
+[default scales::viridis_pal(option = "D")(255)].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -78,19 +85,23 @@ Creates an interactive map (based on latlon) from a genlight object
 A wrapper around the \pkg{leaflet} package. For possible background 
 maps check as specified via the provider:
 \url{http://leaflet-extras.github.io/leaflet-providers/preview/index.html}
+
 The palette.links argument can be any of the following:
 A character vector of RGB or named colors. Examples: palette(), 
 c("#000000", "#0000FF", "#FFFFFF"), topo.colors(10)
+
 The name of an RColorBrewer palette, e.g. "BuPu" or "Greens".
+
 The full name of a viridis palette: "viridis", "magma", "inferno", 
 or "plasma".
+
 A function that receives a single value between 0 and 1 and returns a color.
  Examples: colorRamp(c("#000000", "#FFFFFF"), interpolate = "spline").
 }
 \examples{
 require("dartR.data")
 gl.map.interactive(bandicoot.gl)
-cols <- c("red","blue","yellow")[as.numeric(pop(platypus.gl))]
+cols <- c("red","blue","yellow")
 gl.map.interactive(platypus.gl, ind.circle.cols=cols, ind.circle.cex=10, 
 ind.circle.transparency=0.5)
 

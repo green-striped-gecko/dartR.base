@@ -1,8 +1,8 @@
 Package: dartR.base
 Type: Package
 Title: Analysing 'SNP' and 'Silicodart' Data - Basic Functions
-Version: 0.97
-Date: 2024-09-04
+Version: 1.0.2
+Date: 2025-03-03
 Authors@R: c(
             person("Bernd", "Gruber", email="bernd.gruber@canberra.edu.au", role=c("aut","cre")), 
             person("Arthur", "Georges", email="georges@aerg.edu.au", role="aut"),
@@ -82,7 +82,6 @@ Suggests:
     shinythemes,
     shinyWidgets,
     SIBER,
-    snpStats,
     stringi,
     terra,
     tibble,

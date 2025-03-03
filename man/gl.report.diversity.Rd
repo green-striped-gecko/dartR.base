@@ -8,11 +8,9 @@ gl.report.diversity(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  library = NULL,
-  palette = NULL,
+  plot.colors.pop = gl.colors("dis"),
   plot.dir = NULL,
   plot.file = NULL,
-  pbar = TRUE,
   table = "DH",
   verbose = NULL
 )
@@ -21,21 +19,20 @@ gl.report.diversity(
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{plot.display}{Specify if plot is to be displayed in the graphics window [default TRUE].}
+\item{plot.display}{Specify if plot is to be displayed in the graphics 
+window [default TRUE].}
 
 \item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{library}{Name of the color library to be used [default scales::hue_pl].}
-
-\item{palette}{Name of the color palette to be pulled from the specified library [default is library specific].}
+\item{plot.colors.pop}{A color palette for population plots or a list with
+as many colors as there are populations in the dataset
+[default gl.colors("dis")].}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()]}
+by the global working directory or tempdir()].}
 
 \item{plot.file}{If TRUE, saves any ggplots and listings to the session
 temporary directory (tempdir) [default FALSE].}
-
-\item{pbar}{Report on progress. Silent if set to FALSE [default TRUE].}
 
 \item{table}{Prints a tabular output to the console either 'D'=D values, or
 'H'=H values or 'DH','HD'=both or 'N'=no table. [default 'DH'].}
@@ -108,13 +105,15 @@ matrix.
  If plot.file is specified, plots are saved to the directory specified by the user, or the global
  default working directory set by gl.set.wd() or to the tempdir().
 
- Examples of other themes that can be used can be consulted in \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
+ Examples of other themes that can be used can be consulted in 
+ \itemize{
+ \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and 
+ \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
 }
 \examples{
-div <- gl.report.diversity(bandicoot.gl,library='brewer', table=FALSE,pbar=FALSE)
+div <- gl.report.diversity(bandicoot.gl, table=FALSE)
 div$zero_H_alpha
 div$two_H_beta
 names(div)
@@ -130,6 +129,7 @@ Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017, 2021). Information
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.basics}()},
+\code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.polyploid_heterozygosity}()}
 }

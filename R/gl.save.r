@@ -34,7 +34,7 @@ gl.save <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "Jody",
+                     build = "v.2024.1",
                      verbose = verbose)
     
     # CHECK DATATYPE
@@ -45,7 +45,8 @@ gl.save <- function(x,
     attributes(class(x))<- list(package="dartR.base")
     
     saveRDS(x, file)
-    cat(report("  Saved object of type", datatype, "to", file, "\n"))
+    cat(report("  Saved object of type", datatype, "to a compressed RDA file\n"))
+    cat(report("  Load again using function gl.load\n"))
     
     # FLAG SCRIPT END
     

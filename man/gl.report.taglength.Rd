@@ -72,6 +72,7 @@ out <- gl.report.taglength(testset.gl)
 \code{\link{gl.filter.taglength}}
 
 Other matched report: 
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},

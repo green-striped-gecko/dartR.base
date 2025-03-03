@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.dist.phylo.r
 \name{gl.dist.phylo}
 \alias{gl.dist.phylo}
-\title{Generates a distance matrix taking into account a substitution model}
+\title{Generates a distance matrix from a SNP genlight object taking into account a substitution model}
 \usage{
 gl.dist.phylo(
   xx,

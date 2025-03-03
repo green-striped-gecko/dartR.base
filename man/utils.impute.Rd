@@ -25,6 +25,7 @@ WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END
 Other utilities: 
 \code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
+\code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},

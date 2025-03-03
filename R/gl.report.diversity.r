@@ -11,14 +11,16 @@
 
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
-#' @param plot.display Specify if plot is to be displayed in the graphics window [default TRUE].
+#' @param plot.display Specify if plot is to be displayed in the graphics 
+#' window [default TRUE].
 #' @param plot.theme User specified theme [default theme_dartR()].
-#' @param library Name of the color library to be used [default scales::hue_pl].
-#' @param palette Name of the color palette to be pulled from the specified library [default is library specific].
+#' @param plot.colors.pop A color palette for population plots or a list with
+#' as many colors as there are populations in the dataset
+#' [default gl.colors("dis")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()]
-#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
-#' @param pbar Report on progress. Silent if set to FALSE [default TRUE].
+#' by the global working directory or tempdir()].
+#' @param plot.file Filename (minus extension) for the RDS plot file 
+#' [Required for plot save].
 #' @param table Prints a tabular output to the console either 'D'=D values, or
 #'  'H'=H values or 'DH','HD'=both or 'N'=no table. [default 'DH'].
 #' @param plot.file If TRUE, saves any ggplots and listings to the session
@@ -79,8 +81,10 @@
 #'  If plot.file is specified, plots are saved to the directory specified by the user, or the global
 #'  default working directory set by gl.set.wd() or to the tempdir().
 #' 
-##'  Examples of other themes that can be used can be consulted in \itemize{
-#'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
+##'  Examples of other themes that can be used can be consulted in 
+##'  \itemize{
+#'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and 
+#'  \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
@@ -88,7 +92,7 @@
 #'  Contributors: William B. Sherwin, Alexander Sentinella
 
 #' @examples
-#' div <- gl.report.diversity(bandicoot.gl,library='brewer', table=FALSE,pbar=FALSE)
+#' div <- gl.report.diversity(bandicoot.gl, table=FALSE)
 #' div$zero_H_alpha
 #' div$two_H_beta
 #' names(div)
@@ -112,11 +116,9 @@
 gl.report.diversity <- function(x,
                                 plot.display = TRUE,
                                 plot.theme = theme_dartR(),
-                                library = NULL,
-                                palette =NULL,
+                                plot.colors.pop = gl.colors("dis"), 
                                 plot.dir = NULL,
                                 plot.file = NULL,
-                                pbar = TRUE,
                                 table = "DH",
                                 verbose = NULL) {
     # SET VERBOSITY
@@ -143,12 +145,6 @@ gl.report.diversity <- function(x,
     # split in pops
     pops <- seppop(x)
     
-    if (pbar) {
-        pb <- txtProgressBar(0, 8, style = 3, width = 20)
-        if (verbose >= 2) {
-            cat(report(" Counting missing loci...           "))
-        }
-    }
     # number of missing loci
     nlocpop <-
         lapply(pops, function(x)
@@ -156,13 +152,6 @@ gl.report.diversity <- function(x,
                 as.matrix(x), na.rm = T
             ))))
     
-    if (pbar) {
-        setTxtProgressBar(pb, 1)
-        if (verbose >= 2) {
-            cat(report(" Calculating zero_H/D_alpha ...           "))
-        }
-        ## 0Halpha (average number of alleles, ignoring missing values and sd)
-    }
     zero_H_alpha_es <- lapply(pops, function(x) {
         dummys <- ((colMeans(as.matrix(x), na.rm = T) %% 2) > 0) + 1 - 1
         return(list(
@@ -185,12 +174,6 @@ gl.report.diversity <- function(x,
         unlist(lapply(zero_H_alpha_es, function(x)
             x[[4]]))
     
-    if (pbar) {
-        setTxtProgressBar(pb, 2)
-        if (verbose >= 2) {
-            cat(report(" Calculating one_H/D_alpha ...          "))
-        }
-    }
     ### one_H_alpha
     shannon <- function(x) {
         x <- x[x > 0]
@@ -240,13 +223,6 @@ gl.report.diversity <- function(x,
         unlist(lapply(one_H_alpha_es, function(x)
             x[[4]]))
     
-    if (pbar) {
-        setTxtProgressBar(pb, 3)
-        if (verbose >= 2) {
-            cat(report(" Calculating two_H/D_alpha ...           "))
-        }
-    }
-    
     # two_H_alpha
     two_H_alpha_es <- lapply(pops, function(x) {
         p <- colMeans(as.matrix(x), na.rm = T) / 2
@@ -282,12 +258,7 @@ gl.report.diversity <- function(x,
     npops <- length(pops)
     
     if (npops > 1) {
-        if (pbar) {
-            setTxtProgressBar(pb, 4)
-            if (verbose >= 2) {
-                cat(report(" Counting pairwise missing loci..."))
-            }
-        }
+
         pairs <- t(combn(npops, 2))
         ### pairwise missing loci
         nlocpairpop <- apply(pairs, 1, function(x) {
@@ -303,12 +274,6 @@ gl.report.diversity <- function(x,
         colnames(mat_nloc_pops) <-
             rownames(mat_nloc_pops) <- names(pops)
         
-        if (pbar) {
-            setTxtProgressBar(pb, 5)
-            if (verbose >= 2) {
-                cat(report(" Calculating zero_H/D_beta ...         "))
-            }
-        }
         # zero_H_beta
         zero_H_beta_es <- apply(pairs, 1, function(x) {
             pop1 <- pops[[x[1]]]
@@ -362,13 +327,6 @@ gl.report.diversity <- function(x,
         colnames(mat_zero_D_beta) <-
             rownames(mat_zero_D_beta) <- names(pops)
         
-        if (pbar) {
-            setTxtProgressBar(pb, 6)
-            if (verbose >= 2) {
-                cat(report(" Calculating one_H/D_beta ...    "))
-            }
-        }
-        
         # one_H_beta calculate one_H_alpha_all for combined pops
         p <- colMeans(as.matrix(x), na.rm = TRUE) / 2
         # ignore loci with just missing data
@@ -418,11 +376,6 @@ gl.report.diversity <- function(x,
         mat_one_D_beta[pairs] <- one_D_beta_sd
         colnames(mat_one_D_beta) <-
             rownames(mat_one_D_beta) <- names(pops)
-        
-        if (pbar) {
-            setTxtProgressBar(pb, 7)
-            cat(report(" Calculating two_H/D_beta...    "))
-        }
         
         p <- colMeans(as.matrix(x), na.rm = TRUE) / 2
         #ignore loci with just missing data
@@ -481,11 +434,6 @@ gl.report.diversity <- function(x,
             rownames(mat_two_D_beta) <- names(pops)
     }
     
-    if (pbar) {
-        setTxtProgressBar(pb, 8)
-        cat(report(" Done.                               "))
-    }
-    
     # PRINTING OUTPUTS
     
     # spectrumplot
@@ -509,14 +457,14 @@ gl.report.diversity <- function(x,
     if(plot.display){
     
     # printing plots and reports assigning colors to populations
-    # if (is(plot.colors, "function")) {
-    #     colors_pops <- plot.colors(length(levels(pop(x))))
-    # }
-    # 
-    # if (!is(plot.colors, "function")) {
-    #     colors_pops <- plot.colors
-    # }
-     colors_pops <- gl.select.colors(x=x,library=library,palette=palette,verbose=0)
+    if (is(plot.colors.pop, "function")) {
+        colors_pops <- plot.colors.pop(length(levels(pop(x))))
+    }
+
+    if (!is(plot.colors.pop, "function")) {
+        colors_pops <- plot.colors.pop
+    }
+     # colors_pops <- gl.select.colors(x=x,library=library,palette=palette,verbose=0)
     
     p3 <-
         ggplot(fs_final, aes(x = pop, y = value, fill = pop)) + 

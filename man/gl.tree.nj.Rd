@@ -8,6 +8,8 @@ gl.tree.nj(
   x,
   dist.matrix = NULL,
   method = "nj",
+  by.pop = TRUE,
+  as.pop = NULL,
   type = "phylogram",
   outgroup = NULL,
   labelsize = 0.7,
@@ -21,6 +23,11 @@ gl.tree.nj(
 \item{dist.matrix}{Distance matrix [default NULL].}
 
 \item{method}{Clustering method -- nj, neighbor-joining tree; UGPMA, UGPMA tree [default 'nj'].}
+
+\item{by.pop}{If TRUE, populations are the terminal taxa; if FALSE, individuals are the terminal taxa [default TRUE]}
+
+\item{as.pop}{Assign another ind.metric as the population for
+the purposes of displaying more informative tip labels [default NULL].}
 
 \item{type}{Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
 [default "phylogram"].}

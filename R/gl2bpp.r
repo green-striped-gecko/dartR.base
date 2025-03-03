@@ -24,6 +24,8 @@
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method One of 1 | 2, see details [default = 1].
+#' @param merge.secondaries Logical, if TRUE, secondary loci are merged into a 
+#' single sequence [default = FALSE].
 #' @param outfile Name of the saved sequence alignment file ["output_bpp.txt"].
 #' @param imap Name of the saved Imap file ["Imap.txt"].
 #' @param outpath Path where to save the output file [default global working 
@@ -73,6 +75,7 @@
 
 gl2bpp <- function(x,
                    method = 1,
+                   merge.secondaries = FALSE,
                    outfile = "output_bpp.txt", 
                    imap = "Imap.txt",
                    outpath = NULL,
@@ -158,6 +161,12 @@ gl2bpp <- function(x,
   }
   x <- gl.filter.overshoot(x, verbose = 0)
   
+  #sort loci by snp position in case there are secondaries to be merged
+  
+  x <- x[,order(x@position)]
+  
+  
+
   # METHOD = AMBIGUITY CODES
   
   if (method == 1) {
@@ -352,6 +361,98 @@ gl2bpp <- function(x,
       sink()
       
     }
+  
+  # merge secondaries
+  if (merge.secondaries) {
+    
+    
+    
+    if (verbose >= 2) {
+      cat(report(
+        paste(
+          "  Merging secondary alleles\n"
+        )
+      ))
+    }
+    #load bpp file
+    con <- file(outfilespec, "r")
+    
+    bppf <- trimws(readLines(con))
+    close(con)
+    
+    b2 <- bppf
+    
+    
+    a <- strsplit(as.character(x@other$loc.metrics$AlleleID), "\\|")
+    cloneid <- unlist(lapply(a, "[",1))
+    tc <- table(cloneid)
+    sn <- names(tc[tc > 1])
+
+    if (length(sn)>0) {    
+    for (xx in 1:length(sn))
+    {
+    dell <- NULL
+    ssl <- NA
+    cc <- 1
+    
+    a <- strsplit(b2, "-")
+    bb2 <- unlist(lapply(a, "[",1))
+      
+    sl <- which(bb2 == sn[xx])
+    
+    ll <- b2[sl]
+    
+    #find
+    allindslocs <- b2[sl]
+    
+    #go over all individuals
+    indsbpp <- str_extract(ll, "(?<=\\^)[^ ]+")
+    pos <- str_extract(ll, "(?<=-)[0-9]+(?=-)")
+    sequence <- str_match(ll, "\\^\\S+\\s([A-Z]+)$")[, 2]
+    
+
+    for (i in 1:nInd(x)) {
+    
+      index <- which(indsbpp %in% indNames(x)[i])
+      lines <- ll[index]
+      snppos <- as.numeric(pos[index])+1
+      seq <- substr(sequence[index][1],1,snppos[1])
+      
+      
+      for (ii in 2:length(index))
+      {
+        seq <- paste0(seq, substr(sequence[index][ii],snppos[ii-1]+1,snppos[ii]))
+      }
+      #fill in the rest...
+      seq <- paste0(seq,substr(sequence[index][ii],snppos[ii-1]+1,nchar(sequence[index][ii])))
+      #now combine and erase the lines 
+
+      ssl[cc] <- paste0("sec-", strsplit(bppf[sl[index][1]]," ")[[1]][1]," ", seq)
+      cc <- cc+1
+    }
+    b2[sl[1:nInd(x)]] <- ssl
+    
+    #delete the others (and the first line)
+    dell <- sl[-c(1:nInd(x))]
+    dell <- c(min(dell)-1, dell)  #add the first line
+    
+    b2 <- b2[-dell] 
+    
+    
+    
+    }
+    
+    
+    
+    con <- file(paste0(outfilespec), "w")
+    writeLines(b2, con = con)
+    close(con)
+   
+    
+    } #if length sn > 0 
+  } # if merge.secondaries
+  
+  
     
     # Imap file
     sink(outfilespec_imap)

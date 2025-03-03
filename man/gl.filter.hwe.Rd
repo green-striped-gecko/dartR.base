@@ -23,8 +23,9 @@ gl.filter.hwe(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{subset}{Way to group individuals to perform H-W tests. Either a vector
-with population names, 'each', 'all' (see details) [default 'each'].}
+\item{subset}{Whether to perform H-W tests within each population ("each"), 
+or taking all individuals as one population ("all") (see details) 
+[default 'each'].}
 
 \item{n.pop.threshold}{The minimum number of populations where the same locus 
 has to be out of H-W proportions to be removed [default 1].}
