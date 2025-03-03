@@ -159,6 +159,12 @@ gl.report.maf <- function(x,
   
   # Separate the populations into a list
   pops_maf <- seppop(x)
+  #remove populations with only one individual
+  drop_pop <- which(lapply(pops_maf,nInd) == 1)
+  if(length(drop_pop)>0){
+    pops_maf <-  pops_maf[-drop_pop]
+    cat(warn("  Population with one individual were ignored in this analysis:", drop_pop, "\n"))
+  }
   # Define a function to calculate MAF for each population
   tmpfun <- function(z) {
     z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)

@@ -39,7 +39,11 @@
 #' 
 #' The table of quantiles is useful for deciding a threshold for subsequent filtering
 #' as it provides an indication of the percentages of loci that will be retained and 
-#' lost. 
+#' lost.
+#' 
+#' In the case of method='ind', a list of individuals to be deleted is provided. To
+#' manage the screen output, this list is limited to ind.to.list individuals (or nInd(x))
+#' whichever is the smaller.
 #' 
 #' To avoid issues from inadvertent use of this function in an assignment statement,
 #' the function returns the genlight object unaltered.
@@ -124,12 +128,23 @@ gl.report.callrate <- function(x,
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
   
+  if (!is(x, "dartR")) {
+    class(x) <- "dartR"  
+    if (verbose>2) {
+      cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+      cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+    }
+  }
+  
   # FUNCTION SPECIFIC ERROR CHECKING
   
   # Ib case the call rate is not up to date, recalculate
 
   x <- utils.recalc.callrate(x, verbose = 0)
   if(verbose==0){plot.display <- FALSE}
+  
+  ind.to.list=min(ind.to.list,nInd(x))
 
   # DO THE JOB -------------------------
   ########### FOR METHOD BASED ON LOCUS ----------------
@@ -150,6 +165,33 @@ gl.report.callrate <- function(x,
     cat("    Missing Rate Overall: ", round(sum(is.na(
       as.matrix(x)
     )) / (nLoc(x) * nInd(x)), 4), "\n\n")
+    
+    # Determine the loss of loci for a given threshold using quantiles
+    quantile_res <- quantile(callrate, probs = seq(0, 1, 1 / 20),type=1,na.rm = TRUE)
+    retained <- unlist(lapply(quantile_res, function(y) {
+      res <- length(callrate[callrate >= y])
+    }))
+    pc.retained <- round(retained * 100 / nLoc(x), 1)
+    filtered <- nLoc(x) - retained
+    pc.filtered <- 100 - pc.retained
+    df <-
+      data.frame(as.numeric(sub("%", "", names(quantile_res))),
+                 quantile_res,
+                 retained,
+                 pc.retained,
+                 filtered,
+                 pc.filtered)
+    colnames(df) <-
+      c("Quantile",
+        "Threshold",
+        "Retained",
+        "Percent",
+        "Filtered",
+        "Percent")
+    df <- df[order(-df$Quantile), ]
+    df$Quantile <- paste0(df$Quantile, "%")
+    rownames(df) <- NULL
+    print(df)
     
     # Prepare the plots ------------------------
     # get title for plots
@@ -230,10 +272,12 @@ gl.report.callrate <- function(x,
     
     ind.means <- as.data.frame(ind.means)
     ind.means$Individual <- rownames(ind.means)
-    names(ind.means) <- c("CallRate","Individual")
+   # ind.means$Population <- pop(x)[indNames(x) %in% ind.means$Individual]
+    ind.means$Population <- pop(x)
+    names(ind.means) <- c("CallRate","Individual","Population")
     ind.means <- ind.means[order(ind.means$CallRate), ]
     rownames(ind.means) <- NULL
-    ind.means <- ind.means[, c("Individual","CallRate")] 
+    ind.means <- ind.means[, c("Individual","Population","CallRate")] 
       cat(report("Listing",ind.to.list,"individuals with the lowest CallRates\n"))
       cat(report("  Use this list to see which individuals will be lost on filtering by individual\n"))
       cat(report("  Set ind.to.list parameter to see more individuals\n"))

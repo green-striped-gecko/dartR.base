@@ -90,15 +90,27 @@ gl.filter.rdepth <-  function(x,
     
     # FUNCTION SPECIFIC ERROR CHECKING
     
+    if (datatype == "SilicoDArT") {
+      if (!is.null(x@other$loc.metrics$AvgReadDepth)) {
+        rdepth <- x@other$loc.metrics$AvgReadDepth
+      } else {
+        stop(error(
+          "Fatal Error: Read depth not included among the locus metrics"
+        ))
+      }
+    } else if (datatype == "SNP") {
+      if (!is.null(x@other$loc.metrics$rdepth)) {
+        rdepth <- x@other$loc.metrics$rdepth
+      } else {
+        stop(error(
+          "Fatal Error: Read depth not included among the locus metrics"
+        ))
+      }
+    }
+    
     # DO THE JOB
     
     n0 <- nLoc(x)
-    
-    if (datatype == "SilicoDArT") {
-        rdepth <- x@other$loc.metrics$AvgReadDepth
-    } else if (datatype == "SNP") {
-        rdepth <- x@other$loc.metrics$rdepth
-    }
     
     # Remove SNP loci with rdepth < threshold
     

@@ -42,10 +42,11 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-#' @examples
-#' csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
-#' ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
-#' gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
+# @examples
+#Taken out, will not build
+# csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
+# ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
+# gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
 #' 
 #' @export
 #' @return A genlight object with the SNP data and associated metadata included.
@@ -223,9 +224,11 @@ gl.read.csv <- function(filename,
         s1 <- paste(data, collapse = " ")
         s2 <- unlist(strsplit(s1, " "))
         tmp <- table(s2)
-        if (!(names(tmp) == "0" ||
-              names(tmp) == "1" ||
-              names(tmp) == "2" || names(tmp) == "NA")) {
+        if ( any(names(tmp) %in% c("0","1","2","NA"))==FALSE){
+          # !(names(tmp) == "0" ||
+          #     names(tmp) == "1" ||
+          #     names(tmp) == "2" ||
+          #     names(tmp) == "NA")) {
             cat(
                 error(
                     "Fatal Error: Genotypes must be defined by the numbers 0, 1, 2 or missing NA\n"

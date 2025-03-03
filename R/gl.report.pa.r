@@ -1,7 +1,7 @@
 #' @name gl.report.pa
 #' @title Reports private alleles (and fixed alleles) per pair of populations
 #' @family matched report
-
+#' 
 #' @description
 #' This function reports private alleles in one population compared with a
 #' second population, for all populations taken pairwise. It also reports a
@@ -16,14 +16,9 @@
 #' compare each population against the rest 'one2rest' [default 'pairwise'].
 #' @param loc.names Whether names of loci with private alleles and fixed 
 #' differences should reported. If TRUE, loci names are reported using a list
-#' @param test.asym bootstrap test for significant differences of private alleles. 
-#' This test uses a bootstrap simulation by shuffling individuals between a pair
-#' of population and drawing with replacement. For each bootstrap the ratio of 
-#' private alleles is compared to the actual ratio and recorded how often it is 
-#' larger than the simulated one. If number of individuals are different between
-#'  population bootstrap is done using the smaller number of samples in both 
-#'  populations.
-#' @param test.asym.boot number of bootstraps [default 100]
+#' @param test.asym Bootstrap test for significant differences of private 
+#' alleles (see details section) [default FALSE].
+#' @param test.asym.boot Number of bootstraps [default 100].
 #'  [default FALSE].
 #' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
 #' @param matrix.pa Whether to generate a matrix of private alleles
@@ -45,30 +40,30 @@
 #' @details
 #' Note that the number of paired alleles between two populations is not a
 #' symmetric dissimilarity measure.
-
+#' 
 #' If no x2 is provided, the function uses the pop(gl) hierarchy to determine
 #' pairs of populations, otherwise it runs a single comparison between x and
 #' x2.
-
+#' 
 #'\strong{Hint:} in case you want to run comparisons between individuals
 #'(assuming individual names are unique), you can simply redefine your
 #'population names with your individual names, as below:
-
+#'
 #' \code{pop(gl) <- indNames(gl)}
-
+#' 
 #'\strong{ Definition of fixed and private alleles }
-
+#'
 #' The table below shows the possible cases of allele frequencies between
 #' two populations (0 = homozygote for Allele 1, x = both Alleles are present,
 #' 1 = homozygote for Allele 2).
-
+#' 
 #'\itemize{
 #'\item p: cases where there is a private allele in pop1 compared to pop2 (but
-#' not vice versa)
+#' not viceversa)
 #'\item f: cases where there is a fixed allele in pop1 (and pop2, as those cases
 #'are symmetric)
 #'}
-
+#'
 #'\tabular{ccccc}{
 #'\tab \tab \tab \emph{pop1} \tab \cr
 #'\tab \tab \strong{0} \tab   \strong{x}  \tab  \strong{1}\cr
@@ -76,12 +71,20 @@
 #'\emph{pop2} \tab \strong{x}\tab -  \tab- \tab -\cr
 #'\tab \strong{1} \tab p,f\tab p \tab   -\cr
 #' }
-
+#' 
 #' The absolute allele frequency difference (AFD) in this function is a simple
 #' differentiation metric displaying intuitive properties which provides a
 #' valuable alternative to FST. For details about its properties and how it is
 #' calculated see Berner (2019).
-
+#' 
+#' \strong{The Bootstrap test} for significant differences of private alleles 
+#' uses a bootstrap simulation by shuffling individuals between a pair of 
+#' populations and drawing with replacement. For each bootstrap the ratio of 
+#' private alleles is compared to the actual ratio and recorded how often it is 
+#' larger than the simulated one. If number of individuals are different between
+#'  population bootstrap is done using the smaller number of samples in both 
+#'  populations.
+#' 
 #' The function also reports an estimation of the lower bound of the number of
 #'  undetected private alleles using the Good-Turing frequency formula,
 #'  originally developed for cryptography, which estimates in an ecological 
@@ -89,16 +92,16 @@
 #'   an incomplete sample of individuals. The approach is described in Chao et 
 #'   al. (2017). For this function, the equation 2c is used. This estimate is 
 #'   reported in the output table as Chao1 and Chao2. 
-
+#'   
 #' In this function a Sankey Diagram is used to visualize patterns of private
 #' alleles between populations. This diagram allows to display flows (private
 #' alleles) between nodes (populations). Their links are represented with arcs
 #' that have a width proportional to the importance of the flow (number of
 #' private alleles).
-
+#' 
 #' if save2temp=TRUE, resultant plot(s) and the tabulation(s) are saved to the
 #' session's temporary directory.
-
+#' 
 #' @author Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
@@ -312,9 +315,9 @@ gl.report.pa <- function(x,
         p2 <- ab[(tt[1]+1):(nrow(dd)),]
         p1alf <- colMeans(p1, na.rm = T) / 2
         p2alf <- colMeans(p2, na.rm = T) / 2
-        pa_12 <- sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1))
+        pa_12 <- sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1),na.rm = T)
         p1a[bb] <- pa_12
-        pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1))
+        pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1),na.rm = T)
         p2a[bb] <- pa_21
         if (pa_21!=pa_12) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
         }
@@ -328,7 +331,7 @@ gl.report.pa <- function(x,
       
     }
     
-    if (plot.display) {
+
       mm <- matrix(0, nPop(x), nPop(x))
       
       for (i in 1:nrow(pall)){
@@ -373,6 +376,8 @@ gl.report.pa <- function(x,
       
       nodes$name <- gsub("src_", "", nodes$name)
       nodes$name <- gsub("trgt_", "", nodes$name)
+      
+      if (plot.display) {
       
       if (is.null(palette.discrete)){
          colors_pops <- gl.select.colors(x, verbose=0)
@@ -591,15 +596,16 @@ gl.report.pa <- function(x,
   
   # PRINTING OUTPUTS
   if (plot.display) {
-    if (map.interactive & method == "pairwise") {
-      labs <- popNames(x)
-      print(gl.map.interactive(x, 
-                               matrix = mm,
-                               symmetric = FALSE,
-                               provider=provider))
-    }
     # using package patchwork
     print(p3)
+  }
+  
+  if (map.interactive & method == "pairwise") {
+    labs <- popNames(x)
+    print(gl.map.interactive(x, 
+                             matrix = mm,
+                             symmetric = FALSE,
+                             provider=provider))
   }
   
   if (verbose > 0) {
@@ -646,8 +652,13 @@ gl.report.pa <- function(x,
     }
     
     if (matrix.pa == TRUE) {
-      output_list <- c(output_list,
-                       list(matrix.pa = mm))
+      if(method == "pairwise"){
+        output_list <- c(output_list,
+                         list(matrix.pa = mm))
+      }else{
+        output_list <- c(output_list,
+                         list(matrix.pa = NA))
+      }
     }
     
   }

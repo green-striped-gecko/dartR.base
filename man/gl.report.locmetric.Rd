@@ -104,6 +104,7 @@ out <- gl.report.locmetric(testset.gs,metric='AvgReadDepth')
 \code{\link{gl.filter.locmetric}}
 
 Other matched report: 
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
