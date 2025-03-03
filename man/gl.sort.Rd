@@ -2,47 +2,39 @@
 % Please edit documentation in R/gl.sort.r
 \name{gl.sort}
 \alias{gl.sort}
-\title{re-sorts genlight objects}
+\title{Sorts genlight objects}
 \usage{
 gl.sort(x, sort.by = "pop", order.by = NULL, verbose = NULL)
 }
 \arguments{
-\item{x}{Genlight object containing SNP/silicodart genotypes [required].}
+\item{x}{Genlight object containing SNP/Silicodart genotypes [required].}
 
-\item{sort.by}{Either "ind", "pop" [default "pop"].}
+\item{sort.by}{Specify to sort the genotypes by either 'ind', "pop" [default 'pop'].}
 
-\item{order.by}{Vector used to order individuals or loci. Depending on the 
-order.by parameter, this needs to be a vector of length of nPop(genlight) for
-populations or  nInd(genlight) for individuals. If not specified 
-alphabetical order of populations or individuals is used. For sort.by="ind" 
-order.by can be also a vector specifying the order for each individual
- (for example another ind.metrics)}
+\item{order.by}{Vector used to order genotypes [default NULL]}
 
-\item{verbose}{set verbosity}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+ [default NULL, unless specified using gl.set.verbosity]}
 }
 \value{
 Returns a reordered genlight object. Sorts also the ind/loc.metrics 
 and coordinates accordingly
 }
 \description{
-Often it is desirable to have the genlight object sorted individuals by 
-population names, indiviual name, for example to have a more informative 
-gl.smearplot (showing banding patterns for populations). Also sorting by 
-loci can be informative in some instances. This function provides the 
-ability to sort individuals of a genlight object by providing the order of 
-individuals or populations and also by loci metric providing the order of 
-loci. See examples below for specifics.
+This function provides the ability to sort genotypes in a genlight object by  
+individual name or population name.
 }
 \details{
-This is convenience function to facilitate sorting of individuals within the 
-genlight object. For example if you want to visualise the "band" of 
-population in a gl.smearplot then the order of individuals is important.
+This is a function to sort genotypes in a genlight object by individual name
+or population name. This will be useful if you want to visualise the structure
+across populations (bands) in a gl.smearplot; order of genotypes is important.
 
-The parameter order.by needs to be a vector of length of nPop(genlight) for
-populations or nInd(genlight) for individuals. If not specified 
-alphabetical order of populations or individuals is used. For sort.by="ind" 
-order.by can be also a vector specifying the order for each individual
- (for example another ind.metrics).
+The order.by parameter needs to be a vector upon which to effect the sort, of length of 
+nPop(gl) if sort.by is 'pop' or  nInd(gl) if sort.by is 'ind'.  For sort.by='ind' 
+order.by can be a vector such as a variable in gl@other$ind.metrics.
+
+If not specified by nominating a vector with order.by, alphabetical order of populations or individuals is used.
 }
 \examples{
 #sort by populations

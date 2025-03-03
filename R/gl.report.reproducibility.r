@@ -91,6 +91,31 @@ gl.report.reproducibility <- function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
+    if (datatype == "SilicoDArT") {
+      if (is.null(x@other$loc.metrics$Reproducibility)) {
+        stop(
+          error(
+            "Fatal Error: Dataset does not include Reproducibility among
+                    the locus metrics, cannot be calculated!"
+          )
+        )
+      }else{
+        repeatability <- x@other$loc.metrics$Reproducibility
+      }
+    }
+    if (datatype == "SNP") {
+      if (is.null(x@other$loc.metrics$RepAvg)) {
+        stop(
+          error(
+            "Fatal Error: Dataset does not include RepAvg among the 
+                    locus metrics, cannot be calculated!"
+          )
+        )
+      }else{
+        repeatability <- x@other$loc.metrics$RepAvg
+      }
+    }
+    
     # DO THE JOB
     
     ########### FOR METHOD BASED ON LOCUS
@@ -101,12 +126,6 @@ gl.report.reproducibility <- function(x,
     } else {
         title <-
             paste0("Fragment P/A data (SilicoDArT)\nRepeatability by Locus")
-    }
-    
-    if (datatype == "SNP") {
-        repeatability <- x@other$loc.metrics$RepAvg
-    } else {
-        repeatability <- x@other$loc.metrics$Reproducibility
     }
     
     repeatability_plot <- data.frame(repeatability)

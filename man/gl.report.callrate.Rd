@@ -61,16 +61,22 @@ not.
 \details{
 This function expects a genlight object, containing either SNP data or
 SilicoDArT (=presence/absence data).
+
 Callrate is summarized by locus or by individual to allow sensible decisions
 on thresholds for filtering taking into consideration consequential loss of
 data. The summary is in the form of a tabulation and plots.
 
 The table of quantiles is useful for deciding a threshold for subsequent filtering
 as it provides an indication of the percentages of loci that will be retained and 
-lost. 
+lost.
+
+In the case of method='ind', a list of individuals to be deleted is provided. To
+manage the screen output, this list is limited to ind.to.list individuals (or nInd(x))
+whichever is the smaller.
 
 To avoid issues from inadvertent use of this function in an assignment statement,
 the function returns the genlight object unaltered.
+
  
  A color vector can be obtained with gl.select.colors() and then passed to the function
  with the plot.colors parameter.
@@ -78,6 +84,7 @@ the function returns the genlight object unaltered.
 If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
 binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
 specified for the plot to be saved.
+
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
  directory; otherwise to the tempdir().
 }
@@ -104,6 +111,7 @@ specified for the plot to be saved.
 
 Other matched report: 
 \code{\link{gl.filter.excess.het}()},
+\code{\link{gl.report.allna}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},

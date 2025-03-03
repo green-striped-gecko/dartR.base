@@ -54,6 +54,27 @@ gl.filter.secondaries <- function(x,
         cat(warn("  Warning: method must be specified, set to 'random'\n"))
     }
     
+    if (datatype == "SilicoDArT") {
+      if (is.null(x@other$loc.metrics$Reproducibility)) {
+        stop(
+          error(
+            "Fatal Error: Dataset does not include Reproducibility among
+                    the locus metrics, cannot be calculated!"
+          )
+        )
+      }
+    }
+    if (datatype == "SNP") {
+      if (is.null(x@other$loc.metrics$RepAvg)) {
+        stop(
+          error(
+            "Fatal Error: Dataset does not include RepAvg among the 
+                    locus metrics, cannot be calculated!"
+          )
+        )
+      }
+    }
+    
     # DO THE JOB
     
     if (verbose > 2) {

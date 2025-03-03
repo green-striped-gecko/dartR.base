@@ -1,5 +1,5 @@
 #' @name gl.dist.phylo
-#' @title Generates a distance matrix taking into account a substitution model
+#' @title Generates a distance matrix from a SNP genlight object taking into account a substitution model
 #' 
 #' @family phylogeny
 #' 
@@ -92,12 +92,26 @@ gl.dist.phylo <- function(xx,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v2023.3",
+                   build = "v2025.1",
                    verbose = verbose)
   
   # STANDARD ERROR CHECKING
   # Check datatype
-  datatype <- utils.check.datatype(xx, verbose = verbose)
+  datatype <- utils.check.datatype(xx, accept = c("snp","silicodart"), verbose = verbose)
+  
+  if(datatype=="silicodart"){
+    cat(error("Fatal Error: Function gl.dist.phylo works only with SNP data. For SilicoDArT presence-absence data, use gl.dist.pop or gl.dist.ind\n"))
+    stop()
+  }
+  
+  if (!is(x, "dartR")) {
+    class(x) <- "dartR"  
+    if (verbose>2) {
+      cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+      cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+    }
+  }
   
   # Check for monomorphic loci
   tmp <- gl.filter.monomorphs(xx, verbose = 0)

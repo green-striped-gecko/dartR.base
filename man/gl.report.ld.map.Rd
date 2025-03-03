@@ -33,7 +33,7 @@ loci. If a value > 1 is provided it will be interpreted as MAC (i.e. the
  minimum number of times an allele needs to be observed) [default 0.05].}
 
 \item{ld.stat}{The LD measure to be calculated: "LLR", "OR", "Q", "Covar",
-"D.prime", "R.squared", and "R". See \code{\link[snpStats]{ld}}
+"D.prime", "R.squared", and "R". See function ld from snpstats
  (package snpStats) for details [default "R.squared"].}
 
 \item{ind.limit}{Minimum number of individuals that a population should
@@ -74,7 +74,7 @@ A dataframe with information for each SNP pair in LD.
 }
 \description{
 This function calculates pairwise linkage disequilibrium (LD) by population 
-using the function \code{\link[snpStats]{ld}} (package snpStats).
+using the function ld from package snpStats.
 If SNPs are not mapped to a reference genome, the parameter
  \code{ld.max.pairwise}
  should be set as NULL (the default). In this case, the 

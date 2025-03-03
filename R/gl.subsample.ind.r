@@ -10,8 +10,11 @@
 #' (SilicoDArT) data [required].
 #' @param n Number of individuals to include in the subsample [default NULL]
 #' @param replace If TRUE, sampling is with replacement [default TRUE]
-#' @param by.pop If FALSE, ignore population settings [default TRUE]. 
+#' @param by.pop If FALSE, ignore population settings when subsampling; if TRUE, subsample
+#' each population to n individuals [default TRUE]. 
 #' @param error.check If TRUE, will undertake error checks on input paramaters [default TRUE]
+#' @param mono.rm If TRUE and error.check is TRUE, monomorphic loci arising from the deletion of individuals
+#' will be filtered from the resultant genlight object [default FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
@@ -36,9 +39,10 @@ gl.subsample.ind <- function(x,
                   replace = TRUE,
                   by.pop = TRUE,
                   error.check = TRUE,
+                  mono.rm=FALSE,
                   verbose = NULL) {
   
-  if(error.check){
+  if(error.check==TRUE){
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     
@@ -51,9 +55,26 @@ gl.subsample.ind <- function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose=verbose)
     
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
+    
     # FUNCTION SPECIFIC ERROR CHECKING
     
+    if(n < 1){
+      cat(error("Fatal Error: Number of individuals must be a positive integer\n"))
+      stop()
+    }
+    
+    # Set the limit for n if Replace=FALSE
     n.limit <- min(table(pop(x)))
+    
+    # Set the default value of n if not specified
     if (is.null(n)){
       if (by.pop){
         n <- n.limit
@@ -62,62 +83,110 @@ gl.subsample.ind <- function(x,
       }
     }
     
-    if (by.pop){
+    if (by.pop==TRUE){
       if ( n > n.limit){
         if (verbose >= 1) {cat(warn("  Warning: Specified subsample size larger than smallest population size\n"))}
-        if (verbose >= 1) {cat(warn("    n set to",n.limit,"\n"))}
-        n <- n.limit
+        if(replace==FALSE){
+          if (verbose >= 1) {cat(warn("    Sampling without replacement, n set to",n.limit,"\n"))}
+          n <- n.limit
+        } else {
+          if (verbose >= 1) {cat(warn("    Some populations will be upsampled by replacement\n"))}
+        }
       }
-    } else {
+    }
+    if(by.pop==FALSE){
       if ( n > nLoc(x) ){
         if (verbose >= 1) {cat(warn("  Warning: Specified subsample size larger than total number of individuals\n"))}
-        if (verbose >= 1) {cat(warn("    n set to",nLoc(x),"\n"))}
+        if(replace==FALSE){
+          if (verbose >= 1) {cat(warn("    Sampling without replacement, n set to",nLoc(x),"\n"))}
+          n <- nLoc(x)
+        } else {
+          if (verbose >= 1) {cat(warn("    Some populations will be upsampled by replacement\n"))}
+        }
         n <- nLoc(x)
       }
     }
   }
   # DO THE JOB
 
-  if (!by.pop){
-    # Generate a random set of n numbers
-      nums <- sample(1:nInd(x), size = n, replace = replace)
-      ind.list <- indNames(x)[nums]
-    # Subsample the genlight object
-      x2 <- gl.keep.ind(x,ind.list=ind.list,verbose=0)
-    #x2@other <- x@other[nums,]
-  } else {
-    popcount <- 1
-    for (popn in popNames(x)){
-      tmp <- gl.keep.pop(x,pop.list=popn,verbose=0)
-      # Generate a random set of n numbers
-      nums <- sample(1:nInd(tmp), size = n, replace = replace)
-      ind.list <- indNames(tmp)[nums]
-      tmp <- gl.keep.ind(tmp,ind.list=ind.list,verbose=0)
-      #tmp <- tmp[nums,]
-      if(popcount == 1){
-        x2 <- tmp
+  # Internal function
+  subsample <- function(x,n,replace){
+    if(n <= nInd(x)){
+      idx <- sample(seq_len(nInd(x)), size = n, replace = replace)
+      xx <- x[idx,] # Requires dartR genlight object to ensure loc.metrics subsetted also
+    } 
+    if(n > nInd(x)){
+      if(replace==TRUE){
+        # Subsample with replacement to the existing number of individuals
+        idx <- sample(seq_len(nInd(x)), size = nInd(x), replace = TRUE)
+        xx <- x[idx,] # Requires dartR genlight object to ensure loc.metrics subsetted also
+        # If the requested sample sizes are greater than nInd(x)
+        # then if n is more than double nInd(x)
+        if(n/nInd(x)>=2){
+          # Add increments of nInd(x) individuals to the new genlight object
+          for (i in 1:trunc(n/nInd(x))-1){
+            idx <- sample(seq_len(nInd(x)), size = nInd(x), replace = TRUE)
+            tmp <- x[idx,] # Requires dartR genlight object to ensure loc.metrics subsetted also
+            xx <- gl.join(xx,tmp,method="end2end",verbose=0)
+          }
+        }
+        # Deal with the remainder if any
+        if(n%%nInd(x) > 0){
+          idx <- sample(seq_len(nInd(x)), size = (n %% nInd(x)), replace = TRUE)
+          tmp <- x[idx,]
+          xx <- gl.join(xx,tmp,method="end2end",verbose=0)
+        }
       } else {
-        hold <- x2@other$ind.metrics
-        x2 <- rbind(x2,tmp)
-        x2@other$ind.metrics <- rbind(hold,tmp@other$ind.metrics)
+        cat(error("Fatal Error: Cannot upsample a genlight object without replacement\n"))
+        stop()
       }
-      popcount <- popcount + 1
     }
+    return(xx)
   }
-  x2@other$loc.metrics <- x@other$loc.metrics
 
-  if(error.check){
-    # ADD TO HISTORY
-    nh <- length(x2@other$history)
-    x2@other$history[[nh + 1]] <- match.call()
+  
+  if(by.pop==FALSE){
+    xx <- subsample(x=x,n=n,replace=replace)
+   }
+  
+   if(by.pop == TRUE){
+    new.list <- list()  # Store subsampled genlight objects
     
-    # FLAG SCRIPT END ---------------
+    # Iterate over population names to subset and subsample
+    pop_names <- popNames(x)  # Get population names
+    for(i in seq_along(pop_names)){
+      gl <- gl.keep.pop(x, pop.list = pop_names[i], verbose = 0)
+      new.list[[i]] <- subsample(x = gl, n = n, replace = replace)
+    }
     
-    if (verbose >= 1) {
-      cat(report("Completed:", funname, "\n"))
+    # Ensure the list is not empty
+    if(length(new.list) > 1){
+      xx <- new.list[[1]]  # Start with the first population's subset
+      for(i in 2:length(new.list)){
+        xx <- gl.join(xx, new.list[[i]], method="end2end",verbose=0)
+      }
+    } else {
+      xx <- new.list[[1]]  # If only one population, return as is
     }
   }
+
+    if(error.check==TRUE){
+      # FILTER MONOMORPHS
+      if(mono.rm==TRUE){
+        x <- gl.filter.monomorphs(x,verbose=verbose)
+        
+        # ADD TO HISTORY
+        nh <- length(x2@other$history)
+        x2@other$history[[nh + 1]] <- match.call()
+      }
+      
+      # FLAG SCRIPT END ---------------
+      
+      if (verbose >= 1) {
+        cat(report("Completed:", funname, "\n"))
+      }
+    }
   
-  return(x2)
+  return(xx)
 }
     

@@ -153,12 +153,18 @@ utils.read.dart <- function(filename,
     
     # check that there are two lines per locus... covmetrics = separate(covmetrics, AlleleID, into = c('allid','alrest'),sep = '\\|',
     # extra='merge')
-    covmetrics$clone <-
-      (sub("\\|.*", "", covmetrics$AlleleID, perl = T))
-    spp <-
-      (sub(".+-+(\\d{1,3}):.+", "\\1", covmetrics$AlleleID))
+    metrics_names <- colnames(covmetrics)
     
+    if("AlleleID" %in% metrics_names){
+      covmetrics$clone <- (sub("\\|.*", "", covmetrics$AlleleID, perl = T))
+      spp <- (sub(".+-+(\\d{1,3}):.+", "\\1", covmetrics$AlleleID))
+    }
     
+    if("MarkerName" %in% metrics_names){
+      covmetrics$clone <- (sub("\\|.*", "", covmetrics$MarkerName, perl = T))
+      spp <- (sub(".+-+(\\d{1,3}):.+", "\\1", covmetrics$MarkerName))
+    }
+  
     #### find uid within allelid
     covmetrics$uid <- paste(covmetrics$clone, spp, sep = "-")
     ### there should be only twos (and maybe fours)

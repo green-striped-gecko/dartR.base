@@ -71,6 +71,18 @@ gl.compliance.check <- function(x,
     # CHECKS DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
+    if(is(x,"genlight")){
+      
+      if (!is(x, "dartR")) {
+        class(x) <- "dartR"  
+        if (verbose>2) {
+          cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+          cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+        }
+      }
+    }
+    
     # if slot loc.all is empty
     if(datatype == "SNP" & is.null(x@loc.all)){
       x$loc.all <- rep("A/C",nLoc(x)) 

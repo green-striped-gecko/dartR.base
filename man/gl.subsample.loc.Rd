@@ -14,7 +14,8 @@ gl.subsample.loc(x, n, replace = TRUE, error.check = TRUE, verbose = NULL)
 
 \item{replace}{If TRUE, sampling is with replacement [default TRUE]}
 
-\item{error.check}{If TRUE, will undertake error checks on input paramaters [default TRUE]}
+\item{error.check}{If TRUE, will undertake error checks on input parameters 
+[default TRUE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -29,7 +30,7 @@ with and without replacement.
 }
 \details{
 Retain a subset of loci at random, with or without replacement.
-Parameter n must be less than or equal to nLoc(x). 
+Parameter n must be less than or equal to nLoc(x).
 
 #' Set error.check = FALSE for speedy execution in simulations
 }
@@ -60,6 +61,7 @@ Other data manipulation:
 \code{\link{gl.subsample.ind}()}
 }
 \author{
-Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Custodian: Bernd Gruber (Post to 
+\url{https://groups.google.com/d/forum/dartr})
 }
 \concept{data manipulation}

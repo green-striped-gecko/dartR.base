@@ -26,7 +26,7 @@ gl.report.polyploid_heterozygosity(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing the SNP data that converted to dosage mode [required].}
 
 \item{method}{Calculate heterozygosity by population (method='pop') or by
 individual (method='ind') [default 'pop'].}
@@ -313,17 +313,6 @@ bootstrap confidence interval or removing or transforming the outliers or
     Opening and terminating R sessions in each core involves a significant
     amount of processing time, therefore parallelisation in Windows machines
    is only quicker than not using parallelisation when nboots > 1000-2000.
-}
-\examples{
- \donttest{
-require("dartR.data")
-df <- gl.report.polyploid_heterozygosity(platypus.gl)
-df <- gl.report.polyploid_heterozygosity(platypus.gl,method='ind')
-n.inv <- gl.report.secondaries(platypus.gl)
-gl.report.polyploid_heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
-gl.report.polyploid_heterozygosity(platypus.gl, subsample.pop = TRUE)
-}
-df <- gl.report.polyploid_heterozygosity(platypus.gl)
 }
 \references{
 \itemize{

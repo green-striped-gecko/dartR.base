@@ -87,25 +87,15 @@ gl.filter.reproducibility <- function(x,
         )
         threshold <- 0.99
     }
-    if (datatype == "SilicoDArT") {
-        if (is.null(x@other$loc.metrics$Reproducibility)) {
-            stop(
-                error(
-                    "Fatal Error: Dataset does not include Reproducibility among
-                    the locus metrics, cannot be calculated!"
-                )
-            )
-        }
-    }
-    if (datatype == "SNP") {
-        if (is.null(x@other$loc.metrics$RepAvg)) {
-            stop(
-                error(
-                    "Fatal Error: Dataset does not include RepAvg among the 
-                    locus metrics, cannot be calculated!"
-                )
-            )
-        }
+    
+    if (isFALSE("AlleleID" %in% names(x$other$loc.metrics)) &
+        isFALSE("CloneID" %in% names(x$other$loc.metrics))) {
+      stop(
+        error(
+          "Neither CloneID or AlleleID metrics were found in the slot 
+                loc.metrics, which are required for this function to work\n"
+        )
+      )
     }
     
     # DO THE JOB

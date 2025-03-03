@@ -149,9 +149,17 @@ gl.diagnostics.hwe <- function(x,
   extractParam <- function(i, l, param) {
     return(l[[i]][["overall"]][param])
   }
+  #remove populations with only one individual
+  drop_pop <- names(which(table(pop(x)) <2))
+  if(length(drop_pop)>0){
+  x <- gl.drop.pop(x,pop.list = drop_pop)
+    cat(warn("Population with one individual were ignored in this analysis:", drop_pop, "\n"))
+  }
   
   # Distribution of p-values by equal bins
-  suppressWarnings(hweout <- gl.report.hwe(x, sig_only = F, verbose = 0))
+  suppressWarnings(hweout <- gl.report.hwe(x, 
+                                           sig_only = FALSE,
+                                           verbose = 0))
   
   p1 <-   ggplot(hweout, aes(Prob)) +
     geom_histogram(bins = bins,

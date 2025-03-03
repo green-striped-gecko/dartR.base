@@ -5,12 +5,13 @@
 #' @description
 #' This is a wrapper for readRDS()
 
-#' The function loads the object from the current workspace and returns the
-#'  gl object.
+#' The function loads the object from the current workspace, checks if it is a
+#' dartR genlight object, converts it if it is not, and returns the
+#' gl object. A compliance check can be requested.
 
-#' @param file Name of the file to receive the binary version of the object
+#' @param file Name of the file to receive data
 #' [required].
-#' @param compliance Whether to make compliance check [default FALSE]. 
+#' @param compliance Whether to undertake a compliance check [default FALSE]. 
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -18,9 +19,6 @@
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-#' @examples
-#' gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
-#' gl <- gl.load(file.path(tempdir(),'testset.rds'))
 #' @seealso \code{\link{gl.save}}
 #' 
 #' @export
@@ -35,14 +33,26 @@ gl.load <- function(file,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2024.1",
                      verbose = verbose)
     
     x <- readRDS(file)
     
     # CHECK DATATYPE
+    
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
+    
     datatype <- utils.check.datatype(x, verbose = verbose)
     cat(report("  Loaded object of type", datatype, "from", file, "\n"))
+    
+    x <- gl.compliance.check(x)
 
     # FLAG SCRIPT END
     

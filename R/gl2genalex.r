@@ -70,6 +70,9 @@ gl2genalex <- function(x,
     
     # DO THE JOB
     
+    # filtering all loci with all NAs to avoid crashing the function
+    x <- gl.filter.allna(x,verbose =0 )
+    
     gind <- gl2gi(x, verbose = 0)
     poppr::genind2genalex(
         gind,
