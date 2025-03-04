@@ -23,6 +23,7 @@
 
 # @export
 #' @return The resultant genlight object
+#' @importFrom snpStats switch.alleles
 
 utils.read.ped <- function (file, 
                             # n, 

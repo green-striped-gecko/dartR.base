@@ -30,6 +30,7 @@
 #' @author Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @rawNamespace import(data.table, except = c(melt,dcast))
+#' @importFrom snpStats read.plink write.SnpMatrix row.summary
 
 gl.read.PLINK <- function(filename,
                         ind.metafile = NULL,

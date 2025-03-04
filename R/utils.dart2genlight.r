@@ -174,6 +174,7 @@ utils.dart2genlight <- function(dart,
     }
     
     # refactor data.frame
+    x<- NULL
     df <-
         as.data.frame(lapply(sraw[esl, ], function(x)
             if (is.factor(x))

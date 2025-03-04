@@ -39,9 +39,11 @@ Please carefully check the data if "dosage" mode is used.
 \examples{
 \dontrun{
 # read in vcf and convert to format as DArT data
-obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv")
+obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), 
+                   ind.metafile = "metafile.csv")
 # read in vcf and convert to format as dosage
-obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), ind.metafile = "metafile.csv", mode="dosage")
+obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), 
+                   ind.metafile = "metafile.csv", mode="dosage")
 }
 }
 \author{

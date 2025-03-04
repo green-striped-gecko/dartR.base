@@ -1041,11 +1041,14 @@ gl.report.heterozygosity <- function(x,
         plot.theme
     }
     
-    outliers_temp <-
+    if (plot.display) 
+      {
+      outliers_temp <-
       ggplot_build(p1)$data[[1]]$outliers[[1]]
     outliers <-
       data.frame(ID = as.character(df$ind.name[df$Ho %in% outliers_temp]),
                  Ho = outliers_temp)
+    }
     
     # OUTPUT REPORT
     if (verbose >= 3) {

@@ -125,7 +125,7 @@ gl.report.allelerich <- function(x,
     allele_count2[which(allele_count2$genotype==0),'alt_allele'] <- 0
     allele_count2[which(allele_count2$genotype==1),'alt_allele'] <- allele_count2[which(allele_count2$genotype==1),'n']
     allele_count2[which(allele_count2$genotype==2),'alt_allele'] <- (allele_count2[which(allele_count2$genotype==2),'n']*2)
-    allele_count3 <- allele_count2 %>% dplyr::group_by(site) %>% summarise(pop=pop, all_ref_allele=sum(ref_allele), all_alt_allele=sum(alt_allele))
+    allele_count3 <- allele_count2 %>% dplyr::group_by(site) %>% dplyr::reframe(pop=pop, all_ref_allele=sum(ref_allele), all_alt_allele=sum(alt_allele))
     allele_count_all <- rbind(allele_count_all, distinct(allele_count3, site, .keep_all = T) )
     popsize_per_snp <- allele_count_all %>% group_by(site, pop) %>% summarise(raw_count=(all_ref_allele + all_alt_allele))
     min_pop <-  min(popsize_per_snp %>% group_by(pop) %>% summarise(min_pop=min(raw_count))%>%select(min_pop)) }

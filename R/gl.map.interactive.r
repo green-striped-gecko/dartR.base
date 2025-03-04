@@ -63,6 +63,7 @@
 #' ind.circle.transparency=0.5)
 #' 
 #' @importFrom methods is
+#' @importFrom raster raster
 #' @export
 #' @return plots a map
 

@@ -79,6 +79,7 @@
 
 #' @export
 #' @return A dataframe with information for each SNP pair in LD. 
+#' @importFrom snpStats ld
 
 gl.report.ld.map <- function(x,
                            ld.max.pairwise = 1000000,
