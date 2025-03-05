@@ -15,7 +15,7 @@
 
 #' @details
 #' Converts a DArT file (read via \code{read.dart}) into an
-#' genlight object \code{\link{adegenet}}. #' Internal function called by gl.read.dart().
+#' genlight object from package adegenet. #' Internal function called by gl.read.dart().
 #' 
 #' The ind.metadata file needs to have very specific headings. First a heading
 #' called id. Here the ids have to match the ids in the dart object
@@ -83,11 +83,11 @@ utils.dart2genlight <- function(dart,
         }
     }
     
-    if (sum(c("SNP", "SnpPosition") %in% names(sraw)) != 2) {
-        stop(error(
-            "Could not find SNP or SnpPosition in Dart file. Check you headers!!!"
-        ))
-    }
+    # if (sum(c("SNP", "SnpPosition") %in% names(sraw)) != 2) {
+    #     stop(error(
+    #         "Could not find SNP or SnpPosition in Dart file. Check you headers!!!"
+    #     ))
+    # }
     
     if (verbose >= 2) {
         cat(report("Starting conversion....\n"))
@@ -116,7 +116,17 @@ utils.dart2genlight <- function(dart,
     esl <-seq(nrows, nrow(sdata), nrows)
     
     pos <- sraw$SnpPosition[esl]
-    alleles <- as.character(sraw$SNP)[esl]
+    
+    metrics_names <- colnames(sraw)
+    
+    if("SNP" %in% metrics_names){
+      alleles <- as.character(sraw$SNP)[esl]
+    }
+    
+    if("Variant" %in% metrics_names){
+      alleles <- as.character(sraw$Variant)[esl]
+    }
+    
     a1 <- substr(alleles, nchar(alleles) - 2, nchar(alleles))
     a2 <- sub(">", "/", a1)
     locname <- paste(sraw$uid[esl], a2, sep = "-")
@@ -164,6 +174,7 @@ utils.dart2genlight <- function(dart,
     }
     
     # refactor data.frame
+    x<- NULL
     df <-
         as.data.frame(lapply(sraw[esl, ], function(x)
             if (is.factor(x))
@@ -192,7 +203,7 @@ utils.dart2genlight <- function(dart,
                      stringsAsFactors = T)
         # is there an entry for every individual
         
-        id.col <-match("id", names(ind.cov))
+        id.col <- match("id", names(ind.cov))
         
         if (is.na(id.col)) {
             stop(error("Fatal Error: There is no id column\n"))
@@ -261,19 +272,44 @@ utils.dart2genlight <- function(dart,
             }
         }
         
-        pop.col <-match("pop", names(ind.cov))
+        pop.col <- match("pop", names(ind.cov))
         
         if (is.na(pop.col)) {
             if (verbose >= 1) {
                 cat(
                     warn(
-                        "Warning: There is no pop column, created one with all pop1 as default for all individuals\n"
+                        "Warning: There is no pop column, created one with all 'pop1' as default for all individuals\n"
                     )
                 )
             }
             pop(gout) <- factor(rep("pop1", nInd(gout)))
         } else {
-            pop(gout) <- as.factor(ind.cov[ord, pop.col])
+          pop_tmp <- as.character(ind.cov[ord, pop.col])
+          if(any(is.na(pop_tmp))){
+            pop_na <- which(is.na(pop_tmp))
+            pop_tmp[pop_na] <- "pop1"
+            ind_na <- indNames(x)[pop_na]
+            if (verbose >= 1) {
+              cat(
+                warn(
+                  "  Warning: individuals",paste(indNames(gout)[pop_na],collapse = ", "),"have 'NA' as population, assigning 'pop1' as population to these individuals.\n"
+                )
+              )
+            }
+          }
+          if(any(pop_tmp=="")){
+            pop_na <- which(pop_tmp=="")
+            pop_tmp[pop_na] <- "pop1"
+            ind_na <- indNames(x)[pop_na]
+            if (verbose >= 1) {
+              cat(
+                warn(
+                  "  Warning: individuals",paste(indNames(gout)[pop_na],collapse = ", "),"have blank as population, assigning 'pop1' as population to these individuals.\n"
+                  )
+              )
+            }
+            }
+          pop(gout) <- as.factor(pop_tmp)
             if (verbose >= 2) {
                 cat(report(" Added population assignments.\n"))
             }

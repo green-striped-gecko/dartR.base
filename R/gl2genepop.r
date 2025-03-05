@@ -4,8 +4,8 @@
 
 #' @description
 #' The genepop format is used by several external applications (for example
-#' Neestimator2
-#' (\url{http://www.molecularfisherieslaboratory.com.au/neestimator-software/}).
+#' Neestimator2. Unfortunatelly, the software seems to be no longer easily 
+#' available. To install use the \link[dartRverse]{gl.download.binary} function.
 #' So the main idea is to create the genepop file and then run the other
 #' software externally. As a feature, the genepop file is also returned as an
 #' invisible data.frame by the function.
@@ -83,6 +83,8 @@ gl2genepop <- function (x,
   
   # DO THE JOB
   #ordering populations
+  # filtering all loci with all NAs to avoid crashing the function
+  x <- gl.filter.allna(x,verbose =0 )
   
   if(length(pop.order)==1){
     x <- x[order(pop(x)), ]

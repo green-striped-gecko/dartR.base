@@ -1,4 +1,4 @@
-#' @name gl2svdquartets
+#' @name gl2paup.svdquartets
 #' @title Converts a genlight object to nexus format PAUP SVDquartets
 #' @family linkers
 
@@ -26,6 +26,7 @@
 #' @param method Method = 1, nexus file with two lines per individual; method =
 #'  2, nexus file with one line per individual, ambiguity codes for SNP
 #'  genotypes, 0 or 1 for presence/absence data [default 2].
+#' @param nbootstraps Number of bootstrap replicates [default 10000]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
@@ -36,15 +37,16 @@
 #' @examples
 #' gg <- testset.gl[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
-#' gl2svdquartets(gg, outpath=tempdir())
+#' gl2paup.svdquartets(gg, outpath=tempdir(),nbootstraps=100)
 #' 
 #' @export
 #' @return  returns no value (i.e. NULL)
 
-gl2svdquartets <- function(x,
+gl2paup.svdquartets <- function(x,
                            outfile = "svd.nex",
                            outpath = NULL,
                            method = 2,
+                           nbootstraps=10000,
                            verbose = NULL) {
    
     # SET VERBOSITY
@@ -62,6 +64,15 @@ gl2svdquartets <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
+    
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
     
     # Check for monomorphic loci
     
@@ -81,6 +92,12 @@ gl2svdquartets <- function(x,
         )
         method <- 2
     }
+    
+    # Render lables consistent with PAUP
+    pop(x) <- gsub(" ", "_", pop(x))
+    pop(x) <- gsub("\\(", "_", pop(x))
+    pop(x) <- gsub(")", "_", pop(x))
+    indNames(x) <- gsub(" ","_",indNames(x))
     
     # DO THE JOB
     
@@ -110,6 +127,7 @@ gl2svdquartets <- function(x,
         if (verbose >= 2) {
             cat(report(paste("    Sorting ....\n")))
         }
+        x <- gl.sort(x,sort.by="pop")
         df <- data.frame(as.matrix(x))
         df <- cbind(indNames(x), pop(x), df)
         df <- df[order(df$pop), ]
@@ -283,7 +301,7 @@ gl2svdquartets <- function(x,
     cat("    speciesTree=yes\n")
     cat("    partition=pops\n")
     cat("    bootstrap=standard\n")
-    cat("    nreps=10000\n")
+    cat("    nreps=",nbootstraps,"\n")
     cat("    ambigs=distribute\n")
     cat("    treeFile=svd.tre;\n")
     cat("savetrees file=svd_boot.tre from=1 to=1 maxdecimals=2;\n")

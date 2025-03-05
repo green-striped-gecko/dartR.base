@@ -12,6 +12,7 @@ gl.report.heterozygosity(
   subsample.pop = FALSE,
   n.limit = 10,
   nboots = 0,
+  boot.method = "ind",
   conf = 0.95,
   CI.type = "bca",
   ncpus = 1,
@@ -43,7 +44,10 @@ perform subsampling to estimate heterozygosity [default 10].}
 \item{nboots}{Number of bootstrap replicates to obtain confidence intervals
 [default 0].}
 
-\item{conf}{The confidence level of the required interval  [default 0.95].}
+\item{boot.method}{boostraping across individuals ("ind") or across loci
+("loc") [default "ind"].}
+
+\item{conf}{The confidence level of the required interval [default 0.95].}
 
 \item{CI.type}{Method to estimate confidence intervals. One of
 "norm", "basic", "perc" or "bca" [default "bca"].}
@@ -57,7 +61,7 @@ perform subsampling to estimate heterozygosity [default 10].}
 [default theme_dartR()].}
 
 \item{plot.colors.pop}{A color palette for population plots or a list with
-as many colors as there are populations in the dataset
+as many colors as there are populations in the dataset 
 [default gl.colors("dis")].}
 
 \item{plot.colors.ind}{List of two color names for the borders and fill of
@@ -176,7 +180,9 @@ that directory; otherwise to the tempdir().
 To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
 observed heterozygosity estimates, the function subsamples individuals,
  without replacement. The subsampling is repeated 10 times for each sample
-  size n. This approach is an implementation of Schmidt et al (2021). 
+  size n. This approach is not an implementation of Schmidt et al (2021). 
+  Please refer to this paper for additional complexities in estimating
+  heterozygosity using SNP data.
  
   \strong{Error bars}
  
@@ -341,7 +347,9 @@ distance from a small number of individuals. Genetics, 89(3), 583-590.
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.basics}()},
-\code{\link{gl.report.diversity}()}
+\code{\link{gl.report.diversity}()},
+\code{\link{gl.report.excess.het}()},
+\code{\link{gl.report.polyploid_heterozygosity}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to

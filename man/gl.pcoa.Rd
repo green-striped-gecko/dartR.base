@@ -8,6 +8,7 @@ object, or to a distance matrix (PCoA)}
 gl.pcoa(
   x,
   nfactors = 5,
+  pc.select = "broken-stick",
   correction = NULL,
   mono.rm = TRUE,
   parallel = FALSE,
@@ -26,6 +27,9 @@ a distance matrix of type dist [required].}
 
 \item{nfactors}{Number of axes to retain in the output of factor scores
 [default 5].}
+
+\item{pc.select}{Method for identifying substantial PC axes. One of Kaiser-Guttman,
+broken-stick, Tracy-Widom [default broken-stick]}
 
 \item{correction}{Method applied to correct for negative eigenvalues, either
 'lingoes' or 'cailliez' [Default NULL].}
@@ -131,7 +135,9 @@ dimensions to be retained in the visual summaries. Various approaches are availa
 for identifying which axes are informative (in terms of containing biologically
 significant variation) and which are noise axes. The simplest method is to consider
 only those axes that explain more variance than the original variables on average as
-being informative (the Kaiser-Guttman criterion).
+being informative (pc.select="Kaiser-Guttman"). A second method (the default) is
+the broken-stick method (pc.select="broken-stick"). A third method is the Tracy-Widom
+statistical approach (pc.select="Tracy-Widom").
 
 Once you have the informative axes identified, a judgement call is made as to how
 many dimensions to retain and present as results. This requires a decision on how 
@@ -211,7 +217,7 @@ points in space. Philosophical Magazine. Series 6, vol. 2, no. 11, pp.
 \code{\link{gl.pcoa.plot}}
 }
 \author{
-Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
+Author(s): Arthur Georges and Jesus Castrejon. Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{data exploration functions}

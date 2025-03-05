@@ -55,7 +55,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
-#' result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
+#' #result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
 #' @export
 #' @return The reduced genlight dataset
 
@@ -85,7 +85,7 @@ gl.filter.maf <- function(x,
   if (is.null(plot.colors)) {
     plot.colors <- gl.select.colors(library = "brewer",
                                     palette = "Blues",
-                                    select = c(7, 5))
+                                    select = c(7, 5), verbose = 0)
   }
   
   if (verbose == 0) {

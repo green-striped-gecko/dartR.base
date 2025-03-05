@@ -43,11 +43,12 @@ gl.filter.monomorphs <- function(x,
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
-                     build = "v.2023.2",
+                     build = "v.2024.1",
                      verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
+    #cat(warn("  Loci with all NA scores will be removed here, no action required\n"))
     
     # DO THE JOB
     
@@ -116,7 +117,7 @@ gl.filter.monomorphs <- function(x,
     if (verbose >= 3) {
         cat("    Original No. of loci:", nLoc(hold), "\n")
         cat("    Monomorphic loci:", nLoc(hold) - nLoc(x), "\n")
-        cat("    Loci scored all NA:", length(na.counter), "\n")
+        cat("    Loci scored all NA:", na.counter, "\n")
         cat("    No. of loci deleted:", nLoc(hold) - nLoc(x), "\n")
         cat("    No. of loci retained:", nLoc(x), "\n")
         cat("    No. of individuals:", nInd(x), "\n")

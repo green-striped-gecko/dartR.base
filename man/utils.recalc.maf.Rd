@@ -40,6 +40,7 @@ of heterozygotes, \code{gl.recalc.avgpic} for recalculating AvgPIC,
 Other utilities: 
 \code{\link{gl.alf}()},
 \code{\link{utils.check.datatype}()},
+\code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
@@ -58,7 +59,8 @@ Other utilities:
 \code{\link{utils.recalc.freqhomref}()},
 \code{\link{utils.recalc.freqhomsnp}()},
 \code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+\code{\link{utils.transpose}()},
+\code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
 Custodian: Luis Mijangos (Post to

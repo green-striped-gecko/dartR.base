@@ -9,6 +9,9 @@
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param dist.matrix Distance matrix [default NULL].
 #' @param method Clustering method -- nj, neighbor-joining tree; UGPMA, UGPMA tree [default 'nj'].
+#' @param by.pop If TRUE, populations are the terminal taxa; if FALSE, individuals are the terminal taxa [default TRUE]
+#' @param as.pop Assign another ind.metric as the population for
+#' the purposes of displaying more informative tip labels [default NULL].
 #' @param outgroup Vector containing the population names that are the outgroups
 #'  [default NULL].
 #' @param type Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
@@ -48,6 +51,8 @@
 gl.tree.nj <- function(x,
                        dist.matrix = NULL,
                        method="nj",
+                       by.pop=TRUE,
+                       as.pop=NULL,
                        type = "phylogram",
                        outgroup = NULL,
                        labelsize = 0.7,
@@ -65,6 +70,15 @@ gl.tree.nj <- function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
+    
     method <- tolower(method)
     if(method != "nj" && method != "ugpma"){
       cat(warn("  Warning: method must be one of nj or ugpma. Set to nj. \n"))
@@ -72,6 +86,29 @@ gl.tree.nj <- function(x,
     }
     
     # DO THE JOB
+    
+    if(by.pop==FALSE){
+      popNames(x) <- indNames(x)
+      if (verbose >= 2) {
+        cat(report("  Tree constructed for individuals\n"))
+      }
+    } else {
+      if (verbose >= 2) {
+        cat(report("  Tree constructed for populations\n"))
+      }
+    }
+    
+    # Assign the new population list if as.pop is specified -----------
+    if (!is.null(as.pop)) {
+      if (as.pop %in% names(x@other$ind.metrics)) {
+        pop(x) <- unname(unlist(x@other$ind.metrics[as.pop]))
+        if (verbose >= 2) {
+          cat(report("  Assigning",as.pop,"as the tip labels\n"))
+        }
+      } else {
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+      }
+    }
     
     if(is.null(dist.matrix)){
       

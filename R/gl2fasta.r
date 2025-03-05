@@ -116,16 +116,17 @@ gl2fasta <- function(x,
             )
         )
     }
-    if (length(x@position) != nLoc(x)) {
-        stop(
-            error(
-"Fatal Error: Data must include position information for each loci in the @position slot.\n"
-            )
+    #if (length(x@position) != nLoc(x)) {
+    if (length(x@other$loc.metrics$SnpPosition) != nLoc(x)) {
+      stop(
+        error(
+          "Fatal Error: Data must include position information for each loci in x@other$loc.metrics$SnpPosition.\n"
         )
+      )
     }
     if (length(x@loc.all) != nLoc(x)) {
-        stop(error(
-  "Fatal Error: Data must include type of alleles in the @loc.all slot.\n"))
+      stop(error(
+        "Fatal Error: Data must include type of alleles in the @loc.all slot.\n"))
     }
     
     if (method == 1) {
@@ -226,7 +227,8 @@ gl2fasta <- function(x,
         rownames(conversion) <- colnames(conversion)
         
         # Extract alleles 1 and 2
-        allelepos <- x@position
+        #allelepos <- x@position
+        allelepos <- x@other$loc.metrics$SnpPosition
         allele1 <- gsub("(.)/(.)", "\\1", snp, perl = T)
         allele2 <- gsub("(.)/(.)", "\\2", snp, perl = T)
         
@@ -336,7 +338,8 @@ gl2fasta <- function(x,
                 trimmed <-
                     as.character(x@other$loc.metrics$TrimmedSequence[j])
                 snp <- x@loc.all[j]
-                snpos <- x@position[j]
+                #snpos <- x@position[j]
+                snpos <- x@other$loc.metrics$SnpPosition[j]
                 # Shift the index for snppos to start from 1 not zero
                 snpos <- snpos + 1
                 

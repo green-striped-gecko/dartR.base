@@ -4,9 +4,9 @@
 #' @family unmatched filter
 
 #' @description
-#' This script deletes deletes loci or individuals with all calls missing (NA),
-#'  from a genlight object
-
+#' This script deletes loci or individuals with all calls missing (NA),
+#'  from a genlight object.
+#'  
 #' A DArT dataset will not have loci for which the calls are scored all as
 #' missing (NA) for a particular individual, but such loci can arise rarely when
 #'  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -14,11 +14,11 @@
 #'  all loci, but such individuals may sneak in to the dataset when loci are
 #'  deleted. Retaining individual or loci with all NAs can cause issues for
 #'  several functions.
-
-#'  Also, on occasion an analysis will require that there are some loci scored
+#'  
+#'  Also, on occasions an analysis will require that there are some loci scored
 #'  in each population. Setting by.pop=TRUE will result in removal of loci when
 #'  they are all missing in any one population.
-
+#'  
 #' Note that loci that are missing for all individuals in a population are
 #' not imputed with method 'frequency' or 'HW'. Consider 
 #' using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
@@ -61,7 +61,7 @@ gl.filter.allna <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
+  # datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
   
   # DO THE JOB
   
@@ -91,11 +91,11 @@ gl.filter.allna <- function(x,
     na.counter <- 0
     nL <- nLoc(x)
     loc.list <- array(NA,nL)
-    matrix <- as.matrix(x)
+    matrix_tmp <- as.matrix(x)
     l.names <- locNames(x)
     for (i in 1:nL) {
-      row <- matrix[, i]
-      if (all(is.na(row))) {
+      row_tmp <- matrix_tmp[, i]
+      if (all(is.na(row_tmp))) {
         loc.list[i] <- l.names[i]
         na.counter <- na.counter + 1
       }
@@ -116,7 +116,7 @@ gl.filter.allna <- function(x,
       }
       
       x2 <- x[, !x$loc.names %in% loc.list]
-      x2@other$loc.metrics <- x@other$loc.metrics[!x$loc.names %in% loc.list, ]
+     x2@other$loc.metrics <- x@other$loc.metrics[!x$loc.names %in% loc.list, ]
       
       if (verbose >= 2) {
         cat("  Deleted\n")
@@ -128,14 +128,20 @@ gl.filter.allna <- function(x,
       cat(report("  Deleting individuals that are scored as all missing (NA)\n"))
     }
     na.counter <- 0
-    nL <- nLoc(x2)
-    loc.list <- vector("list", nL)
-    matrix <- as.matrix(x2)
-    l.names <- locNames(x2)
-    for (i in 1:nL) {
-      row <- matrix[, i]
-      if (all(is.na(row))) {
-        loc.list[i] <- l.names[i]
+    # nL <- nLoc(x2)
+    nI <- nInd(x2)
+    # loc.list <- vector("list", nL)
+    ind.list <- vector("list", nI)
+    matrix_tmp <- as.matrix(x2)
+    # l.names <- locNames(x2)
+    I.names <- indNames(x2)
+    # for (i in 1:nL) {
+    for (i in 1:nI) {
+      # row_tmp <- matrix_tmp[, i]
+      row_tmp <- matrix_tmp[i,]
+      if (all(is.na(row_tmp))) {
+        # loc.list[i] <- l.names[i]
+        ind.list[i] <- I.names[i]
         na.counter <- na.counter + 1
       }
     }
@@ -152,7 +158,7 @@ gl.filter.allna <- function(x,
           "\n"
         )
       }
-      x2 <- x2[!x2$ind.names %in% ind.list]
+      x2 <- x2[!x2$ind.names %in% ind.list,]
       if (verbose >= 2) {
         cat("  Deleted\n")
       }

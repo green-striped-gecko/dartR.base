@@ -8,6 +8,7 @@ program}
 gl2bpp(
   x,
   method = 1,
+  merge.secondaries = FALSE,
   outfile = "output_bpp.txt",
   imap = "Imap.txt",
   outpath = NULL,
@@ -18,6 +19,9 @@ gl2bpp(
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{method}{One of 1 | 2, see details [default = 1].}
+
+\item{merge.secondaries}{Logical, if TRUE, secondary loci are merged into a 
+single sequence [default = FALSE].}
 
 \item{outfile}{Name of the saved sequence alignment file ["output_bpp.txt"].}
 

@@ -23,6 +23,7 @@
 
 # @export
 #' @return The resultant genlight object
+#' @importFrom snpStats switch.alleles
 
 utils.read.ped <- function (file, 
                             # n, 
@@ -33,6 +34,20 @@ utils.read.ped <- function (file,
                             na.strings = "0", 
                             lex.order = FALSE,
                             show_warnings = TRUE){
+  
+# check if packages are installed
+  pkg <- "snpStats"
+  if (!(requireNamespace(pkg, quietly = TRUE))) {
+    cat(error(
+      "Package",
+      pkg,
+      " needed for this function to work. Please install it.\n"
+    ))
+    return(-1)
+  }
+
+
+
   r0 <- as.raw(0)
   r1 <- as.raw(1)
   r2 <- as.raw(2)

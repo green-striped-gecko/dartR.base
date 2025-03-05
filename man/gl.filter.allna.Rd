@@ -25,8 +25,9 @@ A genlight object having removed individuals that are scored NA
 across all loci, or loci that are scored NA across all individuals.
 }
 \description{
-This script deletes deletes loci or individuals with all calls missing (NA),
- from a genlight object
+This script deletes loci or individuals with all calls missing (NA),
+ from a genlight object.
+ 
 A DArT dataset will not have loci for which the calls are scored all as
 missing (NA) for a particular individual, but such loci can arise rarely when
  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -34,9 +35,11 @@ missing (NA) for a particular individual, but such loci can arise rarely when
  all loci, but such individuals may sneak in to the dataset when loci are
  deleted. Retaining individual or loci with all NAs can cause issues for
  several functions.
- Also, on occasion an analysis will require that there are some loci scored
+ 
+ Also, on occasions an analysis will require that there are some loci scored
  in each population. Setting by.pop=TRUE will result in removal of loci when
  they are all missing in any one population.
+ 
 Note that loci that are missing for all individuals in a population are
 not imputed with method 'frequency' or 'HW'. Consider 
 using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
@@ -49,7 +52,8 @@ using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
 }
 \seealso{
 Other filter functions: 
-\code{\link{gl.filter.hwe}()}
+\code{\link{gl.filter.hwe}()},
+\code{\link{gl.report.allna}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

@@ -19,7 +19,9 @@
 #' perform subsampling to estimate heterozygosity [default 10].
 #' @param nboots Number of bootstrap replicates to obtain confidence intervals
 #' [default 0].
-#' @param conf The confidence level of the required interval  [default 0.95].
+#' @param boot.method boostraping across individuals ("ind") or across loci
+#'  ("loc") [default "ind"].
+#' @param conf The confidence level of the required interval [default 0.95].
 #' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
@@ -28,7 +30,7 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors.pop A color palette for population plots or a list with
-#' as many colors as there are populations in the dataset
+#' as many colors as there are populations in the dataset 
 #' [default gl.colors("dis")].
 #' @param plot.colors.ind List of two color names for the borders and fill of
 #' the plot by individual [default gl.colors(2)].
@@ -134,7 +136,9 @@
 #' To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
 #' observed heterozygosity estimates, the function subsamples individuals,
 #'  without replacement. The subsampling is repeated 10 times for each sample
-#'   size n. This approach is an implementation of Schmidt et al (2021). 
+#'   size n. This approach is not an implementation of Schmidt et al (2021). 
+#'   Please refer to this paper for additional complexities in estimating
+#'   heterozygosity using SNP data.
 #'  
 #'   \strong{Error bars}
 #'  
@@ -308,6 +312,7 @@ gl.report.heterozygosity <- function(x,
                                      subsample.pop = FALSE,
                                      n.limit = 10,
                                      nboots = 0,
+                                     boot.method = "ind",
                                      conf = 0.95,
                                      CI.type = "bca",
                                      ncpus = 1,
@@ -628,13 +633,19 @@ gl.report.heterozygosity <- function(x,
     # bootstrapping
     if (nboots > 0) {
       pop_boot <- lapply(sgl, function(y) {
-        df <- as.data.frame(as.matrix(y))
         
+        df <- as.matrix(y)
+        
+        if(boot.method == "loc"){
+          df <- t(df)
+        }
+
         res_boots <- boot::boot(
           data = df,
           statistic = pop.het,
           n.invariant = n.invariant,
           aHet = n.invariant > 0,
+          boot_method = boot.method,
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -1030,11 +1041,14 @@ gl.report.heterozygosity <- function(x,
         plot.theme
     }
     
-    outliers_temp <-
+    if (plot.display) 
+      {
+      outliers_temp <-
       ggplot_build(p1)$data[[1]]$outliers[[1]]
     outliers <-
       data.frame(ID = as.character(df$ind.name[df$Ho %in% outliers_temp]),
                  Ho = outliers_temp)
+    }
     
     # OUTPUT REPORT
     if (verbose >= 3) {

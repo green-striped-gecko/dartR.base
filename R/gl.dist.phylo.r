@@ -1,5 +1,5 @@
 #' @name gl.dist.phylo
-#' @title Generates a distance matrix taking into account a substitution model
+#' @title Generates a distance matrix from a SNP genlight object taking into account a substitution model
 #' 
 #' @family phylogeny
 #' 
@@ -31,8 +31,7 @@
 #'      alignments. This can have an impact of distance measures depending on how missing values are managed.
 #'      To minimize this effect, you might elect to filter on tag length using this parameter.
 #'      
-#'      subst.model : Use this parameter to specify the substitution model, selecting from the list used by
-#'      {ape}
+#'      subst.model : Use this parameter to specify the substitution model, selecting from the list used by package ape.
 #'      
 #'      \itemize{
 #'      \item
@@ -61,11 +60,10 @@
 #'       logdet: The Log-Det distance, developed by Lockhart et al. (1994), is related to BH87. However, this distance is symmetric. Formulae from Gu and Li (1996) are used. dist.logdet in phangorn uses a different implementation that gives substantially different distances for low-diverging sequences.
 #'      \item
 #'       paralin: Lake (1994) developed the paralinear distance which can be viewed as another variant of the Barry–Hartigan distance.
-#'      }
-#'      
+#'      \item
 #'      pairwise.missing : If TRUE, then missing values in the sequence (NNNs) will be accommodated in the calculations pair of taxa at a time; otherwise, the 
 #'      deletion of data at positions in the sequence will be global (deleted if any missing data at the position in any individual).
-#'      
+#' }
 #' @author Custodian: Arthur Georges -- Post to 
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
@@ -94,12 +92,26 @@ gl.dist.phylo <- function(xx,
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v2023.3",
+                   build = "v2025.1",
                    verbose = verbose)
   
   # STANDARD ERROR CHECKING
   # Check datatype
-  datatype <- utils.check.datatype(xx, verbose = verbose)
+  datatype <- utils.check.datatype(xx, accept = c("snp","silicodart"), verbose = verbose)
+  
+  if(datatype=="silicodart"){
+    cat(error("Fatal Error: Function gl.dist.phylo works only with SNP data. For SilicoDArT presence-absence data, use gl.dist.pop or gl.dist.ind\n"))
+    stop()
+  }
+  
+  if (!is(x, "dartR")) {
+    class(x) <- "dartR"  
+    if (verbose>2) {
+      cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+      cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+    }
+  }
   
   # Check for monomorphic loci
   tmp <- gl.filter.monomorphs(xx, verbose = 0)

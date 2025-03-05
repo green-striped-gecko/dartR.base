@@ -6,7 +6,7 @@
 \usage{
 utils.check.datatype(
   x,
-  accept = c("genlight", "SNP", "SilicoDArT"),
+  accept = c("genlight", "SNP", "SilicoDArT", "dartR"),
   verbose = NULL
 )
 }
@@ -52,6 +52,7 @@ datatype <- utils.check.datatype(fd,accept='fd')
 \seealso{
 Other utilities: 
 \code{\link{gl.alf}()},
+\code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
@@ -71,7 +72,8 @@ Other utilities:
 \code{\link{utils.recalc.freqhomsnp}()},
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+\code{\link{utils.transpose}()},
+\code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

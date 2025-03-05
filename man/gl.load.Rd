@@ -7,10 +7,10 @@
 gl.load(file, compliance = FALSE, verbose = NULL)
 }
 \arguments{
-\item{file}{Name of the file to receive the binary version of the object
+\item{file}{Name of the file to receive data
 [required].}
 
-\item{compliance}{Whether to make compliance check [default FALSE].}
+\item{compliance}{Whether to undertake a compliance check [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -21,12 +21,9 @@ The loaded object
 }
 \description{
 This is a wrapper for readRDS()
-The function loads the object from the current workspace and returns the
- gl object.
-}
-\examples{
-gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
-gl <- gl.load(file.path(tempdir(),'testset.rds'))
+The function loads the object from the current workspace, checks if it is a
+dartR genlight object, converts it if it is not, and returns the
+gl object. A compliance check can be requested.
 }
 \seealso{
 \code{\link{gl.save}}

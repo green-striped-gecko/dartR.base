@@ -34,3 +34,7 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 dartR.base.Rproj
+.Rproj.user
+.Rdata
+.DS_Store
+.quarto

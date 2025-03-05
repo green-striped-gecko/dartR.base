@@ -1,5 +1,5 @@
 #' @name gl.dist.pop
-#' @title Calculates a distance matrix for populations with SNP genotypes in a
+#' @title Calculates a distance matrix for populations with SNP or Silicodart genotypes in a
 #'  genlight object
 #' @family distance
 
@@ -7,7 +7,7 @@
 #' This script calculates various distances between populations based on allele
 #' frequencies (SNP genotypes) or frequency of presences in PA (SilicoDArT) data 
 #'  
-#' @param x Name of the genlight containing [required].
+#' @param x Name of the genlight object [required].
 #' @param as.pop Temporarily assign another locus metric as the population for
 #' the purposes of deletions [default NULL].
 #' @param method Specify distance measure [default euclidean].
@@ -15,7 +15,7 @@
 #' [default TRUE].
 #' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
 #'  fall in the range [0,1] [default FALSE].
-#' @param type Specify the type of output, dist or matrix [default dist]
+#' @param type Specify the type of output, dist or matrix [default 'dist']
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
@@ -28,8 +28,8 @@
 #'   [default 2 or as specified using gl.set.verbosity].
 #'   
 #' @details
-#' The distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
-#' 'nei' and 'chord'. Refer to the documentation of functions in
+#' For SNP data, the distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
+#' 'nei' and 'chord'. For SilicoDArT data, the distance measure can be one of 'Refer to the documentation of functions in
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
 #'   and definitions.
 #'   
@@ -102,6 +102,15 @@ gl.dist.pop <- function(x,
     datatype <-
         utils.check.datatype(x, accept = c("SNP","SilicoDArT"), verbose = verbose)
     
+    if (!is(x, "dartR")) {
+      class(x) <- "dartR"  
+      if (verbose>2) {
+        cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
+                 please use function dartR2gl\n"))
+      }
+    }
+    
     # Population labels assigned?
     if (is.null(as.pop)) {
       if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
@@ -137,7 +146,10 @@ gl.dist.pop <- function(x,
             "nei",
             "reynolds",
             "chord",
-            "fixed-diff"
+            "fixed-diff",
+            "simple",
+            "jaccard",
+            "sorensen"
         )
     
     method <- tolower(method)
@@ -209,11 +221,14 @@ gl.dist.pop <- function(x,
     # hist(D/2,breaks=50)
     # #VALIDATED [with minor differences, missing handling?]
 
-# For DArTseq only
+    ############################################################################
+    ####### DARTSEQ
+    ############################################################################
+    
     if (method == "reynolds") {
         if(datatype=="SilicoDArT"){
             stop(error("Fatal Error: Reynolds Distance is not available 
-                       for presence-absence data\n"))
+                       for Silicodart presence-absence data\n"))
         }
         for (i in (1:(nP - 1))) {
             for (j in ((i + 1):nP)) {
@@ -256,7 +271,7 @@ gl.dist.pop <- function(x,
     if (method == "nei") {
         if(datatype=="SilicoDArT"){
             stop(error("Fatal Error: Nei Standard Distance is not available
-                       for presence-absence data\n"))
+                       for Silicodart presence-absence data\n"))
         }
         for (i in (1:(nP - 1))) {
             for (j in ((i + 1):nP)) {
@@ -297,7 +312,7 @@ gl.dist.pop <- function(x,
     if (method == "chord") {
         if(datatype=="SilicoDArT"){
             stop(error("Fatal Error: Czfordi-Edwards Chord Distance is not available
-                       for presence-absence data\n"))
+                       for Silicodart presence-absence data\n"))
         }
         for (i in (1:(nP - 1))) {
             for (j in ((i + 1):nP)) {
@@ -349,6 +364,42 @@ gl.dist.pop <- function(x,
     if(method != "fixed-diff") {
     dimnames(dd) <- list(popNames(x), popNames(x))
     }
+    
+    ############################################################################
+    ####### SILICODART
+    ############################################################################
+    
+    if (method == "simple") {
+      if(datatype=="SNP"){
+        stop(error("Fatal Error: Simple Matching Distance is not available
+                       for SNP data\n"))
+      }
+      tmp <- gl.dist.ind(x,method="simple",verbose=0)
+      dd <- utils.collapse.matrix(D=tmp,x=x,verbose=0)
+    }
+    
+    if (method == "jaccard") {
+      if(datatype=="SNP"){
+        stop(error("Fatal Error: Jaccard Distance is not available
+                       for SNP data\n"))
+      }
+      tmp <- gl.dist.ind(x,method="jaccard",verbose=0)
+      dd <- utils.collapse.matrix(D=tmp,x=x,verbose=0)
+    }
+    
+    if (method == "sorensen") {
+      if(datatype=="SNP"){
+        stop(error("Fatal Error: Sorensen (=Dice) Distance is not available
+                       for SNP data\n"))
+      }
+      tmp <- gl.dist.ind(x,method="sorensen",verbose=0)
+      dd <- utils.collapse.matrix(D=tmp,x=x,verbose=0)
+    }
+    
+    
+    ############################################################################
+    ####### PLOT RESULTS
+    ############################################################################
 
     # PLOT Plot Box-Whisker plot
     
