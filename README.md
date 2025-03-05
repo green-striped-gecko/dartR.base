@@ -8,7 +8,7 @@
 <!-- badges: start -->
 ### Downloads
 
-[![Downloads from Rstudio mirror](https://cranlogs.r-pkg.org/badges/grand-total/dartRverse)](https://cran.r-project.org/package=dartRverse)
+[![Downloads from Rstudio mirror](https://cranlogs.r-pkg.org/badges/grand-total/dartR.base)](https://cran.r-project.org/package=dartR.base)
 
 
 ### Repositories
