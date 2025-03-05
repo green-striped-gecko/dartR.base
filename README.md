@@ -7,9 +7,11 @@
 
 <!-- badges: start -->
 ### Downloads
-
-[![Downloads from Rstudio mirror](https://cranlogs.r-pkg.org/badges/grand-total/dartR.base)](https://cran.r-project.org/package=dartR.base)
-
+| package | downloads  |
+|------------|------------|
+|  dartR     | [![Downloads from Rstudio mirror](https://cranlogs.r-pkg.org/badges/grand-total/dartR)](https://cran.r-project.org/package=dartR) |
+|  dartRverse  | [![Downloads from Rstudio mirror](https://cranlogs.r-pkg.org/badges/grand-total/dartRverse)](https://cran.r-project.org/package=dartRverse) |
+| dartR.base   | [![Downloads from Rstudio mirror](https://cranlogs.r-pkg.org/badges/grand-total/dartR.base)](https://cran.r-project.org/package=dartR.base) |
 
 ### Repositories
 
