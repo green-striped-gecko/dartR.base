@@ -42,8 +42,7 @@
 #' @references Jack Pew, Jinliang Wang, Paul Muir and Tim Frasier (2014).
 #' related: related: an R package for analyzing pairwise relatedness
 #'  data based on codominant molecular markers.
-#'  R package version 0.8/r2.
-#'   \url{https://R-Forge.R-project.org/projects/related/}
+#'  R package version 0.8/r2.https://R-Forge.R-project.org/projects/related/
 #'   
 #' @export
 #' @return A data.frame that can be used to run with the related package
