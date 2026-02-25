@@ -8,7 +8,7 @@
 #' pgamma
 #' @import ggplot2
 #' @import dartR.data
-#' @rawNamespace import(adegenet, except = plot)
+#' @rawNamespace import(adegenet, except = c(plot, glMean))
 #' @importFrom StAMPP stamppNeisD
 #' @importFrom ape dist.gene
 #' @import utils

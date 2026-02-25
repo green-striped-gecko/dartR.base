@@ -27,10 +27,11 @@
 #' @examples
 #' \dontrun{
 #' # read in vcf and convert to format as DArT data
-#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR.data'))
+#' obj <- gl.read.vcf(system.file('extdata/test.vcf',package='dartR'),
+#' ind.metafile="metafile.csv")
 #' # read in vcf and convert to format as dosage
-#' obj <- gl.read.vcf(system.file('extdata/test.vcf', package='dartR'), 
-#'                    ind.metafile = "metafile.csv", mode="dosage")
+#' obj <- gl.read.vcf(system.file('extdata/test.vcf',package='dartR'),
+#' ind.metafile="metafile.csv",mode="dosage")
 #' }
 
 gl.read.vcf <- function(vcffile,
@@ -278,11 +279,13 @@ gl.read.vcf <- function(vcffile,
     )
   }
   #convert to fbm 
-  if (fbm) {}
+  if (fbm) {
   x <- gl.gen2fbm(x, verbose = verbose) 
+  }
+  # else x@fbm <- NULL
   if (verbose>2) {
     cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-  } else x@fbm <- NULL
+  } 
   
   
   return(x)

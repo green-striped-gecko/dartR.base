@@ -468,6 +468,9 @@ gl.report.diversity <- function(x,
         colors_pops <- plot.colors.pop
     }
      # colors_pops <- gl.select.colors(x=x,library=library,palette=palette,verbose=0)
+      
+      pop_levels <- levels(pop(x))      
+      fs_final$pop <- factor(fs_final$pop, levels = pop_levels)
     
     p3 <-
         ggplot(fs_final, aes(x = pop, y = value, fill = pop)) + 

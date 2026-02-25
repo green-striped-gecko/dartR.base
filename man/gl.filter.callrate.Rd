@@ -125,7 +125,6 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \code{\link{gl.report.callrate}}
 
 Other matched filter: 
-\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},

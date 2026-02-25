@@ -49,7 +49,7 @@ theme_dartR <- function(base_size = 11,
       rect = element_rect(
         fill = "white",
         color = "black",
-        size = base_rect_size,
+        linewidth = base_rect_size,
         linetype = 1
       ),
       text = element_text(

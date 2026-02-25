@@ -575,8 +575,18 @@ gl.report.hwe <- function(x,
                     ),
                     linewidth = 1,
                     color = "darkgreen"
-                ) + ggtern::theme_void() +
-              # ) + theme_void_2() +
+                ) + 
+                 ggtern::theme_void()+
+                theme(
+                  # ggtern-specific backgrounds
+                  tern.panel.background = element_rect(fill = NA, colour = NA),
+                  tern.plot.background  = element_rect(fill = NA, colour = NA),
+                  # remove ternary mask
+                  tern.panel.mask.show = FALSE,
+                  # remove grids
+                  tern.panel.grid.major = element_blank(),
+                  tern.panel.grid.minor = element_blank()
+                ) +
                 theme(
                     plot.subtitle = element_text(hjust = 0.5, vjust = 1),
                     tern.axis.line = element_line(color = "black",

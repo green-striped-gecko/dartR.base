@@ -174,7 +174,7 @@ gl.diagnostics.hwe <- function(x,
                                            sig_only = FALSE,
                                            verbose = 0))
   #no ggtern installed
-  if (hweout==-1) return(NULL)
+  if(!data.table::is.data.table(hweout) | !is.data.frame(hweout)) return(NULL)
   p1 <-   ggplot(hweout, aes(Prob)) +
     geom_histogram(bins = bins,
                    color = colors.hist[1],
@@ -202,9 +202,9 @@ gl.diagnostics.hwe <- function(x,
   Fstats <- utils.basic.stats(x)
   
   # Number of loci out of HWE as a function of a population
-  hweout.dt <- data.table(hweout)
+  hweout.dt <- data.table::data.table(hweout)
   nTimesBypop <- hweout.dt[, .N, by = c("Locus", "Sig")]
-  setkey(nTimesBypop, Sig)
+  data.table::setkey(nTimesBypop, Sig)
   
   nTimesBypop.df <- as.data.frame(table(nTimesBypop["sig", N]))
   
@@ -242,14 +242,14 @@ gl.diagnostics.hwe <- function(x,
     plot.theme 
   
   # Collate HWE tests and Fis per locus and pop
-  FisPops <- data.table(Fstats$Fis, keep.rownames = TRUE)
+  FisPops <- data.table::data.table(Fstats$Fis, keep.rownames = TRUE)
   
   # fix the headings when there is only one pop
   if (length(levels(pop(x))) == 1) {
     #FisPops[, dumpop := NULL]
-    setnames(FisPops, "round(Fis, 4)", levels(pop(x)))
+    data.table::setnames(FisPops, "round(Fis, 4)", levels(pop(x)))
   }
-  setnames(FisPops, "rn", "Locus")
+  data.table::setnames(FisPops, "rn", "Locus")
   FisPopsLong <-
     data.table::melt(
       FisPops,
@@ -262,7 +262,7 @@ gl.diagnostics.hwe <- function(x,
   hwe_Fis <- merge(hweout.dt, FisPopsLong, by = c("Locus", "Population"))
   hwe_Fis[, Deficiency := Fis > 0]
   hwe_Fis[,  Excess := Fis < 0]
-  setkey(hwe_Fis, Sig)
+  data.table::setkey(hwe_Fis, Sig)
   
   hwe_summary <-
     hwe_Fis["sig", .(

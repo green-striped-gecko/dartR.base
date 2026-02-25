@@ -4,7 +4,7 @@
 \alias{gl.load}
 \title{Loads an object from compressed binary format produced by gl.save()}
 \usage{
-gl.load(file, fbm = TRUE, compliance = FALSE, verbose = NULL)
+gl.load(file, fbm = FALSE, compliance = FALSE, verbose = NULL)
 }
 \arguments{
 \item{file}{Name of the file to receive data

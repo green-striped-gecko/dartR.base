@@ -29,7 +29,7 @@ gl.dist.ind(
 (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 mutation) is scored as 1 [default FALSE].}
 
-\item{type}{Specify the type of output, dist or matrix [default dist]}
+\item{type}{Specify the type of output, "dist" or "matrix" [default "dist"]}
 
 \item{plot.display}{If TRUE, resultant plots are displayed in the plot window
 [default TRUE].}

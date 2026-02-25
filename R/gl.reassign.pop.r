@@ -1,5 +1,5 @@
 #' @name gl.reassign.pop
-#' @title Assigns an individual metric as pop in a genlight \{adegenet\} object
+#' @title Assigns an individual attribute in ind.metrics as pop in a genlight \{adegenet\} object
 #' @family data manipulation
 
 #' @description

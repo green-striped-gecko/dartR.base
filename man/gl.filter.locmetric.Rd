@@ -74,7 +74,6 @@ lower=200, keep= 'within', verbose=3)
 \seealso{
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},

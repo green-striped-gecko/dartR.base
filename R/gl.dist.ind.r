@@ -12,7 +12,7 @@
 #' @param swap If TRUE and working with presence-absence data, then presence 
 #' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 #' mutation) is scored as 1 [default FALSE].
-#' @param type Specify the type of output, dist or matrix [default dist]
+#' @param type Specify the type of output, "dist" or "matrix" [default "dist"]
 #' @param plot.display If TRUE, resultant plots are displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
@@ -196,7 +196,7 @@ gl.dist.ind <- function(x,
     
     # Calculate absolute matching distance
     if (method == "absolute") {
-      dd <- dd <- utils.dist.ind.snp(x, method = 'absolute', verbose = verbose)
+      dd <- utils.dist.ind.snp(x, method = 'absolute', verbose = verbose)
       if (verbose >= 2) {
         cat(report("  Calculating absolute matching distance\n"))
       }

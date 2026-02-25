@@ -2,98 +2,75 @@
 % Please edit documentation in R/gl.filter.hamming.r
 \name{gl.filter.hamming}
 \alias{gl.filter.hamming}
-\title{Filters loci based on pairwise Hamming distance between sequence tags}
+\title{Filters loci by trimmed-sequence similarity using Hamming distance}
 \usage{
-gl.filter.hamming(
-  x,
-  threshold = 0.2,
-  rs = 5,
-  tag.length = 69,
-  plot.display = TRUE,
-  plot.theme = theme_dartR(),
-  plot.colors = NULL,
-  plot.file = NULL,
-  plot.dir = NULL,
-  pb = FALSE,
-  verbose = NULL
-)
+gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{threshold}{A threshold Hamming distance for filtering loci
-[default threshold 0.2].}
+\item{threshold}{Maximum allowed Hamming distance (number of
+mismatching bases) between two trimmed sequences for them to be treated as
+duplicates [default 3].}
 
-\item{rs}{Number of bases in the restriction enzyme recognition sequence
-[default 5].}
+\item{rs}{Number of bases to skip from the start of the TrimmedSequence
+before extracting the comparison substring (ie restriction site length)
+ [default 5].}
 
-\item{tag.length}{Typical length of the sequence tags [default 69].}
-
-\item{plot.display}{If TRUE, histograms are displayed in the plot window
-[default TRUE].}
-
-\item{plot.theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
-
-\item{plot.colors}{List of two color names for the borders and fill of the
-plots [default c("#2171B5", "#6BAED6")].}
-
-\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
-
-\item{plot.dir}{Directory in which to save files [default = working directory]}
-
-\item{pb}{If TRUE, a progress bar will be displayed [default FALSE]}
+\item{min.length}{Length of the substring used for Hamming
+comparisons. Only loci producing a substring of exactly this length are
+compared; others are retained [default 50].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
  [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-A genlight object filtered on Hamming distance.
+A \code{genlight} object with redundant loci removed.
 }
 \description{
-Hamming distance is calculated as the number of base differences between two
-sequences which can be expressed as a count or a proportion. Typically, it is
-calculated between two sequences of equal length. In the context of DArT
-trimmed sequences, which differ in length but which are anchored to the left
-by the restriction enzyme recognition sequence, it is sensible to compare the
-two trimmed sequences starting from immediately after the common recognition
-sequence and terminating at the last base of the shorter sequence.
+This function compares locus \code{TrimmedSequence} strings after skipping 
+a user-defined number of bases (the restriction site) and retaining a fixed-length
+substring. Loci whose substrings are within \code{threshold} mismatches
+(Hamming distance) are considered duplicates and one is dropped.
 }
 \details{
-Hamming distance can be computed
-by exploiting the fact that the dot product of two binary vectors x and (1-y)
-counts the corresponding elements that are different between x and y.
-This approach can also be used for vectors that contain more than two 
-possible values at each position (e.g. A, C, T or G).
-If a pair of DNA sequences are of differing length, the longer is truncated.
-The algorithm is that of Johann de Jong
-\url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
-as implemented in \code{\link{utils.hamming}}.
-Only one of two loci are retained if their Hamming distance is less that a 
-specified
-percentage. 5 base differences out of 100 bases is a 20% Hamming distance.
+This function finds near-duplicate TrimmedSequences by first taking the same 
+fixed-length piece of sequence from every locus, then cutting that piece 
+into several smaller sections. It relies on a simple fact: if two sequences 
+differ by only a few letters (up to your threshold), then at least one of 
+those sections must be exactly the same in both. So it uses the sections as 
+“signatures” to quickly shortlist only those loci that share an identical 
+section, instead of comparing every locus to every other one. For each 
+shortlisted pair, it then checks the two sequences letter-by-letter and 
+stops as soon as it can tell they differ by more than the allowed number. 
+It works backwards through the list so each TrimmedSequence is only checked 
+against the TrimmedSequence that comes after it, and once a locus is flagged 
+as a duplicate it is not used to match others.
+
+The function expects locus metrics to include \code{TrimmedSequence} in
+\code{x@other$loc.metrics}.
+
+When a duplicate pair \code{(i, j)} is detected (Hamming distance \code{<= threshold}),
+the function drops the locus with the larger number of missing genotypes across
+individuals (i.e. lower call rate).
+
+Only loci whose \code{TrimmedSequence} is long enough to yield a substring of
+exactly \code{min.length} are compared. Loci with shorter sequences are not
+compared and are retained.
 }
 \examples{
-# SNP data
+# x must be a genlight with TrimmedSequence in x@other$loc.metrics
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
-test <- gl.subsample.loc(platypus.gl,n=50)
-result <- gl.filter.hamming(test, threshold=0.6, verbose=3)
-}
-\seealso{
-Other matched filter: 
-\code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.ld}()},
-\code{\link{gl.filter.locmetric}()},
-\code{\link{gl.filter.maf}()},
-\code{\link{gl.filter.monomorphs}()},
-\code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.pa}()},
-\code{\link{gl.filter.replicates}()},
-\code{\link{gl.filter.secondaries}()}
+x <- platypus.gl
+x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
+
 }
 \author{
 Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{matched filter}
+\concept{matched filter
+Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
+removes redundant loci, preferentially retaining the locus with the better call
+rate (fewer missing genotypes).}

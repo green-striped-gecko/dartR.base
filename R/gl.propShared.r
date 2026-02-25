@@ -34,9 +34,7 @@ gl.propShared <- function(x) {
   }
   
   xx <- as.matrix(x)
-  glpropSharedC <- function() {
-    
-  }  #to hack package checking...
+  glpropSharedC <- function() {  }  #to hack package checking...
   Rcpp::cppFunction(
     "NumericMatrix glpropSharedC(NumericMatrix x) {
   int nrow = x.nrow();

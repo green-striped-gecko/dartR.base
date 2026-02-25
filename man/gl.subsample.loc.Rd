@@ -52,6 +52,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

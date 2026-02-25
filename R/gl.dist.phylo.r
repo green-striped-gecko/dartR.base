@@ -126,8 +126,8 @@
 #' @examples
 #'
 #' \donttest{
-#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-#' tmp <- gl.filter.monomorphs(testset.gl)
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+#' tmp <- gl.filter.monomorphs(platypus.gl, verbose = 0)
 #' gl.dist.phylo(x=tmp,subst.model="F81")
 #' }
 #'

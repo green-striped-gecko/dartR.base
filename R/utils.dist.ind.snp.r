@@ -21,7 +21,7 @@
 #' @details
 #' This script calculates various distances between individuals based on 
 #' SNP genotypes.
-
+#'
 #' The distance measure can be one of:
 #'  \itemize{
 #'   \item Euclidean -- Euclidean Distance applied to Cartesian coordinates
@@ -43,50 +43,56 @@
 
 # Examples for testing
 # D <- utils.dist.ind.snp(testset.gl, method='Manhattan')
-# D <- utils.dist.ind.snp(testset.gl, method='Euclidean',scale=TRUE)
+# D <- utils.dist.ind.snp(testset.gl, method='Euclidean', scale = TRUE)
 # D <- utils.dist.ind.snp(testset.gl, method='Simple')
 
 utils.dist.ind.snp <- function(x,
-                              method = "Euclidean",
-                              scale=FALSE,
-                              type="dist",
-                              verbose = NULL) {
-    # SET VERBOSITY
-    verbose <- gl.check.verbosity(verbose)
-    
-    # FLAG SCRIPT START
-    funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
-                     build = "v.2023.3",
-                     verbose = verbose)
-    
-    # CHECK DATATYPE
-    datatype <-
-        utils.check.datatype(x, accept = "SNP", verbose = verbose)
-    
-    # SCRIPT SPECIFIC ERROR CHECKING
-    
-    method <- tolower(method)
-    
-    # FUNCTION SPECIFIC ERROR CHECKING
-    
-    if (!(method %in% c(
-        "euclidean",
-        "simple",
-        "absolute",
-        "czekanowski",
-        "manhattan"
-        ))) {
-        if (verbose >= 2) {
-            cat(warn(
-                "  Warning: Method not in the list of options, set to Euclidean\n"
-            ))
-        }
-        method <- "euclidean"
+                               method  = "Euclidean",
+                               scale   = FALSE,
+                               type    = "dist",
+                               verbose = NULL) {
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+  
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname,
+                   build = "v.2023.3",
+                   verbose = verbose)
+  
+  # CHECK DATATYPE
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+  
+  # FUNCTION-SPECIFIC SETTINGS
+  method <- tolower(method)
+  
+  if (!(method %in% c("euclidean", "simple", "absolute", "czekanowski", "manhattan"))) {
+    if (verbose >= 2) {
+      cat(warn("  Warning: Method not in the list of options, set to Euclidean\n"))
     }
-    
-    if(scale==TRUE && !(method == "euclidean")){
-        cat(warn("  Warning: parameter scale only applies to Euclidean Distance, ignored\n"))
+    method <- "euclidean"
+  }
+  
+  if (scale && method != "euclidean") {
+    cat(warn("  Warning: parameter scale only applies to Euclidean Distance, ignored\n"))
+  }
+  
+  # DO THE JOB
+  mat <- as.matrix(x)
+  
+  nI <- nInd(x)
+  nL <- nLoc(x)
+  dd <- array(NA_real_, c(nI, nI))
+  
+  # if (verbose >= 2) {
+    if (method == "euclidean") {
+      if (scale) {
+        cat(report("  Calculating the scaled distance matrix --", method, "\n"))
+      } else {
+        cat(report("  Calculating the unscaled distance matrix --", method, "\n"))
+      }
+    } else {
+      cat(report("  Calculating the distance matrix --", method, "\n"))
     }
     
     # DO THE JOB
@@ -104,9 +110,9 @@ utils.dist.ind.snp <- function(x,
             } else {
                 cat(report("  Calculating the unscaled distance matrix --", method, "\n"))
             }
-        } else {
-            cat(report("  Calculating the distance matrix --", method, "\n"))
-        }
+        } #else {
+          #dd[j, i] <- sqrt(sum(sq, na.rm = TRUE))
+        #}
     }
      
     # for (i in (1:(nI - 1))) {
@@ -267,6 +273,24 @@ utils.dist.ind.snp <- function(x,
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(dd)
+  # }
+  
+  # Fill diagonal and mirror upper triangle
+  dd <- as.matrix(dd)
+  diag(dd) <- 0
+  dd[upper.tri(dd)] <- t(dd)[upper.tri(dd)]
+  
+  if (type == "dist") {
+    dd <- as.dist(dd)
+    if (verbose >= 2) cat(report("  Returning a stats::dist object\n"))
+  } else {
+    if (verbose >= 2) cat(report("  Returning a square matrix object\n"))
+  }
+  
+  # FLAG SCRIPT END
+  if (verbose > 0) {
+    cat(report("Completed:", funname, "\n"))
+  }
+  
+  return(dd)
 }

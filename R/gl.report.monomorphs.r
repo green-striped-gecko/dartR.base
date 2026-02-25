@@ -18,8 +18,6 @@
 #' Note that for SNP data, NAs likely represent null alleles; in tag
 #' presence/absence data, NAs represent missing values (presence/absence could
 #' not be reliably scored)
-
-#' @rawNamespace import(adegenet, except = plot)
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples

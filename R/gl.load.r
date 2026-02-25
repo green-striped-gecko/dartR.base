@@ -27,7 +27,7 @@
 #' @return The loaded object
 
 gl.load <- function(file,
-                    fbm=TRUE,
+                    fbm = FALSE,
                     compliance = FALSE,
                     verbose = NULL) {
     # SET VERBOSITY

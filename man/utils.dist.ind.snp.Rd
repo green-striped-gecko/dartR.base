@@ -40,6 +40,7 @@ OUTCOMES.
 \details{
 This script calculates various distances between individuals based on 
 SNP genotypes.
+
 The distance measure can be one of:
  \itemize{
   \item Euclidean -- Euclidean Distance applied to Cartesian coordinates

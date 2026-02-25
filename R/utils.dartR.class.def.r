@@ -1,13 +1,13 @@
 #' @import bigstatsr
 #' @import bigsnpr
 #' @importFrom methods callNextMethod slotNames
+#' @import adegenet
 
 #seppop needs to be imported to work for dartR
 #also internal functions for "[" methods
 seppop <- getFromNamespace("seppop", "adegenet")
 .seppop_internal <- getFromNamespace(".seppop_internal", "adegenet")
 .get_pop_inds <- getFromNamespace(".get_pop_inds", "adegenet")
-
 
 ## Allow the slot to be either an FBM or NULL
 setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
@@ -55,11 +55,6 @@ fbm_or_gen <- function(x) {
   stop("Neither @fbm nor @gen slot found or populated in object.")
 }
 
-
-
-
-
-
 ## (Re)define your subclass; it CONTAINS genlight and ADDS a slot
 setClass("dartR",
          contains = "genlight",
@@ -89,7 +84,6 @@ setClass("dartR",
              if (length(object@loc.names) > 0 && length(object@loc.names) != dm[2])
                return("length(@loc.names) must match ncol(@fbm).")
            } 
-           
            TRUE
          }
 )
@@ -97,8 +91,6 @@ setClass("dartR",
 ### adding new slots...
 #setClass("dartR",slots=list(what="integer"), contains="genlight")
 ###
-
-
 
 ### adding new slots...
 #setClass("dartR",slots=list(what="integer"), contains="genlight")
@@ -314,8 +306,6 @@ setMethod ("show", "dartR", function(object) {
   G2
 }
 
-
-
 #################
 ## subset dartR
 #################
@@ -335,7 +325,6 @@ setMethod ("show", "dartR", function(object) {
 #' @return dartR object
 #' 
 ## Helper: subset an FBM.code256 by (rows i, cols j) without materializing everything
-
 
 ## dartR: subset method with FBM support
 setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
@@ -378,8 +367,6 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             
             }
             
-          
-          
             ## -------- FBM-backed branch --------
             fbm <- .fbm_or_null(x)
             if (!is.null(fbm)) {
@@ -495,15 +482,10 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             x
           })
 
-
-
-
-
-
 ###############################################################
-#' adjust cbind for dartR
-#'
-#' cbind is a bit lazy and does not take care for the metadata (so data in the
+#' @name cbind.dartR
+#' @title cbind for dartR objects
+#' @description cbind is a bit lazy and does not take care for the metadata (so data in the
 #' other slot is lost). You can get most of the loci metadata back using
 #' gl.compliance.check.
 #' @param ... list of dartR objects
@@ -518,7 +500,6 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' @return A genlight object
 #' @export
 
-## --- FBM-aware cbind for dartR/genlight ---
 cbind.dartR <- function(...,
                         backingfile = tempfile("geno_"),
                         code = NULL,          # if NULL: inherit from first FBM or use CODE_DOSAGE
@@ -715,14 +696,12 @@ cbind.dartR <- function(...,
   out
 } # end cbind.dartR
 ###############################################################
-
-
 ##################################################################
-#' adjust rbind for dartR
-#'
-#' rbind is a bit lazy and does not take care for the metadata (so data in the
+#' @name rbind.dartR
+#' @title rbind for dartR objects
+#' @description rbind is a bit lazy and does not take care for the metadata (so data in the
 #' other slot is lost). You can get most of the loci metadata back using
-#'  gl.compliance.check.
+#' gl.compliance.check.
 #' @param ... list of dartR objects
 #' @param backingfile prefix for the backing file of the resulting FBM
 #' @param code code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input
@@ -734,11 +713,6 @@ cbind.dartR <- function(...,
 #' t2 <- rbind(t1[1:5,],t1[6:10,])
 #' @return A genlight object 
 #' @export
-
-
-
-
-## FBM-aware rbind for dartR / genlight using big_apply in the copy loop
 rbind.dartR <- function(...,
                         backingfile   = tempfile("geno_rbind_"),
                         code          = NULL,        # if NULL: inherit from first FBM
@@ -923,15 +897,10 @@ rbind.dartR <- function(...,
   methods::validObject(out)
   out
 }
-
-
-
 # end of rbind.dartR
 ###############################################################
 
 #now set methods to use FBM when present.
-
-
 as.matrix.dartR <- function(x, ...) {
   fbm <- .fbm_or_null(x)
   if (!is.null(fbm)) return(x@fbm[])
@@ -939,13 +908,10 @@ as.matrix.dartR <- function(x, ...) {
   methods::as(methods::as(x, "genlight"), "matrix")
 }
 
-
 if (!methods::isGeneric("nInd"))
   methods::setGeneric("nInd", function(x) standardGeneric("nInd"))
 if (!methods::isGeneric("nLoc"))
   methods::setGeneric("nLoc", function(x) standardGeneric("nLoc"))
-
-
 
 ## Use FBM dims when present
 setMethod("nInd", "dartR", function(x) {
@@ -961,7 +927,6 @@ if (!methods::isGeneric("as.matrix")) {
   methods::setGeneric("as.matrix", useAsDefault = base::as.matrix)
 }
 
-
 setMethod("as.matrix", "dartR", function(x, ...) {
   fbm <- .fbm_or_null(x)
   if (is.null(fbm)) methods::as(methods::as(x, "genlight"), "matrix") else {
@@ -970,10 +935,7 @@ setMethod("as.matrix", "dartR", function(x, ...) {
     colnames(dummy)<- locNames(x)
     rownames(dummy)<- indNames(x)
     return(dummy) 
-    
     }
-  
-  
 })
 # 3) Also register an explicit coercion (used by some internals)
 methods::setAs("dartR", "matrix", function(from) {
@@ -984,17 +946,33 @@ methods::setAs("dartR", "matrix", function(from) {
 ############glSum############################################################################
 
 ## Ensure the generic exists (adegenet defines it; this is safe if already present)
-if (!methods::isGeneric("glSum")) {
-  methods::setGeneric("glSum", function(x, alleleAsUnit = TRUE, useC=FALSE) standardGeneric("glSum"))
-}
+#if (!methods::isGeneric("glSum")) {
+#  methods::setGeneric("glSum", function(x, alleleAsUnit = TRUE, useC=FALSE) standardGeneric("glSum"))
+#}
 
+
+
+#' @name glSum
+#' @title glSum for dartR objects
+#' @description glSum is necessary as adegenet is using it internally and we need one for fbm projects
+#' @param x a dartR object 
+#' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
+#' if FALSE, per individual
+#' @param useC FALSE, default if set to true not sure what happens ;-)
+#' @return A numeric vector of sum of second allele per locus
+#' @export
+glSum <- function(x, alleleAsUnit = TRUE, useC=FALSE) {
+  fbm <- .has_fbm(x)
+
+  ## If no FBM (old object or genlight mode), delegate to next method (genlight)
+  if (!fbm){
+    class(x)<- "genlight"
+    res <- adegenet::glSum(x, alleleAsUnit = alleleAsUnit, useC=useC); return(res)
+  }
 
 
 ## ---- FBM-aware glSum for dartR ----
-setMethod("glSum", signature(x = "dartR"), function(x, alleleAsUnit = TRUE, useC=FALSE)  {
-  fbm <- .fbm_or_null(x)
-  ## If no FBM (old object or genlight mode), delegate to next method (genlight)
-  if (is.null(fbm)) return(callNextMethod())
+
   
   if (alleleAsUnit) {
     res <- integer(nLoc(x))
@@ -1003,8 +981,7 @@ setMethod("glSum", signature(x = "dartR"), function(x, alleleAsUnit = TRUE, useC
       temp[is.na(temp)] <- 0L
       res <- res + temp
     }
-  }
-  else {
+  }  else {
     res <- numeric(nLoc(x))
     myPloidy <- ploidy(x)
     for (i in 1:nInd(x)) {
@@ -1016,9 +993,7 @@ setMethod("glSum", signature(x = "dartR"), function(x, alleleAsUnit = TRUE, useC
 
   names(res) <- locNames(x)
   return(res)
-})
-
-
+}
 
 setMethod("glNA", signature(x = "dartR"), function(x, alleleAsUnit = TRUE)  {
   fbm <- .fbm_or_null(x)
@@ -1044,19 +1019,29 @@ setMethod("glNA", signature(x = "dartR"), function(x, alleleAsUnit = TRUE)  {
   return(res)
 })
 
-#' glMean function for dartR object
-#' 
+#if (!methods::isGeneric("glMean")) {
+#  methods::setGeneric("glMean", function(x, ...) standardGeneric("glMean"))
+#}
+#setMethod("glMean", signature(x = "dartR"),  function(x, alleleAsUnit = TRUE) {
+#' @name glMean
+#' @title glMean for dartR objects
+#' @description glMean is necessary as adegenet is using it internally and we need one for fbm projects
 #' @param x a dartR object 
 #' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
 #' if FALSE, per individual
 #' @return A numeric vector of means per locus
 #' @export
 glMean <- function(x, alleleAsUnit = TRUE) {
-  fbm <- .fbm_or_null(x)
-  if (is.null(fbm)) {
-    return(adegenet::glMean(x, alleleAsUnit = alleleAsUnit))
-  }
- if (alleleAsUnit) {
+  fbm <- .has_fbm(x)
+  ## If no FBM (old object or genlight mode), delegate to next method (genlight)
+  if (!fbm){
+    class(x)<- "genlight"
+    res <- adegenet::glMean(x, alleleAsUnit = alleleAsUnit); return(res)
+    }
+    
+  
+  if (alleleAsUnit) {
+    
     N <- sum(ploidy(x)) - glNA(x, alleleAsUnit = TRUE)
     res <- glSum(x, alleleAsUnit = TRUE)/N
   } else {
@@ -1068,44 +1053,55 @@ glMean <- function(x, alleleAsUnit = TRUE) {
 }
 
 
-#############NA.posi###########################################################################
-## Ensure the generic exists (adegenet defines it; this is safe if already present)
+
+#############NA.posi##########################################################
+## Ensure the generic exists (adegenet defines it; safe if already present)
 if (!methods::isGeneric("NA.posi")) {
   methods::setGeneric("NA.posi", function(x, ...) standardGeneric("NA.posi"))
 }
 
-## ---- FBM-aware NA.posi for dartR ----
-## Returns a list (length = nInd) of integer vectors with locus indices of missing genotypes,
-## just like adegenet's NA.posi(genlight).
 setMethod("NA.posi", signature(x = "dartR"), function(x, ...) {
   fbm <- .fbm_or_null(x)
-  ## If no FBM (old object or genlight mode), delegate to next method (genlight)
   if (is.null(fbm)) return(callNextMethod())
-
-  n <- nInd(x); p <- nLoc(x)
+  
+  n <- nInd(x)
+  p <- nLoc(x)
+  
   res <- vector("list", n)
   nm  <- if (!is.null(x@ind.names) && length(x@ind.names) == n) x@ind.names else NULL
   if (!is.null(nm)) names(res) <- nm
-
-  ## allow optional chunk size via 'chunk=' in ...
+  
+  ## optional chunk size via 'chunk=' in ...
   dots  <- list(...)
   chunk <- if (!is.null(dots$chunk)) as.integer(dots$chunk) else 4096L
   if (!is.finite(chunk) || chunk <= 0L) chunk <- 4096L
-
-  ## Process by column blocks to keep memory bounded
+  
   for (s in seq.int(1L, p, by = chunk)) {
-    e   <- min(s + chunk - 1L, p)
-    blk <- fbm[, s:e]              # decode (n x (e-s+1)) numeric with NA
+    e <- min(s + chunk - 1L, p)
+    
+    blk <- fbm[, s:e]  # may be vector if s==e, depending on FBM subsetting
+    
+    ## CRITICAL: enforce 2D shape (n x (e-s+1)) even when (e-s+1)==1
+    if (is.null(dim(blk))) {
+      blk <- matrix(blk, nrow = n, ncol = e - s + 1L)
+    }
+    
     NAblk <- is.na(blk)
-    ## For each individual, collect NA columns (offset by s-1)
-    for (i in seq_len(n)) {
-      if (any(NAblk[i, ], na.rm = TRUE)) {
-        idx <- which(NAblk[i, ]) + (s - 1L)
-        res[[i]] <- c(res[[i]], idx)
+    
+    ## Collect missing positions only where they exist (more efficient than scanning all rows)
+    pos <- which(NAblk, arr.ind = TRUE)  # columns: row, col (within block)
+    if (nrow(pos) > 0L) {
+      rows <- pos[, 1L]
+      cols <- pos[, 2L] + (s - 1L)       # offset to locus index in full matrix
+      by_row <- split(cols, rows)
+      
+      for (ri in names(by_row)) {
+        i <- as.integer(ri)
+        res[[i]] <- c(res[[i]], by_row[[ri]])
       }
     }
   }
-
+  
   ## Ensure integer vectors (empty = integer())
   res <- lapply(res, function(v) if (length(v)) as.integer(v) else integer())
   res

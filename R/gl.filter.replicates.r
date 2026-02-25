@@ -27,7 +27,7 @@
 #' t1 <- platypus.gl
 #' res_rep <- gl.report.replicates(t1, loc_threshold = 500, 
 #' perc_geno = 0.85)
-#' t2 <- gl.filter.replicates(t1, replicates.report = res_rep)
+#' t2 <- gl.filter.replicates(t1, replicates.report = res_rep, perc_geno = 0.85)
 #' @family matched filter
 #' @return A reduced dartR genlight object
 #' @export

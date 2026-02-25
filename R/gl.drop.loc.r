@@ -147,9 +147,9 @@ gl.drop.loc <- function(x,
         loc.list <- locNames(x)[first:last]
     }
     if (length(loc.list) == 0) {
-        cat(warn(
+        if(verbose >=1){cat(warn(
             "  Warning: no loci listed to delete! Genlight object returned unchanged\n"
-        ))
+        ))}
         x2 <- x
     } else {
         # Remove loci flagged for deletion

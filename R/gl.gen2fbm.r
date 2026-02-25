@@ -93,8 +93,6 @@ gl.gen2fbm <- function(x,
     block.size = max(1L, as.integer(chunk))           # columns per block
   )
   
-  
-  
   ## Set FBM and clear heavy SNPbin list (XOR)
   x@fbm <- G
   x@gen <- vector("list", 0L)
@@ -109,7 +107,6 @@ gl.gen2fbm <- function(x,
   if (verbose >= 1) {
     cat(report("Completed:", funname, "\n"))
   }
-  
   
   return(x)
 }

@@ -1,7 +1,11 @@
 #' @name gl.report.replicates
 #' @title Identify replicated individuals 
 #' @description
-#' Identify replicated individuals 
+#' This function scans a genlight object for pairs of individuals that
+#' share a high proportion of identical genotype calls across a minimum number of
+#' jointly observed (non-missing) loci. It is intended to help detect technical
+#' replicates, sample duplicates, and other near-identical samples, and to suggest
+#' which individual to remove based on missing-data rate.
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param loc_threshold Minimum number of loci required to asses that two 
 #' individuals are replicates [default 100].
@@ -16,22 +20,56 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 #' @details
-#' This function uses an C++ implementation, so package Rcpp needs to be 
-#' installed and it is therefore fast (once it has compiled the function after 
-#' the first run).
+#' ## What the function computes
 #' 
-#' Ideally, in a large dataset with related and unrelated individuals and 
-#' several replicated individuals, such as in a capture/mark/recapture study, 
-#' the first histogram should have four "peaks". The first peak should represent
-#'  unrelated individuals, the second peak should correspond to second-degree 
-#'  relationships (such as cousins), the third peak should represent 
-#'  first-degree relationships (like parent/offspring and full siblings), and
-#'   the fourth peak should represent replicated individuals. 
-#'   
-#' In order to ensure that replicated individuals are properly identified, it's
-#'  important to have a clear separation between the third and fourth peaks in 
-#'  the second histogram. This means that there should be bins with zero counts 
-#'  between these two peaks.
+#' The input is coerced to a numeric matrix. For every pair of
+#' individuals \eqn{i,j}, the function counts:
+#' \itemize{
+#'   \item `nloc` = the number of loci where both individuals have non-missing
+#'     genotype calls (pairwise complete observations).
+#'   \item `nsame` = the number of those `nloc` loci where the two genotype calls
+#'     are identical.
+#'   \item `perc` = `nsame / nloc`, the proportion of identical genotype calls for
+#'     that pair.
+#' }
+#' Pairs are reported as putative replicates/duplicates when both conditions hold:
+#' `nloc > loc_threshold` and `perc > perc_geno`.
+#'
+#' ## How the computation is implemented 
+#' 
+#' The pairwise counts (`nsame` and `nloc`) are computed with a C++ routine 
+#' compiled at run time. This requires the Rcpp/RcppParallel packages. The 
+#' first call in a session will be slower because the C++ code must be compiled;
+#' subsequent calls are fast.
+#'
+#' ## Suggested individual to drop
+#' For each flagged pair, the function calculates per-individual missingness as the
+#' proportion of `NA` genotypes across all loci. The replicate suggested for removal
+#' (`ind_to_drop`) is the member of the pair with the higher missingness, so that
+#' the retained replicate maximises usable genotype information.
+#'
+#' ## How to interpret the histograms
+#' When `plot.out = TRUE`, the function draws:
+#' \enumerate{
+#'   \item A histogram of `perc` across *all* pairwise comparisons.
+#'   \item A zoomed histogram restricted to `perc > 0.8` to resolve the upper tail.
+#' }
+#' In an ideal large dataset containing a mixture of unrelated and related
+#' individuals plus several replicated individuals (e.g., capture/mark/recapture),
+#' the first histogram often shows four approximate modes (“peaks”):
+#' \enumerate{
+#'   \item Unrelated pairs (lowest `perc`).
+#'   \item Second-degree relatives (e.g., cousins).
+#'   \item First-degree relatives (e.g., parent–offspring, full siblings).
+#'   \item Replicated/duplicate samples (highest `perc`, near 1).
+#' }
+#' To confidently separate true replicates from close relatives, the zoomed
+#' histogram should show a clear gap between the third and fourth peaks: one or
+#' more bins with zero counts between the close-relative peak and the replicate
+#' peak. If the close-relative and replicate distributions overlap (no zero-count
+#' gap), you should treat replicate calls as uncertain and consider increasing
+#' marker quality/quantity, tightening filters, or raising `loc_threshold` and/or
+#' `perc_geno`.
 #' @return A list with three elements:
 #'\itemize{
 #'\item table.rep: A dataframe with pairwise results of percentage of same 
@@ -80,7 +118,8 @@ gl.report.replicates <- function(x,
   # Stub to satisfy package checks when defining the real function below
   pairwiseMatchParallel <- function() {}
   
-  # Define and compile a C++ function that computes pairwise shared/non-missing counts in parallel
+  # Define and compile a C++ function that computes pairwise shared/non-missing 
+  # counts in parallel
   suppressWarnings(
   Rcpp::cppFunction(
     code = '
@@ -213,10 +252,6 @@ gl.report.replicates <- function(x,
   # Final verbose message if requested
   if (verbose >= 1) cat(report("Completed:", funname, "\n"))
   
-  # Return a list with:
-  # - table.rep: data.table of pairs and missing-data info
-  # - ind.list.drop: vector of individual names to drop
-  # - ind.list.rep: list of replicates per individual
   list(
     table.rep     = col_same[],
     ind.list.drop = ind_list,

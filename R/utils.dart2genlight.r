@@ -183,8 +183,32 @@ utils.dart2genlight <- function(dart,
                 x))
     
     gout@other$loc.metrics <- df
-    df_ind.metrics <-
-        as.data.frame(matrix(nrow = nInd(gout), ncol = 2))
+    # Checking that TrimmedSequence exists
+    if (!"TrimmedSequence" %in% names(gout@other$loc.metrics)) {
+      if ("TrimmedSequenceSnp" %in% names(gout@other$loc.metrics)) {
+        gout@other$loc.metrics$TrimmedSequence <- gout@other$loc.metrics$TrimmedSequenceSnp
+        cat(
+          warn(
+            "TrimmedSequence field in loc.metrics was created from field TrimmedSequenceSnp"
+          )
+        )
+      } else if ("AlleleSequenceSnp" %in% names(gout@other$loc.metrics)) {
+        gout@other$loc.metrics$TrimmedSequence <- gout@other$loc.metrics$AlleleSequenceSnp
+        cat(
+          warn(
+            "TrimmedSequence field in loc.metrics was created from field AlleleSequenceSnp"
+          )
+        )
+      } else{
+        cat(
+          warn(
+            "TrimmedSequence field was not found in your DArT report, so some functions may not work"
+          )
+        )
+      }
+    } 
+
+    df_ind.metrics <- as.data.frame(matrix(nrow = nInd(gout), ncol = 2))
     colnames(df_ind.metrics) <- c("service", "plate_location")
     gout@other$ind.metrics <- df_ind.metrics
     

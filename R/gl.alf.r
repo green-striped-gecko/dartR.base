@@ -17,7 +17,6 @@
 #' gl.allele.freq(possums.gl[,1:10],simple=TRUE)
 #' barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
 #' @export
-#' @rawNamespace import(adegenet, except = plot)
 #' @return A simple data.frame with ref (reference allele), alt (alternate allele).
 
 gl.alf <- function(x) {

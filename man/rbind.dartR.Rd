@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dartR.class.def.r
 \name{rbind.dartR}
 \alias{rbind.dartR}
-\title{adjust rbind for dartR}
+\title{rbind for dartR objects}
 \usage{
 \method{rbind}{dartR}(
   ...,
@@ -29,7 +29,7 @@ A genlight object
 \description{
 rbind is a bit lazy and does not take care for the metadata (so data in the
 other slot is lost). You can get most of the loci metadata back using
- gl.compliance.check.
+gl.compliance.check.
 }
 \examples{
 t1 <- platypus.gl

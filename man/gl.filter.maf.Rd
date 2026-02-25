@@ -97,7 +97,6 @@ result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
 \seealso{
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.monomorphs}()},
