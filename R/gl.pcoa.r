@@ -188,7 +188,7 @@
 #' @seealso \code{\link{gl.pcoa.plot}}
 #' @family data exploration functions
 #' @importFrom ape pcoa
-#' @imppotFrom bigstatsr big_SVD
+#' @importFrom bigstatsr big_SVD
 #' @export
 
 gl.pcoa <- function(x,
