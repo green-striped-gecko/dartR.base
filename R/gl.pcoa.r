@@ -188,6 +188,7 @@
 #' @seealso \code{\link{gl.pcoa.plot}}
 #' @family data exploration functions
 #' @importFrom ape pcoa
+#' @imppotFrom bigstatsr big_SVD
 #' @export
 
 gl.pcoa <- function(x,
@@ -770,13 +771,22 @@ gl.pcoa <- function(x,
                     paste0("PCA on Tag P/A Data\nScree Plot\n (informative axes only -- ",pc.select," criterion)")
             }
       #!# intermediate fbm fix
-      if (!is.null(.fbm_or_null(x))) x <- gl.fbm2gen(x)
+      if (!is.null(.fbm_or_null(x))) {
+        
+        #make sure you impute (by frequency of pops (or whatever )
+        if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "frequency", verbose = verbose)
+        #run PCA on imputed data using big_SVD
+         dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = nInd(x)-1)
+        # construct glPca object
+         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
+         class(pca) <- "glPca"
+      } else {
         pca <-
             glPca(x,
                   nf = nfactors,
                   parallel = parallel,
                   n.cores = n.cores)
-        
+      }
         # # Identify the number of axes with explanatory value greater than the original variables on average
         # 
         # 

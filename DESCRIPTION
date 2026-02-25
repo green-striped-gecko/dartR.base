@@ -34,7 +34,7 @@ Description: Facilitates the import and analysis of 'SNP' (single nucleotide 'po
     If you want to cite 'dartR', you find the information by typing citation('dartR.base')
     in the console.
 Encoding: UTF-8
-Depends: R (>= 3.5), ggplot2, dplyr, dartR.data, adegenet (>= 2.0.0)
+Depends: R (>= 4.1), adegenet (>= 2.0.0), ggplot2, dplyr, dartR.data
 biocViews:
 Imports: ape,crayon,data.table,foreach,gridExtra,methods,patchwork,plyr,
          reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,MASS,SNPassoc,
