@@ -56,10 +56,11 @@
 #'
 #' @examples
 #' # x must be a genlight with TrimmedSequence in x@other$loc.metrics
+#' \donttest{
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' x <- platypus.gl
 #' x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
-#'
+#' }
 #' @export
 
 gl.filter.hamming <- function(x,

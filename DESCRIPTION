@@ -37,7 +37,7 @@ Encoding: UTF-8
 Depends: R (>= 4.1), adegenet (>= 2.0.0), ggplot2, dplyr, dartR.data
 biocViews:
 Imports: ape,crayon,data.table,foreach,gridExtra,methods,patchwork,plyr,
-         reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,MASS,SNPassoc,
+         reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,MASS,
          bigstatsr, bigsnpr, snpStats,gtools
 Suggests: 
     boot,
@@ -97,7 +97,8 @@ Suggests:
     dendextend,
     ggdendro,
     terra,
-    R.utils
+    R.utils, 
+    SNPassoc
 License: GPL (>= 3)
 RoxygenNote: 7.3.3
 NeedsCompilation: no
