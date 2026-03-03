@@ -24,10 +24,12 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
+#' \donttest{
 #' t1 <- platypus.gl[1:50,]
 #' res_rep <- gl.report.replicates(t1, loc_threshold = 500, 
 #' perc_geno = 0.85)
 #' t2 <- gl.filter.replicates(t1, replicates.report = res_rep, perc_geno = 0.85)
+#' }
 #' @family matched filter
 #' @return A reduced dartR genlight object
 #' @export
