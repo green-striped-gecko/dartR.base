@@ -30,8 +30,10 @@
 #' \donttest{
 #' require("dartR.data")
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
 #' geno <- gl2genepop(possums.gl[1:3,1:9], outpath = tempdir())
 #' head(geno)
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' test <- gl.filter.callrate(platypus.gl,threshold = 1)
 #' popNames(test)
 #' gl2genepop(test, pop.order = c("TENTERFIELD","SEVERN_ABOVE","SEVERN_BELOW"),
@@ -67,7 +69,7 @@ gl2genepop <- function (x,
   #works only with SNP data
   if (datatype != "SNP") {
     cat(error(
-      "  Only SNPs (diploid data can be transformed into genepop format!\n"
+      "  Only SNPs (diploid) data can be transformed into genepop format!\n"
     ))
     stop()
   }
@@ -80,6 +82,9 @@ gl2genepop <- function (x,
     )
     pop(x) <- rep("Pop1", nInd(x))
   }
+  
+  # changing spaces by underscors in pop names
+  popNames(x) <- gsub(" ","_",popNames(x))
   
   # DO THE JOB
   #ordering populations

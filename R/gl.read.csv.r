@@ -5,25 +5,25 @@
 #' @description
 #' This script takes SNP genotypes from a csv file, combines them with
 #' individual and locus metrics and creates a genlight object.
-
+#' 
 #' The SNP data need to be in one of two forms. SNPs can be coded 0 for
 #' homozygous reference, 2 for homozygous alternate, 1 for heterozygous, and NA 
 #' for missing values; or the SNP data can be coded A/A, A/C, C/T, G/A etc,
 #' and -/- for missing data. In this format, the reference allele is the most 
 #' frequent allele, as used by DArT. Other formats will throw an error.
-
+#' 
 #' The SNP data need to be individuals as rows, labeled, and loci as columns,
 #' also labeled. If the orientation is individuals as columns and loci by rows,
 #'  then set transpose=TRUE.
-
+#'  
 #' The individual metrics need to be in a csv file, with headings, with a
 #'  mandatory id column corresponding exactly to the individual identity labels
 #'  provided with the SNP data and in the same order.
-
+#'  
 #' The locus metadata needs to be in a csv file with headings, with a mandatory
 #' column headed AlleleID corresponding exactly to the locus identity labels
 #' provided with the SNP data and in the same order.
-
+#' 
 #' Note that the locus metadata will be complemented by calculable statistics
 #' corresponding to those that would be provided by Diversity Arrays Technology
 #' (e.g. CallRate).
@@ -35,6 +35,8 @@
 #' individuals [optional].
 #' @param loc.metafile Name of the csv file containing the metrics for
 #' loci [optional].
+#' @param fbm If TRUE, the genlight object is converted to a file-backed format. 
+#' This is useful for very large datasets. To back convert use: gl.fbm2gen().
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -42,11 +44,10 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-# @examples
-#Taken out, will not build
-# csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
-# ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
-# gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
+#' @examples
+#' csv_file <- system.file('extdata','platy_test.csv', package='dartR.data')
+#' ind_metadata <- system.file('extdata','platy_ind.csv', package='dartR.data')
+#' gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
 #' 
 #' @export
 #' @return A genlight object with the SNP data and associated metadata included.
@@ -55,6 +56,7 @@ gl.read.csv <- function(filename,
                         transpose = FALSE,
                         ind.metafile = NULL,
                         loc.metafile = NULL,
+                        fbm = FALSE,
                         verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -69,7 +71,7 @@ gl.read.csv <- function(filename,
     
     if (is.null(loc.metafile) & verbose > 0) {
         cat(
-            warn(
+            report(
                 "Warning: Locus metafile not provided, locus metrics will be
         calculated where this is possible\n"
             )
@@ -78,7 +80,7 @@ gl.read.csv <- function(filename,
     
     if (is.null(ind.metafile) & verbose > 0) {
         cat(
-            warn(
+            report(
                 "Warning: Individual metafile not provided, pop set to 'A' for all individuals\n"
             )
         )
@@ -146,10 +148,10 @@ gl.read.csv <- function(filename,
     
     # Validate and convert the SNP data
     
-    test <- paste0(data, collapse = "")
+    test <- paste0(data[1:5,1:5], collapse = "")
     test <- gsub("NA", "9", test)
     test <- gsub(" ", "", test)
-    if (nchar(test) > nrow(data) * ncol(data)) {
+    if (nchar(test) > nrow(data[1:5,1:5]) * ncol(data[1:5,1:5])) {
         if (verbose >= 2) {
             cat(
                 report(
@@ -178,6 +180,7 @@ gl.read.csv <- function(filename,
             v1 <- paste(v1, collapse = " ")
             v1 <- gsub("/", " ", v1)
             v1 <- gsub("- ", "", v1)
+            v1 <- gsub("-", "", v1)   
             v1 <- toupper(v1)
             v1 <- unlist(strsplit(v1, " "))
             tmp <- table(v1)
@@ -225,10 +228,6 @@ gl.read.csv <- function(filename,
         s2 <- unlist(strsplit(s1, " "))
         tmp <- table(s2)
         if ( any(names(tmp) %in% c("0","1","2","NA"))==FALSE){
-          # !(names(tmp) == "0" ||
-          #     names(tmp) == "1" ||
-          #     names(tmp) == "2" ||
-          #     names(tmp) == "NA")) {
             cat(
                 error(
                     "Fatal Error: Genotypes must be defined by the numbers 0, 1, 2 or missing NA\n"
@@ -251,10 +250,8 @@ gl.read.csv <- function(filename,
     
     pop(gl) <- array("A", nInd(gl))
     gl <- gl.compliance.check(gl, verbose = verbose)
-    # gl@other$loc.metrics <- data.frame(CloneID = locNames(gl), AlleleID = locNames(gl))
-    gl@other$ind.metrics <-
-        data.frame(id <-
-                       indNames(gl), pop = array("A", nInd(gl)))
+    gl@other$ind.metrics <- data.frame(id = indNames(gl),
+                                       pop = array("A", nInd(gl)))
     
     # NOW THE LOCUS METADATA
     
@@ -361,11 +358,24 @@ gl.read.csv <- function(filename,
     gl@other$history <- list()
     gl@other$history[[1]] <- match.call()
     
+    
+    #convert to fbm 
+    if (fbm) {}
+      gl <- gl.gen2fbm(gl, verbose = verbose) 
+      if (verbose>2) {
+        cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
+      } else gl@fbm <- NULL
+    
+    
+    
     # FLAG SCRIPT END
     
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
+    
+    
+    
     
     return(gl)
     

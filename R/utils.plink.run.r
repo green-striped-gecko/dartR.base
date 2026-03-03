@@ -58,7 +58,7 @@ utils.plink.run <- function(dir.in,
   #   file.copy(from = exe, to = file.path(dir.in, basename(exe)))
   # }
   
-  cmd <- paste(plink.path, syntax, "--out", out, collapse=" ")
+  cmd <- paste0(plink.path,"/",plink.cmd," ", syntax, "--out ", out, collapse=" ")
   system(cmd)
   # file.remove(from = exe, to = file.path(dir.in, basename(exe)))
   

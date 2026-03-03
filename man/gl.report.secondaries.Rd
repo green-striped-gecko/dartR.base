@@ -112,6 +112,7 @@ The function \code{\link{gl.filter.secondaries}} will filter out the
 }
 \examples{
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 test <- gl.filter.callrate(platypus.gl,threshold = 1)
 n.inv <- gl.report.secondaries(test)
 gl.report.heterozygosity(test, n.invariant = n.inv[7, 2])

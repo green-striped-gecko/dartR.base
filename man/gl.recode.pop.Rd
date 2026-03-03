@@ -51,11 +51,10 @@ and the optional recalculation of locus statistics is not available for
 Tag P/A data (SilicoDArT).
 }
 \examples{
-\donttest{
   mfile <- system.file('extdata', 'testset_pop_recode.csv', package='dartR.data')
   nPop(testset.gl)
+  if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl <- gl.recode.pop(testset.gl, pop.recode=mfile, verbose=3)
- }
 }
 \seealso{
 \code{\link{gl.filter.monomorphs}}
@@ -75,6 +74,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.rename.pop}()},

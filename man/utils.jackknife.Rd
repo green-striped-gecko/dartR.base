@@ -65,6 +65,7 @@ recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 \seealso{
 Other utilities: 
 \code{\link{gl.alf}()},
+\code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},

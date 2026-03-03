@@ -330,6 +330,7 @@ n.inv <- gl.report.secondaries(platypus.gl)
 gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
 }
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 df <- gl.report.heterozygosity(platypus.gl)
 }
 \references{
@@ -346,6 +347,7 @@ distance from a small number of individuals. Genetics, 89(3), 583-590.
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},

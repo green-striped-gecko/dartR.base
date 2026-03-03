@@ -14,6 +14,7 @@
 #' @examples
 #' #takes some time at the first run of the function...
 #' \donttest{
+#' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #' res <- gl.propShared(bandicoot.gl)
 #' res[1:5,1:7] #show only a small part of the matrix
 #' }
@@ -33,9 +34,7 @@ gl.propShared <- function(x) {
   }
   
   xx <- as.matrix(x)
-  glpropSharedC <- function() {
-    
-  }  #to hack package checking...
+  glpropSharedC <- function() {  }  #to hack package checking...
   Rcpp::cppFunction(
     "NumericMatrix glpropSharedC(NumericMatrix x) {
   int nrow = x.nrow();

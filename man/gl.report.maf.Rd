@@ -83,6 +83,7 @@ Examples of other themes that can be used can be consulted in \itemize{
  }
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl <- gl.filter.allna(platypus.gl)
 gl.report.maf(gl)
 }

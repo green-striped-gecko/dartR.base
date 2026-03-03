@@ -1,7 +1,6 @@
 #' @name gl2gi
 #' @title Converts a genind object into a genlight object
 #' @family linker
-
 #' @param gi A genind object [required].
 #' @param parallel Switch to deactivate parallel version. It might not be worth
 #' to run it parallel most of the times [default FALSE].

@@ -25,6 +25,9 @@ indexed as well. default: TRUE}
 \item{drop}{reduced to a vector if a single individual/loci is selected. 
 default: FALSE [should never set to TRUE]}
 }
+\value{
+dartR object
+}
 \description{
 indexing dartR objects correctly...
 }

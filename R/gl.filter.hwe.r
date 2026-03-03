@@ -124,6 +124,7 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #' result <- gl.filter.hwe(x = bandicoot.gl)
 #' @references
 #' \itemize{

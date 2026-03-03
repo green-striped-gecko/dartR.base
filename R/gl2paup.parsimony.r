@@ -75,6 +75,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gg <- testset.gs[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 #' gl2paup.parsimony(gg,outfile="test.nex",outpath=tempdir(),nreps=1,nbootstraps=10)

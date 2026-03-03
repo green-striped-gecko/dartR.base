@@ -4,7 +4,13 @@
 \alias{gl.read.fasta}
 \title{Reads FASTA files and converts them to genlight object}
 \usage{
-gl.read.fasta(fasta.files, parallel = FALSE, n.cores = NULL, verbose = NULL)
+gl.read.fasta(
+  fasta.files,
+  parallel = FALSE,
+  n.cores = NULL,
+  fbm = FALSE,
+  verbose = NULL
+)
 }
 \arguments{
 \item{fasta.files}{Fasta files to read [required].}
@@ -16,6 +22,12 @@ should be used for the computations (TRUE), or not (FALSE); requires the
 \item{n.cores}{If parallel is TRUE, the number of cores to be used in the
 computations; if NULL, then the maximum number of cores available on the
  computer is used [default NULL].}
+
+\item{fbm}{Logical. If TRUE, the returned genlight object will contain a
+file-backed matrix (fbm) in its @genome slot. This is useful for very
+large datasets that do not fit into RAM. Note that using fbm objects
+requires the package bigsnpr to be installed. [default FALSE]. to back convert 
+use \code{gl.fbm2gen()}.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -52,6 +64,17 @@ Ambiguity characters are often used to code heterozygotes. However, using
  heterozygotes as ambiguity characters may bias many estimates. See more
   information in the link below:
 \url{https://evodify.com/heterozygotes-ambiguity-characters/}
+}
+\examples{
+# Folder where the fasta files are located. 
+folder_samples <- system.file('extdata', package ='dartR.data')
+# listing the FASTA files, including their path. Files have an extension
+# that contains "fas".
+file_names <- list.files(path = folder_samples, pattern = "*.fas", 
+full.names = TRUE)
+# reading fasta files
+obj <- gl.read.fasta(file_names)
+  
 }
 \seealso{
 Other io: 

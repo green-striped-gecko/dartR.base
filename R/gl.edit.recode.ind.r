@@ -55,6 +55,7 @@
 #' @examples
 #' #this is an interactive example
 #' if(interactive()){
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl <- gl.edit.recode.ind(testset.gl)
 #' gl <- gl.edit.recode.ind(testset.gl, out.recode.file='ind.recode.table.csv')
 #' }

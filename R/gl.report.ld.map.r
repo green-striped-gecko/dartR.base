@@ -69,6 +69,7 @@
 #'  
 #' @examples
 #' require("dartR.data")
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' x <- platypus.gl
 #' x <- gl.filter.callrate(x,threshold = 1)
 #' x <- gl.filter.monomorphs(x)

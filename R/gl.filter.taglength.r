@@ -22,6 +22,7 @@
 #' @examples
 #'  \donttest{
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl.report.taglength(testset.gl)
 #'   result <- gl.filter.taglength(testset.gl,lower=60)
 #'   gl.report.taglength(result)

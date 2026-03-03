@@ -21,6 +21,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' popNames(testset.gl)
 #' gl <- gl.define.pop(testset.gl, ind.list=c('AA019073','AA004859'), 
 #' new='newguys')

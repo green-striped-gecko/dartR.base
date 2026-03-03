@@ -42,7 +42,9 @@ with a heading named 'id'. Here the ids must match the ids in the genlight
 \examples{
 dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
 metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
-gl <- gl.read.dart(dartfile, probar=TRUE)
+gl <- gl.read.dart(dartfile, probar=FALSE)
+#test fbm
+if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
 gl <- gl.add.indmetrics(gl, ind.metafile = metadata)
 }
 \author{

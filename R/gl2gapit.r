@@ -20,6 +20,7 @@
 #' 
 #' @examples
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #'t1 <- platypus.gl
 #' # assigning chromosomet1
 #'t1$chromosome <- t1$other$loc.metrics$Chrom_Platypus_Chrom_NCBIv1
@@ -95,8 +96,8 @@ gl2gapit <- function(x,
   res_output <- as.matrix(res_output)
   res_output[] <- as.character(res_output)
   res_output <- as.matrix(rbind(colnames(res_output),res_output))
-  
-  
+  res_output <- as.data.frame(res_output)
+
   if (verbose > 0) {
     cat(report("  Output files:", paste(
       paste0(outfile, ".geno", ".lfmm."), sep = ""

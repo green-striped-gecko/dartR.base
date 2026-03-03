@@ -40,6 +40,7 @@ populations and produces an input file for the phylogenetic program Phylip
 }
 \examples{
 \donttest{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
 }
 
@@ -57,10 +58,12 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

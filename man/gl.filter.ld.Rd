@@ -39,17 +39,32 @@ SNPs are in LD. When a SNP is selected to be filtered out in each pairwise
 comparison, the function stores its  name in a list. In subsequent pairwise
  comparisons, if the SNP is already in the list, the other SNP will be kept.
 }
+\examples{
+\donttest{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+test <- platypus.gl
+test <- gl.filter.callrate(test,threshold = 1)
+res <- gl.report.ld.map(test)
+res_2 <- gl.filter.ld(x=test,ld.report = res)
+}
+if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
+test <- gl.filter.callrate(platypus.gl, threshold = 1)
+test <- gl.filter.monomorphs(test)
+report <- gl.report.ld.map(test)
+res <- gl.filter.ld(x=test,ld.report = report)
+}
+}
 \seealso{
 \code{\link{gl.report.ld.map}}
 
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

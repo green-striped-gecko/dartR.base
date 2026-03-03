@@ -19,6 +19,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'  result <- gl.filter.heterozygosity(testset.gl,t.upper=0.06,verbose=3)
 #'  tmp <- gl.report.heterozygosity(result,method='ind')
 #'  

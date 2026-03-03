@@ -31,6 +31,7 @@ Resultant ggplot(s) and the tabulation(s) are saved to the session's
 temporary directory.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.report.overshoot(testset.gl)
 
 }

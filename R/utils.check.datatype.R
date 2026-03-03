@@ -32,6 +32,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' datatype <- utils.check.datatype(testset.gl)
 #' datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 #' fd <- gl.fixed.diff(testset.gl)

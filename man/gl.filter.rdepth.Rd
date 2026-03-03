@@ -69,6 +69,7 @@ For examples of themes, see:
 \examples{
  \donttest{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl.report.rdepth(testset.gl)
   result <- gl.filter.rdepth(testset.gl, lower=8, upper=50, verbose=3)
 # Tag P/A data

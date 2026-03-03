@@ -36,6 +36,11 @@
 #' @param n.cores If parallel is TRUE, the number of cores to be used in the
 #'  computations; if NULL, then the maximum number of cores available on the
 #'   computer is used [default NULL].
+#' @param fbm Logical. If TRUE, the returned genlight object will contain a
+#' file-backed matrix (fbm) in its @genome slot. This is useful for very
+#' large datasets that do not fit into RAM. Note that using fbm objects
+#' requires the package bigsnpr to be installed. [default FALSE]. to back convert 
+#' use \code{gl.fbm2gen()}.
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
@@ -49,15 +54,15 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
-# @examples
-#  # Folder where the fasta files are located. 
-#  folder_samples <- system.file('extdata', package ='dartR.data')
-#  # listing the FASTA files, including their path. Files have an extension
-#  # that contains "fas".
-#  file_names <- list.files(path = folder_samples, pattern = "*.fas", 
-#                           full.names = TRUE)
-#  # reading fasta files
-#   obj <- gl.read.fasta(file_names)
+#' @examples
+#' # Folder where the fasta files are located. 
+#' folder_samples <- system.file('extdata', package ='dartR.data')
+#' # listing the FASTA files, including their path. Files have an extension
+#' # that contains "fas".
+#' file_names <- list.files(path = folder_samples, pattern = "*.fas", 
+#' full.names = TRUE)
+#' # reading fasta files
+#' obj <- gl.read.fasta(file_names)
 #'   
 #' @export
 #' @return A genlight object.
@@ -65,6 +70,7 @@
 gl.read.fasta <- function(fasta.files,
                           parallel = FALSE,
                           n.cores = NULL,
+                          fbm=FALSE,
                           verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
@@ -104,6 +110,13 @@ gl.read.fasta <- function(fasta.files,
   if (verbose >= 1) {
     cat(report("Completed:", funname, "\n"))
   }
+  
+  #convert to fbm 
+  if (fbm) {}
+  x <- gl.gen2fbm(x, verbose = verbose) 
+  if (verbose>2) {
+    cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
+  } else x@fbm <- NULL
   
   # RETURN
   return(invisible(x))

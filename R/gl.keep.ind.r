@@ -27,6 +27,7 @@
 #Examples -------------
 #' @examples
 #'   # SNP data
+#'   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'     gl2 <- gl.keep.ind(testset.gl, ind.list=c('AA019073','AA004859'))
 #'   # Tag P/A data
 #'    gs2 <- gl.keep.ind(testset.gs, ind.list=c('AA020656','AA19077','AA004859'))

@@ -80,10 +80,9 @@ as implemented in \code{\link{utils.hamming}}
  }
 }
 \examples{
- \donttest{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.report.hamming(testset.gl[,1:100])
 gl.report.hamming(testset.gs[,1:100])
-}
 #' # SNP data
 test <- platypus.gl
 test <- gl.subsample.loc(platypus.gl,n=50)

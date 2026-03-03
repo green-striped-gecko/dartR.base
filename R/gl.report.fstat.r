@@ -260,6 +260,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' res <- gl.report.fstat(platypus.gl)
 #'
 #' @references
@@ -318,7 +319,7 @@ gl.report.fstat <- function(x,
                             ncpus = 1,
                             plot.stat = "Fstp",
                             plot.display = TRUE,
-                            palette.divergent = gl.colors("div"),
+                            palette.divergent = gl.colors("div", verbose=0),
                             font.size = 0.5,
                             plot.dir = NULL,
                             plot.file = NULL,

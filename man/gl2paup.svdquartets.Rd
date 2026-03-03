@@ -47,6 +47,7 @@ ambiguity codes (method=2).
 If the data are tag presence/absence, then method=2 is assumed.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gg <- testset.gl[1:20,1:100]
 gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 gl2paup.svdquartets(gg, outpath=tempdir(),nbootstraps=100)

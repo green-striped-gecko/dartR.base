@@ -4,13 +4,123 @@
 \alias{gl.plot.heatmap}
 \title{Represents a distance matrix as a heatmap}
 \usage{
-gl.plot.heatmap(D, palette.divergent = gl.colors("div"), verbose = NULL, ...)
+gl.plot.heatmap(
+  D,
+  x = NULL,
+  palette.divergent = gl.colors("div"),
+  palette_discrete = NULL,
+  dendrogram = "column",
+  plot.out = TRUE,
+  legend.print = TRUE,
+  legendx = 0,
+  legendy = 0.5,
+  label.size = 0.75,
+  legend.title = "Populations",
+  diag.na = FALSE,
+  margins = c(10, 10),
+  na.color = "grey",
+  revC = FALSE,
+  symbreaks = FALSE,
+  trace = "none",
+  tracecol = "cyan",
+  cexRow = NULL,
+  cexCol = NULL,
+  srtRow = NULL,
+  srtCol = 90,
+  offsetRow = 0.5,
+  offsetCol = 0.5,
+  key = TRUE,
+  keysize = 1.5,
+  density.info = "none",
+  denscol = "cyan",
+  symkey = FALSE,
+  densadj = 0.25,
+  key.title = NULL,
+  key.xlab = NULL,
+  key.ylab = NULL,
+  main = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  verbose = NULL,
+  ...
+)
 }
 \arguments{
 \item{D}{Name of the distance matrix or class fd object [required].}
 
+\item{x}{Genlight object to extract population information [default NULL].}
+
 \item{palette.divergent}{A divergent palette for the distance values
 [default gl.colors("div")].}
+
+\item{palette_discrete}{The color of populations [default NULL].}
+
+\item{dendrogram}{Character string indicating whether to draw 'none',
+'row', 'column' or 'both' dendrograms [default "column"].}
+
+\item{plot.out}{A boolean that indicates whether to plot the results [default TRUE].}
+
+\item{legend.print}{Whether to create legend (only if x is provided) 
+[default TRUE].}
+
+\item{legendx}{x coordinates for the legend[default 0].}
+
+\item{legendy}{y coordinates for the legend[default 1].}
+
+\item{label.size}{Specify the size of the population labels [default 0.75].}
+
+\item{legend.title}{Legend title [default "Populations"].}
+
+\item{diag.na}{Logical. If TRUE, the diagonal elements of the distance matrix are set to NA [default FALSE].}
+
+\item{margins}{Numeric vector of length 2 containing the margins for column
+and row names, respectively [Default = c(10, 10)].}
+
+\item{na.color}{Color to use for missing value (NA) [default "grey"].}
+
+\item{revC}{Reverse column order. Logical value.}
+
+\item{symbreaks}{Symmetric breaks setting. Logical value. Default: FALSE}
+
+\item{trace}{Draw trace line. Must be one of: "column", "row", "both", "none". Default: "none"}
+
+\item{tracecol}{Trace line colour. Default: "cyan"}
+
+\item{cexRow}{Row axis label scale. Integer value.}
+
+\item{cexCol}{Column axis label scale. Integer value.}
+
+\item{srtRow}{Row labels' rotation angle. Integer value.}
+
+\item{srtCol}{Column labels' rotation angle. Integer value. Default: 90}
+
+\item{offsetRow}{Row labels' offset. Integer value. Default: 0.5}
+
+\item{offsetCol}{Column labels' offset. Integer value. Default: 0.5}
+
+\item{key}{Show colour-key. Logical value. Default: TRUE}
+
+\item{keysize}{Size of colour key. Numeric value (>= 0). Default: 1.5}
+
+\item{density.info}{Density plot for colour key. Must be one of: "histogram", "density", "none". Default: "none"}
+
+\item{denscol}{Density plot colour. Default: "cyan"}
+
+\item{symkey}{Symmetric colour key. Logical value. Default: FALSE}
+
+\item{densadj}{Density plot scaling. Numeric value between 0 and 10. Default: 0.25}
+
+\item{key.title}{Title for colour key. Character string.}
+
+\item{key.xlab}{X title for colour key. Character string.}
+
+\item{key.ylab}{Y title for colour key. Character string.}
+
+\item{main}{Main plot title. Character string.}
+
+\item{xlab}{X-axis label. Character string.}
+
+\item{ylab}{Y-axis label. Character string.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -30,10 +140,13 @@ dissimilarity matrix. This function is a wrapper for
 \examples{
 \donttest{
    gl <- testset.gl[1:10,]
+   if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
    D <- dist(as.matrix(gl),upper=TRUE,diag=TRUE)
    gl.plot.heatmap(D)
+   if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
    D2 <- gl.dist.pop(possums.gl)
    gl.plot.heatmap(D2)
+   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
    D3 <- gl.fixed.diff(testset.gl)
    gl.plot.heatmap(D3)
    }
@@ -41,7 +154,6 @@ dissimilarity matrix. This function is a wrapper for
    D2 <- gl.dist.pop(possums.gl)
    gl.plot.heatmap(D2)
    }
-   
 }
 \seealso{
 Other graphics: 
@@ -55,6 +167,6 @@ Other graphics:
 }
 \author{
 Custodian: Luis Mijangos -- Post to
-\url{https://groups.google.com/d/forum/dartr})
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{graphics}

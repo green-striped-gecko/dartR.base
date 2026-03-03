@@ -18,6 +18,7 @@ gl.map.interactive(
   palette.links = NULL,
   legend.title = NULL,
   provider = "Esri.NatGeoWorldMap",
+  scale.bar = TRUE,
   raster.image = NULL,
   raster.opacity = 0.5,
   raster.colors = (scales::viridis_pal(option = "D"))(255),
@@ -62,6 +63,8 @@ and 1=no transparency. Defaults to 0.8.}
 
 \item{provider}{Passed to leaflet [default "Esri.NatGeoWorldMap"].}
 
+\item{scale.bar}{Whether to add a scale bar [default TRUE].}
+
 \item{raster.image}{Path to a georeferenced raster image to plot 
 [default NULL].}
 
@@ -100,8 +103,10 @@ A function that receives a single value between 0 and 1 and returns a color.
 }
 \examples{
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 gl.map.interactive(bandicoot.gl)
 cols <- c("red","blue","yellow")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl.map.interactive(platypus.gl, ind.circle.cols=cols, ind.circle.cex=10, 
 ind.circle.transparency=0.5)
 

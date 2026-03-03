@@ -19,7 +19,7 @@ gl.select.colors(
 of populations [default NULL].}
 
 \item{library}{Name of the color library to be used, one of 'brewer'
-'gr.palette', 'r.hcl' or 'baseR' [default scales::hue_pl].}
+'gr.palette', 'gr.hcl' or 'baseR' [default scales::hue_pl].}
 
 \item{palette}{Name of the color palette to be pulled from the specified
 library, refer function help [default is library specific].}
@@ -45,7 +45,7 @@ parameter expecting a vector of colors.
 }
 \details{
 Colors are chosen by specifying a library (one of 'brewer'
-'gr.palette', 'r.hcl' or 'baseR') and a palette within that library. Each
+'gr.palette', 'gr.hcl' or 'baseR') and a palette within that library. Each
 library has its own array of palettes, which can be listed as outlined below.
 Alternatively, if you specify an incorrect palette, the list of available
 palettes for the specified library will be listed.
@@ -56,7 +56,7 @@ The available color libraries and their palettes include:
 RColorBrewer::display.brewer.all() and RColorBrewer::brewer.pal.info.
 \item library 'gr.palette' and the palettes available can be listed by
 grDevices::palette.pals()
-\item library 'r.hcl' and the palettes available can be listed by
+\item library 'gr.hcl' and the palettes available can be listed by
 grDevices::hcl.pals()
 \item library 'baseR' and the palettes available are: 'rainbow','heat',
 'topo.colors','terrain.colors','cm.colors'.
@@ -77,6 +77,7 @@ matching colors and shapes.
 }
 \examples{
 # SET UP DATASET
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl <- testset.gl
 levels(pop(gl))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),
 rep('MDB',8),rep('Coast',7),'Em.subglobosa','Em.victoriae')

@@ -24,22 +24,20 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
-# @examples
-# \donttest{
-# test <- bandicoot.gl
-# test <- gl.filter.callrate(test,threshold = 1)
-# res <- gl.report.ld.map(test)
-# res_2 <- gl.filter.ld(x=test,ld.report = res)
-# res_3 <- gl.report.ld.map(res_2)
-# }
-# if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
-# test <- gl.filter.callrate(platypus.gl, threshold = 1)
-# test <- gl.filter.monomorphs(test)
-# test <- test[,1:250]
-# report <- gl.report.ld.map(test)
-# res <- gl.filter.ld(x=test,ld.report = report)
-# }
-#' 
+#' @examples
+#' \donttest{
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+#' test <- platypus.gl
+#' test <- gl.filter.callrate(test,threshold = 1)
+#' res <- gl.report.ld.map(test)
+#' res_2 <- gl.filter.ld(x=test,ld.report = res)
+#' }
+#' if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
+#' test <- gl.filter.callrate(platypus.gl, threshold = 1)
+#' test <- gl.filter.monomorphs(test)
+#' report <- gl.report.ld.map(test)
+#' res <- gl.filter.ld(x=test,ld.report = report)
+#' }
 #' @seealso \code{\link{gl.report.ld.map}}
 #' 
 #' @export

@@ -34,6 +34,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' require("dartR.data")
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' res <- gl.randomize.snps(platypus.gl[1:5,1:5],verbose = 5)
 
 #' @export

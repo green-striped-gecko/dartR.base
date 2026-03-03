@@ -46,6 +46,7 @@ using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
 }
 \examples{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   result <- gl.filter.allna(testset.gl, verbose=3)
 # Tag P/A data
   result <- gl.filter.allna(testset.gs, verbose=3)

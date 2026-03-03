@@ -28,6 +28,7 @@ object and filters individuals based on specified threshold values.
 Use gl.report.heterozygosity to determine the appropriate thresholds.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
  result <- gl.filter.heterozygosity(testset.gl,t.upper=0.06,verbose=3)
  tmp <- gl.report.heterozygosity(result,method='ind')
  

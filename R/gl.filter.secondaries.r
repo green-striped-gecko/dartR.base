@@ -25,8 +25,9 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
-#' gl.report.secondaries(testset.gl)
-#' result <- gl.filter.secondaries(testset.gl)
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+#' gl.report.secondaries(platypus.gl)
+#' result <- gl.filter.secondaries(platypus.gl)
 
 #' @importFrom stats dpois
 #' @import patchwork

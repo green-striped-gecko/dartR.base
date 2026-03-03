@@ -15,6 +15,11 @@ A simple vector whit Ho for each loci
 \description{
 Estimates observed Heterozygosity
 }
+\examples{
+pp <- possums.gl[1:30,1:20]
+if (isTRUE(getOption("dartR_fbm"))) pp <- gl.gen2fbm(pp)
+gl.Ho(pp)
+}
 \author{
 Bernd Gruber (bugs? Post to \url{https://groups.google.com/d/forum/dartr})
 }

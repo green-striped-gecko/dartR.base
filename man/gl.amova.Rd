@@ -35,6 +35,7 @@ to 'hack' StAMPP::stamppAmova to avoid a namespace conflict.
 }
 \examples{
 #permutations should be higher, here set to 1 because of speed
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 out <- gl.amova(bandicoot.gl, permutations=1)
 
 }

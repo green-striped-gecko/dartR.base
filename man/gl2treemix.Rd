@@ -30,6 +30,7 @@ recognised by treemix. Plotting functions provided with treemix will need to
  be sourced from the treemix download page.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl2treemix(testset.gl, outpath=tempdir())
 
 }
@@ -51,11 +52,13 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2vcf}()}
 }

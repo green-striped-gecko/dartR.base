@@ -555,7 +555,7 @@ gl.report.hwe <- function(x,
                         y = AB,
                         z = BB
                     ),
-                    size = 1,
+                    linewidth = 1,
                     color = "dodgerblue3"
                 ) + geom_line(
                     data = Crit_upper,
@@ -564,7 +564,7 @@ gl.report.hwe <- function(x,
                         y = V2,
                         z = V3
                     ),
-                    size = 1,
+                    linewidth = 1,
                     color = "darkgreen"
                 ) + geom_line(
                     data = Crit_lower,
@@ -573,14 +573,24 @@ gl.report.hwe <- function(x,
                         y = V2,
                         z = V3
                     ),
-                    size = 1,
+                    linewidth = 1,
                     color = "darkgreen"
-                ) + ggtern::theme_void() +
-              # ) + theme_void_2() +
+                ) + 
+                 ggtern::theme_void()+
+                theme(
+                  # ggtern-specific backgrounds
+                  tern.panel.background = element_rect(fill = NA, colour = NA),
+                  tern.plot.background  = element_rect(fill = NA, colour = NA),
+                  # remove ternary mask
+                  tern.panel.mask.show = FALSE,
+                  # remove grids
+                  tern.panel.grid.major = element_blank(),
+                  tern.panel.grid.minor = element_blank()
+                ) +
                 theme(
                     plot.subtitle = element_text(hjust = 0.5, vjust = 1),
                     tern.axis.line = element_line(color = "black",
-                                                  size = 1)
+                                                  linewidth = 1)
                 # ) + ggtern::theme_hidelabels() + labs(subtitle = subtitle_plot)
             ) + ggtern::theme_hidelabels() +
               # ) + theme_hidelabels() +

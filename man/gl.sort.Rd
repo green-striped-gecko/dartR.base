@@ -2,16 +2,25 @@
 % Please edit documentation in R/gl.sort.r
 \name{gl.sort}
 \alias{gl.sort}
-\title{Sorts genlight objects}
+\title{Sorts genlight objects by individual, population, or genomic position}
 \usage{
-gl.sort(x, sort.by = "pop", order.by = NULL, verbose = NULL)
+gl.sort(
+  x,
+  sort.by = "pop",
+  order.by = NULL,
+  order.by.chr.pos = FALSE,
+  verbose = NULL
+)
 }
 \arguments{
 \item{x}{Genlight object containing SNP/Silicodart genotypes [required].}
 
 \item{sort.by}{Specify to sort the genotypes by either 'ind', "pop" [default 'pop'].}
 
-\item{order.by}{Vector used to order genotypes [default NULL]}
+\item{order.by}{Vector used to order genotypes [default NULL].}
+
+\item{order.by.chr.pos}{Whether to order loci first by chromosome and then by
+SNP position [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -22,22 +31,30 @@ Returns a reordered genlight object. Sorts also the ind/loc.metrics
 and coordinates accordingly
 }
 \description{
-This function provides the ability to sort genotypes in a genlight object by  
-individual name or population name.
+Reorders individuals in a genlight object by individual names, population names,
+or by chromosome and SNP position. Useful for ensuring meaningful genotype
+ordering in visualizations such as \code{gl.smearplot}.
 }
 \details{
-This is a function to sort genotypes in a genlight object by individual name
-or population name. This will be useful if you want to visualise the structure
-across populations (bands) in a gl.smearplot; order of genotypes is important.
+This is a function to sort genotypes in a genlight object by individual name, 
+by population name or by chromosome and SNP position. This is useful if you 
+want to visualise the structure across populations (bands) in a gl.smearplot; 
+order of genotypes is important.
 
-The order.by parameter needs to be a vector upon which to effect the sort, of length of 
-nPop(gl) if sort.by is 'pop' or  nInd(gl) if sort.by is 'ind'.  For sort.by='ind' 
-order.by can be a vector such as a variable in gl@other$ind.metrics.
+The order.by parameter needs to be a vector upon which to effect the sort, 
+of length of nPop(gl) if sort.by is 'pop' or  nInd(gl) if sort.by is 'ind'.  
+For sort.by='ind' order.by can be a vector such as a variable in 
+gl@other$ind.metrics.
 
-If not specified by nominating a vector with order.by, alphabetical order of populations or individuals is used.
+If not specified by nominating a vector with order.by, alphabetical order of 
+populations or individuals is used. 
+
+Ordering by chromosome and SNP position requires that \code{chromosome} and 
+\code{position} slots are set in the genlight object.
 }
 \examples{
 #sort by populations
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 bc <- gl.sort(bandicoot.gl)
 #sort from West to East
 bc2 <- gl.sort(bandicoot.gl, sort.by="pop" ,
@@ -61,6 +78,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

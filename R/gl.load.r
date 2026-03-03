@@ -11,6 +11,8 @@
 
 #' @param file Name of the file to receive data
 #' [required].
+#' @param fbm Whether to convert dartR-gen object to dartR-fbm object [default
+#' TRUE].
 #' @param compliance Whether to undertake a compliance check [default FALSE]. 
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -25,6 +27,7 @@
 #' @return The loaded object
 
 gl.load <- function(file,
+                    fbm = FALSE,
                     compliance = FALSE,
                     verbose = NULL) {
     # SET VERBOSITY
@@ -54,6 +57,13 @@ gl.load <- function(file,
     
     x <- gl.compliance.check(x)
 
+    #convert to fbm if requested
+    if (fbm)    {
+      x <- dartR.base::gl.gen2fbm(x)
+      cat(report("  Converted dartR-gen object to dartR-FBM object\n"))
+    }
+    
+    
     # FLAG SCRIPT END
     
     if (verbose > 0) {

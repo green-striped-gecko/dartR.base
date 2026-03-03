@@ -90,6 +90,7 @@ specified for the plot to be saved.
  directory; otherwise to the tempdir().
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 pca <- gl.pcoa(testset.gl)
 gl.report.factorloadings(pca = pca)
 gl2 <- gl.filter.factorloadings(pca=pca,x=testset.gl,threshold=0.2)

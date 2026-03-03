@@ -53,6 +53,7 @@ Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
 (Version v1.1). Zenodo: doi.org/10.5281/zenodo.846816.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl2structure(testset.gl[1:10,1:50], outpath=tempdir())
 
 }
@@ -69,11 +70,13 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
 }

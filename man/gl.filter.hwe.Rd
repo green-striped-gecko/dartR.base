@@ -145,6 +145,7 @@ significant (after adjustment if applied) out of hwe in >=
 \code{n.pop.threshold > 1}.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 result <- gl.filter.hwe(x = bandicoot.gl)
 }
 \references{

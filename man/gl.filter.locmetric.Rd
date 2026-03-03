@@ -64,6 +64,7 @@ marker score is consistent.
 }
 \examples{
 # adding dummy data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 test <- testset.gl
 test$other$loc.metrics$test <- 1:nLoc(test)
 result <- gl.filter.locmetric(x=test, metric= 'test', upper=255,
@@ -73,12 +74,12 @@ lower=200, keep= 'within', verbose=3)
 \seealso{
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

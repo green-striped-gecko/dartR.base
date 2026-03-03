@@ -25,6 +25,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' result <- gl.filter.overshoot(testset.gl, verbose=3)
 #' 
 #' @export
@@ -76,38 +77,41 @@ gl.filter.overshoot <- function(x,
     # Shift the index for snppos to start from 1 not zero
     snpos <- snpos + 1
     # Pull those loci for which the SNP position is greater than the tag length
-    x2 <- x[, snpos > nchar(trimmed)]
-    # Report the number of such loci
-    if (verbose >= 3) {
+    os <- which(snpos > nchar(trimmed))
+    if(length(os)>0){
+      x2 <- x[, os]
+      # updating loc.metrics
+      x2@other$loc.metrics <- x@other$loc.metrics[os, ]
+      
+      # Report the number of such loci
+      if (verbose >= 3) {
         cat("  No. of loci with SNP falling outside the trimmed sequence:",
             nLoc(x2),
             "\n")
-        if (nLoc(x2) > 0) {
-            cat(paste0(locNames(x2), ","))
-            cat("\n")
-        }
-    }
-    
-    if (verbose >= 2) {
-        cat(report("  Deleting:\n"))
-        cat(locNames(x2))
-    }
-    # extracting indexes of loci to keep
-    index <- which((snpos <= nchar(trimmed)) == TRUE)
-    
-      # loci to keep
-      x2 <- x[, index]
-      # updating loc.metrics
-      x2@other$loc.metrics <- x@other$loc.metrics[index, ]
-    
-    # ADD TO HISTORY
-    nh <- length(x2@other$history)
-    x2@other$history[[nh + 1]] <- match.call()
-    
-    # FLAG SCRIPT END
-    if (verbose > 0) {
+          cat(paste0(locNames(x2), ","))
+          cat("\n")
+      }
+      
+      # ADD TO HISTORY
+      nh <- length(x2@other$history)
+      x2@other$history[[nh + 1]] <- match.call()
+      
+      # FLAG SCRIPT END
+      if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
+      }
+      
+      return(x2)
+
+    }else{
+      cat("  There were no loci with SNP falling outside the trimmed sequence\n")
+      
+      # FLAG SCRIPT END
+      if (verbose > 0) {
+        cat(report("Completed:", funname, "\n"))
+      }
+      
+      return(x)
     }
-    
-    return(x2)
+
 }

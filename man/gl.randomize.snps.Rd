@@ -78,7 +78,9 @@ Resultant ggplots are saved to the session's temporary directory.
 }
 \examples{
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 res <- gl.randomize.snps(platypus.gl[1:5,1:5],verbose = 5)
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl <- gl.filter.monomorphs(testset.gl)
 res <- gl.randomize.snps(gl,verbose = 5)
 }

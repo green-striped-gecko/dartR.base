@@ -102,6 +102,7 @@ regarded as fixed when comparing two populations at a locus.
 }
 \examples{
 \donttest{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 fd <- gl.fixed.diff(testset.gl, tloc=0, verbose=3 )
 fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose=3 )
 }

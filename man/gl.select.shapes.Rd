@@ -36,6 +36,7 @@ shape selection, and matching colors and shapes.
 }
 \examples{
 # SET UP DATASET
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl <- testset.gl
 levels(pop(gl))<-c(rep('Coast',5),rep('Cooper',3),rep('Coast',5),
 rep('MDB',8),rep('Coast',7),'Em.subglobosa','Em.victoriae')

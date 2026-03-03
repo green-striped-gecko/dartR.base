@@ -65,6 +65,7 @@ as 0, will be removed.
 \examples{
 \donttest{
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl2eigenstrat(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
 snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
 }
@@ -92,11 +93,13 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

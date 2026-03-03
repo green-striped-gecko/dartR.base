@@ -51,6 +51,7 @@
 #' }
 #'
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) LBP <- gl.gen2fbm(LBP)
 #' filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)
 #' @seealso \code{\link{gl.filter.excess.het}}
 #' @importFrom stats aggregate

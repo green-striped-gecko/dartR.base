@@ -13,7 +13,7 @@ gl.report.fstat(
   ncpus = 1,
   plot.stat = "Fstp",
   plot.display = TRUE,
-  palette.divergent = gl.colors("div"),
+  palette.divergent = gl.colors("div", verbose = 0),
   font.size = 0.5,
   plot.dir = NULL,
   plot.file = NULL,
@@ -295,6 +295,7 @@ If a plot.file is given, the plot arising from this function is saved as an
    is only quicker than not using parallelisation when nboots > 1000-2000.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 res <- gl.report.fstat(platypus.gl)
 
 }

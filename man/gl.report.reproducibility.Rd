@@ -66,10 +66,9 @@ The function displays a table of minimum, maximum, mean and quantiles for
  }
 }
 \examples{
- \donttest{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   out <- gl.report.reproducibility(testset.gl)
-  }
 # Tag P/A data
   out <- gl.report.reproducibility(testset.gs)
 }

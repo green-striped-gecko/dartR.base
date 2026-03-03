@@ -325,6 +325,7 @@ Genetic variation and random drift in autotetraploid populations. Genetics, 134(
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},

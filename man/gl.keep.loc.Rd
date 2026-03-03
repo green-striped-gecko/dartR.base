@@ -33,6 +33,7 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
 }
 \examples{
 # SNP data
+ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl) 
   gl2 <- gl.keep.loc(testset.gl, loc.list=c('100051468|42-A/T', '100049816-51-A/G'))
 # Tag P/A data
   gs2 <- gl.keep.loc(testset.gs, loc.list=c('20134188','19249144'))
@@ -53,6 +54,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

@@ -1,11 +1,15 @@
 #' @name gl.report.replicates
 #' @title Identify replicated individuals 
 #' @description
-#' Identify replicated individuals 
+#' This function scans a genlight object for pairs of individuals that
+#' share a high proportion of identical genotype calls across a minimum number of
+#' jointly observed (non-missing) loci. It is intended to help detect technical
+#' replicates, sample duplicates, and other near-identical samples, and to suggest
+#' which individual to remove based on missing-data rate.
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param loc_threshold Minimum number of loci required to asses that two 
 #' individuals are replicates [default 100].
-#' @param perc_geno Mimimum percentage of genotypes in which two individuals 
+#' @param perc_geno Minimum percentage of genotypes in which two individuals 
 #' should be the same [default 0.95]. 
 #' @param plot.out Specify if plot is to be produced [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
@@ -16,22 +20,56 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 #' @details
-#' This function uses an C++ implementation, so package Rcpp needs to be 
-#' installed and it is therefore fast (once it has compiled the function after 
-#' the first run).
+#' ## What the function computes
 #' 
-#' Ideally, in a large dataset with related and unrelated individuals and 
-#' several replicated individuals, such as in a capture/mark/recapture study, 
-#' the first histogram should have four "peaks". The first peak should represent
-#'  unrelated individuals, the second peak should correspond to second-degree 
-#'  relationships (such as cousins), the third peak should represent 
-#'  first-degree relationships (like parent/offspring and full siblings), and
-#'   the fourth peak should represent replicated individuals. 
-#'   
-#' In order to ensure that replicated individuals are properly identified, it's
-#'  important to have a clear separation between the third and fourth peaks in 
-#'  the second histogram. This means that there should be bins with zero counts 
-#'  between these two peaks.
+#' The input is coerced to a numeric matrix. For every pair of
+#' individuals \eqn{i,j}, the function counts:
+#' \itemize{
+#'   \item `nloc` = the number of loci where both individuals have non-missing
+#'     genotype calls (pairwise complete observations).
+#'   \item `nsame` = the number of those `nloc` loci where the two genotype calls
+#'     are identical.
+#'   \item `perc` = `nsame / nloc`, the proportion of identical genotype calls for
+#'     that pair.
+#' }
+#' Pairs are reported as putative replicates/duplicates when both conditions hold:
+#' `nloc > loc_threshold` and `perc > perc_geno`.
+#'
+#' ## How the computation is implemented 
+#' 
+#' The pairwise counts (`nsame` and `nloc`) are computed with a C++ routine 
+#' compiled at run time. This requires the Rcpp/RcppParallel packages. The 
+#' first call in a session will be slower because the C++ code must be compiled;
+#' subsequent calls are fast.
+#'
+#' ## Suggested individual to drop
+#' For each flagged pair, the function calculates per-individual missingness as the
+#' proportion of `NA` genotypes across all loci. The replicate suggested for removal
+#' (`ind_to_drop`) is the member of the pair with the higher missingness, so that
+#' the retained replicate maximises usable genotype information.
+#'
+#' ## How to interpret the histograms
+#' When `plot.out = TRUE`, the function draws:
+#' \enumerate{
+#'   \item A histogram of `perc` across *all* pairwise comparisons.
+#'   \item A zoomed histogram restricted to `perc > 0.8` to resolve the upper tail.
+#' }
+#' In an ideal large dataset containing a mixture of unrelated and related
+#' individuals plus several replicated individuals (e.g., capture/mark/recapture),
+#' the first histogram often shows four approximate modes (“peaks”):
+#' \enumerate{
+#'   \item Unrelated pairs (lowest `perc`).
+#'   \item Second-degree relatives (e.g., cousins).
+#'   \item First-degree relatives (e.g., parent–offspring, full siblings).
+#'   \item Replicated/duplicate samples (highest `perc`, near 1).
+#' }
+#' To confidently separate true replicates from close relatives, the zoomed
+#' histogram should show a clear gap between the third and fourth peaks: one or
+#' more bins with zero counts between the close-relative peak and the replicate
+#' peak. If the close-relative and replicate distributions overlap (no zero-count
+#' gap), you should treat replicate calls as uncertain and consider increasing
+#' marker quality/quantity, tightening filters, or raising `loc_threshold` and/or
+#' `perc_geno`.
 #' @return A list with three elements:
 #'\itemize{
 #'\item table.rep: A dataframe with pairwise results of percentage of same 
@@ -46,6 +84,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \donttest{
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' res_rep <- gl.report.replicates(platypus.gl, loc_threshold = 500, 
 #' perc_geno = 0.85)
 #' }
@@ -53,170 +92,170 @@
 #' @export
 
 gl.report.replicates <- function(x,
-                                 loc_threshold = 100,
-                                 perc_geno = 0.95,
-                                 plot.out = TRUE,
-                                 plot_theme = theme_dartR(),
+                                 loc_threshold = 100,    
+                                 perc_geno = 0.95,       
+                                 plot.out = TRUE,        
+                                 plot_theme = theme_dartR(), 
                                  plot_colors = c("#2171B5", "#6BAED6"),
-                                 bins = 100,
-                                 verbose = NULL
-){
-  # SET VERBOSITY
-  verbose <- gl.check.verbosity(verbose)
+                                 bins = 100,             
+                                 verbose = NULL){
   
-  # FLAG SCRIPT START
-  funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
-                   build = "Jody",
-                   verbose = verbose)
+  # Pre-allocate variables to avoid "no visible binding" notes
+  ind1 <- ind1_miss <- ind2 <- ind2_miss <- ind_to_drop <- nloc <- perc <- NULL
   
-  # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
+  # Determine verbosity level (internal helper)
+  verbose  <- gl.check.verbosity(verbose)
   
-  # DO THE JOB
+  # Record function name for logging
+  funname  <- match.call()[[1]]
+  
+  # Flag the start of this function call (internal helper)
+  utils.flag.start(func = funname, build = "Jody", verbose = verbose)
+  
+  # Convert genlight or other object to plain numeric matrix
   xx <- as.matrix(x)
   
-  # number of same genotypes pairwise
-  #to hack package checking...
-  SameGeno <- function() {}  
+  # Stub to satisfy package checks when defining the real function below
+  pairwiseMatchParallel <- function() {}
+  
+  # Define and compile a C++ function that computes pairwise shared/non-missing 
+  # counts in parallel
+  suppressWarnings(
   Rcpp::cppFunction(
-    "NumericMatrix SameGeno(NumericMatrix x) {
-  int nrow = x.nrow();
-  NumericMatrix out(nrow,nrow);
-  for (int i=0; i<(nrow-1); i++) {
-     for (int j=(i+1); j<nrow; j++) {
-     out(j,i) = sum(na_omit(x(i,_)==x(j,_)) );
-     }
-  }
-  return out;
-}"
+    code = '
+    #include <Rcpp.h>
+    #include <RcppParallel.h>
+    using namespace Rcpp;
+    using namespace RcppParallel;
+
+    // Worker struct for computing pairwise matches in parallel
+    struct PairwiseWorker : public Worker {
+      const RMatrix<double> x;
+      RMatrix<double>       same;     // counts of identical alleles
+      RMatrix<double>       nonmiss;  // counts of non-missing comparisons
+      const int             m;        // number of loci (columns)
+
+      // Constructor: bind input matrix and result matrices
+      PairwiseWorker(const NumericMatrix& x_,
+                     NumericMatrix&       same_,
+                     NumericMatrix&       nonmiss_)
+        : x(x_), same(same_), nonmiss(nonmiss_), m(x_.ncol()) {}
+
+      // The work to do on each chunk of rows
+      void operator()(std::size_t begin, std::size_t end) override {
+        std::size_t n = x.nrow();
+        for (std::size_t i = begin; i < end; ++i) {
+          for (std::size_t j = i + 1; j < n; ++j) {
+            int nsame = 0, nobs = 0;
+            // Loop over loci for this pair
+            for (int k = 0; k < m; ++k) {
+              double xi = x(i,k), xj = x(j,k);
+              // Count only non-missing comparisons
+              if (!traits::is_na<REALSXP>(xi) &&
+                  !traits::is_na<REALSXP>(xj)) {
+                ++nobs;
+                if (xi == xj) ++nsame;
+              }
+            }
+            // Fill both [i,j] and [j,i] entries
+            same(i,j)    = same(j,i)    = nsame;
+            nonmiss(i,j) = nonmiss(j,i) = nobs;
+          }
+        }
+      }
+    };
+
+    // [[Rcpp::export]]
+    List pairwiseMatchParallel(const NumericMatrix& x) {
+      int n = x.nrow();
+      NumericMatrix same(n,n), nonmiss(n,n);
+      PairwiseWorker worker(x, same, nonmiss);
+      // Parallel loop over rows 0 to n-1
+      parallelFor(0, n-1, worker);
+      return List::create(_["same"]=same, _["nonmiss"]=nonmiss);
+    }
+  ',
+    depends = "RcppParallel",
+    plugin  = "cpp11"
+  )
   )
   
-  SameGeno_tmp <- SameGeno(xx)
-  # number of no NAs in either or both genotypes pairwise
-  #to hack package checking...
-  SameGenoNA <- function() {}  
-  Rcpp::cppFunction(
-    "NumericMatrix SameGenoNA(NumericMatrix x) {
-  int nrow = x.nrow();
-  NumericMatrix out(nrow,nrow);
-  for (int i=0; i<(nrow-1); i++) {
-     for (int j=(i+1); j<nrow; j++) {
-     out(j,i) = sum( !is_na( x(i,_) == x(j,_) ));
-     }
-  }
-  return out;
-}"
-  )
+  # Call the compiled C++ function
+  pm <- pairwiseMatchParallel(xx)
+  mat_same     <- pm[["same"]]      # matrix of identical counts
+  mat_nonmiss  <- pm[["nonmiss"]]   # matrix of non-missing counts
   
-  SameGenoNA_tmp <- SameGenoNA(xx)
-  colnames(SameGenoNA_tmp) <- indNames(x)
-  rownames(SameGenoNA_tmp) <- indNames(x)
+  # Assign individual names to rows/columns
+  dimnames(mat_same)    <- dimnames(mat_nonmiss) <-
+    list(indNames(x), indNames(x))
   
-  mat_same <- SameGeno_tmp/SameGenoNA_tmp
+  # Compute proportion identical at each pair
+  mat_prop <- mat_same / mat_nonmiss
   
-  colnames(mat_same) <- indNames(x)
-  rownames(mat_same) <- indNames(x)
-  perc <- NULL
-  col_same <- as.data.frame(as.table(mat_same))
-  colnames(col_same) <- c("ind1","ind2","perc")
-  col_noNas <- as.data.frame(as.table(SameGenoNA_tmp))
+  # Melt into a long table: one row per pair
+  tab <- data.table(
+    ind1 = rep(indNames(x), each = nrow(mat_prop)),
+    ind2 = rep(indNames(x),  times = nrow(mat_prop)),
+    perc = as.vector(mat_prop),     # proportion identical
+    nloc = as.vector(mat_nonmiss)   # number of loci compared
+  )[!is.na(perc)]                   # drop any NA proportions
   
-  col_same$nloc <- col_noNas$Freq
+  # Find pairs exceeding both thresholds
+  col_same <- tab[nloc > loc_threshold & perc > perc_geno][order(-perc)]
   
-  col_same <- col_same[complete.cases(col_same$perc),]
-  # holding complete dataset for plotting 
-  col_same_hold <- col_same
-  
-  col_same <- col_same[which(col_same$nloc > loc_threshold),]
-  
-  col_same <- col_same[which(col_same$perc > perc_geno),]
-  
-  if(nrow(col_same)==0){
-    msg <- paste("There are no pair of individuals that have", perc_geno, 
-    "percentage of loci with the same genotype. Please choose a lower threshold. ")
+  # If none, return a message suggesting to lower thresholds
+  if (!nrow(col_same)) {
+    msg <- sprintf(
+      "No pair of individuals share > %.1f%% identical genotypes across > %d loci.  Lower the thresholds?",
+      perc_geno * 100, loc_threshold
+    )
     return(msg)
   }
   
-  col_same <- col_same[order(col_same$perc,decreasing = TRUE),]
+  # Calculate per-individual missing-data proportion
+  miss_prop <- 1 - rowSums(!is.na(xx)) / ncol(xx)
+  miss_dt   <- data.table(id = indNames(x), miss = miss_prop)
   
-  unique_ind <- col_same
-  unique_ind$ind1 <- as.character(unique_ind$ind1)
-  unique_ind$ind2 <- as.character(unique_ind$ind2)
+  # Merge in missing-data rates for ind1 and ind2
+  col_same <- merge(col_same, miss_dt, by.x = "ind1", by.y = "id")
+  setnames(col_same, "miss", "ind1_miss")
+  col_same <- merge(col_same, miss_dt, by.x = "ind2", by.y = "id")
+  setnames(col_same, "miss", "ind2_miss")
   
-  ind_NA <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
-  ind1_NA <- data.frame(ind1 = indNames(x), ind1_NA = ind_NA)
-  ind2_NA <- data.frame(ind2 = indNames(x), ind2_NA = ind_NA)
+  # Decide which replicate to drop: the one with higher missing proportion
+  col_same[, ind_to_drop := ifelse(ind1_miss > ind2_miss, ind1, ind2)]
+  ind_list <- unique(col_same$ind_to_drop)
   
-  unique_ind <- merge(unique_ind,ind1_NA,by="ind1")
-  unique_ind <- merge(unique_ind,ind2_NA,by="ind2")
-  unique_ind <- cbind(ind1=unique_ind[,2],unique_ind[,-2])
+  # Also prepare a list of all replicates per focal sample
+  keep_pairs   <- mat_prop >= perc_geno & mat_nonmiss > loc_threshold
+  ind_list_rep <- apply(keep_pairs, 2, function(v) indNames(x)[v])
+  ind_list_rep <- ind_list_rep[lengths(ind_list_rep) > 0]
   
-  # getting vector of individuals (replicates) to drop based on missing data
-  
-  unique_ind_tmp <- unique_ind
-  unique_ind_tmp$test_stat <- unique_ind_tmp$ind1_NA > unique_ind_tmp$ind2_NA
-  
-  ind_list <- NULL
-  
-  for (y in 1:nrow(unique_ind_tmp)) {
-    if (unique_ind_tmp[y, "test_stat"] == FALSE) {
-      ind_tmp <- unique_ind_tmp[y, "ind1"]
-    } else{
-      ind_tmp <- unique_ind_tmp[y, "ind2"]
-    }
-    
-    if (ind_tmp %in% ind_list) {
-      next
-    } else{
-      ind_list <- c(ind_list, ind_tmp)
-    }
-    
-  }
-  
-  # getting list of replicated individuals
-  
-  ind_mat <- as.matrix(reshape2::acast(unique_ind, ind1~ind2, value.var="perc"))
-  # ind_mat[lower.tri(ind_mat,diag = TRUE)] <- NA
-  
-  ind_list_rep <- apply(ind_mat,2,function(x){
-    names(x[which(!is.na(x))])
-  })
-  
-  # Histograms
-  p1_col_same_hold <- col_same_hold
-  p1 <-
-    ggplot(p1_col_same_hold, aes(x = perc)) + 
-    geom_histogram(bins = bins, color = plot_colors[1],fill = plot_colors[2]) +
-    xlab(" ") +
-    ylab("Count") +
-    plot_theme
-  
-  p2_col_same_hold <- col_same_hold[which(col_same_hold$perc>0.8),]
-  p2 <-
-    ggplot(p2_col_same_hold, aes(x = perc)) + 
-    geom_histogram(bins = bins, color = plot_colors[1],fill = plot_colors[2]) +
-    xlab("Percentage of same genotype") +
-    ylab("Count") +
-    plot_theme
-  
-  # PRINTING OUTPUTS
+  # If plotting is requested, show overall and zoomed-in histograms
   if (plot.out) {
-    # using package patchwork
-    p3 <- (p1 / p2) 
-    print(p3)
+    p_all <- ggplot(tab, aes(perc)) +
+      geom_histogram(bins = bins,
+                     colour = plot_colors[1],
+                     fill   = plot_colors[2]) +
+      ylab("Count") + xlab("") + plot_theme
+    
+    p_zoom <- ggplot(tab[perc > 0.8], aes(perc)) +
+      geom_histogram(bins = bins,
+                     colour = plot_colors[1],
+                     fill   = plot_colors[2]) +
+      ylab("Count") + xlab("Proportion identical") + plot_theme
+    
+    # Print the two plots stacked vertically
+    print(p_all / p_zoom)
   }
   
-  # FLAG SCRIPT END
+  # Final verbose message if requested
+  if (verbose >= 1) cat(report("Completed:", funname, "\n"))
   
-  if (verbose >= 1) {
-    cat(report("Completed:", funname, "\n"))
-  }
-  
-  # RETURN
-  
-  return(list(table.rep = unique_ind,
-              ind.list.drop = ind_list,
-              ind.list.rep = ind_list_rep))
+  list(
+    table.rep     = col_same[],
+    ind.list.drop = ind_list,
+    ind.list.rep  = ind_list_rep
+  )
   
 }

@@ -88,6 +88,7 @@ in the tree and plots these on the tree.
 \examples{
 
 \dontrun{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 tmp <- gl.filter.monomorphs(testset.gl)
 D <- gl.dist.phylo(testset.gl,subst.model="F81")
 gl.phylip(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",

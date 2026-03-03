@@ -28,7 +28,9 @@
 #' @author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples 
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl <- gl.subsample.ind(testset.gl, n=30, by.pop=FALSE, replace=TRUE)
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl <- gl.subsample.ind(platypus.gl, n=10, by.pop=TRUE, replace=TRUE)
 
 #' @export 
@@ -127,14 +129,14 @@ gl.subsample.ind <- function(x,
           for (i in 1:trunc(n/nInd(x))-1){
             idx <- sample(seq_len(nInd(x)), size = nInd(x), replace = TRUE)
             tmp <- x[idx,] # Requires dartR genlight object to ensure loc.metrics subsetted also
-            xx <- gl.join(xx,tmp,method="end2end",verbose=0)
+            xx <- gl.join(xx,tmp,method="join.by.loc",verbose=0)
           }
         }
         # Deal with the remainder if any
         if(n%%nInd(x) > 0){
           idx <- sample(seq_len(nInd(x)), size = (n %% nInd(x)), replace = TRUE)
           tmp <- x[idx,]
-          xx <- gl.join(xx,tmp,method="end2end",verbose=0)
+          xx <- gl.join(xx,tmp,method="join.by.loc",verbose=0)
         }
       } else {
         cat(error("Fatal Error: Cannot upsample a genlight object without replacement\n"))
@@ -163,7 +165,7 @@ gl.subsample.ind <- function(x,
     if(length(new.list) > 1){
       xx <- new.list[[1]]  # Start with the first population's subset
       for(i in 2:length(new.list)){
-        xx <- gl.join(xx, new.list[[i]], method="end2end",verbose=0)
+        xx <- gl.join(xx, new.list[[i]], method="join.by.loc",verbose=0)
       }
     } else {
       xx <- new.list[[1]]  # If only one population, return as is

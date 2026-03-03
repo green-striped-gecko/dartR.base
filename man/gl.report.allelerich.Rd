@@ -2,61 +2,262 @@
 % Please edit documentation in R/gl.report.allelerich.r
 \name{gl.report.allelerich}
 \alias{gl.report.allelerich}
-\title{Report allelic richness per population from a genlight object}
+\title{Reports allelic richness per population from a genlight object}
 \usage{
 gl.report.allelerich(
   x,
+  nboots = 0,
+  boot.method = "loc",
+  conf = 0.95,
+  CI.type = "bca",
   plot.display = TRUE,
   plot.theme = theme_dartR(),
+  plot.colors.pop = gl.colors("dis"),
   plot.dir = NULL,
   plot.file = NULL,
   error.bar = "SD",
-  verbose = 2
+  verbose = NULL
 )
 }
 \arguments{
-\item{x}{A genlight file (works only for diploid data) [required].}
+\item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{plot.display}{Specify if plot is to be produced [default TRUE].}
+\item{nboots}{Number of bootstrap replicates to obtain confidence intervals
+[default 0].}
 
-\item{plot.theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{boot.method}{Character specifying the bootstrap strategy: "ind" to
+resample individuals or "loc" to resample loci [default "loc"].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()].}
+\item{conf}{Numeric specifying the confidence level for the interval 
+estimation [default 0.95].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, 
-exclude extension) [default NULL].}
+\item{CI.type}{Character specifying the type of nonparametric confidence 
+interval: "norm", "basic", "perc", or "bca" [default "bca"].}
 
-\item{error.bar}{Statistic to be plotted as error bar either "SD" (standard 
-deviation) or "SE" (standard error) or "CI" (confidence intervals)
- [default "SD"].}
+\item{plot.display}{Logical indicating if a plot should be produced 
+[default TRUE].}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+\item{plot.theme}{A \pkg{ggplot2} theme to style the plots 
+[default \code{theme_dartR()}].}
+
+\item{plot.colors.pop}{A color palette for population plots or a list with
+as many colors as there are populations in the dataset 
+[default gl.colors("dis")].}
+
+\item{plot.dir}{Directory in which to save plot RDS files [default is the 
+current working directory or \code{tempdir()}].}
+
+\item{plot.file}{Base name (excluding extension) for the RDS file to save 
+[default NULL].}
+
+\item{error.bar}{Character specifying the statistic used for error bars: 
+"SD" (standard deviation), "SE" (standard error), or "CI" (confidence 
+intervals) [default "SD"].}
+
+\item{verbose}{Numeric controlling the level of printed messages: 
+0 = silent or fatal errors; 1 = begin/end; 2 = progress log; 3 = progress 
+and summary; 5 = full report. Defaults to 2 unless changed via 
+\code{gl.set.verbosity}.}
 }
 \value{
-A dataframe containing richness per site, richness per population, raw reference allele count,
-raw alternate allele count.
+A list of data frames containing:
+\itemize{
+  \item Allelic Richness per site (corrected by rarefaction).
+  \item Allelic Richness per population (summarized across sites).
+  \item Raw reference allele counts.
+  \item Raw alternate allele counts.
+}
 }
 \description{
-This function needs package adegenet, please install it.
+This function calculates allelic richness across populations for SNP data 
+in a genlight object, using a rarefaction-based approach 
+adapted from El Mousadik and Petit (1996). By standardizing the expected number 
+of distinct alleles to a fixed sample size, it allows meaningful comparisons 
+among populations with different sampling depths. Because allelic richness 
+captures the contribution of rare alleles more effectively than heterozygosity-based 
+indices, it can better reveal subtle patterns of genetic diversity, especially 
+in conservation contexts where low-frequency alleles may hold particular importance. 
+Optional bootstrapping is provided to generate measures of uncertainty such as 
+confidence intervals, standard error, or standard deviation.
 }
 \details{
-details
-\itemize{
-\item raw allele count
-\item allelic richness}
+\strong{Allelic Richness via Rarefaction:}
+
+This function applies a rarefaction technique to standardize allelic 
+richness. This approach mitigates biases that arise from differences 
+in sampling depth and highlights the presence of less frequent alleles, 
+which can be disproportionately important for long-term evolutionary 
+potential and conservation. Rarefaction essentially calculates the 
+expected number of distinct alleles you would observe in a subsample 
+of fixed size.
+
+\strong{Interpretation in Conservation Genetics:}
+
+Because allelic richness emphasizes rare alleles, it often reveals 
+patterns of genetic differentiation that may be underestimated by 
+measures relying primarily on allele-frequency distributions. In studies 
+aiming to preserve or identify unique variants, allelic richness can 
+highlight the most genetically distinct populations or pinpoint those 
+at greater risk of losing rare allelic variants.
+
+  \strong{Error bars}
+ 
+ The best method for presenting or assessing genetic statistics depends on 
+ the type of data you have and the specific questions you're trying to 
+ answer. Here's a brief overview of when you might use each method:
+ 
+  \strong{1. Confidence Intervals ("CI"):}
+  
+- Usage: Often used to convey the precision of an estimate.
+ 
+- Advantage: Confidence intervals give a range in which the true parameter 
+ (like a population mean) is likely to fall, given the data and a specified 
+ probability (like 95\%).
+ 
+- In Context: For genetic statistics, if you're estimating a parameter,
+a 95\% CI gives you a range in which you're 95\% confident the true parameter
+   lies.
+ 
+  \strong{2. Standard Deviation ("SD"):}
+  
+- Usage: Describes the amount of variation from the average in a set of data.
+ 
+- Advantage: Allows for an understanding of the spread of individual data
+  points around the mean.
+  
+- In Context: If you're looking at the distribution of a quantitative trait 
+ (like height) in a population with a particular genotype, the SD can 
+ describe how much individual heights vary around the average height.
+ 
+  \strong{3. Standard Error ("SE"):}
+  
+ - Usage: Describes the precision of the sample mean as an estimate of the 
+ population mean.
+ 
+ - Advantage: Smaller than the SD in large samples; it takes into account 
+ both the SD and the sample size. 
+ 
+ - In Context: If you want to know how accurately your sample mean represents
+  the population mean, you'd look at the SE.
+  
+   \strong{Recommendation:}
+   
+  - If you're trying to convey the precision of an estimate, confidence 
+  intervals are very useful.
+  
+  - For understanding variability within a sample, standard deviation is key.
+  
+  - To see how well a sample mean might estimate a population mean, consider 
+  the standard error.
+  
+  In practice, geneticists often use a combination of these methods to 
+  analyze and present their data, depending on their research questions and 
+  the nature of the data.
+  
+ \strong{Confidence Intervals}
+
+The uncertainty of a parameter, in this case the mean of the statistic, can
+be summarised by a confidence interval (CI) which includes the true parameter
+value with a specified probability (i.e. confidence level; the parameter
+"conf" in this function).
+
+In this function, CI are obtained using Bootstrap which is an inference
+method that samples with replacement the data (i.e. loci) and calculates the
+ statistics every time.
+
+ This function uses the function \link[boot]{boot} (package boot) to perform
+ the bootstrap replicates and the function \link[boot]{boot.ci}
+ (package boot) to perform the calculations for the CI.
+
+ Four different types of nonparametric CI can be calculated
+  (parameter "CI.type" in this function):
+  \itemize{
+   \item First order normal approximation interval ("norm").
+   \item Basic bootstrap interval ("basic").
+   \item Bootstrap percentile interval ("perc").
+   \item Adjusted bootstrap percentile interval ("bca").
+   }
+
+The studentised bootstrap interval ("stud") was not included in the CI types
+ because it is computationally intensive, it may produce estimates outside
+ the range of plausible values and it has been found to be erratic in
+ practice, see for example the "Studentised (t) Intervals" section in:
+
+   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+
+    Nice tutorials about the different types of CI can be found in:
+
+    \url{https://www.datacamp.com/tutorial/bootstrap-r}
+
+    and
+
+   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+
+     Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
+     (1997, p. 194) suggest that the number of bootstrap replicates should
+     be between 1000 and 2000.
+
+ \strong{It is important} to note that unreliable confidence intervals will be
+  obtained if too few number of bootstrap replicates are used.
+  Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
+   if bootstrap replicates are too few. Consider increasing the number of
+   bootstrap replicates to at least 200.
+
+   The "bca" interval is often cited as the best for theoretical reasons,
+   however it may produce unstable results if the bootstrap distribution
+    is skewed or has extreme values. For example, you might get the warning
+    "extreme order statistics used as endpoints" or the error "estimated
+    adjustment 'a' is NA". In this case, you may want to use more bootstrap
+    replicates or a different method or check your data for outliers.
+
+   The error "estimated adjustment 'w' is infinite" means that the estimated
+   adjustment ‘w’ for the "bca" interval is infinite, which can happen when
+   the empirical influence values are zero or very close to zero. This can
+   be caused by various reasons, such as:
+
+   The number of bootstrap replicates is too small, the statistic of interest
+    is constant or nearly constant across the bootstrap samples, the data
+    contains outliers or extreme values.
+
+    You can try some possible solutions, such as:
+
+Increasing the number of bootstrap replicates, using a different type of
+bootstrap confidence interval or removing or transforming the outliers or
+ extreme values.
+ 
+\strong{Confidence intervals that do not encompass the mean}
+ 
+When using bootstrap methods to estimate confidence intervals for rarefied
+ metrics, the resampling distribution can be skewed—especially if the sample
+  size is small. Skewness means the bootstrap‐estimated distribution may 
+  shift away from the sample mean, so percentile (or BCa) confidence 
+  intervals may legitimately exclude that mean. This does not necessarily 
+  indicate an error but can reflect genuine asymmetry in the data.
 }
 \examples{
- gl.report.allelerich(possums.gl)
+  # Example usage:
+  if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
+  results <- gl.report.allelerich(possums.gl)
+  print(results)
+
 }
 \references{
-\itemize{
-\item El Mousadik, A., & Petit, R. J. (1996). High level of genetic differentiation for allelic richness among populations of the argan tree 
-[Argania spinosa (L.) Skeels] endemic to Morocco. Theoretical and applied genetics, 92, 832-839.}
+El Mousadik, A. & Petit, R. J. (1996). High level of genetic 
+differentiation for allelic richness among populations of the argan tree 
+[\emph{Argania spinosa} (L.) Skeels] endemic to Morocco. 
+\emph{Theoretical and Applied Genetics}, 92, 832–839.
+}
+\seealso{
+Other unmatched report: 
+\code{\link{gl.allele.freq}()},
+\code{\link{gl.report.basics}()},
+\code{\link{gl.report.diversity}()},
+\code{\link{gl.report.excess.het}()},
+\code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.polyploid_heterozygosity}()}
 }
 \author{
-Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Ching Ching Lau -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
+\concept{unmatched report}

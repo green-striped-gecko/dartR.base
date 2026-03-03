@@ -104,10 +104,10 @@ utils.dist.binary <- function(x,
       mat[mat==-9] <- 1
       if(verbose >= 2){cat(report("  Reversing scores from presence[1]/absence[0] to presence[0]/absence[1]\n"))}
     }
-    
-    dd <- array(NA, c(nInd(x), nInd(x)))
-    nI <- nInd(x)
-    
+    # 
+    # dd <- array(NA, c(nInd(x), nInd(x)))
+    # nI <- nInd(x)
+    # 
     if (verbose >= 2) {
         if(method=="euclidean"){
             if(scale==TRUE){
@@ -119,45 +119,141 @@ utils.dist.binary <- function(x,
             cat(report("  Calculating the distance matrix --", method, "\n"))
         }
     }
-    for (i in (1:(nI - 1))) {
-        for (j in ((i + 1):nI)) {
-            row1 <- mat[i,]
-            row2 <- mat[j,]
-            # row1[1:10] row2[1:10]
-            a11 <- (row1 + row2) == 2
-            a10 <- ((row1 + row2) == 1) * row1
-            a01 <- ((row1 + row2) == 1) * row2
-            a00 <- (row1 + row2) == 0
-            N11 <- sum(a11 == 1, na.rm = TRUE)
-            N01 <- sum(a01 == 1, na.rm = TRUE)
-            N10 <- sum(a10 == 1, na.rm = TRUE)
-            N00 <- sum(a00 == 1, na.rm = TRUE)
-            # N11;N01;N10;N00
-            L <- N11+N01+N10+N00
-            if (method == "euclidean") {
-                if(scale==TRUE){
-                    dd[j,i] <- sqrt((N01+N10)/L)
-                } else {
-                    dd[j,i] <- sqrt(N01+N10)
-                }
-            } else if (method == "simple") {
-                dd[j,i] <- (N01 + N10)/L
-            } else if (method == "jaccard") {
-                dd[j,i] <- (N01 + N10)/(L - N00)
-            } else if (method == "bray-curtis") {
-                dd[j,i] <- 1 - 2 * N11 / (2 * N11 + N01 + N10)
-            } else if (method == "sorensen"){
-                dd[j,i] <- (N01 + N10/(L - N00 + N11))
-            # } else if (method == "phi") {
-            #     dd[j,i] <- 1 - ((N11 * N00 - N01 * N10) / sqrt((N11 + N01) * (N11 + N10) * (N00 + N01) * (N00 + N10)))
-            } else {
-                # Programming error
-                stop(error("Fatal Error: Notify dartR development team\n"))
-            }
-        }
-        dd[i, i] <- 0
-        dd[i,j] <- dd[j,i]
+    
+    # for (i in (1:(nI - 1))) {
+    #     for (j in ((i + 1):nI)) {
+    #         row1 <- mat[i,]
+    #         row2 <- mat[j,]
+    #         # row1[1:10] row2[1:10]
+    #         a11 <- (row1 + row2) == 2
+    #         a10 <- ((row1 + row2) == 1) * row1
+    #         a01 <- ((row1 + row2) == 1) * row2
+    #         a00 <- (row1 + row2) == 0
+    #         N11 <- sum(a11 == 1, na.rm = TRUE)
+    #         N01 <- sum(a01 == 1, na.rm = TRUE)
+    #         N10 <- sum(a10 == 1, na.rm = TRUE)
+    #         N00 <- sum(a00 == 1, na.rm = TRUE)
+    #         # N11;N01;N10;N00
+    #         L <- N11+N01+N10+N00
+    #         if (method == "euclidean") {
+    #             if(scale==TRUE){
+    #                 dd[j,i] <- sqrt((N01+N10)/L)
+    #             } else {
+    #                 dd[j,i] <- sqrt(N01+N10)
+    #             }
+    #         } else if (method == "simple") {
+    #             dd[j,i] <- (N01 + N10)/L
+    #         } else if (method == "jaccard") {
+    #             dd[j,i] <- (N01 + N10)/(L - N00)
+    #         } else if (method == "bray-curtis") {
+    #             dd[j,i] <- 1 - 2 * N11 / (2 * N11 + N01 + N10)
+    #         } else if (method == "sorensen"){
+    #             dd[j,i] <- (N01 + N10/(L - N00 + N11))
+    #         # } else if (method == "phi") {
+    #         #     dd[j,i] <- 1 - ((N11 * N00 - N01 * N10) / sqrt((N11 + N01) * (N11 + N10) * (N00 + N01) * (N00 + N10)))
+    #         } else {
+    #             # Programming error
+    #             stop(error("Fatal Error: Notify dartR development team\n"))
+    #         }
+    #     }
+    #     dd[i, i] <- 0
+    #     dd[i,j] <- dd[j,i]
+    # }
+    
+    dist_mod2 <- function() {}  #to hack package checking...
+    Rcpp::cppFunction(
+    '
+// Compute a pairwise distance matrix for binary genotype data
+// x: NumericMatrix of shape [nIndividuals, nLoci] with values 0,1,2 or NA
+// method: "euclidean", "simple", "jaccard", "bray-curtis", or "sorensen"
+// scale: only used for "euclidean"
+NumericMatrix dist_mod2(const NumericMatrix& x,
+                        std::string method = "euclidean",
+                        bool scale = true) {
+  int nI = x.nrow();    // number of individuals (rows)
+  int nL = x.ncol();    // number of loci (columns)
+
+  // initialize distance matrix (nI x nI) with NA
+  NumericMatrix dd(nI, nI);
+  for (int i = 0; i < nI; ++i) {
+    for (int j = 0; j < nI; ++j) {
+      dd(i, j) = NA_REAL;
     }
+    dd(i, i) = 0.0;  // distance to self is zero
+  }
+
+  // iterate only over unique pairs (i<j)
+  for (int i = 0; i < nI - 1; ++i) {
+    for (int j = i + 1; j < nI; ++j) {
+      // counters for allele patterns
+      int N11 = 0, N10 = 0, N01 = 0, N00 = 0;
+
+      // loop over loci to compute N11, N10, N01, N00
+      for (int k = 0; k < nL; ++k) {
+        double v1 = x(i, k);
+        double v2 = x(j, k);
+        if (NumericMatrix::is_na(v1) || NumericMatrix::is_na(v2)) {
+          continue;  // skip missing data
+        }
+        double sum = v1 + v2;
+        if (sum == 2.0) {
+          // both individuals homozygous for allele 1
+          N11++;
+        } else if (sum == 1.0) {
+          // heterozygous match: one allele present
+          if (v1 == 1.0) N10++;  // allele present in first only
+          else             N01++;  // allele present in second only
+        } else if (sum == 0.0) {
+          // both homozygous for allele 0
+          N00++;
+        }
+      }
+
+      // total non-missing comparisons
+      int L = N11 + N10 + N01 + N00;
+      double dist = NA_REAL;
+
+      // compute distance by method
+      if (method == "euclidean") {
+        // proportion of mismatches
+        double mism = (double)(N01 + N10);
+        if (L > 0) {
+          dist = scale
+               ? std::sqrt(mism / L)
+               : std::sqrt(mism);
+        }
+
+      } else if (method == "simple") {
+        // simple matching distance = mismatches / total
+        if (L > 0) dist = (double)(N01 + N10) / L;
+
+      } else if (method == "jaccard") {
+        // Jaccard distance = mismatches / (total minus joint absences)
+        if ((L - N00) > 0) dist = (double)(N01 + N10) / (L - N00);
+
+      } else if (method == "bray-curtis") {
+        // BrayCurtis dissimilarity
+        double num = 2.0 * N11;
+        double den = 2.0 * N11 + N01 + N10;
+        if (den > 0) dist = 1.0 - num / den;
+
+      } else if (method == "sorensen") {
+        // Sorensen distance approximation
+        if ((L - N00 + N11) > 0) dist = (N01 + (double)N10) / (L - N00 + N11);
+      }
+
+      // fill symmetric entries
+      dd(i, j) = dist;
+      dd(j, i) = dist;
+    }
+  }
+
+  return dd;
+}
+    '
+)
+
+    dd <- dist_mod2(mat, method = method, scale = scale)
 
     if(type=="dist"){
       dd <- as.dist(dd)

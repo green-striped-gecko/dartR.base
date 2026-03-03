@@ -31,6 +31,7 @@
 # Examples -------------
 #' @examples
 #'  # SNP data
+#'  if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'    gl2 <- gl.drop.pop(testset.gl,
 #'    pop.list=c('EmsubRopeMata','EmvicVictJasp'),verbose=3)
 #'    gl2 <- gl.drop.pop(testset.gl, pop.list=c('EmsubRopeMata','EmvicVictJasp'),
@@ -67,12 +68,12 @@ gl.drop.pop <-  function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
-    if (!is(x, "dartR")) {
-      class(x) <- "dartR"  
+    if (!("dartR" %in% class(x))) {
+      class(x) <- "dartR"
       if (verbose>2) {
         cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
-        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
-                 please use function dartR2gl\n"))
+        cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR", 
+                 "please use function dartR2gl\n"))
       }
     }
 
@@ -80,7 +81,7 @@ gl.drop.pop <-  function(x,
 
     # Population labels assigned?
     if (is.null(as.pop)) {
-        if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+      if (is.null(pop(x)) || length(pop(x)) == 0) {
             if (verbose >= 2) {
                 cat(
                     warn(
@@ -101,7 +102,7 @@ gl.drop.pop <-  function(x,
           cat(report("  Temporarily assigning",as.pop,"as population\n"))
         }
       } else {
-        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$ind.metrics) and select again\n"))
       }
     }
     
@@ -127,7 +128,7 @@ gl.drop.pop <-  function(x,
         cat("  Deleting populations", paste(pop.list, collapse = ", "),"\n")
     }
     # Drop the specified populations
-    ind.to.keep <- which(!(x$pop %in% pop.list))
+    ind.to.keep <- which(!(pop(x) %in% pop.list))
     x <- x[ind.to.keep,]
     # Drop them from pop.hold as well, which has the original population assignments
     pop.hold <- pop.hold[ind.to.keep]
@@ -158,8 +159,8 @@ gl.drop.pop <-  function(x,
     } else {
         if (verbose >= 2) {
             cat(warn("  Locus metrics not recalculated\n"))
-            x <- utils.reset.flags(x, verbose = 0)
         }
+        x <- utils.reset.flags(x, verbose = 0)
     }
     # End block -----------
     

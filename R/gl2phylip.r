@@ -25,6 +25,7 @@
 #'  
 #' @examples
 #' \donttest{
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
 #' }
 #' 

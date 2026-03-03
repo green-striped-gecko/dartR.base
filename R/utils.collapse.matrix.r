@@ -23,6 +23,7 @@
 #' @return An object of class 'dist' or 'matrix' giving distances between individuals
 
 # Examples for testing
+
 # D.ind <- gl.dist.ind(testset.gl)
 # as.matrix(D.ind)[1:7,1:7]
 # D.pop <- utils.collapse.matrix(D=D.ind,x=testset.gl,verbose=3)

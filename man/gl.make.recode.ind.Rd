@@ -48,6 +48,7 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
 Apply the recoding using gl.recode.ind().
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl.make.recode.ind(testset.gl, out.recode.file ='Emmac_recode_ind.csv',outpath=tempdir())
 }
 \seealso{
@@ -63,6 +64,7 @@ Other data manipulation:
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

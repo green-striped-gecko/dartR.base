@@ -130,6 +130,7 @@ If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
  directory; otherwise to the tempdir().
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
  test <- gl.pcoa(platypus.gl)
  gl.pcoa.plot(glPca = test, x = platypus.gl)
 \donttest{
@@ -149,7 +150,7 @@ axis.label.size=1.5,scale=TRUE)
 gl.pcoa.plot(pca, gl, ellipse=TRUE, axis.label.size=1.2, xaxis=1, yaxis=3, 
 scale=TRUE)
 gl.pcoa.plot(pca, gl, pop.labels='none',scale=TRUE)
-gl.pcoa.plot(pca, gl, axis.label.size=1.2, interactive=TRUE)
+#gl.pcoa.plot(pca, gl,  interactive=TRUE)
 gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, xaxis=1, yaxis=2, zaxis=3)
 # COLOR AND SHAPE ADJUSTMENTS
 shp <- gl.select.shapes(select=c(16,17,17,0,2))

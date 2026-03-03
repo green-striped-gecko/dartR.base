@@ -32,6 +32,7 @@
 #Examples -------------
 #' @examples
 #'  # SNP data
+#'  if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'    gl2 <- gl.keep.pop(testset.gl, pop.list=c('EmsubRopeMata', 'EmvicVictJasp'))
 #'    gl2 <- gl.keep.pop(testset.gl, pop.list=c('EmsubRopeMata', 'EmvicVictJasp'),
 #'    mono.rm=TRUE,recalc=TRUE)
@@ -68,12 +69,12 @@ gl.keep.pop <-  function(x,
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
-    if (!is(x, "dartR")) {
+    if (!("dartR" %in% class(x))) {
         class(x) <- "dartR"  
         if (verbose>2) {
           cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
-          cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
-                 please use function dartR2gl\n"))
+          cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR", 
+                   "                    please use function dartR2gl\n"))
         }
       }
     
@@ -81,7 +82,7 @@ gl.keep.pop <-  function(x,
     
     # Population labels assigned?
     if (is.null(as.pop)) {
-      if (is.null(pop(x)) | is.na(length(pop(x))) | length(pop(x)) <= 0) {
+      if (is.null(pop(x)) || length(pop(x)) == 0) {
         if (verbose >= 2) {
           cat(
             warn(
@@ -102,7 +103,7 @@ gl.keep.pop <-  function(x,
           cat(report("  Temporarily assigning",as.pop,"as population\n"))
         }
       } else {
-        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$ind.metrics) and select again\n"))
       }
     }
     
@@ -111,17 +112,14 @@ gl.keep.pop <-  function(x,
     }
     
     for (case in pop.list) {
-        if (!(case %in% popNames(x))) {
-            cat(
-                warn(
-                    "  Warning: Listed population",
-                    case,
-                    "not present in the dataset -- ignored\n"
-                )
-            )
-            pop.list <- pop.list[!(pop.list == case)]
+      if (!(case %in% popNames(x))) {
+        if (verbose >= 2) {
+          cat(warn("  Warning: Listed population", case, "not present in the dataset -- ignored\n"))
         }
+        pop.list <- pop.list[!(pop.list == case)]
+      }
     }
+    
     if (length(pop.list) == 0) {
         stop(error("Fatal Error: no populations listed to keep!\n"))
     }
@@ -140,12 +138,12 @@ gl.keep.pop <-  function(x,
     
     # Keep only rows flagged for retention
     # Remove rows flagged for deletion
-    pops.to.keep <- which(x$pop %in% pop.list)
+    pops.to.keep <- which(pop(x) %in% pop.list)
     x <- x[pops.to.keep,]
     pop.hold <- pop.hold[pops.to.keep]
     
     # Monomorphic loci may have been created ---------------
-    x@other$loc.metrics.flags$monomorphs == FALSE
+    x@other$loc.metrics.flags$monomorphs <- FALSE
     
     # Remove monomorphic loci
     if (mono.rm) {
@@ -172,8 +170,8 @@ gl.keep.pop <-  function(x,
     } else {
         if (verbose >= 2) {
             cat(report("  Locus metrics not recalculated\n"))
-            x <- utils.reset.flags(x, verbose = 0)
-        }
+          }
+          x <- utils.reset.flags(x, verbose = 0)
     }
     
 # REPORT A SUMMARY ----------------

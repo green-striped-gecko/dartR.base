@@ -16,6 +16,9 @@
 #'  
 #' @export
 #' @return A genind object, with all slots filled.
+#' @examples 
+#' if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
+#' gl2gi(possums.gl[1:10,1:20])
 
 gl2gi <- function(x,
                   probar = FALSE,

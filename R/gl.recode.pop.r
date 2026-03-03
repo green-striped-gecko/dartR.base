@@ -48,11 +48,10 @@
 
 # Examples --------------
 #' @examples
-#' \donttest{
 #'   mfile <- system.file('extdata', 'testset_pop_recode.csv', package='dartR.data')
 #'   nPop(testset.gl)
+#'   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl <- gl.recode.pop(testset.gl, pop.recode=mfile, verbose=3)
-#'  }
 
 # See also -----------------
 #' @seealso \code{\link{gl.filter.monomorphs}}

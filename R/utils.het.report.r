@@ -1,7 +1,7 @@
 # bootstrapping function
 pop.het <- function(df,
                     indices,
-                    n.invariant,
+                    n.invariant = 0,
                     boot_method = "loc",
                     aHet=FALSE) {
   

@@ -28,6 +28,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr})
 #'  
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl <- gl.recalc.metrics(testset.gl, verbose=2)
 #'   
 #' @seealso \code{\link{gl.filter.monomorphs}}

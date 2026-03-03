@@ -33,6 +33,7 @@ This is a support script, to subsample a genlight \{adegenet\} object based
 }
 \examples{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl2 <- gl.subsample.loci(testset.gl, n=200, method='pic')
 # Tag P/A data
   gl2 <- gl.subsample.loci(testset.gl, n=100, method='random')

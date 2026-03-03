@@ -10,12 +10,14 @@ gl.read.PLINK(
   loc.metafile = NULL,
   plink.cmd = "plink",
   plink.path = "path",
+  fbm = FALSE,
   plink.flags = NULL,
   verbose = NULL
 )
 }
 \arguments{
-\item{filename}{Fully qualified path to PLINK input file (without including the extension)}
+\item{filename}{Fully qualified path to PLINK input file (without including 
+the extension)}
 
 \item{ind.metafile}{Name of the csv file containing the metrics for
 individuals [optional].}
@@ -30,6 +32,12 @@ loci [optional].}
 the PATH then there is no need for this. This is what the option "path"
 means}
 
+\item{fbm}{Logical. If TRUE, the returned genlight object will contain a
+file-backed matrix (fbm) in its @genome slot. This is useful for very
+large datasets that do not fit into RAM. Note that using fbm objects
+requires the package bigsnpr to be installed. [default FALSE]. to back convert
+use \code{gl.fbm2gen()}.}
+
 \item{plink.flags}{additional possible parameters passed on to plink.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -40,17 +48,17 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object with the SNP data and associated metadata included.
 }
 \description{
-This function imports PLINK data into a genlight object and append 
-available metadata.
+This function imports PLINK data into a genlight object and 
+append available metadata.
 }
 \details{
-This function handles .ped or .bed file (with the associate files - 
-e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be 
+This function handles .ped or .bed file (with the associate files -
+e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be
 installed and it is used to convert the .ped into a .bed, which is then
  converted into a genlight.
 
-Additional metadata can be included passing .csv files. These will be appended 
-to the existing metadata present in the PLINK files. 
+Additional metadata can be included passing .csv files. These will be 
+appended to the existing metadata present in the PLINK files.
 
 The locus metadata needs to be in a csv file with headings, with a mandatory
 column headed AlleleID corresponding exactly to the locus identity labels

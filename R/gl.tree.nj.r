@@ -33,12 +33,11 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
-#'  \donttest{
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl.tree.nj(testset.gl,type='fan')
 #' # Tag P/A data
 #'   gl.tree.nj(testset.gs,type='fan')
-#'   }
 #'   res <- gl.tree.nj(platypus.gl)
 #'   
 #' @importFrom stringr str_pad

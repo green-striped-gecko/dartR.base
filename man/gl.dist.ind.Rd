@@ -29,7 +29,7 @@ gl.dist.ind(
 (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 mutation) is scored as 1 [default FALSE].}
 
-\item{type}{Specify the type of output, dist or matrix [default dist]}
+\item{type}{Specify the type of output, "dist" or "matrix" [default "dist"]}
 
 \item{plot.display}{If TRUE, resultant plots are displayed in the plot window
 [default TRUE].}
@@ -60,7 +60,7 @@ frequencies or presence-absence data
 The distance measure for SNP genotypes can be one of:
 \itemize{
  \item Euclidean Distance [method = "Euclidean"]
- \item Scaled Euclidean Distance [method='Euclidean", scale=TRUE]
+ \item Scaled Euclidean Distance [method="Euclidean", scale=TRUE]
  \item Simple Mismatch Distance [method="Simple"]
  \item Absolute Mismatch Distance [method="Absolute"]
  \item Czekanowski (Manhattan) Distance [method="Manhattan"]
@@ -68,10 +68,10 @@ The distance measure for SNP genotypes can be one of:
 The distance measure for Sequence Tag Presence/Absence data (binary) can be one of:
 \itemize{
  \item Euclidean Distance [method = "Euclidean"]
- \item Scaled Euclidean Distance [method='Euclidean", scale=TRUE]
- \item Simple Matching Distance [method="Simple"]
- \item Jaccard Distance [method="Jaccard"]
- \item Bray-Curtis Distance [method="Bray-Curtis"]
+ \item Scaled Euclidean Distance [method = "Euclidean", scale = TRUE]
+ \item Simple Matching Distance [method = "Simple"]
+ \item Jaccard Distance [method = "Jaccard"]
+ \item Bray-Curtis Distance [method = "Bray-Curtis"]
  }
 Refer to the documentation of functions in
   https://doi.org/10.1101/2023.03.22.533737 for algorithms
@@ -79,10 +79,11 @@ Refer to the documentation of functions in
 }
 \examples{
 \donttest{
-D <- gl.dist.ind(testset.gl[1:20,], method='manhattan')
-D <- gl.dist.ind(testset.gs[1:20,], method='Jaccard',swap=TRUE)
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
+D <- gl.dist.ind(testset.gl[1:20,1:100], method='manhattan')
+D <- gl.dist.ind(testset.gs[1:20,1:100], method='Jaccard',swap=TRUE)
 }
-D <- gl.dist.ind(testset.gl[1:20,], method='euclidean',scale=TRUE)
+D <- gl.dist.ind(testset.gl[1:20,1:100], method='euclidean',scale=TRUE)
 
 }
 \seealso{

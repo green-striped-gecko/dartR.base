@@ -12,6 +12,10 @@ gl.smearplot(
   group.pop = FALSE,
   plot.theme = NULL,
   plot.colors = NULL,
+  loc.names = FALSE,
+  loc.order = FALSE,
+  interactive = FALSE,
+  den = FALSE,
   plot.file = NULL,
   plot.dir = NULL,
   het.only = FALSE,
@@ -36,6 +40,19 @@ gl.smearplot(
 
 \item{plot.colors}{List of four color names for the column fill for homozygous reference,
 heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].}
+
+\item{loc.names}{If TRUE, loci names are shown on the horiontal axis 
+[default FALSE].}
+
+\item{loc.order}{If TRUE, loci are ordered by chromosome and by SNP position
+[default FALSE].}
+
+\item{interactive}{If TRUE, an interactive version is generated 
+[default FALSE].}
+
+\item{den}{If TRUE, a dendrogram is generated and used to order individuals 
+[default FALSE].
+[default FALSE].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
@@ -63,6 +80,7 @@ it is best to use ind.labels = FALSE.
 Works with both SNP data and P/A data (SilicoDArT)
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.smearplot(testset.gl,ind.labels=FALSE)
 gl.smearplot(testset.gs,ind.labels=FALSE)
 gl.smearplot(testset.gl[1:10,],ind.labels=TRUE)

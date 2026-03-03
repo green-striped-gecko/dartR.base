@@ -24,6 +24,8 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
+#' #test fbm
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl.allele.freq(testset.gl,percent=FALSE,by='pop')
 #' gl.allele.freq(testset.gl,percent=FALSE,by="loc")
 #' gl.allele.freq(testset.gl,percent=FALSE,by="popxloc")

@@ -42,6 +42,10 @@ Be aware due to ambiguity which one is the reference allele a combination of
 This function uses a faster version of df2genind (from the adegenet
  package)
 }
+\examples{
+if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
+gl2gi(possums.gl[1:10,1:20])
+}
 \seealso{
 Other linker: 
 \code{\link{gl2bayesAss}()},
@@ -54,11 +58,13 @@ Other linker:
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}
@@ -74,11 +80,13 @@ Other linker:
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

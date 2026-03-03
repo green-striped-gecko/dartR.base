@@ -14,6 +14,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl.report.basics(platypus.gl)
 #' 
 # @import tibble

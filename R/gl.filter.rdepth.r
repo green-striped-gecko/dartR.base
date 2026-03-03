@@ -45,6 +45,7 @@
 #' @examples
 #'  \donttest{
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl.report.rdepth(testset.gl)
 #'   result <- gl.filter.rdepth(testset.gl, lower=8, upper=50, verbose=3)
 #' # Tag P/A data
@@ -147,8 +148,8 @@ gl.filter.rdepth <-  function(x,
                            color = plot.colors[1],
                            fill = plot.colors[2]) + 
             coord_cartesian(xlim = c(0, max)) + 
-            geom_vline(xintercept = lower, color = "red", size = 1) +
-            geom_vline(xintercept = upper, color = "red", size = 1) + 
+            geom_vline(xintercept = lower, color = "red", linewidth = 1) +
+            geom_vline(xintercept = upper, color = "red", linewidth = 1) + 
             xlab(xlabel) +
             ylab("Count") + 
             plot.theme
@@ -173,8 +174,8 @@ gl.filter.rdepth <-  function(x,
                            color = plot.colors[1],
                            fill = plot.colors[2]) +
             coord_cartesian(xlim = c(0, max)) +
-            geom_vline(xintercept = lower, color = "red",size = 1) + 
-            geom_vline(xintercept = upper,color = "red",size = 1) + 
+            geom_vline(xintercept = lower, color = "red",linewidth = 1) + 
+            geom_vline(xintercept = upper,color = "red",linewidth = 1) + 
             xlab(xlabel) +
             ylab("Count") +
             plot.theme

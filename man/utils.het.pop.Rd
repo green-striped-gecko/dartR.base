@@ -19,6 +19,7 @@ An internal function that calculates expected mean heterozygosity per population
 \seealso{
 Other utilities: 
 \code{\link{gl.alf}()},
+\code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},

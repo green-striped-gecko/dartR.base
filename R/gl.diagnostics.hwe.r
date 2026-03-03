@@ -1,9 +1,9 @@
 #' @name gl.diagnostics.hwe
-#' @title Provides descriptive stats and plots to diagnose potential problems
+#' @title 
+#' Provides descriptive stats and plots to diagnose potential problems
 #'   with Hardy-Weinberg proportions
-#'   @family matched report
-
-#' @description Different causes may be responsible for lack of Hardy-Weinberg
+#' @description 
+#' Different causes may be responsible for lack of Hardy-Weinberg
 #' proportions. This function helps diagnose potential problems.
 #' 
 #' @inheritParams gl.report.hwe
@@ -51,22 +51,23 @@
 #' computed) and it may take some time for these computations to complete. 
 #' De Meeûs 2018 suggests that under a global significant heterozygosity 
 #' deficit: 
-
+#' 
 #' - if the
 #' correlation between Fis and Fst is strongly positive, and StdErrFis >>
 #' StdErrFst, Null alleles are likely to be the cause. 
-
+#' 
 #' - if the correlation
 #' between Fis and Fst is ~0 or mildly positive, and StdErrFis > StdErrFst,
 #' Wahlund may be the cause. 
-
+#' 
 #' - if the correlation between Fis and Fst is ~0, and
 #' StdErrFis ~ StdErrFst, selfing or sib mating could to be the cause.
-
+#' 
 #'  It is
 #' important to realise that these statistics only suggest a pattern (pointers).
 #' Their absence is not conclusive evidence of the absence of the problem, as 
 #' their presence does not confirm the cause of the problem. 
+#' 
 #' \item A table where the
 #' number of observed and expected significant HWE tests are reported by each
 #' population, indicating whether these are due to heterozygosity excess or
@@ -85,10 +86,12 @@
 #' @examples
 #' \donttest{
 #' require("dartR.data")
-#' res <- gl.diagnostics.hwe(x = gl.filter.allna(platypus.gl[,1:50]), 
-#' stdErr=FALSE, n.cores=1)
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+#' gl <- gl.filter.allna(platypus.gl[,1:50])
+#' res <- gl.diagnostics.hwe(x = gl ,  stdErr=FALSE, n.cores=1)
 #' }
-#' @references \itemize{ 
+#' @references 
+#' \itemize{ 
 #' \item de Meeûs, T., McCoy, K.D., Prugnolle, F.,
 #' Chevillon, C., Durand, P., Hurtrez-Boussès, S., Renaud, F., 2007. Population
 #' genetics and molecular epidemiology or how to “débusquer la bête”. Infection,
@@ -107,7 +110,6 @@
 #'  }
 #'  
 #' @seealso \code{\link{gl.report.hwe}}
-
 #' @rawNamespace import(data.table, except = c(melt,dcast))
 #' @export
 #' @return A list with the table with the summary of the HWE tests and (if 
@@ -171,7 +173,8 @@ gl.diagnostics.hwe <- function(x,
   suppressWarnings(hweout <- gl.report.hwe(x, 
                                            sig_only = FALSE,
                                            verbose = 0))
-  
+  #no ggtern installed
+  if(!data.table::is.data.table(hweout) | !is.data.frame(hweout)) return(NULL)
   p1 <-   ggplot(hweout, aes(Prob)) +
     geom_histogram(bins = bins,
                    color = colors.hist[1],
@@ -182,7 +185,7 @@ gl.diagnostics.hwe <- function(x,
         linetype = "Mean number\nof significant\nHWE tests"
       ),
       col = "red",
-      size = 1
+      linewidth = 1
     ) +
     scale_linetype_manual(name = "", values = 'solid') +
     coord_cartesian(xlim = c(0, 1)) +
@@ -199,9 +202,9 @@ gl.diagnostics.hwe <- function(x,
   Fstats <- utils.basic.stats(x)
   
   # Number of loci out of HWE as a function of a population
-  hweout.dt <- data.table(hweout)
+  hweout.dt <- data.table::data.table(hweout)
   nTimesBypop <- hweout.dt[, .N, by = c("Locus", "Sig")]
-  setkey(nTimesBypop, Sig)
+  data.table::setkey(nTimesBypop, Sig)
   
   nTimesBypop.df <- as.data.frame(table(nTimesBypop["sig", N]))
   
@@ -239,14 +242,14 @@ gl.diagnostics.hwe <- function(x,
     plot.theme 
   
   # Collate HWE tests and Fis per locus and pop
-  FisPops <- data.table(Fstats$Fis, keep.rownames = TRUE)
+  FisPops <- data.table::data.table(Fstats$Fis, keep.rownames = TRUE)
   
   # fix the headings when there is only one pop
   if (length(levels(pop(x))) == 1) {
     #FisPops[, dumpop := NULL]
-    setnames(FisPops, "round(Fis, 4)", levels(pop(x)))
+    data.table::setnames(FisPops, "round(Fis, 4)", levels(pop(x)))
   }
-  setnames(FisPops, "rn", "Locus")
+  data.table::setnames(FisPops, "rn", "Locus")
   FisPopsLong <-
     data.table::melt(
       FisPops,
@@ -259,7 +262,7 @@ gl.diagnostics.hwe <- function(x,
   hwe_Fis <- merge(hweout.dt, FisPopsLong, by = c("Locus", "Population"))
   hwe_Fis[, Deficiency := Fis > 0]
   hwe_Fis[,  Excess := Fis < 0]
-  setkey(hwe_Fis, Sig)
+  data.table::setkey(hwe_Fis, Sig)
   
   hwe_summary <-
     hwe_Fis["sig", .(
@@ -284,7 +287,7 @@ gl.diagnostics.hwe <- function(x,
   p3 <- ggplot(Fstats$perloc, aes(Fst, Fis)) + 
     geom_point(size=2,color=colors.barplot[1],alpha=0.5) + 
     geom_smooth(method = "lm",color=colors.barplot[2],fill=colors.barplot[2],
-                size=1) +
+                linewidth=1) +
     annotate("text", 
              x=min(Fstats$perloc$Fst, na.rm = TRUE) +
                (max(Fstats$perloc$Fst, na.rm = TRUE) - 

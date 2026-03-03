@@ -1,5 +1,5 @@
 #' @name gl.reassign.pop
-#' @title Assigns an individual metric as pop in a genlight \{adegenet\} object
+#' @title Assigns an individual attribute in ind.metrics as pop in a genlight \{adegenet\} object
 #' @family data manipulation
 
 #' @description
@@ -27,6 +27,7 @@
 #' 
 #' @examples
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'    popNames(testset.gl)
 #'    gl <- gl.reassign.pop(testset.gl, as.pop='sex',verbose=3)
 #'    popNames(gl)

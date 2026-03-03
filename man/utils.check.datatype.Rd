@@ -43,6 +43,7 @@ Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
  TRUE.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 datatype <- utils.check.datatype(testset.gl)
 datatype <- utils.check.datatype(as.matrix(testset.gl),accept='matrix')
 fd <- gl.fixed.diff(testset.gl)
@@ -52,6 +53,7 @@ datatype <- utils.check.datatype(fd,accept='fd')
 \seealso{
 Other utilities: 
 \code{\link{gl.alf}()},
+\code{\link{utils.allelic.richness}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},

@@ -147,8 +147,9 @@
 #'\url{https://groups.google.com/d/forum/dartr})
 #'@examples
 #' # PCA (using SNP genlight object)
-#' gl <- possums.gl
-#' pca <- gl.pcoa(possums.gl[1:50,],verbose=2)
+#' gl <- possums.gl[1:90,]
+#' if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
+#' pca <- gl.pcoa(gl,verbose=2)
 #' gl.pcoa.plot(pca,gl)
 #' \donttest{
 #' gs <- testset.gs
@@ -187,6 +188,7 @@
 #' @seealso \code{\link{gl.pcoa.plot}}
 #' @family data exploration functions
 #' @importFrom ape pcoa
+#' @importFrom bigstatsr big_SVD
 #' @export
 
 gl.pcoa <- function(x,
@@ -482,7 +484,9 @@ gl.pcoa <- function(x,
     #   return(list('struct'=struc,'noise'=noise))
     # }
     
-    bs.statistics <- function(eigenvalues, plot = FALSE, gap_threshold = 2) {
+    bs.statistics <- function(eigenvalues, 
+                              plot = FALSE,
+                              gap_threshold = 2) {
       # Function to separate eigenvalues into "structured" and "noisy" dimensions 
       # using the Broken Stick algorithm (MacArthur, 1957).
       #
@@ -527,7 +531,7 @@ gl.pcoa <- function(x,
       # Handle edge case: No eigenvalues greater than thresholds
       if (length(idx2) == 0) {
         # Return all eigenvalues as "noisy" if no structure is detected
-        return(list(struct = data.frame(), noise = df))
+        return(list(struct = data.frame(eigenvalues = 0), noise = df))
       }
       
       # Identify gaps in structured indices
@@ -540,9 +544,13 @@ gl.pcoa <- function(x,
       }
       
       # Separate structured and noisy eigenvalues based on updated idx
-      struc <- df[idx, ]
-      noise <- df[!idx, ]
-      
+      if(nrow(df[idx, ]) == 0 ){
+        return(list(struct = data.frame(eigenvalues = 0), noise = df))
+      }else{
+        struc <- df[idx, ]
+        noise <- df[!idx, ]
+      }
+
       # Add classification labels to each subset
       struc$structure <- 'structured'
       noise$structure <- 'noisy'
@@ -762,13 +770,23 @@ gl.pcoa <- function(x,
                 title <-
                     paste0("PCA on Tag P/A Data\nScree Plot\n (informative axes only -- ",pc.select," criterion)")
             }
-            
+      #!# intermediate fbm fix
+      if (!is.null(.fbm_or_null(x))) {
+        
+        #make sure you impute (by frequency of pops (or whatever )
+        if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "frequency", verbose = verbose)
+        #run PCA on imputed data using big_SVD
+         dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = nInd(x)-1)
+        # construct glPca object
+         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
+         class(pca) <- "glPca"
+      } else {
         pca <-
             glPca(x,
                   nf = nfactors,
                   parallel = parallel,
                   n.cores = n.cores)
-        
+      }
         # # Identify the number of axes with explanatory value greater than the original variables on average
         # 
         # 
@@ -846,8 +864,8 @@ gl.pcoa <- function(x,
     # Plot Scree plot avoid no visible binding probl
     eigenvalue <- percent <- NULL
     
-    df <-
-        data.frame(eigenvalue = seq(1:length(eig.top.pc)), percent = eig.top.pc)
+    df <- data.frame(eigenvalue = seq(1:length(eig.top.pc)), 
+                     percent = eig.top.pc)
     if (datatype == "SNP") {
         xlab <- paste("PCA Axis")
     } else {

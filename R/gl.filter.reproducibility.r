@@ -33,6 +33,7 @@
 #' @examples
 #'  \donttest{
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl.report.reproducibility(testset.gl)
 #'   result <- gl.filter.reproducibility(testset.gl, threshold=0.99, verbose=3)
 #' # Tag P/A data
@@ -167,7 +168,7 @@ gl.filter.reproducibility <- function(x,
             coord_cartesian(xlim = c(min, 1)) + 
             geom_vline(xintercept = threshold,
                        color = "red",
-                       size = 1) + 
+                       linewidth = 1) + 
             xlab(xlabel) + 
             ylab("Count") +
             plot.theme
@@ -193,7 +194,7 @@ gl.filter.reproducibility <- function(x,
             coord_cartesian(xlim = c(min, 1)) + 
             geom_vline(xintercept = threshold,
                        color = "red",
-                       size = 1) + 
+                       linewidth = 1) + 
             xlab(xlabel) + 
             ylab("Count") +
             plot.theme

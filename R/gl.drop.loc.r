@@ -27,6 +27,7 @@
 # Examples -------------
 #' @examples
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl2 <- gl.drop.loc(testset.gl, loc.list=c('100051468|42-A/T', '100049816-51-A/G'),verbose=3)
 #' # Tag P/A data
 #'   gs2 <- gl.drop.loc(testset.gs, loc.list=c('20134188','19249144'),verbose=3)
@@ -146,9 +147,9 @@ gl.drop.loc <- function(x,
         loc.list <- locNames(x)[first:last]
     }
     if (length(loc.list) == 0) {
-        cat(warn(
+        if(verbose >=1){cat(warn(
             "  Warning: no loci listed to delete! Genlight object returned unchanged\n"
-        ))
+        ))}
         x2 <- x
     } else {
         # Remove loci flagged for deletion

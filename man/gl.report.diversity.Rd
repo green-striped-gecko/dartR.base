@@ -113,6 +113,7 @@ matrix.
  }
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 div <- gl.report.diversity(bandicoot.gl, table=FALSE)
 div$zero_H_alpha
 div$two_H_beta
@@ -128,6 +129,7 @@ Sherwin, W.B., Chao, A., Johst, L., Smouse, P.E. (2017, 2021). Information
 \seealso{
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.heterozygosity}()},

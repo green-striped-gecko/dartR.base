@@ -102,6 +102,7 @@ specified for the plot to be saved.
   gl.report.callrate(test.gs)
   gl.report.callrate(test.gs,method='ind')
   }
+  if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   test.gl <- testset.gl[1:20,]
   gl.report.callrate(test.gl)
   
