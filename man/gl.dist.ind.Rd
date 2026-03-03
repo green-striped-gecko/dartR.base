@@ -82,9 +82,8 @@ Refer to the documentation of functions in
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 D <- gl.dist.ind(testset.gl[1:20,1:100], method='manhattan')
 D <- gl.dist.ind(testset.gs[1:20,1:100], method='Jaccard',swap=TRUE)
-}
 D <- gl.dist.ind(testset.gl[1:20,1:100], method='euclidean',scale=TRUE)
-
+}
 }
 \seealso{
 Other distance: 
