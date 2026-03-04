@@ -1,11 +1,11 @@
 #' @name gl.filter.hamming
 #' @title Filters loci by trimmed-sequence similarity using Hamming distance
 #' @family matched filter
+#'
+#' @description
 #' Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
 #' removes redundant loci, preferentially retaining the locus with the better call
 #' rate (fewer missing genotypes).
-#'
-#' @description
 #' This function compares locus \code{TrimmedSequence} strings after skipping 
 #' a user-defined number of bases (the restriction site) and retaining a fixed-length
 #' substring. Loci whose substrings are within \code{threshold} mismatches
