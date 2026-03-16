@@ -44,6 +44,7 @@
 # Examples --------------
 #' @examples
 #'   file <- system.file('extdata','testset_ind_recode.csv', package='dartR.data')
+#'   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl <- gl.recode.ind(testset.gl, ind.recode=file, verbose=3)
 #'   
 # See also ----------------

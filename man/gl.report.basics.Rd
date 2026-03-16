@@ -17,12 +17,14 @@ progress log; 3, progress and results summary; 5, full report
 Calculates basic statistics for a genlight object.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl.report.basics(platypus.gl)
 
 }
 \seealso{
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.heterozygosity}()},

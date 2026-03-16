@@ -58,12 +58,11 @@ Optionally the user can use as input for the tree any other distance matrix
 using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
 }
 \examples{
- \donttest{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl.tree.nj(testset.gl,type='fan')
 # Tag P/A data
   gl.tree.nj(testset.gs,type='fan')
-  }
   res <- gl.tree.nj(platypus.gl)
   
 }

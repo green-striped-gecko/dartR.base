@@ -37,6 +37,7 @@ This function only caters for \code{ploidy=2}.
 \examples{
 require("dartR.data")
 #only the first 100 due to check time
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl2bayesAss(platypus.gl[,1:100], outpath=tempdir())
 }
 \references{
@@ -59,11 +60,13 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

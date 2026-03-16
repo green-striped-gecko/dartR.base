@@ -56,9 +56,10 @@
 #'  
 #' @examples
 #' require(dartR.data)
-#' test <- gl.filter.callrate(platypus.gl,threshold = 1)
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
+#' test <- gl.filter.callrate(testset.gl,threshold = 1)
 #' test <- gl.filter.monomorphs(test)
-#' test <- gl.subsample.loc(test,n=25)
+#' test <- gl.subsample.loc(test,n=50)
 #' gl2bpp(x = test, outpath=tempdir())
 #' 
 #' @references

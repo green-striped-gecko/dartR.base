@@ -40,6 +40,7 @@ homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
 
 Other utilities: 
 \code{\link{gl.alf}()},
+\code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},

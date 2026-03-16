@@ -29,6 +29,7 @@ Not fatal, but should apply this filter before gl.filter.secondaries, for
 obvious reasons.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl.filter.overshoot(testset.gl, verbose=3)
 
 }
@@ -41,6 +42,7 @@ Other matched filter:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

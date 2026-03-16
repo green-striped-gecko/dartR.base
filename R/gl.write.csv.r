@@ -27,6 +27,7 @@
 #' 
 #' @examples
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   gl.write.csv(testset.gl, outfile='SNP_1row.csv')
 #' # Tag P/A data
 #'   gl.write.csv(testset.gs, outfile='PA_1row.csv')

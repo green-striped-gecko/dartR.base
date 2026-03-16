@@ -42,14 +42,14 @@ theme_dartR <- function(base_size = 11,
     theme(
       line = element_line(
         color = "black",
-        size = base_line_size,
+        linewidth = base_line_size,
         linetype = 1,
         lineend = "butt"
       ),
       rect = element_rect(
         fill = "white",
         color = "black",
-        size = base_rect_size,
+        linewidth = base_rect_size,
         linetype = 1
       ),
       text = element_text(
@@ -131,7 +131,7 @@ theme_dartR <- function(base_size = 11,
                                       color = NA),
       panel.border = element_blank(),
       panel.grid = element_line(color = "gray80"),
-      panel.grid.minor = element_line(size = rel(0.5)),
+      panel.grid.minor = element_line(linewidth = rel(0.5)),
       panel.spacing = unit(half_line, "pt"),
       panel.spacing.x = NULL,
       panel.spacing.y = NULL,

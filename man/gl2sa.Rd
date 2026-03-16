@@ -4,15 +4,10 @@
 \alias{gl2sa}
 \title{Converts genlight objects to the format used in the SNPassoc package}
 \usage{
-gl2sa(x, installed = FALSE, verbose = NULL)
+gl2sa(x, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
-
-\item{installed}{Switch to run the function once SNPassoc package i
-s installed [default FALSE].#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -22,13 +17,22 @@ progress log; 3, progress and results summary; 5, full report
 Returns an object of class 'snp' to be used with SNPassoc.
 }
 \description{
-This function exports a genlight object into a SNPassoc object. See package
-SNPassoc for details. This function needs package SNPassoc. At the time of
-writing (August 2020) the package was no longer available from CRAN. To
-install the package check their github repository.
-\url{https://github.com/isglobal-brge/SNPassoc} and/or use
-\code{install_github('isglobal-brge/SNPassoc')} to install the function and
-uncomment the function code.
+This function exports a genlight object into a SNPassoc object and requires 
+the package SNPassoc to be installed. 
+
+To install this package check their github repository:
+
+\url{https://github.com/isglobal-brge/SNPassoc} 
+
+and/or their webpage:
+
+\url{https://isglobal-brge.r-universe.dev/SNPassoc}
+
+ and/or use:
+ 
+\code{install.packages('SNPassoc',
+repos = c('https://isglobal-brge.r-universe.dev',
+'https://cloud.r-project.org'))}
 }
 \references{
 Gonzalez, J.R., Armengol, L., Sol?, X., Guin?, E., Mercader, J.M., Estivill,
@@ -48,10 +52,12 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

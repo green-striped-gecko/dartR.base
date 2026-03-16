@@ -13,7 +13,7 @@ gl.report.fstat(
   ncpus = 1,
   plot.stat = "Fstp",
   plot.display = TRUE,
-  palette.divergent = gl.colors("div"),
+  palette.divergent = gl.colors("div", verbose = 0),
   font.size = 0.5,
   plot.dir = NULL,
   plot.file = NULL,
@@ -216,15 +216,15 @@ The studentized bootstrap interval ("stud") was not included in the CI types
  the range of plausible values and it has been found to be erratic in
  practice, see for example the "Studentized (t) Intervals" section in:
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+   https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/
 
     Nice tutorials about the different types of CI can be found in:
 
-    \url{https://www.datacamp.com/tutorial/bootstrap-r}
+    https://www.datacamp.com/tutorial/bootstrap-r
 
     and
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+   https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/
 
      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -295,6 +295,7 @@ If a plot.file is given, the plot arising from this function is saved as an
    is only quicker than not using parallelisation when nboots > 1000-2000.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 res <- gl.report.fstat(platypus.gl)
 
 }

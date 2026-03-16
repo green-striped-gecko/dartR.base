@@ -34,6 +34,7 @@ Returns unaltered genlight object
 Calculates excess of heterozygosity in a genlight object and remove those loci
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) LBP <- gl.gen2fbm(LBP)
 filtered.gl <- gl.filter.excess.het(x = LBP, Yates = TRUE)
 # Use below function to output information of the loci with Yates's continuity correction specified 
 filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)

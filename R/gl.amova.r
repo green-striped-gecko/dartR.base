@@ -25,6 +25,7 @@
 #' 
 #' @examples
 #' #permutations should be higher, here set to 1 because of speed
+#' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #' out <- gl.amova(bandicoot.gl, permutations=1)
 #' 
 #' @export
@@ -59,6 +60,11 @@ gl.amova <- function(x,
       ))
       return(-1)
     }
+    
+    #!# intermediate fbm fix
+    if (!is.null(.fbm_or_null(x))) x <- gl.fbm2gen(x)
+    
+    
     
     if (is.null(distance)) {
         class(x)<- "genlight"  #needs to be genlight due to stampp

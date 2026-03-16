@@ -56,6 +56,7 @@ scores that are repeated in the technical replicate dataset.
 \examples{
  \donttest{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl.report.reproducibility(testset.gl)
   result <- gl.filter.reproducibility(testset.gl, threshold=0.99, verbose=3)
 # Tag P/A data

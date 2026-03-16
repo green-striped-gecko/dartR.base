@@ -28,6 +28,7 @@ not be reliably scored)
 }
 \examples{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   result <- gl.filter.monomorphs(testset.gl, verbose=3)
 # Tag P/A data
   result <- gl.filter.monomorphs(testset.gs, verbose=3)
@@ -41,6 +42,7 @@ Other matched filter:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

@@ -4,15 +4,14 @@
 \alias{gl.join}
 \title{Combines two dartR genlight objects}
 \usage{
-gl.join(x1, x2, method = "sidebyside", verbose = NULL)
+gl.join(x1, x2, method = NULL, verbose = NULL)
 }
 \arguments{
 \item{x1}{Name of the first genlight object [required].}
 
-\item{x2}{Name of the first genlight object [required].}
+\item{x2}{Name of the second genlight object [required].}
 
-\item{method}{If method='sidebyside' then combine the two by bringing the loci together against the same set of individuals;
-If method='end2end' then combine the two by bringing two sets of individuals together against the same set of loci [default 'sidebyside']}
+\item{method}{Legacy parameter, issue warning [default NULL]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -24,11 +23,14 @@ A new genlight object
 \description{
 This function combines two genlight objects and their associated metadata.
 The history associated with the two genlight objects is cleared from the new
-genlight object. The individuals/samples must be the same in each genlight
-object.
+genlight object. Either the individuals/samples must be the same in each genlight
+object, in which case the new genlight object has the same individuals but combined loci,
+or the number of loci must be the same in each genlight object in which case the new
+genlight object has the same loci but combined individuals/samples.
 The function is typically used to combine datasets from the same service
 where the files have been split because of size limitations. The data is read
 in from multiple csv files, then the resultant genlight objects are combined.
+
 This function works with both SNP and Tag P/A data.
 }
 \details{
@@ -39,24 +41,36 @@ If method='end2end', the loci in the two genlight objects must be the same and i
 are combined. Note that if two individuals have the same names, they will be made unique.#'
 }
 \examples{
-x1 <- testset.gl[,1:100]
-x1@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
+# Joining by loci in common, both datasets have the same loci in the same order
+x1 <- testset.gl[1:7, ]
+nInd(x1)
+x2 <- testset.gl[11:14, ]
+nInd(x2)
+gl <- gl.join(x1, x2, verbose = 4)
+nInd(gl)
+# Joining by individuals in common, both datasets have the same individuals
+# in the same order
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+x1 <- platypus.gl[, 1:100]
 nLoc(x1)
-x2 <- testset.gl[,101:150]
-x2@other$loc.metrics <-  testset.gl@other$loc.metrics[101:150,]
+x2 <- platypus.gl[, 101:200]
 nLoc(x2)
-gl <- gl.join(x1, x2, verbose=2)
+gl <- gl.join(x1, x2, verbose=3)
 nLoc(gl)
 
-x1 <- testset.gl[,1:100]
-x1@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
-nLoc(x1)
-x2 <- testset.gl[,1:100]
-x2@other$loc.metrics <-  testset.gl@other$loc.metrics[1:100,]
-nLoc(x2)
-gl <- gl.join(x1, x2, method="end2end", verbose=2)
+# Join by adding individuals with a set of common loci
+nInd(testset.gl)
+x1 <- gl.drop.ind(testset.gl,ind.list=c("AA010915","UC_00126","AA032760","AA013214",
+"AA011723","AA012411","AA019237","AA019238","AA019239","AA019235","AA019240",
+"AA019241","AA019242","AA019243"))
+nInd(x1)
+x2 <- gl.keep.ind(testset.gl,ind.list=c("AA010915","UC_00126","AA032760","AA013214",
+"AA011723","AA012411","AA019237","AA019238","AA019239","AA019235","AA019240",
+"AA019241","AA019242","AA019243"))
+nInd(x2)
+gl <- gl.join(x1, x2, verbose=3)
 nInd(gl)
-
 }
 \seealso{
 Other data manipulation: 
@@ -71,6 +85,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
@@ -82,7 +97,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

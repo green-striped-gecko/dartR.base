@@ -149,6 +149,7 @@ session's temporary directory.
 \examples{
 out <- gl.report.pa(platypus.gl)
 
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 out <- gl.report.pa(platypus.gl)
 }
 \references{

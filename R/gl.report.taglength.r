@@ -55,6 +55,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' out <- gl.report.taglength(testset.gl)
 
 #' 

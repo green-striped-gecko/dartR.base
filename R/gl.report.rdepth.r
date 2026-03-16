@@ -45,6 +45,7 @@
 #' 
 #' @examples
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' df <- gl.report.rdepth(testset.gl)
 #' df <- gl.report.rdepth(testset.gs)
 #' 

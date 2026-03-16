@@ -71,9 +71,10 @@ like those done by the programme BPP, are meant to be used with sequence
 }
 \examples{
 require(dartR.data)
-test <- gl.filter.callrate(platypus.gl,threshold = 1)
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
+test <- gl.filter.callrate(testset.gl,threshold = 1)
 test <- gl.filter.monomorphs(test)
-test <- gl.subsample.loc(test,n=25)
+test <- gl.subsample.loc(test,n=50)
 gl2bpp(x = test, outpath=tempdir())
 
 }
@@ -98,11 +99,13 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

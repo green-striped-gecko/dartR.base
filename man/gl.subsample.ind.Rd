@@ -49,7 +49,9 @@ by population, then n must be less than the minimum sample size for any populati
 Set error.check = FALSE for speedy execution in simulations
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl <- gl.subsample.ind(testset.gl, n=30, by.pop=FALSE, replace=TRUE)
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl <- gl.subsample.ind(platypus.gl, n=10, by.pop=TRUE, replace=TRUE)
 }
 \seealso{
@@ -66,6 +68,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

@@ -3,8 +3,7 @@
 \name{gl.diagnostics.hwe}
 \alias{gl.diagnostics.hwe}
 \title{Provides descriptive stats and plots to diagnose potential problems
-  with Hardy-Weinberg proportions
-  @family matched report}
+  with Hardy-Weinberg proportions}
 \usage{
 gl.diagnostics.hwe(
   x,
@@ -89,18 +88,23 @@ Jackknife method over loci (See De Meeûs 2007 for details on how this is
 computed) and it may take some time for these computations to complete. 
 De Meeûs 2018 suggests that under a global significant heterozygosity 
 deficit: 
+
 - if the
 correlation between Fis and Fst is strongly positive, and StdErrFis >>
 StdErrFst, Null alleles are likely to be the cause. 
+
 - if the correlation
 between Fis and Fst is ~0 or mildly positive, and StdErrFis > StdErrFst,
 Wahlund may be the cause. 
+
 - if the correlation between Fis and Fst is ~0, and
 StdErrFis ~ StdErrFst, selfing or sib mating could to be the cause.
+
  It is
 important to realise that these statistics only suggest a pattern (pointers).
 Their absence is not conclusive evidence of the absence of the problem, as 
 their presence does not confirm the cause of the problem. 
+
 \item A table where the
 number of observed and expected significant HWE tests are reported by each
 population, indicating whether these are due to heterozygosity excess or
@@ -118,8 +122,9 @@ series of tests conducted (De Meeûs et al 2009).
 \examples{
 \donttest{
 require("dartR.data")
-res <- gl.diagnostics.hwe(x = gl.filter.allna(platypus.gl[,1:50]), 
-stdErr=FALSE, n.cores=1)
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+gl <- gl.filter.allna(platypus.gl[,1:50])
+res <- gl.diagnostics.hwe(x = gl ,  stdErr=FALSE, n.cores=1)
 }
 }
 \references{

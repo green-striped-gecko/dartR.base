@@ -10,13 +10,15 @@
 #' @param x Name of the genlight object containing the SNP or presence-absence
 #' data [required].
 #' @param method Imputation method, either "frequency" or "HW" or "neighbour" 
-#' or "random" [default "neighbour"].
+#' or "random" or "beagle" [default "neighbour"].
 #' @param fill.residual Should any residual missing values remaining after 
 #' imputation be set to 0, 1, 2 at random, taking into account global allele 
 #' frequencies at the particular locus [default TRUE].
 #' @param parallel A logical indicating whether multiple cores -if available-
 #' should be used for the computations (TRUE), or not (FALSE); requires the
 #' package parallel to be installed [default FALSE].
+#' @param beagle.bin.path Path of beagle.27Feb25.75f.jar file [default getwd())].
+#' @param plink.bin.path Path of PLINK binary file [default getwd())].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -24,7 +26,7 @@
 #' @details
 #' We recommend that imputation be performed on sampling locations, before
 #' any aggregation. Imputation is achieved by replacing missing values using
-#' either of four methods:
+#' either of five methods:
 #' \itemize{
 #' \item If "frequency", genotypes scored as missing at a locus in an individual
 #'  are imputed using the average allele frequencies at that locus in the 
@@ -36,39 +38,57 @@
 #'  with the values taken from the nearest neighbour. Repeat with next nearest
 #'  and so on until all missing values are replaced.
 #' \item if "random", missing data are substituted by random values (0, 1 or 2). 
+#' \item if "beagle", missing data is imputed using using BEAGLE 
+#' (beagle.27Feb25.75f.jar), which infers missing genotypes by modelling 
+#' shared haplotype patterns among individuals. Beagle can be downloaded using 
+#' the following link: 
+#' 
+#' https://faculty.washington.edu/browning/beagle/beagle.html#download.
+#' 
+#' After downloading the Beagle binary move it to your working directory. 
+#' 
+#' For method = "beagle" it is also required to download the binary file of PLINK 1.9
+#' and move it to your working directory. The binary file can be downloaded from:
+#' 
+#' \url{https://www.cog-genomics.org/plink/}
 #' }
-
-#'   The nearest neighbour is the one at the smallest Euclidean distancefrom 
-#'   the focal individual
-
+#'   The nearest neighbour is the one at the smallest Euclidean distance from 
+#'   the focal individual.
+#'   
 #'   The advantage of this approach is that it works regardless of how many
 #'   individuals are in the population to which the focal individual belongs,
 #'   and the displacement of the individual is haphazard as opposed to:
-
 #'   (a) Drawing the individual toward the population centroid (HW and Frequency).
-
 #'   (b) Drawing the individual toward the global centroid (glPCA).
-
+#'   
 #' Note that loci that are missing for all individuals in a population are not 
 #' imputed with method 'frequency' or 'HW' and can give unpredictable results
-#' for particular individuals using 'neighbour'. Consider using the function 
+#' for particular individuals using 'neighbour'.
+#' 
+#'  Consider using the function 
 #' \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
-
+#'@references
+#'\itemize{
+#'\item Browning, B. L., & Browning, S. R. (2016). Genotype imputation with 
+#'millions of reference samples. American Journal of Human Genetics, 98(1), 
+#'116–126. https://doi.org/10.1016/j.ajhg.2015.11.020
+#' }
 #' @author Custodian: Luis Mijangos 
 #' (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @examples
 #'  \donttest{
 #' require("dartR.data")
 #' # SNP genotype data
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl <- gl.filter.callrate(platypus.gl,threshold=0.95)
 #' gl <- gl.filter.allna(gl)
-#' gl <- gl.impute(gl,method="neighbour")
+#' gl <- gl.impute(gl, method="frequency") 
 #' # Sequence Tag presence-absence data
 #' gs <- gl.filter.callrate(testset.gs,threshold=0.95)
 #' gl <- gl.filter.allna(gl)
-#' gs <- gl.impute(gs, method="neighbour")
+#' #gs <- gl.impute(gs, method="neighbour")
 #' }
-#' gs <- gl.impute(platypus.gl,method ="random")
+#' gl <- gl.impute(platypus.gl,method ="random")
 #' 
 #' @export
 #' @return A genlight object with the missing data imputed.
@@ -77,6 +97,8 @@ gl.impute <-  function(x,
                        method = "neighbour",
                        fill.residual = TRUE,
                        parallel = FALSE,
+                       beagle.bin.path = getwd(),
+                       plink.bin.path = getwd(),
                        verbose = NULL) {
   
   x_hold <- x
@@ -100,7 +122,9 @@ gl.impute <-  function(x,
     }
   
   # DO THE JOB
+  #check type
   
+  fbm <- .fbm_or_null(x)
   #separating populations
   
   if (method == "frequency" | method == "HW") {
@@ -143,7 +167,8 @@ gl.impute <-  function(x,
 pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
             return(as.numeric(s_alleles(q_freq = x)))
           })))
-        y@gen <- matrix2gen(pop_matrix, parallel = parallel)
+        
+        if (is.null(fbm)) y@gen <- matrix2gen(pop_matrix, parallel = parallel) else y@fbm[] <-pop_matrix
         pop_list <- c(pop_list, y)
       }
       
@@ -177,7 +202,8 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
           unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
             return(sample_genotype(q_freq = x))
           })))
-        y@gen <- matrix2gen(pop_matrix, parallel = parallel)
+        
+        if(is.null(fbm)) y@gen <- matrix2gen(pop_matrix, parallel = parallel) else y@fbm[] <-pop_matrix
         pop_list <- c(pop_list, y)
       }
     }
@@ -199,80 +225,101 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
   }
   
   if (method == "neighbour") {
-    if (verbose >= 2){
+    
+    if (verbose >= 2) {
       cat(report("  Imputation based on drawing from the nearest neighbour\n"))
     }
-    pop_list_temp <- seppop(x)
-    pop_list <- list()
     
-    for (y in pop_list_temp) {
-      loci_all_nas <- sum(glNA(y) >= nInd(y))
-      nas_number <- sum(glNA(y)) / 2
-      number_imputations <- nas_number - (loci_all_nas * nInd(y))
+    ## ---- Optional: per-population diagnostics (does not affect imputation) ----
+    if (verbose >= 2) {
+      pop_list_temp <- seppop(x)
+      
+      for (k in seq_along(pop_list_temp)) {
+        yy <- pop_list_temp[[k]]
+        
+        loci_all_nas <- sum(glNA(yy) >= nInd(yy))
+        nas_number <- sum(glNA(yy)) / 2
+        number_imputations <- nas_number - (loci_all_nas * nInd(yy))
+        
+        if (loci_all_nas >= 1) {
+          pop_name <- names(pop_list_temp)[k]
+          if (is.null(pop_name) || pop_name == "") {
+            # fallback if list not named
+            pop_name <- tryCatch(as.character(unique(pop(yy))[1]), error = function(e) "UNKNOWN")
+          }
+          
+          cat(warn(
+            "  Warning: Population ", pop_name,
+            " has ", loci_all_nas, " loci with all missing values.\n",
+            sep = ""
+          ))
+          
+          if (verbose >= 3) {
+            cat(report(
+              "  Method = 'neighbour': ", number_imputations,
+              " values to be imputed (excluding all-NA loci).\n",
+              sep = ""
+            ))
+          }
+        }
+      }
     }
     
-    if (verbose >= 2 & loci_all_nas >= 1) {
-      cat(
-        warn(
-          "  Warning: Population ",
-          popNames(y),
-          " has ",
-          loci_all_nas,
-          " loci with all missing values.\n"
-        )
-      )
-      if (verbose >= 3) {
-        cat(report(
-          "  Method= 'neighbour':",
-          number_imputations,
-          "values to be imputed.\n"
+    ## ---- Main imputation ----
+    x3 <- x
+    x_matrix <- as.matrix(x)  # numeric matrix, nInd x nLoc, with NA
+    
+    D <- gl.dist.ind(
+      x,
+      method = "Euclidean",
+      verbose = 0,
+      plot.display = FALSE,
+      type = "matrix"
+    )
+    
+    # Robust distance handling:
+    D <- as.matrix(D)
+    D[is.na(D)] <- Inf     # if any undefined distances, make them last
+    diag(D) <- Inf         # never pick self as neighbour
+    
+    n <- nInd(x)
+    
+    for (i in seq_len(n)) {
+      
+      miss <- is.na(x_matrix[i, ])
+      if (!any(miss)) next
+      
+      ord <- order(D[i, ], decreasing = FALSE)  # neighbour indices by increasing distance
+      
+      # Walk neighbours until all missing loci filled (or we run out of neighbours)
+      for (j in ord) {
+        if (!any(miss)) break
+        
+        cand <- x_matrix[j, miss]       # values at missing loci from neighbour j
+        ok <- !is.na(cand)              # loci neighbour can actually impute
+        
+        if (any(ok)) {
+          miss_pos <- which(miss)
+          fill_pos <- miss_pos[ok]
+          x_matrix[i, fill_pos] <- cand[ok]
+          miss[fill_pos] <- FALSE
+        }
+      }
+      
+      if (any(miss) && verbose >= 1) {
+        cat(important(
+          "  Unable to fully impute individual ", indNames(x)[i],
+          " (", sum(miss), " loci remain NA)\n",
+          sep = ""
         ))
       }
     }
     
-    x3 <- x
-    
-    eucl_dis <-
-      gl.dist.ind(x,
-                  method = "Euclidean",
-                  verbose = 0,
-                  plot.display = FALSE)
-    
-    pw_dis <- as.data.frame(as.table(as.matrix(eucl_dis)))
-    
-    x_matrix <- as.matrix(x)
-    
-    for (ind in 1:nInd(x)) {
-      ind_imp <- x_matrix[ind, ]
-      pw_dis_2 <- pw_dis[which(indNames(x)[ind] == pw_dis$Var1), ]
-      pw_dis_3 <- pw_dis_2[order(pw_dis_2$Freq), ]
-      pw_dis_4 <- pw_dis_3[-(pw_dis_3 == 0), ]
-      
-      while (sum(is.na(ind_imp)) > 0) {
-        if (nrow(pw_dis_4) == 0) {
-          cat(important(
-            "  No more individuals left to impute individual",
-            ind,
-            "\n"
-          ))
-          break()
-        }
-        
-        neig <- as.numeric(pw_dis_4[1, "Var2"])
-        neig_matrix <- as.matrix(x[neig])
-        
-        loc_na <- unname(which(is.na(ind_imp)))
-        
-        ind_imp[loc_na] <- neig_matrix[loc_na]
-        
-        x_matrix[ind, ] <- ind_imp
-        pw_dis_4 <- pw_dis_4[-1, ]
-      }
-      
+    if (is.null(fbm)) {
+      x3@gen <- matrix2gen(x_matrix, parallel = parallel)
+    } else {
+      x3@fbm[] <- x_matrix
     }
-    
-    x3@gen <- matrix2gen(x_matrix, parallel = parallel)
-    
   }
   
   if (method == "random") {
@@ -309,7 +356,86 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     x_matrix <- as.matrix(x)
     loc_na <- which(is.na(x_matrix), arr.ind = TRUE)
     x_matrix[loc_na] <- sample(c(0:2),size=nrow(loc_na),replace = TRUE)
-    x3@gen <- matrix2gen(x_matrix, parallel = parallel)
+    
+    if (is.null(fbm)) x3@gen <- matrix2gen(x_matrix, parallel = parallel) else x3@fbm[] <-x_matrix
+    
+  }
+  
+  if (method == "beagle") {
+    # FUNCTION SPECIFIC ERROR CHECKING check if packages is installed
+    pkg <- "R.utils"
+    if (!(requireNamespace(pkg, quietly = TRUE))) {
+      cat(error(
+        "Package",
+        pkg,
+        " needed for this function to work. Please install it.\n"
+      ))
+      return(-1)
+    }
+    
+    # Rename scaffolds with only one SNP, which breaks beagle
+    if(length(x$chromosome)>0){
+    chr <- as.character(x@chromosome)
+    singletons <- names(which(table(chr) == 1L))
+    chr[chr %in% singletons] <- ""
+    x@chromosome <- factor(chr)
+    }
+    
+    pop_list_temp <- seppop(x)
+    pop_list <- list()
+    
+    for (y in pop_list_temp) {
+      loci_all_nas <- sum(glNA(y) > nInd(y))
+      nas_number <- sum(glNA(y)) / 2
+      number_imputations <- nas_number - (loci_all_nas * nInd(y))
+    }
+    
+    if (verbose >= 2 & loci_all_nas >= 1) {
+      cat(
+        warn(
+          "  Warning: Population ",
+          popNames(y),
+          " has ",
+          loci_all_nas,
+          " loci with all missing values.\n"
+        )
+      )
+      if (verbose >= 3) {
+        cat(report(
+          "  Method= 'beagle':",
+          number_imputations,
+          "values to be imputed.\n"
+        ))
+      }
+    }
+    
+    x_tmp <- x
+    x_tmp@position <- 1:nLoc(x_tmp)
+    gl2vcf(x_tmp,
+           plink.bin.path = plink.bin.path,
+           outpath = tempdir())
+    system(paste0(
+      "java -Xmx20g -jar ",beagle.bin.path,"/beagle.27Feb25.75f.jar gt=",
+      tempdir(),
+      "/gl_vcf.vcf out=",
+      tempdir(),
+      "/imputed"))
+    R.utils::gunzip(paste0(tempdir(),
+                  "/imputed.vcf.gz"),
+                  overwrite =T)
+
+    
+    if (!is.null(fbm)) {
+      x3 <- gl.read.vcf(paste0(tempdir(),
+                               "/imputed.vcf"),
+                        fbm = TRUE,
+                        verbose = 0)
+    }else{
+      x3 <- gl.read.vcf(paste0(tempdir(),
+                               "/imputed.vcf"),
+                        verbose = 0)
+      
+    }
     
   }
   
@@ -321,7 +447,7 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
       return(as.numeric(s_alleles(q_freq = x)))
     })))
-    x3@gen <- matrix2gen(pop_matrix, parallel = parallel)
+    if (is.null(fbm)) x3@gen <- matrix2gen(pop_matrix, parallel = parallel) else x3@fbm[] <-pop_matrix
 
     if(verbose>=2){
     cat(report("  Residual missing values were filled randomly drawing from the global allele profiles by locus\n"))
@@ -334,7 +460,9 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
   x3$strata <- x$strata
   x3$hierarchy <- x$hierarchy
   x3$other <- x$other
-  
+  x3$loc.all <- x$loc.all
+  pop(x3) <- pop(x)
+
   x3 <- gl.compliance.check(x3, verbose = 0)
   
   if(verbose>=3){

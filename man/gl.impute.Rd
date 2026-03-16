@@ -9,6 +9,8 @@ gl.impute(
   method = "neighbour",
   fill.residual = TRUE,
   parallel = FALSE,
+  beagle.bin.path = getwd(),
+  plink.bin.path = getwd(),
   verbose = NULL
 )
 }
@@ -17,7 +19,7 @@ gl.impute(
 data [required].}
 
 \item{method}{Imputation method, either "frequency" or "HW" or "neighbour" 
-or "random" [default "neighbour"].}
+or "random" or "beagle" [default "neighbour"].}
 
 \item{fill.residual}{Should any residual missing values remaining after 
 imputation be set to 0, 1, 2 at random, taking into account global allele 
@@ -26,6 +28,10 @@ frequencies at the particular locus [default TRUE].}
 \item{parallel}{A logical indicating whether multiple cores -if available-
 should be used for the computations (TRUE), or not (FALSE); requires the
 package parallel to be installed [default FALSE].}
+
+\item{beagle.bin.path}{Path of beagle.27Feb25.75f.jar file [default getwd())].}
+
+\item{plink.bin.path}{Path of PLINK binary file [default getwd())].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -42,7 +48,7 @@ presence-absence data.
 \details{
 We recommend that imputation be performed on sampling locations, before
 any aggregation. Imputation is achieved by replacing missing values using
-either of four methods:
+either of five methods:
 \itemize{
 \item If "frequency", genotypes scored as missing at a locus in an individual
  are imputed using the average allele frequencies at that locus in the 
@@ -54,33 +60,58 @@ only to genotype data.
  with the values taken from the nearest neighbour. Repeat with next nearest
  and so on until all missing values are replaced.
 \item if "random", missing data are substituted by random values (0, 1 or 2). 
+\item if "beagle", missing data is imputed using using BEAGLE 
+(beagle.27Feb25.75f.jar), which infers missing genotypes by modelling 
+shared haplotype patterns among individuals. Beagle can be downloaded using 
+the following link: 
+
+https://faculty.washington.edu/browning/beagle/beagle.html#download.
+
+After downloading the Beagle binary move it to your working directory. 
+
+For method = "beagle" it is also required to download the binary file of PLINK 1.9
+and move it to your working directory. The binary file can be downloaded from:
+
+\url{https://www.cog-genomics.org/plink/}
 }
-  The nearest neighbour is the one at the smallest Euclidean distancefrom 
-  the focal individual
+  The nearest neighbour is the one at the smallest Euclidean distance from 
+  the focal individual.
+  
   The advantage of this approach is that it works regardless of how many
   individuals are in the population to which the focal individual belongs,
   and the displacement of the individual is haphazard as opposed to:
   (a) Drawing the individual toward the population centroid (HW and Frequency).
   (b) Drawing the individual toward the global centroid (glPCA).
+  
 Note that loci that are missing for all individuals in a population are not 
 imputed with method 'frequency' or 'HW' and can give unpredictable results
-for particular individuals using 'neighbour'. Consider using the function 
+for particular individuals using 'neighbour'.
+
+ Consider using the function 
 \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
 }
 \examples{
  \donttest{
 require("dartR.data")
 # SNP genotype data
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl <- gl.filter.callrate(platypus.gl,threshold=0.95)
 gl <- gl.filter.allna(gl)
-gl <- gl.impute(gl,method="neighbour")
+gl <- gl.impute(gl, method="frequency") 
 # Sequence Tag presence-absence data
 gs <- gl.filter.callrate(testset.gs,threshold=0.95)
 gl <- gl.filter.allna(gl)
-gs <- gl.impute(gs, method="neighbour")
+#gs <- gl.impute(gs, method="neighbour")
 }
-gs <- gl.impute(platypus.gl,method ="random")
+gl <- gl.impute(platypus.gl,method ="random")
 
+}
+\references{
+\itemize{
+\item Browning, B. L., & Browning, S. R. (2016). Genotype imputation with 
+millions of reference samples. American Journal of Human Genetics, 98(1), 
+116–126. https://doi.org/10.1016/j.ajhg.2015.11.020
+}
 }
 \seealso{
 Other data manipulation: 
@@ -95,6 +126,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

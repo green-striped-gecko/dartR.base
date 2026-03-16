@@ -60,6 +60,7 @@ positives, given the observed allele frequency profiles and the sample sizes.
 the expected number of false positives is calculated.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
 sympatric=TRUE,verbose=3)
 

@@ -51,7 +51,8 @@ details
 }
 \examples{
 \dontrun{
-obj <- gl.report.shannon(gl)
+if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
+obj <- gl.report.shannon(possums.gl[1:30,])
 }
 }
 \references{

@@ -39,6 +39,7 @@
 #' @examples
 #'  \donttest{
 #' # SNP genotypes
+#' if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
 #' D <- gl.dist.pop(possums.gl, method='euclidean')
 #' D <- gl.dist.pop(possums.gl, method='euclidean',scale=TRUE)
 #' D <- gl.dist.pop(possums.gl, method='nei')

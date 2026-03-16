@@ -22,6 +22,7 @@
 #' @examples
 #' require("dartR.data")
 #' #only the first 100 due to check time
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl2bayesAss(platypus.gl[,1:100], outpath=tempdir())
 #' @references
 #' Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs: 

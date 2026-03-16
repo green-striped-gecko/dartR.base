@@ -1,7 +1,7 @@
 #' @name gl2snapper
 #' @title Converts a genlight object to nexus format suitable for phylogenetic analysis
 #'  by Snapper (via BEAUti)
-#'  @family linker
+#' @family linker
 
 #' @description
 #' Produces a nexus file contains the SNP calls and relevant PAUP command lines
@@ -49,7 +49,7 @@
 #'dramatically reduce compute time. Note that adding threads does not always improve
 #'computational time. The optimal number of threads depends on the particular analysis.
 #'This means you have to experiment to find out how many threads give the best
-#'performance foa a computer cycle.
+#'performance for a computer cycle.
 #'
 #'Also, there is an overheads cost in using many threads. Instead, you could run independent 
 #'snapper analyses and combine resulting log and tree files. For example, if the optimal number of threads is 8 
@@ -58,7 +58,7 @@
 #'single chain at 8 threads. A bonus benefit from running multiple chains is that you can verify that the MCMC ends up with the same 
 #'posterior distribution each time.
 #'
-#'If computational time is still an issue, run the #'analysis on a series of subsamples of loci 
+#'If computational time is still an issue, run the analysis on a series of subsamples of loci 
 #'(say nloc=300) to see if a consistent topology is obtained,
 #'then adopt that topology as the final result.
 #'
@@ -105,6 +105,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' x <- gl.filter.monomorphs(testset.gl)
 #' gl2snapper(x, outfile="test.nex", outpath=tempdir())
 #' 

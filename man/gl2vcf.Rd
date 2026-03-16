@@ -9,8 +9,8 @@ gl2vcf(
   plink.bin.path = getwd(),
   outfile = "gl_vcf",
   outpath = NULL,
-  snp.pos = "0",
-  snp.chr = "0",
+  snp.pos = NULL,
+  snp.chr = NULL,
   chr.format = "character",
   pos.cM = "0",
   ID.dad = "0",
@@ -27,14 +27,14 @@ gl2vcf(
 
 \item{outfile}{File name of the output file [default 'gl_vcf'].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{snp.pos}{Field name from the slot loc.metrics where the SNP position is
-stored [default '0'].}
+stored [default NULL].}
 
 \item{snp.chr}{Field name from the slot loc.metrics where the chromosome of
-each is stored [default '0'].}
+each is stored [default NULL].}
 
 \item{chr.format}{Whether chromosome information is stored as 'numeric' or as
 'character', see details [default 'character'].}
@@ -71,15 +71,20 @@ This function requires to download the binary file of PLINK 1.9 and provide
 its path (plink.bin.path).
 The binary file can be downloaded from:
 \url{https://www.cog-genomics.org/plink/}
+
 The chromosome information for unmapped SNPS is coded as 0.
+
 Family ID is taken from  x$pop
+
 Within-family ID (cannot be '0') is taken from indNames(x)
+
 Variant identifier is taken from locNames(x)
 }
 \examples{
 \dontrun{
-#this example needs plink installed to work
+# this example needs plink installed to work
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl2vcf(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
  snp.chr = 'Chrom_Platypus_Chrom_NCBIv1')
 }
@@ -103,11 +108,13 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()}
 }

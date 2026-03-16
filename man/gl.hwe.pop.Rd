@@ -76,6 +76,7 @@ Resultant ggplots and the tabulation are saved to the session's temporary
 directory.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 out <- gl.hwe.pop(bandicoot.gl[,1:33], alpha_val=0.05, plot.out=TRUE, HWformat=FALSE)
 }
 \author{

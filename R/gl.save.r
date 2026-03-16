@@ -42,6 +42,13 @@ gl.save <- function(x,
     
     # DO THE JOB
     
+    #check if fbm (needs to be converted to gen)
+    fbm <- .fbm_or_null(x)
+    if (!is.null(fbm)) {
+      x <- dartR.base::gl.fbm2gen(x)
+      cat(report("  Converted from dartR-FBM to dartR-gen object for saving\n"))
+    }
+    
     attributes(class(x))<- list(package="dartR.base")
     
     saveRDS(x, file)

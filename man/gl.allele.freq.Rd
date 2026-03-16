@@ -34,6 +34,8 @@ data grouped into populations in a genlight object \{adegenet\} and generate
 a table of allele frequencies for each population and locus
 }
 \examples{
+#test fbm
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.allele.freq(testset.gl,percent=FALSE,by='pop')
 gl.allele.freq(testset.gl,percent=FALSE,by="loc")
 gl.allele.freq(testset.gl,percent=FALSE,by="popxloc")
@@ -43,6 +45,7 @@ gl.allele.freq(testset.gl,simple=TRUE)
 }
 \seealso{
 Other unmatched report: 
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},

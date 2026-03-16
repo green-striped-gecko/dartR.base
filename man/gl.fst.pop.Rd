@@ -41,6 +41,7 @@ probability of Fst values to be different from zero. For detailed information
 please check the help pages (?stamppFst).
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 test <- gl.filter.callrate(platypus.gl,threshold = 1)
 test <- gl.filter.monomorphs(test)
 out <- gl.fst.pop(test, nboots=1)

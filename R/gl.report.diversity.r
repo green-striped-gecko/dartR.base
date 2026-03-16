@@ -92,6 +92,7 @@
 #'  Contributors: William B. Sherwin, Alexander Sentinella
 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #' div <- gl.report.diversity(bandicoot.gl, table=FALSE)
 #' div$zero_H_alpha
 #' div$two_H_beta
@@ -135,6 +136,8 @@ gl.report.diversity <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
+    
+    x <- gl.filter.allna(x,verbose = verbose)
     
     # DO THE JOB
     
@@ -465,6 +468,9 @@ gl.report.diversity <- function(x,
         colors_pops <- plot.colors.pop
     }
      # colors_pops <- gl.select.colors(x=x,library=library,palette=palette,verbose=0)
+      
+      pop_levels <- levels(pop(x))      
+      fs_final$pop <- factor(fs_final$pop, levels = pop_levels)
     
     p3 <-
         ggplot(fs_final, aes(x = pop, y = value, fill = pop)) + 

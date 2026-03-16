@@ -56,6 +56,7 @@
 #' from a small number of individuals. Genetics, 89(3), 583-590.
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
 #' @family Genetic variation within populations
 #' @import patchwork
@@ -275,27 +276,27 @@ gl.test.heterozygosity <- function(x,
                             geom_vline(
                                 xintercept = u1quantile,
                                 color = "firebrick4",
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 xintercept = u2quantile,
                                 color = "firebrick1",
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 xintercept = l1quantile,
                                 color = "firebrick4",
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 xintercept = l2quantile,
                                 color = "firebrick1",
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 xintercept = D[y, z],
                                 color = "green",
-                                size = 2
+                                linewidth = 2
                             ) + geom_vline(
                                 xintercept = 0,
                                 color = "blue",
-                                size = 1
+                                linewidth = 1
                             ) +
                             coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot.theme + theme(plot.title = element_text(size = 12)) +
                             labs(title = title, subtitle = subtitle)
@@ -318,29 +319,29 @@ gl.test.heterozygosity <- function(x,
                             coord_cartesian(xlim = x_axis_limits_lots) + xlab("Difference") + ylab("Count") + plot.theme + theme(plot.title = element_text(size = 12)) +
                             labs(title = title, subtitle = subtitle) + geom_vline(
                                 aes(xintercept = u1quantile, color = "alpha1"),
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 aes(xintercept = u2quantile,
                                     color = "alpha2"),
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 xintercept = l1quantile,
                                 color = "firebrick4",
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 xintercept = l2quantile,
                                 color = "firebrick1",
-                                size = 1
+                                linewidth = 1
                             ) + geom_vline(
                                 aes(
                                     xintercept = D[y, z],
                                     color = "Observed"
                                 ),
-                                size = 2
+                                linewidth = 2
                             ) + geom_vline(
                                 aes(xintercept = 0,
                                     color = "Zero_value"),
-                                size = 1
+                                linewidth = 1
                             ) + scale_color_manual(
                                 name = "Values",
                                 values = c(

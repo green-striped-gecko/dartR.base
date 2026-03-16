@@ -66,6 +66,7 @@ For SNP data, the distance measure can be one of 'euclidean', 'fixed-diff', 'rey
 \examples{
  \donttest{
 # SNP genotypes
+if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
 D <- gl.dist.pop(possums.gl, method='euclidean')
 D <- gl.dist.pop(possums.gl, method='euclidean',scale=TRUE)
 D <- gl.dist.pop(possums.gl, method='nei')

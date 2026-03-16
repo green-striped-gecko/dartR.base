@@ -26,6 +26,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'    gl <- gl.merge.pop(testset.gl, old=c('EmsubRopeMata','EmvicVictJasp'), new='Outgroup')
 #'    
 #' @export

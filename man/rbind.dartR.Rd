@@ -2,12 +2,26 @@
 % Please edit documentation in R/utils.dartR.class.def.r
 \name{rbind.dartR}
 \alias{rbind.dartR}
-\title{adjust rbind for dartR}
+\title{rbind for dartR objects}
 \usage{
-\method{rbind}{dartR}(...)
+\method{rbind}{dartR}(
+  ...,
+  backingfile = tempfile("geno_rbind_"),
+  code = NULL,
+  chunk = 2048L,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{...}{list of dartR objects}
+
+\item{backingfile}{prefix for the backing file of the resulting FBM}
+
+\item{code}{code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input}
+
+\item{chunk}{number of columns to process in a block when copying from FBMs}
+
+\item{quiet}{suppress warnings. default: TRUE}
 }
 \value{
 A genlight object
@@ -15,7 +29,7 @@ A genlight object
 \description{
 rbind is a bit lazy and does not take care for the metadata (so data in the
 other slot is lost). You can get most of the loci metadata back using
- gl.compliance.check.
+gl.compliance.check.
 }
 \examples{
 t1 <- platypus.gl

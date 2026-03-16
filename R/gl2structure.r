@@ -32,6 +32,7 @@
 #' Custodian Bernd Gruber
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl2structure(testset.gl[1:10,1:50], outpath=tempdir())
 #' 
 #' @export

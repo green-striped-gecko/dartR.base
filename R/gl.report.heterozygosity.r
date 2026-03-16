@@ -223,15 +223,15 @@
 #'  the range of plausible values and it has been found to be erratic in
 #'  practice, see for example the "Studentized (t) Intervals" section in:
 #'
-#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+#'    https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package
 #'
 #'     Nice tutorials about the different types of CI can be found in:
 #'
-#'     \url{https://www.datacamp.com/tutorial/bootstrap-r}
+#'     https://www.datacamp.com/tutorial/bootstrap-r
 #'
 #'     and
 #'
-#'    \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+#'    https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package
 #'
 #'      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
 #'      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -298,6 +298,7 @@
 #' gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 #' gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
 #' }
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' df <- gl.report.heterozygosity(platypus.gl)
 
 #' @seealso \code{\link{gl.filter.heterozygosity}}
@@ -482,7 +483,7 @@ gl.report.heterozygosity <- function(x,
     for (y in 1:length(sgl)) {
       y_temp <- sgl[[y]]
       hold <- y_temp
-      mono_tmp <- gl.allele.freq(y_temp, simple = TRUE, verbose = 0)
+      mono_tmp <- gl.alf(y_temp)
       loc.list <- rownames(mono_tmp[which(mono_tmp$alf1 == 1 |
                                             mono_tmp$alf1 == 0), ])
       loc.list_NA <- which(colSums(is.na(as.matrix(y_temp)))==nInd(y_temp))
@@ -709,6 +710,7 @@ gl.report.heterozygosity <- function(x,
     if (plot.display) {
       res.mean <- subsample <- error_L <- error_H <- value <- color <- variable <- He.adj <- res_SE <- NULL
       
+      pop_order <- unique(as.character(pop(x))) 
       # printing plots and reports assigning colors to populations
       if (is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop(length(levels(pop(x))))
@@ -717,6 +719,7 @@ gl.report.heterozygosity <- function(x,
       if (!is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop
       }
+      colors_pops <- setNames(colors_pops, pop_order)
       
       if (n.invariant == 0) {
         
@@ -757,6 +760,12 @@ gl.report.heterozygosity <- function(x,
           
           }
         
+        pop_list_plot_stat$pop <- factor(pop_list_plot_stat$pop, levels = pop_order)
+        
+        lab_df <- pop_list_plot_stat[!duplicated(pop_list_plot_stat$pop),
+                                     c("pop","n.Ind")]
+        labels_named <- setNames(paste(lab_df$pop, round(lab_df$n.Ind, 0), sep = " | "),
+                                 lab_df$pop)
         p3 <-
           ggplot(data = pop_list_plot_stat, aes(x = pop, 
                                                 y = value,
@@ -765,11 +774,14 @@ gl.report.heterozygosity <- function(x,
                    color = "black", 
                    position = position_dodge())+ 
           facet_wrap(~variable, nrow=1) +
-          scale_fill_manual(values = pop_list_plot_stat$color) +
-          scale_x_discrete(labels = paste(pop_list_plot_stat$pop,
-                                          round(pop_list_plot_stat$n.Ind,
-                                                0),
-                                          sep = " | ")) +
+          scale_fill_manual(values = colors_pops,
+                             breaks = pop_order,
+                             limits = pop_order) +
+          scale_x_discrete(limits = pop_order, labels = labels_named) +
+          # scale_x_discrete(labels = paste(pop_list_plot_stat$pop,
+          #                                 round(pop_list_plot_stat$n.Ind,
+          #                                       0),
+          #                                 sep = " | ")) +
           plot.theme +
           theme(
             axis.ticks.x = element_blank(),

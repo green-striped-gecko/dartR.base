@@ -41,6 +41,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' result <- gl.make.recode.pop(testset.gl,out.recode.file='test.csv',outpath=tempdir(),verbose=2)
 
 #' @export

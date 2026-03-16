@@ -70,19 +70,29 @@ To create PLINK files .bed, .bim and .fam (bed.files = TRUE), it is necessary
 to download the binary file of PLINK 1.9 and provide its path (plink.bin.path).
 The binary file can be downloaded from:
 \url{https://www.cog-genomics.org/plink/}
+
 After downloading, unzip the file, access the unzipped folder and move the 
 binary file ("plink") to your working directory.
+
 If you are using a Mac, you might need to open the binary first to grant 
 access to the binary. 
+
 The chromosome of each SNP can be a character or numeric. The chromosome
 information for unmapped SNPS is coded as 0.
+
 Family ID is taken from  x$pop.
+
 Within-family ID (cannot be '0') is taken from indNames(x).
+
 Variant identifier is taken from locNames(x).
+
 SNP position is taken from the accessor x$position.
+
 Chromosome name is taken from the accessor x$chromosome
+
 Note that if names of populations or individuals contain spaces, they are 
 replaced by an underscore "_".
+
 If you like to use chromosome information when converting to plink format and
  your chromosome names are not from human, you need to change the chromosome 
  names as 'contig1', 'contig2', etc. as described in the section "Nonstandard
@@ -92,6 +102,7 @@ If you like to use chromosome information when converting to plink format and
 \examples{
 \donttest{
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 test <- platypus.gl
 # assigning SNP position
 test$position <- test$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
@@ -119,10 +130,12 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2related}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

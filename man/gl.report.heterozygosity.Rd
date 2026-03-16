@@ -267,15 +267,15 @@ The studentized bootstrap interval ("stud") was not included in the CI types
  the range of plausible values and it has been found to be erratic in
  practice, see for example the "Studentized (t) Intervals" section in:
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+   https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package
 
     Nice tutorials about the different types of CI can be found in:
 
-    \url{https://www.datacamp.com/tutorial/bootstrap-r}
+    https://www.datacamp.com/tutorial/bootstrap-r
 
     and
 
-   \url{https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package/}
+   https://www.r-bloggers.com/2019/09/understanding-bootstrap-confidence-interval-output-from-the-r-boot-package
 
      Efron and Tibshirani (1993, p. 162) and Davison and Hinkley
      (1997, p. 194) suggest that the number of bootstrap replicates should
@@ -330,6 +330,7 @@ n.inv <- gl.report.secondaries(platypus.gl)
 gl.report.heterozygosity(platypus.gl, n.invariant = n.inv[7, 2])
 gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE)
 }
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 df <- gl.report.heterozygosity(platypus.gl)
 }
 \references{
@@ -346,6 +347,7 @@ distance from a small number of individuals. Genetics, 89(3), 583-590.
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},

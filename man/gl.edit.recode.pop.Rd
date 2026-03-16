@@ -73,6 +73,7 @@ object.
 \examples{
 #this is an interactive example
 if(interactive()){
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl <- gl.edit.recode.pop(testset.gl)
 gs <- gl.edit.recode.pop(testset.gs)
 }
@@ -96,6 +97,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},

@@ -26,6 +26,7 @@ version of \code{hierfstat::basics.stats} but it is much faster.
 }
 \examples{
 require("dartR.data")
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 out <- utils.basic.stats(platypus.gl)
 
 }

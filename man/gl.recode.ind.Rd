@@ -48,6 +48,7 @@ and the recalculated locus metadata.
 }
 \examples{
   file <- system.file('extdata','testset_ind_recode.csv', package='dartR.data')
+  if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl <- gl.recode.ind(testset.gl, ind.recode=file, verbose=3)
   
 }
@@ -69,6 +70,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.pop}()},
 \code{\link{gl.rename.pop}()},

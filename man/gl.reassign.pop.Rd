@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.reassign.pop.r
 \name{gl.reassign.pop}
 \alias{gl.reassign.pop}
-\title{Assigns an individual metric as pop in a genlight \{adegenet\} object}
+\title{Assigns an individual attribute in ind.metrics as pop in a genlight \{adegenet\} object}
 \usage{
 gl.reassign.pop(x, as.pop, verbose = NULL)
 }
@@ -32,6 +32,7 @@ Note that the original population assignments are lost.
 }
 \examples{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
    popNames(testset.gl)
    gl <- gl.reassign.pop(testset.gl, as.pop='sex',verbose=3)
    popNames(gl)
@@ -55,6 +56,7 @@ Other data manipulation:
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
 \code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
 \code{\link{gl.recode.ind}()},
 \code{\link{gl.recode.pop}()},
 \code{\link{gl.rename.pop}()},

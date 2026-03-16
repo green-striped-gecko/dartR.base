@@ -26,6 +26,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' result <- gl.filter.pa(testset.gl, pop1=pop(testset.gl)[1], 
 #' pop2=pop(testset.gl)[2],verbose=3)
 #' 

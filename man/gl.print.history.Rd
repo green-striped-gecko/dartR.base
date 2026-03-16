@@ -27,6 +27,7 @@ Prints history of a genlight object
 dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
 metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
 gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=FALSE)
+if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
 gl2 <- gl.filter.callrate(gl, method='loc', threshold=0.9)
 gl3 <- gl.filter.callrate(gl2, method='ind', threshold=0.95)
 gl.print.history(gl3)

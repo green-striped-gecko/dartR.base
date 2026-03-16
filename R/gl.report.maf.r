@@ -51,6 +51,7 @@
 #' @author Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl <- gl.filter.allna(platypus.gl)
 #' gl.report.maf(gl)
 #' @seealso \code{\link{gl.filter.maf}}

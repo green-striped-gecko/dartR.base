@@ -31,6 +31,7 @@ not be reliably scored)
 }
 \examples{
 # SNP data
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl.report.monomorphs(testset.gl)
 # SilicoDArT data
   gl.report.monomorphs(testset.gs)

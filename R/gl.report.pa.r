@@ -117,6 +117,7 @@
 #'  Ecology 98.11 (2017): 2914-2929.
 #' }
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- gl.report.pa(platypus.gl)
 #' @family report functions
 #' @importFrom tidyr pivot_longer

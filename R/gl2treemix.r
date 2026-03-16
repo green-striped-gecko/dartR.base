@@ -22,6 +22,7 @@
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl2treemix(testset.gl, outpath=tempdir())
 #' 
 #' @references Pickrell and Pritchard (2012). Inference of population splits and

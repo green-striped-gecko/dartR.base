@@ -4,11 +4,14 @@
 \alias{gl.load}
 \title{Loads an object from compressed binary format produced by gl.save()}
 \usage{
-gl.load(file, compliance = FALSE, verbose = NULL)
+gl.load(file, fbm = FALSE, compliance = FALSE, verbose = NULL)
 }
 \arguments{
 \item{file}{Name of the file to receive data
 [required].}
+
+\item{fbm}{Whether to convert dartR-gen object to dartR-fbm object [default
+TRUE].}
 
 \item{compliance}{Whether to undertake a compliance check [default FALSE].}
 

@@ -1,275 +1,275 @@
 #' @name gl.filter.hamming
-#' @title Filters loci based on pairwise Hamming distance between sequence tags
+#' @title Filters loci by trimmed-sequence similarity using Hamming distance
 #' @family matched filter
-
+#'
 #' @description
-#' Hamming distance is calculated as the number of base differences between two
-#' sequences which can be expressed as a count or a proportion. Typically, it is
-#' calculated between two sequences of equal length. In the context of DArT
-#' trimmed sequences, which differ in length but which are anchored to the left
-#' by the restriction enzyme recognition sequence, it is sensible to compare the
-#' two trimmed sequences starting from immediately after the common recognition
-#' sequence and terminating at the last base of the shorter sequence.
+#' Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
+#' removes redundant loci, preferentially retaining the locus with the better call
+#' rate (fewer missing genotypes).
+#' This function compares locus \code{TrimmedSequence} strings after skipping 
+#' a user-defined number of bases (the restriction site) and retaining a fixed-length
+#' substring. Loci whose substrings are within \code{threshold} mismatches
+#' (Hamming distance) are considered duplicates and one is dropped.
+#'
+#' @details
+#' This function finds near-duplicate TrimmedSequences by first taking the same 
+#' fixed-length piece of sequence from every locus, then cutting that piece 
+#' into several smaller sections. It relies on a simple fact: if two sequences 
+#' differ by only a few letters (up to your threshold), then at least one of 
+#' those sections must be exactly the same in both. So it uses the sections as 
+#' “signatures” to quickly shortlist only those loci that share an identical 
+#' section, instead of comparing every locus to every other one. For each 
+#' shortlisted pair, it then checks the two sequences letter-by-letter and 
+#' stops as soon as it can tell they differ by more than the allowed number. 
+#' It works backwards through the list so each TrimmedSequence is only checked 
+#' against the TrimmedSequence that comes after it, and once a locus is flagged 
+#' as a duplicate it is not used to match others.
+#'
+#' The function expects locus metrics to include \code{TrimmedSequence} in
+#' \code{x@other$loc.metrics}.
 #' 
+#' When a duplicate pair \code{(i, j)} is detected (Hamming distance \code{<= threshold}),
+#' the function drops the locus with the larger number of missing genotypes across
+#' individuals (i.e. lower call rate).
+#' 
+#' Only loci whose \code{TrimmedSequence} is long enough to yield a substring of
+#' exactly \code{min.length} are compared. Loci with shorter sequences are not
+#' compared and are retained.
+#'
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param threshold A threshold Hamming distance for filtering loci
-#' [default threshold 0.2].
-#' @param rs Number of bases in the restriction enzyme recognition sequence
-#' [default 5].
-#' @param tag.length Typical length of the sequence tags [default 69].
-#' @param plot.display If TRUE, histograms are displayed in the plot window
-#' [default TRUE].
-#' @param plot.theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default c("#2171B5", "#6BAED6")].
-#' @param plot.dir Directory in which to save files [default = working directory]
-#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
-#' @param pb If TRUE, a progress bar will be displayed [default FALSE]
+#' @param threshold Maximum allowed Hamming distance (number of
+#'   mismatching bases) between two trimmed sequences for them to be treated as
+#'   duplicates [default 3].
+#' @param rs Number of bases to skip from the start of the TrimmedSequence
+#'  before extracting the comparison substring (ie restriction site length)
+#'   [default 5].
+#' @param min.length Length of the substring used for Hamming
+#'   comparisons. Only loci producing a substring of exactly this length are
+#'   compared; others are retained [default 50].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log ; 3, progress and results summary; 5, full report
 #'   [default 2, unless specified using gl.set.verbosity].
-#'   
-#' @details
-#' Hamming distance can be computed
-#' by exploiting the fact that the dot product of two binary vectors x and (1-y)
-#' counts the corresponding elements that are different between x and y.
-#' This approach can also be used for vectors that contain more than two 
-#' possible values at each position (e.g. A, C, T or G).
-
-#' If a pair of DNA sequences are of differing length, the longer is truncated.
-
-#' The algorithm is that of Johann de Jong
-#'\url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
-#' as implemented in \code{\link{utils.hamming}}.
-
-#' Only one of two loci are retained if their Hamming distance is less that a 
-#' specified
-#' percentage. 5 base differences out of 100 bases is a 20% Hamming distance.
-
-
+#'
+#' @return A \code{genlight} object with redundant loci removed.
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
-
+#'
 #' @examples
-#' # SNP data
-#' test <- gl.subsample.loc(platypus.gl,n=50)
-#' result <- gl.filter.hamming(test, threshold=0.6, verbose=3)
-
-#' @import patchwork
+#' # x must be a genlight with TrimmedSequence in x@other$loc.metrics
+#' \donttest{
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+#' x <- platypus.gl
+#' x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
+#' }
 #' @export
-#' @return A genlight object filtered on Hamming distance.
 
 gl.filter.hamming <- function(x,
-                              threshold = 0.2,
+                              threshold = 3,
                               rs = 5,
-                              tag.length = 69,
-                              plot.display=TRUE,
-                              plot.theme = theme_dartR(),
-                              plot.colors = NULL,
-                              plot.file=NULL,
-                              plot.dir=NULL,
-                              pb = FALSE,
+                              min.length = 50,
                               verbose = NULL) {
-    # SET VERBOSITY
-    verbose <- gl.check.verbosity(verbose)
-    if(verbose==0){plot.display <- FALSE}
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
 
-    # SET WORKING DIRECTORY    
-    plot.dir <- gl.check.wd(plot.dir,verbose=0)
-	
-    # SET COLOURS
-    if(is.null(plot.colors)){
-      plot.colors <- c("#2171B5", "#6BAED6")
-    } else {
-      if(length(plot.colors) > 2){
-        if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 2 are used\n"))}
-        plot.colors <- plot.colors[1:2]
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname,
+                   # build = "v.2023.3",
+                   verbose = verbose)
+  
+  # CHECK DATATYPE
+  datatype <- utils.check.datatype(x, verbose = verbose)
+  
+  # FUNCTION SPECIFIC ERROR CHECKING
+  
+  if (length(x@other$loc.metrics$TrimmedSequence) == 0) {
+    stop(error("Fatal Error: Data must include Trimmed Sequences\n"))
+  }
+
+  # DO THE JOB
+
+  n0 <- nLoc(x)
+  
+  #setup empty function and objects for CRAN checks
+  filter_hamming_blocks_cpp <- function() {  }
+  loc_to_drop <- i_cr <- j_cr <- j <- i <- sq <- NULL
+  
+  Rcpp::cppFunction(code = '
+#include <Rcpp.h>
+#include <unordered_map>
+#include <vector>
+#include <cstdint>
+#include <cmath>
+using namespace Rcpp;
+
+// 64-bit FNV-1a hash over a raw slice [start, end)
+static inline uint64_t fnv1a64(const uint8_t* p, int start, int end) {
+  const uint64_t FNV_OFFSET = 1469598103934665603ULL;
+  const uint64_t FNV_PRIME  = 1099511628211ULL;
+  uint64_t h = FNV_OFFSET;
+  for (int i = start; i < end; ++i) {
+    h ^= (uint64_t)p[i];
+    h *= FNV_PRIME;
+  }
+  return h;
+}
+
+// Exact Hamming mismatches with early stop at k (over [0, L))
+static inline bool within_k_mism(const uint8_t* a, const uint8_t* b, int L, int k) {
+  int mism = 0;
+  for (int i = 0; i < L; ++i) {
+    mism += (a[i] != b[i]);
+    if (mism > k) return false;
+  }
+  return true;
+}
+
+
+
+// [[Rcpp::export]]
+List filter_hamming_blocks_cpp(List raws_trimmed,
+                              int k,
+                              int max_candidates_cap = 5000) {
+  const int n = raws_trimmed.size();
+  LogicalVector keep(n, true);
+  IntegerVector hit_j(n, NA_INTEGER);
+
+  if (n <= 1) return List::create(_["keep"] = keep, _["hit_j"] = hit_j);
+
+  // Assume all sequences same length after trimming
+  RawVector r0 = raws_trimmed[0];
+  const int L = r0.size();
+  if (L <= 0) return List::create(_["keep"] = keep, _["hit_j"] = hit_j);
+
+  for (int i = 1; i < n; ++i) {
+    RawVector ri = raws_trimmed[i];
+    if (ri.size() != L) stop("All trimmed sequences must have identical length for this function.");
+  }
+
+  if (k < 0) k = 0;
+  if (k >= L) {
+    // Everything matches everything => all but the last will be deleted under your rule (match to a later j)
+    for (int i = 0; i < n - 1; ++i) { keep[i] = false; hit_j[i] = i + 2; }
+    keep[n - 1] = true;
+    return List::create(_["keep"] = keep, _["hit_j"] = hit_j);
+  }
+
+  const int B = k + 1;             // number of blocks
+  std::vector<int> bstart(B), bend(B);
+  {
+    const int base = L / B;
+    const int rem  = L % B;
+    int s = 0;
+    for (int b = 0; b < B; ++b) {
+      const int len = base + (b < rem ? 1 : 0);
+      bstart[b] = s;
+      bend[b]   = s + len;
+      s += len;
+    }
+  }
+
+  // One hash table per block: hash -> vector of indices already inserted (later indices)
+  std::vector< std::unordered_map<uint64_t, std::vector<int>> > tables(B);
+  for (int b = 0; b < B; ++b) tables[b].reserve((size_t)n / 2);
+
+  std::vector<int> cand;
+  cand.reserve(1024);
+  std::vector<int> seen(n, 0);
+  int seen_token = 1;
+
+  // Process from end to start: later indices are in the tables
+  for (int i = n - 1; i >= 0; --i) {
+    RawVector ai = raws_trimmed[i];
+    const uint8_t* ap = (const uint8_t*)RAW(ai);
+
+    cand.clear();
+    ++seen_token;
+
+    // Collect candidates from any matching block bucket
+    for (int b = 0; b < B; ++b) {
+      const uint64_t h = fnv1a64(ap, bstart[b], bend[b]);
+      auto it = tables[b].find(h);
+      if (it == tables[b].end()) continue;
+
+      const std::vector<int>& bucket = it->second;
+      for (int idx : bucket) {
+        if (seen[idx] == seen_token) continue;
+        seen[idx] = seen_token;
+        cand.push_back(idx);
+        if ((int)cand.size() >= max_candidates_cap) break;
+      }
+      if ((int)cand.size() >= max_candidates_cap) break;
+    }
+
+    // Verify candidates with exact Hamming <= k (early exit in within_k_mism)
+    bool found = false;
+    int found_j = NA_INTEGER;
+    for (int jj = 0; jj < (int)cand.size(); ++jj) {
+      const int j = cand[jj];
+      RawVector bj = raws_trimmed[j];
+      const uint8_t* bp = (const uint8_t*)RAW(bj);
+      if (within_k_mism(ap, bp, L, k)) {
+        found = true;
+        found_j = j + 1; // 1-based
+        break;
       }
     }
-    
-    # FLAG SCRIPT START
-    funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
-                     build = "v.2023.3",
-                     verbose = verbose)
-    
-    # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
-    # FUNCTION SPECIFIC ERROR CHECKING
-    
-    if (length(x@other$loc.metrics$TrimmedSequence) == 0) {
-        stop(error("Fatal Error: Data must include Trimmed Sequences\n"))
+
+    if (found) {
+      keep[i] = false;
+      hit_j[i] = found_j;
+      continue; // do NOT insert deleted i
     }
-    if (threshold < 0 || threshold > 1) {
-        cat(
-            warn(
-                "  Warning: Parameter 'threshold' must be an integer between 0 
-                and 1, set to 0.2\n"
-            )
-        )
-        threshold <- 0.2
+
+    // Insert kept i into all block tables
+    for (int b = 0; b < B; ++b) {
+      const uint64_t h = fnv1a64(ap, bstart[b], bend[b]);
+      tables[b][h].push_back(i);
     }
+  }
+
+  return List::create(_["keep"] = keep, _["hit_j"] = hit_j);
+}
+', depends = "Rcpp")
     
-    if (length(x@other$loc.metrics$TrimmedSequence) == 0) {
-        stop(error("Fatal Error: Data must include Trimmed Sequences\n"))
-    }
+
+    seqs <- as.character(x@other$loc.metrics$TrimmedSequence)
+    trimmed <- substr(seqs, rs + 1 , min.length + rs)
+    raws <- lapply(trimmed, charToRaw)
+    lens <- lengths(raws)
     
-    if (nLoc(x) == 1) {
-        stop(error("Fatal Error: Data must include more than one locus\n"))
-    }
+    idx <- which(lens == min.length)
+    res <- filter_hamming_blocks_cpp(raws[idx], k = threshold, max_candidates_cap = 5000)
+    keep_full <- rep(TRUE, length(raws))
+    keep_full[idx] <- res$keep
+    hit_full <- rep(NA_integer_, length(raws))
+    hit_full[idx] <- ifelse(is.na(res$hit_j), NA_integer_, idx[res$hit_j])
     
+    i <- which(!is.na(hit_full))
+    j <- hit_full[i]
     
-    # DO THE JOB
+    pairs_idx <- data.table::data.table(i = i, j = j)
+    mx <- as.matrix(x)
+    pairs_idx$i_cr <- colSums(is.na(mx[, i, drop = FALSE]))
+    pairs_idx$j_cr <- colSums(is.na(mx[, j, drop = FALSE]))
+    pairs_idx[, loc_to_drop := ifelse(i_cr > j_cr, i, j)]
     
-    n0 <- nLoc(x)
-    
-    if (verbose >= 3) {
-        cat(
-            report(
-                "  Note: Hamming distance ranges from zero (sequence identity)
-                to 1 (no bases shared at any position)\n"
-            )
-        )
-        cat(
-            report(
-                "  Note: Calculating pairwise Hamming distances between trimmed 
-                reference sequence tags\n"
-            )
-        )
-    }
-    
-    x@other$loc.metrics$TrimmedSequence <-
-        as.character(x@other$loc.metrics$TrimmedSequence)
-    
-    count <- 0
-    nL <- nLoc(x)
-    index <- rep(TRUE, (nL - 1))
-    d <- rep(NA, (((nL - 1) * nL) / 2))
-    if (pb) {
-        pbar <-
-            txtProgressBar(
-                min = 0,
-                max = 1,
-                style = 3,
-                initial = 0,
-                label = "Working ....\n"
-            )
-        getTxtProgressBar(pbar)
-    }
-    if (verbose >= 2) {
-        cat(report(
-            "  Filtering loci with a Hamming Distance of less than",
-            threshold,
-            "\n"
-        ))
-    }
-    for (i in 1:(nL - 1)) {
-        s1 <- x@other$loc.metrics$TrimmedSequence[i]
-        for (j in ((i + 1):nL)) {
-            count <- count + 1
-            s2 <- x@other$loc.metrics$TrimmedSequence[j]
-            d[count] <- utils.hamming(s1, s2, r = rs)
-            if (d[count] <= threshold) {
-                index[i] <- FALSE
-                if (verbose >= 3) {
-                    cat(
-                        " Deleting:",
-                        locNames(x)[i],
-                        locNames(x)[j],
-                        "\n"
-                    )
-                }
-                break
-            }
-        }
-        if (pb) {
-            setTxtProgressBar(pbar, i / (nL - 1))
-        }
-    }
-    d <- d[!is.na(d)]
-    
-      x2 <- x[, (index)]
-      x2@other$loc.metrics <- x@other$loc.metrics[(index), ]
-    
-    # PLOT HISTOGRAMS, BEFORE AFTER
-    if (plot.display) {
-        plotvar <- d
-        # min <- min(plotvar,threshold,na.rm=TRUE) min <- trunc(min*100)/100
-        max <- max(plotvar, threshold, na.rm = TRUE)
-        max <- ceiling(max * 10) / 10
-        if (datatype == "SNP") {
-            xlabel <- "Pre-filter SNP Hamming Distance"
-        } else {
-            xlabel <- "Pre-filter P/A Hamming Distance"
-        }
-        p1 <-
-            ggplot(data.frame(plotvar), aes(x = plotvar)) + 
-            geom_histogram(bins = 100,
-                           color = plot.colors[1],
-                           fill = plot.colors[2]) + 
-            coord_cartesian(xlim = c(0, max)) +
-            geom_vline(xintercept = threshold,
-                       color = "red",
-                       size = 1) + 
-            xlab(xlabel) + 
-            ylab("Count") + 
-            plot.theme
-        
-        # if (datatype=='SilicoDArT'){ rdepth <-
-        #x2@other$loc.metrics$AvgReadDepth } else if 
-        #(datatype=='SNP'){ rdepth <-
-        # x2@other$loc.metrics$rdepth }
-        plotvar <- d[d >= threshold]
-        # min <- min(plotvar,threshold) min <- trunc(min*100)/100 max <- 
-        #max(plotvar,threshold,na.rm=TRUE) max <- ceiling(max*10)/10
-        if (datatype == "SNP") {
-            xlabel <- "Post-filter SNP Hamming Distance"
-        } else {
-            xlabel <- "Post-filter P/A Hamming Distance"
-        }
-        p2 <-
-            ggplot(data.frame(plotvar), aes(x = plotvar)) +
-            geom_histogram(bins = 100,
-                           color = plot.colors[1],
-                           fill = plot.colors[2]) + 
-            coord_cartesian(xlim = c(0, max)) + 
-            geom_vline(xintercept = threshold,color = "red", size = 1) + 
-            xlab(xlabel) +
-            ylab("Count") + 
-            plot.theme
-        
-        p3 <- (p1 / p2) + plot_layout(heights = c(1, 1))
-        print(p3)
-    }
-      
-      # Optionally save the plot ---------------------
-      
-      if(!is.null(plot.file)){
-        tmp <- utils.plot.save(p3,
-                               dir=plot.dir,
-                               file=plot.file,
-                               verbose=verbose)
-      }
-    
+    x2 <- gl.drop.loc(x,
+                loc.list = locNames(x)[pairs_idx$loc_to_drop],
+                verbose = 0)
+    # x2 <- x[,-pairs_idx$loc_to_drop]
+    # x2@other$loc.metrics <- x@other$loc.metrics[-pairs_idx$loc_to_drop, ]
+
     # REPORT A SUMMARY
     if (verbose >= 3) {
-        cat("\n  Summary of filtered dataset\n")
-        cat(paste("    Initial No. of loci:", n0, "\n"))
-        cat(paste(
-            "    Hamming d >",
-            threshold,
-            "=",
-            round(threshold * tag.length, 0),
-            "bp\n"
-        ))
-        cat(paste("    Loci deleted", (n0 - nLoc(x2)), "\n"))
-        cat(paste("    Final No. of loci:", nLoc(x2), "\n"))
-        cat(paste("    No. of individuals:", nInd(x2), "\n"))
-        cat(paste("    No. of populations: ", length(levels(
-            factor(pop(x2))
-        )), "\n"))
+      cat("\n  Summary of filtered dataset\n")
+      cat(paste("    Initial No. of loci:", n0, "\n"))
+      cat(paste("    Loci deleted", (n0 - nLoc(x2)), "\n"))
+      cat(paste("    Final No. of loci:", nLoc(x2), "\n"))
+      cat(paste("    No. of individuals:", nInd(x2), "\n"))
+      cat(paste("    No. of populations: ", length(levels(factor(
+        pop(x2)
+      ))), "\n"))
     }
     
     # ADD TO HISTORY
@@ -278,7 +278,7 @@ gl.filter.hamming <- function(x,
     
     # FLAG SCRIPT END
     if (verbose > 0) {
-        cat(report("Completed:", funname, "\n"))
+      cat(report("Completed:", funname, "\n"))
     }
     
     # RETURN

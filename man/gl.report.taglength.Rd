@@ -65,6 +65,7 @@ To avoid issues from inadvertent use of this function in an assignment statement
 the function returns the genlight object unaltered.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 out <- gl.report.taglength(testset.gl)
 
 }

@@ -1,32 +1,43 @@
 #'@name gl.sort
-#'@title Sorts genlight objects
+#'@title 
+#' Sorts genlight objects by individual, population, or genomic position
 #' @family data manipulation
 #'@description 
-#' This function provides the ability to sort genotypes in a genlight object by  
-#' individual name or population name. 
+#' Reorders individuals in a genlight object by individual names, population names,
+#' or by chromosome and SNP position. Useful for ensuring meaningful genotype
+#' ordering in visualizations such as \code{gl.smearplot}.
 #' 
 #'@param x Genlight object containing SNP/Silicodart genotypes [required].
 #'@param sort.by Specify to sort the genotypes by either 'ind', "pop" [default 'pop'].
-#'@param order.by Vector used to order genotypes [default NULL]
+#'@param order.by Vector used to order genotypes [default NULL].
+#'@param order.by.chr.pos Whether to order loci first by chromosome and then by
+#' SNP position [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
 #'
 #'@details 
-#'This is a function to sort genotypes in a genlight object by individual name
-#'or population name. This will be useful if you want to visualise the structure
-#'across populations (bands) in a gl.smearplot; order of genotypes is important.
+#'This is a function to sort genotypes in a genlight object by individual name, 
+#'by population name or by chromosome and SNP position. This is useful if you 
+#'want to visualise the structure across populations (bands) in a gl.smearplot; 
+#'order of genotypes is important.
 #'
-#' The order.by parameter needs to be a vector upon which to effect the sort, of length of 
-#' nPop(gl) if sort.by is 'pop' or  nInd(gl) if sort.by is 'ind'.  For sort.by='ind' 
-#' order.by can be a vector such as a variable in gl@other$ind.metrics.
+#' The order.by parameter needs to be a vector upon which to effect the sort, 
+#' of length of nPop(gl) if sort.by is 'pop' or  nInd(gl) if sort.by is 'ind'.  
+#' For sort.by='ind' order.by can be a vector such as a variable in 
+#' gl@other$ind.metrics.
 #' 
-#' If not specified by nominating a vector with order.by, alphabetical order of populations or individuals is used. 
+#' If not specified by nominating a vector with order.by, alphabetical order of 
+#' populations or individuals is used. 
+#'
+#' Ordering by chromosome and SNP position requires that \code{chromosome} and 
+#' \code{position} slots are set in the genlight object.
 #'  
 #'@author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #'
 #'@examples 
 #'#sort by populations
+#'if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #'bc <- gl.sort(bandicoot.gl)
 #'#sort from West to East
 #'bc2 <- gl.sort(bandicoot.gl, sort.by="pop" ,
@@ -43,6 +54,7 @@
 gl.sort <- function(x,
                   sort.by = "pop",
                   order.by = NULL,
+                  order.by.chr.pos = FALSE,
                   verbose = NULL) {
   
   # SET VERBOSITY
@@ -58,7 +70,7 @@ gl.sort <- function(x,
   if (!is(x, "dartR")) {
     class(x) <- "dartR"  
     if (verbose>2) {
-      cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
+      cat(warn(". Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
       cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
                  please use function dartR2gl\n"))
     }
@@ -80,10 +92,15 @@ gl.sort <- function(x,
   # DO THE JOB
   
   if (sort.by=="pop") {
-    if (is.null(order.by)) index <- order(pop(x)) else {
-      if (!(sum(pop(x) %in% order.by))==nInd(x)) stop(error("order.by does not contain all levels of sort.by."))
+    if (is.null(order.by)){
+      index <- order(pop(x))
+    } else {
+      if (!(sum(pop(x) %in% order.by))==nInd(x)){
+        stop(error("order.by does not contain all levels of sort.by."))
+      } 
       index  <- order(factor(pop(x), levels=order.by))
-    } 
+    }
+    
     xx <- x[index,]
     xx@other$latlon <- x@other$latlon[index,]
     xx@other$ind.metrics <- x@other$ind.metrics[index,]
@@ -99,6 +116,15 @@ gl.sort <- function(x,
     xx <- x[index,]
     xx@other$latlon <- x@other$latlon[index,]
     xx@other$ind.metrics <- x@other$ind.metrics[index,]
+    }
+  
+  if(order.by.chr.pos){
+    if(is.null(xx$chromosome)){
+      cat(warn("  To order by chromosome and SNP position, it is necessary first to assign chromosome and SNP position to your genlight object.\n"))
+    }else{
+      xx <- xx[,order(as.character(xx$chromosome),as.numeric(xx@position))]
+    }
+    
   }
   
   # ADD TO HISTORY

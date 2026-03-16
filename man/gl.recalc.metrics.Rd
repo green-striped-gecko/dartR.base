@@ -34,6 +34,7 @@ with all values missing and deletes them (using gl.filter.monomorphs.r).
 The script returns a genlight object with the recalculated locus metadata.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl <- gl.recalc.metrics(testset.gl, verbose=2)
   
 }

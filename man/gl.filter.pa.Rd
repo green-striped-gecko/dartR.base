@@ -35,6 +35,7 @@ information content of the SNPs used to identify hybrids (currently
     sure why yet, but maybe useful.)
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl.filter.pa(testset.gl, pop1=pop(testset.gl)[1], 
 pop2=pop(testset.gl)[2],verbose=3)
 
@@ -48,6 +49,7 @@ Other matched filter:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

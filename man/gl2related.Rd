@@ -44,6 +44,7 @@ therefore for comparisons between coancestry and related we suggest to use
 the command line version of coancestry.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE, )
 \dontrun{
 ##running with the related package, use
@@ -59,8 +60,7 @@ head(coan$relatedness)
 Jack Pew, Jinliang Wang, Paul Muir and Tim Frasier (2014).
 related: related: an R package for analyzing pairwise relatedness
  data based on codominant molecular markers.
- R package version 0.8/r2.
-  \url{https://R-Forge.R-project.org/projects/related/}
+ R package version 0.8/r2. https://R-Forge.R-project.org/projects/related/
 }
 \seealso{
 Other linker: 
@@ -75,10 +75,12 @@ Other linker:
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
+\code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
 \code{\link{gl2phylip}()},
 \code{\link{gl2plink}()},
 \code{\link{gl2sa}()},
+\code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2treemix}()},
 \code{\link{gl2vcf}()}

@@ -35,6 +35,7 @@
 #'  \url{https://groups.google.com/d/forum/dartr})
 #'  
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
 #' sympatric=TRUE,verbose=3)
 #' 

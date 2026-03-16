@@ -174,8 +174,9 @@ the best modern reference is Legendre & Legendre (1998).
 }
 \examples{
 # PCA (using SNP genlight object)
-gl <- possums.gl
-pca <- gl.pcoa(possums.gl[1:50,],verbose=2)
+gl <- possums.gl[1:90,]
+if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
+pca <- gl.pcoa(gl,verbose=2)
 gl.pcoa.plot(pca,gl)
 \donttest{
 gs <- testset.gs

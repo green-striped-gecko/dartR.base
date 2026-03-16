@@ -105,6 +105,7 @@ bootstrap replicates and number of replicates for branch swapping. This is used 
 the job run without expenditure of the resources required for the full job.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gg <- testset.gs[1:20,1:100]
 gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 gl2paup.parsimony(gg,outfile="test.nex",outpath=tempdir(),nreps=1,nbootstraps=10)

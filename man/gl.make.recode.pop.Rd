@@ -50,6 +50,7 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
 Apply the recoding using gl.recode.pop().
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl.make.recode.pop(testset.gl,out.recode.file='test.csv',outpath=tempdir(),verbose=2)
 }
 \author{

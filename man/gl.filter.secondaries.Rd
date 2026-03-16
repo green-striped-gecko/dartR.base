@@ -30,8 +30,9 @@ order (method='best') or at random (method='random').
 The filter has not been implemented for tag presence/absence data.
 }
 \examples{
-gl.report.secondaries(testset.gl)
-result <- gl.filter.secondaries(testset.gl)
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+gl.report.secondaries(platypus.gl)
+result <- gl.filter.secondaries(platypus.gl)
 }
 \seealso{
 Other matched filter: 
@@ -42,7 +43,8 @@ Other matched filter:
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
-\code{\link{gl.filter.pa}()}
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to

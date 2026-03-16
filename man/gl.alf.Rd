@@ -18,16 +18,18 @@ Calculates allele frequency of the first and second allele for each locus
 A very simple function to report allele frequencies
 }
 \examples{
+
+#test fbm
+if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
 #for the first 10 loci only
-#Deprecated:
 gl.alf(possums.gl[,1:10])
 barplot(t(as.matrix(gl.alf(possums.gl[,1:10]))))
-#Current:
 gl.allele.freq(possums.gl[,1:10],simple=TRUE)
 barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
 }
 \seealso{
 Other utilities: 
+\code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},

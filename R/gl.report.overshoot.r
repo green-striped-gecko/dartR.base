@@ -25,6 +25,7 @@
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl.report.overshoot(testset.gl)
 #' 
 #' @seealso \code{\link{gl.filter.overshoot}}
@@ -77,18 +78,18 @@ gl.report.overshoot <- function(x,verbose = NULL) {
     # Shift the index for snppos to start from 1 not zero
     snpos <- snpos + 1
     # Pull those loci for which the SNP position is greater than the tag length
-    xx <- x[, snpos > nchar(trimmed)]
-    
+    os <- which(snpos > nchar(trimmed))
+    if(length(os)>0){
+    xx <- x[, os]
     # PRINTING OUTPUTS Report the number of such loci
     cat("  No. of loci with SNP falling outside the trimmed sequence:",
         nLoc(xx),
         "\n")
-    if (nLoc(xx) > 0) {
-        cat(paste0(locNames(xx), sep = ","))
-        cat("\n")
-    }
-    
-    df <- data.frame(locNames = locNames(xx))
+      cat(paste0(locNames(xx), sep = ","))
+      cat("\n")
+    }else{
+      cat("  There were no loci with SNP falling outside the trimmed sequence\n")
+      }
     
     # FLAG SCRIPT END
     if (verbose >= 1) {

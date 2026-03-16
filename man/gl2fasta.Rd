@@ -72,6 +72,16 @@ loc.all e.g. 'G/A') and the position of the SNP in slot position of the
  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
  how to format these slots.)
 }
+\examples{
+ \donttest{
+ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
+gl <- gl.filter.reproducibility(testset.gl,t=1)
+gl <- gl.filter.overshoot(gl,verbose=3)
+gl <- gl.filter.callrate(testset.gl,t=.98)
+gl <- gl.filter.monomorphs(gl)
+gl2fasta(gl, method=1, outfile='test.fasta',verbose=3)
+}
+}
 \author{
 Custodian: Luis Mijangos (Post to
  \url{https://groups.google.com/d/forum/dartr})

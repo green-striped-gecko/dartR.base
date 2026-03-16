@@ -82,6 +82,7 @@
 
 #' @examples
 #' # SNP data
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' out <- gl.report.locmetric(testset.gl,metric='SnpPosition')
 #' # Tag P/A data
 #' out <- gl.report.locmetric(testset.gs,metric='AvgReadDepth')

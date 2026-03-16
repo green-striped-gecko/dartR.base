@@ -26,6 +26,7 @@
 #' @param legend.title Legend's title for the links in case a matrix is provided
 #'  [default NULL].
 #' @param provider Passed to leaflet [default "Esri.NatGeoWorldMap"].
+#' @param scale.bar Whether to add a scale bar [default TRUE].
 #' @param raster.image Path to a georeferenced raster image to plot 
 #' [default NULL].
 #' @param raster.opacity The opacity of the raster, expressed from 0 to 1 
@@ -57,13 +58,14 @@
 #' 
 #' @examples
 #' require("dartR.data")
+#' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #' gl.map.interactive(bandicoot.gl)
 #' cols <- c("red","blue","yellow")
+#' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl.map.interactive(platypus.gl, ind.circle.cols=cols, ind.circle.cex=10, 
 #' ind.circle.transparency=0.5)
 #' 
 #' @importFrom methods is
-#' @importFrom raster raster
 #' @export
 #' @return plots a map
 
@@ -80,6 +82,7 @@ gl.map.interactive <- function(x,
                                palette.links = NULL,
                                legend.title = NULL,
                                provider = "Esri.NatGeoWorldMap",
+                               scale.bar = TRUE, 
                                raster.image = NULL,
                                raster.opacity = 0.5,
                                raster.colors = scales::viridis_pal(option = "D")(255),
@@ -152,19 +155,12 @@ individuals nor the number of populations."
         cols <- ind.circle.cols
       }
       ic <- cols[as.numeric(pop(x))]
-        # if (is.null(ind.circle.cols)){
-        #     cols <- rainbow(nPop(x))
-        #     cols <- substr(cols, 1, 7)
-        #     ic <- cols[as.numeric(pop(x))]
-        # } else{
-        #   ic <- ind.circle.cols
-        # }
-        
+
         df <- x@other$latlon
         centers <-
             apply(df, 2, function(xx)
                 tapply(xx, pop(x), mean, na.rm = TRUE))
-        # when there is just one population the output of centers is a vector 
+        # when there is just one population the output of centers is a vector
         #the following lines fix this error
         if (nPop(x) == 1) {
             centers <- data.frame(lon = centers[1], lat = centers[2])
@@ -173,7 +169,7 @@ individuals nor the number of populations."
         # Add default OpenStreetMap map tiles
         m <- leaflet::leaflet() %>%
             leaflet::addTiles()
-        
+
         if (ind.circles) {
             m <- m %>%
                 leaflet::addCircles(
@@ -183,10 +179,10 @@ individuals nor the number of populations."
                     color = ic,
                     opacity = ind.circle.transparency,
                     weight = ind.circle.cex
-                    
+
                 )
         }
-        
+
         if (pop.labels) {
             m <- m %>%
                 leaflet::addLabelOnlyMarkers(
@@ -202,6 +198,19 @@ individuals nor the number of populations."
                 )
         }
         
+        if(scale.bar){
+          m <- m %>%
+            leaflet::addScaleBar(
+              position = "bottomright",
+              options = leaflet::scaleBarOptions(
+                metric        = TRUE,
+                imperial      = FALSE,
+                maxWidth      = 300,
+                updateWhenIdle = TRUE 
+              )
+            )
+        }
+
         if (!is.null(matrix)) {
           
           if (nrow(matrix) == nPop(x)) {
@@ -308,11 +317,7 @@ individuals nor the number of populations."
         
         plot.map <- m %>% leaflet::addProviderTiles(provider)
         if(!is.null(raster.image)){
-          # if(is.null(raster.colors)){
-          #   raster.colors <- scales::viridis_pal(option = "D")(255)
-          # }
-          
-          r <- raster::raster(raster.image)
+          r <- terra::rast(raster.image)
           plot.map <- plot.map  %>% 
             leaflet::addRasterImage(r, 
                                     opacity = raster.opacity,

@@ -68,6 +68,7 @@ that directory; otherwise to the tempdir().
  the function with the plot.colors parameter.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) LBP <- gl.gen2fbm(LBP)
 filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)
 }
 \references{
@@ -83,6 +84,7 @@ and conduct sex assignment. Molecular Ecology Resources.
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.heterozygosity}()},

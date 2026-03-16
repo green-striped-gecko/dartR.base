@@ -90,6 +90,7 @@ each population. Where the purpose of filtering for MAF is to remove possible
 interpreted as a threshold for MAC.
 }
 \examples{
+if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
 #result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
 }
@@ -102,6 +103,7 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

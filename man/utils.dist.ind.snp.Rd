@@ -22,24 +22,29 @@ utils.dist.ind.snp(
 fall in the range [0,1] [default FALSE].}
 
 \item{type}{Specify the format and class of the object to be returned, 
-dist for a object of class dist, matrix for an object of class matrix [default "dist"].}
+dist for a object of class dist, matrix for an object of class matrix
+ [default "dist"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report [default 2].}
 }
 \value{
-An object of class 'dist' or 'matrix' giving distances between individuals
+An object of class 'dist' or 'matrix' giving distances between
+ individuals
 }
 \description{
-WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED 
+BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE 
+OUTCOMES.
 }
 \details{
 This script calculates various distances between individuals based on 
 SNP genotypes.
+
 The distance measure can be one of:
  \itemize{
-  \item Euclidean -- Euclidean Distance applied to Cartesian coordinates defined
-  by the loci, scored as 0, 1 or 2. 
+  \item Euclidean -- Euclidean Distance applied to Cartesian coordinates
+   defined by the loci, scored as 0, 1 or 2. 
  \item Simple -- simple mismatch, 0 where no alleles are shared, 1 where one
  allele is shared, 2 where both alleles are shared. 
  \item Absolute -- absolute mismatch, 0 where no alleles are shared, 1 where

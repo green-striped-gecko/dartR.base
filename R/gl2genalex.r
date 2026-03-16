@@ -29,6 +29,7 @@
 #' 
 #' @examples
 #' \donttest{
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl2genalex(testset.gl, outfile='testset.csv', outpath=tempdir())
 #' }
 #' 

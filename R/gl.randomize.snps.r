@@ -34,6 +34,7 @@
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
+#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl <- gl.filter.monomorphs(testset.gl)
 #' res <- gl.randomize.snps(gl,verbose = 5)
 
