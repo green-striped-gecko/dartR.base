@@ -78,7 +78,7 @@ gl.filter.excess.het <- function(x,
   fhe <- n1 / (n0 + n1 + n2)
   
   # Results per population
-  populations <- as.vector(unique(x@other$ind.metrics$pop))
+  populations <- as.vector(unique(popNames(x)))
   n0   <- vector()
   n1   <- vector()
   n2   <- vector()
@@ -86,7 +86,7 @@ gl.filter.excess.het <- function(x,
   loci <- vector()
   
   for (pop in populations) {
-    pop.gl <- x[x@other$ind.metrics$pop == pop,]
+    pop.gl <- x[popNames(x) == pop,]
     gen    <- as.data.frame(t(as.matrix(pop.gl)))
     n0     <- c(n0, rowSums(gen == 0, na.rm = TRUE))
     n1     <- c(n1, rowSums(gen == 1, na.rm = TRUE))
