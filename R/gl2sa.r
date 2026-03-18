@@ -76,7 +76,7 @@ gl2sa <- function(x,
     }
     pop <- gl2gi(x)
     xxx <- pegas::as.loci(pop)[, -1]
-    sa <- SNPassoc::setupSNP(data.frame(xxx), 1:ncol(xxx), )
+    sa <- setupSNP(data.frame(xxx), 1:ncol(xxx), )
     
     # FLAG SCRIPT END
     
