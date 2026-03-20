@@ -1,7 +1,7 @@
 Package: dartR.base
 Type: Package
 Title: Analysing 'SNP' and 'Silicodart' Data - Basic Functions
-Version: 1.2.2
+Version: 1.2.3
 Date: 2026-02-17
 Revision: Elastic Elapid
 Authors@R: c(
