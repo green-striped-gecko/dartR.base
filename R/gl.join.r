@@ -37,11 +37,11 @@
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' # Joining by loci in common, both datasets have the same loci in the same order
-#' x1 <- testset.gl[1:10, ]
+#' x1 <- testset.gl[1:7, ]
 #' nInd(x1)
-#' x2 <- testset.gl[11:20, ]
+#' x2 <- testset.gl[11:14, ]
 #' nInd(x2)
-#' gl <- gl.join(x1, x2, method = "join.by.loc", verbose = 2)
+#' gl <- gl.join(x1, x2, verbose = 4)
 #' nInd(gl)
 #' # Joining by individuals in common, both datasets have the same individuals
 #' # in the same order
@@ -119,28 +119,39 @@ gl.join <- function(x1,
         )
       )
     }
+  }
     if (datatype1 == "SilicoDArT" && datatype2 == "SilicoDArT") {
-        if (verbose == 2) {
+        if (verbose >= 2) {
             cat(report("  Processing Presence/Absence (SilicoDArT) data\n"))
         }
     } else if (datatype1 == "SNP" && datatype2 == "SNP") {
-        if (verbose == 2) {
+        if (verbose >= 2) {
             cat(report("  Processing SNP data \n"))
         }
     }
-  } else if (datatype1 == 2 && datatype2 == 2) {
-    if (verbose == 2) {
-      cat(report("  Processing SNP data \n"))
-    }
-    
+   
     # SCRIPT SPECIFIC ERROR CHECKING
     
     if(!is.null(method)){
       cat(warn("  Warning: The parameter method is deprecated, no longer required"))
+      if (method=="join.by.loc"){
+        if(verbose >= 3){
+          cat(report(" Joining two genlight datasets with the same loci but different individuals\n"))
+        }
+        flag <- "loc"
+      } else if (method=="join.by.ind"){
+        if(verbose >= 3){
+          cat(report(" Joining two genlight datasets with the same individuals but different loci\n"))
+        }
+        flag <- "ind"
+      } else {
+        cat(error("Fatal Error: method parameter is deprecated, no longer required. Please remove from function call\n"))
+        stop()
+      }
     }
-  }
   
-  if (method == 'join.by.loc') {
+  
+  if (is.null(method)) {
     
     if (identical(indNames(x1), indNames(x2))) {
       if(verbose >= 3){
@@ -156,7 +167,7 @@ gl.join <- function(x1,
       cat(error("Fatal Error: Individuals or loci in the two files do not match\n"))
       stop()
     }
-
+}
 # DO THE JOB --------------
     
 if (verbose >= 2) {
@@ -470,7 +481,7 @@ if(flag=="loc"){
       x@other$loc.metrics.flags$OneRatio <- 0
       x@other$loc.metrics.flags$PIC <- 0
     }
-  }
+  
   
   # Create the history repository, taking the base from X1 if it exists
   if (verbose >= 2) {

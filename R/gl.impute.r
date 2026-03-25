@@ -86,7 +86,7 @@
 #' # Sequence Tag presence-absence data
 #' gs <- gl.filter.callrate(testset.gs,threshold=0.95)
 #' gl <- gl.filter.allna(gl)
-#' gs <- gl.impute(gs, method="neighbour")
+#' #gs <- gl.impute(gs, method="neighbour")
 #' }
 #' gl <- gl.impute(platypus.gl,method ="random")
 #' 

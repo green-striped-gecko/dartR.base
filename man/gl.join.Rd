@@ -43,11 +43,11 @@ are combined. Note that if two individuals have the same names, they will be mad
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 # Joining by loci in common, both datasets have the same loci in the same order
-x1 <- testset.gl[1:10, ]
+x1 <- testset.gl[1:7, ]
 nInd(x1)
-x2 <- testset.gl[11:20, ]
+x2 <- testset.gl[11:14, ]
 nInd(x2)
-gl <- gl.join(x1, x2, method = "join.by.loc", verbose = 2)
+gl <- gl.join(x1, x2, verbose = 4)
 nInd(gl)
 # Joining by individuals in common, both datasets have the same individuals
 # in the same order

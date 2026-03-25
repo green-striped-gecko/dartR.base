@@ -1,11 +1,11 @@
 #' @name gl.filter.hamming
 #' @title Filters loci by trimmed-sequence similarity using Hamming distance
 #' @family matched filter
+#'
+#' @description
 #' Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
 #' removes redundant loci, preferentially retaining the locus with the better call
 #' rate (fewer missing genotypes).
-#'
-#' @description
 #' This function compares locus \code{TrimmedSequence} strings after skipping 
 #' a user-defined number of bases (the restriction site) and retaining a fixed-length
 #' substring. Loci whose substrings are within \code{threshold} mismatches
@@ -56,10 +56,11 @@
 #'
 #' @examples
 #' # x must be a genlight with TrimmedSequence in x@other$loc.metrics
+#' \donttest{
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' x <- platypus.gl
 #' x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
-#'
+#' }
 #' @export
 
 gl.filter.hamming <- function(x,
@@ -86,10 +87,14 @@ gl.filter.hamming <- function(x,
   }
 
   # DO THE JOB
-  
+
   n0 <- nLoc(x)
   
-    Rcpp::cppFunction(code = '
+  #setup empty function and objects for CRAN checks
+  filter_hamming_blocks_cpp <- function() {  }
+  loc_to_drop <- i_cr <- j_cr <- j <- i <- sq <- NULL
+  
+  Rcpp::cppFunction(code = '
 #include <Rcpp.h>
 #include <unordered_map>
 #include <vector>
@@ -118,6 +123,8 @@ static inline bool within_k_mism(const uint8_t* a, const uint8_t* b, int L, int 
   }
   return true;
 }
+
+
 
 // [[Rcpp::export]]
 List filter_hamming_blocks_cpp(List raws_trimmed,
@@ -225,6 +232,7 @@ List filter_hamming_blocks_cpp(List raws_trimmed,
 }
 ', depends = "Rcpp")
     
+
     seqs <- as.character(x@other$loc.metrics$TrimmedSequence)
     trimmed <- substr(seqs, rs + 1 , min.length + rs)
     raws <- lapply(trimmed, charToRaw)

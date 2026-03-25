@@ -110,9 +110,9 @@ utils.dist.ind.snp <- function(x,
             } else {
                 cat(report("  Calculating the unscaled distance matrix --", method, "\n"))
             }
-        } else {
-          dd[j, i] <- sqrt(sum(sq, na.rm = TRUE))
-        }
+        } #else {
+          #dd[j, i] <- sqrt(sum(sq, na.rm = TRUE))
+        #}
     }
      
     # for (i in (1:(nI - 1))) {

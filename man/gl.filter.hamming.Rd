@@ -29,6 +29,9 @@ progress log ; 3, progress and results summary; 5, full report
 A \code{genlight} object with redundant loci removed.
 }
 \description{
+Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
+removes redundant loci, preferentially retaining the locus with the better call
+rate (fewer missing genotypes).
 This function compares locus \code{TrimmedSequence} strings after skipping 
 a user-defined number of bases (the restriction site) and retaining a fixed-length
 substring. Loci whose substrings are within \code{threshold} mismatches
@@ -61,16 +64,26 @@ compared and are retained.
 }
 \examples{
 # x must be a genlight with TrimmedSequence in x@other$loc.metrics
+\donttest{
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 x <- platypus.gl
 x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
-
+}
+}
+\seealso{
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{matched filter
-Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
-removes redundant loci, preferentially retaining the locus with the better call
-rate (fewer missing genotypes).}
+\concept{matched filter}

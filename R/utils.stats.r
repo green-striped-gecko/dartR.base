@@ -1,4 +1,4 @@
 # Standard error
 std.error <- function(x){
-  sd(x)/sqrt(length(x))
+  sqrt(var(x, na.rm = TRUE) / sum(!is.na(x)))
   }

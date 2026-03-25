@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dartR.class.def.r
 \name{glMean}
 \alias{glMean}
-\title{glMean function for dartR object}
+\title{glMean for dartR objects}
 \usage{
 glMean(x, alleleAsUnit = TRUE)
 }
@@ -16,5 +16,5 @@ if FALSE, per individual}
 A numeric vector of means per locus
 }
 \description{
-glMean function for dartR object
+glMean is necessary as adegenet is using it internally and we need one for fbm projects
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dartR.class.def.r
 \name{cbind.dartR}
 \alias{cbind.dartR}
-\title{adjust cbind for dartR}
+\title{cbind for dartR objects}
 \usage{
 \method{cbind}{dartR}(
   ...,

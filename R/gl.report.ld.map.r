@@ -198,15 +198,15 @@ gl.report.ld.map <- function(x,
       pop_ld,
       outfile = paste0("gl_plink", "_", pop_name),
       pos.cM = pop_ld$other$loc.metrics[, stat.keep],
-      verbose = 0
+      verbose = 0, outpath = tempdir()
     )
     
     # Read a pedfile as "SnpMatrix" object using a modified version of the 
     # function read.pedfile from package snpStats
     snp_stats <-
       utils.read.ped(
-        file = paste0(tempdir(), "/", "gl_plink", "_", pop_name, ".ped"),
-        snps = paste0(tempdir(), "/", "gl_plink", "_", pop_name, ".map") ,
+        file = file.path(tempdir(), paste0( "gl_plink", "_", pop_name, ".ped")),
+        snps = file.path(tempdir(), paste0("gl_plink", "_", pop_name, ".map") ),
         sep = " ",
         show_warnings = F,
         na.strings = NA
