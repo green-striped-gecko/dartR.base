@@ -227,16 +227,16 @@ gl.read.silicodart <- function(filename,
     glout@other$loc.metrics <- covmetrics
     
     # Checking that TrimmedSequence exists
-    if (!"TrimmedSequence" %in% names(gout@other$loc.metrics)) {
-      if ("TrimmedSequenceSnp" %in% names(gout@other$loc.metrics)) {
-        gout@other$loc.metrics$TrimmedSequence <- gout@other$loc.metrics$TrimmedSequenceSnp
+    if (!"TrimmedSequence" %in% names(glout@other$loc.metrics)) {
+      if ("TrimmedSequenceSnp" %in% names(glout@other$loc.metrics)) {
+        glout@other$loc.metrics$TrimmedSequence <- glout@other$loc.metrics$TrimmedSequenceSnp
         cat(
           warn(
             "TrimmedSequence field in loc.metrics was created from field TrimmedSequenceSnp"
           )
         )
-      } else if ("AlleleSequenceSnp" %in% names(gout@other$loc.metrics)) {
-        gout@other$loc.metrics$TrimmedSequence <- gout@other$loc.metrics$AlleleSequenceSnp
+      } else if ("AlleleSequenceSnp" %in% names(glout@other$loc.metrics)) {
+        glout@other$loc.metrics$TrimmedSequence <- glout@other$loc.metrics$AlleleSequenceSnp
         cat(
           warn(
             "TrimmedSequence field in loc.metrics was created from field AlleleSequenceSnp"
