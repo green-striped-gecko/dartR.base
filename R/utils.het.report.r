@@ -90,12 +90,6 @@ ind.count <- function(x) {
   return(nind)
 }
 
-# standard error function
-std.error <- function(x) {
-  res <- sd(x, na.rm = TRUE) / sqrt(length(x))
-  return(res)
-}
-
 utils.subsample.pop <- function(x,
                                 n.limit,
                                 subsamples = c(10, 5, 4, 3, 2)){
