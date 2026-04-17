@@ -431,49 +431,15 @@ gl.report.heterozygosity <- function(x,
     # Split the genlight object into a list of populations
     sgl <- seppop(x)
     
-    # OBSERVED HETEROZYGOSITY
-    if (verbose >= 2) {
-      cat(
-        report(
-          "  Calculating Observed Heterozygosities, averaged across
-                    loci, for each population\n"
-        )
-      )
-    }
-    
-    # Calculate heterozygosity for each population in the list
-    # CP = Carlo Pacioni CP ###
-    Ho.loc <-
-      lapply(sgl, function(x)
-        colMeans(as.matrix(x) == 1, na.rm = TRUE))
-
-    Ho <-
-      unlist(lapply(sgl, function(x)
-        mean(
-          colMeans(as.matrix(x) == 1, na.rm = TRUE), na.rm = TRUE
-        )))
-    
-    ### CP ### observed heterozygosity standard deviation
-    HoSD <-
-      unlist(lapply(sgl, function(x)
-        sd(
-          colMeans(as.matrix(x) == 1, na.rm = TRUE), na.rm = TRUE
-        )))
-    
-    HoSE <- unlist(lapply(sgl, function(x)
-      std.error(colMeans(
-        as.matrix(x) == 1, na.rm = TRUE
-      ))))
-    
-    ##########
-    
     # Calculate the number of loci that are not all NAs CP ###
     n_loc <-
       unlist(lapply(sgl, function(x)
         sum(!(
           colSums(is.na(as.matrix(x))) == nrow(as.matrix(x))
         ))))
-    ##########
+    
+    # Calculate the number of individuals
+    n_ind <- sapply(sgl, ind.count)
     
     # calculate the number of polymorphic and monomorphic loci by population
     poly_loc <- NULL
@@ -487,7 +453,7 @@ gl.report.heterozygosity <- function(x,
       loc.list <- rownames(mono_tmp[which(mono_tmp$alf1 == 1 |
                                             mono_tmp$alf1 == 0), ])
       loc.list_NA <- which(colSums(is.na(as.matrix(y_temp)))==nInd(y_temp))
-        # rownames(mono_tmp[which(is.na(mono_tmp$alf1)), ])
+      # rownames(mono_tmp[which(is.na(mono_tmp$alf1)), ])
       
       # Remove NAs from list of monomorphic loci and loci with all NAs
       # loc.list <- loc.list[!is.na(loc.list)]
@@ -502,93 +468,64 @@ gl.report.heterozygosity <- function(x,
       all_na_loc <- c(all_na_loc, length(loc.list_NA))
     }
     
-    # Apply correction CP ###
-    Ho.adj <- Ho * n_loc / (n_loc + n.invariant)
-    # Manually compute SD for Ho.adj sum of the square of differences from
-    # the mean for polymorphic sites plus sum of the square of differences
-    #(which is the Ho.adj because Ho=0) from the mean for invariant sites
-    Ho.adjSD <-
-      sqrt((
-        mapply(function(x, Mean)
-          sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc, Mean = Ho.adj) +
-          n.invariant * Ho.adj ^
-          2
-      ) / (n_loc +
-             n.invariant - 1))
     
-    Ho.adjSE <-  Ho.adjSD / sqrt(poly_loc+mono_loc)
-    
-    #n_ind <- sapply(sgl, ind.count)
-    n_ind <- lapply(sgl, function(y) {
-      apply(as.matrix(y), 2, function(z) {sum(!is.na(z))
-      })
-    })
-    
-    ##########
-    
-    # EXPECTED HETEROZYGOSITY
+    #### Calculate heterozygosities for each population ####
     if (verbose >= 2) {
-      cat(report("  Calculating Expected Heterozygosities\n\n"))
+      cat(
+        report(
+          "  Calculating Heterozygosities, averaged across
+                    loci, for each population\n"
+        )
+      )
     }
     
-    Hexp <- array(NA, length(sgl))
-    HexpSD <- array(NA, length(sgl))
-    HexpSE <- array(NA, length(sgl))
+    all.het <- lapply(sgl, 
+           FUN = function(gl) pop.het_fun(as.matrix(gl), 
+                                          n.invariant=n.invariant,
+                                          aHet=n.invariant > 0,
+                                          bootstrap=FALSE))
     
-    uHexp <- array(NA, length(sgl))
-    uHexpSD <- array(NA, length(sgl))
-    uHexpSE <- array(NA, length(sgl))
-    
-    Hexp.adj <- array(NA, length(sgl))
-    Hexp.adjSD <- array(NA, length(sgl))
-    Hexp.adjSE <- array(NA, length(sgl))
-    
-    FIS <- array(NA, length(sgl))
-    FISSD <- array(NA, length(sgl))
-    FISSE <- array(NA, length(sgl))
-    
-    # dataframes to store data for boxplots
-    uHe_df <- as.list(rep(NA, length(sgl)))
-    Fis_df <- as.list(rep(NA, length(sgl)))
-    
-    # For each population
-    for (i in 1:length(sgl)) {
-      gl <- sgl[[i]]
-      gl <- utils.recalc.freqhomref(gl, verbose = 0)
-      gl <- utils.recalc.freqhomsnp(gl, verbose = 0)
-      gl <- utils.recalc.freqhets(gl, verbose = 0)
-      p <- gl@other$loc.metrics$FreqHomRef
-      q <- gl@other$loc.metrics$FreqHomSnp
-      hets <- gl@other$loc.metrics$FreqHets
-      p <- (2 * p + hets) / 2
-      q <- (2 * q + hets) / 2
-      H <- 1 - (p ^ 2 + q ^ 2)
+    Ho.loc <- lapply(all.het, function(x) x[["byloc"]]["Ho.loc"])
       
-      Hexp[i] <- mean(H, na.rm = TRUE)
-      HexpSD[i] <- sd(H, na.rm = TRUE)
-      HexpSE[i] <- std.error(H)
+    Ho <- sapply(all.het, function(x) x[["means"]]["Ho"])
+    HoSD <- compute.variability(all.het, what.st = "sd", what.het = "Ho.loc")
+    HoSE <- compute.variability(all.het, what.st = "std.error", what.het = "Ho.loc")
       
-      ### CP ### Unbiased He (i.e. corrected for sample size) hard
-      # coded for diploid
-      uH <- (2 * as.numeric(n_ind[[i]]) / (2 * as.numeric(n_ind[[i]]) - 1)) * H
-      uHe_df[[i]] <-  uH
-      ### CP ###
-      uHexp[i] <- mean(uH, na.rm = TRUE)
-      uHexpSD[i] <- sd(uH, na.rm = TRUE)
-      uHexpSE[i] <- std.error(uH)
-      
-      Hexp.adj[i] <- Hexp[i] * n_loc[[i]] / (n_loc[[i]] + n.invariant)
-      Hexp.adjSD[i] <-
-        sqrt((sum((H - Hexp.adj[i]) ^ 2, na.rm = TRUE) + n.invariant * Hexp.adj[i] ^ 2) /
-               (n_loc[i] + n.invariant - 1))
-      Hexp.adjSE[i] <- Hexp.adjSD[i] / sqrt(poly_loc[i]+mono_loc[i])
+    Hexp <- sapply(all.het, function(x) x[["means"]]["He"])
+    HexpSD <- compute.variability(all.het, what.st = "sd", what.het = "He.loc")
+    HexpSE <- compute.variability(all.het, what.st = "std.error", what.het = "He.loc")
     
-      FIS_temp <- (uH - Ho.loc[[i]]) /  uH 
-      Fis_df[[i]] <- FIS_temp
-      FIS[i] <- mean(FIS_temp, na.rm = TRUE)
-      FISSD[i] <- sd(FIS_temp, na.rm = TRUE)
-      FISSE[i] <- std.error(FIS_temp)
+    uHexp <- sapply(all.het, function(x) x[["means"]]["uHe"])
+    uHexpSD <- compute.variability(all.het, what.st = "sd", what.het = "uHe.loc")
+    uHexpSE <- compute.variability(all.het, what.st = "std.error", what.het = "uHe.loc")
+    
+    FIS <- sapply(all.het, function(x) x[["means"]]["FIS"])
+    FISSD <- compute.variability(all.het, what.st = "sd", what.het = "FIS.loc")
+    FISSE <- compute.variability(all.het, what.st = "std.error", what.het = "FIS.loc")
+    
+    
+    if (n.invariant > 0) {
+      # Apply correction CP ###
+      Ho.adj <- sapply(all.het, function(x) x[["means"]]["Ho.adj"])
+      # Manually compute SD for Ho.adj sum of the square of differences from
+      # the mean for polymorphic sites plus sum of the square of differences
+      #(which is the Ho.adj because Ho=0) from the mean for invariant sites
+      Ho.adjSD <-
+        sqrt((
+          mapply(function(x, Mean)
+            sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc, Mean = Ho.adj) +
+            n.invariant * Ho.adj ^ 2) / (n_loc + n.invariant - 1))
       
+      Ho.adjSE <-  Ho.adjSD / sqrt(n_loc+invariant)
+      
+      Hexp.adj <- sapply(all.het, function(x) x[["means"]]["Hexp.adj"])
+      Hexp.adjSD <- 
+        sqrt((
+          mapply(function(x, Mean)
+            sum((x - Hexp.adj) ^ 2, na.rm = TRUE), He.loc, Mean = Hexp.adj) + 
+                            n.invariant * Hexp.adj ^ 2) /
+                           (n_loc + n.invariant - 1))
+      Hexp.adjSE <- Hexp.adjSD / sqrt(n_loc+invariant)
     }
     
     # Prep for results
@@ -635,7 +572,7 @@ gl.report.heterozygosity <- function(x,
     df <- cbind(df.base, df.params)
     npops <- nPop(x)
     
-    # bootstrapping
+    #### bootstrapping ####
     if (nboots > 0) {
       pop_boot <- lapply(sgl, function(y) {
         
