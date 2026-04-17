@@ -48,6 +48,15 @@ pop.het_fun <- function(df,
   
 }
 
+compute.variability <- function(all.het, what.st=c("sd", "std.error"), what.het) {
+  st.type <- match.arg(what.st)
+  sapply(all.het, function(pop, st=st.type, het.type=what.het) {
+    switch(st,
+        sd=sd(pop[["byloc"]][[what.het]], na.rm = TRUE),
+        std.error=std.error(pop[["byloc"]][[what.het]])
+    )
+  })
+}
 
 # bootstrapping function
 pop.het <- function(df,
