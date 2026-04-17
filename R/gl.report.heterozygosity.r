@@ -71,12 +71,12 @@
 #' (that is, across populations), is typically unknown. This can render
 #' estimates of heterozygosity analysis specific, and so it is not valid to
 #' compare such estimates across species or even across different analyses 
-#' (see Schimdt et al 2021). This is a similar problem faced by microsatellites. 
+#' (see Schmidt et al 2021). This is a similar problem faced by microsatellites. 
 #' If you have an estimate of the
 #' number of invariant sequence tags (loci) in your data, such as provided by
 #' \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 #' parameter to standardize your estimates of heterozygosity. This is called
-#' autosomal heterozygosities by Schimddt et al (2021).
+#' autosomal heterozygosities by Schmidt et al (2021).
 #'
 #' \strong{NOTE}: It is important to realise that estimation of adjusted (autosomal)
 #' heterozygosity requires that secondaries not to be removed.
@@ -518,7 +518,11 @@ gl.report.heterozygosity <- function(x,
     
     Ho.adjSE <-  Ho.adjSD / sqrt(poly_loc+mono_loc)
     
-    n_ind <- sapply(sgl, ind.count)
+    #n_ind <- sapply(sgl, ind.count)
+    n_ind <- lapply(sgl, function(y) {
+      apply(as.matrix(y), 2, function(z) {sum(!is.na(z))
+      })
+    })
     
     ##########
     
@@ -566,14 +570,14 @@ gl.report.heterozygosity <- function(x,
       
       ### CP ### Unbiased He (i.e. corrected for sample size) hard
       # coded for diploid
-      uH <- (2 * as.numeric(n_ind[i]) / (2 * as.numeric(n_ind[i]) - 1)) * H
+      uH <- (2 * as.numeric(n_ind[[i]]) / (2 * as.numeric(n_ind[[i]]) - 1)) * H
       uHe_df[[i]] <-  uH
       ### CP ###
       uHexp[i] <- mean(uH, na.rm = TRUE)
       uHexpSD[i] <- sd(uH, na.rm = TRUE)
       uHexpSE[i] <- std.error(uH)
       
-      Hexp.adj[i] <- Hexp[i] * n_loc[i] / (n_loc[i] + n.invariant)
+      Hexp.adj[i] <- Hexp[i] * n_loc[[i]] / (n_loc[[i]] + n.invariant)
       Hexp.adjSD[i] <-
         sqrt((sum((H - Hexp.adj[i]) ^ 2, na.rm = TRUE) + n.invariant * Hexp.adj[i] ^ 2) /
                (n_loc[i] + n.invariant - 1))
