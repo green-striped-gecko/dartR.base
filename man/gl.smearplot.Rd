@@ -2,20 +2,18 @@
 % Please edit documentation in R/gl.smearplot.r
 \name{gl.smearplot}
 \alias{gl.smearplot}
-\title{Smear plot}
+\title{A plot of individuals against loci, showing the character state [0, 1, 2, NA]}
 \usage{
 gl.smearplot(
   x,
   plot.display = TRUE,
   ind.labels = FALSE,
+  ind.order = NULL,
+  loc.order = NULL,
   label.size = 10,
   group.pop = FALSE,
   plot.theme = NULL,
   plot.colors = NULL,
-  loc.names = FALSE,
-  loc.order = FALSE,
-  interactive = FALSE,
-  den = FALSE,
   plot.file = NULL,
   plot.dir = NULL,
   het.only = FALSE,
@@ -31,56 +29,54 @@ gl.smearplot(
 
 \item{ind.labels}{If TRUE, individual IDs are shown [default FALSE].}
 
+\item{ind.order}{Optional character vector of length nInd(x) that determines the display order of individuals
+on the y-axis. If `ind.order` is used, the accompanying tree will not be
+displayed.}
+
+\item{loc.order}{Optional numeric vector of length `nLoc(x)` giving a locus
+metric used to order loci on the x-axis (for example
+`x@other$locmetrics$avgPIC`). Loci are plotted in increasing order of this
+vector; use `-locmetric` for decreasing order.}
+
 \item{label.size}{Size of the individual labels [default 10].}
 
-\item{group.pop}{If ind.labels is TRUE, group by population [default TRUE].}
+\item{group.pop}{If TRUE, facet the plot by population [default FALSE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default NULL].}
 
-\item{plot.colors}{List of four color names for the column fill for homozygous reference,
-heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].}
+\item{plot.colors}{List of four colour values for homozygous reference,
+heterozygous, homozygous alternate, and missing value (NA)
+[default c("#0000FF", "#00FFFF", "#FF0000", "#e0e0e0")].}
 
-\item{loc.names}{If TRUE, loci names are shown on the horiontal axis 
-[default FALSE].}
+\item{plot.file}{Base name for the plot file to save (exclude extension)
+[default NULL].}
 
-\item{loc.order}{If TRUE, loci are ordered by chromosome and by SNP position
-[default FALSE].}
+\item{plot.dir}{Directory in which to save the plot files
+[default as specified by the global working directory or `tempdir()`].}
 
-\item{interactive}{If TRUE, an interactive version is generated 
-[default FALSE].}
+\item{het.only}{If TRUE, show only the heterozygous state [default FALSE].}
 
-\item{den}{If TRUE, a dendrogram is generated and used to order individuals 
-[default FALSE].
-[default FALSE].}
-
-\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
-
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()]#'}
-
-\item{het.only}{If TRUE, show only the heterozygous state [default FALSE]}
-
-\item{legend}{Position of the legend: “left”, “top”, “right”, “bottom” or
-'none' [default = 'bottom'].}
+\item{legend}{Position of the legend: `"left"`, `"top"`, `"right"`,
+`"bottom"` or `"none"` [default `"bottom"`].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity]}
 }
 \value{
-Returns the ggplot object
+Returns the ggplot object invisibly
 }
 \description{
 Each locus is color coded for scores of 0, 1, 2 and NA for SNP data and 0, 1
 and NA for presence/absence (SilicoDArT) data. Individual labels can be added.
-Plot may become cluttered if ind.labels If there are too many individuals, 
-it is best to use ind.labels = FALSE.
 
-Works with both SNP data and P/A data (SilicoDArT)
+Plot may become cluttered if individual labels are shown and there are many
+individuals. In such cases, it is best to use `ind.labels = FALSE`.
+
+Works with both SNP data and presence/absence data (SilicoDArT).
 }
 \examples{
-if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.smearplot(testset.gl,ind.labels=FALSE)
 gl.smearplot(testset.gs,ind.labels=FALSE)
 gl.smearplot(testset.gl[1:10,],ind.labels=TRUE)
