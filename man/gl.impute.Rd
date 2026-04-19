@@ -29,9 +29,9 @@ frequencies at the particular locus [default TRUE].}
 should be used for the computations (TRUE), or not (FALSE); requires the
 package parallel to be installed [default FALSE].}
 
-\item{beagle.bin.path}{Path of beagle.27Feb25.75f.jar file [default getwd())].}
+\item{beagle.bin.path}{Path of beagle.27Feb25.75f.jar file [default getwd()].}
 
-\item{plink.bin.path}{Path of PLINK binary file [default getwd())].}
+\item{plink.bin.path}{Path of PLINK binary file [default getwd()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
@@ -50,11 +50,16 @@ We recommend that imputation be performed on sampling locations, before
 any aggregation. Imputation is achieved by replacing missing values using
 either of five methods:
 \itemize{
-\item If "frequency", genotypes scored as missing at a locus in an individual
- are imputed using the average allele frequencies at that locus in the 
- population from which the individual was drawn.
-\item If "HW", genotypes scored as missing at a locus in an individual are 
-imputed by sampling at random assuming Hardy-Weinberg equilibrium. Applies 
+\item If "frequency", missing genotypes are replaced by the expected dosage
+ \eqn{2q} at that locus, where \eqn{q} is the average alternate-allele
+ frequency in the population from which the individual was drawn, rounded
+ to the nearest integer (0, 1, or 2). This is deterministic and yields the
+ modal genotype under Hardy-Weinberg given \eqn{q}; it collapses genotypic
+ variance at imputed sites. Neither \code{SNPbin} nor \code{FBM.code256}
+ stores fractional dosages, hence the rounding.
+\item If "HW", missing genotypes are drawn stochastically from
+Hardy-Weinberg proportions \eqn{((1-q)^2, 2q(1-q), q^2)} at each locus.
+This preserves genotypic variance at the cost of sampling noise. Applies
 only to genotype data.
 \item If "neighbour", substitute the missing values for the focal individual
  with the values taken from the nearest neighbour. Repeat with next nearest
@@ -87,8 +92,16 @@ Note that loci that are missing for all individuals in a population are not
 imputed with method 'frequency' or 'HW' and can give unpredictable results
 for particular individuals using 'neighbour'.
 
- Consider using the function 
+ Consider using the function
 \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
+
+For FBM-backed objects (see \code{\link{gl.gen2fbm}}), the "frequency",
+"HW", "random", and "neighbour" methods and the residual-fill pass stream
+the genotype matrix in column blocks rather than materialising the full
+\eqn{nInd \times nLoc} matrix, and the FBM is mutated in place. The
+neighbour method still computes an \eqn{nInd \times nInd} distance matrix
+via \code{gl.dist.ind} up front. The "beagle" method is unaffected
+because it round-trips through VCF.
 }
 \examples{
  \donttest{
