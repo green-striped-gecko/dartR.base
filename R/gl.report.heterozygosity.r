@@ -486,6 +486,8 @@ gl.report.heterozygosity <- function(x,
                                           bootstrap=FALSE))
     
     Ho.loc <- sapply(all.het, function(x) x[["byloc"]]["Ho.loc"])
+    
+    He.loc <- sapply(all.het, function(x) x[["byloc"]]["He.loc"])
       
     Ho <- sapply(all.het, function(x) x[["means"]]["Ho"])
     HoSD <- compute.variability(all.het, what.st = "sd", what.het = "Ho.loc")
@@ -516,7 +518,7 @@ gl.report.heterozygosity <- function(x,
             sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc, Mean = Ho.adj) +
             n.invariant * Ho.adj ^ 2) / (n_loc + n.invariant - 1))
       
-      Ho.adjSE <-  Ho.adjSD / sqrt(n_loc+invariant)
+      Ho.adjSE <-  Ho.adjSD / sqrt(n_loc+n.invariant)
       
       Hexp.adj <- sapply(all.het, function(x) x[["means"]]["Hexp.adj"])
       Hexp.adjSD <- 
@@ -524,7 +526,7 @@ gl.report.heterozygosity <- function(x,
           mapply(function(x, Mean)
             sum((x - Mean) ^ 2, na.rm = TRUE), He.loc, Mean = Hexp.adj) + 
             n.invariant * Hexp.adj ^ 2) /(n_loc + n.invariant - 1))
-      Hexp.adjSE <- Hexp.adjSD / sqrt(n_loc+invariant)
+      Hexp.adjSE <- Hexp.adjSD / sqrt(n_loc+n.invariant)
     }
     
     # Prep for results
