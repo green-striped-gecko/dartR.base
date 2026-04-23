@@ -117,12 +117,12 @@ Finally, the loci that are invariant across all individuals in the dataset
 (that is, across populations), is typically unknown. This can render
 estimates of heterozygosity analysis specific, and so it is not valid to
 compare such estimates across species or even across different analyses 
-(see Schimdt et al 2021). This is a similar problem faced by microsatellites. 
+(see Schmidt et al 2021). This is a similar problem faced by microsatellites. 
 If you have an estimate of the
 number of invariant sequence tags (loci) in your data, such as provided by
 \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 parameter to standardize your estimates of heterozygosity. This is called
-autosomal heterozygosities by Schimddt et al (2021).
+autosomal heterozygosities by Schmidt et al (2021).
 
 \strong{NOTE}: It is important to realise that estimation of adjusted (autosomal)
 heterozygosity requires that secondaries not to be removed.
