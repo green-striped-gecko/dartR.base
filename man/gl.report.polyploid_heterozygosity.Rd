@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.report.polyploid_heterozygosity.r
 \name{gl.report.polyploid_heterozygosity}
 \alias{gl.report.polyploid_heterozygosity}
-\title{Reports observed, expected and unbiased heterozygosities and FIS
+\title{Reports observed gametic heterozygosities by population or by individual from SNP data
 (inbreeding coefficient) by population or by individual from SNP data}
 \usage{
 gl.report.polyploid_heterozygosity(
@@ -82,9 +82,7 @@ A dataframe containing population labels, heterozygosities, FIS,
 their standard deviations and sample sizes.
 }
 \description{
-Calculates the observed, expected and unbiased expected (i.e.
-corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
-for each population or the observed heterozygosity for each individual in a
+Calculates the observed heterozygosities for each population or the observed heterozygosity for each individual in a
 genlight object.
 }
 \details{
@@ -92,19 +90,8 @@ Observed heterozygosity for a population takes the proportion of
 heterozygous loci for each individual and averages it over all individuals in
 that population. The calculations take into account missing values.
 
-Expected heterozygosity for a population takes the expected proportion of
-heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
-locus, then averages this across the loci for an average estimate for the
-population.
-
-The unbiased expected heterozygosity is calculated using the correction for 
-sample size following equation 2 from Nei 1978.
-
 Accuracy of all heterozygosity estimates is affected by small sample sizes,
-and so is their comparison between populations or repeated analysis. Expected
-heterozygosities are less affected because their calculations are based on 
-allele frequencies while observed heterozygosities are strongly susceptible 
-to sampling effects when the sample size is small.  
+and so is their comparison between populations or repeated analysis.
 
 Observed heterozygosity for individuals is calculated as the proportion of
 heterozygous gametes that could be produced by that individual.
@@ -134,14 +121,6 @@ where n_Ind is the number of individuals without missing data for that locus.
 where n_Loc is the number of loci that do not have all missing data  and
 n.invariant is an estimate of the number of invariant loci to adjust
 heterozygosity.
-\item Expected heterozygosity (He) = 1 - (p^2 + q^2),
-where p is the frequency of the reference allele and q is the frequency of
-the alternative allele.
-\item Expected heterozygosity adjusted (He.adj) = He * n_Loc /
-(n_Loc + n.invariant)
-\item Unbiased expected heterozygosity (uHe) = He * (2 * n_Ind /
-(2 * n_Ind - 1))
-\item Inbreeding coefficient (FIS) = 1 - Ho / uHe
 }
 \strong{ Function's output }
 
@@ -321,8 +300,6 @@ Genetic variation and random drift in autotetraploid populations. Genetics, 134(
   }
 }
 \seealso{
-\code{\link{gl.filter.heterozygosity}}
-
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.allelerich}()},
