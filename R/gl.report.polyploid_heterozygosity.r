@@ -405,6 +405,14 @@ gl.report.polyploid_heterozygosity <- function(x,
       )
     }
     
+    # function to calculate gametic heterozygosity
+      gamete_het <- function(x){
+      ploidy <- t(t(unname(ploidy(x))))
+      ploidy_matrix <- matrix(rep(choose(ploidy, 2), nLoc(x)), nrow=nInd(x), ncol=nLoc(x))
+      homo_count <- ploidy[,1]-as.matrix(x)
+      gamete_het <- (homo_count*as.matrix(x))/ploidy_matrix
+      return(gamete_het)}
+    
     Ho.loc.gamete <-
       lapply(sgl, function(x)
         colMeans(gamete_het(x), na.rm = TRUE))
