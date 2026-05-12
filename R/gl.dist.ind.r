@@ -340,6 +340,7 @@ gl.dist.ind <- function(x,
     if (verbose >= 2) {
       cat(report("  Returning a square matrix\n"))
     }
+    mat <- as.matrix(mat)
     dimnames(mat) <- list(indNames(x), indNames(x))
     final <- mat
   }

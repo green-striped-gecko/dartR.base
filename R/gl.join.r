@@ -211,25 +211,9 @@ if(flag == "ind"){
         "loci\n")
   }
   
-  # Join the two genlight objects
+  # Join the two genlight objects (cbind.dartR handles loc.metrics merging)
   x <- cbind(x1, x2)
-  
-  # Join the locus metrics, if they exist
-  if (verbose >= 2) {
-    cat(report("  Concatenating the locus metrics\n"))
-  }
-  if (!is.null(x1@other$loc.metrics) &
-      !is.null(x2@other$loc.metrics)) {
-    x@other$loc.metrics <-
-      rbind(x1@other$loc.metrics, x2@other$loc.metrics)
-  } else {
-    cat(
-      warn(
-        "  Warning: Input genlight objects lacks locus metrics\n"
-      )
-    )
-  }
-  
+
   # Cater for some locus names being the same in both genlight objects
   if(length(unique(locNames(x))) < length(locNames(x))){
     locNames(x) <- make.unique(locNames(x))
@@ -322,24 +306,9 @@ if(flag=="loc"){
         "individuals\n")
   }
   
-  # Join the two genlight objects
+  # Join the two genlight objects (rbind.dartR handles ind.metrics merging)
   x <- rbind(x1, x2)
-  
-  # Join the locus metrics, if they exist
-  if (verbose >= 2) {
-    cat(report("  Concatenating the individual metrics\n"))
-  }
-  if (!is.null(x1@other$ind.metrics) &
-      !is.null(x2@other$ind.metrics)) {
-    x@other$ind.metrics <- dplyr::bind_rows(x1@other$ind.metrics, x2@other$ind.metrics)
-  } else {
-    cat(
-      warn(
-        "  Warning: Input genlight objects both lack individual metrics\n"
-      )
-    )
-  }
-  
+
   # Cater for some individual names being the same in both genlight objects
   if(length(unique(indNames(x))) < length(indNames(x))){
     indNames(x) <- make.unique(indNames(x))
@@ -417,18 +386,6 @@ if(flag=="loc"){
   }
 }
 
-    # Create the history repository, taking the base from X1 if it exists
-    if (verbose >= 2) {
-      cat(report("  Adding the locus metrics\n"))
-    }
-    if (!is.null(x1@other$loc.metrics)) {
-      x@other$loc.metrics <- x1@other$loc.metrics
-    } else if (!is.null(x2@other$loc.metrics)) {
-      x@other$loc.metrics <- x2@other$loc.metrics
-    } else {
-      cat(warn("  Warning: Input genlight objects lack locus metrics\n"))
-    }
-    
     if (verbose >= 3) {
         cat("    Combined genlight object has", nInd(x), "individuals\n")
         cat("    Combined genlight object has", nLoc(x), "loci\n")

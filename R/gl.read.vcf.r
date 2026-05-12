@@ -119,9 +119,11 @@ gl.read.vcf <- function(vcffile,
       x@position <- pos
     }
   }
-  
+
   #  allow varied ploidy level
-  ploidy(x) <- ploidy(x)
+  # ploidy(x) <- ploidy(x)
+   ploidy(x) <- rep(2,nInd(x))
+  
   x <- gl.compliance.check(x)
   
   x$other$loc.metrics <- cbind(x$other$loc.metrics,info)

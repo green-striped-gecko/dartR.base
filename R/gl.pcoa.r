@@ -774,7 +774,7 @@ gl.pcoa <- function(x,
       if (!is.null(.fbm_or_null(x))) {
         
         #make sure you impute (by frequency of pops (or whatever )
-        if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "frequency", verbose = verbose)
+        if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "neighbour", verbose = verbose)
         #run PCA on imputed data using big_SVD
          dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = nInd(x)-1)
         # construct glPca object
