@@ -29,7 +29,9 @@ gl.report.allelerich(
 \item{boot.method}{Character specifying the bootstrap strategy: "ind" to
 resample individuals or "loc" to resample loci [default "loc"].}
 
-\item{set_min_pop}{Only set this if you are comparing populations that are not in the same genlight object. Input the minimum population size of all populations that you are comparing for rarefaction. [default "FALSE"]}
+\item{set_min_pop}{Only set this if you are comparing populations that are not in the same genlight object. Input the minimum total allele counts among all populations that you are comparing for rarefaction. This values can be calculated as: 
+min(gl@other$loc.metrics$CallRate)*nInd(gl)*2 
+ [default "FALSE"]}
 
 \item{conf}{Numeric specifying the confidence level for the interval 
 estimation [default 0.95].}

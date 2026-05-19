@@ -20,7 +20,9 @@
 #'   [default 0].
 #' @param boot.method Character specifying the bootstrap strategy: "ind" to
 #'   resample individuals or "loc" to resample loci [default "loc"].
-#' @param set_min_pop Only set this if you are comparing populations that are not in the same genlight object. Input the minimum population size of all populations that you are comparing for rarefaction. [default "FALSE"]
+#' @param set_min_pop Only set this if you are comparing populations that are not in the same genlight object. Input the minimum total allele counts among all populations that you are comparing for rarefaction. This values can be calculated as: 
+#' min(gl@@other$loc.metrics$CallRate)*nInd(gl)*2 
+#'  [default "FALSE"]
 #' @param conf Numeric specifying the confidence level for the interval 
 #'   estimation [default 0.95].
 #' @param CI.type Character specifying the type of nonparametric confidence 
@@ -376,7 +378,7 @@ gl.report.allelerich <- function(x,
     dplyr::group_by(pop) %>%
     summarise(min_sample = min(raw_count), .groups = "drop") %>%
     summarise(overall_min = min(min_sample)) %>%
-    dplyr::pull(overall_min) } else {
+    dplyr::pull(overall_min) } else if (is.numeric(set_min_pop)) {
       min_pop <- set_min_pop
     } 
   
