@@ -20,8 +20,9 @@
 #'   [default 0].
 #' @param boot.method Character specifying the bootstrap strategy: "ind" to
 #'   resample individuals or "loc" to resample loci [default "loc"].
-#' @param set_min_pop Only set this if you are comparing populations that are not in the same genlight object. Input the minimum total allele counts among all populations that you are comparing for rarefaction. This values can be calculated as: 
-#' min(gl@@other$loc.metrics$CallRate)*nInd(gl)*2 
+#' @param set_min_pop Only set this if you are comparing populations that are not in the same genlight object. This values is the minimum allele copy count which is used for rarefaction. 
+#' This values can be calculated from the genlight object with the smallest population size: 
+#' floor(min(gl@@other$loc.metrics$CallRate)*min(table(pop(gl)))*2)
 #'  [default "FALSE"]
 #' @param conf Numeric specifying the confidence level for the interval 
 #'   estimation [default 0.95].
