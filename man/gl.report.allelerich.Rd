@@ -8,6 +8,7 @@ gl.report.allelerich(
   x,
   nboots = 0,
   boot.method = "loc",
+  set_min_pop = FALSE,
   conf = 0.95,
   CI.type = "bca",
   plot.display = TRUE,
@@ -27,6 +28,8 @@ gl.report.allelerich(
 
 \item{boot.method}{Character specifying the bootstrap strategy: "ind" to
 resample individuals or "loc" to resample loci [default "loc"].}
+
+\item{set_min_pop}{Only set this if you are comparing populations that are not in the same genlight object. Input the minimum population size of all populations that you are comparing for rarefaction. [default "FALSE"]}
 
 \item{conf}{Numeric specifying the confidence level for the interval 
 estimation [default 0.95].}
