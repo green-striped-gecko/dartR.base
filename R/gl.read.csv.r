@@ -359,12 +359,15 @@ gl.read.csv <- function(filename,
     gl@other$history[[1]] <- match.call()
     
     
-    #convert to fbm 
-    if (fbm) {}
-      gl <- gl.gen2fbm(gl, verbose = verbose) 
-      if (verbose>2) {
-        cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-      } else gl@fbm <- NULL
+    #convert to fbm
+    if (fbm) {
+      gl <- gl.gen2fbm(gl, verbose = verbose)
+      if (verbose > 2) {
+        cat(report(" Created a file-backed matrix (fbm) dartR object\n"))
+      }
+    } else {
+      gl@fbm <- NULL
+    }
     
     
     
