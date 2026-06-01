@@ -29,9 +29,11 @@ gl.report.allelerich(
 \item{boot.method}{Character specifying the bootstrap strategy: "ind" to
 resample individuals or "loc" to resample loci [default "loc"].}
 
-\item{set_min_pop}{Only set this if you are comparing populations that are not in the same genlight object. This values is the minimum allele copy count which is used for rarefaction. 
-This values can be calculated from the genlight object with the smallest population size: 
-floor(min(gl@other$loc.metrics$CallRate)*min(table(pop(gl)))*2)
+\item{set_min_pop}{Only set this if you are comparing populations that are not in the same genlight object. 
+This values is the minimum allele count for rarefaction. 
+This value can be calculated from the genlight object with the smallest sample size and call rate threshold:
+Example: genlight object with only one population and 30 samples and call rate threshold is 0.95. Then the 
+input value will be floor(0.95*2*30).
  [default "FALSE"]}
 
 \item{conf}{Numeric specifying the confidence level for the interval 

@@ -20,9 +20,11 @@
 #'   [default 0].
 #' @param boot.method Character specifying the bootstrap strategy: "ind" to
 #'   resample individuals or "loc" to resample loci [default "loc"].
-#' @param set_min_pop Only set this if you are comparing populations that are not in the same genlight object. This values is the minimum allele copy count which is used for rarefaction. 
-#' This values can be calculated from the genlight object with the smallest population size: 
-#' floor(min(gl@@other$loc.metrics$CallRate)*min(table(pop(gl)))*2)
+#' @param set_min_pop Only set this if you are comparing populations that are not in the same genlight object. 
+#' This values is the minimum allele count for rarefaction. 
+#' This value can be calculated from the genlight object with the smallest sample size and call rate threshold:
+#' Example: genlight object with only one population and 30 samples and call rate threshold is 0.95. Then the 
+#' input value will be floor(0.95*2*30).
 #'  [default "FALSE"]
 #' @param conf Numeric specifying the confidence level for the interval 
 #'   estimation [default 0.95].
@@ -374,14 +376,22 @@ gl.report.allelerich <- function(x,
   # of allele copies) across all sites and populations. This minimum is used as 
   # the subsample size (n) in the rarefaction formula.
   
-  if (set_min_pop == FALSE) {
-    min_pop <- allele_count_all %>%
+  min_allele_count <- allele_count_all %>%
     dplyr::group_by(pop) %>%
     summarise(min_sample = min(raw_count), .groups = "drop") %>%
     summarise(overall_min = min(min_sample)) %>%
-    dplyr::pull(overall_min) } else if (is.numeric(set_min_pop)) {
-      min_pop <- set_min_pop
-    } 
+    dplyr::pull(overall_min)
+  
+  if (set_min_pop == FALSE) {
+    min_pop <- min_allele_count 
+    } else if (is.numeric(set_min_pop) && between(set_min_pop, 1, min_allele_count) && nPop(x) == 1) {
+      set_min_pop <- min_pop
+    } else {
+    error(
+      "Incorrect set_min_pop. To define set_min_pop,  
+      please make sure there is only one population in your genlight object and
+      set_min_pop is smaller than overall minimum allele count")
+    }
   
   # ---------------------------------------------------------------------------
   # Integration of Rarefaction Equations:
