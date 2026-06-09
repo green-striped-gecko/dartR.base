@@ -32,8 +32,12 @@ resample individuals or "loc" to resample loci [default "loc"].}
 \item{set_min_pop}{Only set this if you are comparing populations that are not in the same genlight object. 
 This values is the minimum allele count for rarefaction. 
 This value can be calculated from the genlight object with the smallest sample size and call rate threshold:
-Example: genlight object with only one population and 30 samples and call rate threshold is 0.95. Then the 
-input value will be floor(0.95*2*30).
+Example: genlight object with only one population and 30 samples and call rate threshold is 0.95 per locus. Then the 
+input value will be floor(0.95*2*30). If you would like to compare across different genlight objects, 
+please make sure the minimum allele count among all the genlight objects is used. 
+This is different from smallest sample size because the call rate per genglight object can affect the minimum allele count. 
+One of the easiest way is applying same call rate threshold (e.g. 0.95) to all genglight object and obtain the value by floor(0.95*2*min_sample_size).
+To extract subset from multi-sample genlight object, you can use: gl_subset <- gl.recalc.metrics(seppop(gl)$pop_name), and filter it by gl.filter.callrate()
  [default "FALSE"]}
 
 \item{conf}{Numeric specifying the confidence level for the interval 
