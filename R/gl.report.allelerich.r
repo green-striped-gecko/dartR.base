@@ -395,7 +395,7 @@ gl.report.allelerich <- function(x,
       "Incorrect set_min_pop. To define set_min_pop,  
       please make sure there is only one population in your genlight object and
       set_min_pop is smaller than overall minimum allele count"))
-      stop()
+      return(NULL)
     }
   
   # ---------------------------------------------------------------------------
