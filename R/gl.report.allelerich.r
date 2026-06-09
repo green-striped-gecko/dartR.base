@@ -387,10 +387,11 @@ gl.report.allelerich <- function(x,
     } else if (nPop(x) == 1 & is.numeric(set_min_pop) & between(set_min_pop, 1, min_allele_count)) {
       set_min_pop <- min_pop
     } else {
-    error(
+    cat(error(
       "Incorrect set_min_pop. To define set_min_pop,  
       please make sure there is only one population in your genlight object and
-      set_min_pop is smaller than overall minimum allele count")
+      set_min_pop is smaller than overall minimum allele count"))
+      stop()
     }
   
   # ---------------------------------------------------------------------------
