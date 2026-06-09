@@ -388,7 +388,7 @@ gl.report.allelerich <- function(x,
   
   if (set_min_pop == FALSE) {
     min_pop <- min_allele_count 
-    } else if (nPop(x) == 1 && is.numeric(set_min_pop) && set_min_pop >= 1 && set_min_pop <= min_allele_count) {
+    } else if (nPop(x) == 1 && is.numeric(set_min_pop) && set_min_pop != 0 && set_min_pop <= min_allele_count) {
       min_pop <- set_min_pop
     } else {
     cat(error(
