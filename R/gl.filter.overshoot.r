@@ -79,18 +79,19 @@ gl.filter.overshoot <- function(x,
     # Pull those loci for which the SNP position is greater than the tag length
     os <- which(snpos > nchar(trimmed))
     if(length(os)>0){
-      x2 <- x[, os]
-      # updating loc.metrics
-      x2@other$loc.metrics <- x@other$loc.metrics[os, ]
-      
       # Report the number of such loci
       if (verbose >= 3) {
         cat("  No. of loci with SNP falling outside the trimmed sequence:",
-            nLoc(x2),
+            length(os),
             "\n")
-          cat(paste0(locNames(x2), ","))
+          cat(paste0(locNames(x)[os], ","))
           cat("\n")
       }
+
+      # Delete the overshoot loci, keeping the rest
+      x2 <- x[, -os]
+      # updating loc.metrics
+      x2@other$loc.metrics <- x@other$loc.metrics[-os, ]
       
       # ADD TO HISTORY
       nh <- length(x2@other$history)
