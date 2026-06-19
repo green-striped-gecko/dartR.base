@@ -777,6 +777,11 @@ gl.pcoa <- function(x,
         if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "neighbour", verbose = verbose)
         #run PCA on imputed data using big_SVD
          dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = nInd(x)-1)
+        # big_SVD(k = nInd-1) can return NaN for the trailing rank-deficient singular
+        # value (centering leaves a null-space dimension; the internal sqrt of a
+        # tiny-negative Gram eigenvalue is NaN). Zero them so the eigenvalues stay
+        # finite and the any(eig.raw < 0) checks below are not evaluated on NA.
+         dummy$d[is.nan(dummy$d)] <- 0
         # construct glPca object
          pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
          class(pca) <- "glPca"
