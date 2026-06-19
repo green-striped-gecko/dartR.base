@@ -17,8 +17,8 @@
 #' @param parallel A logical indicating whether multiple cores -if available-
 #' should be used for the computations (TRUE), or not (FALSE); requires the
 #' package parallel to be installed [default FALSE].
-#' @param beagle.bin.path Path of beagle.27Feb25.75f.jar file [default getwd())].
-#' @param plink.bin.path Path of PLINK binary file [default getwd())].
+#' @param beagle.bin.path Path of beagle.27Feb25.75f.jar file [default getwd()].
+#' @param plink.bin.path Path of PLINK binary file [default getwd()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -28,11 +28,16 @@
 #' any aggregation. Imputation is achieved by replacing missing values using
 #' either of five methods:
 #' \itemize{
-#' \item If "frequency", genotypes scored as missing at a locus in an individual
-#'  are imputed using the average allele frequencies at that locus in the 
-#'  population from which the individual was drawn.
-#' \item If "HW", genotypes scored as missing at a locus in an individual are 
-#' imputed by sampling at random assuming Hardy-Weinberg equilibrium. Applies 
+#' \item If "frequency", missing genotypes are replaced by the expected dosage
+#'  \eqn{2q} at that locus, where \eqn{q} is the average alternate-allele
+#'  frequency in the population from which the individual was drawn, rounded
+#'  to the nearest integer (0, 1, or 2). This is deterministic and yields the
+#'  modal genotype under Hardy-Weinberg given \eqn{q}; it collapses genotypic
+#'  variance at imputed sites. Neither \code{SNPbin} nor \code{FBM.code256}
+#'  stores fractional dosages, hence the rounding.
+#' \item If "HW", missing genotypes are drawn stochastically from
+#' Hardy-Weinberg proportions \eqn{((1-q)^2, 2q(1-q), q^2)} at each locus.
+#' This preserves genotypic variance at the cost of sampling noise. Applies
 #' only to genotype data.
 #' \item If "neighbour", substitute the missing values for the focal individual
 #'  with the values taken from the nearest neighbour. Repeat with next nearest
@@ -65,8 +70,16 @@
 #' imputed with method 'frequency' or 'HW' and can give unpredictable results
 #' for particular individuals using 'neighbour'.
 #' 
-#'  Consider using the function 
+#'  Consider using the function
 #' \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
+#'
+#' For FBM-backed objects (see \code{\link{gl.gen2fbm}}), the "frequency",
+#' "HW", "random", and "neighbour" methods and the residual-fill pass stream
+#' the genotype matrix in column blocks rather than materialising the full
+#' \eqn{nInd \times nLoc} matrix, and the FBM is mutated in place. The
+#' neighbour method still computes an \eqn{nInd \times nInd} distance matrix
+#' via \code{gl.dist.ind} up front. The "beagle" method is unaffected
+#' because it round-trips through VCF.
 #'@references
 #'\itemize{
 #'\item Browning, B. L., & Browning, S. R. (2016). Genotype imputation with 
@@ -116,159 +129,128 @@ gl.impute <-  function(x,
   datatype <- utils.check.datatype(x, verbose = verbose)
   
   # FUNCTION SPECIFIC ERROR CHECKING
-  
-    if(method=="neighbor"){
-      method <- "neighbour"
-    }
-  
+
+  if (method == "neighbor") {
+    method <- "neighbour"
+  }
+  method <- match.arg(method, c("frequency", "HW", "neighbour", "random", "beagle"))
+
   # DO THE JOB
   #check type
   
   fbm <- .fbm_or_null(x)
+
+  # FBM streaming: loci per column-block. Chosen so that n_ind * chunk doubles
+  # fit in RAM (~16 MB per block at 1000 individuals).
+  chunk <- 2048L
+  pop_factor <- pop(x)
+  if (is.null(pop_factor)) pop_factor <- factor(rep("pop1", nInd(x)))
+  ind_by_pop <- split(seq_len(nInd(x)), pop_factor)
+
   #separating populations
-  
-  if (method == "frequency" | method == "HW") {
-    pop_list_temp <- seppop(x)
-    pop_list <- list()
-    
-    for (y in pop_list_temp) {
-      loci_all_nas <- sum(glNA(y) > nInd(y))
-      nas_number <- sum(glNA(y)) / 2
-      number_imputations <- nas_number - (loci_all_nas * nInd(y))
-      
+
+
+  if (method == "frequency" || method == "HW") {
+    if (verbose >= 2) {
       if (method == "frequency") {
-        if (verbose >= 2){
-          cat(report("  Imputation based on average allele frequencies, population-wise\n"))
-        }
-        if (verbose >= 2 & loci_all_nas >= 1) {
-          cat(
-            warn(
-              "  Warning: Population ",
-              popNames(y),
-              " has ",
-              loci_all_nas,
-              " loci with all missing values.\n"
-            )
-          )
+        cat(report("  Imputation by expected dosage (2q) from population allele frequencies\n"))
+      } else {
+        cat(report("  Imputation based on average allele HW sampling, population-wise\n"))
+      }
+    }
+
+    if (is.null(fbm)) {
+      pop_list_temp <- seppop(x)
+      pop_list <- list()
+
+      for (y in pop_list_temp) {
+        loci_all_nas <- sum(glNA(y) >= nInd(y))
+        nas_number <- sum(glNA(y)) / 2
+        number_imputations <- nas_number - (loci_all_nas * nInd(y))
+
+        if (method == "frequency") {
+          if (verbose >= 2 && loci_all_nas >= 1) {
+            cat(warn("  Warning: Population ", popNames(y),
+                     " has ", loci_all_nas,
+                     " loci with all missing values.\n"))
+          }
           if (verbose >= 3) {
-            cat(
-              report(
-                "  Method= 'frequency':",
-                number_imputations,
-                "values to be imputed.\n"
-              )
-            )
+            cat(report("  Method= 'frequency':",
+                       number_imputations, "values to be imputed.\n"))
+          }
+
+          q_allele <- glMean(y)
+          pop_matrix <- as.matrix(y)
+          loc_na <- which(is.na(pop_matrix), arr.ind = TRUE)
+          # Round because neither SNPbin nor FBM.code256 stores fractional dosages.
+          pop_matrix[loc_na] <- round(2 * q_allele[loc_na[, 2]])
+          y@gen <- matrix2gen(pop_matrix, parallel = parallel)
+          pop_list <- c(pop_list, y)
+        }
+
+        if (method == "HW") {
+          if (verbose >= 2 && loci_all_nas >= 1) {
+            cat(warn("  Warning: Population ", popNames(y),
+                     " has ", loci_all_nas,
+                     " loci with all missing values.\n"))
+          }
+          if (verbose >= 3) {
+            cat(report("  Method= 'HW':",
+                       number_imputations, "values to be imputed.\n"))
+          }
+
+          q_allele <- glMean(y)
+          pop_matrix <- as.matrix(y)
+          loc_na <- which(is.na(pop_matrix), arr.ind = TRUE)
+          pop_matrix[loc_na] <-
+            unname(unlist(lapply(q_allele[loc_na[, 2]], function(qf) {
+              return(sample_genotype(q_freq = qf))
+            })))
+          y@gen <- matrix2gen(pop_matrix, parallel = parallel)
+          pop_list <- c(pop_list, y)
+        }
+      }
+
+      if (length(pop_list) > 1) {
+        x3 <- NULL
+        for (pop in pop_list) {
+          x3 <- rbind(x3, pop)
+        }
+      }
+      if (length(pop_list) == 1) {
+        x3 <- pop_list[[1]]
+      }
+
+      # Restore original individual order so per-individual slot copies later align
+      x3 <- x3[match(indNames(x), indNames(x3)), ]
+    } else {
+      # FBM streaming path: mutate x@fbm in place block-by-block.
+      stats <- .stream_impute_pop_fbm(x@fbm, ind_by_pop, method, chunk = chunk)
+      if (verbose >= 2) {
+        for (pn in names(stats$all_nas)) {
+          if (stats$all_nas[[pn]] >= 1) {
+            cat(warn("  Warning: Population ", pn,
+                     " has ", stats$all_nas[[pn]],
+                     " loci with all missing values.\n"))
           }
         }
-        
-        q_allele <- glMean(y)
-        pop_matrix <- as.matrix(y)
-        loc_na <- which(is.na(pop_matrix), arr.ind = TRUE)
-pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
-            return(as.numeric(s_alleles(q_freq = x)))
-          })))
-        
-        if (is.null(fbm)) y@gen <- matrix2gen(pop_matrix, parallel = parallel) else y@fbm[] <-pop_matrix
-        pop_list <- c(pop_list, y)
       }
-      
-      if (method == "HW") {
-        if (verbose >= 2){
-          cat(report("  Imputation based on average allele HW sampling, population-wise\n"))
-        }
-        if (verbose >= 2 & loci_all_nas >= 1) {
-          cat(
-            warn(
-              "  Warning: Population ",
-              popNames(y),
-              " has ",
-              loci_all_nas,
-              " loci with all missing values.\n"
-            )
-          )
-          if (verbose >= 3) {
-            cat(report(
-              "  Method= 'HW':",
-              number_imputations,
-              "values to be imputed.\n"
-            ))
-          }
-        }
-        
-        q_allele <- glMean(y)
-        pop_matrix <- as.matrix(y)
-        loc_na <- which(is.na(pop_matrix), arr.ind = TRUE)
-        pop_matrix[loc_na] <-
-          unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
-            return(sample_genotype(q_freq = x))
-          })))
-        
-        if(is.null(fbm)) y@gen <- matrix2gen(pop_matrix, parallel = parallel) else y@fbm[] <-pop_matrix
-        pop_list <- c(pop_list, y)
+      if (verbose >= 3) {
+        cat(report(sprintf("  Method= '%s': %d values imputed (FBM streamed).\n",
+                           method, sum(stats$imputations))))
       }
+      x3 <- x
     }
-    
-    # if more than 1 population
-    if (length(pop_list) > 1) {
-      x3 <- NULL
-      # merge back populations
-      for (pop in pop_list) {
-        x3 <- rbind(x3, pop)
-      }
-    }
-    
-    # if 1 population
-    if (length(pop_list) == 1) {
-      x3 <- pop_list[[1]]
-    }
-    
   }
   
   if (method == "neighbour") {
-    
+
     if (verbose >= 2) {
       cat(report("  Imputation based on drawing from the nearest neighbour\n"))
     }
-    
-    ## ---- Optional: per-population diagnostics (does not affect imputation) ----
-    if (verbose >= 2) {
-      pop_list_temp <- seppop(x)
-      
-      for (k in seq_along(pop_list_temp)) {
-        yy <- pop_list_temp[[k]]
-        
-        loci_all_nas <- sum(glNA(yy) >= nInd(yy))
-        nas_number <- sum(glNA(yy)) / 2
-        number_imputations <- nas_number - (loci_all_nas * nInd(yy))
-        
-        if (loci_all_nas >= 1) {
-          pop_name <- names(pop_list_temp)[k]
-          if (is.null(pop_name) || pop_name == "") {
-            # fallback if list not named
-            pop_name <- tryCatch(as.character(unique(pop(yy))[1]), error = function(e) "UNKNOWN")
-          }
-          
-          cat(warn(
-            "  Warning: Population ", pop_name,
-            " has ", loci_all_nas, " loci with all missing values.\n",
-            sep = ""
-          ))
-          
-          if (verbose >= 3) {
-            cat(report(
-              "  Method = 'neighbour': ", number_imputations,
-              " values to be imputed (excluding all-NA loci).\n",
-              sep = ""
-            ))
-          }
-        }
-      }
-    }
-    
-    ## ---- Main imputation ----
-    x3 <- x
-    x_matrix <- as.matrix(x)  # numeric matrix, nInd x nLoc, with NA
-    
+
+    # Distance matrix (nInd x nInd) is small relative to the genotype matrix,
+    # so we compute it via gl.dist.ind regardless of backing store.
     D <- gl.dist.ind(
       x,
       method = "Euclidean",
@@ -276,89 +258,130 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
       plot.display = FALSE,
       type = "matrix"
     )
-    
-    # Robust distance handling:
     D <- as.matrix(D)
-    D[is.na(D)] <- Inf     # if any undefined distances, make them last
+    D[is.na(D)] <- Inf     # undefined distances sort to the end
     diag(D) <- Inf         # never pick self as neighbour
-    
-    n <- nInd(x)
-    
-    for (i in seq_len(n)) {
-      
-      miss <- is.na(x_matrix[i, ])
-      if (!any(miss)) next
-      
-      ord <- order(D[i, ], decreasing = FALSE)  # neighbour indices by increasing distance
-      
-      # Walk neighbours until all missing loci filled (or we run out of neighbours)
-      for (j in ord) {
-        if (!any(miss)) break
-        
-        cand <- x_matrix[j, miss]       # values at missing loci from neighbour j
-        ok <- !is.na(cand)              # loci neighbour can actually impute
-        
-        if (any(ok)) {
-          miss_pos <- which(miss)
-          fill_pos <- miss_pos[ok]
-          x_matrix[i, fill_pos] <- cand[ok]
-          miss[fill_pos] <- FALSE
+
+    if (is.null(fbm)) {
+      ## ---- Optional: per-population diagnostics (does not affect imputation) ----
+      if (verbose >= 2) {
+        pop_list_temp <- seppop(x)
+        for (k in seq_along(pop_list_temp)) {
+          yy <- pop_list_temp[[k]]
+          loci_all_nas <- sum(glNA(yy) >= nInd(yy))
+          nas_number <- sum(glNA(yy)) / 2
+          number_imputations <- nas_number - (loci_all_nas * nInd(yy))
+          if (loci_all_nas >= 1) {
+            pop_name <- names(pop_list_temp)[k]
+            if (is.null(pop_name) || pop_name == "") {
+              pop_name <- tryCatch(as.character(unique(pop(yy))[1]), error = function(e) "UNKNOWN")
+            }
+            cat(warn("  Warning: Population ", pop_name,
+                     " has ", loci_all_nas, " loci with all missing values.\n",
+                     sep = ""))
+            if (verbose >= 3) {
+              cat(report("  Method = 'neighbour': ", number_imputations,
+                         " values to be imputed (excluding all-NA loci).\n",
+                         sep = ""))
+            }
+          }
         }
       }
-      
-      if (any(miss) && verbose >= 1) {
-        cat(important(
-          "  Unable to fully impute individual ", indNames(x)[i],
-          " (", sum(miss), " loci remain NA)\n",
-          sep = ""
-        ))
+
+      x3 <- x
+      x_matrix <- as.matrix(x)
+      n <- nInd(x)
+
+      for (i in seq_len(n)) {
+        miss <- is.na(x_matrix[i, ])
+        if (!any(miss)) next
+        ord <- order(D[i, ], decreasing = FALSE)
+        for (j in ord) {
+          if (!any(miss)) break
+          cand <- x_matrix[j, miss]
+          ok <- !is.na(cand)
+          if (any(ok)) {
+            miss_pos <- which(miss)
+            fill_pos <- miss_pos[ok]
+            x_matrix[i, fill_pos] <- cand[ok]
+            miss[fill_pos] <- FALSE
+          }
+        }
+        if (any(miss) && verbose >= 1) {
+          cat(important("  Unable to fully impute individual ", indNames(x)[i],
+                        " (", sum(miss), " loci remain NA)\n",
+                        sep = ""))
+        }
       }
-    }
-    
-    if (is.null(fbm)) {
       x3@gen <- matrix2gen(x_matrix, parallel = parallel)
     } else {
-      x3@fbm[] <- x_matrix
+      # FBM streaming path
+      res <- .stream_impute_neighbour_fbm(x@fbm, D, ind_by_pop, chunk = chunk)
+      if (verbose >= 2) {
+        for (pn in names(res$all_nas_per_pop)) {
+          if (res$all_nas_per_pop[[pn]] >= 1) {
+            cat(warn("  Warning: Population ", pn,
+                     " has ", res$all_nas_per_pop[[pn]],
+                     " loci with all missing values.\n",
+                     sep = ""))
+          }
+        }
+      }
+      if (verbose >= 1 && any(res$unfilled > 0)) {
+        ind_nm <- indNames(x)
+        for (i in which(res$unfilled > 0)) {
+          cat(important("  Unable to fully impute individual ", ind_nm[i],
+                        " (", res$unfilled[i], " loci remain NA)\n",
+                        sep = ""))
+        }
+      }
+      x3 <- x
     }
   }
   
   if (method == "random") {
-    pop_list_temp <- seppop(x)
-    pop_list <- list()
-    
-    for (y in pop_list_temp) {
-      loci_all_nas <- sum(glNA(y) > nInd(y))
-      nas_number <- sum(glNA(y)) / 2
-      number_imputations <- nas_number - (loci_all_nas * nInd(y))
-    }
-    
-    if (verbose >= 2 & loci_all_nas >= 1) {
-      cat(
-        warn(
-          "  Warning: Population ",
-          popNames(y),
-          " has ",
-          loci_all_nas,
-          " loci with all missing values.\n"
-        )
-      )
-      if (verbose >= 3) {
-        cat(report(
-          "  Method= 'random':",
-          number_imputations,
-          "values to be imputed.\n"
-        ))
-      }
-    }
+    if (is.null(fbm)) {
+      pop_list_temp <- seppop(x)
 
-    x3 <- x
-    
-    x_matrix <- as.matrix(x)
-    loc_na <- which(is.na(x_matrix), arr.ind = TRUE)
-    x_matrix[loc_na] <- sample(c(0:2),size=nrow(loc_na),replace = TRUE)
-    
-    if (is.null(fbm)) x3@gen <- matrix2gen(x_matrix, parallel = parallel) else x3@fbm[] <-x_matrix
-    
+      for (y in pop_list_temp) {
+        loci_all_nas <- sum(glNA(y) >= nInd(y))
+        nas_number <- sum(glNA(y)) / 2
+        number_imputations <- nas_number - (loci_all_nas * nInd(y))
+
+        if (verbose >= 2 && loci_all_nas >= 1) {
+          cat(warn("  Warning: Population ", popNames(y),
+                   " has ", loci_all_nas,
+                   " loci with all missing values.\n"))
+        }
+        if (verbose >= 3) {
+          cat(report("  Method= 'random':",
+                     number_imputations, "values to be imputed.\n"))
+        }
+      }
+
+      x3 <- x
+      x_matrix <- as.matrix(x)
+      loc_na <- which(is.na(x_matrix), arr.ind = TRUE)
+      x_matrix[loc_na] <- sample(c(0:2), size = nrow(loc_na), replace = TRUE)
+      x3@gen <- matrix2gen(x_matrix, parallel = parallel)
+    } else {
+      # FBM streaming path
+      stats <- .stream_impute_pop_fbm(x@fbm, ind_by_pop, "random", chunk = chunk)
+      if (verbose >= 2) {
+        for (pn in names(stats$all_nas)) {
+          if (stats$all_nas[[pn]] >= 1) {
+            cat(warn("  Warning: Population ", pn,
+                     " has ", stats$all_nas[[pn]],
+                     " loci with all missing values.\n"))
+          }
+        }
+      }
+      if (verbose >= 3) {
+        cat(report(sprintf("  Method= 'random': %d values imputed (FBM streamed).\n",
+                           sum(stats$imputations))))
+      }
+      x3 <- x
+    }
   }
   
   if (method == "beagle") {
@@ -382,24 +405,23 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     }
     
     pop_list_temp <- seppop(x)
-    pop_list <- list()
-    
+
     for (y in pop_list_temp) {
-      loci_all_nas <- sum(glNA(y) > nInd(y))
+      loci_all_nas <- sum(glNA(y) >= nInd(y))
       nas_number <- sum(glNA(y)) / 2
       number_imputations <- nas_number - (loci_all_nas * nInd(y))
-    }
-    
-    if (verbose >= 2 & loci_all_nas >= 1) {
-      cat(
-        warn(
-          "  Warning: Population ",
-          popNames(y),
-          " has ",
-          loci_all_nas,
-          " loci with all missing values.\n"
+
+      if (verbose >= 2 && loci_all_nas >= 1) {
+        cat(
+          warn(
+            "  Warning: Population ",
+            popNames(y),
+            " has ",
+            loci_all_nas,
+            " loci with all missing values.\n"
+          )
         )
-      )
+      }
       if (verbose >= 3) {
         cat(report(
           "  Method= 'beagle':",
@@ -439,18 +461,22 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     
   }
   
-  if(fill.residual==TRUE){
-    
-    q_allele <- glMean(x3)
-    pop_matrix <- as.matrix(x3)
-    loc_na <- which(is.na(pop_matrix), arr.ind = TRUE)
-    pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
-      return(as.numeric(s_alleles(q_freq = x)))
-    })))
-    if (is.null(fbm)) x3@gen <- matrix2gen(pop_matrix, parallel = parallel) else x3@fbm[] <-pop_matrix
+  if (fill.residual == TRUE) {
+    fbm_out <- .fbm_or_null(x3)
+    if (is.null(fbm_out)) {
+      q_allele <- glMean(x3)
+      pop_matrix <- as.matrix(x3)
+      loc_na <- which(is.na(pop_matrix), arr.ind = TRUE)
+      pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(qf) {
+        return(as.numeric(s_alleles(q_freq = qf)))
+      })))
+      x3@gen <- matrix2gen(pop_matrix, parallel = parallel)
+    } else {
+      .stream_fill_residual_fbm(x3@fbm, chunk = chunk)
+    }
 
-    if(verbose>=2){
-    cat(report("  Residual missing values were filled randomly drawing from the global allele profiles by locus\n"))
+    if (verbose >= 2) {
+      cat(report("  Residual missing values were filled randomly drawing from the global allele profiles by locus\n"))
     }
   }
   
@@ -469,14 +495,14 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     
     pop_list_before <- seppop(x_hold)
     all_nas_before <- sum(unlist(lapply(pop_list_before,function(y){
-       sum(glNA(y) > nInd(y))
+       sum(glNA(y) >= nInd(y))
     })))
     x_matrix_before <- as.matrix(x_hold)
     nas_before <- sum(is.na(x_matrix_before))
-    
+
     pop_list_after <- seppop(x3)
     all_nas_after <- sum(unlist(lapply(pop_list_after,function(y){
-      sum(glNA(y) > nInd(y))
+      sum(glNA(y) >= nInd(y))
     })))
 
     x_matrix_after <- as.matrix(x3)
