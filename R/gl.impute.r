@@ -221,7 +221,14 @@ pop_matrix[loc_na] <- unname(unlist(lapply(q_allele[loc_na[, 2]], function(x) {
     if (length(pop_list) == 1) {
       x3 <- pop_list[[1]]
     }
-    
+
+    # seppop() + rbind() above returns individuals grouped by population, which
+    # desyncs their order from the input. Per-individual metadata copied from x
+    # further below (ind.metrics, pop, ploidy) is in the ORIGINAL order, so
+    # restore the original individual order here to keep genotypes and metadata
+    # aligned -- otherwise downstream per-individual joins are silently scrambled.
+    x3 <- x3[match(indNames(x_hold), indNames(x3)), , treatOther = FALSE]
+
   }
   
   if (method == "neighbour") {
