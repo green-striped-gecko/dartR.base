@@ -205,7 +205,8 @@ gl.test.heterozygosity <- function(x,
         total_number_plots <- choose(nPop(x), 2)
         # create list to contain plots
         p_list <- list()
-        
+    }
+
         for (y in 1:(nPop(x) - 1)) {
             for (z in (y + 1):nPop(x)) {
                 count <- count + 1
@@ -226,6 +227,7 @@ gl.test.heterozygosity <- function(x,
                     as.numeric(quantile(mat[y, z,], lower2))
                 
                 # Is zero within the range specified by the upper and lower limits
+                signif_res <- NA_character_
                 if (0 < u2quantile && 0 > l2quantile) {
                     signif_res <- paste0("non-sig @", lower2)
                 }
@@ -251,8 +253,9 @@ gl.test.heterozygosity <- function(x,
                 df$diff[count] <- obs
                 df$significance[count] <- signif_res
                 df$pval[count] <- p
-                
-                # Plot the histogram of pairwise differences
+
+                # Plot the histogram of pairwise differences (only when plot.out = TRUE)
+                if (plot.out) {
                 
                 # Construct the label
                 title <-
@@ -368,11 +371,13 @@ gl.test.heterozygosity <- function(x,
                     
                     p_list[[count]] <- suppressWarnings(p_temp)
                 }
-                
+                }
+
             }
             
         }
         
+    if (plot.out) {
         # PRINTING OUTPUTS
         match_call <-
             paste0(names(match.call()),
@@ -392,7 +397,7 @@ gl.test.heterozygosity <- function(x,
             # SAVE INTERMEDIATES TO TEMPDIR
             temp_plot <- paste0(plot.file,"_", seq_1[i], "_to_", seq_2[i])
             if(!is.null(plot.file)){
-              tmp <- utils.plot.save(df,
+              tmp <- utils.plot.save(p_final,
                                      dir=plot.dir,
                                      file=temp_plot,
                                      verbose=verbose)
