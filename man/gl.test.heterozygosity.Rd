@@ -7,9 +7,11 @@
 \usage{
 gl.test.heterozygosity(
   x,
-  nreps = 100,
+  nreps = 1000,
+  boot.method = "ind",
   alpha1 = 0.05,
   alpha2 = 0.01,
+  conf = 0.95,
   plot.out = TRUE,
   max_plots = 6,
   plot.theme = theme_dartR(),
@@ -22,13 +24,20 @@ gl.test.heterozygosity(
 \arguments{
 \item{x}{A genlight object containing the SNP genotypes [required].}
 
-\item{nreps}{Number of replications of the re-randomization [default 1,000].}
+\item{nreps}{Number of bootstrap replicates used to build the sampling
+distribution of each pairwise difference [default 1,000].}
+
+\item{boot.method}{Resample across individuals ("ind") or across loci ("loc")
+when bootstrapping the heterozygosity of each population [default "ind"].}
 
 \item{alpha1}{First significance level for comparison with diff=0 on plot
 [default 0.05].}
 
 \item{alpha2}{Second significance level for comparison with diff=0 on plot
 [default 0.01].}
+
+\item{conf}{Confidence level for the bootstrap confidence interval of each
+pairwise difference [default 0.95].}
 
 \item{plot.out}{If TRUE, plots a sampling distribution of the differences for
 each comparison [default TRUE].}
@@ -51,13 +60,21 @@ progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-A dataframe containing population labels, heterozygosities and sample
- sizes
+A dataframe with one row per population pair containing the two
+ population labels, the observed difference in unbiased expected
+ heterozygosity (pop1 - pop2), the lower and upper bounds of its bootstrap
+ confidence interval, the significance label and the two-sided bootstrap
+ p value (raw and Benjamini-Hochberg adjusted).
 }
 \description{
-Calculates the expected heterozygosities for each population in a genlight
-object, and uses re-randomization to test the statistical significance of
-differences in heterozygosity between populations taken pairwise.
+Calculates the unbiased expected heterozygosity (uHe) for each population in
+a genlight object and uses bootstrapping to test the statistical significance
+of differences in heterozygosity between populations taken pairwise. Each
+population's heterozygosity is bootstrapped by resampling either individuals
+(boot.method = "ind", the default) or loci (boot.method = "loc") with the
+shared engine also used by gl.report.heterozygosity, and each pairwise
+difference is summarised with a bootstrap confidence interval and a two-sided
+p value (Benjamini-Hochberg adjusted across pairs).
 
 Expected heterozygosity is calculated using the correction for sample size 
 following equation 2 from Nei 1978.
@@ -80,7 +97,7 @@ specified for the plot to be saved.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
-out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
+out <- gl.test.heterozygosity(platypus.gl, nreps=100, verbose=3, plot.out=TRUE)
 }
 \references{
 Nei, M. (1978). Estimation of average heterozygosity and genetic distance 

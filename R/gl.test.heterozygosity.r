@@ -2,19 +2,29 @@
 #' @title Tests the difference in heterozygosity between populations taken
 #'  pairwise
 #' @description
-#' Calculates the expected heterozygosities for each population in a genlight
-#' object, and uses re-randomization to test the statistical significance of
-#' differences in heterozygosity between populations taken pairwise.
+#' Calculates the unbiased expected heterozygosity (uHe) for each population in
+#' a genlight object and uses bootstrapping to test the statistical significance
+#' of differences in heterozygosity between populations taken pairwise. Each
+#' population's heterozygosity is bootstrapped by resampling either individuals
+#' (boot.method = "ind", the default) or loci (boot.method = "loc") with the
+#' shared engine also used by gl.report.heterozygosity, and each pairwise
+#' difference is summarised with a bootstrap confidence interval and a two-sided
+#' p value (Benjamini-Hochberg adjusted across pairs).
 #' 
 #' Expected heterozygosity is calculated using the correction for sample size 
 #' following equation 2 from Nei 1978. 
 #' 
 #' @param x A genlight object containing the SNP genotypes [required].
-#' @param nreps Number of replications of the re-randomization [default 1,000].
+#' @param nreps Number of bootstrap replicates used to build the sampling
+#' distribution of each pairwise difference [default 1,000].
+#' @param boot.method Resample across individuals ("ind") or across loci ("loc")
+#' when bootstrapping the heterozygosity of each population [default "ind"].
 #' @param alpha1 First significance level for comparison with diff=0 on plot
 #' [default 0.05].
 #' @param alpha2 Second significance level for comparison with diff=0 on plot
 #' [default 0.01].
+#' @param conf Confidence level for the bootstrap confidence interval of each
+#' pairwise difference [default 0.95].
 #' @param plot.out If TRUE, plots a sampling distribution of the differences for
 #' each comparison [default TRUE].
 #' @param max_plots Maximum number of plots to print per page [default 6].
@@ -47,8 +57,11 @@
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-#' @return A dataframe containing population labels, heterozygosities and sample
-#'  sizes
+#' @return A dataframe with one row per population pair containing the two
+#'  population labels, the observed difference in unbiased expected
+#'  heterozygosity (pop1 - pop2), the lower and upper bounds of its bootstrap
+#'  confidence interval, the significance label and the two-sided bootstrap
+#'  p value (raw and Benjamini-Hochberg adjusted).
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
 #' @references 
@@ -57,15 +70,17 @@
 #' 
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
-#' out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
+#' out <- gl.test.heterozygosity(platypus.gl, nreps=100, verbose=3, plot.out=TRUE)
 #' @family Genetic variation within populations
 #' @import patchwork
 #' @export
 
 gl.test.heterozygosity <- function(x,
-                                   nreps = 100,
+                                   nreps = 1000,
+                                   boot.method = "ind",
                                    alpha1 = 0.05,
                                    alpha2 = 0.01,
+                                   conf = 0.95,
                                    plot.out = TRUE,
                                    max_plots = 6,
                                    plot.theme = theme_dartR(),
@@ -104,6 +119,14 @@ gl.test.heterozygosity <- function(x,
             "Warning: Second alpha value should be between 0 and 1, set to 0.01\n"
         ))
         alpha2 <- 0.01
+    }
+
+    # Bootstrap resampling unit
+    if (!(boot.method == "ind" || boot.method == "loc")) {
+        cat(warn(
+            "  Warning: boot.method must be 'ind' or 'loc', set to 'ind'\n"
+        ))
+        boot.method <- "ind"
     }
     
     upper1 <- 1 - alpha1  # significance level #1
@@ -155,35 +178,75 @@ gl.test.heterozygosity <- function(x,
     
     # DO THE JOB
     
-    # Calculate a matrix of heterozygosities (He)
-    out <- utils.het.pop(x)
-    D <- outer(out, out, "-")
-    
-    # Simulate the distribution of differences in He by population, pairwise Initialize the data matrix to hold simulation results
+    # Bootstrap the unbiased expected heterozygosity (uHe) of each population
+    # with the shared engine (pop.het + boot::boot, as used by
+    # gl.report.heterozygosity), so this function resamples the same way. The
+    # unit of resampling is set by boot.method: individuals ("ind", the default,
+    # which captures the finite- and unequal-sample-size uncertainty) or loci
+    # ("loc").
     if (verbose >= 2) {
-        cat(
-            report(
-                "  Calculating the sampling distributions for pairwise differences between populations by re-randomization\n"
+        cat(report(
+            paste0(
+                "  Bootstrapping the heterozygosity of each population ",
+                "(boot.method = '", boot.method,
+                "') to build the pairwise difference distributions\n"
             )
-        )
+        ))
         cat(important("  Please be patient .... go have a coffee\n"))
     }
-    mat <- array(data = NA, dim = c(nPop(x), nPop(x), nreps))
-    n <- nLoc(x)
-    for (i in 1:nreps) {
-        # Sample the dataset
-        x2 <- x[, sample(1:n, n, replace = T)]
-        # Calculate Heterozygosity
-        out <- utils.het.pop(x2)
-        # Save difference values away
-        mat[, , i] <- outer(out, out, "-")
+
+    sgl <- seppop(x)
+    npop <- nPop(x)
+
+    # he_boot: nreps bootstrap replicates of uHe for each population (rows = pops)
+    he_boot <- matrix(NA_real_, nrow = npop, ncol = nreps)
+    out <- numeric(npop)                 # observed uHe per population
+    for (i in seq_len(npop)) {
+        pop_mat <- as.matrix(sgl[[i]])
+        if (boot.method == "loc") {
+            pop_mat <- t(pop_mat)
+        }
+        # withCallingHandlers muffles only the benign recycling warning coming
+        # from the unused adjusted-Ho term inside pop.het (Ho.loc has length
+        # nLoc while its n_loc has length nInd); the uHe we extract is unaffected.
+        res_boots <- withCallingHandlers(
+            boot::boot(
+                data = pop_mat,
+                statistic = pop.het,
+                n.invariant = 0,
+                aHet = FALSE,
+                boot_method = boot.method,
+                R = nreps
+            ),
+            warning = function(w) {
+                if (grepl("longer object length", conditionMessage(w))) {
+                    invokeRestart("muffleWarning")
+                }
+            }
+        )
+        # pop.het returns c(Ho, He, uHe, FIS); uHe is column 3
+        out[i] <- res_boots$t0[3]
+        he_boot[i, ] <- res_boots$t[, 3]
+    }
+    names(out) <- popNames(x)
+
+    # Observed pairwise differences (pop1 - pop2) and their bootstrap
+    # distributions. mat[y, z, ] holds the resampled difference uHe(y) - uHe(z);
+    # individuals (or loci) in different populations are independent samples, so
+    # the per-population bootstraps are paired replicate-wise to form it.
+    D <- outer(out, out, "-")
+    mat <- array(data = NA_real_, dim = c(npop, npop, nreps))
+    for (y in seq_len(npop)) {
+        for (z in seq_len(npop)) {
+            mat[y, z, ] <- he_boot[y, ] - he_boot[z, ]
+        }
     }
     
     # Calculate the p values, significance for pairwise differences Dataframe to store output
     df <-
-        data.frame(matrix(ncol = 5, nrow = (nPop(x) * nPop(x) - nPop(x)) / 2))
+        data.frame(matrix(ncol = 7, nrow = (nPop(x) * nPop(x) - nPop(x)) / 2))
     colnames(df) <-
-        c("pop1", "pop2", "diff", "significance", "pval")
+        c("pop1", "pop2", "diff", "CIlower", "CIupper", "significance", "pval")
     
     count <- 0
     
@@ -200,7 +263,7 @@ gl.test.heterozygosity <- function(x,
         }
         
         # set the limit values for the x axis in the plots
-        x_axis_limits_lots <- c(min(mat), max(mat))
+        x_axis_limits_lots <- c(min(mat, na.rm = TRUE), max(mat, na.rm = TRUE))
         # count how many plots are going to be created
         total_number_plots <- choose(nPop(x), 2)
         # create list to contain plots
@@ -241,16 +304,25 @@ gl.test.heterozygosity <- function(x,
                     signif_res <- paste0("sig @", lower2)
                 }
                 
-                # p value for zero
+                # Two-sided bootstrap p value that the difference is zero, using
+                # the (1 + b) / (nreps + 1) convention so p is never exactly 0.
                 values <- mat[y, z,]
-                p <-
-                    min(length(values[values > 0]), length(values[values <= 0])) / length(abs(values))
-                p <- signif(p, digits = 6)
-                
+                nb <- length(values)
+                p <- 2 * min((1 + sum(values <= 0)) / (nb + 1),
+                             (1 + sum(values >= 0)) / (nb + 1))
+                p <- signif(min(p, 1), digits = 6)
+
+                # Percentile bootstrap confidence interval for the difference
+                ci <- as.numeric(quantile(values,
+                                          c((1 - conf) / 2, 1 - (1 - conf) / 2),
+                                          na.rm = TRUE))
+
                 # Store results in a df
                 df$pop1[count] <- popNames(x)[y]
                 df$pop2[count] <- popNames(x)[z]
                 df$diff[count] <- obs
+                df$CIlower[count] <- signif(ci[1], 6)
+                df$CIupper[count] <- signif(ci[2], 6)
                 df$significance[count] <- signif_res
                 df$pval[count] <- p
 
@@ -412,8 +484,11 @@ gl.test.heterozygosity <- function(x,
         
     
     
+    # Multiple-testing correction across the pairwise comparisons
+    df$pval.adj <- signif(p.adjust(df$pval, method = "BH"), 6)
+
     print(df)
-    
+
     # Optionally save the plot ---------------------
     
     if(!is.null(plot.file)){
