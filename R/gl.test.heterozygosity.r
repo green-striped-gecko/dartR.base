@@ -347,6 +347,7 @@ gl.test.heterozygosity <- function(x,
                                 linewidth = 1
                             ) + scale_color_manual(
                                 name = "Values",
+                                breaks = c("alpha1", "alpha2", "Observed", "Zero_value"),
                                 values = c(
                                     Zero_value = "blue",
                                     Observed = "green",
@@ -356,8 +357,8 @@ gl.test.heterozygosity <- function(x,
                                 labels = c(
                                     paste("Sig. ", alpha1),
                                     paste("Sig. ", alpha2),
-                                    "Zero value",
-                                    "Observed"
+                                    "Observed",
+                                    "Zero value"
                                 )
                             ) + guides(color = guide_legend(
                                 override.aes = list(size = 5),
