@@ -1,48 +1,69 @@
+# Het calculations
+pop.het_fun <- function(df,
+                        n.invariant,
+                        aHet,
+                        bootstrap=TRUE) {
+  # rm loci that are all NA
+  # otherwise these loci get Ho=0 which would not be correct
+  loc.allNA <- colSums(is.na(df)) == nrow(df)
+  df <- df[, !loc.allNA]
+  
+  Ho.loc <- colMeans(df == 1, na.rm = TRUE)
+  n_loc.sample <- apply(df, 1, function(y) {
+    sum(!is.na(y))
+  })
+  n_loc <- ncol(df)
+  q_freq <- colMeans(df, na.rm = TRUE) / 2
+  p_freq <- 1 - q_freq
+  He.loc <- 2 * p_freq * q_freq
+  n_ind.loc <- apply(df, 2, function(y) {
+    sum(!is.na(y))
+  })
+  ### CP ### Unbiased He (i.e. corrected for sample size) 
+  # hard coded for diploid
+  uHe.loc <- (2 * as.numeric(n_ind.loc) / (2 * as.numeric(n_ind.loc) - 1)) * He.loc
+  
+  FIS.loc <- 1 - (Ho.loc / uHe.loc)
+  
+  if(aHet) {
+    all.res <- c(
+      Ho.adj = mean(Ho.loc) * n_loc / (n_loc + n.invariant),
+      Hexp.adj = mean(He.loc) * n_loc / (n_loc + n.invariant)
+    )
+  } else {
+    all.res <- c(
+      Ho = mean(Ho.loc, na.rm = TRUE),
+      He = mean(He.loc, na.rm = TRUE),
+      uHe = mean(uHe.loc, na.rm = TRUE),
+      FIS = mean(FIS.loc, na.rm = TRUE)
+    )
+  }
+  
+  if(bootstrap) {
+    return(all.res)
+  } else {
+    list(means=all.res, 
+         byloc=list(Ho.loc=Ho.loc, He.loc=He.loc, uHe.loc=uHe.loc, FIS.loc=FIS.loc))
+  }
+  
+}
+
+compute.variability <- function(all.het, what.st=c("sd", "std.error"), what.het) {
+  st.type <- match.arg(what.st)
+  sapply(all.het, function(pop, st=st.type, het.type=what.het) {
+    switch(st,
+        sd=sd(pop[["byloc"]][[what.het]], na.rm = TRUE),
+        std.error=std.error(pop[["byloc"]][[what.het]])
+    )
+  })
+}
+
 # bootstrapping function
 pop.het <- function(df,
                     indices,
                     n.invariant = 0,
                     boot_method = "loc",
                     aHet=FALSE) {
-  
-  pop.het_fun <- function(df,
-                          n.invariant,
-                          aHet) {
-
-    Ho.loc <- colMeans(df == 1, na.rm = TRUE)
-    n_loc <- apply(df, 1, function(y) {
-      sum(!is.na(y))
-    })
-    Ho.adj.loc <- Ho.loc * n_loc / (n_loc + n.invariant)
-    q_freq <- colMeans(df, na.rm = TRUE) / 2
-    p_freq <- 1 - q_freq
-    He.loc <- 2 * p_freq * q_freq
-    n_ind <- apply(df, 2, function(y) {
-      sum(!is.na(y))
-    })
-    ### CP ### Unbiased He (i.e. corrected for sample size) hard
-    # coded for diploid
-    uHe.loc <- (2 * as.numeric(n_ind) / (2 * as.numeric(n_ind) - 1)) * He.loc
-    Hexp.adj.loc <- He.loc * n_loc / (n_loc + n.invariant)
-    
-    FIS.loc <- 1 - (Ho.loc / uHe.loc)
-    
-    if(aHet) {
-      all.res <- c(
-        Ho.adj.loc = mean(Ho.adj.loc, na.rm = TRUE),
-        Hexp.adj.loc = mean(Hexp.adj.loc, na.rm = TRUE)
-      )
-    } else {
-      all.res <- c(
-        Ho.loc = mean(Ho.loc, na.rm = TRUE),
-        He.loc = mean(He.loc, na.rm = TRUE),
-        uHe.loc = mean(uHe.loc, na.rm = TRUE),
-        FIS.loc = mean(FIS.loc, na.rm = TRUE)
-      )
-    }
-    
-    return(all.res)
-  }
   
   df <- df[indices,]
   
@@ -76,12 +97,6 @@ ind.count <- function(x) {
   }
   
   return(nind)
-}
-
-# standard error function
-std.error <- function(x) {
-  res <- sd(x, na.rm = TRUE) / sqrt(length(x))
-  return(res)
 }
 
 utils.subsample.pop <- function(x,

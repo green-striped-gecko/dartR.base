@@ -61,7 +61,7 @@ gi2gl <- function(gi,
             parallel = parallel
         )
     
-    gl <- gl.compliance.check(gl)
+    gl <- gl.compliance.check(gl, verbose = verbose)
     
     if (is.null(gl@other$loc.metrics.flags$monomorphs)) {
         gl@other$loc.metrics.flags$monomorphs <- FALSE
