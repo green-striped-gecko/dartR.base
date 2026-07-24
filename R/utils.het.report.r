@@ -10,9 +10,10 @@ pop.het <- function(df,
                           aHet) {
 
     Ho.loc <- colMeans(df == 1, na.rm = TRUE)
-    n_loc <- apply(df, 1, function(y) {
-      sum(!is.na(y))
-    })
+    # number of scored (not all-NA) loci; a scalar, matching the main path in
+    # gl.report.heterozygosity. Previously apply(df, 1, ...) returned a
+    # per-individual vector, which recycled against the per-locus Ho.loc/He.loc.
+    n_loc <- sum(colSums(!is.na(df)) > 0)
     Ho.adj.loc <- Ho.loc * n_loc / (n_loc + n.invariant)
     q_freq <- colMeans(df, na.rm = TRUE) / 2
     p_freq <- 1 - q_freq

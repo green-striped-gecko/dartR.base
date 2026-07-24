@@ -233,23 +233,13 @@ gl.test.heterozygosity <- function(x,
         if (boot.method == "loc") {
             pop_mat <- t(pop_mat)
         }
-        # withCallingHandlers muffles only the benign recycling warning coming
-        # from the unused adjusted-Ho term inside pop.het (Ho.loc has length
-        # nLoc while its n_loc has length nInd); the uHe we extract is unaffected.
-        res_boots <- withCallingHandlers(
-            boot::boot(
-                data = pop_mat,
-                statistic = pop.het,
-                n.invariant = 0,
-                aHet = FALSE,
-                boot_method = boot.method,
-                R = nreps
-            ),
-            warning = function(w) {
-                if (grepl("longer object length", conditionMessage(w))) {
-                    invokeRestart("muffleWarning")
-                }
-            }
+        res_boots <- boot::boot(
+            data = pop_mat,
+            statistic = pop.het,
+            n.invariant = 0,
+            aHet = FALSE,
+            boot_method = boot.method,
+            R = nreps
         )
         # pop.het returns c(Ho, He, uHe, FIS); uHe is column 3
         out[i] <- res_boots$t0[3]
