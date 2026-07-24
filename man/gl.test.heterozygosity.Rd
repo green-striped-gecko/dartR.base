@@ -80,22 +80,23 @@ sample size following equation 2 of Nei (1978).
 
 The uHe of each population is bootstrapped with the same engine as
 \code{\link{gl.report.heterozygosity}}, and \code{boot.method} sets what is
-resampled:
+resampled. The two units answer different questions and can yield different
+confidence intervals and p values for the same data:
 \itemize{
- \item \code{"ind"} (default) resamples individuals, and so captures the
- uncertainty from having genotyped a finite, and often unequal, number of
- individuals per population. Use it to ask whether the two samples come from
- populations that differ in heterozygosity, which is the usual question.
- \item \code{"loc"} resamples loci, and so captures the uncertainty from the
- loci being a finite sample of the genome, with the individuals held fixed.
- Use it when the sampled individuals are effectively the whole population and
- the loci are the main source of sampling noise.
+ \item \code{"ind"} (default) resamples individuals. It treats the sampled
+ individuals as a sample of each population and tests whether the two
+ populations differ in heterozygosity. This is the usual question.
+ \item \code{"loc"} resamples loci, with the individuals held fixed. It tests
+ whether the genome-wide difference is consistent across loci rather than
+ driven by a few of them, and does not generalise to the populations the
+ individuals came from. Use it only when the individuals are effectively a
+ census of each group (for example a fully sampled captive lineage or a
+ complete cohort), where there is no individual-sampling variance to account
+ for; with a sample of individuals from each population, use \code{"ind"}.
  }
-The two units answer different questions and can yield different confidence
-intervals and p values for the same data. When in doubt use "ind": for most
-DArT datasets the number of individuals per population is small and dominates
-the uncertainty. For "loc" the loci are resampled independently within each
-population, so the interval is slightly conservative.
+For \code{"loc"} the loci are resampled independently within each population
+and treated as independent, so the interval ignores linkage and is
+approximate.
 
 \strong{Interpreting the plot}
 
