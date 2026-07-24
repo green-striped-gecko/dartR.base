@@ -7,9 +7,11 @@
 \usage{
 gl.test.heterozygosity(
   x,
-  nreps = 100,
+  nreps = 1000,
+  boot.method = "ind",
   alpha1 = 0.05,
   alpha2 = 0.01,
+  conf = 0.95,
   plot.out = TRUE,
   max_plots = 6,
   plot.theme = theme_dartR(),
@@ -22,13 +24,20 @@ gl.test.heterozygosity(
 \arguments{
 \item{x}{A genlight object containing the SNP genotypes [required].}
 
-\item{nreps}{Number of replications of the re-randomization [default 1,000].}
+\item{nreps}{Number of bootstrap replicates used to build the sampling
+distribution of each pairwise difference [default 1,000].}
+
+\item{boot.method}{Resample across individuals ("ind") or across loci ("loc")
+when bootstrapping the heterozygosity of each population [default "ind"].}
 
 \item{alpha1}{First significance level for comparison with diff=0 on plot
 [default 0.05].}
 
 \item{alpha2}{Second significance level for comparison with diff=0 on plot
 [default 0.01].}
+
+\item{conf}{Confidence level for the bootstrap confidence interval of each
+pairwise difference [default 0.95].}
 
 \item{plot.out}{If TRUE, plots a sampling distribution of the differences for
 each comparison [default TRUE].}
@@ -51,36 +60,75 @@ progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-A dataframe containing population labels, heterozygosities and sample
- sizes
+A dataframe with one row per population pair containing the two
+ population labels, the observed difference in unbiased expected
+ heterozygosity (pop1 - pop2), the lower and upper bounds of its bootstrap
+ confidence interval, the significance label and the two-sided bootstrap
+ p value (raw and Benjamini-Hochberg adjusted).
 }
 \description{
-Calculates the expected heterozygosities for each population in a genlight
-object, and uses re-randomization to test the statistical significance of
-differences in heterozygosity between populations taken pairwise.
-
-Expected heterozygosity is calculated using the correction for sample size 
-following equation 2 from Nei 1978.
+Tests whether the unbiased expected heterozygosity (uHe) differs between
+populations, for every pair of populations in a genlight object. The uHe of
+each population is bootstrapped (resampling individuals or loci, see Details),
+and for each pair the function returns the observed difference (pop1 - pop2),
+a bootstrap confidence interval, a significance label and a two-sided p value
+(raw and Benjamini-Hochberg adjusted across pairs). uHe is corrected for
+sample size following equation 2 of Nei (1978).
 }
 \details{
-\strong{ Function's output }
-If plot.out = TRUE, plots are created showing the sampling distribution for
-the difference between each pair of heterozygosities, marked with the
-critical limits alpha1 and alpha2, the observed heterozygosity, and the zero
-value (if in range).
-  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
-specified for the plot to be saved.
- If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the tempdir(). 
- Examples of other themes that can be used can be consulted in \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
- \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
+\strong{Choosing the resampling unit (boot.method)}
+
+The uHe of each population is bootstrapped with the same engine as
+\code{\link{gl.report.heterozygosity}}, and \code{boot.method} sets what is
+resampled. The two units answer different questions and can yield different
+confidence intervals and p values for the same data:
+\itemize{
+ \item \code{"ind"} (default) resamples individuals. It treats the sampled
+ individuals as a sample of each population and tests whether the two
+ populations differ in heterozygosity. This is the usual question.
+ \item \code{"loc"} resamples loci, with the individuals held fixed. It tests
+ whether the genome-wide difference is consistent across loci rather than
+ driven by a few of them, and does not generalise to the populations the
+ individuals came from. Use it only when the individuals are effectively a
+ census of each group (for example a fully sampled captive lineage or a
+ complete cohort), where there is no individual-sampling variance to account
+ for; with a sample of individuals from each population, use \code{"ind"}.
  }
+For \code{"loc"} the loci are resampled independently within each population
+and treated as independent, so the interval ignores linkage and is
+approximate.
+
+\strong{Interpreting the plot}
+
+With \code{plot.out = TRUE} one histogram is drawn per pair of populations.
+The histogram is the bootstrap distribution of the difference in uHe
+(pop1 - pop2), with four vertical lines:
+\itemize{
+ \item green: the observed difference.
+ \item blue: zero (no difference).
+ \item two dark red lines: the significance limits at level \code{alpha1}
+ (default 0.05).
+ \item two bright red lines: the limits at level \code{alpha2} (default 0.01).
+ }
+Read significance from the blue zero line, not the green one. If zero lies
+outside the red lines of a given level, the difference is significant at that
+level; if it lies inside the \code{alpha1} lines, the difference is not
+significant. The green observed line sits near the centre of its own bootstrap
+distribution by construction, so its position is not the test. Each panel
+subtitle gives the significance label and the p value.
+
+\strong{Saving the plot}
+
+If \code{plot.file} is given, the ggplot is saved as an RDS file with
+\code{saveRDS()} and can be reloaded with \code{readRDS()}. It is written to
+\code{plot.dir} if given, otherwise to \code{tempdir()}. Other ggplot themes
+can be consulted at
+\url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and
+\url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
-out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
+out <- gl.test.heterozygosity(platypus.gl, nreps=100, verbose=3, plot.out=TRUE)
 }
 \references{
 Nei, M. (1978). Estimation of average heterozygosity and genetic distance 

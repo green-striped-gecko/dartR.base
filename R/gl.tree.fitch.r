@@ -247,10 +247,10 @@ gl.tree.fitch <- function(D,
   hold <- getwd()
   setwd(tempdir())
   if(file.exists(file.path(tempdir(),"outfile"))){
-    shell(paste("del outfile"))
+    unlink("outfile")
   }
   if(file.exists(file.path(tempdir(),"outtree"))){
-    shell(paste("del outtree"))
+    unlink("outtree")
   }
   setwd(hold)
   
@@ -282,7 +282,7 @@ gl.tree.fitch <- function(D,
   if(verbose >= 2){cat(report("  Running fitch from the Phylip executables\n"))}
   hold <- getwd()
   setwd(tempdir())
-     shell(cmd.fm)
+     system(cmd.fm)
   setwd(hold)
   # This will produce an output file called outfile, and a newick file called outtree
   
@@ -354,7 +354,7 @@ gl.tree.fitch <- function(D,
     setwd(tempdir())
     if(file.exists(file.path(tempdir(),"outtree"))){
       cat("    Deleting old outtree file\n")
-      shell(paste("del outtree"))
+      unlink("outtree")
     }
     
     # Create the command file for fitch
@@ -385,11 +385,11 @@ gl.tree.fitch <- function(D,
     
     # Execute the command file by passing it to fitch
     
-    shell(cmd.fm)
+    system(cmd.fm)
     
     # Copy the outtree file from fitch to the intree for consense
-    shell(paste("cp outtree intree"))
-    shell(paste("del outtree"))
+    file.copy("outtree", "intree", overwrite = TRUE)
+    unlink("outtree")
     
     # Create the consensus command file
     vector <- rep(NA,4)
@@ -409,7 +409,7 @@ gl.tree.fitch <- function(D,
     # Execute the command file by passing it to consense
     # hold <- getwd()
     #  setwd(tempdir())
-    shell(cmd.cns)
+    system(cmd.cns)
     #setwd(hold)
     # This will append to an output file called outfile, and output a newick file called outtree
     
