@@ -143,7 +143,12 @@ as an approvable change.
   The one test asserting the pre-fix buggy behaviour was rewritten to
   assert the fix instead (an approved behaviour change, not an unexplained
   diff).
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#238](https://github.com/green-striped-gecko/dartR.base/pull/238)
+  — open, awaiting review/merge (unlike gl.drop.pop's PR #237, this one did
+  not auto-merge; the repo's auto-merge behaviour appears to depend on
+  `dev_arthur` being a clean fast-forward of `dev` at push time, which
+  wasn't the case here since `dev` had already advanced past the branch
+  point via #237's own merge).
 
 ```json
 {
