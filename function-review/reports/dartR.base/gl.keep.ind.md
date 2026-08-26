@@ -139,7 +139,9 @@ offered as an approvable change.
   (an approved behaviour change, not an unexplained diff).
 - Verified via a `verbose = 3, mono.rm = TRUE, recalc = TRUE` end-to-end
   run — completes cleanly with coloured output.
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#240](https://github.com/green-striped-gecko/dartR.base/pull/240)
+  — open, based on `dev_arthur` (PR #238) for the same manifest-continuity
+  reason as `gl.keep.pop`'s PR #239.
 
 ```json
 {
@@ -160,6 +162,6 @@ offered as an approvable change.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 240
 }
 ```
