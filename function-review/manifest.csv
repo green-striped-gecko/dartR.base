@@ -1,2 +1,3 @@
 function,package,family,claimed_by,status
-gl.drop.pop,dartR.base,data manipulation,arthur,awaiting-approval
+gl.drop.pop,dartR.base,data manipulation,arthur,done
+gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
