@@ -121,7 +121,9 @@ offered as an approvable change.
 - Verified via a `verbose = 3` end-to-end run on both the `as.pop`-null
   (`mono.rm=TRUE, recalc=TRUE`) and `as.pop`-set branches -- both complete
   cleanly with coloured output.
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#239](https://github.com/green-striped-gecko/dartR.base/pull/239)
+  — open, based on `dev_arthur` (PR #238) since `dev`'s manifest.csv
+  doesn't yet reflect #238's updates.
 
 ```json
 {
@@ -141,6 +143,6 @@ offered as an approvable change.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 239
 }
 ```
