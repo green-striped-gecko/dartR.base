@@ -142,7 +142,10 @@ offered as approvable changes.
 - Characterization test (`tests/testthat/test-gl.drop.pop.R`): all 13 cases
   still pass unchanged — no behavioural diff, matching expectations for
   print/doc-only changes.
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#237](https://github.com/green-striped-gecko/dartR.base/pull/237)
+  — opened and merged automatically on push to `dev_arthur` (repo has
+  auto-merge configured for trusted `dev_<name>` -> `dev` pushes). Merged
+  into `upstream/dev` as of 2026-08-26.
 
 ```json
 {
