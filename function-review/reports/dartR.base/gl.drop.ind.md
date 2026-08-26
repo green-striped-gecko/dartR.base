@@ -150,24 +150,59 @@ as an approvable change.
   wasn't the case here since `dev` had already advanced past the branch
   point via #237's own merge).
 
+## Addendum (skill v1.5.0 re-pass)
+
+The conventions catalogue gained three items after this review closed
+(DOC7 remediation default, DAT7, tightened FS8) plus a generalized
+Spec-axis instruction to trace internal logic in every family mode, not
+just `analysis`. Re-ran the Standards + Spec walk against the current
+(already-fixed) state of the function to check for gaps the v1.4.0 pass
+missed.
+
+**F6 [LOW, confidence: high] — `@author` states only Custodian, no Author(s) (DOC7)**
+`R/gl.drop.ind.r:26` (pre-fix) — read `Custodian: Arthur Georges -- Post
+to...` with no separate `Author(s):` line. This should have been caught in
+the original v1.4.0 pass (DOC7 already existed then) and was missed.
+Proposed fix per DOC7's remediation default (Custodian-only → default
+Author(s) to match): add `Author(s): Arthur Georges.`
+
+Approved and applied: `R/gl.drop.ind.r:26` now reads `Author(s): Arthur
+Georges. Custodian: Arthur Georges -- Post to...`. `man/gl.drop.ind.Rd`
+regenerated (the `\author{}` section content changed this time, unlike the
+F3 tag-reorder in the original pass). Characterization test: 14/14 pass,
+no behavioural diff. Folded into the still-open PR #238 rather than a new
+PR, per Phase C step 4.
+
+Checked and cleared under the new rules, no further findings:
+- **DAT7**: `utils.check.datatype(x, verbose = verbose)` has no `accept=`
+  override, but the function's docs and logic genuinely support both SNP
+  and SilicoDArT (name-based individual removal, no dosage-specific math)
+  — correct as unrestricted, not a gap.
+- **Tightened FS8**: single return path, history appended on the correct
+  `x` immediately before it. No stale-variable risk.
+- **Generalized Spec-axis logic trace**: re-walked the full function
+  again looking for anything beyond the four fixes already in PR #238 —
+  found nothing new.
+
 ```json
 {
   "function": "gl.drop.ind",
   "package": "dartR.base",
   "family": "modify",
-  "skill_version": "1.4.0",
-  "commit": "a8b6a3c",
+  "skill_version": "1.5.0",
+  "commit": "c220c13",
   "verdict_standards": "needs_work",
   "verdict_spec": "ready",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT4", "status": "pending"},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "FS10", "status": "pending"},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DOC1", "status": "pending"},
-    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "VRB2", "status": "pending"},
-    {"id": "F5", "severity": "LOW", "confidence": "medium", "rule": "DOC2", "status": "pending"}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT4", "status": "approved"},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "FS10", "status": "approved"},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DOC1", "status": "approved"},
+    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "VRB2", "status": "approved"},
+    {"id": "F5", "severity": "LOW", "confidence": "medium", "rule": "DOC2", "status": "not_offered"},
+    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DOC7", "status": "approved", "addendum": true}
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 238
 }
 ```
