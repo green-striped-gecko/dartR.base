@@ -8,3 +8,9 @@
   though the underlying statistics no longer reflected the retained
   individuals. They now reset correctly at every verbosity level, matching
   the behaviour `verbose >= 2` already had.
+
+* `gl.report.bases()`: the results printout (sequence length, base
+  frequencies, transitions/transversions) previously printed at every
+  verbosity level, including `verbose = 0`. It is now gated at
+  `verbose >= 1`, so fully-quiet calls are silent as documented. The
+  default (`verbose = 2`) behaviour is unchanged.
