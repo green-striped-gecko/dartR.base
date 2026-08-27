@@ -166,7 +166,8 @@ F9(a)/(b) carried no proposed fix (awareness only).
 - Characterization test: 23/23 pass; the two CHARACTERIZATION probes
   were rewritten as assertions of the fixed behaviour (approved changes,
   not unexplained diffs).
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#246](https://github.com/green-striped-gecko/dartR.base/pull/246)
+  - open, based directly on the current dev (post-#238/#239/#240 merges).
 
 ```json
 {
@@ -190,6 +191,6 @@ F9(a)/(b) carried no proposed fix (awareness only).
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 246
 }
 ```
