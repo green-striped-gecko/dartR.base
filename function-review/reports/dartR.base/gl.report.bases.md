@@ -200,7 +200,9 @@ ratified DOC1 order: `@details` before `@param`, `@return` after the
   pass. The two output-parsing tests moved from `verbose = 0` to
   `verbose = 1` and the VRB5 characterization test now asserts silence
   at 0 (approved behaviour change, not an unexplained diff).
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#244](https://github.com/green-striped-gecko/dartR.base/pull/244)
+  - open, based on `dev_arthur` (PR #238), same manifest-continuity reason
+  as PRs #239/#240.
 
 ```json
 {
@@ -224,6 +226,6 @@ ratified DOC1 order: `@details` before `@param`, `@return` after the
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 244
 }
 ```
