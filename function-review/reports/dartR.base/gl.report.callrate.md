@@ -154,7 +154,7 @@ F10 notes only, not offered.
 - Characterization test: 15/15 pass. `verbose = 3` end-to-end clean on
   both datatypes and both methods. `man/gl.report.callrate.Rd`
   regenerated.
-- PR: recorded below after opening.
+- PR: [green-striped-gecko/dartR.base#247](https://github.com/green-striped-gecko/dartR.base/pull/247)
 
 ```json
 {
@@ -179,6 +179,6 @@ F10 notes only, not offered.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 247
 }
 ```
