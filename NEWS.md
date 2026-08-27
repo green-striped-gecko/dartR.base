@@ -8,3 +8,7 @@
   though the underlying statistics no longer reflected the retained
   individuals. They now reset correctly at every verbosity level, matching
   the behaviour `verbose >= 2` already had.
+
+* `gl.keep.ind()`: fixed the identical bug -- the same locus-metric flags
+  were only reset to `FALSE` after retaining individuals when
+  `verbose >= 2`. Now reset correctly at every verbosity level.
