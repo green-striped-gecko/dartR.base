@@ -21,7 +21,9 @@
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @return A genlight object with the reduced data
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 # Examples -------------
@@ -36,7 +38,6 @@
 #' @seealso \code{\link{gl.drop.loc}} to drop rather than keep specified loci
 #' 
 #' @export
-#' @return A genlight object with the reduced data
 
 # End Block --------------
 # Function 
@@ -77,9 +78,9 @@ gl.keep.loc <- function(x,
             cat(report("  Range of loci to keep has been specified\n"))
         }
     } else {
-        cat(
-            warn(
-                "  Warning: Need to specify either a range of loci to keep, or specific loci to keep\n"
+        stop(
+            error(
+                "Fatal Error: Need to specify either a range of loci to keep, or specific loci to keep\n"
             )
         )
     }
@@ -100,18 +101,30 @@ gl.keep.loc <- function(x,
     }
     
     if (flag == "range") {
+        if (is.null(last)) {
+            last <- nLoc(x)
+        }
         if (first <= 0) {
             cat(warn(
-                "  Warning: Lower limit to range of loci cannot be less than 1, set to 1\n)"
+                "  Warning: Lower limit to range of loci cannot be less than 1, set to 1\n"
             ))
             first <- 1
         }
         if (first > nLoc(x)) {
+            stop(
+                error(
+                    "Fatal Error: Lower limit to range of loci cannot be greater than the number of loci (",
+                    nLoc(x),
+                    ")\n"
+                )
+            )
+        }
+        if (last > nLoc(x)) {
             cat(
                 warn(
                     "  Warning: Upper limit to range of loci cannot be greater than the number of loci, set to",
                     nLoc(x),
-                    "\n)"
+                    "\n"
                 )
             )
             last <- nLoc(x)
@@ -158,11 +171,10 @@ gl.keep.loc <- function(x,
 # REPORT A SUMMARY -------------
     # Summary of outcomes --------------       
     if (verbose >= 3) {
-        cat("  Summary of recoded dataset\n")
-        cat(paste("    Original No. of loci:", nLoc(hold), "\n"))
-        cat(paste("    No. of loci deleted:", nLoc(hold) - nLoc(x2), "\n"))
-        cat(paste("    No. of loci retained:", nLoc(x2), "\n"))
-        # cat(paste(' No. of individuals:', nInd(x2),'\n')) cat(paste(' No. of populations: ', nPop(x2),'\n'))
+        cat(report("  Summary of recoded dataset\n"))
+        cat(report(paste("    Original No. of loci:", nLoc(hold), "\n")))
+        cat(report(paste("    No. of loci deleted:", nLoc(hold) - nLoc(x2), "\n")))
+        cat(report(paste("    No. of loci retained:", nLoc(x2), "\n")))
     }
     
     # ADD TO HISTORY ---------------
@@ -175,5 +187,5 @@ gl.keep.loc <- function(x,
         cat(report("Completed:", funname, "\n"))
     }
     # End block --------------
-    return(x2)
+    return(invisible(x2))
 }
