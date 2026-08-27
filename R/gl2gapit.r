@@ -78,8 +78,20 @@ gl2gapit <- function(x,
   xx <- t(xx)
   colnames(xx) <- indNames(x)
   
+  # If the chromosome/position slots are empty, fill them with dummies as
+  # gl2plink does - the hapmap data.frame below needs one value per locus,
+  # and empty slots error with "arguments imply differing number of rows".
+  if (is.null(x$chromosome) || length(x$chromosome) == 0) {
+    x$chromosome <- as.factor(rep("1", nLoc(x)))
+    cat(warn("  Chromosome slot is empty. Using 1 as dummy name.\n"))
+  }
+  if (is.null(x$position) || length(x$position) == 0) {
+    x$position <- 1:nLoc(x)
+    cat(warn("  Position slot is empty. Using a sequence from one to the number of loci in the dataset as dummy position.\n"))
+  }
+
   x$chromosome <- as.factor(as.numeric(x$chromosome))
-  
+
   geno_tmp <- data.frame(rs = locNames(x),
                          alleles= x$loc.all,
                          chrom= x$chromosome,

@@ -1,3 +1,7 @@
 function,package,family,claimed_by,status,pr
 gl.report.callrate,dartR.base,report,luis,reverted,
 gl.nhybrids,dartR.popgen,analysis,luis,pr-open,85
+gl.drop.pop,dartR.base,data manipulation,arthur,done
+gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
+gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
+gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
