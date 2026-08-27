@@ -10,6 +10,41 @@
 #' because it was not possible to call whether a sequence tag was amplified or
 #' not. 
 #' 
+#' @details
+#' This function expects a genlight object, containing either SNP data or
+#' SilicoDArT (=presence/absence data).
+#'
+#' Callrate is summarized by locus or by individual to allow sensible decisions
+#' on thresholds for filtering taking into consideration consequential loss of
+#' data. The summary is in the form of a tabulation and plots.
+#'
+#' The table of quantiles is useful for deciding a threshold for subsequent filtering
+#' as it provides an indication of the percentages of loci that will be retained and
+#' lost.
+#'
+#' In the case of method='ind', a list of individuals to be deleted is provided. To
+#' manage the screen output, this list is limited to ind.to.list individuals (or nInd(x))
+#' whichever is the smaller.
+#'
+#' To avoid issues from inadvertent use of this function in an assignment statement,
+#' the function returns the genlight object unaltered.
+#'
+# Plot themes can be obtained from:
+#  \itemize{
+#  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
+#  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
+#  }
+#'
+#'  A color vector can be obtained with gl.select.colors() and then passed to the function
+#'  with the plot.colors parameter.
+#'
+#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS"
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be
+#' specified for the plot to be saved.
+#'
+#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
+#'  directory; otherwise to the tempdir().
+#'
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param method Specify the type of report by locus (method='loc') or
@@ -19,54 +54,21 @@
 #' @param plot.theme User specified theme [default theme_dartR()].
 #' @param plot.colors Vector with two color names for the borders and fill
 #' [default c("#2171B5", "#6BAED6")].
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' @param plot.dir Directory to save the plot RDS files [default as specified
 #' by the global working directory or tempdir()]
 #' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
-#' @param bins Number of bins to display in histograms [default 25].
+#' @param bins Number of bins to display in histograms [default 50].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
+#' @param ... Parameters passed to function \link[ggplot2]{ggsave},
 #'  such as width and height, when the ggplot is to be saved.
-#' 
-#' @details
-#' This function expects a genlight object, containing either SNP data or
-#' SilicoDArT (=presence/absence data).
-#' 
-#' Callrate is summarized by locus or by individual to allow sensible decisions
-#' on thresholds for filtering taking into consideration consequential loss of
-#' data. The summary is in the form of a tabulation and plots.
-#' 
-#' The table of quantiles is useful for deciding a threshold for subsequent filtering
-#' as it provides an indication of the percentages of loci that will be retained and 
-#' lost.
-#' 
-#' In the case of method='ind', a list of individuals to be deleted is provided. To
-#' manage the screen output, this list is limited to ind.to.list individuals (or nInd(x))
-#' whichever is the smaller.
-#' 
-#' To avoid issues from inadvertent use of this function in an assignment statement,
-#' the function returns the genlight object unaltered.
-#' 
-# Plot themes can be obtained from:
-#  \itemize{
-#  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
-#  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
-#  }
-#'  
-#'  A color vector can be obtained with gl.select.colors() and then passed to the function
-#'  with the plot.colors parameter.
-#'  
-#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
-#' specified for the plot to be saved.
-#' 
-#'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
-#'  directory; otherwise to the tempdir(). 
-#' 
+#'
+#' @return Returns unaltered genlight object
+#'
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @examples
 #'  \donttest{
 #' # SNP data
@@ -74,8 +76,6 @@
 #'   gl.report.callrate(test.gl)
 #'   gl.report.callrate(test.gl,method='ind')
 #'   gl.report.callrate(test.gl,method='ind',plot.file="test")
-#'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
-#'   gl.report.callrate(test.gl,method='loc',by.pop=TRUE,plot.file="test")
 #' # Tag P/A data
 #'   test.gs <- testset.gs[1:20,]
 #'   gl.report.callrate(test.gs)
@@ -84,13 +84,12 @@
 #'   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'   test.gl <- testset.gl[1:20,]
 #'   gl.report.callrate(test.gl)
-#'   
+#'
 #' @seealso \code{\link{gl.filter.callrate}}
 
 #' @import patchwork
 #' @importFrom stats aggregate
 #' @export
-#' @return Returns unaltered genlight object
 
 gl.report.callrate <- function(x,
                                method = "loc",
@@ -139,12 +138,23 @@ gl.report.callrate <- function(x,
   }
   
   # FUNCTION SPECIFIC ERROR CHECKING
-  
-  # Ib case the call rate is not up to date, recalculate
 
+  if (!method %in% c("loc", "ind")) {
+    if (verbose >= 1) {
+      cat(warn(
+        "  Warning: method must be either 'loc' or 'ind', set to 'loc'\n"
+      ))
+    }
+    method <- "loc"
+  }
+
+  # Hold the input so the function can return it unaltered, as documented
+  hold <- x
+
+  # In case the call rate is not up to date, recalculate for the report
   x <- utils.recalc.callrate(x, verbose = 0)
   if(verbose==0){plot.display <- FALSE}
-  
+
   ind.to.list=min(ind.to.list,nInd(x))
 
   # DO THE JOB -------------------------
@@ -153,46 +163,48 @@ gl.report.callrate <- function(x,
     callrate <- x@other$loc.metrics$CallRate
     
     # Print out some statistics --------------------
-    stats <- summary(callrate)
-    cat("  Reporting Call Rate by Locus\n")
-    cat("  No. of loci =", nLoc(x), "\n")
-    cat("  No. of individuals =", nInd(x), "\n")
-    cat("    Minimum      : ", stats[1], "\n")
-    cat("    1st quartile : ", stats[2], "\n")
-    cat("    Median       : ", stats[3], "\n")
-    cat("    Mean         : ", stats[4], "\n")
-    cat("    3r quartile  : ", stats[5], "\n")
-    cat("    Maximum      : ", stats[6], "\n")
-    cat("    Missing Rate Overall: ", round(sum(is.na(
-      as.matrix(x)
-    )) / (nLoc(x) * nInd(x)), 4), "\n\n")
-    
-    # Determine the loss of loci for a given threshold using quantiles
-    quantile_res <- quantile(callrate, probs = seq(0, 1, 1 / 20),type=1,na.rm = TRUE)
-    retained <- unlist(lapply(quantile_res, function(y) {
-      res <- length(callrate[callrate >= y])
-    }))
-    pc.retained <- round(retained * 100 / nLoc(x), 1)
-    filtered <- nLoc(x) - retained
-    pc.filtered <- 100 - pc.retained
-    df <-
-      data.frame(as.numeric(sub("%", "", names(quantile_res))),
-                 quantile_res,
-                 retained,
-                 pc.retained,
-                 filtered,
-                 pc.filtered)
-    colnames(df) <-
-      c("Quantile",
-        "Threshold",
-        "Retained",
-        "Percent",
-        "Filtered",
-        "Percent")
-    df <- df[order(-df$Quantile), ]
-    df$Quantile <- paste0(df$Quantile, "%")
-    rownames(df) <- NULL
-    print(df)
+    if (verbose >= 1) {
+      stats <- summary(callrate)
+      cat("  Reporting Call Rate by Locus\n")
+      cat("  No. of loci =", nLoc(x), "\n")
+      cat("  No. of individuals =", nInd(x), "\n")
+      cat("    Minimum      : ", stats[1], "\n")
+      cat("    1st quartile : ", stats[2], "\n")
+      cat("    Median       : ", stats[3], "\n")
+      cat("    Mean         : ", stats[4], "\n")
+      cat("    3rd quartile : ", stats[5], "\n")
+      cat("    Maximum      : ", stats[6], "\n")
+      cat("    Missing Rate Overall: ", round(sum(is.na(
+        as.matrix(x)
+      )) / (nLoc(x) * nInd(x)), 4), "\n\n")
+
+      # Determine the loss of loci for a given threshold using quantiles
+      quantile_res <- quantile(callrate, probs = seq(0, 1, 1 / 20),type=1,na.rm = TRUE)
+      retained <- unlist(lapply(quantile_res, function(y) {
+        res <- length(callrate[callrate >= y])
+      }))
+      pc.retained <- round(retained * 100 / nLoc(x), 1)
+      filtered <- nLoc(x) - retained
+      pc.filtered <- 100 - pc.retained
+      df <-
+        data.frame(as.numeric(sub("%", "", names(quantile_res))),
+                   quantile_res,
+                   retained,
+                   pc.retained,
+                   filtered,
+                   pc.filtered)
+      colnames(df) <-
+        c("Quantile",
+          "Threshold",
+          "Retained",
+          "Percent",
+          "Filtered",
+          "Percent")
+      df <- df[order(-df$Quantile), ]
+      df$Quantile <- paste0(df$Quantile, "%")
+      rownames(df) <- NULL
+      print(df)
+    }
     
     # Prepare the plots ------------------------
     # get title for plots
@@ -245,46 +257,49 @@ gl.report.callrate <- function(x,
   if (method == "ind") {
     ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
     # Print out some statistics
-    stats <- summary(ind.call.rate)
-    cat(report("\n  Reporting Call Rate by Individual\n"))
-    cat("  No. of loci =", nLoc(x), "\n")
-    cat("  No. of individuals =", nInd(x), "\n")
-    cat("    Minimum      : ", stats[1], "\n")
-    cat("    1st quartile : ", stats[2], "\n")
-    cat("    Median       : ", stats[3], "\n")
-    cat("    Mean         : ", stats[4], "\n")
-    cat("    3r quartile  : ", stats[5], "\n")
-    cat("    Maximum      : ", stats[6], "\n")
-    cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(x)))/(nLoc(x)*nInd(x)), 4), "\n\n")
-    
-    # Print out statistics for each population
-    sample_sizes <- table(pop(x))
-    sample_sizes <- as.matrix(sample_sizes)
-    ind.means <- rowSums(!is.na(as.matrix(x)))/nLoc(x)
-    means <- aggregate(ind.means ~ pop(x), x, mean)
-    means$ind.means <- round(as.numeric(means$ind.means),4)
-    means <- cbind(means,sample_sizes)
-    names(means) <- c("Population","CallRate","N")
-    row.names(means) <- NULL
-    cat(report("Listing",nPop(x),"populations and their average CallRates\n"))
-    cat(report("  Monitor again after filtering\n"))
-    print(means)
-    cat("\n")
-    
-    ind.means <- as.data.frame(ind.means)
-    ind.means$Individual <- rownames(ind.means)
-   # ind.means$Population <- pop(x)[indNames(x) %in% ind.means$Individual]
-    ind.means$Population <- pop(x)
-    names(ind.means) <- c("CallRate","Individual","Population")
-    ind.means <- ind.means[order(ind.means$CallRate), ]
-    rownames(ind.means) <- NULL
-    ind.means <- ind.means[, c("Individual","Population","CallRate")] 
-      cat(report("Listing",ind.to.list,"individuals with the lowest CallRates\n"))
-      cat(report("  Use this list to see which individuals will be lost on filtering by individual\n"))
-      cat(report("  Set ind.to.list parameter to see more individuals\n"))
-    ind.means <- ind.means[1:ind.to.list,]
-    print(ind.means)
-    cat("\n)")
+    if (verbose >= 1) {
+      stats <- summary(ind.call.rate)
+      cat(report("\n  Reporting Call Rate by Individual\n"))
+      cat("  No. of loci =", nLoc(x), "\n")
+      cat("  No. of individuals =", nInd(x), "\n")
+      cat("    Minimum      : ", stats[1], "\n")
+      cat("    1st quartile : ", stats[2], "\n")
+      cat("    Median       : ", stats[3], "\n")
+      cat("    Mean         : ", stats[4], "\n")
+      cat("    3rd quartile : ", stats[5], "\n")
+      cat("    Maximum      : ", stats[6], "\n")
+      cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(x)))/(nLoc(x)*nInd(x)), 4), "\n\n")
+
+      # Print out statistics for each population
+      sample_sizes <- table(pop(x))
+      sample_sizes <- as.matrix(sample_sizes)
+      ind.means <- rowSums(!is.na(as.matrix(x)))/nLoc(x)
+      means <- aggregate(ind.means ~ pop(x), x, mean)
+      means$ind.means <- round(as.numeric(means$ind.means),4)
+      means <- cbind(means,sample_sizes)
+      names(means) <- c("Population","CallRate","N")
+      row.names(means) <- NULL
+      cat(report("Listing",nPop(x),"populations and their average CallRates\n"))
+      cat(report("  Monitor again after filtering\n"))
+      print(means)
+      cat("\n")
+
+      if (ind.to.list >= 1) {
+        ind.means <- as.data.frame(ind.means)
+        ind.means$Individual <- rownames(ind.means)
+        ind.means$Population <- pop(x)
+        names(ind.means) <- c("CallRate","Individual","Population")
+        ind.means <- ind.means[order(ind.means$CallRate), ]
+        rownames(ind.means) <- NULL
+        ind.means <- ind.means[, c("Individual","Population","CallRate")]
+        cat(report("Listing",ind.to.list,"individuals with the lowest CallRates\n"))
+        cat(report("  Use this list to see which individuals will be lost on filtering by individual\n"))
+        cat(report("  Set ind.to.list parameter to see more individuals\n"))
+        ind.means <- ind.means[1:ind.to.list,]
+        print(ind.means)
+      }
+      cat("\n")
+    }
     
     # Prepare the plots ------------------------
     # get title for plots
@@ -337,7 +352,7 @@ gl.report.callrate <- function(x,
     cat(report("Completed:", funname, "\n"))
   }
   
-  # RETURN
-  invisible(x)
-  
+  # RETURN the input unaltered, as documented
+  invisible(hold)
+
 }
