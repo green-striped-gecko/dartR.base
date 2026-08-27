@@ -48,10 +48,11 @@ test_that("first given, last omitted defaults to the last locus (F1 fix)", {
   expect_setequal(locNames(x2), locNames(x)[5:n])
 })
 
-test_that("last > nLoc(x) warns and clamps; first > nLoc(x) is fatal (F3 fix)", {
+test_that("last > nLoc(x) warns and clamps; first > nLoc(x) is fatal (F3 fix); clamp warnings silent at verbose=0", {
   x <- testset.gl
   n <- nLoc(x)
-  x2 <- gl.keep.loc(x, first = n - 2, last = n + 500, verbose = 0)
+  out <- capture.output(x2 <- gl.keep.loc(x, first = n - 2, last = n + 500, verbose = 0))
+  expect_length(out, 0)
   expect_equal(nLoc(x2), 3)
   expect_setequal(locNames(x2), locNames(x)[(n - 2):n])
 

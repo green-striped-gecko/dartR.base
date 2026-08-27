@@ -105,9 +105,11 @@ gl.keep.loc <- function(x,
             last <- nLoc(x)
         }
         if (first <= 0) {
-            cat(warn(
-                "  Warning: Lower limit to range of loci cannot be less than 1, set to 1\n"
-            ))
+            if (verbose >= 1) {
+                cat(warn(
+                    "  Warning: Lower limit to range of loci cannot be less than 1, set to 1\n"
+                ))
+            }
             first <- 1
         }
         if (first > nLoc(x)) {
@@ -120,19 +122,23 @@ gl.keep.loc <- function(x,
             )
         }
         if (last > nLoc(x)) {
-            cat(
-                warn(
-                    "  Warning: Upper limit to range of loci cannot be greater than the number of loci, set to",
-                    nLoc(x),
-                    "\n"
+            if (verbose >= 1) {
+                cat(
+                    warn(
+                        "  Warning: Upper limit to range of loci cannot be greater than the number of loci, set to",
+                        nLoc(x),
+                        "\n"
+                    )
                 )
-            )
+            }
             last <- nLoc(x)
         }
         if (first > last) {
-            cat(warn(
-                "  Warning: Upper limit is smaller than lower limit, reversed\n"
-            ))
+            if (verbose >= 1) {
+                cat(warn(
+                    "  Warning: Upper limit is smaller than lower limit, reversed\n"
+                ))
+            }
             tmp <- first
             first <- last
             last <- tmp
