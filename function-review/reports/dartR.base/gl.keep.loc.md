@@ -158,7 +158,9 @@ offered as an approvable change.
   unexplained diffs).
 - `verbose = 3` end-to-end runs on all three selection modes (list, range
   with defaulted `last`, combined) complete cleanly with coloured output.
-- PR: not yet opened (pending pre-push confirmation).
+- PR: [green-striped-gecko/dartR.base#245](https://github.com/green-striped-gecko/dartR.base/pull/245)
+  - open, based on `dev_arthur` (PR #238), same manifest-continuity
+  reason as PRs #239/#240/#244.
 
 ```json
 {
@@ -181,6 +183,6 @@ offered as an approvable change.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 245
 }
 ```
