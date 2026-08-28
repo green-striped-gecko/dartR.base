@@ -158,7 +158,7 @@ F7 notes only, not offered.
   not touched here.
 - Characterization test: 53/53 pass. `verbose = 3` end-to-end clean on
   all three methods plus the recursive SilicoDArT path.
-- PR: recorded below after opening.
+- PR: [green-striped-gecko/dartR.base#248](https://github.com/green-striped-gecko/dartR.base/pull/248)
 
 ```json
 {
@@ -180,6 +180,6 @@ F7 notes only, not offered.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 248
 }
 ```
