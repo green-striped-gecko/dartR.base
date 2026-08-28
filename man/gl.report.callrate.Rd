@@ -34,18 +34,18 @@ individual (method='ind') [default 'loc'].}
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()]}
 
 \item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
-\item{bins}{Number of bins to display in histograms [default 25].}
+\item{bins}{Number of bins to display in histograms [default 50].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 
-\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave},
 such as width and height, when the ggplot is to be saved.}
 }
 \value{
@@ -67,7 +67,7 @@ on thresholds for filtering taking into consideration consequential loss of
 data. The summary is in the form of a tabulation and plots.
 
 The table of quantiles is useful for deciding a threshold for subsequent filtering
-as it provides an indication of the percentages of loci that will be retained and 
+as it provides an indication of the percentages of loci that will be retained and
 lost.
 
 In the case of method='ind', a list of individuals to be deleted is provided. To
@@ -77,12 +77,12 @@ whichever is the smaller.
 To avoid issues from inadvertent use of this function in an assignment statement,
 the function returns the genlight object unaltered.
 
- 
+
  A color vector can be obtained with gl.select.colors() and then passed to the function
  with the plot.colors parameter.
- 
-If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+
+If a plot.file is given, the ggplot arising from this function is saved as an "RDS"
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be
 specified for the plot to be saved.
 
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
@@ -95,8 +95,6 @@ specified for the plot to be saved.
   gl.report.callrate(test.gl)
   gl.report.callrate(test.gl,method='ind')
   gl.report.callrate(test.gl,method='ind',plot.file="test")
-  gl.report.callrate(test.gl,method='loc',by.pop=TRUE)
-  gl.report.callrate(test.gl,method='loc',by.pop=TRUE,plot.file="test")
 # Tag P/A data
   test.gs <- testset.gs[1:20,]
   gl.report.callrate(test.gs)
@@ -105,7 +103,7 @@ specified for the plot to be saved.
   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   test.gl <- testset.gl[1:20,]
   gl.report.callrate(test.gl)
-  
+
 }
 \seealso{
 \code{\link{gl.filter.callrate}}
