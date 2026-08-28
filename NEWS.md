@@ -24,3 +24,17 @@
   `last` now warns and clamps, and an out-of-range `first` is a clear
   fatal error (previously it silently dropped a single arbitrary locus).
   (4) The range-clamp warnings are now silent at `verbose = 0`.
+* `gl.report.callrate()`: five fixes. (1) The results tables previously
+  printed at every verbosity level including `verbose = 0`; they are now
+  gated at `verbose >= 1` (default `verbose = 2` output unchanged).
+  (2) The returned object is now truly unaltered, as the documentation
+  always stated -- previously it came back with the `CallRate` locus
+  metric recalculated in place; the report still uses freshly
+  recalculated values internally. (3) An unknown `method` (anything other
+  than "loc"/"ind") now warns and coerces to "loc" instead of silently
+  producing no output at all. (4) Two documented examples calling a
+  nonexistent `by.pop` argument (silently swallowed by `...`) were
+  removed. (5) Cosmetic: a stray ")" printed after the individuals table,
+  the "3r quartile" typo in both branches, `ind.to.list = 0` listing one
+  individual instead of none, and the `@param bins` default documented as
+  25 when the signature default is 50.
