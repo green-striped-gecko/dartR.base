@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.allna()`: four fixes. (1) When individuals scored all-NA
+  were present, the listing printed a literal "NULL" for every healthy
+  individual, burying the real names -- it now names only the affected
+  individuals, with a count. (2) The standard datatype check had been
+  commented out; it is restored, so non-genlight input fails fast with
+  the standard clear message. (3) The results are gated at
+  `verbose >= 1` (previously printed at every verbosity level including
+  0). (4) Documentation: real `@return` text (was the junk string
+  "gl.report.allna"), the erroneous second `@family filter functions`
+  tag removed, and the title corrected.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
