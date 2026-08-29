@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.rdepth()`: five fixes. (1) Loci with a missing (NA) read
+  depth metric silently corrupted the output -- the genotype subset
+  dropped them but the locus-metrics subset kept an all-NA row for each,
+  leaving genotypes and `loc.metrics` out of sync. NA-depth loci are now
+  removed cleanly (and counted in the `verbose >= 3` summary); datasets
+  without NA read depths are unaffected. (2) Specifying `plot.file` with
+  `plot.display = FALSE` crashed ("object 'p3' not found"); plots are now
+  always built and the RDS save works without displaying. (3) The
+  progress message claimed boundary loci are removed ("rdepth <= lower
+  and >= upper") although they are retained; it now reads "< lower or
+  > upper", matching the documented and actual behaviour. (4)
+  `verbose = 0` now forces `plot.display = FALSE`, and the return is
+  invisible, matching the other filter functions. (5) The indented
+  `@family` tag leaked into the rendered help title
+  ("... (read depth) @family matched filter"); the header has been
+  rewritten and ?gl.filter.rdepth renders correctly.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
