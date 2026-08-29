@@ -113,7 +113,7 @@ F5 notes only, not offered.
   dartr2shiny. NEWS.md entry added.
 - Characterization test: 14/14 pass. `verbose = 3` end-to-end clean on
   both datatypes and both branches.
-- PR: recorded below after opening.
+- PR: [green-striped-gecko/dartR.base#250](https://github.com/green-striped-gecko/dartR.base/pull/250)
 
 ```json
 {
@@ -133,6 +133,6 @@ F5 notes only, not offered.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 250
 }
 ```
