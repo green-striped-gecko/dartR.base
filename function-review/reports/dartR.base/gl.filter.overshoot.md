@@ -133,6 +133,6 @@ in the workspace. NEWS entry added.
   ],
   "datasets": ["testset.gl", "testset.gs"],
   "baseline_test": "tests/testthat/test-gl.filter.overshoot.R",
-  "pr": null
+  "pr": 262
 }
 ```
