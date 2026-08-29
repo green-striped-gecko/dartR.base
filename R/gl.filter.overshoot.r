@@ -9,110 +9,122 @@
 #'  sequence tag. This can happen, rarely, when the sequence containing the SNP
 #'  resembles the adaptor.
 
+#' @details
 #' The SNP genotype can still be used in most analyses, but functions like
 #' gl2fasta() will present challenges if the SNP has been trimmed from the
 #' sequence tag.
-
+#'
 #' Not fatal, but should apply this filter before gl.filter.secondaries, for
 #' obvious reasons.
+#'
+#' Loci for which the overshoot status cannot be assessed (missing
+#' TrimmedSequence or SnpPosition) are removed.
 
 #' @param x Name of the genlight object [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 
-#' @author Author(s): Arthur Georges; Custodian: Arthur Georges -- Post to
+#' @return A new genlight object with the recalcitrant loci deleted
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' result <- gl.filter.overshoot(testset.gl, verbose=3)
-#' 
+
+#' @seealso \code{\link{gl.report.overshoot}}
+
 #' @export
-#' @return A new genlight object with the recalcitrant loci deleted
 
 gl.filter.overshoot <- function(x,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
-    
+
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, accept = c("genlight", "SNP"), verbose = verbose)
-    
+
     # SCRIPT SPECIFIC ERROR CHECKING
-    
+
     if (length(x@other$loc.metrics$TrimmedSequence) != nLoc(x)) {
         stop(
             error(
-                "Fatal Error: Data must include Trimmed Sequences for each loci 
-                in a column called 'TrimmedSequence' in the @other$loc.metrics 
+                "Fatal Error: Data must include Trimmed Sequences for each loci
+                in a column called 'TrimmedSequence' in the @other$loc.metrics
                 slot.\n"
             )
         )
     }
     if (length(x@other$loc.metrics$SnpPosition) != nLoc(x)) {
         stop(error(
-            "Fatal Error: Data must include position information for each 
+            "Fatal Error: Data must include position information for each
             loci.\n"
         ))
     }
-    
+
     # DO THE JOB
-    
+
     if (verbose >= 2) {
         cat(report(
-            "  Identifying loci for which the SNP has been trimmed with the 
+            "  Identifying loci for which the SNP has been trimmed with the
             adaptor\n"
         ))
     }
-    
+
     trimmed <- as.character(x@other$loc.metrics$TrimmedSequence)
     snpos <- x@other$loc.metrics$SnpPosition
     # Shift the index for snppos to start from 1 not zero
     snpos <- snpos + 1
-    # Pull those loci for which the SNP position is greater than the tag length
-    os <- which(snpos > nchar(trimmed))
-    if(length(os)>0){
-      # Report the number of such loci
-      if (verbose >= 3) {
-        cat("  No. of loci with SNP falling outside the trimmed sequence:",
-            length(os),
-            "\n")
-          cat(paste0(locNames(x)[os], ","))
-          cat("\n")
-      }
+    # Pull those loci for which the SNP position is greater than the tag
+    # length, or for which the status cannot be assessed (NA)
+    not.assessable <- is.na(snpos) | is.na(trimmed)
+    os <- which(snpos > nchar(trimmed) | not.assessable)
 
-      # Delete the overshoot loci, keeping the rest
-      x2 <- x[, -os]
-      # updating loc.metrics
-      x2@other$loc.metrics <- x@other$loc.metrics[-os, ]
-      
-      # ADD TO HISTORY
-      nh <- length(x2@other$history)
-      x2@other$history[[nh + 1]] <- match.call()
-      
-      # FLAG SCRIPT END
-      if (verbose > 0) {
-        cat(report("Completed:", funname, "\n"))
-      }
-      
-      return(x2)
+    if (length(os) > 0) {
+        # Report the number of such loci
+        if (verbose >= 3) {
+            cat("  No. of loci with SNP falling outside the trimmed sequence:",
+                length(os),
+                "\n")
+            cat(paste(locNames(x)[os], collapse = ", "))
+            cat("\n")
+            if (any(not.assessable)) {
+                cat("  No. of loci removed for missing (NA) TrimmedSequence or SnpPosition:",
+                    sum(not.assessable),
+                    "\n")
+            }
+        }
 
-    }else{
-      cat("  There were no loci with SNP falling outside the trimmed sequence\n")
-      
-      # FLAG SCRIPT END
-      if (verbose > 0) {
-        cat(report("Completed:", funname, "\n"))
-      }
-      
-      return(x)
+        # Delete the overshoot loci, keeping the rest
+        x2 <- x[, -os]
+        # updating loc.metrics
+        x2@other$loc.metrics <- x@other$loc.metrics[-os, ]
+
+        # ADD TO HISTORY
+        nh <- length(x2@other$history)
+        x2@other$history[[nh + 1]] <- match.call()
+
+    } else {
+        if (verbose >= 1) {
+            cat("  There were no loci with SNP falling outside the trimmed sequence\n")
+        }
+        x2 <- x
     }
+
+    # FLAG SCRIPT END
+    if (verbose > 0) {
+        cat(report("Completed:", funname, "\n"))
+    }
+
+    return(invisible(x2))
 
 }
