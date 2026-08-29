@@ -12,7 +12,8 @@ gl.filter.overshoot(x, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A new genlight object with the recalcitrant loci deleted
@@ -22,18 +23,25 @@ This function checks the position of the SNP within the trimmed sequence tag
 and identifies those for which the SNP position is outside the trimmed
  sequence tag. This can happen, rarely, when the sequence containing the SNP
  resembles the adaptor.
+}
+\details{
 The SNP genotype can still be used in most analyses, but functions like
 gl2fasta() will present challenges if the SNP has been trimmed from the
 sequence tag.
+
 Not fatal, but should apply this filter before gl.filter.secondaries, for
 obvious reasons.
+
+Loci for which the overshoot status cannot be assessed (missing
+TrimmedSequence or SnpPosition) are removed.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl.filter.overshoot(testset.gl, verbose=3)
-
 }
 \seealso{
+\code{\link{gl.report.overshoot}}
+
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},
@@ -46,7 +54,7 @@ Other matched filter:
 \code{\link{gl.filter.secondaries}()}
 }
 \author{
-Author(s): Arthur Georges; Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched filter}
