@@ -116,7 +116,7 @@ F5 notes only, not offered.
 - Characterization test: 17/17 pass, incl. exact removal-set checks on
   both datatypes and the all-heterozygous fixture. `verbose = 3`
   end-to-end clean on both datatypes.
-- PR: recorded below after opening.
+- PR: [green-striped-gecko/dartR.base#251](https://github.com/green-striped-gecko/dartR.base/pull/251)
 
 ```json
 {
@@ -136,6 +136,6 @@ F5 notes only, not offered.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 251
 }
 ```
