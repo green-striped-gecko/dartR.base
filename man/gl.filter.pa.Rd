@@ -50,7 +50,8 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.replicates}()},
-\code{\link{gl.filter.secondaries}()}
+\code{\link{gl.filter.secondaries}()},
+\code{\link{gl.filter.taglength}()}
 }
 \author{
 Authors: Bernd Gruber & Ella Kelly (University of Melbourne);

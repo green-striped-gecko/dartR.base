@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.taglength()`: four fixes, mirroring `gl.filter.rdepth`
+  (#256). (1) Loci with a missing (NA) TrimmedSequence silently corrupted
+  the output -- genotypes were dropped while `loc.metrics` kept a
+  garbage all-NA row for each, desyncing the object. NA-length loci are
+  now removed cleanly and itemised in the `verbose >= 3` summary. (2)
+  The progress message claimed loci *between* the thresholds are removed
+  although those are the loci retained; it now reads "tag length < lower
+  or > upper". (3) The threshold swap/range warnings printed at
+  `verbose = 0` and the lower-range message named the wrong parameter
+  ("'verbose'"); warnings now gate at `verbose >= 1` with corrected
+  text. (4) The return is now invisible, and the indented `@family` tag
+  no longer leaks into the rendered help title.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
