@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.monomorphs()`: two behavioural fixes. (1) The return is now
+  invisible, so an unassigned call no longer prints the full object
+  summary (assigned use is unchanged). (2) Each call now records exactly
+  one entry in `@other$history` -- previously the internal
+  `gl.drop.loc()` delegation leaked a second, implementation-detail
+  entry carrying the full list of removed locus names. Also: a
+  works-by-coincidence `length(loc.list > 0)` corrected to
+  `length(loc.list) > 0` (provably identical behaviour), and
+  documentation tidied (Author(s) line, tag order, unused imports
+  removed).
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
