@@ -85,6 +85,7 @@ x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
   sequence divergence before choosing a threshold.
 
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},

@@ -62,7 +62,6 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 
 Other filter functions: 
-\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.hwe}()}
 }
 \author{
