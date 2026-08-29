@@ -143,7 +143,7 @@ F7 notes only, not offered.
   NEWS.md entry added.
 - Characterization test: 24/24 pass. `verbose = 3` end-to-end clean on
   both datatypes and both paths.
-- PR: recorded below after opening.
+- PR: [green-striped-gecko/dartR.base#252](https://github.com/green-striped-gecko/dartR.base/pull/252)
 
 ```json
 {
@@ -165,6 +165,6 @@ F7 notes only, not offered.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture available"],
   "status": "pr-open",
-  "pr": null
+  "pr": 252
 }
 ```
