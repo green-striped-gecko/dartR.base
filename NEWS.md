@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.reproducibility()`: five fixes. (1) A dataset missing the
+  RepAvg (SNP) or Reproducibility (SilicoDArT) metric was returned
+  UNFILTERED with no error or warning; it now stops with the same fatal
+  error as the report sibling. The function also demanded
+  AlleleID/CloneID, metrics it never uses -- that check is removed, so
+  datasets carrying the repeatability metric but no AlleleID now work.
+  (2) One call appended two history entries (the internal `gl.drop.loc`
+  delegation leaked its own); now exactly one, per the
+  gl.filter.monomorphs precedent. (3) Loci with NA repeatability
+  silently passed the filter; they are now removed and itemised in the
+  `verbose >= 3` summary, matching gl.filter.rdepth/taglength. (4)
+  `plot.file` with `plot.display = FALSE` crashed ("object 'p3' not
+  found"); plots are now always built and the save works without
+  displaying. (5) The out-of-range threshold warning is gated at
+  `verbose >= 1`, the return is invisible, and the indented `@family`
+  tag no longer leaks into the rendered help title.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`

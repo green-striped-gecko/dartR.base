@@ -66,6 +66,7 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.reproducibility}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{
