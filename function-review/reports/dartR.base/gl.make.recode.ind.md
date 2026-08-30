@@ -104,6 +104,6 @@ dartr2shiny: not present in the workspace. NEWS entry added.
   ],
   "datasets": ["testset.gl", "testset.gs"],
   "baseline_test": "tests/testthat/test-gl.make.recode.ind.R",
-  "pr": null
+  "pr": 269
 }
 ```
