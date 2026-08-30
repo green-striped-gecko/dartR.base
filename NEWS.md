@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.make.recode.pop()`: mirror of the gl.make.recode.ind fixes. The
+  visible NULL return is now invisible with `@return` stating the actual
+  contract (proforma written to file); the indented `@family` tag no
+  longer leaks into the rendered help title; the `outpath` description
+  no longer claims to save "plot RDS files"; and the @details wording
+  now says populations where it said individuals. Proforma content and
+  the round-trip through `gl.recode.pop()` were verified exact.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
