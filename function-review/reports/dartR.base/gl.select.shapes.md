@@ -136,6 +136,6 @@ dartR.captive::gl.grm.network). NEWS entry added.
   ],
   "datasets": ["testset.gl"],
   "baseline_test": "tests/testthat/test-gl.select.shapes.R",
-  "pr": null
+  "pr": 275
 }
 ```
