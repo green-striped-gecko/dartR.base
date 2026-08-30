@@ -126,6 +126,7 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 
 Other matched filter: 
 \code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.heterozygosity}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
