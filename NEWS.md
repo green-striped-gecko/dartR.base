@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.locmetric()`: four fixes. (1) The summary statistics and
+  quantile table printed at every verbosity level including
+  `verbose = 0`; now gated at `verbose >= 1`. (2) The stats lines carried
+  doubled labels ("Minimum      :  Min.   : 5.0") because `summary()`
+  was applied to the one-column data.frame rather than the vector; they
+  now print clean numeric values. (3) The "Retained" counts treated NA
+  metric values as retained; they now exclude NAs (relevant for
+  user-supplied custom metrics). (4) "1st quantile"/"3r quantile"
+  corrected to quartile labels. This function already had the verbose-0
+  plot guard, unconditional plot build, working plot.file-without-
+  display, and invisible return.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
