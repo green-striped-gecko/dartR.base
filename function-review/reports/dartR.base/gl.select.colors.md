@@ -148,6 +148,6 @@ NEWS entry added.
   ],
   "datasets": ["testset.gl"],
   "baseline_test": "tests/testthat/test-gl.select.colors.R",
-  "pr": null
+  "pr": 274
 }
 ```
