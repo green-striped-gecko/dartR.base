@@ -170,6 +170,6 @@ callers of gl.smearplot in the live family packages. NEWS entry added.
   ],
   "datasets": ["testset.gl", "testset.gs"],
   "baseline_test": "tests/testthat/test-gl.smearplot.R",
-  "pr": null
+  "pr": 277
 }
 ```
