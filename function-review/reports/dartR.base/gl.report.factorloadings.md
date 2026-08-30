@@ -144,6 +144,6 @@ present in the workspace. NEWS entry added.
   ],
   "datasets": ["glPca from gl.pcoa(testset.gl)"],
   "baseline_test": "tests/testthat/test-gl.report.factorloadings.R",
-  "pr": null
+  "pr": 265
 }
 ```
