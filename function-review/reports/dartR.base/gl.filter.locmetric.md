@@ -161,6 +161,6 @@ added.
   ],
   "datasets": ["testset.gl (dummy metric)", "NA-injected variant", "pop-less variant"],
   "baseline_test": "tests/testthat/test-gl.filter.locmetric.R",
-  "pr": null
+  "pr": 264
 }
 ```
