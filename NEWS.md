@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.make.recode.ind()`: the visible NULL return (a bare call printed
+  "NULL") is now invisible, and the `@return` documentation -- which
+  promised "A vector containing the new individual names" -- now states
+  the actual contract: the proforma recode table is written to file and
+  NULL is returned invisibly. The `outpath` parameter description no
+  longer claims to save "plot RDS files" (a copy-paste from a plot
+  function). Proforma content and the round-trip through
+  `gl.recode.ind()` were verified exact on both datatypes.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
