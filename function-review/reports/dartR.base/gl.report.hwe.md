@@ -150,6 +150,6 @@ dartr2shiny: not present in the workspace. NEWS entry added.
   ],
   "datasets": ["testset.gl", "LBP"],
   "baseline_test": "tests/testthat/test-gl.report.hwe.R",
-  "pr": null
+  "pr": 271
 }
 ```
