@@ -105,5 +105,5 @@ shared by SNP-style inputs. NEWS entry added.
   {"id": "F3", "severity": "MEDIUM", "rules": ["STY", "VRB"], "loc": "R/gl.join.r flags/warnings", "status": "applied"},
   {"id": "F4", "severity": "LOW", "rules": ["DAT", "DOC"], "loc": "R/gl.join.r", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs", "platypus.gl"],
- "baseline_test": "tests/testthat/test-gl.join.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.join.R", "pr": 284}
 ```
