@@ -121,5 +121,5 @@ Suggests.
   {"id": "F3", "severity": "MEDIUM", "rules": ["spec", "DEP", "VRB"], "loc": "R/gl.report.replicates.r checks", "status": "applied"},
   {"id": "F4", "severity": "LOW", "rules": ["VRB", "DOC"], "loc": "R/gl.report.replicates.r", "status": "applied"}],
  "datasets": ["platypus.gl (constructed duplicates)"],
- "baseline_test": "tests/testthat/test-gl.report.replicates.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.report.replicates.R", "pr": 287}
 ```
