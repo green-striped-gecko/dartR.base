@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.colors()`: three fixes. (1) Both invalid-type exits used
+  `cat(error(...))` followed by `stop(-1)`, so the error condition an
+  upstream `tryCatch()` received carried the message "-1" while the real
+  message printed to stdout where even `try(silent = TRUE)` could not
+  suppress it; they now use `stop(error(...))`. (2) The return is now
+  visible -- the documented example `gl.colors(2)` previously displayed
+  nothing because the result was returned `invisible()`. (3) Documentation:
+  the description listed a `"pal"` category that the function has never
+  accepted (it was a fatal error) -- removed; the implemented but
+  undocumented `"structure"` type (35 discrete colors, used by
+  `dartR.popgen::gl.plot.snmf`) is now documented, along with header
+  conformance fixes and an accurate `@return` (the four palette types
+  return a function, not a vector). Note: `gl.colors()` evaluated as a
+  default argument in a caller's signature still prints its banner at the
+  caller's `verbose = 0` unless the default passes `verbose = 0`; changing
+  the default verbosity was considered and deliberately not adopted.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
