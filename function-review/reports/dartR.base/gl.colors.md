@@ -143,6 +143,6 @@ default-argument sites never auto-print. NEWS entry added.
   ],
   "datasets": [],
   "baseline_test": "tests/testthat/test-gl.colors.R",
-  "pr": null
+  "pr": 276
 }
 ```
