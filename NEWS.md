@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.define.pop()`: the not-present-individual warning printed at
+  `verbose = 0`; now gated at `verbose >= 2`. An irrelevant preamble that
+  ran a full `gl.filter.monomorphs()` on every call solely to warn that
+  monomorphic loci exist was removed. Style: the assignment message is now
+  styled and printed after the assignment actually happens; dead
+  `is.na(length())` condition removed; header tag order.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
