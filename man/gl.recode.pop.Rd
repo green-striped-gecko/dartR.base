@@ -17,9 +17,10 @@ are deleted in the filtering [default FALSE].}
 
 \item{mono.rm}{If TRUE, removes monomorphic loci [default FALSE].}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
-progress log; 3, progress and results summary; 5, full report 
-[default 2 or as specified using gl.set.verbosity].}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A genlight object with the recoded and reduced data.
@@ -38,13 +39,13 @@ When caution needs to be exercised because of the potential for breaking the
 a recode table (csv) can provide a durable record of the changes.
 The population recode file contains a list of populations taken from the genlight
  object as the first column of the csv file, and the new population
- assignments are located in the second column of the csv file. The keyword 
- 'Delete' used as a new population assignment will result in the associated 
+ assignments are located in the second column of the csv file. The keyword
+ 'Delete' used as a new population assignment will result in the associated
  specimen being dropped from the dataset.
 The function works with genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
-For SNP genotype data, the function, having deleted populations, optionally 
-identifies resultant monomorphic loci or loci with all values missing 
+For SNP genotype data, the function, having deleted populations, optionally
+identifies resultant monomorphic loci or loci with all values missing
 and deletes them. The script also optionally recalculates the
 locus metadata as appropriate. The optional deletion of monomorphic loci
 and the optional recalculation of locus statistics is not available for
@@ -57,9 +58,8 @@ Tag P/A data (SilicoDArT).
   gl <- gl.recode.pop(testset.gl, pop.recode=mfile, verbose=3)
 }
 \seealso{
+\code{\link{gl.recode.ind}}, \code{\link{gl.drop.pop}},
 \code{\link{gl.filter.monomorphs}}
-
-\code{\link{gl.recode.pop}}
 
 Other data manipulation: 
 \code{\link{gl.define.pop}()},
@@ -85,7 +85,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}
