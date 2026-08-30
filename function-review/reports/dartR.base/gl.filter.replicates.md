@@ -104,5 +104,5 @@ itemised. NEWS entry added.
   {"id": "F3", "severity": "MEDIUM", "rules": ["FS8", "VRB"], "loc": "R/gl.filter.replicates.r delegation", "status": "applied"},
   {"id": "F4", "severity": "LOW", "rules": ["VRB", "DOC"], "loc": "R/gl.filter.replicates.r", "status": "applied"}],
  "datasets": ["platypus.gl (constructed duplicates)"],
- "baseline_test": "tests/testthat/test-gl.filter.replicates.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.filter.replicates.R", "pr": 288}
 ```
