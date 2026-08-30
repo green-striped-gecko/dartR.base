@@ -138,6 +138,6 @@ NEWS entry added.
   ],
   "datasets": ["testset.gl", "testset.gs"],
   "baseline_test": "tests/testthat/test-gl.report.locmetric.R",
-  "pr": null
+  "pr": 263
 }
 ```
