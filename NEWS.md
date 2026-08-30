@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.rename.pop()`: three behaviour fixes. (1) Renaming a population
+  that does not exist was a silent no-op that still recorded a history
+  entry claiming the rename happened; it is now a fatal error listing
+  the populations present. (2) Renaming TO an existing population name
+  silently MERGED the two populations (an artefact of R's `levels<-`
+  merge semantics); it is now a fatal error -- use `gl.recode.pop()` to
+  amalgamate populations deliberately. (3) A pop-less object produced
+  the cryptic "attempt to set an attribute on NULL"; now a clear fatal
+  error. Also: invisible return, a redundant class check removed, and
+  the header brought to the ratified template.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
