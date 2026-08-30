@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.reassign.ind()`: conformance fixes -- the five fatal exits now use
+  the house `stop(error(...))` styling; the empty-selection notice is a
+  gated `cat(warn())` (verbose >= 2) instead of an R `warning()`; repeated
+  indices in a numeric `ind.list` are deduplicated.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
