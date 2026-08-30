@@ -108,6 +108,7 @@ Other matched report:
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
