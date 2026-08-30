@@ -1,5 +1,34 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.hwe()` / `gl.filter.hwe()`: the functionality of the
+  deprecated `gl.report.excess.het()` / `gl.filter.excess.het()` has been
+  migrated into this pair. Both functions gain `direction` ('both',
+  'excess', 'deficit') to restrict attention to heterozygote excess or
+  deficit (an expected-heterozygote column, Het.exp, is now included in
+  the report output), and `min.hobs` to restrict testing to loci with
+  observed heterozygosity at or above a threshold, applied before the
+  multiple-comparison adjustment. The published Robledo-Ruiz et al.
+  (2023) excess-heterozygosity workflow is reproduced with
+  direction='excess', min.hobs=0.5, ChiSquare test and fdr adjustment;
+  the deprecated functions remain as thin wrappers that emit a
+  deprecation warning and produce the same flagged/removed loci as
+  before (verified exactly on the LBP dataset), and will be removed in a
+  future release. Migrating also retires a defect in the old
+  gl.filter.excess.het, which computed its per-population genotype
+  counts on the wrong individuals (a recycled per-population index).
+
+  Review fixes applied to the pair in the same change: (1) the skipping
+  of monomorphic and small-sample populations happened only at
+  `verbose >= 2`, so the tested set -- and any multiple-comparison
+  pool -- depended on verbosity (verbose 0 tested all 30 testset.gl
+  populations, verbose 2 only 23); populations are now skipped at every
+  verbosity. (2) A missing HardyWeinberg package now raises a fatal
+  error instead of returning -1, and ggtern is required only when
+  ternary plots are requested (plot.out=TRUE). (3) The out-of-range
+  alpha warning is gated at `verbose >= 1` and no longer calls alpha an
+  "integer". (4) gl.report.hwe now carries a @family tag, and
+  gl.filter.hwe's duplicated/indented family tags are repaired.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`

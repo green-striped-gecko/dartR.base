@@ -53,7 +53,6 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other filter functions: 
-\code{\link{gl.filter.hwe}()},
 \code{\link{gl.report.allna}()}
 }
 \author{

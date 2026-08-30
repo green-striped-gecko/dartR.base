@@ -76,10 +76,10 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \code{\link{gl.filter.reproducibility}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},

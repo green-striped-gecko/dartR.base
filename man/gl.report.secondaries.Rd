@@ -128,10 +128,10 @@ Schmidt, T.L., Jasper, M.-E., Weeks, A.R., Hoffmann, A.A., 2021.
 \code{\link{utils.n.var.invariant}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},

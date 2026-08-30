@@ -49,9 +49,9 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
@@ -62,8 +62,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 
 Other filter functions: 
-\code{\link{gl.filter.allna}()},
-\code{\link{gl.filter.hwe}()}
+\code{\link{gl.filter.allna}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

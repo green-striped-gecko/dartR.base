@@ -1,7 +1,7 @@
 #' @name gl.filter.hwe
 #' @title Filters loci that show significant departure from Hardy-Weinberg
 #'  Equilibrium
-#'  @family matched filter
+#' @family matched filter
 
 #' @description
 #' This function filters out loci showing significant departure from H-W
@@ -31,11 +31,20 @@
 #' Either 'dost','selome','midp' (see details) [default 'midp'].
 #' @param cc.val The continuity correction applied to the ChiSquare test
 #'  [default 0.5].
+#' @param direction Restrict filtering to loci departing from Hardy-Weinberg
+#' proportions in a particular direction: 'both' (any departure), 'excess'
+#' (heterozygote excess, i.e. observed heterozygotes exceed Hardy-Weinberg
+#' expectation) or 'deficit' (heterozygote deficit) [default 'both'].
+#' @param min.hobs Restrict testing to loci with observed heterozygosity
+#' greater than or equal to this proportion; 0 disables the screen. The
+#' screen is applied before any adjustment for multiple comparisons, so it
+#' also confines the adjustment to the screened loci [default 0].
 #' @param n.min Minimum number of individuals per population in which
 #' perform H-W tests [default 5].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' 
 #' @details
 #'  Several factors can cause deviations from Hardy-Weinberg
@@ -112,6 +121,23 @@
 #' The number of tests on which the adjustment for multiple comparisons is
 #' the number of populations times the number of loci.
 
+#' \strong{Heterozygote excess and deficit}
+
+#' Loci with a significant excess of heterozygotes are candidate sex-linked or
+#' paralogous (collapsed duplicate) loci (Robledo-Ruiz et al., 2023); loci
+#' with a heterozygote deficit can indicate null alleles, inbreeding or
+#' population substructure (Wahlund effect). Setting direction='excess' (or
+#' 'deficit') restricts removal to loci whose observed heterozygote count
+#' exceeds (falls below) the Hardy-Weinberg expectation. To reproduce the
+#' workflow of the deprecated gl.filter.excess.het() (Robledo-Ruiz et al.,
+#' 2023), use: direction='excess', min.hobs=0.5, test.type='ChiSquare',
+#' mult.comp.adj=TRUE, mult.comp.adj.method='fdr' (cc.val=0.5 corresponds to
+#' Yates=TRUE, cc.val=0 to Yates=FALSE). The min.hobs=0.5 screen — testing
+#' only loci with observed heterozygosity of at least 0.5 — is an integral
+#' part of that published workflow: it targets the strong-excess loci
+#' characteristic of sex linkage and confines the false-discovery-rate
+#' adjustment to the screened set.
+
 #' \bold{From v2.1} \code{gl.filter.hwe} takes the argument
 #'  \code{n.pop.threshold}.
 #' if \code{n.pop.threshold > 1} loci will be removed only if they are 
@@ -121,7 +147,7 @@
 
 #' @return A genlight object with the loci departing significantly from H-W
 #' proportions removed.
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
@@ -146,6 +172,11 @@
 #'  on a modified Bonferroni test. Biometrika, 75, 383–386.
 #' \item Rice, W. R. (1989). Analyzing tables of statistical tests. Evolution,
 #'  43(1), 223-225.
+#' \item Robledo-Ruiz, D. A., Austin, L., Amos, J. N., Castrejon-Figueroa, J.,
+#' Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023).
+#' Easy-to-use R functions to separate reduced-representation genomic datasets
+#' into sex-linked and autosomal loci, and conduct sex assignment. Molecular
+#' Ecology Resources.
 #' \item Waples, R. S. (2015). Testing for Hardy–Weinberg proportions: have we
 #' lost the plot?. Journal of heredity, 106(1), 1-19.
 #' \item Wigginton, J.E., Cutler, D.J., & Abecasis, G.R. (2005). A Note on Exact
@@ -154,7 +185,6 @@
 #' }
 #' @seealso \code{\link{gl.report.hwe}}
 #' @rawNamespace import(data.table, except = c(melt,dcast))
-#' @family filter functions
 #' @export
 
 gl.filter.hwe <- function(x,
@@ -166,6 +196,8 @@ gl.filter.hwe <- function(x,
                           alpha = 0.05,
                           pvalue.type = "midp",
                           cc.val = 0.5,
+                          direction = "both",
+                          min.hobs = 0,
                           n.min = 5,
                           verbose = NULL) {
     # SET VERBOSITY
@@ -183,12 +215,11 @@ gl.filter.hwe <- function(x,
     # FUNCTION SPECIFIC ERROR CHECKING check if packages are installed
     pkg <- "HardyWeinberg"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
     
     if (datatype == "SilicoDArT") {
@@ -202,15 +233,27 @@ gl.filter.hwe <- function(x,
     }
     
     if (alpha < 0 | alpha > 1) {
-        cat(
-            warn(
-                "    Warning: level of significance per locus alpha must be an 
-                integer between 0 and 1, set to 0.05\n"
+        if (verbose >= 1) {
+            cat(
+                warn(
+                    "    Warning: level of significance per locus alpha must be
+                a value between 0 and 1, set to 0.05\n"
+                )
             )
-        )
+        }
         alpha <- 0.05
     }
-    
+
+    if (!direction %in% c("both", "excess", "deficit")) {
+        if (verbose >= 1) {
+            cat(warn(
+                "    Warning: direction must be 'both', 'excess' or 'deficit',
+                set to 'both'\n"
+            ))
+        }
+        direction <- "both"
+    }
+
     # DO THE JOB
     # Set NULL to variables to pass CRAN checks
     N<-Locus<-NULL
@@ -299,18 +342,19 @@ gl.filter.hwe <- function(x,
                     "... skipped\n"
                 )
             )
-            # removing pops that do not have heteromorphic loci
-            pops_to_remove <-
-                which(names(poplist) %in% names(monomorphic_pops))
-            poplist <- poplist[-pops_to_remove]
         }
+        # removing pops that do not have heteromorphic loci; performed at
+        # every verbosity so that results do not depend on verbose
+        pops_to_remove <-
+            which(names(poplist) %in% names(monomorphic_pops))
+        poplist <- poplist[-pops_to_remove]
     }
-    
+
     # testing whether populations have small sample size
     n_ind_pops_temp <- unlist(lapply(poplist, nInd))
     n_ind_pops <-
         n_ind_pops_temp[which(n_ind_pops_temp <= n.min)]
-    
+
     if (length(n_ind_pops) > 0) {
         if (verbose >= 2) {
             cat(
@@ -322,11 +366,12 @@ gl.filter.hwe <- function(x,
                     "individuals... skipped\n"
                 )
             )
-            # removing pops that have low sample size
-            pops_to_remove_2 <-
-                which(names(poplist) %in% names(n_ind_pops))
-            poplist <- poplist[-pops_to_remove_2]
         }
+        # removing pops that have low sample size; performed at every
+        # verbosity so that results do not depend on verbose
+        pops_to_remove_2 <-
+            which(names(poplist) %in% names(n_ind_pops))
+        poplist <- poplist[-pops_to_remove_2]
     }
     
     if (length(poplist) < 1) {
@@ -415,7 +460,18 @@ gl.filter.hwe <- function(x,
             rbind.data.frame(result, result_temp, stringsAsFactors = FALSE)
     }
     result <- result[-1, ]
-    
+
+    # Expected heterozygote count under Hardy-Weinberg proportions, used
+    # for the direction filter
+    p_ref <- (2 * result$Hom_1 + result$Het) / (2 * result$N)
+    result$Het.exp <- 2 * result$N * p_ref * (1 - p_ref)
+
+    # Observed-heterozygosity screen; applied before the adjustment for
+    # multiple comparisons so the adjustment pool is the screened set
+    if (min.hobs > 0) {
+        result <- result[which(result$Het / result$N >= min.hobs), ]
+    }
+
     if (mult.comp.adj == TRUE) {
         result$Prob.adj <-
             stats::p.adjust(result$Prob, method = mult.comp.adj.method)
@@ -434,6 +490,13 @@ gl.filter.hwe <- function(x,
     }
     if (mult.comp.adj == T) {
         df <- df[which(df$Prob.adj <= alpha), ]
+    }
+    # Restrict to the nominated direction of departure
+    if (direction == "excess") {
+        df <- df[which(df$Het > df$Het.exp), ]
+    }
+    if (direction == "deficit") {
+        df <- df[which(df$Het < df$Het.exp), ]
     }
     npop <-NULL #needs to be defined to avoid cran check error
     dt <- data.table(df)
@@ -471,6 +534,10 @@ gl.filter.hwe <- function(x,
                 alpha,
                 "applied locus by locus\n"
             )
+        }
+        if (direction != "both") {
+            cat("  Removal restricted to loci with heterozygote",
+                direction, "\n")
         }
         cat("  Loci retained:", nLoc(hold2), "\n\n")
         cat(
