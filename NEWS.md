@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.recode.ind()`: five fixes, mirroring `gl.recode.pop()`. (1) The
+  `verbose = 3` deletions listing printed the literal word "Delete"
+  instead of the deleted individuals' original identifiers (they had
+  already been renamed before listing); it now lists the original names
+  from the recode table, at `verbose >= 3` rather than only exactly 3.
+  (2) verbose = 0 was not silent: the internal gl.drop.ind call always
+  received both 'Delete' and 'delete' and warned about the absent one;
+  only present spellings are now passed. (3) The object's locus-metric
+  flags depended on verbosity (a pure renaming run invalidated them at
+  `verbose >= 2` only); the misplaced reset is removed. (4) One call now
+  appends exactly one history entry (the Delete path leaked the internal
+  gl.drop.ind call). (5) The results summary gates at `verbose >= 3`
+  (was >= 2), the return is invisible, the monomorphs-flag check is
+  isFALSE()-guarded, and the @return no longer claims a genind can be
+  returned.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
