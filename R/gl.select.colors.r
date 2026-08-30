@@ -11,16 +11,17 @@
 #' @param x Optionally, provide a gl object from which to determine the number
 #' of populations [default NULL].
 #' @param library Name of the color library to be used, one of 'brewer'
-#' 'gr.palette', 'gr.hcl' or 'baseR' [default scales::hue_pl].
+#' 'gr.palette', 'gr.hcl' or 'baseR' [default scales::hue_pal].
 #' @param palette Name of the color palette to be pulled from the specified
 #' library, refer function help [default is library specific].
 #' @param ncolors number of colors to be displayed and returned [default 9 or nPop(gl)].
-#' @param select select bu number the colors to retain in the output vector; 
+#' @param select select by number the colors to retain in the output vector;
 #' can repeat colors. [default NULL].
 #' @param plot.display if TRUE, plot the colours in the plot window [default=TRUE]
-#' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' 
 #' @details
 #' Colors are chosen by specifying a library (one of 'brewer'
@@ -56,7 +57,9 @@
 #' the final vector. This can be useful for fine-tuning color selection, and
 #' matching colors and shapes.
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @return A vector with the required number of colors
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
@@ -79,23 +82,8 @@
 #' 
 #' @seealso \code{\link{gl.select.shapes}}
 #' 
-#' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow
+#' @importFrom grDevices cm.colors hcl.pals palette.pals terrain.colors topo.colors rainbow heat.colors
 #' @export
-#' 
-#' @return A vector with the required number of colors
-
-# Testing scripts
-# cols <- gl.select.colors()
-# cols <- gl.select.colors(x=testset.gl)
-# cols <- gl.select.colors(x=testset.gl,ncolors=3)
-# cols <- gl.select.colors(library="brewer")
-# cols <- gl.select.colors(library="baseR")
-# cols <- gl.select.colors(library="gr.hcl")
-# cols <- gl.select.colors(library="gr.palette")
-# cols <- gl.select.colors(library='brewer',palette='Spectral',ncolors=6)
-# cols <- gl.select.colors(library='baseR',palette='Spectral',ncolors=6)
-# cols <- gl.select.colors(library='gr.palette',palette='Spectral',ncolors=6)
-# cols <- gl.select.colors(palette='Spectral',ncolors=6)
 
 # Function -----------------
 gl.select.colors <- function(x = NULL,
@@ -118,28 +106,26 @@ gl.select.colors <- function(x = NULL,
     # CHECK PACKAGES
     pkg <- "RColorBrewer"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
     
     pkg <- "scales"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
     
     # SCRIPT SPECIFIC ERROR CHECKING
     
     if (!is.null(x)) {
-      datatype <- utils.check.datatype(x)
+      datatype <- utils.check.datatype(x, verbose = verbose)
     }
     
     if (is.null(ncolors)) {
@@ -192,7 +178,18 @@ gl.select.colors <- function(x = NULL,
       }
     }
     
-    if (is.null(library)) {
+    if (!is.null(library) &&
+        !library %in% c("scales", "brewer", "gr.palette", "gr.hcl", "baseR")) {
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: library must be one of scales, brewer, gr.palette,
+                gr.hcl or baseR, set to scales (hue_pal)\n"
+            ))
+        }
+        library <- NULL
+    }
+
+    if (is.null(library) | isTRUE(library == "scales")) {
         library <- "scales"
         palette <- "hue_pal"
         colors <- (scales::hue_pal())(ncolors)
@@ -228,7 +225,24 @@ gl.select.colors <- function(x = NULL,
                     cat(warn("  Set to Spectral\n"))
                 }
             }
-            colors <- RColorBrewer::brewer.pal(ncolors, palette)
+            # brewer.pal returns a minimum of 3 colors and at most the
+            # palette maximum; honour the request exactly where possible
+            if (ncolors < 3) {
+                colors <- RColorBrewer::brewer.pal(3, palette)[seq_len(ncolors)]
+            } else {
+                max.n <- RColorBrewer::brewer.pal.info[palette, "maxcolors"]
+                if (ncolors > max.n) {
+                    if (verbose >= 1) {
+                        cat(warn(
+                            "  Warning:", ncolors,
+                            "colors requested but palette", palette,
+                            "holds only", max.n, "- returning", max.n, "\n"
+                        ))
+                    }
+                    ncolors <- max.n
+                }
+                colors <- RColorBrewer::brewer.pal(ncolors, palette)
+            }
             if (verbose >= 2) {
             cat(report(("  Library: RColorBrewer\n")))
             cat(report(("  Palette: brewer.pal\n")))
@@ -332,6 +346,12 @@ gl.select.colors <- function(x = NULL,
                 cat(report(("  Library: baseR\n")))
                 cat(report(("  Palette: rainbow\n")))
                 }
+            } else if (palette == "heat") {
+                colors <- heat.colors(n = ncolors)
+                if (verbose >= 2) {
+                cat(report(("  Library: baseR\n")))
+                cat(report(("  Palette: heat.colors\n")))
+                }
             } else if (palette == "topo.colors") {
                 colors <- topo.colors(n = ncolors)
                 if (verbose >= 2) {
@@ -377,6 +397,12 @@ gl.select.colors <- function(x = NULL,
             library <- "grDevice-palette"
         }
         if (!is.null(select)) {
+            if (any(select < 1 | select > length(colors))) {
+                stop(error(
+                    "Fatal Error: select indices must lie between 1 and the
+                    number of colors available (", length(colors), ")\n"
+                ))
+            }
             colors <- colors[c(select)]
             if (verbose >= 2) {
               cat(
