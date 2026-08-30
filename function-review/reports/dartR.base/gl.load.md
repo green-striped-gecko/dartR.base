@@ -105,5 +105,5 @@ without compliance = TRUE. NEWS entry added.
   {"id": "F3", "severity": "MEDIUM", "rules": ["spec", "DAT"], "loc": "R/gl.load.r validation", "status": "applied"},
   {"id": "F4", "severity": "LOW", "rules": ["DOC1", "DOC"], "loc": "R/gl.load.r header", "status": "applied"}],
  "datasets": ["testset.gl"],
- "baseline_test": "tests/testthat/test-gl.load.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.load.R", "pr": 289}
 ```
