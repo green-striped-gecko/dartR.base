@@ -107,5 +107,5 @@ callers of gl.report.basics in the family. NEWS entry added.
   {"id": "F3", "severity": "MEDIUM", "rules": ["DAT", "VRB"], "loc": "R/gl.report.basics.r rdepth", "status": "applied"},
   {"id": "F4", "severity": "LOW", "rules": ["STY", "DOC"], "loc": "R/gl.report.basics.r", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs", "constructed"],
- "baseline_test": "tests/testthat/test-gl.report.basics.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.report.basics.R", "pr": 285}
 ```
