@@ -47,7 +47,7 @@ Both findings approved via the approval boxes (2026-08-31); F1 approved as a beh
 
 ## Outcome
 
-Both applied. Suite 8/8; the flipped assertion maps to F1 (bogus as.pop now fatal, naming available metrics). Verbose-3 end-to-end clean on SNP and SilicoDArT.
+Both applied. Suite 7/7 (the two-assertion baseline block became one expect_error); the flipped assertion maps to F1 (bogus as.pop now fatal, naming available metrics). Verbose-3 end-to-end clean on SNP and SilicoDArT.
 
 ```json
 {"function": "gl.reassign.pop", "package": "dartR.base", "family_mode": "modify",
@@ -57,5 +57,5 @@ Both applied. Suite 8/8; the flipped assertion maps to F1 (bogus as.pop now fata
   {"id": "F1", "severity": "MEDIUM", "rules": ["spec", "DAT"], "loc": "R/gl.reassign.pop.r as.pop", "status": "applied"},
   {"id": "F2", "severity": "LOW", "rules": ["VRB", "DOC"], "loc": "R/gl.reassign.pop.r", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs"],
- "baseline_test": "tests/testthat/test-gl.reassign.pop.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.reassign.pop.R", "pr": 282}
 ```
