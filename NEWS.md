@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.sort()`: the history entry was appended as `c(match.call())`, which
+  coerces the call to a list and corrupts the history chain -- now a
+  proper call. A standard FLAG SCRIPT END block was added ("Completed:"
+  never printed at any verbosity). The no-chromosome warning under
+  `order.by.chr.pos` printed at `verbose = 0`; now gated at
+  `verbose >= 2`, and the dartR-conversion notice gate aligned from
+  `> 2` to `>= 2`. A redundant length re-check with a misleading message
+  in the sort.by='ind' path was removed (the upfront validation already
+  covers it); verbose param doc canon.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
