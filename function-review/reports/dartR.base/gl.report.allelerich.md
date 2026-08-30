@@ -135,5 +135,5 @@ message displayed. NEWS entry added.
   {"id": "F4", "severity": "LOW", "rules": ["STY"], "loc": "R/gl.report.allelerich.r", "status": "applied"},
   {"id": "F5", "severity": "LOW", "rules": ["DOC2", "DOC7"], "loc": "R/gl.report.allelerich.r header", "status": "applied"}],
  "datasets": ["testset.gl"],
- "baseline_test": "tests/testthat/test-gl.report.allelerich.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.report.allelerich.R", "pr": 286}
 ```
