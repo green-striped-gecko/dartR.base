@@ -1,5 +1,23 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.replicates()`: four fixes. (1) When the members of a
+  replicate pair had tied missing-data rates -- the exact-duplicate case
+  -- BOTH were removed (the doubled pair table evaluated the drop rule in
+  both orientations); pairs are now canonicalised and deduplicated before
+  the rule is applied, so one member per pair is removed (ties remove the
+  alphabetically later individual), and this works with report tables
+  generated both before and after the companion gl.report.replicates
+  fix. (2) Re-thresholding to an empty set crashed via gl.drop.ind ("no
+  individuals to drop"); the object is now returned unchanged with a
+  gated message. (3) `replicates.report` was never validated -- the
+  report's old no-pairs string return crashed with "$ operator is invalid
+  for atomic vectors"; malformed input is now a clear fatal error, and an
+  empty table is handled as nothing-to-drop. (4) The history of the
+  returned object recorded gl.drop.ind's call instead of
+  gl.filter.replicates' (gl.drop.ind now runs quietly, the dropped
+  individuals are itemised at `verbose >= 2`, and a single
+  gl.filter.replicates entry is appended); a datatype check was added and
+  the object is returned invisibly per house standard.
 * `gl.report.replicates()`: four fixes. (1) The pair table carried BOTH
   orderings of every pair, and the drop rule picked the opposite member in
   each ordering whenever missing-data rates tied -- which is precisely the
