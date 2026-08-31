@@ -53,6 +53,8 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   result <- gl.filter.allna(testset.gs, verbose=3)
 }
 \seealso{
+Other filter functions: 
+\code{\link{gl.report.allna}()}
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},

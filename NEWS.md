@@ -18,6 +18,124 @@
   individuals are itemised at `verbose >= 2`, and a single
   gl.filter.replicates entry is appended); a datatype check was added and
   the object is returned invisibly per house standard.
+* `gl.report.replicates()`: four fixes. (1) The pair table carried BOTH
+  orderings of every pair, and the drop rule picked the opposite member in
+  each ordering whenever missing-data rates tied -- which is precisely the
+  exact-duplicate case -- so BOTH replicates landed in `ind.list.drop` and
+  the histograms double-counted every pair. The table now holds one row
+  per unordered pair (ind1 = the individual earlier in the object) and a
+  tie deterministically drops ind2. (2) When no pairs passed the
+  thresholds the function returned a bare character message instead of the
+  documented 3-element list, crashing `gl.filter.replicates()` downstream;
+  it now returns the documented structure with an empty table and a gated
+  message. (3) `ind.list.rep` used `>= perc_geno` where every other output
+  used `>` (aligned), and its NaN diagonal previously injected NA entries;
+  a datatype check was added, Rcpp/RcppParallel are checked before
+  compiling (RcppParallel added to Suggests), and the plot no longer
+  renders at `verbose = 0`. (4) The result is returned invisibly (house
+  standard) with the pair table printed at `verbose >= 3`; docs cleaned
+  (@family, literal "##" headings, typos).
+* `gl.report.hwe()` / `gl.filter.hwe()`: the functionality of the
+  deprecated `gl.report.excess.het()` / `gl.filter.excess.het()` has been
+  migrated into this pair. Both functions gain `direction` ('both',
+  'excess', 'deficit') to restrict attention to heterozygote excess or
+  deficit (an expected-heterozygote column, Het.exp, is now included in
+  the report output), and `min.hobs` to restrict testing to loci with
+  observed heterozygosity at or above a threshold, applied before the
+  multiple-comparison adjustment. The published Robledo-Ruiz et al.
+  (2023) excess-heterozygosity workflow is reproduced with
+  direction='excess', min.hobs=0.5, ChiSquare test and fdr adjustment;
+  the deprecated functions remain as thin wrappers that emit a
+  deprecation warning and produce the same flagged/removed loci as
+  before (verified exactly on the LBP dataset), and will be removed in a
+  future release. Migrating also retires a defect in the old
+  gl.filter.excess.het, which computed its per-population genotype
+  counts on the wrong individuals (a recycled per-population index).
+
+  Review fixes applied to the pair in the same change: (1) the skipping
+  of monomorphic and small-sample populations happened only at
+  `verbose >= 2`, so the tested set -- and any multiple-comparison
+  pool -- depended on verbosity (verbose 0 tested all 30 testset.gl
+  populations, verbose 2 only 23); populations are now skipped at every
+  verbosity. (2) A missing HardyWeinberg package now raises a fatal
+  error instead of returning -1, and ggtern is required only when
+  ternary plots are requested (plot.out=TRUE). (3) The out-of-range
+  alpha warning is gated at `verbose >= 1` and no longer calls alpha an
+  "integer". (4) gl.report.hwe now carries a @family tag, and
+  gl.filter.hwe's duplicated/indented family tags are repaired.
+* `gl.reassign.pop()`: the `as.pop` metric name was never validated -- a
+  name absent from `ind.metrics` assigned NULL to `pop(x)`, silently
+  destroying every population assignment. A missing ind.metrics slot or an
+  unknown metric name is now a fatal error naming the available metrics.
+  A gated warning (verbose >= 2) reports how many individuals carry NA
+  assignments when the chosen metric has missing values.
+* `gl.reassign.ind()`: conformance fixes -- the five fatal exits now use
+  the house `stop(error(...))` styling; the empty-selection notice is a
+  gated `cat(warn())` (verbose >= 2) instead of an R `warning()`; repeated
+  indices in a numeric `ind.list` are deduplicated.
+* `gl.define.pop()`: the not-present-individual warning printed at
+  `verbose = 0`; now gated at `verbose >= 2`. An irrelevant preamble that
+  ran a full `gl.filter.monomorphs()` on every call solely to warn that
+  monomorphic loci exist was removed. Style: the assignment message is now
+  styled and printed after the assignment actually happens; dead
+  `is.na(length())` condition removed; header tag order.
+* `gl.merge.pop()`: two behaviour fixes. (1) Validation of `old` sat inside
+  the `verbose >= 1` announcement block, so `old = character(0)` was fatal
+  at `verbose >= 1` but a silent no-op at `verbose = 0`; validation now
+  runs upfront at every verbosity. (2) Populations listed in `old` that do
+  not exist in the dataset were silently ignored -- a mistyped population
+  name left the object unchanged with no message; this is now a fatal
+  error naming the missing populations (matching `gl.rename.pop`). Tidy:
+  redundant genlight check and duplicate validation removed; the
+  description opening (a copy-paste about csv metadata files) corrected;
+  header tag order.
+* `gl.save()`: the "Saved object" / "Load again" messages (and the
+  FBM-conversion message) printed at `verbose = 0`; now gated at
+  `verbose >= 2`, and the message no longer calls the RDS file an "RDA
+  file". The @return contract ("the input object") is now honoured: the
+  class-attribute stamping and any FBM-to-gen conversion apply only to
+  the copy that is saved, and the input is returned unchanged. A
+  nonexistent target directory gives a clear fatal error instead of a raw
+  connection error; description wording corrected.
+* `gl.report.allelerich()`: plumbing fixes; the rarefaction calculation
+  itself was verified against an independent recomputation and is
+  unchanged. (1) The plot rendered at `verbose = 0` (missing
+  `plot.display` guard) and the lazy signature default
+  `gl.colors("dis")` printed a 3-line banner at every verbosity -- both
+  silenced (the default now passes `verbose = 0`). (2) An unrecognized
+  `error.bar` value crashed downstream with "object 'max_val' not
+  found"; unknown values now coerce to "SD" with a gated warning, and the
+  silent override of the user's error-bar choice when `nboots > 0` is
+  announced at `verbose >= 2`. (3) The package check called
+  `requireNamespace()` on a vector, silently checking only dplyr, and
+  returned -1 through a cat(); each package is now checked individually
+  with `stop(error(...))`, and boot/Rcpp (needed for bootstrapping) are
+  checked before the bootstrap path. (4) Dead code removed (an unused
+  first plot built on every call, a commented parallel block, duplicated
+  global declarations); `boot.method` validated; header canon.
+* `gl.join()`: five fixes. (1) A join by shared loci LOST the individual
+  metrics entirely -- plain `rbind()` returns NULL metadata and the
+  function never rebuilt it; the combined object now carries the
+  row-bound ind.metrics of both inputs (with the id column re-synced when
+  duplicate names are made unique). (2) A join by shared individuals
+  CRASHED ("replacement has 0 rows") on objects whose loc.metrics.flags
+  data.frame lacks the OneRatio/PIC columns -- which is standard
+  SNP-report data; only flags present in both objects are now combined.
+  (3) The same flags block was triplicated (each path set the flags and a
+  third copy ran again for both), warnings printed at `verbose = 0`
+  (method deprecation, missing metrics/flags), and two
+  `cat(error()) + stop()` splits returned no condition message; the
+  duplicate block is gone, warnings are gated at `verbose >= 2`, and the
+  exits use `stop(error(...))`. (4) SNP and SilicoDArT objects with
+  matching names could be joined silently -- the datatypes were checked
+  individually but never compared; now fatal. (5) Messages used
+  `substitute()` inside `cat()`, which printed garbage at `verbose = 2`
+  and crashed at `verbose >= 3` whenever the arguments were expressions
+  rather than names (e.g. `gl.join(x[1:7, ], y)`); arguments are now
+  deparsed once for display. Docs: the description claimed the history was
+  cleared (it is carried from the first object and appended); @details
+  described method='sidebyside'/'end2end' values that never existed;
+  duplicate/incorrect end-of-run summary removed; typos.
 * `gl.sort()`: the history entry was appended as `c(match.call())`, which
   coerces the call to a list and corrupts the history chain -- now a
   proper call. A standard FLAG SCRIPT END block was added ("Completed:"

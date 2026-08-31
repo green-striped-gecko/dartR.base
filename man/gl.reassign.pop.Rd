@@ -7,7 +7,8 @@
 gl.reassign.pop(x, as.pop, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing SNP genotypes [required].}
+\item{x}{Name of the genlight object containing SNP or SilicoDArT data
+[required].}
 
 \item{as.pop}{Specify the name of the individual metric to set as the pop
 variable [required].}

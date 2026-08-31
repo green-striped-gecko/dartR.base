@@ -11,6 +11,16 @@ gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
 gl.filter.replicates,dartR.base,filter,arthur,pr-open,288
+gl.report.replicates,dartR.base,report,arthur,pr-open,287
+gl.report.hwe,dartR.base,matched report,arthur,pr-open,271
+gl.filter.hwe,dartR.base,matched filter,arthur,pr-open,271
+gl.reassign.pop,dartR.base,data manipulation,arthur,pr-open,282
+gl.reassign.ind,dartR.base,data manipulation,arthur,pr-open,281
+gl.define.pop,dartR.base,data manipulation,arthur,pr-open,279
+gl.merge.pop,dartR.base,data manipulation,arthur,pr-open,280
+gl.save,dartR.base,io,arthur,pr-open,290
+gl.report.allelerich,dartR.base,report,arthur,pr-open,286
+gl.join,dartR.base,io,arthur,pr-open,284
 gl.sort,dartR.base,data manipulation,arthur,pr-open,283
 gl.select.shapes,dartR.base,utility,arthur,pr-open,275
 gl.colors,dartR.base,utility,arthur,pr-open,276
