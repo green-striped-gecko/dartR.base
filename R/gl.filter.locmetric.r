@@ -2,23 +2,19 @@
 #' @title Filters loci on the basis of numeric information stored in
 #'  other$loc.metrics in a genlight \{adegenet\} object
 #' @family matched filter
-#' 
+
 #' @description
 #' This script uses any field with numeric values stored in $other$loc.metrics
 #' to filter loci. The loci to keep can be within the upper and lower thresholds
 #'  ('within') or outside of the upper and lower thresholds ('outside').
 
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param metric Name of the metric to be used for filtering [required].
-#' @param upper Filter upper threshold [required].
-#' @param lower Filter lower threshold  [required].
-#' @param keep Whether keep loci within of upper and lower thresholds or keep
-#' loci outside of upper and lower thresholds [within].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
-#' 
 #' @details
+#' With keep='within', loci with a metric value in the interval [lower, upper]
+#' (boundaries included) are retained. With keep='outside', the exact
+#' complement is retained: loci with a metric value below lower or above
+#' upper. Loci for which the metric is missing (NA) are removed in either
+#' mode, because they cannot be assessed against the thresholds.
+#'
 #' The fields that are included in dartR, and a short description, are found
 #' below. Optionally, the user can also set his/her own filter by adding a
 #' vector into $other$loc.metrics as shown in the example.
@@ -48,10 +44,23 @@
 #' \item RepAvg - proportion of technical replicate assay pairs for which the
 #' marker score is consistent.
 #' }
-#' 
-#' @author Luis Mijangos -- Post to 
+
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param metric Name of the metric to be used for filtering [required].
+#' @param upper Filter upper threshold [required].
+#' @param lower Filter lower threshold  [required].
+#' @param keep Whether to keep loci within the upper and lower thresholds
+#' ('within') or outside of them ('outside') [default 'within'].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+
+#' @return The reduced genlight dataset.
+
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 #' @examples
 #' # adding dummy data
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -59,9 +68,10 @@
 #' test$other$loc.metrics$test <- 1:nLoc(test)
 #' result <- gl.filter.locmetric(x=test, metric= 'test', upper=255,
 #' lower=200, keep= 'within', verbose=3)
-#' 
+
+#' @seealso \code{\link{gl.report.locmetric}}
+
 #' @export
-#' @return The reduced genlight dataset.
 
 gl.filter.locmetric <- function(x,
                                 metric,
@@ -71,17 +81,16 @@ gl.filter.locmetric <- function(x,
                                 verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    #if(verbose==0){plot.display <- FALSE}
-    
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
-    
+
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
-    
+
     # Work around a bug in adegenet if genlight object is created by subsetting
     if (nLoc(x) != nrow(x@other$loc.metrics)) {
         stop(
@@ -91,73 +100,62 @@ gl.filter.locmetric <- function(x,
             )
         )
     }
-    
-    # Set a population if none is specified (such as if the genlight object has 
-    #been generated manually)
-    if (is.null(pop(x)) |
-        is.na(length(pop(x))) | length(pop(x)) <= 0) {
-        if (verbose >= 2) {
-            cat(
-                report(
-                    "  Population assignments not detected, individuals assigned
-                    to a single population labelled 'pop1'\n"
-                )
-            )
+
+    # FUNCTION SPECIFIC ERROR CHECKING
+
+    if (keep != "within" && keep != "outside") {
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: keep must be 'within' or 'outside', set to 'within'\n"
+            ))
         }
-        pop(x) <- array("pop1", dim = nInd(x))
-        pop(x) <- as.factor(pop(x))
+        keep <- "within"
     }
-    
-    # Check for monomorphic loci
-    tmp <- gl.filter.monomorphs(x, verbose = 0)
-    if ((nLoc(tmp) < nLoc(x)) & verbose >= 2) {
-        cat(warn("  Warning: genlight object contains monomorphic loci\n"))
-    }
-    
-    # FUNCTION SPECIFIC ERROR CHECKING check whether the field exists in the 
-    #genlight object
+
+    # check whether the field exists in the genlight object
     if (!(metric %in% colnames(x$other$loc.metrics))) {
         stop(error("Fatal Error: name of the metric not found\n"))
     }
-    
-    # DO THE JOB
-    
-    field <- which(colnames(x@other$loc.metrics) == metric)
-    
-    if (keep == "within") {
-        index <-
-            which(x@other$loc.metrics[, field] >= lower &
-                      x@other$loc.metrics[, field] <= upper)
-        
-          x2 <- x[, index]
-          x2@other$loc.metrics <- x@other$loc.metrics[index,]
-        
+    if (!is.numeric(unlist(x$other$loc.metrics[metric]))) {
+        stop(error("Fatal Error: metric is not numeric\n"))
     }
-    if (keep == "outside") {
-        index <-
-            which(x@other$loc.metrics[, field] <= lower &
-                      x@other$loc.metrics[, field] >= upper)
-        
-          x2 <- x[, index]
-          x2@other$loc.metrics <- x@other$loc.metrics[index,]
 
+    # DO THE JOB
+
+    field <- which(colnames(x@other$loc.metrics) == metric)
+    values <- x@other$loc.metrics[, field]
+    n.na <- sum(is.na(values))
+
+    if (keep == "within") {
+        index <- which(values >= lower & values <= upper)
+    } else {
+        # keep the exact complement of 'within': strictly below lower or
+        # strictly above upper
+        index <- which(values < lower | values > upper)
     }
-    
+
+    x2 <- x[, index]
+    x2@other$loc.metrics <- x@other$loc.metrics[index,]
+
     if (verbose > 2) {
         cat("  Initial number of loci:", nLoc(x), "\n")
         cat("  Number of loci deleted:", nLoc(x) - nLoc(x2), "\n")
+        if (n.na > 0) {
+            cat("  Number of loci deleted for missing (NA) metric values:",
+                n.na, "\n")
+        }
         cat("  Final number of loci:", nLoc(x2), "\n")
     }
-    
+
     # ADD TO HISTORY
     nh <- length(x2@other$history)
     x2@other$history[[nh + 1]] <- match.call()
-    
+
     # FLAG SCRIPT END
-    
+
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(x2)
+
+    return(invisible(x2))
 }
