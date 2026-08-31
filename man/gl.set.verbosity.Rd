@@ -9,10 +9,10 @@ gl.set.verbosity(value = 2)
 \arguments{
 \item{value}{Set the default verbosity to be this value: 0, silent only fatal
 errors; 1, begin and end; 2, progress log; 3, progress and results summary;
-5, full report [default 2]}
+5, full report. An invalid value is coerced to 2 with a warning [default 2].}
 }
 \value{
-verbosity value [set for all functions]
+The verbosity value actually set, returned invisibly.
 }
 \description{
 dartR functions have a verbosity parameter that sets the level of reporting
@@ -23,9 +23,18 @@ dartR functions have a verbosity parameter that sets the level of reporting
  the default value.
 }
 \examples{
-gl <- gl.set.verbosity(value=2)
+gl.set.verbosity(value = 2)
+}
+\seealso{
+Other environment: 
+\code{\link{gl.check.verbosity}()},
+\code{\link{gl.check.wd}()},
+\code{\link{gl.print.history}()},
+\code{\link{gl.set.wd}()},
+\code{\link{theme_dartR}()}
 }
 \author{
 Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{environment}
