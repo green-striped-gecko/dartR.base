@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.select.shapes()`: four fixes. (1) The range validation was a
+  parenthesis slip (`min(select < 0 | max(select > 25))`) that only fired
+  when every element was negative -- a partially-negative `select` such as
+  `c(-1, 5)` passed straight through to `pch`. It now correctly rejects any
+  value outside 0-25. (2) The documented `x=` genlight argument was
+  non-functional: `nPop(x)` was computed and discarded, so a `select` of
+  the wrong length passed silently and a NULL `select` returned all 26
+  shapes regardless of the number of populations. Now (matching
+  `gl.select.colors`) a length mismatch with `nPop(x)` is a fatal error, a
+  NULL `select` with `x` returns one shape per population, and more than
+  26 populations without an explicit `select` is a fatal error (only 26
+  distinct shapes exist). (3) New `plot.display` parameter (default TRUE);
+  the palette chart was previously drawn unconditionally and can now be
+  suppressed, and is suppressed automatically at `verbose = 0` (which
+  previously also leaked the datatype banner). (4) Cosmetic: the genlight
+  argument `x` was shadowed by the plot x-coordinates mid-function, a
+  "Requires shapes" typo, and header conformance.
 * `gl.colors()`: three fixes. (1) Both invalid-type exits used
   `cat(error(...))` followed by `stop(-1)`, so the error condition an
   upstream `tryCatch()` received carried the message "-1" while the real
