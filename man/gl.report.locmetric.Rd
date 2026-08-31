@@ -28,21 +28,22 @@ gl.report.locmetric(
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()]}
 
 \item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 An unaltered genlight object.
 }
 \description{
 This function reports summary statistics (mean, minimum, average, quantiles), histograms
-and boxplots for any loc.metric with numeric values (stored in 
+and boxplots for any loc.metric with numeric values (stored in
 $other$loc.metrics) to assist the decision of choosing thresholds for the filter
 function \code{\link{gl.filter.locmetric}}.
 }
@@ -118,6 +119,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos (Post to
+\url{https://groups.google.com/d/forum/dartr})
 }
 \concept{matched report}
