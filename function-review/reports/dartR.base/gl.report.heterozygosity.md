@@ -173,6 +173,6 @@ without display (gated warning). NEWS entry added.
   ],
   "datasets": ["testset.gl", "platypus.gl"],
   "baseline_test": "tests/testthat/test-gl.report.heterozygosity.R",
-  "pr": null
+  "pr": 291
 }
 ```
