@@ -7,25 +7,7 @@
 #' adenine (A), cytosine (C), 'guanine (G) and thymine (T), and the frequency of
 #' transitions (Ts) and transversions (Tv) in a DArT genlight object.
 
-#' @param x Name of the genlight object containing the SNP or presence/absence
-#' (SilicoDArT) data [required].
-#' @param plot.display If TRUE, resultant plots are displayed in the plot window
-#' [default TRUE].
-#' @param plot.theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
-#' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default c("#2171B5","#6BAED6")].
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()].
-#' @param plot.file Name for the RDS binary file to save (base name only, 
-#' exclude extension) [default NULL].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#'  [default NULL, unless specified using gl.set.verbosity].
-#' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
-#'  such as width and height, when the ggplot is to be saved.
-
-#' @details 
+#' @details
 #' The function checks first if trimmed sequences are included in the
 #' locus metadata (@@other$loc.metrics$TrimmedSequence), and if so, tallies up
 #' the numbers of A, T, G and C bases. Only the reference state at the SNP locus
@@ -46,17 +28,38 @@
 #  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #  }
 
-#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS"
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be
 #' specified for the plot to be saved.
 
 #'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
-#'  directory; otherwise to the tempdir(). 
+#'  directory; otherwise to the tempdir().
 
 #' To avoid issues from inadvertent use of this function in an assignment statement,
 #' the function returns the genlight object unaltered.
 
-#' @author Author(s); Arthur Georges. Custodian: Arthur Georges -- Post to
+#' @param x Name of the genlight object containing the SNP or presence/absence
+#' (SilicoDArT) data [required].
+#' @param plot.display If TRUE, resultant plots are displayed in the plot window
+#' [default TRUE].
+#' @param plot.theme Theme for the plot. See Details for options
+#' [default theme_dartR()].
+#' @param plot.colors List of two color names for the borders and fill of the
+#'  plots [default c("#2171B5","#6BAED6")].
+#' @param plot.dir Directory to save the plot RDS files [default as specified
+#' by the global working directory or tempdir()].
+#' @param plot.file Name for the RDS binary file to save (base name only,
+#' exclude extension) [default NULL].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#' @param ... Parameters passed to function \link[ggplot2]{ggsave},
+#'  such as width and height, when the ggplot is to be saved.
+
+#' @return The unchanged genlight object
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
@@ -68,8 +71,7 @@
 #' # Tag P/A data
 #'   out <- gl.report.bases(testset.gs)
 #' @export
-#' @return The unchanged genlight object
-#' 
+#'
 # ----------------------
 # Function
 gl.report.bases <- function(x,
@@ -110,8 +112,7 @@ gl.report.bases <- function(x,
     
     if (!any(names(x@other$loc.metrics) == "TrimmedSequence")) {
         stop(error(
-            "  Fatal Error: Dataset does not include variable 
-            TrimmedSequence!\n"
+            "  Fatal Error: Dataset does not include variable TrimmedSequence!\n"
         ))
     }
     
@@ -156,7 +157,7 @@ gl.report.bases <- function(x,
         
         # Sum the transitions and transversions
         tv <-
-            sum(str_count(state.change, "A>C")) + 
+            sum(stringr::str_count(state.change, "A>C")) +
           sum(stringr::str_count(state.change, "C>A")) +
           sum(stringr::str_count(state.change, "G>T")) +
           sum(stringr::str_count(state.change, "T>G")) + 
@@ -175,8 +176,7 @@ gl.report.bases <- function(x,
             if (ts + tv != length(x@other$loc.metrics$TrimmedSequence)) {
                 cat(
                     warn(
-                        "  Warning: Sum of transitions plus transversions does 
-                        not equal number of loci.\n"
+                        "  Warning: Sum of transitions plus transversions does not equal number of loci.\n"
                     )
                 )
             }
@@ -187,17 +187,19 @@ gl.report.bases <- function(x,
     }
     
     # Printing outputs -----------
-    cat(paste("  Average trimmed sequence length:",
-        round(mn, digits = 1),"(",mi,"to",mx,")"),"\n")
-    cat(paste(
-        "  Total number of trimmed sequences:",
-        length(x@other$loc.metrics$TrimmedSequence)
-    ), "\n")
-    cat("  Base frequencies (%)\n")
-    cat(paste("    A:", round(A, 2)), "\n")
-    cat(paste("    G:", round(G, 2)), "\n")
-    cat(paste("    T:", round(T, 2)), "\n")
-    cat(paste("    C:", round(C, 2)), "\n")
+    if (verbose >= 1) {
+        cat(paste("  Average trimmed sequence length:",
+            round(mn, digits = 1),"(",mi,"to",mx,")"),"\n")
+        cat(paste(
+            "  Total number of trimmed sequences:",
+            length(x@other$loc.metrics$TrimmedSequence)
+        ), "\n")
+        cat("  Base frequencies (%)\n")
+        cat(paste("    A:", round(A, 2)), "\n")
+        cat(paste("    G:", round(G, 2)), "\n")
+        cat(paste("    T:", round(T, 2)), "\n")
+        cat(paste("    C:", round(C, 2)), "\n")
+    }
     
 # DO THE JOB -- Tag P/A data ----------------------
     
@@ -205,17 +207,18 @@ gl.report.bases <- function(x,
         if (verbose >= 2) {
             cat(
                 important(
-                    "  Tag P/A data (SilicoDArT), transition/transversions 
-                    cannot be calculated\n"
+                    "  Tag P/A data (SilicoDArT), transition/transversions cannot be calculated\n"
                 )
             )
         }
         tv <- NA
         ts <- NA
     } else {
-        cat(paste("  Transitions  :", round(ts, 2), "\n"))
-        cat(paste("  Transversions:", round(tv, 2), "\n"))
-        cat(paste("  ts/tv ratio:", round(ratio, 4), "\n\n"))
+        if (verbose >= 1) {
+            cat(paste("  Transitions  :", round(ts, 2), "\n"))
+            cat(paste("  Transversions:", round(tv, 2), "\n"))
+            cat(paste("  ts/tv ratio:", round(ratio, 4), "\n\n"))
+        }
     }
     
     # Plot the results ----------------- 
