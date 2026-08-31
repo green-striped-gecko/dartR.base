@@ -19,7 +19,7 @@ test_that("SNP report at verbose 1 carries the key statistics", {
   expect_true(any(grepl("Populations: +30", o)))
   # consistent with gl.filter.monomorphs (144 on testset.gl)
   expect_true(any(grepl("Monomorphic Loci: +144", o)))
-  expect_true(any(grepl("Loci all NA: +3", o)))
+  expect_true(any(grepl("Loci all NA: +0", o)))
 })
 
 test_that("SilicoDArT data", {

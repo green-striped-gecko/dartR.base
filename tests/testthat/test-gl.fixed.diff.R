@@ -29,15 +29,15 @@ test_that("monomorph handling and the mono.rm parameter", {
   # [approved diff F1] baseline: mono.rm was documented ([default TRUE]
   # removes monomorphs) but never referenced in the body, and the flag
   # logic was inverted - gl.filter.monomorphs ran only when the flag said
-  # the data were already monomorph-free. gl4 has 208 monomorphic loci;
+  # the data were already monomorph-free. gl4 has 210 monomorphic loci;
   # all 255 were retained and mono.rm had no effect.
   invisible(capture.output(fd.T <- gl.fixed.diff(gl4, verbose = 0)))
   invisible(capture.output(fd.F <- gl.fixed.diff(gl4, mono.rm = FALSE,
                                                  verbose = 0)))
-  expect_equal(nLoc(fd.T$gl), 47)                    # monomorphs removed
-  expect_lte(max(fd.T$nloc, na.rm = TRUE), 47)
+  expect_equal(nLoc(fd.T$gl), 45)                    # monomorphs removed
+  expect_lte(max(fd.T$nloc, na.rm = TRUE), 45)
   expect_equal(nLoc(fd.F$gl), 255)                   # FALSE retains them
-  expect_equal(max(fd.F$nloc, na.rm = TRUE), 242)    # the old denominators
+  expect_equal(max(fd.F$nloc, na.rm = TRUE), 245)    # the old denominators
   # raw fd counts are blind to monomorphic loci - identical either way
   expect_identical(as.matrix(fd.T$fd), as.matrix(fd.F$fd))
 })

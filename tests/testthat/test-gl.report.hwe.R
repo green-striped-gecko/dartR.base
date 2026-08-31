@@ -78,7 +78,9 @@ test_that("gl.report.hwe tested set no longer depends on verbosity", {
     a2 <- suppressWarnings(gl.report.hwe(testset.gl, sig_only = FALSE,
                                          plot.out = FALSE, verbose = 2))
   ))
-  expect_equal(nrow(a0), 245)
+  # 196 rows with dartR.data 1.2.2 (all-monomorphic pops now skipped
+  # instead of crashing in gl.filter.monomorphs)
+  expect_equal(nrow(a0), 196)
   expect_identical(as.data.frame(a0), as.data.frame(a2))
 })
 
