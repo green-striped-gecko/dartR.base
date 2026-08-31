@@ -10,6 +10,7 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.filter.reproducibility,dartR.base,matched filter,arthur,pr-open,260
 gl.report.reproducibility,dartR.base,matched report,arthur,pr-open,259
 gl.filter.taglength,dartR.base,matched filter,arthur,pr-open,258
 gl.report.taglength,dartR.base,matched report,arthur,pr-open,257
