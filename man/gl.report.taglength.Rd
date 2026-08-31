@@ -17,7 +17,7 @@ gl.report.taglength(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP [required].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
+\item{plot.display}{If TRUE, histograms of tag length are displayed in the plot window
 [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
@@ -32,7 +32,8 @@ plots [default c("#2171B5", "#6BAED6")].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity]}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 Returns unaltered genlight object
@@ -44,30 +45,33 @@ from 20 to 69 base pairs. This function reports summary statistics of the tag
 }
 \details{
 This function reports sequence tag lengths for a genlight object. It is a companion
-function to \code{\link{gl.filter.taglength}} which can be used to filter out 
+function to \code{\link{gl.filter.taglength}} which can be used to filter out
 loci with a tag length less than a specified threshold.
 The table of quantiles is useful for deciding a threshold for subsequent filtering
-as it provides an indication of the percentages of loci that will be retained and 
-lost. 
+as it provides an indication of the percentages of loci that will be retained and
+lost.
 \strong{ Function's output }
  The minimum, maximum, mean and a tabulation of tag length quantiles against
  thresholds are output to the console. The output also includes a boxplot and a
  histogram to guide in the selection of a threshold for filtering on tag
  length.
- 
-If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+
+If a plot.file is given, the ggplot arising from this function is saved as an "RDS"
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be
 specified for the plot to be saved.
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the tempdir(). 
- 
+ directory; otherwise to the tempdir().
+
+Examples of other themes that can be used can be consulted in \itemize{
+\item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
+\url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
+}
 To avoid issues from inadvertent use of this function in an assignment statement,
 the function returns the genlight object unaltered.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 out <- gl.report.taglength(testset.gl)
-
 }
 \seealso{
 \code{\link{gl.filter.taglength}}
@@ -76,6 +80,7 @@ Other matched report:
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},

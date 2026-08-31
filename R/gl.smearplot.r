@@ -6,43 +6,44 @@
 #' Each locus is color coded for scores of 0, 1, 2 and NA for SNP data and 0, 1
 #' and NA for presence/absence (SilicoDArT) data. Individual labels can be added.
 
-#' Plot may become cluttered if ind.labels If there are too many individuals, 
-#' it is best to use ind.labels = FALSE.
-#' 
-#' Works with both SNP data and P/A data (SilicoDArT)
+#' The plot may become cluttered if there are too many individuals;
+#' if so, it is best to use ind.labels = FALSE.
+#'
+#' Works with both SNP data and P/A data (SilicoDArT). Missing data are
+#' shown in the NA color (the fourth plot color) without a legend entry.
 
 #' @param x Name of the genlight object [required].
 #' @param ind.labels If TRUE, individual IDs are shown [default FALSE].
-#' @param group.pop If ind.labels is TRUE, group by population [default TRUE].
+#' @param group.pop If ind.labels is TRUE, group by population [default FALSE].
 #' @param label.size Size of the individual labels [default 10].
-#' @param het.only If TRUE, show only the heterozygous state [default FALSE]
+#' @param het.only If TRUE, show only the heterozygous state (SNP data only)
+#' [default FALSE].
 #' @param plot.display If TRUE, the plot is displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default NULL].
 #' @param plot.colors List of four color names for the column fill for homozygous reference,
 #' heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].
-#' @param loc.names If TRUE, loci names are shown on the horiontal axis 
+#' @param loc.names If TRUE, loci names are shown on the horiontal axis
 #' [default FALSE].
 #' @param loc.order If TRUE, loci are ordered by chromosome and by SNP position
 #' [default FALSE].
-#' @param interactive If TRUE, an interactive version is generated 
+#' @param interactive If TRUE, an interactive version is generated
 #' [default FALSE].
-#' @param den If TRUE, a dendrogram is generated and used to order individuals 
+#' @param den If TRUE, a dendrogram is generated and used to order individuals
 #' [default FALSE].
-#' [default FALSE].
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()]#' 
-#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
-#' @param legend Position of the legend: “left”, “top”, “right”, “bottom” or
-#'  'none' [default = 'bottom'].
+#' @param plot.dir Directory to save the plot RDS files [default as specified
+#' by the global working directory or tempdir()].
+#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL].
+#' @param legend Position of the legend: 'left', 'top', 'right', 'bottom' or
+#'  'none' [default 'bottom'].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity]
-#' 
+#' [default 2 or as specified using gl.set.verbosity].
+#'
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl.smearplot(testset.gl,ind.labels=FALSE)
@@ -50,9 +51,9 @@
 #' gl.smearplot(testset.gl[1:10,],ind.labels=TRUE)
 #' gl.smearplot(testset.gs[1:10,],ind.labels=TRUE)
 
-#' @export
 #' @return Returns the ggplot object
-#' 
+#' @export
+#'
 # TEST
 # ddd <- matrix(data=0,nrow=10,ncol=10)
 # ddd[8,10] <- NA
@@ -84,23 +85,31 @@ gl.smearplot <- function(x,
     # CHECK IF PACKAGES ARE INSTALLED
     pkg <- "reshape2"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
    if (den) {
      pkg <- "ggdendro"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
+    }
+    if (interactive) {
+      pkg <- "plotly"
+      if (!(requireNamespace(pkg, quietly = TRUE))) {
+        stop(error(
+          "Package",
+          pkg,
+          " needed for this function to work. Please install it.\n"
+        ))
+      }
     }
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
@@ -128,7 +137,7 @@ gl.smearplot <- function(x,
                      build = "v.2023.3",
                      verbose = verbose)
     
-    if (het.only) {
+    if (het.only && datatype == "SNP") {
        plot.colors <- c("#d3d3d3","#00FFFF","#d3d3d3","#e0e0e0")
     }
     
@@ -137,16 +146,19 @@ gl.smearplot <- function(x,
     if(ind.labels == TRUE){
       individuals <- indNames(x)
     } else {
-      individuals <- seq(1:nInd(x))
+      individuals <- 1:nInd(x)
     }
-    
-    if(den){ 
+
+    if(den){
+      if (group.pop && verbose >= 2) {
+        cat(warn("  Individuals are ordered by the dendrogram; group.pop set to FALSE\n"))
+      }
       group.pop <- FALSE
     }
 
     # DO THE JOB
     if(loc.order){
-      if(!is.null(x$chromosome)){
+      if(!is.null(x$chromosome) && length(x$chromosome) > 0){
         x <- x[,order(x@chromosome,x@position)]
       }else{
         if(verbose >= 2)cat(warn("  There is no chromosome information for ordering\n"))
@@ -180,7 +192,6 @@ gl.smearplot <- function(x,
       df.matrix3$id <- as.factor(df.matrix3$order_d)
       df.matrix <- df.matrix3[,-1]
       df.matrix <- df.matrix[,-ncol(df.matrix)]
-      individuals <- df.matrix3$Label
     }
     
     # convert the data to long form
@@ -228,7 +239,6 @@ gl.smearplot <- function(x,
     }
     n.colors <- length(plot.colors)
 
-    labels_genotype[which(is.na(labels_genotype))] <- "Missing data"
     labels_genotype[labels_genotype=="0"] <- "Homozygote reference"
     labels_genotype[labels_genotype=="1"] <- "Heterozygote"
     labels_genotype[labels_genotype=="2"] <- "Homozygote alternate"
@@ -308,17 +318,15 @@ gl.smearplot <- function(x,
     }
     
     # Assign labels for presence absence data
-    #labels_silicodart <- as.character(unique(df.listing$genotype))
-    labels_silicodart <- c("0","1")
-    labels_silicodart[which(is.na(labels_silicodart))] <- "Missing data"
-    labels_silicodart["0"] <- "Absence"
-    labels_silicodart["1"] <- "Presence"
+    labels_silicodart <- c("Absence", "Presence")
     
     plot.colors <- plot.colors.hold
     
     if (datatype == "SilicoDArT") {
       if(het.only){
-        cat(warn("The het only option is applicable to SNP data only. Set to FALSE\n"))
+        if (verbose >= 2) {
+          cat(warn("  The het.only option is applicable to SNP data only. Set to FALSE\n"))
+        }
         het.only <- FALSE
       }
       if(ind.labels==TRUE){
@@ -427,7 +435,9 @@ gl.smearplot <- function(x,
     }
     
     # PRINTING OUTPUTS
-    print(p3)
+    if (plot.display) {
+      print(p3)
+    }
     
     # Optionally save the plot ---------------------
     

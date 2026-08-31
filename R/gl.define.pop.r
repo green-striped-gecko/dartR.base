@@ -28,8 +28,8 @@
 #' popNames(gl)
 #' indNames(gl)[pop(gl)=='newguys']
 #' 
-#' @export
 #' @return A genlight object with the redefined population structure.
+#' @export
 
 gl.define.pop <- function(x,
                           ind.list,
@@ -49,10 +49,9 @@ gl.define.pop <- function(x,
     
     # STANDARD ERROR CHECKING
     
-    # Set a population if none is specified (such as if the genlight object has 
+    # Set a population if none is specified (such as if the genlight object has
     #been generated manually)
-    if (is.null(pop(x)) |
-        is.na(length(pop(x))) | length(pop(x)) <= 0) {
+    if (is.null(pop(x)) || length(pop(x)) == 0) {
         if (verbose >= 2) {
             cat(
                 warn(
@@ -61,29 +60,23 @@ gl.define.pop <- function(x,
                 )
             )
         }
-        pop(x) <- array("pop1", dim = nInd(x))
-        pop(x) <- as.factor(pop(x))
+        pop(x) <- factor(rep("pop1", nInd(x)))
     }
-    
-    # Check for monomorphic loci
-    tmp <- gl.filter.monomorphs(x, verbose = 0)
-    if ((nLoc(tmp) < nLoc(x)) & verbose >= 2) {
-        cat(warn("  Warning: genlight object contains monomorphic loci\n"))
-    }
-    
+
     # FUNCTION SPECIFIC ERROR CHECKING
-    
-    for (case in ind.list) {
-        if (!(case %in% indNames(x))) {
+
+    if (!all(ind.list %in% indNames(x))) {
+        not.present <- ind.list[!(ind.list %in% indNames(x))]
+        if (verbose >= 2) {
             cat(
                 warn(
-                    "  Warning: Listed individual",
-                    case,
+                    "  Warning: Listed individual(s)",
+                    paste(not.present, collapse = ", "),
                     "not present in the dataset -- ignored\n"
                 )
             )
-            ind.list <- ind.list[!(ind.list == case)]
         }
+        ind.list <- ind.list[ind.list %in% indNames(x)]
     }
     if (length(ind.list) == 0) {
         stop(error(
@@ -92,27 +85,24 @@ gl.define.pop <- function(x,
             "\n"
         ))
     }
-    
+
     # DO THE JOB
-    
+
     # ASSIGN INDIVIDUALS
-    
+
+    tmp <- as.character(pop(x))
+    tmp[indNames(x) %in% ind.list] <- new
+    pop(x) <- as.factor(tmp)
+
     if (verbose >= 2) {
-        # cat('Processing',class(x),'object\n')
-        cat(
+        cat(report(
             "  Assigned listed individuals",
             paste(ind.list, collapse = ", "),
             "to new population",
             new,
             "\n"
-        )
+        ))
     }
-    
-    tmp <- as.character(pop(x))
-    for (case in ind.list) {
-        tmp[indNames(x) == case] <- new
-    }
-    pop(x) <- as.factor(tmp)
     
     # REPORT A SUMMARY
     

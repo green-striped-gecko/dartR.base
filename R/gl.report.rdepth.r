@@ -9,20 +9,7 @@
 #' datasets as provided by DArT (SilicoDArT) provide Average Read Depth and
 #' Standard Deviation of Read Depth as standard columns in their report. This
 #' function reports the read depth by locus for each of several quantiles.
-#' 
-#' @param x Name of the genlight object containing the SNP or presence/absence
-#'  (SilicoDArT) data [required].
-#' @param plot.display Specify if plot is to be produced [default TRUE].
-#' @param plot.theme User specified theme [default theme_dartR()].
-#' @param plot.colors Vector with two color names for the borders and fill
-#' [default c("#2171B5", "#6BAED6")].
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()]
-#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
-#' 
+
 #' @details
 #'  The function displays a table of minimum, maximum, mean and quantiles for
 #'  read depth against possible thresholds that might subsequently be specified
@@ -40,21 +27,36 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @param x Name of the genlight object containing the SNP or presence/absence
+#'  (SilicoDArT) data [required].
+#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.colors Vector with two color names for the borders and fill
+#' [default c("#2171B5", "#6BAED6")].
+#' @param plot.dir Directory to save the plot RDS files [default as specified
+#' by the global working directory or tempdir()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+
+#' @return An unaltered genlight object
+
+#' @author Custodian: Arthur Georges. Author(s): Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 #' @examples
 #' # SNP data
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-#' df <- gl.report.rdepth(testset.gl)
-#' df <- gl.report.rdepth(testset.gs)
-#' 
+#' gl <- gl.report.rdepth(testset.gl)
+#' gl <- gl.report.rdepth(testset.gs)
+
 #' @seealso \code{\link{gl.filter.rdepth}}
 
 #' @import patchwork
 #' @export
-#' @return An unaltered genlight object
-#' 
+
 gl.report.rdepth <- function(x,
                              plot.display=TRUE,
                              plot.theme = theme_dartR(),
@@ -64,26 +66,29 @@ gl.report.rdepth <- function(x,
                              verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
-    # SET WORKING DIRECTORY
-    plot.dir <- gl.check.wd(plot.dir,verbose=0)
-	
-	# SET COLOURS
-    if(is.null(plot.colors)){
-      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
+    if (verbose == 0) {
+        plot.display <- FALSE
     }
-     
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
-    
+
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir,verbose=0)
+
+    # SET COLOURS
+    if(is.null(plot.colors)){
+      plot.colors <- gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
+    }
+
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
-    
+
     # FUNCTION SPECIFIC ERROR CHECKING
-    
+
     if (datatype == "SilicoDArT") {
         if (!is.null(x@other$loc.metrics$AvgReadDepth)) {
             rdepth <- x@other$loc.metrics$AvgReadDepth
@@ -101,62 +106,65 @@ gl.report.rdepth <- function(x,
             ))
         }
     }
-    
+
     # DO THE JOB
-    
+
     # get title for plots
-    if (plot.display) {
-        if (datatype == "SNP") {
-            title <- paste0("SNP data (DArTSeq)\nRead Depth by locus")
-        } else {
-            title <-
-                paste0("Fragment P/A data (SilicoDArT)\nRead Depth by locus")
-        }
-        
-        # Calculate maximum graph cutoffs
-        max <- max(rdepth, na.rm = TRUE)
-        max <- ceiling(max / 10) * 10
-        
-        # Boxplot
-        p1 <-
-            ggplot(data.frame(rdepth), aes(y = rdepth)) + 
-          geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + 
-          coord_flip() + plot.theme +
-            xlim(range = c(-1, 1)) + 
-          ylim(c(0, max)) +
-          ylab(" ") + 
-          theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
-          ggtitle(title)
-        
-        # Histogram
-        p2 <-
-            ggplot(data.frame(rdepth), aes(x = rdepth)) +
-          geom_histogram(bins=100,color=plot.colors[1],fill = plot.colors[2]) + 
-          xlim(c(0,max)) +
-          xlab("Read Depth") + 
-          ylab("Count") +
-          plot.theme
+    if (datatype == "SNP") {
+        title <- paste0("SNP data (DArTSeq)\nRead Depth by locus")
+    } else {
+        title <-
+            paste0("Fragment P/A data (SilicoDArT)\nRead Depth by locus")
     }
-    
+
+    # Calculate maximum graph cutoffs
+    max <- max(rdepth, na.rm = TRUE)
+    max <- ceiling(max / 10) * 10
+
+    # Boxplot
+    p1 <-
+        ggplot(data.frame(rdepth), aes(y = rdepth)) +
+      geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) +
+      coord_flip() + plot.theme +
+        xlim(range = c(-1, 1)) +
+      ylim(c(0, max)) +
+      ylab(" ") +
+      theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+      ggtitle(title)
+
+    # Histogram
+    p2 <-
+        ggplot(data.frame(rdepth), aes(x = rdepth)) +
+      geom_histogram(bins=100,color=plot.colors[1],fill = plot.colors[2]) +
+      xlim(c(0,max)) +
+      xlab("Read Depth") +
+      ylab("Count") +
+      plot.theme
+
+    # using package patchwork
+    p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
+
     # Print out some statistics
     stats <- summary(rdepth)
-    cat(report("  Reporting Read Depth by Locus\n"))
-    cat("  No. of loci =", nLoc(x), "\n")
-    cat("  No. of individuals =", nInd(x), "\n")
-    cat("    Minimum      : ", stats[1], "\n")
-    cat("    1st quartile : ", stats[2], "\n")
-    cat("    Median       : ", stats[3], "\n")
-    cat("    Mean         : ", stats[4], "\n")
-    cat("    3r quartile  : ", stats[5], "\n")
-    cat("    Maximum      : ", stats[6], "\n")
-    cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(
-        x
-    ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
-    
+    if (verbose >= 1) {
+        cat(report("  Reporting Read Depth by Locus\n"))
+        cat("  No. of loci =", nLoc(x), "\n")
+        cat("  No. of individuals =", nInd(x), "\n")
+        cat("    Minimum      : ", stats[1], "\n")
+        cat("    1st quartile : ", stats[2], "\n")
+        cat("    Median       : ", stats[3], "\n")
+        cat("    Mean         : ", stats[4], "\n")
+        cat("    3rd quartile : ", stats[5], "\n")
+        cat("    Maximum      : ", stats[6], "\n")
+        cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(
+            x
+        ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
+    }
+
     # Determine the loss of loci for a given threshold using quantiles
     quantile_res <- quantile(rdepth, probs = seq(0, 1, 1 / 20),type=1,na.rm =TRUE)
     retained <- unlist(lapply(quantile_res, function(y) {
-        res <- length(rdepth[rdepth >= y])
+        res <- sum(rdepth >= y, na.rm = TRUE)
     }))
     pc.retained <- round(retained * 100 / nLoc(x), 1)
     filtered <- nLoc(x) - retained
@@ -178,59 +186,29 @@ gl.report.rdepth <- function(x,
     df <- df[order(-df$Quantile),]
     df$Quantile <- paste0(df$Quantile, "%")
     rownames(df) <- NULL
-    
+
     # PRINTING OUTPUTS
     if (plot.display) {
-        # using package patchwork
-        p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
         suppressWarnings(print(p3))
     }
-    print(df)
-    
+    if (verbose >= 1) {
+        print(df)
+    }
+
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p3,
                              dir=plot.dir,
                              file=plot.file,
                              verbose=verbose)
     }
-    
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # 
-    # # creating temp file names
-    # if (plot.file) {
-    #     if (plot.display) {
-    #         temp_plot <- tempfile(pattern = "Plot_")
-    #         match_call <-
-    #             paste0(names(match.call()),
-    #                    "_",
-    #                    as.character(match.call()),
-    #                    collapse = "_")
-    #         # saving to tempdir
-    #         saveRDS(list(match_call, p3), file = temp_plot)
-    #         if (verbose >= 2) {
-    #             cat(report("  Saving the ggplot to session tempfile\n"))
-    #         }
-    #     }
-    #     temp_table <- tempfile(pattern = "Table_")
-    #     saveRDS(list(match_call, df), file = temp_table)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving tabulation to session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
-    
+
     # FLAG SCRIPT END
-    
+
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
+
     # RETURN
     invisible(x)
-    
+
 }

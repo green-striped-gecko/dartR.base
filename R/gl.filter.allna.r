@@ -1,12 +1,13 @@
 #' @name gl.filter.allna
-#' @title Filters loci that are all NA across individuals and/or populations 
+#' @title Filters loci with all NA across individuals and/or individuals
 #' with all NA across loci
-#' @family unmatched filter
+#' @family matched filter
 
 #' @description
 #' This script deletes loci or individuals with all calls missing (NA),
 #'  from a genlight object.
-#'  
+
+#' @details
 #' A DArT dataset will not have loci for which the calls are scored all as
 #' missing (NA) for a particular individual, but such loci can arise rarely when
 #'  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -14,13 +15,13 @@
 #'  all loci, but such individuals may sneak in to the dataset when loci are
 #'  deleted. Retaining individual or loci with all NAs can cause issues for
 #'  several functions.
-#'  
+#'
 #'  Also, on occasions an analysis will require that there are some loci scored
 #'  in each population. Setting by.pop=TRUE will result in removal of loci when
 #'  they are all missing in any one population.
-#'  
+#'
 #' Note that loci that are missing for all individuals in a population are
-#' not imputed with method 'frequency' or 'HW'. Consider 
+#' not imputed with method 'frequency' or 'HW'. Consider
 #' using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
 
 #' @param x Name of the input genlight object [required].
@@ -31,10 +32,13 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-
+#'
+#' @return A genlight object having removed individuals that are scored NA
+#' across all loci, or loci that are scored NA across all individuals.
+#'
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @examples
 #' # SNP data
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -42,11 +46,7 @@
 #' # Tag P/A data
 #'   result <- gl.filter.allna(testset.gs, verbose=3)
 
-#' @family filter functions
-#' @import utils patchwork
 #' @export
-#' @return A genlight object having removed individuals that are scored NA
-#' across all loci, or loci that are scored NA across all individuals.
 
 gl.filter.allna <- function(x,
                             by.pop = FALSE,
@@ -62,7 +62,7 @@ gl.filter.allna <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  # datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
   
   # DO THE JOB
   
@@ -70,15 +70,13 @@ gl.filter.allna <- function(x,
     if (by.pop==FALSE){
       cat(
         report(
-          "  Identifying and removing loci and individuals scored all 
-                missing (NA)\n"
+          "  Identifying and removing loci and individuals scored all missing (NA)\n"
         )
       )
     } else {
       cat(
         report(
-          "  Identifying and removing loci that are all missing (NA) 
-                    in any one population\n"
+          "  Identifying and removing loci that are all missing (NA) in any one population\n"
         )
       )
     }
@@ -132,7 +130,7 @@ gl.filter.allna <- function(x,
     # nL <- nLoc(x2)
     nI <- nInd(x2)
     # loc.list <- vector("list", nL)
-    ind.list <- vector("list", nI)
+    ind.list <- array(NA, nI)
     matrix_tmp <- as.matrix(x2)
     # l.names <- locNames(x2)
     I.names <- indNames(x2)
@@ -154,7 +152,9 @@ gl.filter.allna <- function(x,
       ind.list <- ind.list[!is.na(ind.list)]
       if (verbose >= 3) {
         cat(
-          "  Individuals that are missing (NA) across all loci:",
+          "  ",
+          na.counter,
+          "individuals that are missing (NA) across all loci:",
           paste(ind.list, collapse = ", "),
           "\n"
         )
@@ -192,6 +192,8 @@ gl.filter.allna <- function(x,
           "deleted\n\n")
     }  
     x2 <- gl.drop.loc(x2,loc.list=loc.list,verbose=0)
+    # one history entry per user call: discard the internal gl.drop.loc entry
+    x2@other$history <- x@other$history
   }
     
   if (recalc) {
@@ -201,7 +203,7 @@ gl.filter.allna <- function(x,
   } else {
     # Reset the flags as FALSE for all metrics except all na (dealt with 
     #elsewhere)
-    if(nLoc(x) != nLoc(x2)){
+    if(nLoc(x) != nLoc(x2) | nInd(x) != nInd(x2)){
       x2@other$loc.metrics.flags$AvgPIC <- FALSE
       x2@other$loc.metrics.flags$OneRatioRef <- FALSE
       x2@other$loc.metrics.flags$OneRatioSnp <- FALSE
@@ -216,7 +218,7 @@ gl.filter.allna <- function(x,
   }
     
   # ADD TO HISTORY
-  if(nLoc(x) != nLoc(x2)){
+  if(nLoc(x) != nLoc(x2) | nInd(x) != nInd(x2)){
     nh <- length(x2@other$history)
     x2@other$history[[nh + 1]] <- match.call()
   }
@@ -226,5 +228,5 @@ gl.filter.allna <- function(x,
         cat(report("Completed:", funname, "\n"))
     }
     
-    return(x2)
+    return(invisible(x2))
 }
