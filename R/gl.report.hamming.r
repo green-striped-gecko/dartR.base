@@ -179,6 +179,9 @@ gl.report.hamming <- function(x,
 
     # DO THE JOB
 
+    # ggplot aes variables, declared to satisfy R CMD check
+    Threshold <- Removed <- current <- NULL
+
     engine <- utils.hamming.engine()
 
     nL <- nLoc(x)

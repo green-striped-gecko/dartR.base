@@ -1,5 +1,8 @@
 # dartR.base 1.2.3 (development)
 
+* R CMD check: silenced "no visible binding" NOTEs for ggplot aes
+  variables in `gl.report.hamming()` (Threshold, Removed, current) and
+  `gl.report.secondaries()` (count).
 * CI repair: six review-campaign test files hardcoded expectations from a
   `testset.gl` that contained 3 all-NA loci; the CRAN dartR.data 1.2.2
   `testset.gl` (the one CI installs) has none, so every `dev` run since
