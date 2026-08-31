@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.secondaries()`: four fixes. (1) The function crashed
+  ("Subsetting resulted in zero loci") on any dataset with no secondaries
+  -- an unused leftover subset (`x[, duplicated(b)]`) errored before the
+  documented no-secondaries branch could run; that line is removed and
+  such datasets now return the documented parameter data.frame. (2) The
+  results block printed at every verbosity level including `verbose = 0`;
+  it is now gated at `verbose >= 1`. (3) The 'TrimmedSequence not found'
+  warning likewise printed at `verbose = 0`; now gated at `verbose >= 1`.
+  (4) The raw per-iteration lambda estimates (several hundred lines on a
+  typical dataset) printed at default `verbose = 2`; they now print only
+  at `verbose >= 5`, with the existing "Converged on Lambda" summary
+  retained at `verbose >= 2`.
 * `gl.filter.allna()`: five fixes. (1) Removing all-NA individuals (with
   no all-NA loci) previously left the locus-metric flags stale
   (`CallRate` still TRUE though every locus's denominator changed) and
