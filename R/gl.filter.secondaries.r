@@ -7,140 +7,130 @@
 #' record them separately with the same CloneID (=AlleleID). These multiple SNP
 #' loci within a fragment (secondaries) are likely to be linked, and so you may
 #' wish to remove secondaries.
+#'
+#' This script filters out all but one locus of those sharing the same CloneID,
+#' retaining the SNP with the highest repeatability (RepAvg), and on ties the
+#' highest AvgPIC (method='best'), or retaining one at random
+#' (method='random').
 
-#' This script filters out all but the first sequence tag with the same CloneID
-#' after ordering the genlight object on based on repeatability, avgPIC in that
-#' order (method='best') or at random (method='random').
-
+#' @details
 #' The filter has not been implemented for tag presence/absence data.
+#'
+#' With method='random' the choice of SNP retained depends on the state of the
+#' random number generator; use set.seed() beforehand if reproducibility is
+#' required. The locus order of the input object is preserved in the output.
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method Method of selecting SNP locus to retain, 'best' or 'random'
 #'  [default 'random'].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
-#' 
-#' @author Custodian: Arthur Georges -- Post to
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+
+#' @return The genlight object, with the secondary SNP loci removed.
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+
 #' @examples
+#' require("dartR.data")
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl.report.secondaries(platypus.gl)
 #' result <- gl.filter.secondaries(platypus.gl)
 
-#' @importFrom stats dpois
-#' @import patchwork
+#' @seealso \code{\link{gl.report.secondaries}}
 #' @export
-#' @return The genlight object, with the secondary SNP loci removed.
 
 gl.filter.secondaries <- function(x,
                                   method = "random",
                                   verbose = NULL) {
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
-    
+
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, accept = c("genlight", "SNP"), verbose = verbose)
-    
+
     # FUNCTION SPECIFIC ERROR CHECKING
-    
+
     if (method != "best" && method != "random") {
-        cat(warn("  Warning: method must be specified, set to 'random'\n"))
+        if (verbose >= 1) {
+            cat(warn("  Warning: method must be 'best' or 'random', set to 'random'\n"))
+        }
+        method <- "random"
     }
-    
-    if (datatype == "SilicoDArT") {
-      if (is.null(x@other$loc.metrics$Reproducibility)) {
-        stop(
-          error(
-            "Fatal Error: Dataset does not include Reproducibility among
-                    the locus metrics, cannot be calculated!"
-          )
+
+    if (is.null(x@other$loc.metrics$RepAvg)) {
+      stop(
+        error(
+          "Fatal Error: Dataset does not include RepAvg among the
+                  locus metrics, cannot be calculated!"
         )
-      }
+      )
     }
-    if (datatype == "SNP") {
-      if (is.null(x@other$loc.metrics$RepAvg)) {
-        stop(
-          error(
-            "Fatal Error: Dataset does not include RepAvg among the 
-                    locus metrics, cannot be calculated!"
-          )
-        )
-      }
-    }
-    
+
     # DO THE JOB
-    
+
     if (verbose > 2) {
         cat(report("  Total number of SNP loci:", nLoc(x), "\n"))
     }
-    
-    # Sort the genlight object on AlleleID (asc), RepAvg (desc), AvgPIC (desc)
+
+    # Extract the clone ID number
+    a <- strsplit(as.character(x@other$loc.metrics$AlleleID), "\\|")
+    b <- unlist(a)[c(TRUE, FALSE, FALSE)]
+
+    # Rank the loci within each sequence tag (CloneID); the first locus of
+    # each tag in this ranking is the one retained
     if (method == "best") {
         if (verbose > 1) {
             cat(
                 report(
-                    "  Selecting one SNP per sequence tag based on best RepAvg 
+                    "  Selecting one SNP per sequence tag based on best RepAvg
                     and AvgPIC\n"
                 )
             )
         }
-        loc.order <-
-            order(
-                x@other$loc.metrics$AlleleID,-x@other$loc.metrics$RepAvg,
-                -x@other$loc.metrics$AvgPIC
-            )
-        x2 <- x[, loc.order]
-        x2@other$loc.metrics <- x@other$loc.metrics[loc.order, ]
+        loc.rank <-
+            order(b,
+                  -x@other$loc.metrics$RepAvg,
+                  -x@other$loc.metrics$AvgPIC)
     } else {
         if (verbose > 1) {
             cat(report("  Selecting one SNP per sequence tag at random\n"))
         }
-        n <- length(x@other$loc.metrics$AlleleID)
-        index <- sample(1:(n + 10000), size = n, replace = FALSE)
-        
-          x2 <- x[, order(index)]
-          x2@other$loc.metrics <- x@other$loc.metrics[order(index), ]
-        
+        loc.rank <- sample(nLoc(x))
     }
-    # Extract the clone ID number
-    a <- strsplit(as.character(x2@other$loc.metrics$AlleleID), "\\|")
-    b <- unlist(a)[c(TRUE, FALSE, FALSE)]
-    # Identify and remove secondaries from the genlight object, including the
-    #metadata
 
-      x3 <- x2[, duplicated(b) == FALSE]
-      x3@other$loc.metrics <- x2@other$loc.metrics[duplicated(b) == FALSE, ]
-    
+    # Indices of the retained loci, restored to the input locus order
+    keep <- sort(loc.rank[!duplicated(b[loc.rank])])
+
+    # Remove secondaries from the genlight object, including the metadata
+    x3 <- x[, keep]
+    x3@other$loc.metrics <- x@other$loc.metrics[keep, ]
+
     # Report secondaries from the genlight object
     if (verbose > 2) {
-        if (is.na(table(duplicated(b))[2])) {
-            nsec <- 0
-        } else {
-            nsec <- table(duplicated(b))[2]
-        }
-        cat("    Number of secondaries:", nsec, "\n")
+        cat("    Number of secondaries:", nLoc(x) - length(keep), "\n")
         cat("    Number of loci after secondaries removed:",
-            table(duplicated(b))[1],
+            length(keep),
             "\n")
     }
-    
+
     # ADD TO HISTORY
     nh <- length(x3@other$history)
     x3@other$history[[nh + 1]] <- match.call()
-    
+
     # FLAG SCRIPT END
-    
+
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(x3)
+
+    return(invisible(x3))
 }

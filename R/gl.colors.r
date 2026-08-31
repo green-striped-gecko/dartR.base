@@ -3,30 +3,33 @@
 #' @family graphics
 #' 
 #' @description
-#' Creates a vector of colors in hex (e.g. "#3B9AB2" "#78B7C5") based on user selected category 
+#' Creates a vector of colors in hex (e.g. "#3B9AB2" "#78B7C5") based on user selected category
 #' (parameter type).
 #'  \itemize{
 #'  \item "2" [two colors]
 #'  \item "2c" [two colors contrast]
 #'  \item "3" [three colors]
-#'  \item  4" [four colors]
-#'  \item "pal" [need to be specify the palette type and the number of colors]
+#'  \item "4" [four colors]
+#'  \item "structure" [35 discrete colors, suitable for structure-style plots]
+#'  \item "div", "dis", "con", "vir" [color palettes, see details]
 #'  }
-#'  
-#' A palette of colors 
-#' can be specified via "div" [divergent], "dis" [discrete], "con" [convergent], "vir" [viridis]. 
-#' Be aware a palette needs the number of colors specified as well. It returns a function 
-#' and therefore the number of colors needs to be a part of the function call. 
-#' Check the examples to see how this works. 
-#' 
-#' @param type Type of color (2, 3 or 4 colors, or palette, see description) [default 2]. 
-#' @param verbose -- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'
+#' @details
+#' A palette of colors
+#' can be specified via "div" [divergent], "dis" [discrete], "con" [convergent], "vir" [viridis].
+#' Be aware a palette needs the number of colors specified as well. It returns a function
+#' and therefore the number of colors needs to be a part of the function call.
+#' Check the examples to see how this works.
+#'
+#' @param type Type of color (2, 3 or 4 colors, "structure", or a palette
+#' type, see description) [default 2].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
-#' 
+#'
 #' @author Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @examples
 #' gl.colors(2)
 #' gl.colors("2")
@@ -35,10 +38,12 @@
 #' gl.colors(type="dis")(5)
 #' #seven divergent colors
 #' gl.colors("div")(7)
+#'
+#' @return A vector of colors in hex format, or, for the palette types
+#' ("div", "dis", "con", "vir"), a function taking the number of colors as
+#' its argument.
 #' @export
-#' @return returns colors as a vector 
-
-#' 
+#'
 gl.colors <- function(
           type=2,
           verbose=NULL) {
@@ -56,15 +61,13 @@ gl.colors <- function(
   if (is.numeric(type))
     if (type<2 | type>4)
     {
-      cat(error("No valid color option specified. Check ?gl.colors\n"))
-      stop(-1)
+      stop(error("No valid color option specified. Check ?gl.colors\n"))
     }
-  
+
   check <- match(type, c("2","2c","3","4","structure","dis", "div", "vir","con"))
-  
+
   if (is.na(check)) {
-    cat(error("No valid color option specified. Check ?gl.colors\n"))
-    stop(-1)
+    stop(error("No valid color option specified. Check ?gl.colors\n"))
   }
   
   # DO THE JOB
@@ -72,7 +75,6 @@ gl.colors <- function(
   if(verbose >=2){cat(report("Selected color type",type,"\n"))}
   
   type <- as.character(type)
-  cols <- NA
   # SET PLOTS COLORS
   if (type=="2")  cols <- c("#3B9AB2", "#78B7C5")
   if (type=="2c")  cols <- c("deeppink", "chartreuse3")
@@ -118,5 +120,5 @@ gl.colors <- function(
     cat(report("Completed:", funname, "\n"))
   }
   
-return(invisible(cols))
+return(cols)
 }

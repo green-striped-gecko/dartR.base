@@ -4,7 +4,7 @@
 \alias{gl.select.shapes}
 \title{Selects shapes from the base R shape palette and outputs as a vector}
 \usage{
-gl.select.shapes(x = NULL, select = NULL, verbose = NULL)
+gl.select.shapes(x = NULL, select = NULL, plot.display = TRUE, verbose = NULL)
 }
 \arguments{
 \item{x}{Optionally, provide a gl object from which to determine the number
@@ -12,6 +12,9 @@ of populations [default NULL].}
 
 \item{select}{Select the shapes to retain in the output vector
 [default NULL, all shapes shown and returned].}
+
+\item{plot.display}{If TRUE, the shape palette is displayed in the graphics
+window [default TRUE; display is suppressed when verbose is 0].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -33,6 +36,11 @@ The select parameter can be used to select shapes from the specified 26
 shapes available (0-25). For example, select=c(1,1,3) will select shape 1, 1
 again and 3 to retain in the final vector. This can be useful for fine-tuning
 shape selection, and matching colors and shapes.
+If a gl object is provided, the number of specified shapes must agree with
+the number of populations; if select is not specified, one shape is assigned
+per population.
+The palette is displayed only when plot.display=TRUE (the default) and
+verbose >= 1.
 }
 \examples{
 # SET UP DATASET
@@ -43,7 +51,7 @@ rep('MDB',8),rep('Coast',7),'Em.subglobosa','Em.victoriae')
 # EXAMPLES
 shapes <- gl.select.shapes() # Select and display available shapes
 # Select and display a restricted set of shapes
-shapes <- gl.select.shapes(select=c(1,1,1,5,8)) 
+shapes <- gl.select.shapes(select=c(1,1,1,5,8))
  # Select set of shapes and check with no. of pops.
 shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
 }
