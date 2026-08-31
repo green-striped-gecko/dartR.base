@@ -7,22 +7,27 @@
 gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing the SNP or SilicoDArT data
+[required].}
 
 \item{threshold}{Maximum allowed Hamming distance (number of
 mismatching bases) between two trimmed sequences for them to be treated as
-duplicates [default 3].}
+duplicates; an integer >= 0, where 0 removes exact duplicates only.
+Note that in earlier versions of this function the threshold
+was a proportion of the sequence length (default 0.2); it is now a count
+of bases, consistent with \code{gl.report.hamming} [default 3].}
 
 \item{rs}{Number of bases to skip from the start of the TrimmedSequence
-before extracting the comparison substring (ie restriction site length)
+before extracting the comparison substring (i.e. restriction site length)
  [default 5].}
 
-\item{min.length}{Length of the substring used for Hamming
-comparisons. Only loci producing a substring of exactly this length are
-compared; others are retained [default 50].}
+\item{min.length}{Length of the substring used for Hamming comparisons.
+Despite the name, this is an exact length, not a minimum: longer sequences
+are truncated to it, and only loci producing a substring of exactly this
+length are compared; others are retained [default 50].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
+brief progress messages; 3, progress and results summary; 5, full report
  [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
@@ -31,36 +36,41 @@ A \code{genlight} object with redundant loci removed.
 \description{
 Identifies loci with highly similar (near-duplicate) trimmed tag sequences and
 removes redundant loci, preferentially retaining the locus with the better call
-rate (fewer missing genotypes).
-This function compares locus \code{TrimmedSequence} strings after skipping 
+rate (fewer missing genotypes). Loci with near-identical tags are likely to be
+fragments of the same genomic locus that the calling pipeline has split into
+separate loci; retaining both yields pseudo-replicated, non-independent markers.
+This function compares locus \code{TrimmedSequence} strings after skipping
 a user-defined number of bases (the restriction site) and retaining a fixed-length
 substring. Loci whose substrings are within \code{threshold} mismatches
 (Hamming distance) are considered duplicates and one is dropped.
 }
 \details{
-This function finds near-duplicate TrimmedSequences by first taking the same 
-fixed-length piece of sequence from every locus, then cutting that piece 
-into several smaller sections. It relies on a simple fact: if two sequences 
-differ by only a few letters (up to your threshold), then at least one of 
-those sections must be exactly the same in both. So it uses the sections as 
-“signatures” to quickly shortlist only those loci that share an identical 
-section, instead of comparing every locus to every other one. For each 
-shortlisted pair, it then checks the two sequences letter-by-letter and 
-stops as soon as it can tell they differ by more than the allowed number. 
-It works backwards through the list so each TrimmedSequence is only checked 
-against the TrimmedSequence that comes after it, and once a locus is flagged 
-as a duplicate it is not used to match others.
+This function finds near-duplicate TrimmedSequences by first taking the same
+fixed-length piece of sequence from every locus, then cutting that piece
+into several smaller sections. It relies on a simple fact: if two sequences
+differ by only a few letters (up to the threshold), then at least one of
+those sections must be exactly the same in both. So it uses the sections as
+'signatures' to quickly shortlist only those loci that share an identical
+section, instead of comparing every locus to every other one. For each
+shortlisted pair, it then checks the two sequences letter-by-letter and
+stops as soon as it can tell they differ by more than the allowed number.
+
+Before comparison, loci are ordered from most to least missing data (worst
+to best call rate). When two loci are found to be within \code{threshold}
+mismatches, the one with more missing genotypes is dropped, so the retained
+locus of every duplicate pair is always the one with the better call rate.
+Once a locus is dropped it is not used to match others.
 
 The function expects locus metrics to include \code{TrimmedSequence} in
 \code{x@other$loc.metrics}.
 
-When a duplicate pair \code{(i, j)} is detected (Hamming distance \code{<= threshold}),
-the function drops the locus with the larger number of missing genotypes across
-individuals (i.e. lower call rate).
-
 Only loci whose \code{TrimmedSequence} is long enough to yield a substring of
 exactly \code{min.length} are compared. Loci with shorter sequences are not
 compared and are retained.
+
+This function requires the package \code{Rcpp} and a working C++ compiler
+toolchain (Rtools on Windows, Xcode Command Line Tools on macOS), as the
+comparison engine is compiled at run time.
 }
 \examples{
 # x must be a genlight with TrimmedSequence in x@other$loc.metrics
@@ -71,6 +81,9 @@ x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
 }
 }
 \seealso{
+\code{\link{gl.report.hamming}} to explore the distribution of
+  sequence divergence before choosing a threshold.
+
 Other matched filter: 
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.ld}()},

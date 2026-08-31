@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.hamming()` now reports the exact number of loci that
+  `gl.filter.hamming()` would remove at candidate thresholds 0-10, by running
+  the filter's own comparison engine in simulation (same worst-to-best
+  call-rate ordering). Distances are reported as counts of mismatching bases
+  over `min.length` bases, matching the filter's threshold units, and are
+  computed in compiled code (the former O(n^2) R loop is gone). Arguments
+  `tag.length` and `probar` are deprecated and ignored; a new `min.length`
+  argument matches `gl.filter.hamming()`.
+
+* `gl.filter.hamming()`: `threshold` is a count of mismatching bases (e.g. 3),
+  no longer a proportion of sequence length as in earlier versions;
+  proportion-style values (0 < threshold < 1) are rejected with an error.
+  Comparable loci are ordered worst-to-best call rate before deduplication,
+  so the retained locus of every duplicate pair is the one with the better
+  call rate. The comparison engine is shared with `gl.report.hamming()` and
+  compiled once per session.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`
@@ -14,3 +31,32 @@
   verbosity level, including `verbose = 0`. It is now gated at
   `verbose >= 1`, so fully-quiet calls are silent as documented. The
   default (`verbose = 2`) behaviour is unchanged.
+* `gl.keep.ind()`: fixed the identical bug -- the same locus-metric flags
+  were only reset to `FALSE` after retaining individuals when
+  `verbose >= 2`. Now reset correctly at every verbosity level.
+
+* `gl.drop.loc()`: four fixes. (1) The "not present in the dataset"
+  warning previously named the wrong loci -- it indexed the dataset's
+  locus names with positions from the user's `loc.list`, so a typo in one
+  locus name produced a warning about a different, valid locus. It now
+  names the loci the user actually listed. (2) `last` now defaults to the
+  last locus when omitted, as documented -- previously
+  `gl.drop.loc(gl, first = 100)` crashed. (3) The out-of-range check on
+  the locus range tested `first` but clamped `last`; an out-of-range
+  `last` now warns and clamps, and an out-of-range `first` is a clear
+  fatal error (previously it silently dropped a single arbitrary locus).
+  (4) The range-clamp warnings are now silent at `verbose = 0`.
+* `gl.report.callrate()`: five fixes. (1) The results tables previously
+  printed at every verbosity level including `verbose = 0`; they are now
+  gated at `verbose >= 1` (default `verbose = 2` output unchanged).
+  (2) The returned object is now truly unaltered, as the documentation
+  always stated -- previously it came back with the `CallRate` locus
+  metric recalculated in place; the report still uses freshly
+  recalculated values internally. (3) An unknown `method` (anything other
+  than "loc"/"ind") now warns and coerces to "loc" instead of silently
+  producing no output at all. (4) Two documented examples calling a
+  nonexistent `by.pop` argument (silently swallowed by `...`) were
+  removed. (5) Cosmetic: a stray ")" printed after the individuals table,
+  the "3r quartile" typo in both branches, `ind.to.list = 0` listing one
+  individual instead of none, and the `@param bins` default documented as
+  25 when the signature default is 50.
