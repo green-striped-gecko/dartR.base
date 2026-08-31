@@ -44,64 +44,66 @@ test_that("gl.report.heterozygosity is silent at verbose 0 and invisible", {
 })
 
 test_that("method='ind' with display off at verbose 3", {
-  # BASELINE (pre-fix): crashes with "object 'outliers' not found" — the
-  # outlier table is built only inside the plotting block.
+  # [approved diff F2] baseline: crashed with "object 'outliers' not
+  # found" — the outlier table was built only inside the plotting block.
   pdf(NULL); on.exit(dev.off())
-  expect_error(
-    capture.output(gl.report.heterozygosity(testset.gl, method = "ind",
-                                            plot.display = FALSE,
-                                            verbose = 3)),
-    "outliers"
-  )
+  o <- capture.output(r <- gl.report.heterozygosity(testset.gl,
+        method = "ind", plot.display = FALSE, verbose = 3))
+  expect_s3_class(r, "data.frame")
+  expect_true(any(grepl("[Oo]utliers", o)))
 })
 
 test_that("subsample.pop with method='ind'", {
-  # BASELINE (pre-fix): crashes with "object 'res_sub' not found" — the
-  # subsample results exist only under method='pop'.
+  # [approved diff F3] baseline: crashed with "object 'res_sub' not
+  # found". Now a gated warning; subsample.pop is ignored and the plain
+  # dataframe is returned.
   pdf(NULL); on.exit(dev.off())
-  expect_error(
-    capture.output(gl.report.heterozygosity(testset.gl, method = "ind",
-                                            subsample.pop = TRUE,
-                                            plot.display = FALSE,
-                                            verbose = 0)),
-    "res_sub"
-  )
+  o <- capture.output(r <- gl.report.heterozygosity(testset.gl,
+        method = "ind", subsample.pop = TRUE, plot.display = FALSE,
+        verbose = 0))
+  expect_length(o, 0)
+  expect_s3_class(r, "data.frame")
+  o1 <- capture.output(r1 <- gl.report.heterozygosity(testset.gl,
+        method = "ind", subsample.pop = TRUE, plot.display = FALSE,
+        verbose = 1))
+  expect_true(any(grepl("ignored", o1)))
 })
 
-test_that("subsample.pop crashes when any population is below n.limit", {
-  # BASELINE (pre-fix): utils.subsample.pop stores NA for below-limit
-  # populations and rbindlist() rejects it — testset.gl (many pops < 10)
-  # crashes although n.limit is documented as a skip threshold.
+test_that("subsample.pop skips populations below n.limit", {
+  # [approved diff F1] baseline: utils.subsample.pop stored NA for
+  # below-limit populations and rbindlist() rejected it — testset.gl
+  # (many pops < 10) crashed although n.limit is documented as a skip
+  # threshold.
   pdf(NULL); on.exit(dev.off())
-  expect_error(
-    capture.output(gl.report.heterozygosity(testset.gl,
-                                            subsample.pop = TRUE,
-                                            plot.display = FALSE,
-                                            verbose = 0)),
-    "plain list"
-  )
+  res <- gl.report.heterozygosity(testset.gl, subsample.pop = TRUE,
+                                  plot.display = FALSE, verbose = 0)
+  expect_named(res, c("subsample", "results"))
+  qualifying <- names(which(table(pop(testset.gl)) >= 10))
+  expect_setequal(unique(res$subsample$pop), qualifying)
+  expect_equal(nrow(res$results), nPop(testset.gl))
 })
 
 test_that("subsample.pop works when all populations qualify (platypus)", {
   pdf(NULL); on.exit(dev.off())
   res <- gl.report.heterozygosity(platypus.gl, subsample.pop = TRUE,
                                   plot.display = FALSE, verbose = 0)
-  # BASELINE (pre-fix): an unnamed 2-element list
+  # [approved diff F5] baseline: an unnamed 2-element list.
   expect_true(is.list(res) && !is.data.frame(res))
   expect_length(res, 2)
-  expect_null(names(res))
+  expect_named(res, c("subsample", "results"))
+  expect_setequal(unique(res$subsample$pop), popNames(platypus.gl))
 })
 
-test_that("warnings print at verbose 0", {
-  # BASELINE (pre-fix): the method-coercion and negative-n.invariant
-  # warnings are ungated.
+test_that("warnings gated at verbose 0", {
+  # [approved diff F4] baseline: the method-coercion and
+  # negative-n.invariant warnings printed at verbose 0.
   pdf(NULL); on.exit(dev.off())
   o5 <- capture.output(
     r5 <- gl.report.heterozygosity(testset.gl, method = "bogus",
                                    plot.display = FALSE, verbose = 0))
-  expect_gt(length(o5), 0)
+  expect_length(o5, 0)
   o6 <- capture.output(
     r6 <- gl.report.heterozygosity(testset.gl, n.invariant = -1,
                                    plot.display = FALSE, verbose = 0))
-  expect_gt(length(o6), 0)
+  expect_length(o6, 0)
 })

@@ -52,6 +52,7 @@ Other matched report:
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},

@@ -88,30 +88,32 @@ std.error <- function(x) {
 utils.subsample.pop <- function(x,
                                 n.limit,
                                 subsamples = c(10, 5, 4, 3, 2)){
-  
+
   x.pops <- seppop(x)
   x.pops <- lapply(x.pops,as.matrix)
-  pops.list <- as.list(1:length(x.pops))
-  
-for(i in 1:length(x.pops)){
-  pop.tmp <- x.pops[[i]]
-  if(nrow(pop.tmp) < n.limit){
-    pops.list[[i]] <- NA
-  }else{
-      pops.list[[i]] <- lapply(subsamples, function(y){
-        res_tmp <- het_rep(mat = pop.tmp ,samples = y , reps = 10)
-      })
-  } 
-}
-  names(pops.list) <- popNames(x)
+
+  # Populations below n.limit are skipped, as documented (previously an
+  # NA placeholder was stored for them, which data.table::rbindlist
+  # rejects, crashing the run for any dataset with a small population)
+  keep <- vapply(x.pops, nrow, integer(1)) >= n.limit
+  x.pops <- x.pops[keep]
+  if (length(x.pops) == 0) {
+    return(data.table::data.table())
+  }
+
+  pops.list <- lapply(x.pops, function(pop.tmp){
+    lapply(subsamples, function(y){
+      het_rep(mat = pop.tmp ,samples = y , reps = 10)
+    })
+  })
   pops.list <- lapply(pops.list,data.table::rbindlist)
-  pops.list <- lapply(1:nPop(x),function(z){
+  pops.list <- lapply(seq_along(pops.list),function(z){
     ptmp <- pops.list[[z]]
     ptmp$pop <- names(pops.list)[z]
     ptmp$subsample <- subsamples
     return(ptmp)
   })
-  
+
   return(data.table::rbindlist(pops.list))
 }
 

@@ -129,14 +129,30 @@ the baseline (runtime); exercised ad hoc in Phase C verification.
 
 ## Approval
 
-On hold (2026-08-30): findings saved for consultation with the authors
-(Luis Mijangos; CP/Carlo Pacioni contributions) before any changes are
-approved. No fixes applied; the characterization baseline captures the
-current behaviour including the three crashes.
+Held for author consultation (2026-08-30). After the member heard back
+from the collaborators, all six findings were approved via the
+approval boxes (2026-08-31).
+
+## Addendum (discovered during apply)
+
+The shared plot-save block references p3 unconditionally, but both
+method branches build their plots only under plot.display — so
+plot.file with plot.display = FALSE crashed on the unbuilt plot (the
+p3-not-found class). Below-HIGH; fixed with an existence guard and a
+gated (verbose >= 1) warning that nothing was saved.
 
 ## Outcome
 
-(to be recorded)
+All six findings applied, plus the addendum. Characterization suite:
+21/21 pass; flips map to F1 (subsample on testset.gl now returns
+results for exactly the populations at or above n.limit), F2 (ind
+results independent of plotting, outliers reported), F3 (gated
+warning, plain dataframe), F4 (silent at verbose 0), F5 (named
+$subsample/$results list). Reported statistics unchanged (Ho/He still
+match the hand computation). End-to-end verified: pop+subsample with
+display at verbose 3 (skipped pops absent from the subsample plot,
+colours keyed by name), ind at verbose 3 without display, plot.file
+without display (gated warning). NEWS entry added.
 
 ```json
 {
@@ -148,12 +164,12 @@ current behaviour including the three crashes.
   "verdict_standards": "FAIL",
   "verdict_spec": "FAIL",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "rules": ["spec"], "loc": "R/utils.het.report.r + subsample plot block", "status": "proposed"},
-    {"id": "F2", "severity": "HIGH", "rules": ["spec", "PLT3"], "loc": "R/gl.report.heterozygosity.r outliers block", "status": "proposed"},
-    {"id": "F3", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/gl.report.heterozygosity.r ind branch/return", "status": "proposed"},
-    {"id": "F4", "severity": "LOW", "rules": ["VRB2"], "loc": "R/gl.report.heterozygosity.r checks", "status": "proposed"},
-    {"id": "F5", "severity": "LOW", "rules": ["DOC5"], "loc": "R/gl.report.heterozygosity.r return", "status": "proposed"},
-    {"id": "F6", "severity": "LOW", "rules": ["DOC1", "DOC2", "DOC7"], "loc": "R/gl.report.heterozygosity.r header", "status": "proposed"}
+    {"id": "F1", "severity": "HIGH", "rules": ["spec"], "loc": "R/utils.het.report.r + subsample plot block", "status": "applied"},
+    {"id": "F2", "severity": "HIGH", "rules": ["spec", "PLT3"], "loc": "R/gl.report.heterozygosity.r outliers block", "status": "applied"},
+    {"id": "F3", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/gl.report.heterozygosity.r ind branch/return", "status": "applied"},
+    {"id": "F4", "severity": "LOW", "rules": ["VRB2"], "loc": "R/gl.report.heterozygosity.r checks", "status": "applied"},
+    {"id": "F5", "severity": "LOW", "rules": ["DOC5"], "loc": "R/gl.report.heterozygosity.r return", "status": "applied"},
+    {"id": "F6", "severity": "LOW", "rules": ["DOC1", "DOC2", "DOC7"], "loc": "R/gl.report.heterozygosity.r header", "status": "applied"}
   ],
   "datasets": ["testset.gl", "platypus.gl"],
   "baseline_test": "tests/testthat/test-gl.report.heterozygosity.R",

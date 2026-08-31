@@ -1,5 +1,26 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.heterozygosity()`: three crash fixes and conformance, applied
+  after consultation with the authors. (1) `subsample.pop = TRUE` crashed
+  whenever ANY population was below `n.limit` (utils.subsample.pop stored
+  NA placeholders that rbindlist rejects) although n.limit is documented
+  as a skip threshold; small populations are now skipped and the
+  subsample plot keys its colours by population name so skipped
+  populations cannot desync the palette. (2) `method = 'ind'` with
+  `plot.display = FALSE` and `verbose >= 3` crashed ("object 'outliers'
+  not found") -- outliers are now computed from the data (Tukey boxplot
+  statistics) independent of plotting. (3) `subsample.pop = TRUE` with
+  `method = 'ind'` crashed ("object 'res_sub' not found"); it is now
+  ignored with a gated warning. Also: the method-coercion,
+  negative-n.invariant and secondaries-history warnings printed at
+  `verbose = 0` (now gated); the nboots/CI check raises a proper error
+  condition; the subsample return is a named list
+  (`$subsample`, `$results`) and documented; `plot.file` with
+  `plot.display = FALSE` no longer crashes on the unbuilt plot (gated
+  warning, nothing saved); header conformance (matched report family,
+  author credits, preliminaries order). Reported statistics are
+  unchanged.
+
 * `gl.drop.ind()`: fixed a bug where locus-metric flags
   (`AvgPIC`, `OneRatioRef`, `OneRatioSnp`, `PICRef`, `PICSnp`, `CallRate`,
   `maf`, `FreqHets`, `FreqHomRef`, `FreqHomSnp`) were only reset to `FALSE`

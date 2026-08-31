@@ -95,6 +95,7 @@ Other matched report:
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},
