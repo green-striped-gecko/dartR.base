@@ -122,5 +122,5 @@ displaying as structured. NEWS entry added.
   {"id": "F4", "severity": "LOW", "rules": ["spec", "DOC"], "loc": "R/gl.report.maf.r counts/error", "status": "applied"},
   {"id": "F5", "severity": "LOW", "rules": ["DOC1", "DOC2", "DOC5"], "loc": "R/gl.report.maf.r header", "status": "applied"}],
  "datasets": ["testset.gl"],
- "baseline_test": "tests/testthat/test-gl.report.maf.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.report.maf.R", "pr": 294}
 ```
