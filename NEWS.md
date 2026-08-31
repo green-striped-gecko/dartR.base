@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.taglength()`: four fixes, mirroring the rdepth pair
+  (#255/#256). (1) `plot.file` with `plot.display = FALSE` crashed
+  ("object 'p3' not found"); the composite plot is now always built and
+  the RDS save works without displaying. (2) The summary statistics and
+  quantile table printed at every verbosity level including
+  `verbose = 0`; now gated at `verbose >= 1`, and `verbose = 0` forces
+  `plot.display = FALSE`. (3) The "Retained" counts treated loci with NA
+  tag length (NA TrimmedSequence) as retained; they now exclude NAs.
+  (4) "1st quantile"/"3r quantile" corrected to "1st quartile"/"3rd
+  quartile", and the plot title is now datatype-aware instead of always
+  saying "SNP data".
 * `gl.filter.rdepth()`: five fixes. (1) Loci with a missing (NA) read
   depth metric silently corrupted the output -- the genotype subset
   dropped them but the locus-metrics subset kept an all-NA row for each,
