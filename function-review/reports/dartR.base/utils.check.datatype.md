@@ -141,5 +141,5 @@ merged.
   {"id": "F4", "severity": "LOW", "rules": ["VRB"], "loc": "R/utils.check.datatype.r unknown class", "status": "applied"},
   {"id": "F5", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/utils.check.datatype.r header", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs", "constructed"],
- "baseline_test": "tests/testthat/test-utils.check.datatype.R", "pr": null}
+ "baseline_test": "tests/testthat/test-utils.check.datatype.R", "pr": 296}
 ```
