@@ -67,6 +67,8 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.secondaries}()},
+\code{\link{gl.filter.taglength}()}
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.secondaries}()}
 }
