@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.load()`: the `compliance` parameter (documented [default FALSE]) was
+  inert -- `gl.compliance.check()` ran unconditionally on every load,
+  potentially modifying the loaded object and printing its full output
+  even at `verbose = 0`. As directed by the module coordinator, the check
+  now runs only when `compliance = TRUE` (with verbose passed through).
+  The "Loaded object" and fbm-conversion messages are gated at
+  `verbose >= 2` (they printed at verbose 0). A missing file and an RDS
+  that does not contain a genlight object now give clear fatal errors
+  (previously a raw connection error and a cryptic "no applicable method
+  for `@`" failure). Docs corrected: `fbm` default is FALSE (was
+  documented TRUE), `file` is the file to read (was "receive data"), an
+  examples block added.
 * `gl.filter.replicates()`: four fixes. (1) When the members of a
   replicate pair had tied missing-data rates -- the exact-duplicate case
   -- BOTH were removed (the doubled pair table evaluated the drop rule in
