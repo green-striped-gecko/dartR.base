@@ -45,7 +45,7 @@ Other matched reports:
 \code{\link{gl.report.fstat}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched reports}
