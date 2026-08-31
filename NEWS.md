@@ -1,9 +1,10 @@
 # dartR.base 1.2.3 (development)
 
 * `gl.filter.overshoot()`: loci whose overshoot status cannot be
-  assessed (missing TrimmedSequence or SnpPosition) silently passed the
-  filter; they are now removed and itemised in the `verbose >= 3`
-  summary, matching the convention in the other reviewed filters. The
+  assessed (missing TrimmedSequence or SnpPosition) previously passed
+  through the filter silently; by direction of the module coordinator
+  they are RETAINED (not removed), and their count is reported in the
+  `verbose >= 3` summary so the user knows they were not assessed. The
   no-op message is gated at `verbose >= 1`, the return is invisible, and
   the verbose >= 3 locus listing no longer carries a stray trailing
   comma. Core removal logic verified exact against independent

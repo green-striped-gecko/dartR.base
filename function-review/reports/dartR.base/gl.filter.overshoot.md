@@ -136,3 +136,16 @@ in the workspace. NEWS entry added.
   "pr": 262
 }
 ```
+
+## Amendment (2026-08-31, directed by the member)
+
+The F3 policy is reversed by direction of the module coordinator:
+loci whose overshoot status cannot be assessed (NA TrimmedSequence or
+SnpPosition) are RETAINED rather than removed. The rationale: an
+unassessable locus should not be discarded by a filter that cannot
+evaluate it. The retained count is reported at verbose >= 3
+("retained unfiltered"). The characterization test was flipped
+accordingly (5 NA-metric loci retained; only genuinely assessable
+overshoots removed; suite 16/16). Note this also aligns the filter
+with gl.report.overshoot (PR #261), which excludes unassessable loci
+from the flagged set.

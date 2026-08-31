@@ -54,19 +54,21 @@ test_that("gl.filter.overshoot no-op message at verbose = 0", {
 })
 
 test_that("gl.filter.overshoot with NA metric values", {
-  # [approved diff F3] loci whose overshoot status cannot be assessed
-  # (NA TrimmedSequence/SnpPosition) are now removed, aligned with
-  # gl.filter.rdepth/taglength/reproducibility.
+  # [amended by member direction, 2026-08-31] loci whose overshoot
+  # status cannot be assessed (NA TrimmedSequence/SnpPosition) are
+  # RETAINED rather than removed (the original review removed them;
+  # the coordinator directed retention).
   xna <- testset.gl
   xna@other$loc.metrics$TrimmedSequence[1:5] <- NA
   res <- gl.filter.overshoot(xna, verbose = 0)
-  expect_equal(sum(is.na(res@other$loc.metrics$TrimmedSequence)), 0)
+  # the 5 NA-metric loci are retained (any genuine overshoots among
+  # loci 1:5 cannot be assessed once their metric is NA)
+  expect_equal(sum(is.na(res@other$loc.metrics$TrimmedSequence)), 5)
   expect_equal(nrow(res@other$loc.metrics), nLoc(res))
-  # 21 genuine overshoots minus any among the 5 NA'd, plus the 5 NA loci
   trimmed <- as.character(testset.gl@other$loc.metrics$TrimmedSequence)
   snpos <- testset.gl@other$loc.metrics$SnpPosition + 1
   genuine <- which(snpos > nchar(trimmed))
-  expected_removed <- length(union(genuine, 1:5))
+  expected_removed <- length(setdiff(genuine, 1:5))
   expect_equal(nLoc(res), nLoc(testset.gl) - expected_removed)
 })
 

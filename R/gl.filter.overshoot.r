@@ -85,9 +85,16 @@ gl.filter.overshoot <- function(x,
     # Shift the index for snppos to start from 1 not zero
     snpos <- snpos + 1
     # Pull those loci for which the SNP position is greater than the tag
-    # length, or for which the status cannot be assessed (NA)
+    # length; loci whose overshoot status cannot be assessed (NA
+    # TrimmedSequence or SnpPosition) are retained, not removed
     not.assessable <- is.na(snpos) | is.na(trimmed)
-    os <- which(snpos > nchar(trimmed) | not.assessable)
+    os <- which(!not.assessable & snpos > nchar(trimmed))
+
+    if (any(not.assessable) && verbose >= 3) {
+        cat("  No. of loci with missing (NA) TrimmedSequence or SnpPosition, retained unfiltered:",
+            sum(not.assessable),
+            "\n")
+    }
 
     if (length(os) > 0) {
         # Report the number of such loci
@@ -97,11 +104,6 @@ gl.filter.overshoot <- function(x,
                 "\n")
             cat(paste(locNames(x)[os], collapse = ", "))
             cat("\n")
-            if (any(not.assessable)) {
-                cat("  No. of loci removed for missing (NA) TrimmedSequence or SnpPosition:",
-                    sum(not.assessable),
-                    "\n")
-            }
         }
 
         # Delete the overshoot loci, keeping the rest
