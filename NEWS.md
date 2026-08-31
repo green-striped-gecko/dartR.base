@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.pa()` review: SilicoDArT frequencies are no longer halved
+  as if diploid, so presence-fixed private alleles are found (on
+  testset.gs the kept set grows from 45 to 66 loci); a bogus population
+  name now fails informatively; the filtered object returns invisibly
+  with a before/after summary at verbose >= 2.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
