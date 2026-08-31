@@ -41,7 +41,7 @@ probability of false positives [default 1000].}
 removed before beginning computations [default TRUE].}
 
 \item{pb}{If TRUE, show a progress bar on time consuming loops
-[default FALSE].}
+(displayed when verbose >= 2) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -77,8 +77,8 @@ with this approach is that when sample sizes are finite, fixed differences
 will occur through sampling error, compounded when many loci are examined.
 Simulations suggest that sample sizes of n1=5 and n2=5 are adequate to reduce
 the probability of [experiment-wide] type 1 error to negligible levels
-[ploidy=2]. A warning is issued if comparison between two populations
-involves sample sizes less than 5, taking into account allele drop-out.
+[ploidy=2]. A warning is issued (at verbose >= 3) if the minimum sample
+size in the dataset is less than 10.
 Optionally, if test=TRUE, the script will test the fixed differences between
 final OTUs for statistical significance, using simulation, and then further
 amalgamate populations that for which there are no significant fixed
