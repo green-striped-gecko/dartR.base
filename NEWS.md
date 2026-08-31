@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.reassign.pop()`: the `as.pop` metric name was never validated -- a
+  name absent from `ind.metrics` assigned NULL to `pop(x)`, silently
+  destroying every population assignment. A missing ind.metrics slot or an
+  unknown metric name is now a fatal error naming the available metrics.
+  A gated warning (verbose >= 2) reports how many individuals carry NA
+  assignments when the chosen metric has missing values.
 * `gl.reassign.ind()`: conformance fixes -- the five fatal exits now use
   the house `stop(error(...))` styling; the empty-selection notice is a
   gated `cat(warn())` (verbose >= 2) instead of an R `warning()`; repeated
