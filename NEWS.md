@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.rdepth()`: four fixes. (1) Specifying `plot.file` with
+  `plot.display = FALSE` crashed ("object 'p3' not found") because the
+  plots were only built when displayed; plots are now always built and
+  the RDS save works without displaying. (2) The summary statistics and
+  quantile table printed at every verbosity level including
+  `verbose = 0`; they are now gated at `verbose >= 1`, and `verbose = 0`
+  forces `plot.display = FALSE` (matching the other report functions).
+  (3) The "Retained" counts in the quantile table counted loci with NA
+  read depth as retained; they now exclude NAs (tables change only for
+  datasets with NA read-depth metrics). (4) The "3r quartile" typo.
 * `gl.filter.secondaries()`: two behaviour fixes and cleanups.
   (1) `method = "best"` now actually retains the best SNP per sequence
   tag: previously the sort ran on the full `AlleleID` string, which is

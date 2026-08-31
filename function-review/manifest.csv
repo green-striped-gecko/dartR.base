@@ -10,6 +10,7 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.report.rdepth,dartR.base,matched report,arthur,pr-open,255
 gl.filter.secondaries,dartR.base,matched filter,arthur,pr-open,254
 gl.report.secondaries,dartR.base,matched report,arthur,pr-open,253
 gl.rename.pop,dartR.base,data manipulation,arthur,pr-open,268
