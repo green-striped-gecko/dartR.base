@@ -96,6 +96,7 @@ result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
 }
 \seealso{
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.filter.hamming}()},
@@ -105,8 +106,12 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.reproducibility}()},
 \code{\link{gl.filter.secondaries}()}
+\code{\link{gl.filter.secondaries}()},
+\code{\link{gl.filter.taglength}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to

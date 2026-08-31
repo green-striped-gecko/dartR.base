@@ -19,21 +19,22 @@ gl.select.colors(
 of populations [default NULL].}
 
 \item{library}{Name of the color library to be used, one of 'brewer'
-'gr.palette', 'gr.hcl' or 'baseR' [default scales::hue_pl].}
+'gr.palette', 'gr.hcl' or 'baseR' [default scales::hue_pal].}
 
 \item{palette}{Name of the color palette to be pulled from the specified
 library, refer function help [default is library specific].}
 
 \item{ncolors}{number of colors to be displayed and returned [default 9 or nPop(gl)].}
 
-\item{select}{select bu number the colors to retain in the output vector; 
+\item{select}{select by number the colors to retain in the output vector;
 can repeat colors. [default NULL].}
 
 \item{plot.display}{if TRUE, plot the colours in the plot window [default=TRUE]}
 
-\item{verbose}{-- verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A vector with the required number of colors
@@ -107,7 +108,7 @@ Other graphics:
 \code{\link{gl.tree.nj}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{graphics}

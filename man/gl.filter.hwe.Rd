@@ -222,6 +222,8 @@ Other matched filter:
 \code{\link{gl.filter.pa}()},
 \code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.secondaries}()}
+Other filter functions: 
+\code{\link{gl.report.allna}()}
 }
 \author{
 Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
