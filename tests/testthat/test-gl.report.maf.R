@@ -70,3 +70,11 @@ test_that("singleton populations dropped from the analysis", {
   expect_gt(length(drop.lines), 0)
   expect_true(any(grepl("EmmacNormLeic", drop.lines)))
 })
+
+test_that("SilicoDArT data rejected", {
+  pdf(NULL); on.exit(dev.off())
+  # [amendment with gl.filter.maf F6, 2026-08-31] MAF is undefined for
+  # presence/absence data; previously accepted with meaningless values.
+  expect_error(capture.output(gl.report.maf(testset.gs,
+        plot.display = FALSE, verbose = 0)))
+})

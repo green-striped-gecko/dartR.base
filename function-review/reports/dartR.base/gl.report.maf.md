@@ -124,3 +124,11 @@ displaying as structured. NEWS entry added.
  "datasets": ["testset.gl"],
  "baseline_test": "tests/testthat/test-gl.report.maf.R", "pr": 294}
 ```
+
+## Amendment (2026-08-31, with gl.filter.maf F6)
+
+Approved alongside the matched filter's F6 (PR #295): the report is
+restricted to SNP data (accept = "SNP"). MAF is undefined for
+presence/absence data, which was previously accepted and run through
+the MAF machinery producing meaningless values. A SilicoDArT-rejection
+assertion added to the suite (14/14).

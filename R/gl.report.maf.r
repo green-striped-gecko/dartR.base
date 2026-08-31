@@ -99,7 +99,7 @@ gl.report.maf <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
   
   # FUNCTION SPECIFIC ERROR CHECKING
   

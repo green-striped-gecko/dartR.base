@@ -19,7 +19,9 @@
   check is against ind.metrics. (5) Docs: @return corrected (the function
   returns an invisible dataframe of MAF by locus and population, not "an
   unaltered genlight object"); as.pop wording; "3r quantile" typo (x2);
-  verbose canon.
+  verbose canon. (Amendment, with gl.filter.maf F6:) restricted to SNP
+  data -- MAF is undefined for presence/absence data, which was
+  previously accepted and produced meaningless values.
 
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
