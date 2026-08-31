@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.report.reproducibility.r
 \name{gl.report.reproducibility}
 \alias{gl.report.reproducibility}
-\title{Reports summary of RepAvg (repeatability averaged over both alleles 
+\title{Reports summary of RepAvg (repeatability averaged over both alleles
 for
 each locus) or reproducibility (repeatability of the scores for fragment
 presence/absence)}
@@ -29,14 +29,15 @@ theme_dartR()].}
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()]}
 
 \item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 An unaltered genlight object
@@ -52,7 +53,7 @@ the percentage of scores that are repeated in the technical replicate
 }
 \details{
 The function displays a table of minimum, maximum, mean and quantiles for
- repeatbility against possible thresholds that might subsequently be
+ repeatability against possible thresholds that might subsequently be
  specified in \code{\link{gl.filter.reproducibility}}.
  If plot.display=TRUE, display also includes a boxplot and a histogram to guide
  in the selection of a threshold for filtering on repeatability.
@@ -60,7 +61,7 @@ The function displays a table of minimum, maximum, mean and quantiles for
   default working directory set by gl.set.wd() or to the tempdir().
  For examples of themes, see:
    \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and 
+ \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and
  \item
   \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
@@ -79,6 +80,7 @@ Other matched report:
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
@@ -89,7 +91,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Custodian: Arthur Georges. Author(s): Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}

@@ -111,6 +111,7 @@ specified for the plot to be saved.
 Other matched report: 
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
