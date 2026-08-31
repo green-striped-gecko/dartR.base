@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.allelerich()`: plumbing fixes; the rarefaction calculation
+  itself was verified against an independent recomputation and is
+  unchanged. (1) The plot rendered at `verbose = 0` (missing
+  `plot.display` guard) and the lazy signature default
+  `gl.colors("dis")` printed a 3-line banner at every verbosity -- both
+  silenced (the default now passes `verbose = 0`). (2) An unrecognized
+  `error.bar` value crashed downstream with "object 'max_val' not
+  found"; unknown values now coerce to "SD" with a gated warning, and the
+  silent override of the user's error-bar choice when `nboots > 0` is
+  announced at `verbose >= 2`. (3) The package check called
+  `requireNamespace()` on a vector, silently checking only dplyr, and
+  returned -1 through a cat(); each package is now checked individually
+  with `stop(error(...))`, and boot/Rcpp (needed for bootstrapping) are
+  checked before the bootstrap path. (4) Dead code removed (an unused
+  first plot built on every call, a commented parallel block, duplicated
+  global declarations); `boot.method` validated; header canon.
 * `gl.join()`: five fixes. (1) A join by shared loci LOST the individual
   metrics entirely -- plain `rbind()` returns NULL metadata and the
   function never rebuilt it; the combined object now carries the
