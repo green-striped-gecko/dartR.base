@@ -107,3 +107,21 @@ shared by SNP-style inputs. NEWS entry added.
  "datasets": ["testset.gl", "testset.gs", "platypus.gl"],
  "baseline_test": "tests/testthat/test-gl.join.R", "pr": 284}
 ```
+
+## Amendment (2026-08-31, member-nominated re-review)
+
+Prompted by the gl.assign.on.genotype review: gl.join's pre-refactor
+implementation accepted method='end2end'/'sidebyside' (verified in the
+history at 8a4a94f^), the documentation described those values ever
+since, and real callers exist (dartR.popgen gl.assign.on.genotype and
+gl.assign.pa in the member's captive-to-popgen migration) — yet the
+legacy shim mapped only join.by.loc/join.by.ind, making the
+documented-historical values fatal. Approved and applied: (A1)
+'end2end' maps to the shared-loci join and 'sidebyside' to the
+shared-individuals join, with the same gated deprecation warning; (A2)
+any explicitly requested join is validated against the data (identical
+locNames or indNames respectively) with a clear fatal, matching the
+auto-detect path, instead of failing cryptically in cbind/rbind; (A3)
+all four legacy synonyms documented in @param method and @details.
+Suite 25/25 (six new assertions covering the mapped values, their
+equivalence to auto-detection, and both mismatch fatals).

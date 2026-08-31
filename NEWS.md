@@ -15,7 +15,15 @@
   duplicate block is gone, warnings are gated at `verbose >= 2`, and the
   exits use `stop(error(...))`. (4) SNP and SilicoDArT objects with
   matching names could be joined silently -- the datatypes were checked
-  individually but never compared; now fatal. (5) Messages used
+  individually but never compared; now fatal. (4a, amendment) The
+  historical legacy values `method='end2end'` and `method='sidebyside'`
+  -- accepted by the pre-refactor implementation and described in the
+  documentation ever since, and still used by real callers (the
+  dartR.popgen gl.assign functions) -- were fatal because the legacy shim
+  mapped only join.by.loc/join.by.ind; they are now mapped to their
+  historical meanings, and any explicitly requested join is validated
+  against the data so a mismatch fails with a clear message rather than
+  a cryptic cbind/rbind error. (5) Messages used
   `substitute()` inside `cat()`, which printed garbage at `verbose = 2`
   and crashed at `verbose >= 3` whenever the arguments were expressions
   rather than names (e.g. `gl.join(x[1:7, ], y)`); arguments are now
