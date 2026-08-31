@@ -5,18 +5,19 @@
 #' @description
 #' This script is meant to be used prior to \code{gl.nhybrids} to maximise the
 #' information content of the SNPs used to identify hybrids (currently
-#'  newhybrids does allow only 200 SNPs). The idea is to use first all loci that
-#'   have fixed alleles between the potential source populations and then 'fill
-#'    up' to 200 loci using loci that have private alleles between those. The
-#'    functions filters for those loci (if invers is set to TRUE, the opposite
-#'    is returned (all loci that are not fixed and have no private alleles - not
-#'     sure why yet, but maybe useful.)
+#' newhybrids allows only 200 SNPs). The idea is to use first all loci that
+#' have fixed alleles between the potential source populations and then 'fill
+#' up' to 200 loci using loci that have private alleles between those
+#' populations. The function filters for those loci. If invers is set to TRUE,
+#' the complement is returned (all loci that are not fixed and have no private
+#' alleles).
 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object containing the SNP or SilicoDArT
+#' data [required].
 #' @param pop1 Name of the first parental population (in quotes) [required].
 #' @param pop2 Name of the second parental population (in quotes) [required].
-#' @param invers Switch to filter for all loci that have no private alleles and
-#' are not fixed [FALSE].
+#' @param invers Switch to filter for all loci that have no private alleles
+#' and are not fixed [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
@@ -27,12 +28,13 @@
 #' 
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-#' result <- gl.filter.pa(testset.gl, pop1=pop(testset.gl)[1], 
-#' pop2=pop(testset.gl)[2],verbose=3)
+#' result <- gl.filter.pa(testset.gl, pop1 = popNames(testset.gl)[1],
+#' pop2 = popNames(testset.gl)[2], verbose = 3)
 #' 
 #' @export
-#' @return The reduced genlight dataset, containing now only fixed and private
-#' alleles.
+#' @return The reduced genlight dataset, containing only loci with fixed
+#' differences or private alleles between the two populations (or the
+#' complement if invers = TRUE).
 
 gl.filter.pa <- function(x,
                          pop1,
@@ -52,14 +54,27 @@ gl.filter.pa <- function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # FUNCTION SPECIFIC ERROR CHECKING
-    
+    pop1 <- as.character(pop1)
+    pop2 <- as.character(pop2)
+    for (popname in c(pop1, pop2)) {
+      if (!popname %in% popNames(x)) {
+        stop(error("Fatal Error: population", popname,
+                    "is not present in the genlight object\n"))
+      }
+    }
+
     # DO THE JOB
-    
+
     pops <- seppop(x)
     p1 <- as.matrix(pops[[pop1]])
     p2 <- as.matrix(pops[[pop2]])
-    p1alf <- colMeans(p1, na.rm = T) / 2
-    p2alf <- colMeans(p2, na.rm = T) / 2
+    if (datatype == "SilicoDArT") {
+      p1alf <- colMeans(p1, na.rm = TRUE)
+      p2alf <- colMeans(p2, na.rm = TRUE)
+    } else {
+      p1alf <- colMeans(p1, na.rm = TRUE) / 2
+      p2alf <- colMeans(p2, na.rm = TRUE) / 2
+    }
     # private alleles for pop 1
     priv1 <-
         c(names(p1alf)[p2alf == 0 &
@@ -77,17 +92,30 @@ gl.filter.pa <- function(x,
     }
 
       x2 <- x[, index]
-      x2@other$loc.metrics <- x@other$loc.metrics[index, ]
+      x2@other$loc.metrics <- x@other$loc.metrics[index, , drop = FALSE]
 
     # ADD TO HISTORY
     nh <- length(x2@other$history)
     x2@other$history[[nh + 1]] <- match.call()
     
+    # REPORT THE RESULTS
+    if (verbose >= 2) {
+      if (invers) {
+        cat(report("  Retaining", nLoc(x2), "of", nLoc(x),
+                    "loci with no private or fixed alleles between",
+                    pop1, "and", pop2, "\n"))
+      } else {
+        cat(report("  Retaining", nLoc(x2), "of", nLoc(x),
+                    "loci with private or fixed alleles between",
+                    pop1, "and", pop2, "\n"))
+      }
+    }
+
     # FLAG SCRIPT END
-    
+
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(x2)
+
+    return(invisible(x2))
 }
