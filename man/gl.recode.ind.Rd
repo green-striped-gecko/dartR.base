@@ -12,17 +12,18 @@ gl.recode.ind(x, ind.recode, recalc = FALSE, mono.rm = FALSE, verbose = NULL)
 \item{ind.recode}{Name of the csv file containing the individual relabelling
 [required].}
 
-\item{recalc}{If TRUE, recalculate the locus metadata statistics if any 
+\item{recalc}{If TRUE, recalculate the locus metadata statistics if any
 individuals are deleted in the filtering [default FALSE].}
 
 \item{mono.rm}{If TRUE, remove monomorphic loci [default FALSE].}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
-progress log; 3, progress and results summary; 5, full report 
-[default 2 or as specified using gl.set.verbosity].}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A genlight or genind object with the recoded and reduced data.
+A genlight object with the recoded and reduced data.
 }
 \description{
 This function recodes individual labels and/or deletes individuals from a DaRT
@@ -37,20 +38,20 @@ caution needs to be exercised because of the potential for breaking the
 a recode table (csv) can provide a durable record of the changes.
 The function works with genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
-For SNP genotype data, the function, having deleted individuals, optionally 
-identifies resultant monomorphic loci or loci with all values missing 
+For SNP genotype data, the function, having deleted individuals, optionally
+identifies resultant monomorphic loci or loci with all values missing
 and deletes them. The script also optionally recalculates the
 locus metadata as appropriate. The optional deletion of monomorphic loci
 and the optional recalculation of locus statistics is not available for
 Tag P/A data (SilicoDArT).
-The script returns a dartR genlight object with the new individual names  
+The script returns a dartR genlight object with the new individual names
 and the recalculated locus metadata.
 }
 \examples{
   file <- system.file('extdata','testset_ind_recode.csv', package='dartR.data')
   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl <- gl.recode.ind(testset.gl, ind.recode=file, verbose=3)
-  
+
 }
 \seealso{
 \code{\link{gl.filter.monomorphs}} for filtering monomorphs,
@@ -81,7 +82,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}
