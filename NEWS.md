@@ -1,5 +1,28 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.join()`: five fixes. (1) A join by shared loci LOST the individual
+  metrics entirely -- plain `rbind()` returns NULL metadata and the
+  function never rebuilt it; the combined object now carries the
+  row-bound ind.metrics of both inputs (with the id column re-synced when
+  duplicate names are made unique). (2) A join by shared individuals
+  CRASHED ("replacement has 0 rows") on objects whose loc.metrics.flags
+  data.frame lacks the OneRatio/PIC columns -- which is standard
+  SNP-report data; only flags present in both objects are now combined.
+  (3) The same flags block was triplicated (each path set the flags and a
+  third copy ran again for both), warnings printed at `verbose = 0`
+  (method deprecation, missing metrics/flags), and two
+  `cat(error()) + stop()` splits returned no condition message; the
+  duplicate block is gone, warnings are gated at `verbose >= 2`, and the
+  exits use `stop(error(...))`. (4) SNP and SilicoDArT objects with
+  matching names could be joined silently -- the datatypes were checked
+  individually but never compared; now fatal. (5) Messages used
+  `substitute()` inside `cat()`, which printed garbage at `verbose = 2`
+  and crashed at `verbose >= 3` whenever the arguments were expressions
+  rather than names (e.g. `gl.join(x[1:7, ], y)`); arguments are now
+  deparsed once for display. Docs: the description claimed the history was
+  cleared (it is carried from the first object and appended); @details
+  described method='sidebyside'/'end2end' values that never existed;
+  duplicate/incorrect end-of-run summary removed; typos.
 * `gl.sort()`: the history entry was appended as `c(match.call())`, which
   coerces the call to a list and corrupts the history chain -- now a
   proper call. A standard FLAG SCRIPT END block was added ("Completed:"
