@@ -110,7 +110,12 @@
 #' heterozygosities and FIS by population and their respective standard 
 #' deviations (SD).
 
-#' In the output, it is also reported by population: the number of loci used to
+#' In the output, it is also reported by population: the mean number of
+#'  individuals with a non-missing genotype per locus (n.Ind), which is the
+#'  denominator used to calculate Ho; because of missing data this is an
+#'  average across loci, so it usually shows decimals slightly below the
+#'  number of individuals in the population. Also reported are the number of
+#'  loci used to
 #'  estimate heterozygosity (n.Loc), the number of polymorphic loci (polyLoc),
 #'  the number of monomorphic loci (monoLoc) and loci with all missing data
 #'   (all_NALoc).
