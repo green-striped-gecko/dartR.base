@@ -25,14 +25,15 @@ gl.report.rdepth(
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()]}
 
 \item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 An unaltered genlight object
@@ -62,19 +63,19 @@ The function displays a table of minimum, maximum, mean and quantiles for
 \examples{
 # SNP data
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-df <- gl.report.rdepth(testset.gl)
-df <- gl.report.rdepth(testset.gs)
-
+gl <- gl.report.rdepth(testset.gl)
+gl <- gl.report.rdepth(testset.gs)
 }
 \seealso{
 \code{\link{gl.filter.rdepth}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
@@ -84,7 +85,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Custodian: Arthur Georges. Author(s): Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}

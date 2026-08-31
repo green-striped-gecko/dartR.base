@@ -3,8 +3,7 @@
 \name{gl.filter.heterozygosity}
 \alias{gl.filter.heterozygosity}
 \title{Filters individuals with average heterozygosity greater than a
- specified upper threshold or less than a specified lower threshold
- @family matched filter}
+ specified upper threshold or less than a specified lower threshold}
 \usage{
 gl.filter.heterozygosity(x, t.upper = 0.7, t.lower = 0, verbose = NULL)
 }
@@ -17,7 +16,8 @@ gl.filter.heterozygosity(x, t.upper = 0.7, t.lower = 0, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 The filtered genlight object.
@@ -27,13 +27,40 @@ Calculates the observed heterozygosity for each individual in a genlight
 object and filters individuals based on specified threshold values.
 Use gl.report.heterozygosity to determine the appropriate thresholds.
 }
+\details{
+Individuals with observed heterozygosity in the interval
+[t.lower, t.upper] (boundaries included) are retained. Individuals whose
+heterozygosity cannot be computed (all genotypes missing) are removed,
+because they cannot be assessed against the thresholds.
+
+Removing individuals invalidates the locus metrics that depend on the
+composition of individuals (CallRate, allele frequencies, PIC values and
+the like); when individuals are removed, the corresponding locus-metric
+flags are reset so that downstream functions know to recalculate them
+(use gl.recalc.metrics to recalculate immediately).
+}
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
  result <- gl.filter.heterozygosity(testset.gl,t.upper=0.06,verbose=3)
  tmp <- gl.report.heterozygosity(result,method='ind')
- 
+}
+\seealso{
+\code{\link{gl.report.heterozygosity}}
+
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{matched filter}

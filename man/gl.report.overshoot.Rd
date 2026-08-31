@@ -12,7 +12,8 @@ gl.report.overshoot(x, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 An unaltered genlight object
@@ -25,25 +26,23 @@ resembles the adaptor.
 }
 \details{
 The SNP genotype can still be used in most analyses, but functions like
-gl2fasta() will present challenges if the SNP has been trimmed from the 
+gl2fasta() will present challenges if the SNP has been trimmed from the
 sequence tag.
-Resultant ggplot(s) and the tabulation(s) are saved to the session's
-temporary directory.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.report.overshoot(testset.gl)
-
 }
 \seealso{
 \code{\link{gl.filter.overshoot}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.pa}()},
@@ -53,7 +52,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to 
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}

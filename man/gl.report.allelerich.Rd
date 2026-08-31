@@ -12,7 +12,7 @@ gl.report.allelerich(
   CI.type = "bca",
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors.pop = gl.colors("dis"),
+  plot.colors.pop = gl.colors("dis", verbose = 0),
   plot.dir = NULL,
   plot.file = NULL,
   error.bar = "SD",
@@ -54,18 +54,19 @@ current working directory or \code{tempdir()}].}
 "SD" (standard deviation), "SE" (standard error), or "CI" (confidence 
 intervals) [default "SD"].}
 
-\item{verbose}{Numeric controlling the level of printed messages: 
-0 = silent or fatal errors; 1 = begin/end; 2 = progress log; 3 = progress 
-and summary; 5 = full report. Defaults to 2 unless changed via 
-\code{gl.set.verbosity}.}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-A list of data frames containing:
+A list of data frames (returned invisibly) containing:
 \itemize{
-  \item Allelic Richness per site (corrected by rarefaction).
-  \item Allelic Richness per population (summarized across sites).
-  \item Raw reference allele counts.
-  \item Raw alternate allele counts.
+  \item $`Allelic Richness per site` -- richness per site, corrected by
+  rarefaction.
+  \item $`Allelic Richness per population` -- richness summarised across
+  sites, with the error-bar statistic.
+  \item $`Raw reference allele count`.
+  \item $`Raw alternate allele count`.
 }
 }
 \description{
@@ -256,7 +257,7 @@ Other unmatched report:
 \code{\link{gl.report.polyploid_heterozygosity}()}
 }
 \author{
-Author(s): Ching Ching Lau -- Post to
+Author(s): Ching Ching Lau. Custodian: Ching Ching Lau -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{unmatched report}
