@@ -26,8 +26,8 @@ progress but not results; 3, progress and results summary; 5, full report
 A reduced dartR genlight object
 }
 \description{
-This function deletes individuals and their associated metadata. 
-The script returns a dartR genlight object with the retained loci. 
+This function deletes specified loci and their associated metadata.
+The script returns a dartR genlight object with the retained loci.
 The script works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
 }
@@ -67,7 +67,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}
