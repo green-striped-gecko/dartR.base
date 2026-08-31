@@ -170,8 +170,9 @@ gl.diagnostics.hwe <- function(x,
   }
   
   # Distribution of p-values by equal bins
-  suppressWarnings(hweout <- gl.report.hwe(x, 
+  suppressWarnings(hweout <- gl.report.hwe(x,
                                            sig_only = FALSE,
+                                           plot.out = FALSE,
                                            verbose = 0))
   #no ggtern installed
   if(!data.table::is.data.table(hweout) | !is.data.frame(hweout)) return(NULL)

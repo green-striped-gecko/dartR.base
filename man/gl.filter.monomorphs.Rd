@@ -39,7 +39,9 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 Other matched filter: 
 \code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.hwe}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},

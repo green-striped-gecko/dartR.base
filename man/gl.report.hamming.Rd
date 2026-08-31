@@ -120,9 +120,9 @@ gl.report.hamming(testset.gl[,1:100])
 \code{\link{gl.filter.hamming}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
