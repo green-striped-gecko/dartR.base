@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.basics()`: four fixes. (1) The function crashed on ALL
+  SilicoDArT data ("length of 'dimnames' [2] not equal to array extent")
+  because the composition table hard-coded four column names onto a
+  three-class presence/absence table; the same crash occurred for SNP data
+  in which any genotype class was entirely absent. The table is now
+  tabulated over explicit per-datatype levels -- SilicoDArT is supported
+  for the first time; SNP output values are unchanged. (2) The all-NA
+  individuals listing printed the entire NA-padded array
+  ("NA NA ind3 NA NA ..."); it now lists only the names. (3) Objects
+  without an rdepth locus metric triggered a raw mean.default warning and
+  printed NA for Average Read Depth; now "not available", and when
+  present the mean is computed with na.rm and rounded. (4) Style and
+  efficiency: per-locus for-loops replaced with vectorized counts, the
+  two per-population gl.keep.pop subset loops merged into a single matrix
+  pass, the datatype check passes verbose through, and the @return
+  documentation states that NULL is returned invisibly.
 * `gl.fixed.diff()`: four fixes. (1) The documented `mono.rm` parameter
   ([default TRUE], remove monomorphic loci before computation) was never
   referenced in the body, and the flag logic standing in its place was
