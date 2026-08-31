@@ -1,5 +1,19 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.secondaries()`: two behaviour fixes and cleanups.
+  (1) `method = "best"` now actually retains the best SNP per sequence
+  tag: previously the sort ran on the full `AlleleID` string, which is
+  unique per locus, so the documented RepAvg/AvgPIC criteria could never
+  engage and selection was effectively alphabetical (on platypus.gl, 5 of
+  9 multi-SNP clones kept a lower-quality SNP, e.g. RepAvg 0.95 retained
+  over 1.0). Loci retained under `method = "best"` will therefore change.
+  (2) The output now preserves the input locus order; previously the
+  object came back shuffled (method = "random") or AlleleID-sorted
+  (method = "best") even when no secondaries were removed. Also: the
+  invalid-`method` warning is gated at `verbose >= 1` (and `method` is
+  actually set to "random"), the return is now invisible (matching the
+  other filter functions), and an unreachable SilicoDArT check was
+  removed.
 * `gl.report.secondaries()`: four fixes. (1) The function crashed
   ("Subsetting resulted in zero loci") on any dataset with no secondaries
   -- an unused leftover subset (`x[, duplicated(b)]`) errored before the
