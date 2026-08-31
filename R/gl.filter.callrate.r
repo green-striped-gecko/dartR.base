@@ -12,10 +12,40 @@
 #' not possible to determine reliably if there the sequence tag can be called at
 #' a particular locus.
 #' 
-#' @param x Name of the genlight object containing the SNP data, or the genind
-#'  object containing the SilocoDArT data [required].
+#' @details
+#' Because this filter operates on call rate, this function recalculates Call
+#' Rate, if necessary, before filtering. If individuals are removed using
+#' method='ind', then the call rate stored in the genlight object is,
+#' optionally, recalculated after filtering.
+#'
+#' Note that when filtering individuals on call rate, the initial call rate is
+#' calculated and compared against the threshold. After filtering, if
+#' mono.rm=TRUE, the removal of monomorphic loci will alter the call rates.
+#' Some individuals with a call rate initially greater than the nominated
+#' threshold, and so retained, may come to have a call rate lower than the
+#' threshold. If this is a problem, repeated iterations of this function will
+#' resolve the issue. This is done by setting mono.rm=TRUE and recursive=TRUE,
+#' or it can be done manually.
+#'
+#' Callrate is summarized by locus or by individual to allow sensible decisions
+#' on thresholds for filtering taking into consideration consequential loss of
+#' data. The summary is in the form of a tabulation and plots.
+#'
+#' Plot themes can be obtained from \itemize{
+#'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
+#'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
+#'  }
+#'
+#' If a plot.file is given, the ggplot arising from this function is saved as an
+#' "RDS" binary file using saveRDS(); can be reloaded with readRDS(). A file
+#' name must be specified for the plot to be saved. If a plot directory
+#' (plot.dir) is specified, the ggplot binary is saved to that directory;
+#' otherwise to the tempdir().
+#'
+#' @param x Name of the genlight object containing the SNP or presence/absence
+#'  (SilicoDArT) data [required].
 #' @param method Use method='loc' to specify that loci are to be filtered, 'ind'
-#'  to specify that specimens are to be filtered, 'pop' to remove loci that 
+#'  to specify that specimens are to be filtered, 'pop' to remove loci that
 #'  fail to meet the specified threshold in any one population [default 'loc'].
 #' @param threshold Threshold value below which loci will be removed
 #' [default 0.95].
@@ -38,34 +68,10 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-#' 
-#' @details
-#' Because this filter operates on call rate, this function recalculates Call
-#' Rate, if necessary, before filtering. If individuals are removed using
-#' method='ind', then the call rate stored in the genlight object is, 
-#' optionally, recalculated after filtering.
-#' 
-#' Note that when filtering individuals on call rate, the initial call rate is
-#' calculated and compared against the threshold. After filtering, if
-#' mono.rm=TRUE, the removal of monomorphic loci will alter the call rates.
-#' Some individuals with a call rate initially greater than the nominated
-#' threshold, and so retained, may come to have a call rate lower than the
-#' threshold. If this is a problem, repeated iterations of this function will
-#' resolve the issue. This is done by setting mono.rm=TRUE and recursive=TRUE,
-#' or it can be done manually.
-#' 
-#' Callrate is summarized by locus or by individual to allow sensible decisions
-#' on thresholds for filtering taking into consideration consequential loss of
-#' data. The summary is in the form of a tabulation and plots.
-#' 
-#' Plot themes can be obtained from \itemize{
-#'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
-#'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
-#'  }
-#'  
-#' Resultant ggplot(s) and the tabulation(s) are saved to the session's
-#'  temporary directory.
-#' @author Custodian: Arthur Georges -- Post to
+#'
+#' @return The reduced genlight object
+#'
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #'  \donttest{
@@ -89,7 +95,6 @@
 #' @seealso \code{\link{gl.report.callrate}}
 #' @import patchwork
 #' @export
-#' @return The reduced genlight or genind object, plus a summary
 
 gl.filter.callrate <- function(x,
                                method = "loc",
@@ -133,12 +138,11 @@ gl.filter.callrate <- function(x,
     # FUNCTION SPECIFIC ERROR CHECKING
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
-                    "  Warning: Data may include monomorphic loci in call rate 
-                    calculations for filtering\n"
+                    "  Warning: Data may include monomorphic loci in call rate calculations for filtering\n"
                 )
             )
         }
@@ -158,20 +162,23 @@ gl.filter.callrate <- function(x,
     
     # Method
     if (method != "ind" & method != "loc" & method != "pop") {
-        cat(
-            warn(
-"    Warning: method must be either \"loc\" or \"ind\" or \"pop\", set to 
-\"loc\" \n"
+        if (verbose >= 1) {
+            cat(
+                warn(
+                    "    Warning: method must be either \"loc\" or \"ind\" or \"pop\", set to \"loc\"\n"
+                )
             )
-        )
+        }
         method <- "loc"
     }
-    
+
     # Threshold
     if (threshold < 0 | threshold > 1) {
-        cat(warn(
-"    Warning: threshold must be an integer between 0 and 1, set to 0.95\n"
-        ))
+        if (verbose >= 1) {
+            cat(warn(
+                "    Warning: threshold must be a proportion between 0 and 1, set to 0.95\n"
+            ))
+        }
         threshold <- 0.95
     }
     
@@ -307,11 +314,11 @@ gl.filter.callrate <- function(x,
             # the latlons and the covariates, but see above for locus filtering
             
             # Report individuals that are excluded on call rate
-            if (any(ind.call.rate <= threshold)) {
-                x3 <- x[ind.call.rate <= threshold,]
+            if (any(ind.call.rate < threshold)) {
+                x3 <- x[ind.call.rate < threshold,]
                 if (length(x3) > 0) {
                     if (verbose >= 2) {
-                        cat("  Individuals deleted (CallRate <= ",
+                        cat("  Individuals deleted (CallRate < ",
                             threshold,
                             "):\n")
                         cat(paste0(
@@ -320,9 +327,9 @@ gl.filter.callrate <- function(x,
                             as.character(pop(x3)),
                             "],"
                         ))
+                        cat("\n")
                     }
-                    cat("\n")
-                    
+
                     if (mono.rm) {
                         # Remove monomorphic loci
                         x2 <- gl.filter.monomorphs(x2, verbose = 0)
@@ -343,6 +350,7 @@ gl.filter.callrate <- function(x,
                         x2@other$loc.metrics.flags$FreqHomRef <- FALSE
                         x2@other$loc.metrics.flags$FreqHomSnp <- FALSE
                         x2@other$loc.metrics.flags$allna <- FALSE
+                        x2@other$loc.metrics.flags$monomorphs <- FALSE
                     }
                 }
             }
@@ -357,8 +365,7 @@ gl.filter.callrate <- function(x,
                     report(
                         "Recursively removing individuals with call rate <",
                         threshold,
-                        ", recalculating Call Rate after deleting monomorphs,
-                        and repeating until final Call Rate is >=",
+                        ", recalculating Call Rate after deleting monomorphs, and repeating until final Call Rate is >=",
                         threshold,
                         "\n"
                     )
@@ -393,8 +400,8 @@ gl.filter.callrate <- function(x,
                 }
                 
                 # Report individuals that are excluded on call rate
-                if (any(ind.call.rate <= threshold)) {
-                    x3 <- x[ind.call.rate <= threshold,]
+                if (any(ind.call.rate < threshold)) {
+                    x3 <- x[ind.call.rate < threshold,]
                     if (length(x3) > 0) {
                         if (verbose >= 3) {
                             cat(
@@ -416,7 +423,9 @@ gl.filter.callrate <- function(x,
                         }
                         if (mono.rm) {
                             # Remove monomorphic loci
-                            cat(report("  Removing monomorphic loci\n"))
+                            if (verbose >= 2) {
+                                cat(report("  Removing monomorphic loci\n"))
+                            }
                             x2 <-
                                 gl.filter.monomorphs(x2, verbose = 0)
                         }
@@ -437,6 +446,7 @@ gl.filter.callrate <- function(x,
                             x2@other$loc.metrics.flags$FreqHomRef <- FALSE
                             x2@other$loc.metrics.flags$FreqHomSnp <- FALSE
                             x2@other$loc.metrics.flags$allna <- FALSE
+                            x2@other$loc.metrics.flags$monomorphs <- FALSE
                         }
                     }
                 }
@@ -489,8 +499,7 @@ gl.filter.callrate <- function(x,
         if (verbose >= 2) {
             cat(
                 report(
-                    "  Removing loci based on Call Rate by population\n  
-                    Call Rate must be equal to or exceed threshold =",
+                    "  Removing loci based on Call Rate by population\n  Call Rate must be equal to or exceed threshold =",
                     threshold,
                     "in all populations\n"
                 )
@@ -509,10 +518,10 @@ gl.filter.callrate <- function(x,
                     )
                 ))
         locall <- Reduce(intersect, ll)
-        index <- which(locNames(x) %in% locall)
-        
-        x2 <- x[, locall]
-        x2@other$loc.metrics <- x@other$loc.metrics[locall,]
+        index <- locNames(x) %in% locall
+
+        x2 <- x[, index]
+        x2@other$loc.metrics <- x@other$loc.metrics[index,]
         
         x2 <- utils.recalc.callrate(x2, verbose = 0)
         
