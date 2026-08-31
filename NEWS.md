@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.make.recode.pop()`: mirror of the gl.make.recode.ind fixes. The
+  visible NULL return is now invisible with `@return` stating the actual
+  contract (proforma written to file); the indented `@family` tag no
+  longer leaks into the rendered help title; the `outpath` description
+  no longer claims to save "plot RDS files"; and the @details wording
+  now says populations where it said individuals. Proforma content and
+  the round-trip through `gl.recode.pop()` were verified exact.
 * `gl.make.recode.ind()`: the visible NULL return (a bare call printed
   "NULL") is now invisible, and the `@return` documentation -- which
   promised "A vector containing the new individual names" -- now states
