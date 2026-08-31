@@ -28,17 +28,18 @@ gl.report.bases(
 \item{plot.colors}{List of two color names for the borders and fill of the
 plots [default c("#2171B5","#6BAED6")].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, 
+\item{plot.file}{Name for the RDS binary file to save (base name only,
 exclude extension) [default NULL].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default NULL, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 
-\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
+\item{...}{Parameters passed to function \link[ggplot2]{ggsave},
 such as width and height, when the ggplot is to be saved.}
 }
 \value{
@@ -62,11 +63,11 @@ SNP data are not available, only a single sequence tag per locus. Only base freq
 are provided.
  A color vector can be obtained with gl.select.colors() and then passed to the function
  with the plot.colors parameter.
-If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+If a plot.file is given, the ggplot arising from this function is saved as an "RDS"
+binary file using saveRDS(); can be reloaded with readRDS(). A file name must be
 specified for the plot to be saved.
  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the tempdir(). 
+ directory; otherwise to the tempdir().
 To avoid issues from inadvertent use of this function in an assignment statement,
 the function returns the genlight object unaltered.
 }
@@ -87,7 +88,7 @@ Other matched reports:
 \code{\link{gl.report.monomorphs}()}
 }
 \author{
-Author(s); Arthur Georges. Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched reports}
