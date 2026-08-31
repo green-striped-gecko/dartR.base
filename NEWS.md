@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.replicates()`: four fixes. (1) The pair table carried BOTH
+  orderings of every pair, and the drop rule picked the opposite member in
+  each ordering whenever missing-data rates tied -- which is precisely the
+  exact-duplicate case -- so BOTH replicates landed in `ind.list.drop` and
+  the histograms double-counted every pair. The table now holds one row
+  per unordered pair (ind1 = the individual earlier in the object) and a
+  tie deterministically drops ind2. (2) When no pairs passed the
+  thresholds the function returned a bare character message instead of the
+  documented 3-element list, crashing `gl.filter.replicates()` downstream;
+  it now returns the documented structure with an empty table and a gated
+  message. (3) `ind.list.rep` used `>= perc_geno` where every other output
+  used `>` (aligned), and its NaN diagonal previously injected NA entries;
+  a datatype check was added, Rcpp/RcppParallel are checked before
+  compiling (RcppParallel added to Suggests), and the plot no longer
+  renders at `verbose = 0`. (4) The result is returned invisibly (house
+  standard) with the pair table printed at `verbose >= 3`; docs cleaned
+  (@family, literal "##" headings, typos).
 * `gl.report.hwe()` / `gl.filter.hwe()`: the functionality of the
   deprecated `gl.report.excess.het()` / `gl.filter.excess.het()` has been
   migrated into this pair. Both functions gain `direction` ('both',

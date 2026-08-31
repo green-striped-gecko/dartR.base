@@ -75,6 +75,7 @@ Suggests:
     qvalue,
     RColorBrewer,
     Rcpp,
+    RcppParallel,
     rgl,
     rmarkdown,
     rrBLUP,
