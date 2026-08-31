@@ -1,12 +1,13 @@
 #' @name gl.report.allna
-#' @title Reports loci that are all NA across individuals and/or populations
+#' @title Reports loci with all NA across individuals and/or individuals
 #' with all NA across loci
 #' @family matched report
 
 #' @description
 #' This script reports loci or individuals with all calls missing (NA),
 #'  from a genlight object.
-#'
+
+#' @details
 #' A DArT dataset will not have loci for which the calls are scored all as
 #' missing (NA) for a particular individual, but such loci can arise rarely when
 #'  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -29,7 +30,9 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-
+#'
+#' @return An unaltered genlight object
+#'
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #'
@@ -40,10 +43,7 @@
 #' # Tag P/A data
 #'   result <- gl.report.allna(testset.gs, verbose=3)
 
-#' @family filter functions
-#' @import utils patchwork
 #' @export
-#' @return gl.report.allna
 
 gl.report.allna <- function(x,
                             by.pop = FALSE,
@@ -58,7 +58,7 @@ gl.report.allna <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  # datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
   
   # DO THE JOB
   
@@ -91,10 +91,11 @@ gl.report.allna <- function(x,
         na.counter <- na.counter + 1
       }
     }
-    if (na.counter == 0) {
+    if (verbose >= 1) {
+      if (na.counter == 0) {
         cat("  Zero loci that are missing (NA) across all individuals\n")
-    } else {
-      loc.list <- loc.list[!is.na(loc.list)]
+      } else {
+        loc.list <- loc.list[!is.na(loc.list)]
         cat(
           "  ",
           na.counter,
@@ -102,6 +103,7 @@ gl.report.allna <- function(x,
           paste(loc.list, collapse = ", "),
           "\n"
         )
+      }
     }
     
     # Consider individuals
@@ -112,7 +114,7 @@ gl.report.allna <- function(x,
     }
     na.counter <- 0
     nI <- nInd(x)
-    ind.list <- vector("list", nI)
+    ind.list <- array(NA, nI)
     matrix_tmp <- as.matrix(x)
     I.names <- indNames(x)
     for (i in 1:nI) {
@@ -122,16 +124,20 @@ gl.report.allna <- function(x,
         na.counter <- na.counter + 1
       }
     }
-    
-    if (na.counter == 0) {
+
+    if (verbose >= 1) {
+      if (na.counter == 0) {
         cat("  Zero individuals that are missing (NA) across all loci\n")
-    } else {
-      ind.list <- ind.list[!is.na(ind.list)]
+      } else {
+        ind.list <- ind.list[!is.na(ind.list)]
         cat(
-          "  Individuals that are missing (NA) across all loci:",
+          "  ",
+          na.counter,
+          "individuals that are missing (NA) across all loci:",
           paste(ind.list, collapse = ", "),
           "\n"
         )
+      }
     }
   }
   
@@ -150,13 +156,17 @@ gl.report.allna <- function(x,
       })
       tmp.list <- locNames(x)[tmpsums == TRUE]
       count <- length(tmp.list)
-      cat("    ", popNames(x)[i], count, "loci with all missing data\n")
+      if (verbose >= 1) {
+        cat("    ", popNames(x)[i], count, "loci with all missing data\n")
+      }
       total <- total + count
       loc.list <- c(loc.list, tmp.list)
     }
     loc.list <- unique(loc.list)
+    if (verbose >= 1) {
       cat("\n  Loci all NA in one or more populations:",
           length(loc.list),"\n")
+    }
   }
   
   # FLAG SCRIPT END
