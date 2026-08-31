@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.select.colors()`: five fixes. (1) An unrecognised `library` value
+  silently returned base R's `colors()` FUNCTION as the "colour vector"
+  (the internal variable was never assigned and lexical scoping found
+  grDevices::colors); unknown libraries now coerce to the default
+  scales/hue_pal with a warning at `verbose >= 1`. (2) Brewer requests
+  are honoured: fewer than 3 colours are trimmed from the 3-colour pull
+  (you get exactly what you asked for), and requests above the palette
+  maximum return the maximum with a clear gated warning (previously 2
+  requested delivered 3, and 12 requested from Blues silently delivered
+  9). (3) Out-of-bounds `select` indices, which produced NA colours,
+  are now a fatal error. (4) baseR palette='heat' passed validation but
+  returned rainbow; it now dispatches to heat.colors. (5) The datatype
+  banner no longer prints at `verbose = 0` when a genlight object is
+  supplied, and missing packages raise a fatal error instead of
+  returning -1. The internal default-colour contract used across the
+  package (brewer, Blues, select=c(7,5)) is unchanged and
+  regression-tested.
 * `gl.report.basics()`: four fixes. (1) The function crashed on ALL
   SilicoDArT data ("length of 'dimnames' [2] not equal to array extent")
   because the composition table hard-coded four column names onto a
