@@ -10,6 +10,7 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.reassign.ind,dartR.base,data manipulation,arthur,pr-open,281
 gl.define.pop,dartR.base,data manipulation,arthur,pr-open,279
 gl.merge.pop,dartR.base,data manipulation,arthur,pr-open,280
 gl.save,dartR.base,io,arthur,pr-open,290

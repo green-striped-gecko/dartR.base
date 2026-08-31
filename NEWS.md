@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.reassign.ind()`: conformance fixes -- the five fatal exits now use
+  the house `stop(error(...))` styling; the empty-selection notice is a
+  gated `cat(warn())` (verbose >= 2) instead of an R `warning()`; repeated
+  indices in a numeric `ind.list` are deduplicated.
 * `gl.define.pop()`: the not-present-individual warning printed at
   `verbose = 0`; now gated at `verbose >= 2`. An irrelevant preamble that
   ran a full `gl.filter.monomorphs()` on every call solely to warn that
