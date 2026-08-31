@@ -1,5 +1,19 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.factorloadings()`: five fixes. (1) The report line and
+  top-N table printed at every verbosity level including `verbose = 0`;
+  now gated at `verbose >= 1`. (2) `n.display` beyond the number of loci
+  printed garbage NA rows (189 of them at n.display = 300 on a
+  111-locus loadings table), and `n.display = 0` printed one row anyway
+  (the `1:0` slip); the display is now clamped with `head()`. (3) An
+  out-of-range `axis` produced a cryptic "subscript out of bounds"; now
+  a clear fatal error. (4) The `@return` documentation claimed "The
+  unchanged genlight object" -- the input is a glPca and the actual
+  return is an invisible data.frame of the axis loadings; corrected.
+  The `...` parameter, documented as passed to ggsave, was never
+  forwarded; it now reaches the plot-save call. The plural
+  `@family matched reports` no longer creates an orphan doc concept.
+  (5) The glPca type check now uses inherits() with a proper error.
 * `gl.filter.locmetric()`: major fixes. (1) `keep = "outside"` had
   never worked -- its condition (`metric <= lower AND >= upper`) is
   impossible whenever lower < upper, so every call crashed with

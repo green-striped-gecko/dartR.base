@@ -42,7 +42,6 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 Other matched reports: 
 \code{\link{gl.mahal.assign}()},
 \code{\link{gl.report.bases}()},
-\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()}
 }
 \author{

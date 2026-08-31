@@ -83,7 +83,6 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \seealso{
 Other matched reports: 
 \code{\link{gl.mahal.assign}()},
-\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.monomorphs}()}
 }

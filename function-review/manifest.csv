@@ -10,6 +10,7 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.report.factorloadings,dartR.base,matched report,arthur,pr-open,265
 gl.filter.locmetric,dartR.base,matched filter,arthur,pr-open,264
 gl.report.locmetric,dartR.base,matched report,arthur,pr-open,263
 gl.report.overshoot,dartR.base,matched report,arthur,pr-open,261
