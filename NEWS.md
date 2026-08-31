@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.heterozygosity()`: five fixes. (1) Removing individuals
+  left the locus-metric flags stale (CallRate, allele frequencies, PIC
+  values and the like were invalidated by the removal but still flagged
+  valid); the flags are now reset when individuals are removed, at
+  every verbosity, matching gl.drop.ind. (2) An individual with all
+  genotypes missing (undefined heterozygosity) crashed the filter; such
+  individuals are now removed and itemised in the `verbose >= 3`
+  summary. (3) The monomorphs warning printed at `verbose = 0` on every
+  call whose monomorphs flag was FALSE, and the unguarded flag access
+  crashed on flag-less objects; now isFALSE()-guarded and gated at
+  `verbose >= 2`. (4) Reversed thresholds (t.lower > t.upper) fell
+  through to a cryptic zero-individuals error and the t.lower range
+  message named t.upper; thresholds are now swapped with a gated
+  warning and the message corrected. (5) The return is invisible, and
+  the indented `@family` tag no longer leaks into the rendered help
+  title.
 * `gl.load()`: the `compliance` parameter (documented [default FALSE]) was
   inert -- `gl.compliance.check()` ran unconditionally on every load,
   potentially modifying the loaded object and printing its full output
