@@ -38,10 +38,9 @@
 #' @param error.bar Character specifying the statistic used for error bars: 
 #'   "SD" (standard deviation), "SE" (standard error), or "CI" (confidence 
 #'   intervals) [default "SD"].
-#' @param verbose Numeric controlling the level of printed messages: 
-#'   0 = silent or fatal errors; 1 = begin/end; 2 = progress log; 3 = progress 
-#'   and summary; 5 = full report. Defaults to 2 unless changed via 
-#'   \code{gl.set.verbosity}.
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'   progress log; 3, progress and results summary; 5, full report
+#'   [default 2 or as specified using gl.set.verbosity].
 #'
 #' @details
 #' \strong{Allelic Richness via Rarefaction:}
@@ -198,12 +197,14 @@
 #'   indicate an error but can reflect genuine asymmetry in the data.
 #'
 #' @return
-#' A list of data frames containing:
+#' A list of data frames (returned invisibly) containing:
 #' \itemize{
-#'   \item Allelic Richness per site (corrected by rarefaction).
-#'   \item Allelic Richness per population (summarized across sites).
-#'   \item Raw reference allele counts.
-#'   \item Raw alternate allele counts.
+#'   \item $`Allelic Richness per site` -- richness per site, corrected by
+#'   rarefaction.
+#'   \item $`Allelic Richness per population` -- richness summarised across
+#'   sites, with the error-bar statistic.
+#'   \item $`Raw reference allele count`.
+#'   \item $`Raw alternate allele count`.
 #' }
 #'
 #' @references
@@ -212,7 +213,7 @@
 #' [\emph{Argania spinosa} (L.) Skeels] endemic to Morocco. 
 #' \emph{Theoretical and Applied Genetics}, 92, 832–839.
 #'
-#' @author Author(s): Ching Ching Lau -- Post to
+#' @author Author(s): Ching Ching Lau. Custodian: Ching Ching Lau -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @export
@@ -233,36 +234,37 @@ gl.report.allelerich <- function(x,
                                  CI.type = "bca",
                                  plot.display = TRUE,
                                  plot.theme = theme_dartR(),
-                                 plot.colors.pop = gl.colors("dis"),
+                                 plot.colors.pop = gl.colors("dis", verbose = 0),
                                  plot.dir = NULL,
                                  plot.file = NULL,
                                  error.bar = "SD",
                                  verbose = NULL) {
   
-  # # setting parallel
-  # if (grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
-  #   parallel <- "multicore"
-  # }
-  # ## if windows
-  # if (!grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
-  #   parallel <- "snow"
-  # }
-  min_sample <- overall_min <- r_ref <- r_alt <- r_total <- 
-    corrected_richness <- sum_corrected_richness <- 
-    mean_corrected_richness <- NULL
+  # Define some global variables to satisfy package checking
+  min_sample <- overall_min <- r_ref <- r_alt <- r_total <-
+    corrected_richness <- sum_corrected_richness <-
+    mean_corrected_richness <- site <- genotype <- ref_allele <-
+    alt_allele <- raw_count <- sum_site_richness <- sum_richness <-
+    popsize <- mean_richness <- all_ref_allele <- all_alt_allele <- NULL
+
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
 
-  pkg <- c("dplyr", "tidyr","reshape2")
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
+  if (verbose == 0) {
+    plot.display <- FALSE
   }
-  
+
+  for (pkg in c("dplyr", "tidyr", "reshape2")) {
+    if (!(requireNamespace(pkg, quietly = TRUE))) {
+      stop(error(
+        "Package",
+        pkg,
+        " needed for this function to work. Please install it.\n"
+      ))
+    }
+  }
+
+
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir, verbose = 0)
   
@@ -291,22 +293,40 @@ gl.report.allelerich <- function(x,
     pop(x) <- as.factor(pop(x))
   }
   
+  if (!error.bar %in% c("SD", "SE", "CI")) {
+    if (verbose >= 2) {
+      cat(warn(
+        "  Warning: error.bar must be one of 'SD', 'SE' or 'CI'; setting to 'SD'\n"
+      ))
+    }
+    error.bar <- "SD"
+  }
+
+  if (!boot.method %in% c("ind", "loc")) {
+    if (verbose >= 2) {
+      cat(warn(
+        "  Warning: boot.method must be 'ind' or 'loc'; setting to 'loc'\n"
+      ))
+    }
+    boot.method <- "loc"
+  }
+
   if( nboots == 0 & error.bar == "CI" ){
-    cat(error(
-      "  Number of boostraps ('nboots' parameter) must be > 0 to calculate confidence 
-   intervals \n"))
-    stop()
+    stop(error(
+      "  Number of bootstraps ('nboots' parameter) must be > 0 to calculate confidence intervals\n"
+    ))
   }
-  
+
   if( nboots > 0){
-  error.bar <- "CI"
+    if (error.bar != "CI" && verbose >= 2) {
+      cat(report(
+        "  Bootstrapping requested; error bars will show confidence intervals\n"
+      ))
+    }
+    error.bar <- "CI"
   }
-  
-  #define some global variables...
-  site <- genotype <- ref_allele <- alt_allele <- raw_count <-  
-    sum_site_richness <- sum_richness <- popsize <- mean_richness <- 
-    all_ref_allele <- all_alt_allele <-  NA
-  
+
+
   # ALLELIC RICHNESS
   if (verbose >= 2) {
     cat(
@@ -461,6 +481,15 @@ gl.report.allelerich <- function(x,
   npops <- nPop(x)
   # bootstrapping
   if (nboots > 0) {
+    for (pkg in c("boot", "Rcpp")) {
+      if (!(requireNamespace(pkg, quietly = TRUE))) {
+        stop(error(
+          "Package",
+          pkg,
+          " needed for bootstrapping. Please install it.\n"
+        ))
+      }
+    }
     # Split the genlight object into a list of populations
     sgl <- seppop(x)
     pop_boot <- lapply(sgl, function(y) {
@@ -543,23 +572,6 @@ gl.report.allelerich <- function(x,
     colors_pops <- plot.colors.pop
   }
     
-  p1 <-
-    ggplot(result[[2]], 
-           aes(x = pop, y = sum_corrected_richness, fill = pop)) +
-    geom_bar(position = "dodge",
-             stat = "identity",
-             color = "black") +
-    plot.theme +
-    theme(
-      axis.ticks.x = element_blank(),
-      axis.text.x = element_blank(),
-      axis.title.x = element_blank(),
-      axis.ticks.y = element_blank(),
-      axis.title.y = element_blank(),
-      legend.position = "none" ) +
-    labs(fill = "Population") +
-    ggtitle("Sum allelic richness by Population")
-
   p2 <-
     ggplot(result[[2]], aes(
       x = paste(pop, "n=", popsize),
@@ -624,9 +636,8 @@ gl.report.allelerich <- function(x,
               subtitle = "Error bars show Confidence Intervals")
   }
 
-  # p3 <- (p1 / p2)
   p3 <-  p2
-  
+
 
   # Optionally save the plot ---------------------
 
