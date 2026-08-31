@@ -139,5 +139,5 @@ few-qualifying-pop display path. NEWS entry added.
   {"id": "F5", "severity": "LOW", "rules": ["spec", "STY", "DOC"], "loc": "R/gl.filter.maf.r", "status": "applied"},
   {"id": "F6", "severity": "MEDIUM", "rules": ["DAT"], "loc": "R/gl.filter.maf.r datatype", "status": "applied"}],
  "datasets": ["testset.gl"],
- "baseline_test": "tests/testthat/test-gl.filter.maf.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.filter.maf.R", "pr": 295}
 ```
