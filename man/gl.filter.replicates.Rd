@@ -17,9 +17,9 @@ gl.filter.replicates(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{replicates.report}{Output of functionv gl.report.replicates [required].}
+\item{replicates.report}{Output of function gl.report.replicates [required].}
 
-\item{loc_threshold}{Minimum number of loci required to asses that two 
+\item{loc_threshold}{Minimum number of loci required to assess that two
 individuals are replicates [default 100].}
 
 \item{perc_geno}{Minimum percentage of genotypes in which two individuals 
@@ -35,7 +35,7 @@ progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-A reduced dartR genlight object
+A reduced dartR genlight object, returned invisibly
 }
 \description{
 Remove replicated individuals
@@ -45,8 +45,12 @@ Remove replicated individuals using as input the report from function
 gl.report.replicates. The user can choose new thresholds for the minimum 
 number of loci required to asses that two individuals are replicates 
 (loc_threshold) and the minimum percentage of genotypes in which two 
-individuals should be the same (perc_geno) from those thresholds use in 
-gl.report.replicates.
+individuals should be the same (perc_geno) from those thresholds use in
+gl.report.replicates. Note that thresholds can only be tightened relative
+to those used in gl.report.replicates -- the report table contains only
+the pairs that passed the original thresholds. For each retained pair the
+member with the higher missing-data rate is removed; ties remove the
+alphabetically later individual.
 }
 \examples{
 \donttest{
@@ -58,15 +62,22 @@ t2 <- gl.filter.replicates(t1, replicates.report = res_rep, perc_geno = 0.85)
 }
 \seealso{
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.heterozygosity}()},
+\code{\link{gl.filter.hwe}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
 \code{\link{gl.filter.maf}()},
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.reproducibility}()},
+\code{\link{gl.filter.secondaries}()},
+\code{\link{gl.filter.taglength}()}
+\code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.secondaries}()}
 }
 \author{

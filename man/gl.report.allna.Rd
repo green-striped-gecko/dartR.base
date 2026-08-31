@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.report.allna.r
 \name{gl.report.allna}
 \alias{gl.report.allna}
-\title{Reports loci that are all NA across individuals and/or populations
+\title{Reports loci with all NA across individuals and/or individuals
 with all NA across loci}
 \usage{
 gl.report.allna(x, by.pop = FALSE, verbose = NULL)
@@ -18,12 +18,13 @@ progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-gl.report.allna
+An unaltered genlight object
 }
 \description{
 This script reports loci or individuals with all calls missing (NA),
  from a genlight object.
-
+}
+\details{
 A DArT dataset will not have loci for which the calls are scored all as
 missing (NA) for a particular individual, but such loci can arise rarely when
  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -49,9 +50,10 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.hwe}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
@@ -62,12 +64,11 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 
 Other filter functions: 
-\code{\link{gl.filter.allna}()},
+\code{\link{gl.filter.allna}()}
 \code{\link{gl.filter.hwe}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
 \concept{matched report}
