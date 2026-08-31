@@ -1,5 +1,30 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.maf()`: six fixes; the global-path arithmetic was verified
+  against an independent recomputation and is unchanged. (1) The by.pop
+  path collapsed when NO loci qualified for removal -- `x[, -integer(0)]`
+  subset to zero loci and crashed (e.g. whenever no population met
+  ind.limit); the object is now returned unchanged with gated messages
+  for both the no-qualifying-loci and no-qualifying-populations cases.
+  (2) `plot.file` with `plot.display = FALSE` crashed ("object 'p3' not
+  found"), and the by.pop display path with 0-1 qualifying populations
+  referenced a plot built only in the global path; each path now prints
+  the plots it builds and the save is guarded with a gated notice. (3)
+  The per-population plot list was named positionally with the
+  qualifying-population names, mislabeling plots whenever a
+  non-qualifying population preceded a qualifying one; plots are now
+  named by their source population. (4) The threshold-range warning
+  printed at `verbose = 0` (gated), and the MAC interpretation applied at
+  `threshold >= 1` while the documentation says "> 1" (aligned). (5) The
+  by.pop tally used `maf <= threshold` against the documented "less than"
+  (aligned to `<`); loci with undefined MAF removed by the global filter
+  are itemised at `verbose >= 3` and the NA policy is documented; the
+  return is invisible per the filter convention; dead assignments and an
+  irrelevant monomorphs preamble removed. (6) SilicoDArT objects were
+  accepted and run through the MAF machinery producing meaningless
+  values; the function is now restricted to SNP data (fatal on
+  presence/absence input), with the matched report to follow.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

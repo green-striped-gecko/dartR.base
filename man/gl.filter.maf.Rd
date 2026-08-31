@@ -41,8 +41,8 @@ contain to calculate MAF. Only used if by.pop=TRUE [default 10].}
 
 \item{recalc}{Recalculate the locus metadata statistics [default FALSE].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in
-the plot window [default TRUE].}
+\item{plot.display}{If TRUE, histograms of the MAF distribution pre- and
+post-filtering are displayed in the plot window [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
@@ -53,8 +53,8 @@ plots [default c("#2171B5", "#6BAED6")].}
 \item{plot.file}{Name for the RDS binary file to save (base name only,
 exclude extension) [default NULL].}
 
-\item{plot.dir}{Directory in which to save files
-[default = working directory].}
+\item{plot.dir}{Directory in which to save the plot RDS files [default as
+specified by the global working directory or tempdir()].}
 
 \item{bins}{Number of bins to display in histograms [default 25].}
 
@@ -63,7 +63,10 @@ progress log; 3, progress and results summary; 5, full report
  [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-The reduced genlight dataset
+The reduced genlight dataset, returned invisibly. Loci with
+undefined MAF (all genotypes missing) are removed by the global filter and
+itemised at verbose >= 3; under by.pop, loci with undefined MAF in a
+population do not count towards that population's tally.
 }
 \description{
 This script calculates the minor allele frequency for each locus and updates
@@ -110,7 +113,6 @@ Other matched filter:
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()}
 \code{\link{gl.filter.secondaries}()},
 \code{\link{gl.filter.taglength}()}
 }
