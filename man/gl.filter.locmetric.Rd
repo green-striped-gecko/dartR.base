@@ -16,12 +16,13 @@ gl.filter.locmetric(x, metric, upper, lower, keep = "within", verbose = NULL)
 
 \item{lower}{Filter lower threshold  [required].}
 
-\item{keep}{Whether keep loci within of upper and lower thresholds or keep
-loci outside of upper and lower thresholds [within].}
+\item{keep}{Whether to keep loci within the upper and lower thresholds
+('within') or outside of them ('outside') [default 'within'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 The reduced genlight dataset.
@@ -32,6 +33,12 @@ to filter loci. The loci to keep can be within the upper and lower thresholds
  ('within') or outside of the upper and lower thresholds ('outside').
 }
 \details{
+With keep='within', loci with a metric value in the interval [lower, upper]
+(boundaries included) are retained. With keep='outside', the exact
+complement is retained: loci with a metric value below lower or above
+upper. Loci for which the metric is missing (NA) are removed in either
+mode, because they cannot be assessed against the thresholds.
+
 The fields that are included in dartR, and a short description, are found
 below. Optionally, the user can also set his/her own filter by adding a
 vector into $other$loc.metrics as shown in the example.
@@ -69,10 +76,12 @@ test <- testset.gl
 test$other$loc.metrics$test <- 1:nLoc(test)
 result <- gl.filter.locmetric(x=test, metric= 'test', upper=255,
 lower=200, keep= 'within', verbose=3)
-
 }
 \seealso{
+\code{\link{gl.report.locmetric}}
+
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.ld}()},
@@ -80,11 +89,15 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.reproducibility}()},
 \code{\link{gl.filter.secondaries}()}
+\code{\link{gl.filter.secondaries}()},
+\code{\link{gl.filter.taglength}()}
 }
 \author{
-Luis Mijangos -- Post to 
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched filter}
