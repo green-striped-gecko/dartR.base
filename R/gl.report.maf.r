@@ -6,8 +6,8 @@
 #' population and an overall histogram to assist the decision of
 #' choosing thresholds for the filter function \code{\link{gl.filter.maf}}
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param as.pop Temporarily assign another locus metric as the population for
-#' the purposes of deletions [default NULL].
+#' @param as.pop Temporarily assign another individual metric as the population
+#' for the purposes of reporting [default NULL].
 #' @param maf.limit Show histograms MAF range <= maf.limit [default 0.5].
 #' @param ind.limit Show histograms only for populations of size greater than
 #' ind.limit [default 5].
@@ -16,13 +16,13 @@
 #' @param plot.colors Vector with color names for the borders and fill
 #' [default c("#2171B5", "#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files
-#' [default as specified by the global working directory or tempdir()]
+#' [default as specified by the global working directory or tempdir()].
 #' @param plot.file Filename (minus extension) for the RDS plot file
 #' [Required for plot save].
 #' @param bins Number of bins to display in histograms [default 25].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
-#' [default NULL, unless specified using gl.set.verbosity].
+#' [default 2 or as specified using gl.set.verbosity].
 #' @details
 #'The function \code{\link{gl.filter.maf}} will filter out the loci with MAF
 #'below a specified threshold.
@@ -55,8 +55,10 @@
 #' gl <- gl.filter.allna(platypus.gl)
 #' gl.report.maf(gl)
 #' @seealso \code{\link{gl.filter.maf}}
+#' @return A dataframe (returned invisibly) of minor allele frequencies by
+#' locus (rows) and population (columns). The input genlight object is
+#' unaltered.
 #' @export
-#' @return An unaltered genlight object
 
 gl.report.maf <- function(x,
                           as.pop = NULL,
@@ -97,21 +99,25 @@ gl.report.maf <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
   
   # FUNCTION SPECIFIC ERROR CHECKING
   
   if (maf.limit > 0.5 | maf.limit <= 0) {
-    cat(warn("Warning: maf.limit must be in the range (0,0.5], set to 0.5\n"))
+    if (verbose >= 1) {
+      cat(warn("Warning: maf.limit must be in the range (0,0.5], set to 0.5\n"))
+    }
     maf.limit <- 0.5
   }
-  
+
   if (ind.limit <= 0) {
-    cat(
-      warn(
-        "Warning: ind.limit must be an integer > 0 and less than population size, set to 5\n"
+    if (verbose >= 1) {
+      cat(
+        warn(
+          "Warning: ind.limit must be an integer > 0 and less than population size, set to 5\n"
+        )
       )
-    )
+    }
     ind.limit <- 5
   }
   
@@ -140,19 +146,9 @@ gl.report.maf <- function(x,
     } else {
       stop(
         error(
-          "Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"
+          "Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$ind.metrics) and select again\n"
         )
       )
-    }
-  }
-  
-  # FLAG SCRIPT START
-  
-  if (verbose >= 1) {
-    if (verbose == 5) {
-      cat(report("Starting", funname, "[ Build =", build, "]\n\n"))
-    } else {
-      cat(report("Starting", funname, "\n\n"))
     }
   }
   
@@ -164,15 +160,18 @@ gl.report.maf <- function(x,
   drop_pop <- which(lapply(pops_maf,nInd) == 1)
   if(length(drop_pop)>0){
     pops_maf <-  pops_maf[-drop_pop]
-    cat(warn("  Population with one individual were ignored in this analysis:", drop_pop, "\n"))
+    if (verbose >= 2) {
+      cat(warn("  Populations with only one individual were ignored in this analysis:",
+               paste(names(drop_pop), collapse = ", "), "\n"))
+    }
   }
   # Define a function to calculate MAF for each population
   tmpfun <- function(z) {
     z$other$loc.metrics <- as.data.frame(z$other$loc.metrics)
     z <- gl.filter.monomorphs(z, verbose = 0)
     z <- gl.recalc.metrics(z, verbose = 0)
-    # Print out some statistics
-    verbose = 3
+    # Print out some statistics (gated by the caller's verbosity,
+    # captured lexically)
     if (verbose >= 3) {
       stats <- summary(z@other$loc.metrics$maf)
       cat(
@@ -188,7 +187,7 @@ gl.report.maf <- function(x,
       cat("    1st quantile : ", stats[2], "\n")
       cat("    Median       : ", stats[3], "\n")
       cat("    Mean         : ", stats[4], "\n")
-      cat("    3r quantile  : ", stats[5], "\n")
+      cat("    3rd quantile : ", stats[5], "\n")
       cat("    Maximum      : ", stats[6], "\n")
       cat("    Missing Rate Overall: ",
           round(sum(is.na(as.matrix(
@@ -230,21 +229,24 @@ gl.report.maf <- function(x,
   maf <- data.frame(x2@other$loc.metrics$maf)
   colnames(maf) <- "maf"
   
-  # Print out some statistics
-  stats <- summary(x2@other$loc.metrics$maf)
-  cat(report("  Reporting Minor Allele Frequency (MAF) by Locus OVERALL\n"))
-  cat("  No. of loci =", nLoc(x), "\n")
-  cat("  No. of individuals =", nInd(x), "\n")
-  cat("    Minimum      : ", stats[1], "\n")
-  cat("    1st quantile : ", stats[2], "\n")
-  cat("    Median       : ", stats[3], "\n")
-  cat("    Mean         : ", stats[4], "\n")
-  cat("    3r quantile  : ", stats[5], "\n")
-  cat("    Maximum      : ", stats[6], "\n")
-  cat("    Missing Rate Overall: ",
-      round(sum(is.na(as.matrix(
-        x
-      ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
+  # Print out some statistics (computed on the monomorph-filtered data)
+  if (verbose >= 1) {
+    stats <- summary(x2@other$loc.metrics$maf)
+    cat(report("  Reporting Minor Allele Frequency (MAF) by Locus OVERALL\n"))
+    cat("  No. of loci =", nLoc(x2),
+        "(of", nLoc(x), "before removing monomorphs)\n")
+    cat("  No. of individuals =", nInd(x2), "\n")
+    cat("    Minimum      : ", stats[1], "\n")
+    cat("    1st quantile : ", stats[2], "\n")
+    cat("    Median       : ", stats[3], "\n")
+    cat("    Mean         : ", stats[4], "\n")
+    cat("    3rd quantile : ", stats[5], "\n")
+    cat("    Maximum      : ", stats[6], "\n")
+    cat("    Missing Rate Overall: ",
+        round(sum(is.na(as.matrix(
+          x
+        ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
+  }
   
   # Determine the loss of loci for a given threshold using quantiles
   quantile_res <-
@@ -362,7 +364,9 @@ gl.report.maf <- function(x,
   if (plot.display) {
     suppressWarnings(print(p3))
   }
-  print(df)
+  if (verbose >= 1) {
+    print(df)
+  }
   
   if (!is.null(plot.file)) {
     tmp <- utils.plot.save(p3,

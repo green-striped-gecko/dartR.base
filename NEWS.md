@@ -1,5 +1,28 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.maf()`: five fixes; the MAF values themselves are unchanged
+  (verified against a hand computation). (1) The verbosity contract was
+  broken wholesale -- a hardcoded `verbose = 3` inside the per-population
+  function overrode the caller's setting, and the overall statistics, the
+  quantile table, the limit-coercion warnings and the singleton-drop
+  notice were all ungated, printing 343 lines at `verbose = 0` on the
+  test dataset. Per-population statistics now display at `verbose >= 3`,
+  the overall statistics and quantile table at `verbose >= 1`, warnings
+  at `verbose >= 1` and the singleton notice at `verbose >= 2`. (2) A
+  second handwritten FLAG SCRIPT START block duplicated the "Starting"
+  banner and referenced a `build` variable that resolved only by lexical
+  accident to a stale package-level constant -- removed. (3) The
+  singleton-drop notice reported population indices instead of names.
+  (4) The overall statistics printed the unfiltered locus count while the
+  statistics were computed on monomorph-filtered data (both counts now
+  shown); the bad-as.pop error directed users to loc.metrics though the
+  check is against ind.metrics. (5) Docs: @return corrected (the function
+  returns an invisible dataframe of MAF by locus and population, not "an
+  unaltered genlight object"); as.pop wording; "3r quantile" typo (x2);
+  verbose canon. (Amendment, with gl.filter.maf F6:) restricted to SNP
+  data -- MAF is undefined for presence/absence data, which was
+  previously accepted and produced meaningless values.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
