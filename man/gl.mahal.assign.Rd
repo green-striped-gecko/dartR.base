@@ -70,7 +70,6 @@ specified for the plot to be saved.
 \seealso{
 Other matched reports: 
 \code{\link{gl.report.bases}()},
-\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.monomorphs}()}
 }
