@@ -2,24 +2,70 @@
 % Please edit documentation in R/gl.Ho.r
 \name{gl.Ho}
 \alias{gl.Ho}
-\title{Estimates observed Heterozygosity}
+\title{Estimates observed heterozygosity for each locus}
 \usage{
 gl.Ho(gl)
 }
 \arguments{
-\item{gl}{A genlight object [required]}
+\item{gl}{A genlight object containing SNP genotypes [required].}
 }
 \value{
-A simple vector whit Ho for each loci
+A named vector with the observed heterozygosity for each locus.
 }
 \description{
-Estimates observed Heterozygosity
+Calculates the observed heterozygosity at each locus, pooled across all
+individuals in the genlight object, as the proportion of individuals
+scored as heterozygous at that locus.
+}
+\details{
+This is a silent pure accessor: it returns the per-locus vector directly
+(visibly), produces no console output and does not modify the input. For
+heterozygosities averaged within populations or by individual, with
+sample-size corrections and plots, use
+\code{\link{gl.report.heterozygosity}}.
+
+Loci with all genotypes missing return NaN. The function applies to SNP
+genotype data only.
 }
 \examples{
 pp <- possums.gl[1:30,1:20]
 if (isTRUE(getOption("dartR_fbm"))) pp <- gl.gen2fbm(pp)
 gl.Ho(pp)
 }
-\author{
-Bernd Gruber (bugs? Post to \url{https://groups.google.com/d/forum/dartr})
+\seealso{
+\code{\link{gl.He}}, \code{\link{gl.alf}},
+\code{\link{gl.report.heterozygosity}}
+
+Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.alf}()},
+\code{\link{utils.allelic.richness}()},
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.collapse.matrix}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.flag.start}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()},
+\code{\link{utils.vcfr2genlight.polyploid}()}
 }
+\author{
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (bugs? Post to
+\url{https://groups.google.com/d/forum/dartr})
+}
+\concept{utilities}
