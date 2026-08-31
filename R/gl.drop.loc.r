@@ -4,9 +4,9 @@
 #' @family data manipulation
 
 #' @description
-#' This function deletes individuals and their associated metadata. 
+#' This function deletes specified loci and their associated metadata.
 
-#' The script returns a dartR genlight object with the retained loci. 
+#' The script returns a dartR genlight object with the retained loci.
 #' The script works with both genlight objects
 #' containing SNP genotypes and Tag P/A data (SilicoDArT).
 
@@ -21,7 +21,9 @@
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @return A reduced dartR genlight object
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 # Examples -------------
@@ -36,7 +38,6 @@
 #' @seealso \code{\link{gl.keep.loc}} to keep rather than drop specified loci
 #' 
 #' @export
-#' @return A reduced dartR genlight object
 
 # End Block --------------
 # Function 
@@ -63,7 +64,7 @@ gl.drop.loc <- function(x,
         flag <- "both"
         if (verbose >= 2) {
             cat(report(
-                "  Both a range of loci and a list of loci to keep has been specified\n"
+                "  Both a range of loci and a list of loci to drop has been specified\n"
             ))
         }
     } else if (!is.null(loc.list)) {
@@ -88,43 +89,61 @@ gl.drop.loc <- function(x,
       
       tmp1 <- loc.list %in% locNames(x)
       tmp2 <- which(tmp1 == FALSE)
-      
+
       if(length(tmp2)>0){
         if(verbose >= 2){
           cat(
             warn(
               "  Warning: Listed loci",
-              paste(locNames(x)[tmp2],collapse = " "),
+              paste(loc.list[tmp2],collapse = " "),
               "not present in the dataset -- ignored\n"
             ))
         }
-        
+
         loc.list <- loc.list[-tmp2]
-        
+
       }
     }
     
     if (flag == "range") {
+        if (is.null(last)) {
+            last <- nLoc(x)
+        }
         if (first <= 0) {
-            cat(warn(
-                "  Warning: Lower limit to range of loci cannot be less than 1, set to 1\n)"
-            ))
+            if (verbose >= 1) {
+                cat(warn(
+                    "  Warning: Lower limit to range of loci cannot be less than 1, set to 1\n"
+                ))
+            }
             first <- 1
         }
         if (first > nLoc(x)) {
-            cat(
-                warn(
-                    "  Warning: Upper limit to range of loci cannot be greater than the number of loci, set to",
+            stop(
+                error(
+                    "Fatal Error: Lower limit to range of loci cannot be greater than the number of loci (",
                     nLoc(x),
-                    "\n)"
+                    ")\n"
                 )
             )
+        }
+        if (last > nLoc(x)) {
+            if (verbose >= 1) {
+                cat(
+                    warn(
+                        "  Warning: Upper limit to range of loci cannot be greater than the number of loci, set to",
+                        nLoc(x),
+                        "\n"
+                    )
+                )
+            }
             last <- nLoc(x)
         }
         if (first > last) {
-            cat(warn(
-                "  Warning: Upper limit is smaller than lower limit, reversed\n"
-            ))
+            if (verbose >= 1) {
+                cat(warn(
+                    "  Warning: Upper limit is smaller than lower limit, reversed\n"
+                ))
+            }
             tmp <- first
             first <- last
             last <- tmp
@@ -132,7 +151,7 @@ gl.drop.loc <- function(x,
     }
     
 	# DO THE JOB --------------
-    # Remove individuals ------
+    # Remove loci ------
     
     hold <- x
     
@@ -162,11 +181,10 @@ gl.drop.loc <- function(x,
 # REPORT A SUMMARY -------------
     # Summary of outcomes --------------    
     if (verbose >= 3) {
-        cat("  Summary of recoded dataset\n")
-        cat(paste("    Original No. of loci:", nLoc(hold), "\n"))
-        cat(paste("    No. of loci deleted:", nLoc(hold) - nLoc(x2), "\n"))
-        cat(paste("    No. of loci retained:", nLoc(x2), "\n"))
-        # cat(paste(' No. of individuals:', nInd(x2),'\n')) cat(paste(' No. of populations: ', nPop(x2),'\n'))
+        cat(report("  Summary of recoded dataset\n"))
+        cat(report(paste("    Original No. of loci:", nLoc(hold), "\n")))
+        cat(report(paste("    No. of loci deleted:", nLoc(hold) - nLoc(x2), "\n")))
+        cat(report(paste("    No. of loci retained:", nLoc(x2), "\n")))
     }
     
     # ADD TO HISTORY -------------
@@ -179,5 +197,5 @@ gl.drop.loc <- function(x,
         cat(report("Completed:", funname, "\n"))
     }
     # End block -------------
-    return(x2)
+    return(invisible(x2))
 }
