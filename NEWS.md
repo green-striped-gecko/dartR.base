@@ -1,5 +1,20 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.pa()` review: the Chao1/Chao2 estimates of undetected
+  private alleles are now computed from the pair being compared
+  (previously they were based on minor allele frequencies recomputed
+  across ALL populations in the dataset, pairs with zero private
+  alleles silently fell back to the full locus set, and f1/f2 were
+  taken by table position rather than by category) - Chao values
+  change for most datasets; `plot.file` without `plot.display` no
+  longer crashes; a mistyped `method` and a datatype-mismatched `x2`
+  now fail informatively; `method="one2rest"` with the default palette
+  no longer crashes and its orientation no longer depends on
+  population names sorting before the internal sentinel; missing
+  suggested packages are now fatal errors; `test.asym` documentation
+  now describes the implemented permutation test and the test is
+  skipped with a warning for SilicoDArT; verbose=0 is now silent.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
