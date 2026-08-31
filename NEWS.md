@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.save()`: the "Saved object" / "Load again" messages (and the
+  FBM-conversion message) printed at `verbose = 0`; now gated at
+  `verbose >= 2`, and the message no longer calls the RDS file an "RDA
+  file". The @return contract ("the input object") is now honoured: the
+  class-attribute stamping and any FBM-to-gen conversion apply only to
+  the copy that is saved, and the input is returned unchanged. A
+  nonexistent target directory gives a clear fatal error instead of a raw
+  connection error; description wording corrected.
 * `gl.report.allelerich()`: plumbing fixes; the rarefaction calculation
   itself was verified against an independent recomputation and is
   unchanged. (1) The plot rendered at `verbose = 0` (missing
