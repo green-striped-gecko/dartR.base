@@ -5,6 +5,7 @@
 #' @description
 #' This script deletes monomorphic loci from a genlight \{adegenet\} object
 
+#' @details
 #' A DArT dataset will not have monomorphic loci, but they can arise, along with
 #' loci that are scored all NA, when populations or individuals are deleted.
 
@@ -19,10 +20,12 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
-
-#' @author Custodian: Arthur Georges -- Post to
+#'
+#' @return A genlight object with monomorphic (and all NA) loci removed.
+#'
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @examples
 #' # SNP data
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -30,10 +33,7 @@
 #' # Tag P/A data
 #'   result <- gl.filter.monomorphs(testset.gs, verbose=3)
 
-#' @import utils patchwork
-#' @importFrom plyr count
 #' @export
-#' @return A genlight object with monomorphic (and all NA) loci removed.
 
 gl.filter.monomorphs <- function(x, 
                                  verbose = NULL) {
@@ -102,10 +102,9 @@ gl.filter.monomorphs <- function(x,
     
     #loc.list <- c(loc.list,loc.list_NA)
     
-    if (length(loc.list > 0)) {
+    if (length(loc.list) > 0) {
         if (verbose >= 2) {
-            cat(report("  Removing monomorphic loci and loci with all missing 
-                       data\n"))
+            cat(report("  Removing monomorphic loci and loci with all missing data\n"))
         }
         x <- gl.drop.loc(x, loc.list = loc.list, verbose = 0)
     } else {
@@ -129,14 +128,16 @@ gl.filter.monomorphs <- function(x,
     
     x@other$loc.metrics.flags$monomorphs <- TRUE
     
-    # ADD TO HISTORY
+    # ADD TO HISTORY -- one entry per user call: discard the internal
+    # gl.drop.loc entry appended by the delegation above
+    x@other$history <- hold@other$history
     nh <- length(x@other$history)
     x@other$history[[nh + 1]] <- match.call()
-    
+
     # FLAG SCRIPT END
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(x)
+
+    return(invisible(x))
 }
