@@ -1,5 +1,20 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.locmetric()`: major fixes. (1) `keep = "outside"` had
+  never worked -- its condition (`metric <= lower AND >= upper`) is
+  impossible whenever lower < upper, so every call crashed with
+  "Subsetting resulted in zero loci". It now retains the exact
+  complement of 'within' (metric < lower or > upper; 'within' keeps
+  [lower, upper] inclusive). (2) An invalid `keep` value crashed with
+  the cryptic "object 'x2' not found"; it now coerces to 'within' with
+  a warning at `verbose >= 1`. A non-numeric metric produced factor
+  warnings then a crash; it now stops with a clear fatal error (the
+  check the report sibling already had). (3) Two irrelevant preambles
+  removed: a full monomorphs scan run on every call solely to warn that
+  monomorphic loci exist, and a block that silently stamped
+  `pop = 'pop1'` onto objects without population assignments. (4) Loci
+  with NA metric values (already removed, correctly) are now itemised
+  in the `verbose >= 3` summary, and the return is invisible.
 * `gl.report.locmetric()`: four fixes. (1) The summary statistics and
   quantile table printed at every verbosity level including
   `verbose = 0`; now gated at `verbose >= 1`. (2) The stats lines carried
