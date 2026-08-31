@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.reproducibility()`: four fixes, same family as the
+  rdepth/taglength reports (#255/#257). (1) `plot.file` with
+  `plot.display = FALSE` crashed ("object 'p3' not found"); plots are now
+  always built and the RDS save works without displaying. (2) The
+  summary statistics and quantile table printed at every verbosity level
+  including `verbose = 0`; now gated at `verbose >= 1`, and `verbose = 0`
+  forces `plot.display = FALSE`. (3) The "Retained" counts treated loci
+  with NA RepAvg/Reproducibility as retained; they now exclude NAs.
+  (4) The "3r quartile" typo, and a 28-line dead commented block
+  removed.
 * `gl.filter.taglength()`: four fixes, mirroring `gl.filter.rdepth`
   (#256). (1) Loci with a missing (NA) TrimmedSequence silently corrupted
   the output -- genotypes were dropped while `loc.metrics` kept a
