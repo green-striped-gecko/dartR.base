@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.monomorphs()`: the function previously returned the object
+  with all monomorphic and all-NA loci silently REMOVED (an undocumented
+  filtering side effect of deriving the counts), plus a phantom history
+  entry -- so `gl <- gl.report.monomorphs(gl)` quietly deleted loci
+  despite the documentation promising an unaltered return. It now
+  returns the input untouched; use `gl.filter.monomorphs()` to actually
+  remove them. The results block is also gated at `verbose >= 1` (it
+  previously printed at every verbosity level including 0).
 * `gl.filter.callrate()`: four fixes. (1) `method = 'pop'` previously
   returned an object whose locus metrics (`@other$loc.metrics`) were
   entirely NA -- the metadata was re-subset by locus name against row
