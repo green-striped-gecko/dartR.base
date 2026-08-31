@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.Ho()` / `gl.He()`: the per-locus heterozygosity accessors now
+  reject SilicoDArT (presence/absence) data with a fatal error --
+  previously they silently returned meaningless values. Documentation
+  brought to standard: gl.He's `@return` no longer claims to return
+  observed heterozygosity, both functions state their semantics (pooled
+  across all individuals; He is plain 2p(1-p) with no sample-size
+  correction; NaN for all-NA loci; deliberately silent pure accessors)
+  and cross-link gl.alf and gl.report.heterozygosity. Values verified
+  exact against hand computation, gl.alf, and the population report.
 * `gl.smearplot()`: six fixes. (1) The documented `plot.display` parameter
   was accepted and guarded but never used -- `print()` was unconditional,
   so the plot rendered even at `verbose = 0` or `plot.display = FALSE`;

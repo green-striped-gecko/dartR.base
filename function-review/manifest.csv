@@ -10,6 +10,8 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.Ho,dartR.base,utility,arthur,pr-open,273
+gl.He,dartR.base,utility,arthur,pr-open,273
 gl.smearplot,dartR.base,graphics,arthur,pr-open,277
 gl.make.recode.pop,dartR.base,data manipulation,arthur,pr-open,270
 gl.make.recode.ind,dartR.base,data manipulation,arthur,pr-open,269
