@@ -246,7 +246,7 @@ gl.report.secondaries <- function(x,
         as.data.frame(secondaries_plot_2)
       colnames(secondaries_plot_2) <- c("freq", "count")
 
-      freq <- NULL
+      freq <- count <- NULL
 
       p2 <-
         ggplot(secondaries_plot_2, aes(x = freq, y = count)) +
