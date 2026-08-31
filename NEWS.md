@@ -26,6 +26,11 @@
   individuals. They now reset correctly at every verbosity level, matching
   the behaviour `verbose >= 2` already had.
 
+* `gl.report.bases()`: the results printout (sequence length, base
+  frequencies, transitions/transversions) previously printed at every
+  verbosity level, including `verbose = 0`. It is now gated at
+  `verbose >= 1`, so fully-quiet calls are silent as documented. The
+  default (`verbose = 2`) behaviour is unchanged.
 * `gl.keep.ind()`: fixed the identical bug -- the same locus-metric flags
   were only reset to `FALSE` after retaining individuals when
   `verbose >= 2`. Now reset correctly at every verbosity level.
