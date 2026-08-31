@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.merge.pop()`: two behaviour fixes. (1) Validation of `old` sat inside
+  the `verbose >= 1` announcement block, so `old = character(0)` was fatal
+  at `verbose >= 1` but a silent no-op at `verbose = 0`; validation now
+  runs upfront at every verbosity. (2) Populations listed in `old` that do
+  not exist in the dataset were silently ignored -- a mistyped population
+  name left the object unchanged with no message; this is now a fatal
+  error naming the missing populations (matching `gl.rename.pop`). Tidy:
+  redundant genlight check and duplicate validation removed; the
+  description opening (a copy-paste about csv metadata files) corrected;
+  header tag order.
 * `gl.save()`: the "Saved object" / "Load again" messages (and the
   FBM-conversion message) printed at `verbose = 0`; now gated at
   `verbose >= 2`, and the message no longer calls the RDS file an "RDA
