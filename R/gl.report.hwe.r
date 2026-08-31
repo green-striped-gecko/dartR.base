@@ -351,12 +351,28 @@ gl.report.hwe <- function(x,
     }
     
     poplist_temp <- seppop(x)
-    # filtering monomorphs
+    # filtering monomorphs; a population in which every locus is
+    # monomorphic cannot be subset to zero loci, so flag it with NULL
+    # for the skip below instead of crashing inside gl.drop.loc
     poplist <-
-        lapply(poplist_temp, gl.filter.monomorphs, verbose = 0)
-    
+        lapply(poplist_temp, function(y) {
+            tryCatch(
+                gl.filter.monomorphs(y, verbose = 0),
+                error = function(e) {
+                    if (grepl("zero loci", conditionMessage(e))) {
+                        NULL
+                    } else {
+                        stop(e)
+                    }
+                }
+            )
+        })
+
     # testing whether populations have heteromorphic loci
-    monomorphic_pops_temp <- unlist(lapply(poplist, nLoc))
+    monomorphic_pops_temp <-
+        vapply(poplist, function(y) {
+            if (is.null(y)) 0L else nLoc(y)
+        }, integer(1))
     monomorphic_pops <-
         monomorphic_pops_temp[which(monomorphic_pops_temp == 0)]
     

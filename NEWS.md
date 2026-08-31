@@ -1,5 +1,20 @@
 # dartR.base 1.2.3 (development)
 
+* CI repair: six review-campaign test files hardcoded expectations from a
+  `testset.gl` that contained 3 all-NA loci; the CRAN dartR.data 1.2.2
+  `testset.gl` (the one CI installs) has none, so every `dev` run since
+  PR #252 failed. Expectations in test-gl.filter.allna,
+  test-gl.fixed.diff, test-gl.report.allelerich, test-gl.report.basics,
+  test-gl.report.hwe and test-gl.filter.hwe recomputed against the CRAN
+  data.
+* `gl.report.hwe()` / `gl.filter.hwe()`: crashed ("Subsetting resulted
+  in zero loci") whenever a population was entirely monomorphic --
+  `gl.filter.monomorphs()` cannot return a zero-locus object, so the
+  functions' own skip-empty-populations logic was unreachable. Such
+  populations are now caught and skipped as intended.
+* `gl.report.allelerich()`: the bootstrap path crashed ("replacement has
+  length zero") when `boot.ci()` returned no interval for a statistic
+  constant across replicates; the CI cells are now left as NA.
 * `gl.report.heterozygosity()`: three crash fixes and conformance, applied
   after consultation with the authors. (1) `subsample.pop = TRUE` crashed
   whenever ANY population was below `n.limit` (utils.subsample.pop stored

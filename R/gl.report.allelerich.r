@@ -519,17 +519,25 @@ gl.report.allelerich <- function(x,
     
     for (pop_n in 1:length(sgl)) {
       for (stat_n in seq_len(nparams)) {
-        res_CI_tmp <- boot::boot.ci(
-          boot.out = pop_boot[[pop_n]],
-          conf = conf,
-          type = CI.type,
-          index = stat_n,
-          t0 =  pop_boot[[pop_n]]$t0,
-          t = pop_boot[[pop_n]]$t[, stat_n]
+        res_CI_tmp <- tryCatch(
+          boot::boot.ci(
+            boot.out = pop_boot[[pop_n]],
+            conf = conf,
+            type = CI.type,
+            index = stat_n,
+            t0 =  pop_boot[[pop_n]]$t0,
+            t = pop_boot[[pop_n]]$t[, stat_n]
+          ),
+          error = function(e) NULL
         )
-        
-        res_CI[[pop_n]][stat_n,] <-
-          tail(as.vector(res_CI_tmp[[4]]), 2)
+
+        # boot.ci returns no interval component when the statistic is
+        # constant across replicates; leave the CI row as NA
+        if (!is.null(res_CI_tmp) && length(res_CI_tmp) >= 4 &&
+            !is.null(res_CI_tmp[[4]])) {
+          res_CI[[pop_n]][stat_n,] <-
+            tail(as.vector(res_CI_tmp[[4]]), 2)
+        }
         
       }
     }

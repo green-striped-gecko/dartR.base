@@ -18,10 +18,10 @@ test_that("richness values match an independent recomputation", {
   fn <- res[["Allelic Richness per population"]]
   means <- fn$mean_corrected_richness
   names(means) <- fn$pop
-  expect_equal(round(means[["EmmacBrisWive"]], 5), 1.01484)
-  expect_equal(round(means[["EmmacBurdMist"]], 5), 1.00990)
-  expect_equal(round(means[["EmmacClarJack"]], 5), 1.01150)
-  expect_equal(round(means[["EmmacRussEube"]], 5), 1.02391)
+  expect_equal(round(means[["EmmacBrisWive"]], 5), 1.01042)
+  expect_equal(round(means[["EmmacBurdMist"]], 5), 1.00538)
+  expect_equal(round(means[["EmmacClarJack"]], 5), 1.00658)
+  expect_equal(round(means[["EmmacRussEube"]], 5), 1.01947)
   expect_equal(fn$popsize, c(10, 10, 5, 10))
   expect_true("SD" %in% colnames(fn))          # default error.bar
 })

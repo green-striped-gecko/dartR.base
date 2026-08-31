@@ -24,7 +24,9 @@ test_that("gl.filter.hwe default direction='both' is the pre-migration behaviour
   skip_if_not_installed("HardyWeinberg")
   pdf(NULL); on.exit(dev.off())
   f <- suppressWarnings(gl.filter.hwe(testset.gl, verbose = 0))
-  expect_equal(nLoc(f), 249)
+  # 251 with dartR.data 1.2.2 (all-monomorphic pops now skipped
+  # instead of crashing in gl.filter.monomorphs)
+  expect_equal(nLoc(f), 251)
   expect_equal(nrow(f@other$loc.metrics), nLoc(f))
 })
 
