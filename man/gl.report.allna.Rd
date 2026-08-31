@@ -61,6 +61,9 @@ Other matched report:
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
+
+Other filter functions: 
+\code{\link{gl.filter.hwe}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
