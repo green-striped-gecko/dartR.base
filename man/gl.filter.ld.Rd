@@ -58,6 +58,7 @@ res <- gl.filter.ld(x=test,ld.report = report)
 \code{\link{gl.report.ld.map}}
 
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.locmetric}()},

@@ -73,6 +73,7 @@ lower=200, keep= 'within', verbose=3)
 }
 \seealso{
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.ld}()},
