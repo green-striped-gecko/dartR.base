@@ -18,6 +18,8 @@ A genlight object with monomorphic (and all NA) loci removed.
 }
 \description{
 This script deletes monomorphic loci from a genlight \{adegenet\} object
+}
+\details{
 A DArT dataset will not have monomorphic loci, but they can arise, along with
 loci that are scored all NA, when populations or individuals are deleted.
 Retaining monomorphic loci unnecessarily increases the size of the dataset
@@ -46,7 +48,7 @@ Other matched filter:
 \code{\link{gl.filter.secondaries}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched filter}
