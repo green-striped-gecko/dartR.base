@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.define.pop()`: the not-present-individual warning printed at
+  `verbose = 0`; now gated at `verbose >= 2`. An irrelevant preamble that
+  ran a full `gl.filter.monomorphs()` on every call solely to warn that
+  monomorphic loci exist was removed. Style: the assignment message is now
+  styled and printed after the assignment actually happens; dead
+  `is.na(length())` condition removed; header tag order.
 * `gl.merge.pop()`: two behaviour fixes. (1) Validation of `old` sat inside
   the `verbose >= 1` announcement block, so `old = character(0)` was fatal
   at `verbose >= 1` but a silent no-op at `verbose = 0`; validation now
