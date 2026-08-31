@@ -2,33 +2,44 @@
 % Please edit documentation in R/gl.report.hamming.r
 \name{gl.report.hamming}
 \alias{gl.report.hamming}
-\title{Calculates the pairwise Hamming distance between DArT trimmed DNA
-sequences}
+\title{Reports pairwise Hamming distances between trimmed sequence tags and
+the loci that gl.filter.hamming would remove}
 \usage{
 gl.report.hamming(
   x,
   rs = 5,
   threshold = 3,
-  tag.length = 69,
+  min.length = 50,
+  max.threshold = 10,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
   plot.colors = NULL,
   plot.dir = NULL,
   plot.file = NULL,
-  probar = FALSE,
+  tag.length = NULL,
+  probar = NULL,
   verbose = NULL
 )
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{rs}{Number of bases in the restriction enzyme recognition sequence
+\item{rs}{Number of bases to skip from the start of the TrimmedSequence
+before extracting the comparison substring (i.e. restriction site length)
 [default 5].}
 
-\item{threshold}{Minimum acceptable base pair difference for display on the
-boxplot and histogram [default 3].}
+\item{threshold}{Candidate maximum Hamming distance (number of mismatching
+bases) to highlight in the plots and summary, matching the
+\code{threshold} of \code{\link{gl.filter.hamming}}; an integer >= 0
+[default 3].}
 
-\item{tag.length}{Typical length of the sequence tags [default 69].}
+\item{min.length}{Length of the substring used for Hamming comparisons.
+Longer sequences are truncated to it; only loci producing a substring of
+exactly this length are compared, others are ignored (and would be retained
+by the filter) [default 50].}
+
+\item{max.threshold}{Largest threshold simulated in the loci-removed table
+and plot [default 10].}
 
 \item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
@@ -37,12 +48,17 @@ boxplot and histogram [default 3].}
 \item{plot.colors}{Vector with two color names for the borders and fill
 [default c("#2171B5", "#6BAED6")].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()]}
 
-\item{plot.file}{Filename (minus extension) for the RDS plot file [Required for plot save]}
+\item{plot.file}{Filename (minus extension) for the RDS plot file
+[Required for plot save]}
 
-\item{probar}{If TRUE, a progress bar is displayed during run [defalut FALSE]}
+\item{tag.length}{Deprecated and ignored; distances are reported as base
+counts over \code{min.length} bases, not proportions [default NULL].}
+
+\item{probar}{Deprecated and ignored; the compiled engine makes a progress
+bar unnecessary [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -52,50 +68,62 @@ progress log; 3, progress and results summary; 5, full report
 Returns unaltered genlight object
 }
 \description{
-Hamming distance is calculated as the number of base differences
-between two sequences which can be expressed as a count or a proportion.
-Typically, it is calculated between two sequences of equal length. In the
-context of DArT trimmed sequences, which differ in length but which are
-anchored to the left by the restriction enzyme recognition sequence, it is
-sensible to compare the two trimmed sequences starting from immediately after
-the common recognition sequence and terminating at the last base of the
-shorter sequence.
+Hamming distance is calculated as the number of base
+differences between two sequences. In the context of DArT trimmed
+sequences, which are anchored to the left by the restriction enzyme
+recognition sequence, sequences are compared starting immediately after the
+common recognition sequence, over a fixed-length substring
+(\code{min.length} bases), exactly as in
+\code{\link{gl.filter.hamming}}.
+
+The function reports (a) the distribution of pairwise Hamming distances
+among comparable loci, and (b) for a range of candidate thresholds, the
+exact number of loci that \code{\link{gl.filter.hamming}} would remove.
+The counts in (b) are obtained by running the same comparison engine, with
+the same worst-to-best call-rate ordering, as the filter itself — they are
+therefore exact, not an approximation from the distance distribution.
 }
 \details{
-The function \code{\link{gl.filter.hamming}} will filter out one of
-two loci if their Hamming distance is less than a specified percentage
-Hamming distance can be computed by exploiting the fact that the dot product
-of two binary vectors x and (1-y) counts the corresponding elements that are
-different between x and y. This approach can also be used for vectors that
-contain more than two possible values at each position (e.g. A, C, T or G).
-If a pair of DNA sequences are of differing length, the longer is truncated.
-The algorithm is that of Johann de Jong
-\url{https://johanndejong.wordpress.com/2015/10/02/faster-hamming-distance-in-r-2/}
-as implemented in \code{\link{utils.hamming}}
-  If plot.file is specified, plots are saved to the directory specified by the user, or the global
-  default working directory set by gl.set.wd() or to the tempdir().
- Examples of other themes that can be used can be consulted in \itemize{
+The function \code{\link{gl.filter.hamming}} removes one locus of
+a pair whose substrings are within \code{threshold} mismatches, keeping
+the locus with the better call rate. Because the filter is sequential (a
+removed locus is not used to match further loci), the number of loci
+removed at a given threshold cannot be derived from the pairwise distance
+distribution alone; this function obtains it by running the filter's own
+engine in simulation mode for each candidate threshold.
+
+Pairwise distances are computed in compiled code. When the number of
+comparable locus pairs exceeds two million, a random sample of two million
+pairs is used for the distribution (the loci-removed simulation is always
+exact and unaffected); a note is printed when sampling occurs.
+
+This function requires the package \code{Rcpp} and a working C++ compiler
+toolchain (Rtools on Windows, Xcode Command Line Tools on macOS), as the
+comparison engine is compiled at run time (once per session).
+
+If plot.file is specified, plots are saved to the directory specified by
+the user, or the global default working directory set by gl.set.wd() or to
+the tempdir().
+
+Examples of other themes that can be used can be consulted in \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
 }
 \examples{
+\donttest{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl.report.hamming(testset.gl[,1:100])
-gl.report.hamming(testset.gs[,1:100])
-#' # SNP data
-test <- platypus.gl
-test <- gl.subsample.loc(platypus.gl,n=50)
-result <- gl.report.hamming(test, verbose=3)
-result <- gl.report.hamming(test, plot.file="ttest", verbose=3)
+}
 }
 \seealso{
 \code{\link{gl.filter.hamming}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
@@ -106,7 +134,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to 
+Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}

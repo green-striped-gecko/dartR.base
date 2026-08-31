@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.filter.excess.het.r
 \name{gl.filter.excess.het}
 \alias{gl.filter.excess.het}
-\title{Filters excessively-heterozygous loci from a genlight object}
+\title{Filters excessively-heterozygous loci from a genlight object [deprecated]}
 \usage{
 gl.filter.excess.het(
   x,
@@ -17,42 +17,76 @@ gl.filter.excess.het(
 
 \item{Yates}{Whether to use Yates's continuity correction [default FALSE].}
 
-\item{mono.rm}{Remove monomorphic loci after analysis is complete
-[default FALSE].}
+\item{mono.rm}{Remove monomorphic loci after filtering [default FALSE].}
 
-\item{recalc}{Recalculate the locus metadata statistics if any individuals
-are deleted in the filtering [default FALSE].}
+\item{recalc}{Recalculate the locus metadata statistics after filtering
+[default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-Returns unaltered genlight object
+The genlight object with excessively-heterozygous loci removed,
+returned invisibly.
 }
 \description{
-Calculates excess of heterozygosity in a genlight object and remove those loci
+\strong{Deprecated.} Use
+\code{gl.filter.hwe(direction = 'excess', test.type = 'ChiSquare',
+mult.comp.adj = TRUE, mult.comp.adj.method = 'fdr')} instead — see
+\code{\link{gl.filter.hwe}}.
+
+This wrapper reproduces the workflow of Robledo-Ruiz et al. (2023) for
+removing loci with a significant excess of heterozygotes (candidate
+sex-linked or paralogous loci) by calling gl.filter.hwe with the
+equivalent settings, and will be removed in a future release.
+}
+\details{
+The published workflow is reproduced via gl.filter.hwe(direction =
+'excess', min.hobs = 0.5, ...): only loci with observed heterozygosity of
+at least 0.5 are tested, and the false-discovery-rate adjustment is
+confined to that screened set, as in the original. Differences from the
+original implementation: the chi-square test is performed by
+HardyWeinberg::HWChisq (p-values can differ marginally from the original
+hand-rolled test), and the per-population genotype counts are computed on
+the correct individuals (the original subset individuals with a recycled
+per-population index).
 }
 \examples{
+\donttest{
 if (isTRUE(getOption("dartR_fbm"))) LBP <- gl.gen2fbm(LBP)
 filtered.gl <- gl.filter.excess.het(x = LBP, Yates = TRUE)
-# Use below function to output information of the loci with Yates's continuity correction specified 
-filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)
+}
 }
 \references{
 \itemize{
-\item https://github.com/drobledoruiz/conservation_genomics/tree/main/filter.excess.het
-\item Robledo‐Ruiz, D. A., Austin, L., Amos, J. N., Castrejón‐Figueroa, J., Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023). 
-Easy‐to‐use R functions to separate reduced‐representation genomic datasets into sex‐linked and autosomal loci, 
-and conduct sex assignment. Molecular Ecology Resources.
+\item Robledo-Ruiz, D. A., Austin, L., Amos, J. N., Castrejon-Figueroa, J.,
+Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023).
+Easy-to-use R functions to separate reduced-representation genomic
+datasets into sex-linked and autosomal loci, and conduct sex assignment.
+Molecular Ecology Resources.
 }
 }
 \seealso{
-\code{\link{gl.filter.callrate}}
+\code{\link{gl.filter.hwe}}, \code{\link{gl.report.hwe}}
 
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.hwe}()},
+\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.secondaries}()}
 Other matched report: 
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
@@ -67,4 +101,4 @@ Other matched report:
 Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz (Custodian: Ching Ching Lau) -- Post
 to \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{matched report}
+\concept{matched filter}
