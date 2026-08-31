@@ -15,7 +15,8 @@
 #' The function returns a genlight object with the new population assignments.
 #' Note that the original population assignments are lost.
 
-#' @param x Name of the genlight object containing SNP genotypes [required].
+#' @param x Name of the genlight object containing SNP or SilicoDArT data
+#' [required].
 #' @param as.pop Specify the name of the individual metric to set as the pop
 #'  variable [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -53,23 +54,49 @@ gl.reassign.pop <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
-    
+
+    # SCRIPT SPECIFIC ERROR CHECKING
+
+    if (is.null(x@other$ind.metrics)) {
+        stop(error(
+            "Fatal Error: The genlight object does not carry individual metrics (@other$ind.metrics)\n"
+        ))
+    }
+    if (!(as.pop %in% names(x@other$ind.metrics))) {
+        stop(error(
+            "Fatal Error: Individual metric",
+            as.pop,
+            "not found in ind.metrics; available metrics are:",
+            paste(names(x@other$ind.metrics), collapse = ", "),
+            "\n"
+        ))
+    }
+
     # DO THE JOB
-    
-    pop(x) <- x@other$ind.metrics[[as.pop]]
+
+    pop(x) <- as.factor(x@other$ind.metrics[[as.pop]])
     if (verbose >= 2) {
         cat(report(
             "  Setting population assignments to individual metric",
             as.pop,
             "\n"
         ))
+        if (any(is.na(pop(x)))) {
+            cat(warn(
+                "  Warning:",
+                sum(is.na(pop(x))),
+                "individuals have missing values for",
+                as.pop,
+                "and carry NA population assignments\n"
+            ))
+        }
     }
-    
+
     if (verbose >= 3) {
         cat("  Summary of recoded dataset\n")
         cat(paste("    No. of loci:", nLoc(x), "\n"))
         cat(paste("    No. of individuals:", nInd(x), "\n"))
-        cat(paste("    No. of populations: ", nPop(x), "\n"))
+        cat(paste("    No. of populations:", nPop(x), "\n"))
     }
     
     # ADD TO HISTORY

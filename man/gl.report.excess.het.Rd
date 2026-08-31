@@ -2,13 +2,13 @@
 % Please edit documentation in R/gl.report.excess.het.r
 \name{gl.report.excess.het}
 \alias{gl.report.excess.het}
-\title{Report loci with excess of heterozygosity}
+\title{Report loci with excess of heterozygosity [deprecated]}
 \usage{
 gl.report.excess.het(
   x,
   Yates = FALSE,
   plot.display = TRUE,
-  plot.theme = theme_dartR(),
+  plot.theme = NULL,
   plot.colors = NULL,
   plot.file = NULL,
   plot.dir = NULL,
@@ -22,65 +22,64 @@ gl.report.excess.het(
 
 \item{plot.display}{Specify if plot is to be produced [default TRUE].}
 
-\item{plot.theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{plot.theme}{Ignored (retained for backward compatibility).}
 
-\item{plot.colors}{Vector with two color names for the borders and fill
-[default c("#2171B5", "#6BAED6")].}
+\item{plot.colors}{Ignored (retained for backward compatibility).}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, 
-exclude extension) [default NULL].}
+\item{plot.file}{Ignored (retained for backward compatibility).}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()].}
+\item{plot.dir}{Ignored (retained for backward compatibility).}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-1. Table with information of excessively-heterozygous loci \cr
-2. Two plots of heterozygosity of the loci before and after filtering (i.e. without excessively heterozygous loci).\cr
-3. A vector with the names of loci to be remove by \code{\link{gl.filter.excess.het}}
+A list with two elements: 'results.table' (the gl.report.hwe
+table for loci with significant heterozygote excess) and 'removed.loci'
+(a vector of the names of those loci), returned invisibly.
 }
 \description{
-Calculates excess of heterozygosity in a genlight object
+\strong{Deprecated.} Use
+\code{gl.report.hwe(direction = 'excess', method_sig = 'ChiSquare',
+multi_comp = TRUE, multi_comp_method = 'fdr')} instead — see
+\code{\link{gl.report.hwe}}.
+
+This wrapper reproduces the workflow of Robledo-Ruiz et al. (2023) for
+identifying loci with a significant excess of heterozygotes (candidate
+sex-linked or paralogous loci) by calling gl.report.hwe with the
+equivalent settings, and will be removed in a future release.
 }
 \details{
-Loci with observed heterozygosity larger than 0.5 and expected heterozygosity would be indicated as excess (p-value <= 0.05). 
-You can remove the loci with excess of heterozygosity from genlight object using \code{\link{gl.filter.excess.het}}
-
-\strong{ Function's output }
-
-If a plot.file is given, the ggplot arising from this function is saved as an 
-"RDS" binary file using saveRDS(); can be reloaded with readRDS(). A file 
-name must be specified for the plot to be saved.
-
-If a plot directory (plot.dir) is specified, the ggplot binary is saved to 
-that directory; otherwise to the tempdir(). 
- 
- Examples of other themes that can be used can be consulted in: 
- \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
- \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
- }
- A color vector can be obtained with gl.select.colors() and then passed to
- the function with the plot.colors parameter.
+The published workflow is reproduced via gl.report.hwe(direction =
+'excess', min.hobs = 0.5, ...): only loci with observed heterozygosity of
+at least 0.5 are tested, and the false-discovery-rate adjustment is
+confined to that screened set, as in the original. Differences from the
+original implementation: the plots are gl.report.hwe's ternary plots
+rather than the original before/after scatter plots, and the chi-square
+test is performed by HardyWeinberg::HWChisq (p-values can differ
+marginally from the original hand-rolled test). The parameters
+plot.theme, plot.colors, plot.file and plot.dir are accepted for backward
+compatibility but ignored.
 }
 \examples{
+\donttest{
 if (isTRUE(getOption("dartR_fbm"))) LBP <- gl.gen2fbm(LBP)
 filtered.table <- gl.report.excess.het(x = LBP, Yates = TRUE)
 }
+}
 \references{
 \itemize{
-\item https://github.com/drobledoruiz/conservation_genomics/tree/main/filter.excess.het
-\item Robledo‐Ruiz, D. A., Austin, L., Amos, J. N., Castrejón‐Figueroa, J., Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023). 
-Easy‐to‐use R functions to separate reduced‐representation genomic datasets into sex‐linked and autosomal loci, 
-and conduct sex assignment. Molecular Ecology Resources.
+\item Robledo-Ruiz, D. A., Austin, L., Amos, J. N., Castrejon-Figueroa, J.,
+Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023).
+Easy-to-use R functions to separate reduced-representation genomic
+datasets into sex-linked and autosomal loci, and conduct sex assignment.
+Molecular Ecology Resources.
 }
 }
 \seealso{
-\code{\link{gl.filter.excess.het}}
+\code{\link{gl.report.hwe}}, \code{\link{gl.filter.hwe}}
 
 Other unmatched report: 
 \code{\link{gl.allele.freq}()},
