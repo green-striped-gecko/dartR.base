@@ -1,8 +1,24 @@
 function,package,family,claimed_by,status,pr
 gl.report.callrate,dartR.base,report,arthur,done,247
 gl.report.allna,dartR.base,matched report,arthur,pr-open,250
+gl.report.monomorphs,dartR.base,matched report,arthur,pr-open,249
 gl.nhybrids,dartR.popgen,analysis,luis,pr-open,85
+function,package,family,claimed_by,status
 gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.rename.pop,dartR.base,data manipulation,arthur,pr-open,268
+gl.filter.callrate,dartR.base,matched filter,arthur,pr-open,248
+gl.keep.loc,dartR.base,data manipulation,arthur,pr-open
+gl.report.bases,dartR.base,matched report,arthur,pr-open
+function,package,family,claimed_by,status,pr
+gl.report.callrate,dartR.base,report,arthur,pr-open,247
+gl.nhybrids,dartR.popgen,analysis,luis,pr-open,85
+gl.drop.pop,dartR.base,data manipulation,arthur,done,237
+gl.drop.ind,dartR.base,data manipulation,arthur,done,238
+gl.keep.ind,dartR.base,data manipulation,arthur,done,240
+gl.keep.pop,dartR.base,data manipulation,arthur,done,239
+gl.report.bases,dartR.base,matched report,arthur,pr-open,244
+gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
+gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
