@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.overshoot()`: the results (count and locus listing, or the
+  no-overshoot message) printed at every verbosity level including
+  `verbose = 0`; they are now gated at `verbose >= 1`. The locus listing
+  no longer carries a stray trailing comma (a `paste0(..., sep = ",")`
+  slip), and an unnecessary genlight subset used only for counting was
+  removed. The help page no longer claims that plots and tabulations are
+  saved to the tempdir (this function produces neither). The overshoot
+  logic itself was verified correct against independent recomputation
+  (testset.gl carries 21 genuine overshoot loci).
 * `gl.filter.reproducibility()`: five fixes. (1) A dataset missing the
   RepAvg (SNP) or Reproducibility (SilicoDArT) metric was returned
   UNFILTERED with no error or warning; it now stops with the same fatal
