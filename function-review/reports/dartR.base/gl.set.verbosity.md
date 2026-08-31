@@ -85,5 +85,5 @@ and picked up by gl.check.verbosity; silent at 0). NEWS entry added.
   {"id": "F2", "severity": "LOW", "rules": ["DOC5", "API"], "loc": "R/gl.set.verbosity.r return", "status": "applied"},
   {"id": "F3", "severity": "LOW", "rules": ["DOC", "FS"], "loc": "R/gl.set.verbosity.r header", "status": "applied"}],
  "datasets": [],
- "baseline_test": "tests/testthat/test-gl.set.verbosity.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.set.verbosity.R", "pr": 297}
 ```
