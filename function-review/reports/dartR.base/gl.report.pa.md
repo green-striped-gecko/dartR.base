@@ -120,22 +120,32 @@ SilicoDArT report runs with Chao NA. All 12 pass pre-fix.
 
 ## Approval
 
-(pending)
+All findings approved via the approval boxes (2026-09-01).
+
+## Outcome
+
+All findings applied. Suite: 13/13 pass; flips map to F1 (silent at
+verbose 0; Chao identical between full-x and pair-only runs), F2
+(plot.file without plot.display completes), F3 (informative method
+stop), F4 (one2rest Sankey with default palette). End-to-end verbose 3
+run clean; Chao values now scale with the pair's observed private
+counts. Caller grep all-clear (gl.sample uses $fixed; gl.select.panel
+uses $names_loci). PR #299.
 
 ```json
 {"function": "gl.report.pa", "package": "dartR.base", "family_mode": "report",
  "commit": "ddaed27", "skill_version": "2.0.0",
  "verdict_standards": "FAIL", "verdict_spec": "FAIL",
  "findings": [
-  {"id": "F1", "severity": "HIGH", "rules": ["spec", "VRB1"], "loc": "R/utils.pa.Chao.r", "status": "proposed"},
-  {"id": "F2", "severity": "MEDIUM", "rules": ["spec", "PLT"], "loc": "R/gl.report.pa.r plot.file", "status": "proposed"},
-  {"id": "F3", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/gl.report.pa.r validation", "status": "proposed"},
-  {"id": "F4", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/gl.report.pa.r one2rest palette", "status": "proposed"},
-  {"id": "F5", "severity": "MEDIUM", "rules": ["DEP", "STY"], "loc": "R/gl.report.pa.r pkg guards", "status": "proposed"},
-  {"id": "F6", "severity": "LOW", "rules": ["spec"], "loc": "R/gl.report.pa.r one2rest sentinel", "status": "proposed"},
-  {"id": "F7", "severity": "MEDIUM", "rules": ["DOC", "spec"], "loc": "R/gl.report.pa.r test.asym", "status": "proposed"},
-  {"id": "F8", "severity": "LOW", "rules": ["DOC"], "loc": "R/gl.report.pa.r header", "status": "proposed"}],
+  {"id": "F1", "severity": "HIGH", "rules": ["spec", "VRB1"], "loc": "R/utils.pa.Chao.r", "status": "applied"},
+  {"id": "F2", "severity": "MEDIUM", "rules": ["spec", "PLT"], "loc": "R/gl.report.pa.r plot.file", "status": "applied"},
+  {"id": "F3", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/gl.report.pa.r validation", "status": "applied"},
+  {"id": "F4", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/gl.report.pa.r one2rest palette", "status": "applied"},
+  {"id": "F5", "severity": "MEDIUM", "rules": ["DEP", "STY"], "loc": "R/gl.report.pa.r pkg guards", "status": "applied"},
+  {"id": "F6", "severity": "LOW", "rules": ["spec"], "loc": "R/gl.report.pa.r one2rest sentinel", "status": "applied"},
+  {"id": "F7", "severity": "MEDIUM", "rules": ["DOC", "spec"], "loc": "R/gl.report.pa.r test.asym", "status": "applied"},
+  {"id": "F8", "severity": "LOW", "rules": ["DOC"], "loc": "R/gl.report.pa.r header", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs"],
  "baseline_test": "tests/testthat/test-gl.report.pa.R",
- "pr": null}
+ "pr": 299}
 ```
