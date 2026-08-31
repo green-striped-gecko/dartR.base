@@ -77,8 +77,7 @@ All four findings applied. Suite: 8/8 pass; flips map to G1 (silico
 kept set now equals the true union, 66 on testset.gs), G2 (informative
 stop naming the offending population), G3 (invisible return).
 End-to-end verbose 3 run clean with the new summary line. Caller grep
-all-clear (no callers of gl.filter.pa in the family). PR recorded on
-merge branch.
+all-clear (no callers of gl.filter.pa in the family). PR #300.
 
 ```json
 {"function": "gl.filter.pa", "package": "dartR.base", "family_mode": "modify",
@@ -91,5 +90,5 @@ merge branch.
   {"id": "G4", "severity": "LOW", "rules": ["DOC"], "loc": "R/gl.filter.pa.r header", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs"],
  "baseline_test": "tests/testthat/test-gl.filter.pa.R",
- "pr": null}
+ "pr": 300}
 ```
