@@ -10,6 +10,7 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.sort,dartR.base,data manipulation,arthur,pr-open,283
 gl.select.shapes,dartR.base,utility,arthur,pr-open,275
 gl.colors,dartR.base,utility,arthur,pr-open,276
 gl.select.colors,dartR.base,utility,arthur,pr-open,274

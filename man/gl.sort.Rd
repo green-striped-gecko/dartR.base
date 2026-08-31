@@ -15,7 +15,8 @@ gl.sort(
 \arguments{
 \item{x}{Genlight object containing SNP/Silicodart genotypes [required].}
 
-\item{sort.by}{Specify to sort the genotypes by either 'ind', "pop" [default 'pop'].}
+\item{sort.by}{Specify to sort the genotypes by either 'ind' or 'pop'
+[default 'pop'].}
 
 \item{order.by}{Vector used to order genotypes [default NULL].}
 
@@ -24,7 +25,7 @@ SNP position [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default NULL, unless specified using gl.set.verbosity]}
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 Returns a reordered genlight object. Sorts also the ind/loc.metrics 
