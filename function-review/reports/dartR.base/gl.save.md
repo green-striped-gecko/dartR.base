@@ -76,5 +76,5 @@ identical genotypes. NEWS entry added.
   {"id": "F2", "severity": "LOW", "rules": ["spec", "API"], "loc": "R/gl.save.r return", "status": "applied"},
   {"id": "F3", "severity": "LOW", "rules": ["spec", "DOC"], "loc": "R/gl.save.r", "status": "applied"}],
  "datasets": ["testset.gl"],
- "baseline_test": "tests/testthat/test-gl.save.R", "pr": null}
+ "baseline_test": "tests/testthat/test-gl.save.R", "pr": 290}
 ```
