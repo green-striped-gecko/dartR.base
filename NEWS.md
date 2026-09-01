@@ -1,5 +1,7 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.stats` (std.error): documented; computation verified.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
