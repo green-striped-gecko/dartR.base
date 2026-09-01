@@ -58,7 +58,7 @@ disposition: REMOVE.
 
 ## Outcome
 
-All findings applied (D10 length check, D11 silent verbosity dance, D12 tidy/docs). Suite: 6/6; the pop-jackknife anchor unchanged and now silent at verbose 0. PR recorded below.
+All findings applied (D10 length check, D11 silent verbosity dance, D12 tidy/docs). Suite: 6/6; the pop-jackknife anchor unchanged and now silent at verbose 0. PR #319.
 
 ```json
 {"function": "utils.jackknife", "package": "dartR.base", "family_mode": "analysis",
@@ -69,5 +69,5 @@ All findings applied (D10 length check, D11 silent verbosity dance, D12 tidy/doc
   {"id": "D12", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/utils.jackknife.R", "status": "applied"}],
  "datasets": ["constructed", "testset.gs"],
  "baseline_test": "tests/testthat/test-utils.jackknife.R",
- "pr": null}
+ "pr": 319}
 ```
