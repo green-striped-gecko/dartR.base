@@ -67,7 +67,7 @@ disposition: REMOVE.
 
 ## Outcome
 
-All findings applied (D1 allele-sharing scoring, D2 single clean path, D3 docs). Suite: 6/6; Euclidean/Manhattan anchors unchanged; Simple/Absolute now relabel-invariant. gl.dist.ind caller smoke clean on SNP data. One apply-time note: Rcpp's cppFunction signature scanner mis-parses parenthesised text in leading C++ comments (it generated a wrapper named from comment text); commentary moved inside the function body. PR recorded below.
+All findings applied (D1 allele-sharing scoring, D2 single clean path, D3 docs). Suite: 6/6; Euclidean/Manhattan anchors unchanged; Simple/Absolute now relabel-invariant. gl.dist.ind caller smoke clean on SNP data. One apply-time note: Rcpp's cppFunction signature scanner mis-parses parenthesised text in leading C++ comments (it generated a wrapper named from comment text); commentary moved inside the function body. PR #315.
 
 ```json
 {"function": "utils.dist.ind.snp", "package": "dartR.base", "family_mode": "analysis",
@@ -78,5 +78,5 @@ All findings applied (D1 allele-sharing scoring, D2 single clean path, D3 docs).
   {"id": "D3", "severity": "LOW", "rules": ["DOC"], "loc": "R/utils.dist.ind.snp.r docs", "status": "applied"}],
  "datasets": ["constructed", "testset.gs"],
  "baseline_test": "tests/testthat/test-utils.dist.ind.snp.R",
- "pr": null}
+ "pr": 315}
 ```
