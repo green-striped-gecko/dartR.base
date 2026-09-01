@@ -1,5 +1,20 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.diversity()` review: the Shannon (q=1) measures no longer
+  count per-population all-missing loci as zero diversity, and the
+  internal vector misalignment that corrupted one_H_beta via logical
+  recycling is fixed; pairwise one_H_beta and two_H_beta are now pooled
+  from the pair being compared with the pairwise correction factor
+  (previously they pooled ALL populations, so a pair's beta changed
+  when unrelated populations were present - zero_H_beta already
+  behaved correctly) - q=1 values and the q=1/q=2 beta matrices change;
+  tables now print at verbose >= 1 only and an invalid `table` value is
+  a fatal error instead of silently suppressing output; `plot.file`
+  without `plot.display` no longer crashes; SilicoDArT input is now
+  rejected (the entropy formulas assume diploid SNP genotypes;
+  previously it computed meaningless indices silently); no gl.colors
+  banner at verbose 0.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

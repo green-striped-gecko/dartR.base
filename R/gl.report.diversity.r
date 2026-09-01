@@ -9,8 +9,7 @@
 #'population genetic processes such as dispersal and selection. The citation 
 #'below also includes a link to a 3-minute video that explains, q, D and H.
 
-#' @param x Name of the genlight object containing the SNP or presence/absence
-#' (SilicoDArT) data [required].
+#' @param x Name of the genlight object containing the SNP data [required].
 #' @param plot.display Specify if plot is to be displayed in the graphics 
 #' window [default TRUE].
 #' @param plot.theme User specified theme [default theme_dartR()].
@@ -23,11 +22,9 @@
 #' [Required for plot save].
 #' @param table Prints a tabular output to the console either 'D'=D values, or
 #'  'H'=H values or 'DH','HD'=both or 'N'=no table. [default 'DH'].
-#' @param plot.file If TRUE, saves any ggplots and listings to the session
-#' temporary directory (tempdir) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default NULL, unless specified using gl.set.verbosity].
+#' [default 2 or as specified using gl.set.verbosity].
 
 #' @details For all indexes, the entropies (H) and corresponding effective
 #'  numbers, i.e. Hill numbers (D), which reflect the number of needed entities
@@ -41,8 +38,9 @@
 #'  
 #'\strong{ Function's output }
 #'
-#' If the function's parameter "table" = "DH" (the default value) is used, the 
-#'  output of the function is 20 tables.
+#' If the function's parameter "table" = "DH" (the default value) is used,
+#'  ten tables are printed to the console (at verbose >= 1) and the returned
+#'  list has 20 components.
 #' 
 #'The first two show the number of loci used. The name of each of the rest of 
 #'the tables starts with three terms separated by underscores.
@@ -93,7 +91,7 @@
 
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
-#' div <- gl.report.diversity(bandicoot.gl, table=FALSE)
+#' div <- gl.report.diversity(bandicoot.gl, table = "N")
 #' div$zero_H_alpha
 #' div$two_H_beta
 #' names(div)
@@ -117,7 +115,7 @@
 gl.report.diversity <- function(x,
                                 plot.display = TRUE,
                                 plot.theme = theme_dartR(),
-                                plot.colors.pop = gl.colors("dis"), 
+                                plot.colors.pop = gl.colors("dis", verbose = 0), 
                                 plot.dir = NULL,
                                 plot.file = NULL,
                                 table = "DH",
@@ -135,8 +133,14 @@ gl.report.diversity <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
+    # FUNCTION SPECIFIC ERROR CHECKING
+    if (length(table) != 1 || !table %in% c("D", "H", "DH", "HD", "N")) {
+        stop(error("Fatal Error: table must be one of 'D', 'H', 'DH', 'HD'
+                    or 'N'\n"))
+    }
+
     x <- gl.filter.allna(x,verbose = verbose)
     
     # DO THE JOB
@@ -148,7 +152,7 @@ gl.report.diversity <- function(x,
     # split in pops
     pops <- seppop(x)
     
-    # number of missing loci
+    # number of non-missing loci per population
     nlocpop <-
         lapply(pops, function(x)
             sum(!is.na(colMeans(
@@ -156,7 +160,7 @@ gl.report.diversity <- function(x,
             ))))
     
     zero_H_alpha_es <- lapply(pops, function(x) {
-        dummys <- ((colMeans(as.matrix(x), na.rm = T) %% 2) > 0) + 1 - 1
+        dummys <- as.numeric((colMeans(as.matrix(x), na.rm = TRUE) %% 2) > 0)
         return(list(
             estH = mean(dummys, na.rm = T),
             sdH = sd(dummys, na.rm = T),
@@ -201,7 +205,11 @@ gl.report.diversity <- function(x,
         mat["A", ] <- 2 * mat["AA", ] + mat["AB", ]
         mat["B", ] <- 2 * mat["BB", ] + mat["AB", ]
         mat_shannon <- mat[c("A", "B"), ]
-        
+        # drop loci with all genotypes missing in this population: they
+        # would otherwise enter the mean as zero diversity and misalign
+        # the beta indexing (q=2 already excludes them)
+        mat_shannon <- mat_shannon[, colSums(mat_shannon) > 0, drop = FALSE]
+
         dummys <- apply(mat_shannon, 2, shannon)
         
         return(list(
@@ -330,23 +338,23 @@ gl.report.diversity <- function(x,
         colnames(mat_zero_D_beta) <-
             rownames(mat_zero_D_beta) <- names(pops)
         
-        # one_H_beta calculate one_H_alpha_all for combined pops
-        p <- colMeans(as.matrix(x), na.rm = TRUE) / 2
-        # ignore loci with just missing data
-        i0 <- which(!is.na(p))  
-        logp <- ifelse(!is.finite(log(p)), 0, log(p))
-        log1_p <- ifelse(!is.finite(log(1 - p)), 0, log(1 - p))
-        one_H_alpha_all <- -(p * logp + (1 - p) * log1_p)
-        
-        one_H_beta_es <- apply(pairs, 1, function(x) {
-    i1 <- which(!is.na(colMeans(as.matrix(pops[[x[1]]]), na.rm = TRUE) / 2))
-    i2 <- which(!is.na(colMeans(as.matrix(pops[[x[2]]]), na.rm = TRUE) / 2))
-    tt <- table(c(i0, i1, i2))
-    index <- as.numeric(names(tt)[tt == 3])
-            dummys <-
-                one_H_alpha_all[i0 %in% index] - 
-              (one_H_alpha_es[[x[1]]]$dummys[i1 %in% index] + 
-                 one_H_alpha_es[[x[2]]]$dummys[i2 %in% index]) / 2
+        # one_H_beta: the pooled term is computed from the pair only, so
+        # the pairwise value does not depend on other populations in the
+        # dataset
+        one_H_beta_es <- apply(pairs, 1, function(z) {
+            m1 <- as.matrix(pops[[z[1]]])
+            m2 <- as.matrix(pops[[z[2]]])
+            i1 <- which(!is.na(colMeans(m1, na.rm = TRUE)))
+            i2 <- which(!is.na(colMeans(m2, na.rm = TRUE)))
+            index <- intersect(i1, i2)
+            p <- colMeans(rbind(m1, m2)[, index, drop = FALSE],
+                          na.rm = TRUE) / 2
+            logp <- ifelse(!is.finite(log(p)), 0, log(p))
+            log1_p <- ifelse(!is.finite(log(1 - p)), 0, log(1 - p))
+            H_pair <- -(p * logp + (1 - p) * log1_p)
+            dummys <- H_pair -
+                (one_H_alpha_es[[z[1]]]$dummys[i1 %in% index] +
+                   one_H_alpha_es[[z[2]]]$dummys[i2 %in% index]) / 2
             return(list(
                 estH = mean(dummys),
                 sdH = sd(dummys),
@@ -380,29 +388,22 @@ gl.report.diversity <- function(x,
         colnames(mat_one_D_beta) <-
             rownames(mat_one_D_beta) <- names(pops)
         
-        p <- colMeans(as.matrix(x), na.rm = TRUE) / 2
-        #ignore loci with just missing data
-        i0 <- which(!is.na(p)) 
-        two_H_alpha_all <- (1 - (p * p + (1 - p) * (1 - p)))
-        
-        # mn <- msp2 <- mHo <- NULL
-        
-        two_H_beta_es <- apply(pairs, 1, function(x) {
-      i1 <- which(!is.na(colMeans(as.matrix(pops[[x[1]]]), na.rm = TRUE) / 2))
-      i2 <- which(!is.na(colMeans(as.matrix(pops[[x[2]]]), na.rm = TRUE) / 2))
-            tt <- table(c(i0, i1, i2))
-            index <- as.numeric(names(tt)[tt == 3])
-            
+        # two_H_beta: the pooled term is computed from the pair only,
+        # and the correction factor is the pairwise one (npops = 2)
+        two_H_beta_es <- apply(pairs, 1, function(z) {
+            m1 <- as.matrix(pops[[z[1]]])
+            m2 <- as.matrix(pops[[z[2]]])
+            i1 <- which(!is.na(colMeans(m1, na.rm = TRUE)))
+            i2 <- which(!is.na(colMeans(m2, na.rm = TRUE)))
+            index <- intersect(i1, i2)
+            p <- colMeans(rbind(m1, m2)[, index, drop = FALSE],
+                          na.rm = TRUE) / 2
+            two_H_pair <- (1 - (p * p + (1 - p) * (1 - p)))
             m2Ha <-
-                (two_H_alpha_es[[x[1]]]$dummys[i1 %in% index] + 
-                   two_H_alpha_es[[x[2]]]$dummys[i2 %in% index]) / 2
-            
-            # mHs <- mn/(mn - 1) * (1 - msp2 - mHo/2/mn)
-            
-            dummys <-
-                ((two_H_alpha_all[i0 %in% index] - m2Ha) / 
-                   (1 - m2Ha)) * (npops / (npops - 1))
-            
+                (two_H_alpha_es[[z[1]]]$dummys[i1 %in% index] +
+                   two_H_alpha_es[[z[2]]]$dummys[i2 %in% index]) / 2
+            dummys <- ((two_H_pair - m2Ha) / (1 - m2Ha)) * 2
+
             return(list(
                 estH = mean(dummys),
                 sdH = sd(dummys),
@@ -491,14 +492,18 @@ gl.report.diversity <- function(x,
     print(p3)
     }
     
-    if(!is.null(plot.file)){
-      tmp <- utils.plot.save(p3,
-                             dir=plot.dir,
-                             file=plot.file,
-                             verbose=verbose)
+    if (!is.null(plot.file)) {
+      if (exists("p3", inherits = FALSE)) {
+        tmp <- utils.plot.save(p3,
+                               dir = plot.dir,
+                               file = plot.file,
+                               verbose = verbose)
+      } else if (verbose >= 2) {
+        cat(report("  No plot generated (plot.display = FALSE); nothing to save\n"))
+      }
     }
     
-    if (!is.na(match(table, c("H", "DH", "HD")))) {
+    if (verbose >= 1 && !is.na(match(table, c("H", "DH", "HD")))) {
         tt <-
             data.frame(
                 nloci = unlist(nlocpop),
@@ -523,7 +528,7 @@ gl.report.diversity <- function(x,
         }
     }
     
-    if (!is.na(match(table, c("D", "DH", "HD")))) {
+    if (verbose >= 1 && !is.na(match(table, c("D", "DH", "HD")))) {
         tt <-
             data.frame(
                 nloci = unlist(nlocpop),
@@ -589,27 +594,6 @@ gl.report.diversity <- function(x,
             )
     }
     
-    # # SAVE INTERMEDIATES TO TEMPDIR
-    # if (plot.file & plot.display==TRUE) {
-    #     # creating temp file names
-    #     temp_plot <- tempfile(pattern = "Plot_")
-    #     match_call <-
-    #         paste0(names(match.call()),
-    #                "_",
-    #                as.character(match.call()),
-    #                collapse = "_")
-    #     # saving to tempdir
-    #     saveRDS(list(match_call, p3), file = temp_plot)
-    #     if (verbose >= 2) {
-    #         cat(report("  Saving ggplot(s) to the session tempfile\n"))
-    #         cat(
-    #             report(
-    #                 "  NOTE: Retrieve output files from tempdir using 
-    #                 gl.list.reports() and gl.print.reports()\n"
-    #             )
-    #         )
-    #     }
-    # }
     
     # FLAG SCRIPT END
     

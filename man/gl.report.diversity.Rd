@@ -8,7 +8,7 @@ gl.report.diversity(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
-  plot.colors.pop = gl.colors("dis"),
+  plot.colors.pop = gl.colors("dis", verbose = 0),
   plot.dir = NULL,
   plot.file = NULL,
   table = "DH",
@@ -16,8 +16,7 @@ gl.report.diversity(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP or presence/absence
-(SilicoDArT) data [required].}
+\item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{plot.display}{Specify if plot is to be displayed in the graphics 
 window [default TRUE].}
@@ -31,15 +30,15 @@ as many colors as there are populations in the dataset
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
 by the global working directory or tempdir()].}
 
-\item{plot.file}{If TRUE, saves any ggplots and listings to the session
-temporary directory (tempdir) [default FALSE].}
+\item{plot.file}{Filename (minus extension) for the RDS plot file 
+[Required for plot save].}
 
 \item{table}{Prints a tabular output to the console either 'D'=D values, or
 'H'=H values or 'DH','HD'=both or 'N'=no table. [default 'DH'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 A list of entropy indexes for each level of q and equivalent numbers
@@ -65,8 +64,9 @@ For all indexes, the entropies (H) and corresponding effective
  
 \strong{ Function's output }
 
-If the function's parameter "table" = "DH" (the default value) is used, the 
- output of the function is 20 tables.
+If the function's parameter "table" = "DH" (the default value) is used,
+ ten tables are printed to the console (at verbose >= 1) and the returned
+ list has 20 components.
 
 The first two show the number of loci used. The name of each of the rest of 
 the tables starts with three terms separated by underscores.
@@ -114,7 +114,7 @@ matrix.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
-div <- gl.report.diversity(bandicoot.gl, table=FALSE)
+div <- gl.report.diversity(bandicoot.gl, table = "N")
 div$zero_H_alpha
 div$two_H_beta
 names(div)
