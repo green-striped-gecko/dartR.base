@@ -2,7 +2,7 @@
 #' @title Calculates mean observed heterozygosity, mean expected heterozygosity 
 #' and FIS per locus, per population and various population differentiation 
 #' measures
-#'  @family utilities
+#' @family utilities
 #'  
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
@@ -11,9 +11,13 @@
 #' @param x A genlight object containing the SNP genotypes [required].
 #' 
 #' @details
-#'  This is a re-implementation of \code{hierfstat::basics.stats} specifically 
-#'  for genlight objects. Formula (and hence results) match exactly the original 
-#' version of \code{hierfstat::basics.stats} but it is much faster.
+#'  This is a re-implementation of \code{hierfstat::basic.stats} specifically
+#'  for genlight objects. Formula (and hence results) match exactly the
+#'  original version of \code{hierfstat::basic.stats} but it is much faster.
+#'  Loci absent from one or more populations are computed from the
+#'  populations that carry them. With a single population, only Ho, Hs and
+#'  Fis are meaningful; the differentiation measures involve divisions by
+#'  zero and are not interpretable.
 
 #' @author Luis Mijangos and Carlo Pacioni (post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -23,16 +27,16 @@
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- utils.basic.stats(platypus.gl)
 #' 
+#' @keywords internal
 #' @export
-#' @return A list with with the statistics for each population
+#' @return A list with the statistics for each population
 
 utils.basic.stats <- function(x) {
   
   n.ind <- table(pop(x))
   
-  if(any(n.ind <= 1)){
-    cat(error(" There are populations with one individual. Please remove populations with one individual or merged them with other populations for this function to work\n"))
-    stop()
+  if (any(n.ind <= 1)) {
+    stop(error(" There are populations with one individual. Please remove populations with one individual or merge them with other populations for this function to work\n"))
   }
   
   pop.names <- popNames(x)
@@ -56,7 +60,10 @@ utils.basic.stats <- function(x) {
   
   if(length(pop.names)>1){
     mn <- apply(np,1,function(y){
-      1/mean(1/y)
+      # harmonic mean over the populations that carry the locus; a zero
+      # count would otherwise zero the harmonic mean and NaN-poison every
+      # cross-population statistic for the locus
+      1/mean(1/y[y > 0])
     })
   }else{
     mn <- np
@@ -118,6 +125,10 @@ utils.basic.stats <- function(x) {
    Ht <- Ht + mHs / mn /n.pop - mHo / 2 / mn / n.pop
    Dst <- Ht - mHs
    Dstp <- n.pop/(n.pop - 1) * Dst
+   # differentiation is undefined for loci carried by a single population
+   # (division by zero); mark NaN so they drop from the overall averages,
+   # matching hierfstat
+   Dstp[n.pop < 2] <- NaN
    Htp <- mHs + Dstp
 
    # option 2 as in Nei 1987
