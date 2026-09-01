@@ -38,7 +38,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-Documentation added (I5). Suite: 2/2. PR recorded below.
+Documentation added (I5). Suite: 2/2. PR #322.
 
 ```json
 {"function": "utils.stats", "package": "dartR.base", "family_mode": "analysis",
@@ -47,5 +47,5 @@ Documentation added (I5). Suite: 2/2. PR recorded below.
  "findings": [{"id": "I5", "severity": "LOW", "rules": ["DOC"], "loc": "R/utils.stats.r", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.stats.R",
- "pr": null}
+ "pr": 322}
 ```
