@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.transpose()` review: verified exact (dimension/name/metric
+  swaps; double transpose reproduces the original genotypes);
+  narration comments tidied; marked internal.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
