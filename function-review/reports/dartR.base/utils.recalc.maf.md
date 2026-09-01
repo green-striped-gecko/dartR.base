@@ -61,7 +61,7 @@ silico-fatal escalation (B3).
 All findings applied. Battery suite: 40/40 assertions pass; the
 metric recomputation anchors are unchanged (arithmetic verified
 exact pre- and post-fix); gl.recalc.metrics runs end-to-end on SNP
-and SilicoDArT. PR recorded below.
+and SilicoDArT. PR #306.
 
 ```json
 {"function": "utils.recalc.maf", "package": "dartR.base", "family_mode": "analysis",
@@ -73,5 +73,5 @@ and SilicoDArT. PR recorded below.
   {"id": "B4", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/utils.recalc.maf.r docs", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs"],
  "baseline_test": "tests/testthat/test-utils.recalc.maf.R",
- "pr": null}
+ "pr": 306}
 ```
