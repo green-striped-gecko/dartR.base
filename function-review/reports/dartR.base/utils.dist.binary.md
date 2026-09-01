@@ -56,7 +56,7 @@ disposition: REMOVE.
 
 ## Outcome
 
-All findings applied (D5 bray-curtis accepted, D6 warning gated, D7 docs/tidy). Suite: 4/4; Jaccard/Sorensen anchors unchanged. gl.dist.ind caller smoke clean on SilicoDArT. PR recorded below.
+All findings applied (D5 bray-curtis accepted, D6 warning gated, D7 docs/tidy). Suite: 4/4; Jaccard/Sorensen anchors unchanged. gl.dist.ind caller smoke clean on SilicoDArT. PR #316.
 
 ```json
 {"function": "utils.dist.binary", "package": "dartR.base", "family_mode": "analysis",
@@ -67,5 +67,5 @@ All findings applied (D5 bray-curtis accepted, D6 warning gated, D7 docs/tidy). 
   {"id": "D7", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/utils.dist.binary.r docs", "status": "applied"}],
  "datasets": ["constructed", "testset.gs"],
  "baseline_test": "tests/testthat/test-utils.dist.binary.R",
- "pr": null}
+ "pr": 316}
 ```
