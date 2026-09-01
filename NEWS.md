@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.maf()` review: SilicoDArT input is now rejected (the
+  doc already promised SNP-only); NULL-safe monomorphs-flag check;
+  marked internal; maf arithmetic verified exact (unchanged).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
