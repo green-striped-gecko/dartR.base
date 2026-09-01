@@ -52,7 +52,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-All findings applied (I9 diagonal over distinct pairs, I10 stops/gates/docs). Suite: 4/4; off-diagonal anchors unchanged. PR recorded below.
+All findings applied (I9 diagonal over distinct pairs, I10 stops/gates/docs). Suite: 4/4; off-diagonal anchors unchanged. PR #325.
 
 ```json
 {"function": "utils.collapse.matrix", "package": "dartR.base", "family_mode": "analysis",
@@ -62,5 +62,5 @@ All findings applied (I9 diagonal over distinct pairs, I10 stops/gates/docs). Su
   {"id": "I10", "severity": "LOW", "rules": ["STY", "DOC"], "loc": "R/utils.collapse.matrix.r", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.collapse.matrix.R",
- "pr": null}
+ "pr": 325}
 ```
