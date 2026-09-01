@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.reset.flags()` review: the `value` argument is now honoured
+  when creating @other$verbose (it was validated then ignored -
+  hardcoded 2); the bogus loc.metrics$monomorphs COLUMN is no longer
+  invented (monomorphs is a flag, not a locus metric); the
+  out-of-range value warning is gated at verbose >= 1; marked internal
+  but stays exported (dartR.sim calls it).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
