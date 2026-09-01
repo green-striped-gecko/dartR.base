@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.dist.binary()` review: method="bray-curtis" is now accepted
+  (it was documented and implemented but missing from the validation
+  list, silently falling back to simple matching); the scale warning
+  respects verbose 0; Jaccard and Sorensen verified exact
+  (unchanged); doc leftovers ("N11") removed.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

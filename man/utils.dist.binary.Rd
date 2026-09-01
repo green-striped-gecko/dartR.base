@@ -26,13 +26,20 @@ fall in the range [0,1] [default FALSE].}
 (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 mutation) is scored as 1 [default FALSE].}
 
-\item{type}{Specify the format and class of the object to be returned, 
-dist for N11 object of class dist, matrix for an object of class matrix [default "dist"].}
+\item{type}{Specify the format and class of the object to be returned,
+dist for an object of class dist, matrix for an object of class matrix
+[default "dist"].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
- progress log; 3, progress and results summary; 5, full report [default 2].
- 
- @details
+progress log; 3, progress and results summary; 5, full report [default 2].}
+}
+\value{
+An object of class 'dist' or 'matrix' giving distances between individuals
+}
+\description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 This script calculates various distances between individuals based on sequence tag
 Presence/Absence data.
 
@@ -50,13 +57,7 @@ The distance measure can be one of:
  }
  One might choose to disregard or downweight absences in comparison with
  presences because the homology of absences is less clear (mutation at one or
- the other, or both restriction sites). Your call.}
-}
-\value{
-An object of class 'dist' or 'matrix' giving distances between individuals
-}
-\description{
-WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+ the other, or both restriction sites). Your call.
 }
 \seealso{
 Other utilities: 
@@ -68,7 +69,6 @@ Other utilities:
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
@@ -92,3 +92,4 @@ Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
+\keyword{internal}
