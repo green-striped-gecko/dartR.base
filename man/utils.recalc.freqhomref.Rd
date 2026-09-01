@@ -2,8 +2,9 @@
 % Please edit documentation in R/utils.recalc.freqhomref.r
 \name{utils.recalc.freqhomref}
 \alias{utils.recalc.freqhomref}
-\title{#' An internal utility function to recalculate the frequency of the homozygous reference
-SNP by locus after some populations have been deleted}
+\title{An internal utility function to recalculate the frequency of the
+homozygous reference SNP by locus after some individuals or populations
+have been deleted}
 \usage{
 utils.recalc.freqhomref(x, verbose = NULL)
 }
@@ -30,13 +31,8 @@ Note that the frequency of the homozygote reference SNPS is calculated from
 the individuals that could be scored.
 }
 \seealso{
-\code{utils.recalc.metrics} for recalculating all metrics,
- \code{utils.recalc.callrate} for recalculating CallRate,
-\code{utils.recalc.avgpic} for recalculating AvgPIC,
- \code{utils.recalc.freqhomsnp} for recalculating frequency of homozygous
- alternate, \code{utils.recalc.freqhet} for recalculating frequency of
- heterozygotes, \code{gl.recalc.maf} for recalculating minor allele frequency,
-\code{gl.recalc.rdepth} for recalculating average read depth
+\code{\link{gl.recalc.metrics}} for recalculating all
+locus metrics
 
 Other utilities: 
 \code{\link{gl.He}()},
@@ -71,3 +67,4 @@ Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
