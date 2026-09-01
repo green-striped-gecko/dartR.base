@@ -11,7 +11,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report [default 2].
 #'  
-#'  @details
+#' @details
 #' This script takes a matrix of distances calculated between individuals and collapses it by averaging to a matrix of distances between populations.
 #' The script gl.dist.ind has a lot of options for distances for presence absence data, but gl.dist.pop does not. This script allows efficient and
 #' consistent transfer of this capability to gl.dist.pop.
@@ -19,8 +19,11 @@
 #' @author Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
-#' @export  
-#' @return An object of class 'dist' or 'matrix' giving distances between individuals
+#' @keywords internal
+#' @export
+#' @return An object of class 'dist' or 'matrix' giving mean distances
+#' between populations; the diagonal holds the mean distance among
+#' distinct individuals within each population
 
 # Examples for testing
 
@@ -47,7 +50,7 @@ utils.collapse.matrix <- function(D,
   
   if (!is(x, "dartR")) {
     class(x) <- "dartR"  
-    if (verbose>2) {
+    if (verbose >= 2) {
       cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
       cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
                  please use function dartR2gl\n"))
@@ -67,14 +70,12 @@ utils.collapse.matrix <- function(D,
   
   # Check if matrix is square
   if (!is.matrix(mat) || nrow(mat) != ncol(mat)) {
-    cat(error("Fatal Error: Input must be a square distance matrix or object of class 'dist'\n"))
-    stop()
+    stop(error("Fatal Error: Input must be a square distance matrix or object of class 'dist'\n"))
   }
   
   # Ensure row and column names in the matrix match individual names
   if (!all(rownames(mat) %in% indNames(x)) || !all(colnames(mat) %in% indNames(x))) {
-    cat(error("Fatal Error: Matrix row/column names do not match individual names in genlight object\n"))
-    stop()
+    stop(error("Fatal Error: Matrix row/column names do not match individual names in genlight object\n"))
   }
   
   # DO THE JOB
@@ -93,9 +94,15 @@ utils.collapse.matrix <- function(D,
       # Extract the relevant submatrix
       submat <- mat[inds_i, inds_j, drop = FALSE]
       
-      # Compute mean distance, handling cases where populations are the same
-      if (length(submat) > 0) {
-        pop.mat[i, j] <- mean(submat, na.rm = TRUE)  # Average distance
+      # Compute mean distance; within a population, average over
+      # distinct pairs only (self-distances of zero would deflate it)
+      if (i == j) {
+        vals <- submat[upper.tri(submat)]
+        if (length(vals) > 0) {
+          pop.mat[i, j] <- mean(vals, na.rm = TRUE)
+        }
+      } else if (length(submat) > 0) {
+        pop.mat[i, j] <- mean(submat, na.rm = TRUE)
       }
     }
   }

@@ -13,18 +13,20 @@ utils.collapse.matrix(D, x, verbose = NULL)
 \item{x}{Name of the genlight object containing the genotypes [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
- progress log; 3, progress and results summary; 5, full report [default 2].
- 
- @details
-This script takes a matrix of distances calculated between individuals and collapses it by averaging to a matrix of distances between populations.
-The script gl.dist.ind has a lot of options for distances for presence absence data, but gl.dist.pop does not. This script allows efficient and
-consistent transfer of this capability to gl.dist.pop.}
+progress log; 3, progress and results summary; 5, full report [default 2].}
 }
 \value{
-An object of class 'dist' or 'matrix' giving distances between individuals
+An object of class 'dist' or 'matrix' giving mean distances
+between populations; the diagonal holds the mean distance among
+distinct individuals within each population
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
+This script takes a matrix of distances calculated between individuals and collapses it by averaging to a matrix of distances between populations.
+The script gl.dist.ind has a lot of options for distances for presence absence data, but gl.dist.pop does not. This script allows efficient and
+consistent transfer of this capability to gl.dist.pop.
 }
 \seealso{
 Other utilities: 
@@ -38,7 +40,6 @@ Other utilities:
 \code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -60,3 +61,4 @@ Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
+\keyword{internal}
