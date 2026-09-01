@@ -40,7 +40,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-Docs/tidy applied (I1). Suite: 7/7; verbosity contract anchors unchanged. PR recorded below.
+Docs/tidy applied (I1). Suite: 7/7; verbosity contract anchors unchanged. PR #320.
 
 ```json
 {"function": "utils.flag.start", "package": "dartR.base", "family_mode": "analysis",
@@ -49,5 +49,5 @@ Docs/tidy applied (I1). Suite: 7/7; verbosity contract anchors unchanged. PR rec
  "findings": [{"id": "I1", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/utils.flag.start.r", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.flag.start.R",
- "pr": null}
+ "pr": 320}
 ```
