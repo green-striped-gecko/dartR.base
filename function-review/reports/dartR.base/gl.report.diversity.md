@@ -133,7 +133,7 @@ runs; zero_H_beta control unchanged), F3 (silent at verbose 0;
 informative stop on an invalid table), F4 (plot.file without
 plot.display completes), F5 (SilicoDArT rejected), F6 (no banner at
 verbose 0 when plotting). End-to-end verbose 3 on a 3-population
-subset clean with sane Hill numbers. PR recorded below.
+subset clean with sane Hill numbers. PR #301.
 
 ```json
 {"function": "gl.report.diversity", "package": "dartR.base", "family_mode": "report",
@@ -149,5 +149,5 @@ subset clean with sane Hill numbers. PR recorded below.
   {"id": "F7", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/gl.report.diversity.r", "status": "applied"}],
  "datasets": ["testset.gl", "testset.gs", "constructed"],
  "baseline_test": "tests/testthat/test-gl.report.diversity.R",
- "pr": null}
+ "pr": 301}
 ```
