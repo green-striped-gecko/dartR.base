@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.dist.ind.snp.r
 \name{utils.dist.ind.snp}
 \alias{utils.dist.ind.snp}
-\title{Calculates a distance matrix for individuals defined in a 
+\title{Calculates a distance matrix for individuals defined in a
 genlight object using SNP data (DArTseq)}
 \usage{
 utils.dist.ind.snp(
@@ -18,10 +18,12 @@ utils.dist.ind.snp(
 
 \item{method}{Specify distance measure [default Euclidean].}
 
-\item{scale}{If TRUE and method='Euclidean', the distance will be scaled to 
-fall in the range [0,1] [default FALSE].}
+\item{scale}{If TRUE and method='Euclidean', the summed squared
+differences are divided by the number of loci compared, so the distance
+falls in the range [0,2] for SNP genotypes scored 0, 1 or 2
+[default FALSE].}
 
-\item{type}{Specify the format and class of the object to be returned, 
+\item{type}{Specify the format and class of the object to be returned,
 dist for a object of class dist, matrix for an object of class matrix
  [default "dist"].}
 
@@ -33,25 +35,31 @@ An object of class 'dist' or 'matrix' giving distances between
  individuals
 }
 \description{
-WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED 
-BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE 
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED
+BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE
 OUTCOMES.
 }
 \details{
-This script calculates various distances between individuals based on 
+This script calculates various distances between individuals based on
 SNP genotypes.
 
 The distance measure can be one of:
  \itemize{
   \item Euclidean -- Euclidean Distance applied to Cartesian coordinates
-   defined by the loci, scored as 0, 1 or 2. 
- \item Simple -- simple mismatch, 0 where no alleles are shared, 1 where one
- allele is shared, 2 where both alleles are shared. 
- \item Absolute -- absolute mismatch, 0 where no alleles are shared, 1 where
- one or both alleles are shared.
+   defined by the loci, scored as 0, 1 or 2.
+ \item Simple -- based on shared alleles per locus: 0 where no alleles
+ are shared, 1 where one allele is shared, 2 where both alleles are
+ shared; distance = 1 - mean(shared)/2. With biallelic SNPs this is
+ arithmetically identical to the Czekanowski distance.
+ \item Absolute -- 0 where no alleles are shared (opposite homozygotes),
+ 1 where one or both alleles are shared; distance is the proportion of
+ loci with no shared alleles.
  \item Czekanowski (or Manhattan) calculates the city block metric distance
  by summing the scores on each axis (locus).
  }
+
+All measures are invariant to which allele is scored as the reference
+allele.
 }
 \seealso{
 Other distance: 
@@ -64,3 +72,4 @@ Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{distance}
+\keyword{internal}
