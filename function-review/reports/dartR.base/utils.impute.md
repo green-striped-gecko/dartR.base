@@ -51,7 +51,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-All findings applied (I7 parallel branch returns the mclapply result, I8 real @noRd docs, ghost Rd removed). Suite: 9/9; gl.impute caller smoke clean. PR recorded below.
+All findings applied (I7 parallel branch returns the mclapply result, I8 real @noRd docs, ghost Rd removed). Suite: 9/9; gl.impute caller smoke clean. PR #324.
 
 ```json
 {"function": "utils.impute", "package": "dartR.base", "family_mode": "analysis",
@@ -61,5 +61,5 @@ All findings applied (I7 parallel branch returns the mclapply result, I8 real @n
   {"id": "I8", "severity": "LOW", "rules": ["DOC"], "loc": "R/utils.impute.R placeholders", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.impute.R",
- "pr": null}
+ "pr": 324}
 ```
