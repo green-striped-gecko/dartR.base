@@ -40,7 +40,7 @@ disposition: REMOVE.
 
 ## Outcome
 
-No changes (PASS/PASS). Characterization tests added: 5/5 (dedup vs brute force, pairwise exactness). PR recorded below.
+No changes (PASS/PASS). Characterization tests added: 5/5 (dedup vs brute force, pairwise exactness). PR #318.
 
 ```json
 {"function": "utils.hamming.blocks", "package": "dartR.base", "family_mode": "analysis",
@@ -49,5 +49,5 @@ No changes (PASS/PASS). Characterization tests added: 5/5 (dedup vs brute force,
  "findings": [],
  "datasets": ["constructed", "testset.gs"],
  "baseline_test": "tests/testthat/test-utils.hamming.blocks.R",
- "pr": null}
+ "pr": 318}
 ```
