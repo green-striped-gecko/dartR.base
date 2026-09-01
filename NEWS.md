@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.freqhomsnp()` review: SilicoDArT input is now rejected
+  (was silently given diploid metrics); NULL-safe monomorphs-flag
+  check; marked internal; arithmetic verified exact (unchanged).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
