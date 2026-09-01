@@ -42,7 +42,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-Tidy applied (I6). Suite: 5/5; round-trip anchor unchanged. PR recorded below.
+Tidy applied (I6). Suite: 5/5; round-trip anchor unchanged. PR #323.
 
 ```json
 {"function": "utils.transpose", "package": "dartR.base", "family_mode": "analysis",
@@ -51,5 +51,5 @@ Tidy applied (I6). Suite: 5/5; round-trip anchor unchanged. PR recorded below.
  "findings": [{"id": "I6", "severity": "LOW", "rules": ["STY", "DOC"], "loc": "R/utils.transpose.R", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.transpose.R",
- "pr": null}
+ "pr": 323}
 ```
