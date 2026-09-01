@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.het.pop()` review: the returned vector now carries
+  population names; documentation added (including the mean-n
+  definition of the unbiased correction); computation verified
+  exact.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
