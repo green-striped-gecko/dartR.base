@@ -50,7 +50,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-All findings applied (I11 command composition, I12 tidy). Suite: 2/2; the composed command is now well formed under the default path. PR recorded below.
+All findings applied (I11 command composition, I12 tidy). Suite: 2/2; the composed command is now well formed under the default path. PR #326.
 
 ```json
 {"function": "utils.plink.run", "package": "dartR.base", "family_mode": "analysis",
@@ -60,5 +60,5 @@ All findings applied (I11 command composition, I12 tidy). Suite: 2/2; the compos
   {"id": "I12", "severity": "LOW", "rules": ["STY"], "loc": "R/utils.plink.run.r", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.plink.run.R",
- "pr": null}
+ "pr": 326}
 ```
