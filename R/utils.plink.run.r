@@ -20,6 +20,7 @@
 #' Purcell, Shaun, et al. 'PLINK: a tool set for whole-genome association and
 #' population-based linkage analyses.' The American journal of human genetics
 #' 81.3 (2007): 559-575.
+#' @keywords internal
 #' @export
 #' @author Custodian: Carlo Pacioni and Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
@@ -47,20 +48,16 @@ utils.plink.run <- function(dir.in,
   # executable because providing the path to PLINK doesn't work for me on 
   # Windows and I couldn't find a better solution
   
-  setwd(dir.in) 
-  
-  # if(!plink.path == "path") {
-  #   is.win <- Sys.info()['sysname'] == "Windows" # Possibly is not needed to 
-  #   # specifically search for the .exe on windows, it is just a safety feature
-  #   exe <- list.files(plink.path, 
-  #                     pattern = if(is.win) ".exe$" else paste0("^", plink.cmd), 
-  #                     full.names = TRUE, include.dirs = TRUE)
-  #   file.copy(from = exe, to = file.path(dir.in, basename(exe)))
-  # }
-  
-  cmd <- paste0(plink.path,"/",plink.cmd," ", syntax, "--out ", out, collapse=" ")
+  setwd(dir.in)
+
+  # plink.path == "path" means the executable is found via the system PATH
+  if (plink.path == "path") {
+    exe <- plink.cmd
+  } else {
+    exe <- file.path(plink.path, plink.cmd)
+  }
+  cmd <- paste(exe, syntax, paste0("--out ", out))
   system(cmd)
-  # file.remove(from = exe, to = file.path(dir.in, basename(exe)))
   
   # FLAG SCRIPT END
   
