@@ -26,18 +26,12 @@ The locus metadata supplied by DArT has FreqHets included, but the frequency
  dataset.
 This script recalculates the FreqHets and places these recalculated values in
  the appropriate place in the genlight object.
-Note that the frequency of the homozygote reference SNPS is calculated from
-the individuals that could be scored.
+Note that the frequency of the heterozygotes is calculated from the
+individuals that could be scored.
 }
 \seealso{
-\code{utils.recalc.metrics} for recalculating all metrics,
-\code{utils.recalc.callrate} for recalculating CallRate,
-\code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-homozygous alternate,
-\code{utils.recalc.AvgPIC} for recalculating RepAvg, \code{gl.recalc.maf} for
- recalculating minor allele frequency,
-\code{gl.recalc.rdepth} for recalculating average read depth
+\code{\link{gl.recalc.metrics}} for recalculating all
+locus metrics
 
 Other utilities: 
 \code{\link{gl.He}()},
@@ -72,3 +66,4 @@ Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
