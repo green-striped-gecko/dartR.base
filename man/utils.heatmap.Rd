@@ -191,6 +191,14 @@ A heat map is a false‐color image with optional row/column dendrograms
 and extensive customization of scaling, coloring, labeling, and layout.
 }
 \details{
+This function is a modified copy of \code{gplots::heatmap.2},
+vendored so that dendrogram leaf labels can be drawn and colored
+(via \pkg{dendextend}, arguments \code{colRow}/\code{colCol}) - the
+original suppresses them. Other local modifications: dendrogram
+margins auto-sized from the column names,
+\code{ColSideColors}/\code{RowSideColors} default to NULL, and a
+local \code{invalid2()} replaces gplots' unexported helper.
+
 If \code{Rowv} or \code{Colv} are dendrograms, they are honored
 without reordering; otherwise they are computed via
 \code{as.dendrogram(hclustfun(distfun(...)))} and optionally reordered.
@@ -215,3 +223,4 @@ utils.heatmap(x, scale = "row", col = cm.colors(255))
 \author{
 Andy Liaw (original); R. Gentleman, M. Maechler, W. Huber, G. Warnes (revisions)
 }
+\keyword{internal}

@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.heatmap()` review: documented as a deliberate fork of
+  gplots::heatmap.2 (colored dendrogram leaf labels via dendextend,
+  auto-sized margins, NULL side-color defaults); matrices without
+  dimnames no longer crash on the auto-margin; clustering verified
+  identical to gplots::heatmap.2. Note for the custodian: gplots
+  remains in Imports but is no longer used anywhere in the package.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
