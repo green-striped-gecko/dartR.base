@@ -58,7 +58,7 @@ to approved findings only. utils.basic.stats verified to match
 hierfstat::basic.stats exactly on complete data, 25% missingness,
 monomorphic loci, per-population absent loci, and the real testset
 subset; gl.report.fstat runs on the fixed kernel (its own one-line
-verbose-0 leak is noted for its review). PR recorded below.
+verbose-0 leak is noted for its review). PR #311.
 
 ```json
 {"function": "utils.het.pop", "package": "dartR.base", "family_mode": "analysis",
@@ -67,5 +67,5 @@ verbose-0 leak is noted for its review). PR recorded below.
  "findings": [{"id": "K5", "severity": "LOW", "rules": ["DOC", "STY"], "loc": "R/utils.het.pop.r", "status": "applied"}],
  "datasets": ["testset.gl", "constructed", "platypus.gl"],
  "baseline_test": "tests/testthat/test-utils.het.pop.R",
- "pr": null}
+ "pr": 311}
 ```
