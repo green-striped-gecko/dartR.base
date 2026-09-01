@@ -47,7 +47,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'  progress log; 3, progress and results summary; 5, full report 
 #'  [default 2 or as specified using gl.set.verbosity].
-#' @return A new gl object with all loci rendered homozygous.
+#' @return NULL, invisibly. The FASTA file is written to outpath.
 #' @export
 #' @importFrom utils combn edit flush.console getTxtProgressBar read.csv setTxtProgressBar txtProgressBar write.csv write.table
 #' @importFrom graphics axis barplot box image lines text
@@ -91,16 +91,12 @@ gl2fasta <- function(x,
     # CHECK IF PACKAGES ARE INSTALLED
     pkg <- "seqinr"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
-        "Package",
-        pkg,
-        " needed for this function to work. Please install it.\n"
-      ))
-      return(-1)
+      stop(error("Package", pkg, "needed for this function to work.
+                    Please install it.\n"))
     }
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
@@ -129,6 +125,17 @@ gl2fasta <- function(x,
       stop(error(
         "Fatal Error: Data must include type of alleles in the @loc.all slot.\n"))
     }
+
+    # Coerce SnpPosition to numeric up front; a factor or character column
+    # would otherwise feed substr with factor level codes and silently
+    # corrupt the output sequences
+    raw_pos <- x@other$loc.metrics$SnpPosition
+    num_pos <- suppressWarnings(as.numeric(as.character(raw_pos)))
+    if (sum(is.na(num_pos)) > sum(is.na(raw_pos))) {
+        stop(error("Fatal Error: @other$loc.metrics$SnpPosition contains
+                    non-numeric values.\n"))
+    }
+    x@other$loc.metrics$SnpPosition <- num_pos
     
     if (method == 1) {
         if(verbose >=2){cat(
@@ -158,11 +165,10 @@ gl2fasta <- function(x,
     } else {
         if (verbose >= 2) {
             cat(warn("Method not properly specified\n"))
-            cat(
-                warn("  Replace score for heterozygotic loci with"):cat(
-                    "  method=1 -- ambiguity codes, concatenate fragments) [default]\n"
-                )
-            )
+            cat(warn("  Replace score for heterozygotic loci with:\n"))
+            cat(warn(
+                "  method=1 -- ambiguity codes, concatenate fragments [default]\n"
+            ))
             cat(
                 warn(
                     "  method=2 -- random assignment to one of the two homogeneous states, concatenate fragments\n"
@@ -189,7 +195,39 @@ gl2fasta <- function(x,
         )
       ))
     }
-    x <- gl.filter.overshoot(x, verbose = 0)
+    nloc_start <- nLoc(x)
+
+    # Loci that cannot be rendered at all (missing position or sequence)
+    trimmed_all <- as.character(x@other$loc.metrics$TrimmedSequence)
+    not_renderable <- which(is.na(x@other$loc.metrics$SnpPosition) |
+                                is.na(trimmed_all) | nchar(trimmed_all) == 0)
+    if (length(not_renderable) > 0) {
+        x <- gl.drop.loc(x, loc.list = locNames(x)[not_renderable],
+                         verbose = 0)
+    }
+
+    # The overshoot pre-filter (output captured: its own reporting is
+    # driven by this function's accounting below)
+    invisible(capture.output(x <- gl.filter.overshoot(x, verbose = 0)))
+
+    nloc_removed <- nloc_start - nLoc(x)
+    if (nloc_removed > 0 && verbose >= 1) {
+        cat(warn(
+            "  Warning:", nloc_removed, "of", nloc_start,
+            "loci removed by the pre-filter (SNP position missing or
+                    outside the trimmed sequence)\n"
+        ))
+    }
+    if (nLoc(x) < 2) {
+        stop(error(
+            "Fatal Error: only", nLoc(x),
+            "locus remains after the overshoot pre-filter. The SnpPosition
+                    values are inconsistent with the TrimmedSequence lengths
+                    - a known hazard in merged or co-analysed datasets.
+                    Check @other$loc.metrics$SnpPosition against
+                    nchar(@other$loc.metrics$TrimmedSequence).\n"
+        ))
+    }
     
     # METHOD = AMBIGUITY CODES
     
@@ -239,7 +277,8 @@ gl2fasta <- function(x,
         }
         
         sink(outfilespec)
-        
+        on.exit(if (sink.number() > 0) sink(), add = TRUE)
+
         for (i in 1:nInd(x)) {
             seq <- NA
             for (j in 1:nLoc(x)) {
@@ -265,27 +304,14 @@ gl2fasta <- function(x,
                     if (code != "N") {
                         seq[j] <-
                             paste0(
-                                substr(
-                                    as.character(
-                                        x@other$loc.metrics$TrimmedSequence[j]
-                                    ),
-                                    1,
-                                    snppos
-                                ),
+                                substr(trimmed[j], 1, snppos),
                                 code,
-                                substr(
-                                    x@other$loc.metrics$TrimmedSequence[j],
-                                    snppos + 2,
-                                    500
-                                )
+                                substr(trimmed[j], snppos + 2,
+                                       nchar(trimmed[j]))
                             )
                     } else {
                         seq[j] <-
-                            paste(rep("N", nchar(
-                                as.character(
-                                    x@other$loc.metrics$TrimmedSequence[j]
-                                )
-                            )), collapse = "")
+                            paste(rep("N", nchar(trimmed[j])), collapse = "")
                     }
                 } else if (method == 3) {
                     seq[j] <- code
@@ -295,9 +321,7 @@ gl2fasta <- function(x,
             result <- paste(seq, sep = "", collapse = "")
             # Write the results to file in fastA format
             cat(paste0(">", indNames(x)[i], "_", pop(x)[i], "\n"))
-            cat(result, " \n")
-            
-            # cat(paste('Individual:', i,'Took: ', round(proc.time()[3]-ptm),'seconds\n') )
+            cat(result, "\n", sep = "")
         }
         
         # Close the output fastA file
@@ -308,19 +332,16 @@ gl2fasta <- function(x,
     
     if (method == 2 || method == 4) {
         # Randomly allocate heterozygotes (1) to homozygote state (0 or 2)
-        matrix <- as.matrix(x)
-        # cat('Randomly allocating heterozygotes (1) to homozygote state (0 or 2)\n') pb <- txtProgressBar(min=0, max=1, style=3,
-        # initial=0, label='Working ....') getTxtProgressBar(pb)
-        r <- nrow(matrix)
-        c <- ncol(matrix)
+        genmat <- as.matrix(x)
+        r <- nrow(genmat)
+        c <- ncol(genmat)
         for (i in 1:r) {
             for (j in 1:c) {
-                if (matrix[i, j] == 1 && !is.na(matrix[i, j])) {
+                if (!is.na(genmat[i, j]) && genmat[i, j] == 1) {
                     # Score it 0 or 2
-                    matrix[i, j] <- (sample(1:2, 1) - 1) * 2
+                    genmat[i, j] <- (sample(1:2, 1) - 1) * 2
                 }
             }
-            # setTxtProgressBar(pb, i/r)
         }
         
         # Prepare the output fastA file
@@ -329,7 +350,8 @@ gl2fasta <- function(x,
         }
         
         sink(outfilespec)
-        
+        on.exit(if (sink.number() > 0) sink(), add = TRUE)
+
         # For each individual, and for each locus, generate the relevant haplotype
         seq <- rep(" ", c)
         # pb <- txtProgressBar(min=0, max=1, style=3, initial=0, label='Working ....') getTxtProgressBar(pb)
@@ -346,7 +368,7 @@ gl2fasta <- function(x,
                 
                 # If the score is homozygous for the reference allele
                 if (method == 2) {
-                    if (matrix[i, j] == 0 && !is.na(matrix[i, j])) {
+                    if (!is.na(genmat[i, j]) && genmat[i, j] == 0) {
                         seq[j] <- trimmed
                     }
                 } else if (method == 4) {
@@ -355,7 +377,7 @@ gl2fasta <- function(x,
                                                end = (snpos))
                 }
                 # If the score is homozygous for the alternate allele
-                if (matrix[i, j] == 2 && !is.na(matrix[i, j])) {
+                if (!is.na(genmat[i, j]) && genmat[i, j] == 2) {
                     # Split the trimmed into a beginning sequence, the SNP and an end sequences
                     start <- stringr::str_sub(trimmed, end = snpos - 1)
                     snpbase <- stringr::str_sub(trimmed,
@@ -386,7 +408,7 @@ gl2fasta <- function(x,
                 }
                 
                 # If the SNP state is missing, assign NNNNs
-                if (is.na(matrix[i, j])) {
+                if (is.na(genmat[i, j])) {
                     seq[j] <- "N"
                     if (method == 2) {
                         seq[j] <-
@@ -405,8 +427,8 @@ gl2fasta <- function(x,
             result <- paste(seq, sep = "", collapse = "")
             # Write the results to file in fastA format
             cat(paste0(">", indNames(x)[i], "_", pop(x)[i], "\n"))
-            cat(result, " \n")
-            
+            cat(result, "\n", sep = "")
+
         }  # Select the next individual and repeat
         
         # Close the output fastA file
@@ -415,11 +437,11 @@ gl2fasta <- function(x,
     }
     
     # FLAG SCRIPT END
-    
+
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(NULL)
+
+    return(invisible(NULL))
     
 }
