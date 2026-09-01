@@ -7,15 +7,19 @@
 utils.allelic.richness(df, indices, boot_method = "loc")
 }
 \arguments{
-\item{df}{Dataframe with SNP data [required].}
+\item{df}{Matrix of SNP genotypes (0/1/2/NA); for boot_method "loc" the
+rows are loci and columns individuals, matching boot::boot's row
+resampling over loci [required].}
 
-\item{indices}{indices [required].}
+\item{indices}{Row indices supplied by boot::boot for the current
+bootstrap replicate [required].}
 
-\item{boot_method}{Bootstrapping method
-[default "loc"]}
+\item{boot_method}{"loc" to bootstrap over loci (df is transposed back
+before computation), "ind" to bootstrap over individuals [default "loc"]}
 }
 \value{
-calling function name
+Mean rarefied allelic richness across sites, rarefied to the
+minimum allele count observed across sites (hypergeometric formula)
 }
 \description{
 A utility script to calculate allelic richness using bootstraping
@@ -25,6 +29,7 @@ Other utilities:
 \code{\link{gl.He}()},
 \code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
@@ -54,3 +59,4 @@ Custodian: Luis Mijangos -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
+\keyword{internal}

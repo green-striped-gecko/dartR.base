@@ -3,22 +3,29 @@
 #' @title A utility script to calculate allelic richness using bootstraping
 #' @family utilities
 #' 
-#' @param df Dataframe with SNP data [required].
-#' @param indices indices [required].
-#' @param boot_method Bootstrapping method
-#' [default "loc"]
-#'  
+#' @param df Matrix of SNP genotypes (0/1/2/NA); for boot_method "loc" the
+#' rows are loci and columns individuals, matching boot::boot's row
+#' resampling over loci [required].
+#' @param indices Row indices supplied by boot::boot for the current
+#' bootstrap replicate [required].
+#' @param boot_method "loc" to bootstrap over loci (df is transposed back
+#' before computation), "ind" to bootstrap over individuals [default "loc"]
+#'
 #' @author Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
-#'  
+#'
+#' @keywords internal
 #' @export
-#' @return calling function name
+#' @return Mean rarefied allelic richness across sites, rarefied to the
+#' minimum allele count observed across sites (hypergeometric formula)
 
 utils.allelic.richness <- function(df,
                                    indices,
                                    boot_method = "loc") {
 
-  allelicRichness <- function(){}  #to hack package checking...
+  # dummy so R CMD check does not flag the Rcpp-compiled symbol as
+  # undefined; the real function is created by cppFunction below
+  allelicRichness <- function(){}
   
   Rcpp::cppFunction(
     '
