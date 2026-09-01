@@ -47,7 +47,7 @@ disposition: REMOVE.
 
 ## Outcome
 
-REMOVED per the approved disposition (file, Rd and its baseline test deleted). No callers anywhere in the family; the verified utils.hamming.engine is the live implementation. PR recorded below.
+REMOVED per the approved disposition (file, Rd and its baseline test deleted). No callers anywhere in the family; the verified utils.hamming.engine is the live implementation. PR #317.
 
 ```json
 {"function": "utils.hamming", "package": "dartR.base", "family_mode": "analysis",
@@ -56,5 +56,5 @@ REMOVED per the approved disposition (file, Rd and its baseline test deleted). N
  "findings": [{"id": "D8", "severity": "MEDIUM", "rules": ["spec"], "loc": "R/utils.hamming.r disposition", "status": "applied"}],
  "datasets": ["constructed", "testset.gs"],
  "baseline_test": "tests/testthat/test-utils.hamming.R",
- "pr": null}
+ "pr": 317}
 ```
