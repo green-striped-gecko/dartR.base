@@ -75,7 +75,7 @@ Both findings approved via the approval boxes (2026-09-01).
 Both findings applied. Suite: 10/10 pass; the unnamed-matrix flip maps
 to H1; reordering anchor vs gplots unchanged; gl.plot.heatmap caller
 smoke completes (its own 2-line verbose-0 leak noted for its review).
-PR recorded below.
+PR #327.
 
 ```json
 {"function": "utils.heatmap", "package": "dartR.base", "family_mode": "plot",
@@ -86,5 +86,5 @@ PR recorded below.
   {"id": "H2", "severity": "LOW", "rules": ["DOC"], "loc": "R/utils.heatmap.r provenance", "status": "applied"}],
  "datasets": ["mtcars", "testset.gl"],
  "baseline_test": "tests/testthat/test-utils.heatmap.R",
- "pr": null}
+ "pr": 327}
 ```
