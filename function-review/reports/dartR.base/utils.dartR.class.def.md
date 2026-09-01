@@ -108,7 +108,7 @@ unknown locus), G3 (FBM negative indexing works, nInd 9 on the
 fixture). FULL package sweep after the subset-method change: 53
 files, 847 assertions, only the nine pre-existing dev failures -
 zero new. Subset-heavy callers (gl.filter.callrate, gl.keep.pop)
-clean. PR recorded below.
+clean. PR #328.
 
 ```json
 {"function": "utils.dartR.class.def", "package": "dartR.base", "family_mode": "infrastructure",
@@ -122,5 +122,5 @@ clean. PR recorded below.
   {"id": "G5", "severity": "LOW", "rules": ["DOC"], "loc": "R/utils.dartR.class.def.r docs", "status": "applied"}],
  "datasets": ["testset.gl", "constructed FBM"],
  "baseline_test": "tests/testthat/test-utils.dartR.class.def.R",
- "pr": null}
+ "pr": 328}
 ```
