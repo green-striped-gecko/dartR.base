@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.n.var.invariant()` review: the secondaries-in-history
+  warning now respects verbose 0; variant/invariant counts verified
+  exact on platypus.gl; docs tidied; marked internal.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
