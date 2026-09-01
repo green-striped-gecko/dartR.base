@@ -1,6 +1,6 @@
 #' @name utils.reset.flags
-#' @title #' An internal utility function to reset to FALSE (or TRUE) the locus metric flags after
-#' some individuals or populations have been deleted.
+#' @title An internal utility function to reset to FALSE (or TRUE) the locus
+#' metric flags after some individuals or populations have been deleted.
 #' @family utilities
 
 #' @description 
@@ -8,8 +8,8 @@
 
 #' @param x Name of the genlight object [required].
 #' @param set Set the flags to TRUE or FALSE [default FALSE].
-#' @param value Set the default verbosity for all functions, where verbosity is
-#'  not specified [default 2].
+#' @param value The default verbosity to store in the object's
+#' @@other$verbose slot when that slot is missing [default 2].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
@@ -32,17 +32,13 @@
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 
-#' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
-#' \code{utils.recalc.callrate} for recalculating CallRate,
-#' \code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-#' reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-#' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
-#' of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele 
-#' frequency, \code{gl.recalc.rdepth} for recalculating average read depth
+#' @seealso \code{\link{gl.recalc.metrics}} for recalculating all
+#' locus metrics
 
 #' @examples
 #' result <- utils.reset.flags(testset.gl)
 #' 
+#' @keywords internal
 #' @export
 #' @return The modified genlight object
 
@@ -65,11 +61,13 @@ utils.reset.flags <- function(x,
     # SCRIPT SPECIFIC ERROR TESTING
     
     if (value < 0 | value > 5) {
-        cat(
-            warn(
-                "  Warning: Parameter 'value' must be an integer between 0 [silent] and 5 [full report], set to 2\n"
+        if (verbose >= 1) {
+            cat(
+                warn(
+                    "  Warning: Parameter 'value' must be an integer between 0 [silent] and 5 [full report], set to 2\n"
+                )
             )
-        )
+        }
         value <- 2
     }
     
@@ -78,7 +76,7 @@ utils.reset.flags <- function(x,
         if (verbose >= 2) {
             cat(
                 report(
-                    "  Resetting flags for AvgPIC, OneRatioRef, OneRatioSnp, PICRef, PICSnp, CallRate, maf, FreqHets, FreqHomRef, FreqHomSnp, monomorphs, OneRatio, PIC, allna to",
+                    "  Resetting flags for AvgPIC, OneRatioRef, OneRatioSnp, PICRef, PICSnp, CallRate, maf, FreqHets, FreqHomRef, FreqHomSnp, monomorphs, allna to",
                     set,
                     "\n"
                 )
@@ -217,19 +215,9 @@ utils.reset.flags <- function(x,
         }
         x@other$loc.metrics.flags$FreqHets <- set
         
-        # monomorphs
-        if (is.null(x@other$loc.metrics$monomorphs)) {
-            x@other$loc.metrics$monomorphs <- array(NA, nLoc(x))
-            if (verbose >= 3) {
-                cat(
-                    report(
-                        "  Locus metric monomorphs does not exist, creating slot @other$loc.metrics$monomorphs\n"
-                    )
-                )
-            }
-        }
+        # monomorphs (a flag only - no locus metric column)
         x@other$loc.metrics.flags$monomorphs <- set
-        
+
         # maf
         if (is.null(x@other$loc.metrics$maf)) {
             x@other$loc.metrics$maf <- array(NA, nLoc(x))
@@ -269,21 +257,16 @@ utils.reset.flags <- function(x,
         }
         x@other$loc.metrics.flags$PIC <- FALSE
         
-        # monomorphs if (is.null(x@other$loc.metrics$monomorphs)) { x@other$loc.metrics$monomorphs <- array(NA,nLoc(x)) if (verbose >= 3){
-        # cat(' Locus metric monomorphs does not exist, creating slot @other$loc.metrics$monomorphs\n') } }
-        x@other$loc.metrics.flags$monomorphs <- set
-        
         # allna
         x@other$loc.metrics.flags$allna <- set
-        
-        
+
         # verbosity
         if (is.null(x@other$verbose)) {
-            x@other$verbose <- 2
+            x@other$verbose <- value
             if (verbose >= 3) {
                 cat(
                     report(
-                        "  Locus metric 'verbose' does not exist, creating slot @other$verbose, setting to default [2]\n"
+                        "  Verbosity slot @other$verbose does not exist, creating and setting to", value, "\n"
                     )
                 )
             }
@@ -432,8 +415,7 @@ utils.reset.flags <- function(x,
         }
         x@other$loc.metrics.flags$FreqHets <- FALSE
         
-        # monomorphs if (is.null(x@other$loc.metrics$monomorphs)) { x@other$loc.metrics$monomorphs <- array(NA,nLoc(x)) if (verbose >= 3){
-        # cat(' Locus metric monomorphs does not exist, creating slot @other$loc.metrics$monomorphs\n') } }
+        # monomorphs (a flag only - no locus metric column)
         x@other$loc.metrics.flags$monomorphs <- set
         
         # maf
@@ -481,17 +463,17 @@ utils.reset.flags <- function(x,
         
         # verbosity
         if (is.null(x@other$verbose)) {
-            x@other$verbose <- 2
+            x@other$verbose <- value
             if (verbose >= 3) {
                 cat(
                     report(
-                        "  Locus metric 'verbose' does not exist, creating slot @other$verbose, setting to default [2]\n"
+                        "  Verbosity slot @other$verbose does not exist, creating and setting to", value, "\n"
                     )
                 )
             }
         }
     }
-    
+
     # ADD TO HISTORY not in utils functions
     
     # FLAG SCRIPT END
