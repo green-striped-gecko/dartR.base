@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.plink.run()` review: the composed command is now well
+  formed - plink.path="path" performs a bare PATH lookup as
+  documented (previously a literal "path/" prefix), and a space is
+  guaranteed before --out (previously glued onto the last syntax
+  token); marked internal (stays exported).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
