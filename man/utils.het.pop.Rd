@@ -11,10 +11,19 @@ ind.count(x)
 \item{x}{A genlight object containing the SNP genotypes [required].}
 }
 \value{
-A vector with the mean expected heterozygosity for each population
+A named vector with the mean expected heterozygosity for each
+population
 }
 \description{
-An internal function that calculates expected mean heterozygosity per population
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED
+BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE
+OUTCOMES.
+}
+\details{
+For each population the unbiased expected heterozygosity
+2n/(2n-1) * (1 - p^2 - q^2) is averaged over loci, where n is the mean
+number of genotyped individuals across loci (loci with no data in the
+population are excluded).
 }
 \seealso{
 Other utilities: 
@@ -22,6 +31,7 @@ Other utilities:
 \code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
@@ -49,3 +59,4 @@ Other utilities:
 Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
