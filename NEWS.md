@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.hamming()` REMOVED: an orphan since utils.hamming.engine
+  superseded it (no callers anywhere in the family), carrying an
+  off-by-one (comparison started at the last recognition-site base)
+  and a wrong proportion denominator. The verified engine in
+  utils.hamming.blocks.r is the live implementation.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
