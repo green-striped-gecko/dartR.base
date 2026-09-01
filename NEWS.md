@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.plot.save()` review: the documented default verbose = NULL
+  no longer crashes (verbosity is normalized on entry); a nonexistent
+  save directory now falls back to tempdir() instead of crashing on a
+  tempfile() path; the "No plot saved" note respects verbose 0; the
+  unused ggsave passthrough claim dropped from the docs; marked
+  internal (stays exported - called family-wide).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
