@@ -1,5 +1,19 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.dartR.class.def` (the dartR S4 class layer) review: the show
+  method's loc.metrics detail no longer vanishes when ind.metrics is
+  absent (a copy-paste guard); subsetting with an unmatched locus name
+  fails informatively instead of the cryptic "Cannot subset a SNPbin
+  with mixed subscripts"; negative indices now work on FBM-backed
+  objects; the dead .fbmsub_copy helper (broken free variable,
+  superseded by big_copy) removed. Verified sound: XOR validity,
+  subset/rbind/cbind round-trips exact, glSum/glMean match adegenet
+  exactly, and the FBM layer matches the gen-backed reference exactly.
+  Governance notes recorded: the duplicate-class cache message needs
+  ecosystem-level resolution (retired dartR monolith defines the same
+  class); adegenet-internal getFromNamespace fragility; glSum/glMean
+  shadow-function dispatch limitation.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

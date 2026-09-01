@@ -126,7 +126,7 @@ setMethod ("show", "dartR", function(object) {
   if (!is.null(object@gen)) {
   temp <- sapply(object@gen, function(e)
     length(e@NA.posi))
-  if (length(temp > 1)) {
+  if (length(temp) > 0) {
     cat("\n\n    missing data: ",
         sum(temp),
         " (=",
@@ -206,7 +206,7 @@ setMethod ("show", "dartR", function(object) {
                                            "-"), ")", sep = "")
     cat("\n   @pop:", paste("population of each individual", poptxt))
   } else
-    cat("\n   @pop:", "no population lables for individuals")
+    cat("\n   @pop:", "no population labels for individuals")
   
   if (!is.null(object@strata)) {
     optional <- TRUE
@@ -250,7 +250,7 @@ setMethod ("show", "dartR", function(object) {
     ), "\n")
   }
   
-  if (!is.null(object@other$ind.metrics)) {
+  if (!is.null(object@other$loc.metrics)) {
     optional <- TRUE
     cat("    @other$loc.metrics: ")
     cat(ifelse(
@@ -279,32 +279,6 @@ setMethod ("show", "dartR", function(object) {
 }) # end show method
 
 
-.fbmsub_copy <- function(G, i, j, backingfile = tempfile("geno_"), col_block = 1024L) {
-  stopifnot(inherits(G, "FBM.code256"))
-  
-  nr <- nrow(G); nc <- ncol(G)
-  
-  # Normalize i, j to integer indices
-  if (is.logical(i)) i <- which(rep_len(i, nr))
-  if (is.logical(j)) j <- which(rep_len(j, nc))
-  if (anyNA(i) || anyNA(j)) stop("Indices i/j contain NAs after normalization.")
-  
-  G2 <- bigstatsr::FBM.code256(length(i), length(j), code = code)
-  
-  # Chunk over columns to limit memory footprint
-  if (length(j) > 0L) {
-    starts <- seq.int(1L, length(j), by = col_block)
-    for (s in starts) {
-      e <- min(s + col_block - 1L, length(j))
-      j_chunk <- j[s:e]
-      # pull (all rows, chunked columns), then subset rows
-      chunk <- G[, j_chunk]
-      if (!is.null(i)) chunk <- chunk[i, , drop = FALSE]
-      G2[, s:e] <- chunk
-    }
-  }
-  G2
-}
 
 #################
 ## subset dartR
@@ -349,14 +323,24 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
               i <- .get_pop_inds(x, pop)  # returns integer indices
             }
             
-            ## Character j = match locus names
+            ## Character j = match locus names; unmatched names are fatal
             if (is.character(j)) {
-              j <- match(j, x@loc.names, nomatch = 0L)
+              jmatch <- match(j, x@loc.names)
+              if (anyNA(jmatch)) {
+                stop(error("Fatal Error: unknown locus name(s): ",
+                           paste(j[is.na(jmatch)], collapse = ", "), "\n"))
+              }
+              j <- jmatch
             }
             
-            ## Normalize i/j to integer indices now (keeps logicals if you prefer)
-            ii <- if (is.logical(i)) which(i) else i
-            jj <- if (is.logical(j)) which(j) else j
+            ## Normalize i/j to positive integer indices; seq_len()[i]
+            ## resolves negative indexing uniformly for the FBM and
+            ## SNPbin branches
+            ii <- if (is.logical(i)) which(i) else seq_len(ori.n)[i]
+            jj <- if (is.logical(j)) which(j) else seq_len(ori.p)[j]
+            if (anyNA(ii) || anyNA(jj)) {
+              stop(error("Fatal Error: subscript out of bounds.\n"))
+            }
             
             if (length(ii)==0 ) {
               stop(error("Subsetting resulted in zero individuals."))
@@ -371,7 +355,6 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             fbm <- .fbm_or_null(x)
             if (!is.null(fbm)) {
               # Subset FBM first (keeps XOR: @gen remains empty)
-              #x@fbm <- .fbmsub_copy(x@fbm, ii, jj, code = x@fbm$code256)
               
                 dummyG <-bigstatsr::big_copy(x@fbm, ind.row = ii, ind.col = jj, backingfile = tempfile("geno_"))
                 x@fbm <- dummyG
@@ -497,7 +480,7 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' t1 <- platypus.gl
 #' class(t1) <- "dartR"
 #' t2 <- cbind(t1[,1:10],t1[,11:20])
-#' @return A genlight object
+#' @return A dartR object
 #' @export
 
 cbind.dartR <- function(...,
@@ -711,7 +694,7 @@ cbind.dartR <- function(...,
 #' t1 <- platypus.gl
 #' class(t1) <- "dartR"
 #' t2 <- rbind(t1[1:5,],t1[6:10,])
-#' @return A genlight object 
+#' @return A dartR object
 #' @export
 rbind.dartR <- function(...,
                         backingfile   = tempfile("geno_rbind_"),
@@ -958,7 +941,8 @@ methods::setAs("dartR", "matrix", function(from) {
 #' @param x a dartR object 
 #' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
 #' if FALSE, per individual
-#' @param useC FALSE, default if set to true not sure what happens ;-)
+#' @param useC Passed through to adegenet::glSum for non-FBM objects
+#' [default FALSE]
 #' @return A numeric vector of sum of second allele per locus
 #' @export
 glSum <- function(x, alleleAsUnit = TRUE, useC=FALSE) {
