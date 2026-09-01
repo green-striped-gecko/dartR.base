@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.impute` helpers: matrix2gen(parallel = TRUE) no longer
+  crashes ("object 'i' not found" - a live path via gl.impute's
+  parallel argument); the placeholder documentation block replaced
+  with real @noRd headers and the ghost utils.impute Rd removed.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
