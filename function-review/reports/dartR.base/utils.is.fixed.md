@@ -48,7 +48,7 @@ to approved findings only. utils.basic.stats verified to match
 hierfstat::basic.stats exactly on complete data, 25% missingness,
 monomorphic loci, per-population absent loci, and the real testset
 subset; gl.report.fstat runs on the fixed kernel (its own one-line
-verbose-0 leak is noted for its review). PR recorded below.
+verbose-0 leak is noted for its review). PR #310.
 
 ```json
 {"function": "utils.is.fixed", "package": "dartR.base", "family_mode": "analysis",
@@ -57,5 +57,5 @@ verbose-0 leak is noted for its review). PR recorded below.
  "findings": [{"id": "K4", "severity": "LOW", "rules": ["DOC"], "loc": "R/utils.is.fixed.r header", "status": "applied"}],
  "datasets": ["testset.gl", "constructed", "platypus.gl"],
  "baseline_test": "tests/testthat/test-utils.is.fixed.R",
- "pr": null}
+ "pr": 310}
 ```
