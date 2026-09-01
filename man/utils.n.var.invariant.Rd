@@ -11,10 +11,16 @@ utils.n.var.invariant(x, verbose = NULL)
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-  progress log; 3, progress and results summary; 5, full report
-   [default NULL].
-   
- @details
+progress log; 3, progress and results summary; 5, full report
+ [default 2 or as specified using gl.set.verbosity].}
+}
+\value{
+The modified genlight object.
+}
+\description{
+WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+}
+\details{
 Calculate the number of variant and invariant sites by locus and add them as
 columns in \code{loc.metrics}. This can be useful to conduct further
 filtering, for example where only loci with secondaries are wanted for
@@ -29,13 +35,7 @@ invariant (n.invariant) sites are the added to the table in
 \code{gl@others$loc.metrics}.
 \strong{NOTE}: It is important to realise that this function correctly
 estimates the number of variant and invariant sites only when it is executed on
-\code{genlight} objects before secondaries are removed.}
-}
-\value{
-The modified genlight object.
-}
-\description{
-WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+\code{genlight} objects before secondaries are removed.
 }
 \seealso{
 \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
@@ -45,6 +45,7 @@ Other utilities:
 \code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
@@ -72,3 +73,4 @@ Other utilities:
 Custodian: Carlo Pacioni (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
