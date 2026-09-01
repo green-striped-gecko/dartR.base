@@ -58,7 +58,7 @@ All findings approved via the approval boxes (2026-09-01).
 
 ## Outcome
 
-All findings applied (I2 verbose normalized, I3 tempdir fallback, I4 gates/docs). Suite: 6/6; the documented default no longer crashes and the rescue path saves to a real directory. PR recorded below.
+All findings applied (I2 verbose normalized, I3 tempdir fallback, I4 gates/docs). Suite: 6/6; the documented default no longer crashes and the rescue path saves to a real directory. PR #321.
 
 ```json
 {"function": "utils.plot.save", "package": "dartR.base", "family_mode": "analysis",
@@ -69,5 +69,5 @@ All findings applied (I2 verbose normalized, I3 tempdir fallback, I4 gates/docs)
   {"id": "I4", "severity": "LOW", "rules": ["VRB", "DOC"], "loc": "R/utils.plot.save.r", "status": "applied"}],
  "datasets": ["testset.gl", "constructed"],
  "baseline_test": "tests/testthat/test-utils.plot.save.R",
- "pr": null}
+ "pr": 321}
 ```
