@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.jackknife()` review: a unit vector of length > 1 now reaches
+  the informative stop instead of crashing ("the condition has length
+  > 1" - the check took length(unit == 1), the length of the
+  comparison); the gl.set.verbosity save/restore inside each
+  replicate no longer leaks 6 lines at verbose 0; the recal= partial
+  match corrected to recalc=; marked internal (stays exported).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

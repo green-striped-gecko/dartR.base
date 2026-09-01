@@ -1,12 +1,14 @@
 #' @name utils.jackknife
-#' @title An internal function to conducts jackknife resampling using a genlight object
+#' @title An internal function to conduct jackknife resampling using a genlight object
 #' @family utilities
 #' 
 #' @description
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 
 #' @inheritParams gl.drop.ind
-#' @param FUN the name of the function to be used to calculate the statistic
+#' @param FUN the name of the function to be used to calculate the
+#' statistic (for n.cores > 1 it must be reachable on the worker processes,
+#' i.e. exported by dartR.base or an attached package)
 #' @param unit The unit to use for resampling. One of c("loc", "ind", "pop"): 
 #' loci, individuals or populations
 #' @param n.cores The number of cores to use. If "auto", it will 
@@ -32,6 +34,7 @@
 #' @author Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
+#' @keywords internal
 #' @export
 #' @return A list of length n where each element is the output of FUN
 #' @examples
@@ -66,12 +69,12 @@ utils.jackknife <- function(x,
     stop(error("  The argument 'unit' should be character vector"))
   } 
   
-  if(length(unit == 1)) {
-    if(!unit %in% c("loc", "ind", "pop")) {
-      stop(error('  The argument "unit" should one of the following: "loc", "ind", "pop"'))
+  if (length(unit) == 1) {
+    if (!unit %in% c("loc", "ind", "pop")) {
+      stop(error('  The argument "unit" should be one of the following: "loc", "ind", "pop"'))
     }
-    } else {
-      stop(error('  The argument "unit" should be of length 1'))
+  } else {
+    stop(error('  The argument "unit" should be of length 1'))
   }
   
   # set variables based on unit
@@ -84,25 +87,24 @@ utils.jackknife <- function(x,
       subsetList <- indNames(x)
       } else {
         subsetFUN <- "gl.drop.pop"
-        subsetList <- unique(pop(x))
+        subsetList <- as.character(unique(pop(x)))
       }
     }
   argmts <- list(...)
-  #subsetList.item <- subsetList[1]
-  
-  # PUT CHECKS HERE for correct unit and x and FUN is a char, and ... is a list
+
   jacknife <- function(gl, jckfun, subsetFUN, subsetList.item, rec = recalc, 
                        mono = mono.rm, opt.argt=argmts) {
     xsub <- do.call(subsetFUN, 
                     args = if(subsetFUN == "gl.drop.loc") {
                       list(gl, subsetList.item, verbose=0)
                       } else {
-                        list(gl, subsetList.item, recal=rec, mono.rm=mono, verbose=0)
+                        list(gl, subsetList.item, recalc=rec, mono.rm=mono, verbose=0)
                       }
                     )
     oldVerb <- gl.check.verbosity()
-    gl.set.verbosity(0)
-    on.exit(gl.set.verbosity(oldVerb))
+    # silence the verbosity switch itself as well as FUN
+    invisible(capture.output(gl.set.verbosity(0)))
+    on.exit(invisible(capture.output(gl.set.verbosity(oldVerb))))
     res <- do.call(jckfun, c(list(x=xsub), opt.argt))
     return(res)
   }

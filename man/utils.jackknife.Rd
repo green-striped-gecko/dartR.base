@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.jackknife.R
 \name{utils.jackknife}
 \alias{utils.jackknife}
-\title{An internal function to conducts jackknife resampling using a genlight object}
+\title{An internal function to conduct jackknife resampling using a genlight object}
 \usage{
 utils.jackknife(
   x,
@@ -18,7 +18,9 @@ utils.jackknife(
 \arguments{
 \item{x}{Name of the genlight object [required].}
 
-\item{FUN}{the name of the function to be used to calculate the statistic}
+\item{FUN}{the name of the function to be used to calculate the
+statistic (for n.cores > 1 it must be reachable on the worker processes,
+i.e. exported by dartR.base or an attached package)}
 
 \item{unit}{The unit to use for resampling. One of c("loc", "ind", "pop"): 
 loci, individuals or populations}
@@ -73,7 +75,6 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
 \code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
@@ -96,3 +97,4 @@ Custodian: Carlo Pacioni -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
+\keyword{internal}
