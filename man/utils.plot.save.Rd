@@ -17,11 +17,10 @@ utils.plot.save(x, dir = NULL, file = NULL, verbose = NULL, ...)
 progress log; 3, progress and results summary; 5, full report
  [default NULL, unless specified using gl.set.verbosity]}
 
-\item{...}{Parameters passed to function \link[ggplot2]{ggsave}, 
-such as width and height, when the ggplot is to be saved.}
+\item{...}{Ignored; retained for call compatibility.}
 }
 \value{
-returns NULL
+NULL, invisibly
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
@@ -43,7 +42,6 @@ Other utilities:
 \code{\link{utils.flag.start}()},
 \code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -63,3 +61,4 @@ Other utilities:
 Custodian: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
