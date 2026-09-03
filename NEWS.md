@@ -1,5 +1,28 @@
 # dartR.base 1.2.3 (development)
 
+* DESIGN CHANGE - genome-only @position. The genlight @position and
+  @chromosome slots are now reserved for GENOME coordinates; the
+  position of the SNP within the sequence tag lives solely in
+  gl@other$loc.metrics$SnpPosition (0-based). Concretely:
+  - utils.dart2genlight()/gl.read.dart() no longer copy SnpPosition
+    into @position: DArT-read objects carry @position = NULL (and
+    @chromosome = NULL) until genome coordinates are assigned
+    explicitly (e.g. x$position <- x$other$loc.metrics$ChromPos_...).
+  - gl.compliance.check() no longer fills @position from SnpPosition;
+    instead it CLEARS a provably stale copy (when @position is
+    identical to SnpPosition), with a gated message. Genuine genome
+    coordinates are never touched.
+  - gl2bpp() now reads SnpPosition from loc.metrics (as gl2fasta
+    already did) - output verified byte-identical; it previously read
+    @position, which silently corrupted haplotypes once users assigned
+    genome coordinates to the slot as documented elsewhere.
+  - gl2vcf()/gl2hapmap() replace the fragile max(position) < 1000
+    heuristic with an explicit NULL-slot test.
+  - The show method no longer claims @position is "[within 69 base
+    sequence]".
+  Migration note: scripts that read tag positions from @position
+  should use gl@other$loc.metrics$SnpPosition instead.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

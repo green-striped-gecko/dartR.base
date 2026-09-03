@@ -87,14 +87,12 @@ gl2hapmap <- function(x,
   # DO THE JOB
   
   # assigning SNP position information
-  # When reading a DArT report, the position of the SNP in the trimmedsequence
-  # (presumably is always less than 1000) is assigned to the slot position.
-  # If the SNP position in the chromosome has been assigned before from a
-  # reference genome for example  (presumably always more than 1000), use that
-  # information directly.
-  
-  # only reset positions if the current max is < 1000
-  if (max(x$position, na.rm = TRUE) < 1000L) {
+  # The @position slot is reserved for genome coordinates and is NULL for
+  # DArT-read objects until assigned (the position of the SNP within the
+  # sequence tag lives in @other$loc.metrics$SnpPosition). If genome
+  # coordinates are already present, use them directly; otherwise fill
+  # from the nominated loc.metrics field or zero out.
+  if (is.null(x$position) || length(x$position) != nLoc(x)) {
     # no SNP‐position field supplied: zero out
     if (is.null(pos)) {
       x$position <- integer(nLoc(x))

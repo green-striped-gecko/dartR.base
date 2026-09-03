@@ -46,11 +46,10 @@ If method = 2, the heterozygous state is resolved by randomly assigning one
 or the other SNP variant to the individual.
 Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
  mis-identity are deleted.
-This function requires 'TrimmedSequence' to be among the locus metrics
-(\code{@other$loc.metrics}) and information of the type of alleles (slot
-loc.all e.g. 'G/A') and the position of the SNP in slot position of the
- ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
- how to format these slots.)
+This function requires 'TrimmedSequence' and 'SnpPosition' (the 0-based
+position of the SNP within the sequence tag) to be among the locus
+metrics (\code{@other$loc.metrics}) and information of the type of
+alleles in slot loc.all (e.g. 'G/A').
 }
 \details{
 It's important to keep in mind that analyses based on coalescent theory, 

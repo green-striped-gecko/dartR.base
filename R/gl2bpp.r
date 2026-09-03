@@ -16,11 +16,10 @@
 #' Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
 #'  mis-identity are deleted.
 
-#' This function requires 'TrimmedSequence' to be among the locus metrics
-#' (\code{@other$loc.metrics}) and information of the type of alleles (slot
-#' loc.all e.g. 'G/A') and the position of the SNP in slot position of the
-#'  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
-#'  how to format these slots.)
+#' This function requires 'TrimmedSequence' and 'SnpPosition' (the 0-based
+#' position of the SNP within the sequence tag) to be among the locus
+#' metrics (\code{@other$loc.metrics}) and information of the type of
+#' alleles in slot loc.all (e.g. 'G/A').
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method One of 1 | 2, see details [default = 1].
@@ -132,10 +131,10 @@ gl2bpp <- function(x,
       )
     )
   }
-  if (length(x@position) != nLoc(x)) {
+  if (length(x@other$loc.metrics$SnpPosition) != nLoc(x)) {
     stop(
       error(
-        "Fatal Error: Data must include position information for each loci in the @position slot.\n"
+        "Fatal Error: Data must include position information for each loci in x@other$loc.metrics$SnpPosition.\n"
       )
     )
   }
@@ -163,8 +162,8 @@ gl2bpp <- function(x,
   x <- gl.filter.overshoot(x, verbose = 0)
   
   #sort loci by snp position in case there are secondaries to be merged
-  
-  x <- x[,order(x@position)]
+
+  x <- x[,order(x@other$loc.metrics$SnpPosition)]
   
   
 
@@ -206,7 +205,7 @@ gl2bpp <- function(x,
     rownames(conversion) <- colnames(conversion)
     
     # Extract alleles 1 and 2
-    allelepos <- x@position
+    allelepos <- x@other$loc.metrics$SnpPosition
     allele1 <- gsub("(.)/(.)", "\\1", snp, perl = T)
     allele2 <- gsub("(.)/(.)", "\\2", snp, perl = T)
     
@@ -305,7 +304,7 @@ gl2bpp <- function(x,
         # Reassign some variables
         trimmed <- as.character(x@other$loc.metrics$TrimmedSequence[j])
         snp <- x@loc.all[j]
-        snpos <- x@position[j]
+        snpos <- x@other$loc.metrics$SnpPosition[j]
         # Shift the index for snppos to start from 1 not zero
         snpos <- snpos + 1
         for (i in 1:r) {

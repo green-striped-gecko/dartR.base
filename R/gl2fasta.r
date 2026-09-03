@@ -31,11 +31,10 @@
 #'  mis-identity are deleted.
 #'
 #' The script writes out the composite haplotypes for each individual as a
-#' fastA file. Requires 'TrimmedSequence' to be among the locus metrics
-#' (\code{@other$loc.metrics}) and information of the type of alleles (slot
-#' loc.all e.g. 'G/A') and the position of the SNP in slot position of the
-#'  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
-#'  how to format these slots.)
+#' fastA file. Requires 'TrimmedSequence' and 'SnpPosition' (the 0-based
+#' position of the SNP within the sequence tag) to be among the locus
+#' metrics (\code{@other$loc.metrics}) and information of the type of
+#' alleles in slot loc.all (e.g. 'G/A').
 #'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param method One of 1 | 2 | 3 | 4. Type method=0 for a list of options 
