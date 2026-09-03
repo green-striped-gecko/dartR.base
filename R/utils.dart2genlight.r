@@ -114,8 +114,11 @@ utils.dart2genlight <- function(dart,
     sdata <- dart[["gendata"]]
     # every second line only....
     esl <-seq(nrows, nrow(sdata), nrows)
-    
-    pos <- sraw$SnpPosition[esl]
+
+    # NOTE: the DArT SnpPosition (0-based offset of the SNP within the
+    # trimmed sequence tag) is carried in @other$loc.metrics$SnpPosition
+    # only. The genlight @position/@chromosome slots are reserved for
+    # genome coordinates and are left NULL until assigned explicitly.
     
     metrics_names <- colnames(sraw)
     
@@ -165,7 +168,6 @@ utils.dart2genlight <- function(dart,
             ind.names = colnames(sdata),
             loc.names = locname,
             loc.all = a2,
-            position = pos,
             parallel = FALSE
         )
     

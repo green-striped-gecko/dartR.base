@@ -290,14 +290,28 @@ gl.compliance.check <- function(x,
         ))
     }
     
-    # Check SNP position
-    if(is.null(x$position) & "SnpPosition" %in% names(x$other$loc.metrics)){
-      x$position <- x$other$loc.metrics$SnpPosition
-      if (verbose >= 2) {
-        cat(report(
-          "  Assigning SNP position using slot gl$other$loc.metrics$SnpPosition \n"
-        ))
-      }
+    # Check SNP position. The @position/@chromosome slots are reserved
+    # for genome coordinates; the position of the SNP within the sequence
+    # tag lives in @other$loc.metrics$SnpPosition (0-based). Earlier
+    # versions copied SnpPosition into @position - clear such a stale
+    # copy when it is provably the copy (identical to SnpPosition);
+    # genuine genome coordinates can never equal the tag offsets.
+    if (!is.null(x$position) &&
+        "SnpPosition" %in% names(x$other$loc.metrics)) {
+        slotpos <- suppressWarnings(as.numeric(x$position))
+        tagpos <- suppressWarnings(
+            as.numeric(as.character(x$other$loc.metrics$SnpPosition)))
+        if (length(slotpos) == length(tagpos) &&
+            isTRUE(all.equal(slotpos, tagpos))) {
+            x$position <- NULL
+            if (verbose >= 2) {
+                cat(report(
+                    "  Cleared a stale copy of SnpPosition from @position;
+                    tag positions remain in gl@other$loc.metrics$SnpPosition
+                    and @position is reserved for genome coordinates\n"
+                ))
+            }
+        }
     }
     
     # ADD TO HISTORY
