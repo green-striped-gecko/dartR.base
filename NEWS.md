@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.mahal.assign()` REMOVED (family consolidation): one of three
+  near-duplicate Mahalanobis assignment functions across the verse
+  (with dartR.captive's `gl.assign.mahal()` and
+  `gl.assign.mahalanobis()`). The reviewed and corrected
+  `gl.assign.mahalanobis()` (envelope-dimension cap, MASS::ginv
+  pseudo-inverse, rank-based chi-square df) becomes the single
+  implementation, arriving with the captive-to-popgen assignment-suite
+  migration. No callers existed in the family.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
