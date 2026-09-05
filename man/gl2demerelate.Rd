@@ -12,14 +12,25 @@ gl2demerelate(x, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity]}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A dataframe suitable as input to package \{Demerelate\}
 }
 \description{
-Creates a dataframe suitable for input to package \{Demerelate\} from a
-genlight \{adegenet\} object
+Converts a genlight object containing SNP data into a dataframe in the
+format expected by package \{Demerelate\} for estimating pairwise
+relatedness: one row per individual, with the sample identifier and
+population followed by two adjacent allele columns per locus.
+}
+\details{
+Each SNP genotype is recoded as a pair of alleles labelled 1 (reference)
+and 2 (alternate): 0 becomes 1/1, 1 becomes 1/2, 2 becomes 2/2, and
+missing genotypes are retained as NA in both allele columns, which
+Demerelate reads as missing. The two allele columns for each locus are
+suffixed _1 and _2 and kept adjacent. Locus names are sanitized for
+Demerelate: '-' and '|' are replaced with '_' and '/' is removed.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -49,7 +60,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
