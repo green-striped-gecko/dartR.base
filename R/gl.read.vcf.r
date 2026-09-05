@@ -13,13 +13,28 @@
 #' [default 2, unless specified using gl.set.verbosity].
 #' @details
 #' The ind.metadata file needs to have very specific headings. First a heading
-#' called id. Here the ids have to match the ids in the dartR object. 
+#' called id. Here the ids have to match the ids in the dartR object.
 #' The following column headings are optional.
 #' pop: specifies the population membership of each individual. lat and lon
 #' specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 #' columns with individual metadata can be imported (e.g. age, gender).
-#' Note also that this function checks to see if there are input of mode, missing input of mode 
-#' will issue the user with an error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+#' Individuals in the SNP data that are absent from the ind.metafile are
+#' retained in the returned object with NA metadata; a warning lists them
+#' at verbose >= 1.
+#'
+#' Genotypes are coded as the count of the ALT allele: 0 = homozygous
+#' REF, 2 (or the copy number in dosage mode) = homozygous ALT. Note that
+#' this is the opposite orientation to \code{\link{gl.read.PLINK}}, which
+#' counts allele.2 (the PLINK 1.x major allele).
+#'
+#' In "genotype" mode the returned object is coded as diploid; if the vcf
+#' contains haploid or polyploid genotype calls a warning is issued at
+#' verbose >= 1 (haploid calls are recoded as diploid homozygotes,
+#' polyploid heterozygous calls as 1). In "dosage" mode the ploidy of the
+#' object is set to the data's maximum copy number of the alternate
+#' allele, uniform across individuals.
+#' Note also that this function checks to see if there are input of mode, missing input of mode
+#' will issue the user with an error.
 #' Please carefully check the data if "dosage" mode is used.
 #' @return A genlight object.
 #' @export
@@ -65,9 +80,26 @@ gl.read.vcf <- function(vcffile,
   myRef <- vcfR::getREF(vcf)
   myAlt <- vcfR::getALT(vcf)
   chrom <- vcfR::getCHROM(vcf)
-  pos <- vcfR::getPOS(vcf) 
+  pos <- vcfR::getPOS(vcf)
   loc.all <- paste0(myRef,"/",myAlt)
-  
+
+  # Enforce the documented diploid contract for genotype mode (F6): warn
+  # when the GT calls are not diploid -- haploid calls are recoded as
+  # diploid homozygotes, polyploid heterozygous calls as 1, and the
+  # object is coded diploid.
+  if (mode == "genotype" & verbose >= 1) {
+    gt_arity <- vcfR::extract.gt(vcf)
+    gt_arity <- gt_arity[!is.na(gt_arity)]
+    if (length(gt_arity) > 0) {
+      gt_arity <- nchar(gsub("[^/|]", "", gt_arity)) + 1L
+      if (any(gt_arity != 2)) {
+        cat(warn(
+          "  Warning: non-diploid genotype calls detected. In 'genotype' mode haploid calls are recoded as diploid homozygotes and polyploid heterozygous calls are coded 1; the returned object is coded as diploid. Use mode='dosage' to retain allele copy number.\n"
+        ))
+      }
+    }
+  }
+
   x <- utils.vcfr2genlight.polyploid(x=vcf, mode2=mode)
   
   # adding SNP information from VCF
@@ -77,17 +109,27 @@ gl.read.vcf <- function(vcffile,
     info <- info_tmp_1
     colnames(info) <- c("QUAL","FILTER")
   }else{
-    info_tmp_2 <- as.data.frame(do.call(rbind,stringr::str_split(info_tmp_2,pattern = "=|;")))
-    info <- info_tmp_2[,seq(2,ncol(info_tmp_2),2)]
-    info <- cbind(info_tmp_1,info)
-    col.names.info <- c("QUAL","FILTER",unname(unlist(info_tmp_2[1,seq(1,ncol(info_tmp_2),2)])))
-    if(length(col.names.info)!=  length(colnames(info))){
-      message(warn(
-        "  Locus information is not formatted correctly. One reason could be that a field could have missing values."))
+    # Parse each record's INFO string into key=value pairs and fill by
+    # key, so records whose keys differ in order or presence still land
+    # in the right columns (F2). Flag-type keys (no '=') are recorded as
+    # "TRUE"; keys absent from a record are NA.
+    info_list <- lapply(stringr::str_split(info_tmp_2, ";"), function(rec) {
+      rec <- rec[rec != "" & rec != "."]
+      has_eq <- grepl("=", rec, fixed = TRUE)
+      keys <- ifelse(has_eq, sub("=.*$", "", rec), rec)
+      vals <- ifelse(has_eq, sub("^[^=]*=", "", rec), "TRUE")
+      stats::setNames(vals, keys)
+    })
+    keys_all <- unique(unlist(lapply(info_list, names)))
+    if (length(keys_all) == 0) {
       info <- info_tmp_1
       colnames(info) <- c("QUAL","FILTER")
-    }else{
-      colnames(info) <- col.names.info
+    } else {
+      info_tmp_2 <- as.data.frame(
+        do.call(rbind, lapply(info_list, function(rec) unname(rec[keys_all]))),
+        stringsAsFactors = FALSE)
+      info <- cbind(info_tmp_1, info_tmp_2)
+      colnames(info) <- c("QUAL","FILTER",keys_all)
     }
   }
   
@@ -96,7 +138,15 @@ gl.read.vcf <- function(vcffile,
     more_alleles <- grep(",",info$AC)
     if(length(more_alleles)!=0){
       info <- info[-more_alleles,]
-      info[] <- lapply(info, as.numeric)
+      # Numerify only the columns that parse as numeric; coercing every
+      # column destroyed FILTER ("PASS" -> NA) and any character INFO
+      # field whenever a multi-allelic record was present (F4).
+      numerifiable <- vapply(info, function(col) {
+        col <- as.character(col)
+        all(is.na(col) | !is.na(suppressWarnings(as.numeric(col))))
+      }, logical(1))
+      info[numerifiable] <- lapply(info[numerifiable],
+                                   function(col) as.numeric(as.character(col)))
       x@loc.all <- loc.all[-more_alleles]
       x@chromosome <- as.factor(chrom[-more_alleles])
       x@position <- pos[-more_alleles]
@@ -120,11 +170,19 @@ gl.read.vcf <- function(vcffile,
     }
   }
 
-  #  allow varied ploidy level
-  # ploidy(x) <- ploidy(x)
-   ploidy(x) <- rep(2,nInd(x))
-  
-  x <- gl.compliance.check(x)
+  # In genotype mode heterozygous calls are collapsed onto a 0/1/2 scale,
+  # so the object is coded diploid; in dosage mode the ploidy is set from
+  # the data's maximum copy number, per the documented dosage semantics --
+  # forcing 2 stamped polyploid dosages (up to ploidy n) as diploid (F1).
+  # The stamp is uniform across individuals because downstream checks
+  # (gl.compliance.check) require a single ploidy level per object.
+  if (mode == "genotype") {
+    ploidy(x) <- rep(2,nInd(x))
+  } else {
+    ploidy(x) <- rep(max(ploidy(x)),nInd(x))
+  }
+
+  x <- gl.compliance.check(x, verbose = verbose)
   
   x$other$loc.metrics <- cbind(x$other$loc.metrics,info)
   x$other$loc.metrics$QUAL <- as.numeric(x$other$loc.metrics$QUAL)
@@ -159,7 +217,9 @@ gl.read.vcf <- function(vcffile,
       }
       
       # reorder
-      if (length(ind.cov[, id.col]) != length(indNames(x))) {
+      # The id-mismatch listing affects the result, so it prints from
+      # verbose >= 1 rather than unconditionally (F3).
+      if (length(ind.cov[, id.col]) != length(indNames(x)) & verbose >= 1) {
         cat(
           warn(
             "Ids for individual metadata does not match the number of ids in the SNP data file. Maybe this is fine if a subset matches.\n"
@@ -167,7 +227,7 @@ gl.read.vcf <- function(vcffile,
         )
         nam.indmeta <- ind.cov[, id.col]
         nam.dart <- indNames(x)
-        
+
         nm.indmeta <- nam.indmeta[!nam.indmeta %in% nam.dart]
         nm.inddart <- nam.dart[!nam.dart %in% nam.indmeta]
         if (length(nm.indmeta) > 0) {
@@ -179,11 +239,12 @@ gl.read.vcf <- function(vcffile,
           print(nm.inddart)
         }
       }
-      
+
+      # Metadata rows are aligned to the individuals in the SNP data by
+      # id; ord carries NA for individuals without a metafile entry.
       ord <- match(indNames(x), ind.cov[, id.col])
-      ord <- ord[!is.na(ord)]
-      
-      if (length(ord) > 1 & length(ord) <= nInd(x)) {
+
+      if (sum(!is.na(ord)) > 1) {
         if (verbose >= 2) {
           cat(report(
             paste(
@@ -193,15 +254,21 @@ gl.read.vcf <- function(vcffile,
           cat(report(
             paste(
               "  Found ",
-              length(ord == nInd(x)),
+              sum(!is.na(ord)),
               "matching ids out of",
               nrow(ind.cov),
               "ids provided in the ind.metadata file.\n "
             )
           ))
         }
-        ord2 <- match(ind.cov[ord, id.col], indNames(x))
-        x <- x[ord2, ]
+        # Individuals absent from the metafile are retained with NA
+        # metadata rather than silently dropped from the object (F5).
+        if (any(is.na(ord)) & verbose >= 1) {
+          cat(warn(
+            "  Warning: individuals without an entry in the ind.metafile are retained with NA metadata:\n"
+          ))
+          print(indNames(x)[is.na(ord)])
+        }
       } else {
         stop(error(
           "Fatal Error: Individual ids are not matching!!!!\n"
@@ -247,16 +314,22 @@ gl.read.vcf <- function(vcffile,
     }
     if (!is.na(lat.col) & !is.na(lon.col)) {
       x@other$latlon <- ind.cov[ord, c(lat.col, lon.col)]
-      rownames(x@other$latlon) <- ind.cov[ord, id.col]
+      # Row names come from the object, not the metafile, so retained
+      # individuals without a metafile entry (NA in ord) keep valid
+      # row names (F5).
+      rownames(x@other$latlon) <- indNames(x)
       if (verbose >= 2) {
         cat(report("  Added latlon data.\n"))
       }
     }
-    
+
     other.col <- names(ind.cov)
     if (length(other.col) > 0) {
       x@other$ind.metrics <- ind.cov[ord, other.col, drop = FALSE]
-      rownames(x@other$ind.metrics) <- ind.cov[ord, id.col]
+      # id filled from the object so retained individuals without a
+      # metafile entry carry their id rather than NA (F5).
+      x@other$ind.metrics[, id.col] <- indNames(x)
+      rownames(x@other$ind.metrics) <- indNames(x)
       if (verbose >= 2) {
         cat(report(
           paste(
@@ -271,7 +344,7 @@ gl.read.vcf <- function(vcffile,
   
   # add history
   x@other$history <- list(match.call())
-  x <- gl.recalc.metrics(x)
+  x <- gl.recalc.metrics(x, verbose = verbose)
   
   if (verbose > 2) {
     cat(
