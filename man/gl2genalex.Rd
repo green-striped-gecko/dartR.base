@@ -21,8 +21,9 @@ gl2genalex(
 \item{outpath}{Path where to save the output file [default global working 
 directory or if not specified, tempdir()].}
 
-\item{overwrite}{If FALSE and filename exists, then the file will not be
-overwritten [default FALSE].}
+\item{overwrite}{If FALSE and the file already exists, the call fails with
+an error and the existing file is left in place; set TRUE to overwrite it
+[default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end;
 2, progress log; 3, progress and results summary; 5, full report
