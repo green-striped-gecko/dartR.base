@@ -97,7 +97,7 @@ wherever SilicoDArT is silently admitted — not applicable here:
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2geno` (base `upstream/dev`,
-ddaed27). PR: (recorded below after opening).
+ddaed27). PR: green-striped-gecko/dartR.base#332.
 
 - F1: commented-out former implementation (~90 lines) deleted.
 - F2: verbose >= 1 message now prints the two real output paths
@@ -134,6 +134,6 @@ Note for a future review: `R/gl2gapit.r` declares `@name gl2geno`, so
   ],
   "coverage_skipped": ["LEA parse-back: LEA not installed", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 332
 }
 ```
