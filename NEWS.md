@@ -1,5 +1,26 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.read.dart()` (affects `gl.read.dart()` imports): five fixes.
+  (1) A DArT report in which any locus ID had an unexpected row count
+  (e.g. one allele row hand-deleted or duplicated) previously had EVERY
+  locus removed by the duplicate-ID cleanup, and the read died with a
+  misleading "must be either 1row or 2row" error; now only loci whose
+  row count departs from the modal count are removed, and the removal
+  is reported accurately. (2) A genuine 1-row report with no
+  heterozygous calls was silently misread as 2-row, halving the locus
+  count and pairing unrelated rows into fabricated genotypes; the
+  genotype-range and locus-ID-count signals are now cross-checked and
+  the read stops with a clear error when they disagree. (3) The
+  service/plate extraction read past the header block when the file had
+  fewer header rows than plate.row + 2, pasting the column-header and
+  first data rows into ind.metrics (the canonical
+  testset_SNPs_2Row.csv, with 3 header rows, got plate_location
+  "UC_1-AA0109150"); out-of-range rows now yield NA with a gated
+  warning. (4) The duplicate-individual-name uniquification was
+  computed but never applied - the promised '_n' suffixes now actually
+  reach the genotype column names (previously read.csv's '.1' suffixes
+  leaked through, contradicting the printed warning). (5) All warnings
+  are now verbosity-gated: `verbose = 0` is silent.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
