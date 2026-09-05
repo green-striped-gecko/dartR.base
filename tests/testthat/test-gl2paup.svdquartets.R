@@ -3,13 +3,13 @@
 # CURRENT behaviour, defects included, so Phase C changes surface as diffs.
 
 make_gl <- function() {
-  gg <- testset.gl[1:20, 1:100]
+  gg <- testset2.gl[1:20, 1:100]
   gg@other$loc.metrics <- gg@other$loc.metrics[1:100, ]
   gg
 }
 
 make_gs <- function() {
-  gs <- testset.gs[1:20, 1:100]
+  gs <- testset2.gs[1:20, 1:100]
   gs@other$loc.metrics <- gs@other$loc.metrics[1:100, ]
   gs
 }
