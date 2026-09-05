@@ -115,6 +115,7 @@ End-to-end runs at `verbose = 3` on testset.gl (755 rows, `.snp` layout
 unchanged) and on platypus.gl with the position field verified.
 Sibling-clone grep across the 8 dartR-verse packages: no callers of
 `gl2eigenstrat` -- all clear. NEWS.md entry added.
+PR: green-striped-gecko/dartR.base#355.
 
 ```json
 {
@@ -136,6 +137,6 @@ Sibling-clone grep across the 8 dartR-verse packages: no callers of
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "EIGENSOFT round-trip: binaries unavailable"],
   "status": "pr-open",
-  "pr": null
+  "pr": 355
 }
 ```
