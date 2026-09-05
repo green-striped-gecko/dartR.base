@@ -146,7 +146,7 @@ test_that("SilicoDArT is rejected explicitly", {
   dir.create(td, showWarnings = FALSE)
   expect_error(
     suppressMessages(capture.output(
-      gl2vcf(testset.gs[1:4, 1:6], plink.bin.path = td, outfile = "o",
+      gl2vcf(testset2.gs[1:4, 1:6], plink.bin.path = td, outfile = "o",
              outpath = td, verbose = 0))),
     "SilicoDArT")                                             # F4 fix applied
 })
