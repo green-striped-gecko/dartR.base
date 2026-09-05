@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2paup.parsimony()`: (1) a bootstraps/ncpus count that does not divide
+  evenly is now a fatal error instead of a printed "Fatal Error" that let
+  the run continue and write a fractional bootstrap count into the PAUP
+  block. (2) The three bash-mode generator scripts are written to
+  `outpath` alongside the nexus file, not to the current working
+  directory. (3) The generated PBS jobs cd into `base.dir.name` (a
+  personal directory was hardcoded) and take their project code from the
+  new `pbs.project` parameter [default 'xl04']; the storage directive
+  lists that project, the project holding `base.dir.name`, and gdata/if89
+  (PAUP's home). (4) The consensus script gains its missing shebang, all
+  #PBS directives sit directly under it, and its job name no longer
+  contains a literal `${i}`. (5) Single-population input no longer
+  crashes on the taxpartition construction. (6) Advisory and coercion
+  warnings are verbosity-gated and the return is invisible, so
+  `verbose = 0` is fully silent. (7) The examples use the real
+  `outfileprefix` parameter, and the test-mode subset respects a
+  user-supplied `ncpus`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

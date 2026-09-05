@@ -1,39 +1,17 @@
 #' @name gl2paup.parsimony
 #' @title Converts a genlight object to nexus format for parsimony phylogeny
-#' analysis in PAUP and, optionally produces accompanying files for parallel processing.
+#' analysis in PAUP and, optionally produces accompanying files for parallel
+#' processing
 #' @family linkers
 
 #' @description
 #' The output nexus file contains the SilicoDArT data as a single line per
 #' individual wrapped in the appropriate nexus commands. Pop Labels are
 #' used to define taxon partitions.
-#' 
+#'
 #' If out.type="bash", the function produces a series of files in support of an
 #' analysis taking advantage of multi-threading and parallel processing.
 
-#' @param x Name of the genlight object containing the SilicoDArT data
-#' [required].
-#' @param outfileprefix A prefix to use for file names of the output files
-#' [default 'parsimony'].
-#' @param outpath Path where to save the output file [default global working 
-#' directory or if not specified, tempdir()].
-#' @param out.type Specify the type of output file. Can be 'standard' (consensus tree)
-#' or 'newick' (newick) or 'bash' [default 'standard']
-#' @param tip.labels Specify whether the terminals should be labelled with the
-#' individual labels ('ind'), the population labels ('pop') or both ('indpop') 
-#' [default 'ind']
-#' @param nreps Specify the number of replicate analyses to run in search of
-#' the shortest tree [default 100]
-#' @param nbootstraps Number of bootstrap replicates [default 1000]
-#' @param ncpus Number of cores to use for parallel processing [default 1]
-#' @param mem Memory to use for each process [default 4Gb per core]
-#' @param server If out.type='bash', provide the name of the linux server [default 'gadi']
-#' @param base.dir.name Name of the base directory on the server to act as the workspace [default NULL]
-#' @param test If TRUE, the analysis will run with a small subset of the data [default FALSE]
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity]
-#' 
 #' @details
 #' Additional details: This script only applies to SilicoDArT data. The output file
 #' is the name of the file PAUP will use to deliver the results of the analysis, in
@@ -65,24 +43,55 @@
 #' The parameter 'server' is to allow for future development as users modify the bash
 #' scripts to suit other multitasking environments. This script works only for the
 #' Gadi server on the Australian National Computing Infrastructure (NCI).
-#' 
+#'
+#' The parameter pbs.project specifies the NCI project code used for the #PBS -P
+#' directive in the generated PBS job scripts, and the first gdata project listed
+#' in the #PBS -l storage directive (gdata/if89 is always appended, as the PAUP
+#' module and binary reside there). If base.dir.name lies under a different
+#' /g/data project, that project is added to the storage directive as well.
+#' All generated scripts (out.type='bash') are written to outpath alongside the
+#' nexus file.
+#'
 #' If test=TRUE, the data will be subsetted heavily on numbers of loci, numbers individuals,
 #' bootstrap replicates and number of replicates for branch swapping. This is used to test
 #' the job run without expenditure of the resources required for the full job.
-#' 
-#' 
-#' @author Custodian: Arthur Georges (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#'
+#' @param x Name of the genlight object containing the SilicoDArT data
+#' [required].
+#' @param outfileprefix A prefix to use for file names of the output files
+#' [default 'parsimony'].
+#' @param outpath Path where to save the output file [default global working
+#' directory or if not specified, tempdir()].
+#' @param out.type Specify the type of output file. Can be 'standard' (consensus tree)
+#' or 'newick' (newick) or 'bash' [default 'standard']
+#' @param tip.labels Specify whether the terminals should be labelled with the
+#' individual labels ('ind'), the population labels ('pop') or both ('indpop')
+#' [default 'ind']
+#' @param nreps Specify the number of replicate analyses to run in search of
+#' the shortest tree [default 100]
+#' @param nbootstraps Number of bootstrap replicates [default 1000]
+#' @param ncpus Number of cores to use for parallel processing [default 1]
+#' @param mem Memory to use for each process [default 4Gb per core]
+#' @param server If out.type='bash', provide the name of the linux server [default 'gadi']
+#' @param base.dir.name Name of the base directory on the server to act as the workspace [default NULL]
+#' @param pbs.project NCI project code for the #PBS -P directive and the storage
+#' directive of the generated job scripts [default 'xl04']
+#' @param test If TRUE, the analysis will run with a small subset of the data [default FALSE]
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#' @return returns no value (i.e. NULL)
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gg <- testset.gs[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
-#' gl2paup.parsimony(gg,outfile="test.nex",outpath=tempdir(),nreps=1,nbootstraps=10)
-#' gl2paup.parsimony(gg,outfile="test.nex",out.type="newick",outpath=tempdir(),nreps=1,nbootstraps=10)
-#' 
+#' gl2paup.parsimony(gg,outfileprefix="test",outpath=tempdir(),nreps=1,nbootstraps=10)
+#' gl2paup.parsimony(gg,outfileprefix="test",out.type="newick",outpath=tempdir(),nreps=1,nbootstraps=10)
+#'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2paup.parsimony <- function(x,
                          outfileprefix = "parsimony",
@@ -95,6 +104,7 @@ gl2paup.parsimony <- function(x,
                          mem=4,
                          server="gadi",
                          base.dir.name=NULL,
+                         pbs.project="xl04",
                          test=FALSE,
                          verbose = NULL) {
    
@@ -128,14 +138,16 @@ gl2paup.parsimony <- function(x,
         if(verbose>=2){cat(report("  Test run only\n"))}
         nreps <- 1
         nbootstraps <- 10
-        ncpus <- 10
+        # Respect a user-supplied ncpus; default to 10 for the test run (F10)
+        if(missing(ncpus)){ncpus <- 10}
         mem <- ncpus*4
-        qtl <- quantile((table(pop(x))),0.75)
+        # Floor the quantile so gl.subsample.ind receives a whole number (F10)
+        qtl <- floor(quantile((table(pop(x))),0.75))
         qtl.names <- names(table(pop(x))[table(pop(x))>=qtl])
         x <- gl.keep.pop(x, pop.list=qtl.names,mono.rm=TRUE,verbose=0)
         if(nLoc(x)>1000){x <- gl.subsample.loc(x,n=1000,replace=FALSE,verbose=0)}
         x <- gl.subsample.ind(x,n=qtl,replace=FALSE,verbose=0)
-        if(verbose>=2){cat(report("  Test run on",nInd(x),"individuals in",nPop(x),"populations scored for",nLoc(x),"SNP loci\n"))}
+        if(verbose>=2){cat(report("  Test run on",nInd(x),"individuals in",nPop(x),"populations scored for",nLoc(x),"loci\n"))}
         if(verbose>=2){cat(report("  PAUP parameters:",nbootstraps,"bootstrap replicates split over",ncpus,"CPUs","with",nreps,"heuristic tree searches in each iteration\n"))}
       }
 
@@ -143,43 +155,52 @@ gl2paup.parsimony <- function(x,
     # Check for monomorphic loci
     tmp <- gl.filter.monomorphs(x,verbose=0)
     if(nLoc(x) != nLoc(tmp)){
-      cat(warn(
-        "  Warning: genlight object may contain monomorphic loci\n"
-      ))
+      if(verbose >= 2){
+        cat(warn(
+          "  Warning: genlight object may contain monomorphic loci\n"
+        ))
+      }
     }
-    
+
     # FUNCTION SPECIFIC ERROR CHECKING
-    
+
     if(!out.type %in% c("standard","newick","bash")){
-      cat(warn("Warning: Output format (out.type) must be one of 'standard' or 'newick' or 'bash', set to 'standard'\n"))
+      # Results-affecting coercion: warn at verbose >= 1 (VRB4)
+      if(verbose >= 1){
+        cat(warn("Warning: Output format (out.type) must be one of 'standard' or 'newick' or 'bash', set to 'standard'\n"))
+      }
       out.type <- "standard"
     }
-    
+
     if(out.type=='bash'){
       if((nbootstraps %% ncpus) != 0){
-        cat(error("Fatal Error: The number of bootstraps",nbootstraps,"must be a multiple of the number of cpus",ncpus,"\n"))
+        stop(error("Fatal Error: The number of bootstraps",nbootstraps,"must be a multiple of the number of cpus",ncpus,"\n"))
       }
     }
-    
+
     if(out.type=="bash"){
       if(is.null(base.dir.name)){
-        cat(error("Fatal Error: a base name for the working directory on",server,"is required\n"))
-        stop()
+        stop(error("Fatal Error: a base name for the working directory on",server,"is required\n"))
       }
     }
-    
+
     if(tip.labels=="popind"){tip.labels <- "indpop"}
     if(!tip.labels %in% c("ind","pop","indpop")){
-      cat(warn("Warning: Tip labeles (tip.labels) must be one of 'ind','pop' or 'indpop', set to 'ind'\n"))
+      # Results-affecting coercion: warn at verbose >= 1 (VRB4)
+      if(verbose >= 1){
+        cat(warn("Warning: Tip labeles (tip.labels) must be one of 'ind','pop' or 'indpop', set to 'ind'\n"))
+      }
       tip.labels <- "ind"
     }
-    
+
     if(test==FALSE){
-      if(nreps < 100){
-        cat(warn("Warning: Parameter nreps recommended to be 100 or greater\n"))
-      }
-      if(nbootstraps < 1000){
-        cat(warn("Warning: Parameter nbootstraps recommended to be 1000 or greater\n"))
+      if(verbose >= 2){
+        if(nreps < 100){
+          cat(warn("Warning: Parameter nreps recommended to be 100 or greater\n"))
+        }
+        if(nbootstraps < 1000){
+          cat(warn("Warning: Parameter nbootstraps recommended to be 1000 or greater\n"))
+        }
       }
     }
     
@@ -249,9 +270,12 @@ gl2paup.parsimony <- function(x,
     b <- array(data = NA, dim = length(poplabels))
     a[1] <- 1
     b <- table(poplabels)
-    for (i in 2:length(b)) {
-        b[i] <-b[i] + b[i - 1]
-        a[i] <-b[i - 1] + 1
+    # Guard for a single population: 2:length(b) would run 2:1 and index b[0] (F4)
+    if (length(b) > 1) {
+        for (i in 2:length(b)) {
+            b[i] <-b[i] + b[i - 1]
+            a[i] <-b[i - 1] + 1
+        }
     }
     plabels <- unique(poplabels)
     
@@ -271,8 +295,11 @@ gl2paup.parsimony <- function(x,
     cat("end;\n\n")
     cat("begin sets;\n")
     cat("    taxpartition pops =\n")
-    for (i in 1:(length(plabels) - 1)) {
-        cat(paste0("        ", plabels[i], " : ", a[i], "-", b[i], ",\n"))
+    # With a single population only the terminal line is written (F4)
+    if (length(plabels) > 1) {
+        for (i in 1:(length(plabels) - 1)) {
+            cat(paste0("        ", plabels[i], " : ", a[i], "-", b[i], ",\n"))
+        }
     }
     cat("       ", paste0(plabels[length(plabels)], " : ", a[length(plabels)], "-", b[length(plabels)], ";\n"))
     cat("end;\n\n")
@@ -304,8 +331,21 @@ gl2paup.parsimony <- function(x,
     if(out.type=="bash"){
     # Create the driver for creating bootstrap nexus files bootstrap1.nex to bootstrapN.nex
 
-    # Define the output file name
-    outfilespec2 <- paste0("generator_", outfileprefix, "_bootstraps.sh")
+    # Determine every gdata project the PBS jobs touch: the nominated project,
+    # if89 (PAUP module and binary), and the project holding base.dir.name (F3)
+    storage.projects <- pbs.project
+    base.dir.project <- regmatches(base.dir.name,
+                                   regexpr("^/g/data/[^/]+", base.dir.name))
+    if (length(base.dir.project) == 1) {
+      base.dir.project <- sub("^/g/data/", "", base.dir.project)
+      storage.projects <- unique(c(storage.projects, base.dir.project))
+    }
+    storage.projects <- unique(c(storage.projects, "if89"))
+    pbs.storage <- paste0("#PBS -l storage=",
+                          paste0("gdata/", storage.projects, collapse = "+"))
+
+    # Define the output file name, in outpath alongside the nexus file (F2)
+    outfilespec2 <- file.path(outpath, paste0("generator_", outfileprefix, "_bootstraps.sh"))
 
     # Ensure `ncpus` is defined
     num_iterations <- as.integer(ncpus)  # Convert to integer to prevent NA issues
@@ -366,7 +406,7 @@ gl2paup.parsimony <- function(x,
     # Create the driver for running the ncpus nexus files in parallel to produce bootstrap1.tre
     # to bootstrap20.tre)
 
-    outfilespec3 <- paste0("generator_", outfileprefix, "_maketrees.sh")
+    outfilespec3 <- file.path(outpath, paste0("generator_", outfileprefix, "_maketrees.sh"))
 
     # Open a connection to write in binary mode (forces Unix line endings)
     con <- file(outfilespec3, open = "wb")
@@ -379,10 +419,10 @@ gl2paup.parsimony <- function(x,
 
     # Begin `cat <<EOT` block correctly (no escaping inside EOT)
     writeLines("cat <<EOT > \"$JOB_FILE\"\n", con)
-    writeLines("#!/bin/bash\n", con)
-
-    # PBS directives
-    writeLines("#PBS -P xl04", con)
+    # PBS directives immediately follow the shebang -- PBS stops reading
+    # directives at the first non-comment line, so no blank line intervenes
+    writeLines("#!/bin/bash", con)
+    writeLines(paste0("#PBS -P ",pbs.project), con)
     writeLines("#PBS -q normal", con)
     writeLines(paste0("#PBS -l ncpus=",ncpus), con)
     writeLines(paste0("#PBS -l mem=",mem,"GB"), con)
@@ -390,13 +430,13 @@ gl2paup.parsimony <- function(x,
     writeLines("#PBS -j oe", con)
     writeLines(paste0("#PBS -o ",base.dir.name,"/pbslogs"), con)
     writeLines(paste0("#PBS -N ", outfileprefix, "_bootstrap_job${i}"), con)  # No escaping needed
-    writeLines("#PBS -l storage=gdata/xl04+gdata/if89\n", con)
+    writeLines(paste0(pbs.storage,"\n"), con)
 
     # Load PAUP module
     writeLines("module load paup\n", con)
 
-    # Navigate to the working directory
-    writeLines("cd /g/data/xl04/ag3760/parsimony/\n", con)
+    # Navigate to the working directory nominated by base.dir.name (F3)
+    writeLines(paste0("cd ",base.dir.name,"\n"), con)
 
     # Run PAUP with correct variable expansion (NO escaping needed inside EOT)
     writeLines("/g/data/if89/apps/paup/4a168/paup -n bootstrap${i}.nex\n", con)
@@ -421,21 +461,23 @@ gl2paup.parsimony <- function(x,
 
     ###### WRITE THE SCRIPT TO CALCULATE THE CONSENSUS TREE
 
-    outfilespec4 <- paste0("generator_", outfileprefix, "_consensus.sh")
+    outfilespec4 <- file.path(outpath, paste0("generator_", outfileprefix, "_consensus.sh"))
 
     # Open a connection to write in binary mode (forces Unix line endings)
     con <- file(outfilespec4, open = "wb")
 
-    # PBS job settings
-    writeLines("#PBS -P xl04", con)
+    # PBS job settings -- shebang first, then all #PBS directives with no
+    # intervening blank or non-comment lines (F5)
+    writeLines("#!/bin/bash", con)
+    writeLines(paste0("#PBS -P ",pbs.project), con)
     writeLines("#PBS -q normal", con)
     writeLines(paste0("#PBS -l ncpus=",ncpus), con)
     writeLines(paste0("#PBS -l mem=",mem,"GB"), con)
     writeLines("#PBS -l walltime=48:00:00", con)
     writeLines("#PBS -j oe", con)
     writeLines(paste0("#PBS -o ",base.dir.name,"/pbslogs"), con)
-    writeLines(paste0("#PBS -N ", outfileprefix, "_bootstrap_job${i}"), con)  # No escaping needed
-    writeLines("#PBS -l storage=gdata/xl04+gdata/if89\n", con)
+    writeLines(paste0("#PBS -N ", outfileprefix, "_consensus"), con)  # Fixed name; no loop variable in this script (F5)
+    writeLines(paste0(pbs.storage,"\n"), con)
 
     writeLines("module load paup\n", con)
 
@@ -485,7 +527,7 @@ gl2paup.parsimony <- function(x,
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(NULL)
-    
+
+    return(invisible(NULL))
+
 }
