@@ -3,7 +3,7 @@
 # CURRENT behaviour, defects included, so Phase C changes surface as diffs.
 
 make_gs <- function() {
-  gs <- testset.gs[1:20, 1:100]
+  gs <- testset2.gs[1:20, 1:100]
   gs@other$loc.metrics <- gs@other$loc.metrics[1:100, ]
   gs
 }
@@ -75,7 +75,7 @@ test_that("bash mode: divisibility failure stops; scripts land in outpath", {
 
 test_that("SNP data is rejected; a single population converts cleanly", {
   td <- tempdir()
-  expect_error(capture.output(gl2paup.parsimony(testset.gl[1:5, 1:50],
+  expect_error(capture.output(gl2paup.parsimony(testset2.gl[1:5, 1:50],
       outpath = td, verbose = 0)), "SilicoDArT")
   gs <- make_gs()
   pop(gs) <- rep("onlypop", nInd(gs))
