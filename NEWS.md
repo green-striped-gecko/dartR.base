@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.dart2genlight()` (affects `gl.read.dart()` imports): five fixes.
+  (1) The ind.metafile acts as a filter as well as a metadata source -
+  individuals in the DArT file without a metafile row are removed; that
+  behaviour is retained but is now documented in the help and announced
+  with a warning stating how many individuals were REMOVED (previously
+  the removal was silent beyond "Maybe this is fine if a subset
+  matches"). (2) A DArT file lacking a SNP/Variant column now fails fast
+  with a clear header error instead of "cannot coerce type 'closure'".
+  (3) The two-row genotype translation table is exhaustive: 0/0 and
+  partial-missing pairs map to NA deliberately (no more spurious "NAs
+  introduced by coercion" warnings) and any unrecognised pattern in a
+  corrupted file is counted and reported. (4) Duplicate ids in the
+  ind.metafile abort with a proper error message (previously a bare
+  stop() with an empty condition message). (5) The TrimmedSequence and
+  id-mismatch warnings are verbosity-gated (the unmatched-id listing
+  moved to `verbose >= 2`) and terminate with newlines; `verbose = 0`
+  is silent.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
