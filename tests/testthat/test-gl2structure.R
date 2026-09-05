@@ -3,7 +3,7 @@
 # [bug baseline] capture current defective behaviour on purpose; flip them
 # only against an approved finding in the Phase A report.
 
-str_sub <- function() testset.gl[1:8, 1:15]
+str_sub <- function() testset2.gl[1:8, 1:15]
 
 test_that("two-row-per-individual STRUCTURE layout with -9 missing", {
   td <- tempdir()
@@ -65,7 +65,7 @@ test_that("SilicoDArT is rejected explicitly", {
   f <- file.path(td, "str_gs.str")
   if (file.exists(f)) file.remove(f)
   expect_error(
-    capture.output(gl2structure(testset.gs[1:4, 1:10], outfile = "str_gs.str",
+    capture.output(gl2structure(testset2.gs[1:4, 1:10], outfile = "str_gs.str",
                                 outpath = td, verbose = 0)),
     "SilicoDArT")
   expect_false(file.exists(f))
