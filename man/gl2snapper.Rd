@@ -20,25 +20,26 @@ gl2snapper(
 \item{outfile}{Name of the output file (including extension)
 [default "snapper.nex"].}
 
-\item{rm.autapomorphies}{Prune the loci by removing autapomorphies 
-(not phylogentically informative), that is, SNP polymorphisms limited
-to only one population [default TRUE].}
+\item{rm.autapomorphies}{Prune the loci by removing autapomorphies
+(not phylogenetically informative), that is, SNP polymorphisms limited
+to only one population [default FALSE].}
 
 \item{nloc}{Number of loci to subsample to bring down computational time [default NULL]}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
 }
 \description{
 Produces a nexus file contains the SNP calls and relevant PAUP command lines
-suitable for for the software package BEAUti.
+suitable for the software package BEAUti.
 }
 \details{
 {
@@ -161,7 +162,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
