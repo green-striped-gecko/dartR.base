@@ -50,6 +50,10 @@
 #'  heterozygotes as ambiguity characters may bias many estimates. See more
 #'   information in the link below:
 #' \url{https://evodify.com/heterozygotes-ambiguity-characters/}
+#'
+#' Each record in a FASTA file must occupy exactly two lines: a '>' header
+#' line followed by the full sequence on a single line. Line-wrapped
+#' (multi-line) FASTA is not supported and is rejected with an error.
 #' 
 #' @author Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -81,14 +85,40 @@ gl.read.fasta <- function(fasta.files,
                    build = "v.2023.2",
                    verbose = verbose)
   
+  # FUNCTION SPECIFIC ERROR CHECKING
+
+  # The reader requires each record to occupy exactly two lines (a '>'
+  # header and the full sequence on a single line); line-wrapped FASTA
+  # mis-groups records silently, so reject it before reading
+  for (f in fasta.files) {
+    tmp <- scan(f, what = "character", sep = "\n", quiet = TRUE)
+    headers <- grep("^>", tmp)
+    if (length(headers) == 0 ||
+        length(tmp) != 2 * length(headers) ||
+        !all(headers == seq(1, by = 2, length.out = length(headers)))) {
+      stop(error(
+        "Fatal Error: file", basename(f), "is not two-line FASTA;",
+        "each record must be a '>' header line followed by the full sequence on a single line\n"
+      ))
+    }
+  }
+
   # DO THE JOB
-  
+
   gl_list <- lapply(fasta.files,
                     utils.read.fasta,
                     parallel = parallel,
                     n.cores = n.cores,
                     verbose = verbose)
-  
+
+  # A file without polymorphism yields NULL from utils.read.fasta; if no
+  # file yielded SNPs there is nothing to build an object from
+  if (all(vapply(gl_list, is.null, logical(1)))) {
+    stop(error(
+      "Fatal Error: no SNPs found; the input file(s) contain no polymorphic positions\n"
+    ))
+  }
+
   x <- merge_gl_fasta(gl_list, parallel = parallel, verbose = verbose)
   
   x <- gl.compliance.check(x, verbose = verbose)
@@ -111,12 +141,15 @@ gl.read.fasta <- function(fasta.files,
     cat(report("Completed:", funname, "\n"))
   }
   
-  #convert to fbm 
-  if (fbm) {}
-  x <- gl.gen2fbm(x, verbose = verbose) 
-  if (verbose>2) {
-    cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-  } else x@fbm <- NULL
+  #convert to fbm, only when requested
+  if (fbm) {
+    x <- gl.gen2fbm(x, verbose = verbose)
+    if (verbose > 2) {
+      cat(report(" Created a file-backed matrix (fbm) dartR object\n"))
+    }
+  } else {
+    x@fbm <- NULL
+  }
   
   # RETURN
   return(invisible(x))

@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.read.fasta()`: the closing fbm block ignored the `fbm` argument --
+  an empty `if (fbm) {}` guard meant `gl.gen2fbm()` always ran (clearing
+  `@gen`), and at `verbose <= 2` a misattached else-branch wiped `@fbm`
+  as well, so every default-verbosity call (including the documentation
+  example) returned an object with no genotype data at all (nInd = 0),
+  and `verbose >= 3` calls returned an FBM-backed object although fbm
+  was declined. The conversion now runs only when `fbm = TRUE`. Note
+  the output change: at default verbosity the function now returns the
+  actual data. Also: input where no file yields SNPs (no polymorphism)
+  now stops with a clear message instead of an opaque "argument of
+  length 0" failure, and line-wrapped (multi-line) FASTA -- which the
+  two-line reader silently mis-groups -- is rejected up front with an
+  informative error, now documented.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
