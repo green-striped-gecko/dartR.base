@@ -161,6 +161,7 @@ header + 31 Pop lines + 274 individuals), the F7 warning reporting this
 checkout's 3 all-NA loci. Sibling-caller grep across the 8 dartRverse
 clones: one caller, `dartR.popgen/R/gl.LDNe.r:190`, which calls with
 default `pop.order` on SNP data — unaffected. NEWS entry added.
+PR: green-striped-gecko/dartR.base#348.
 
 ```json
 {
@@ -182,6 +183,6 @@ default `pop.order` on SNP data — unaffected. NEWS entry added.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "dotted locus names not exercised", "genome-position lens: format has no coordinate fields"],
   "status": "phase-c",
-  "pr": null
+  "pr": 348
 }
 ```
