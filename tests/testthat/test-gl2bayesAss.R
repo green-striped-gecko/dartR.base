@@ -6,10 +6,10 @@ test_that("gl2bayesAss writes BA3 rows and returns them as a data.table (SNP)", 
   od <- file.path(tempdir(), "ba3_base")
   dir.create(od, showWarnings = FALSE)
 
-  res <- gl2bayesAss(testset.gl, outpath = od, verbose = 0)
+  res <- gl2bayesAss(testset2.gl, outpath = od, verbose = 0)
 
   expect_s3_class(res, "data.table")
-  expect_equal(dim(res), c(nInd(testset.gl) * nLoc(testset.gl), 5))
+  expect_equal(dim(res), c(nInd(testset2.gl) * nLoc(testset2.gl), 5))
   expect_equal(names(res), c("rn", "Pop", "Locus", "All1", "All2"))
 
   f <- file.path(od, "gl.BayesAss.txt")
@@ -23,7 +23,7 @@ test_that("gl2bayesAss writes BA3 rows and returns them as a data.table (SNP)", 
 test_that("gl2bayesAss genotype-to-allele recode: 0->(1,1) 1->(1,2) 2->(2,2) NA->(0,0)", {
   od <- file.path(tempdir(), "ba3_map")
   dir.create(od, showWarnings = FALSE)
-  x <- testset.gl[1:10, 1:20]
+  x <- testset2.gl[1:10, 1:20]
   res <- gl2bayesAss(x, outfile = "map.txt", outpath = od, verbose = 0)
 
   m <- as.matrix(x)
@@ -39,21 +39,21 @@ test_that("gl2bayesAss is silent at verbose = 0", {
   od <- file.path(tempdir(), "ba3_sil")
   dir.create(od, showWarnings = FALSE)
   out <- capture.output(
-    invisible(gl2bayesAss(testset.gl[1:5, 1:5], outfile = "sil.txt",
+    invisible(gl2bayesAss(testset2.gl[1:5, 1:5], outfile = "sil.txt",
                           outpath = od, verbose = 0)))
   expect_length(out, 0)
 })
 
 test_that("gl2bayesAss rejects ploidy != 2 with the house fatal-error idiom", {
   # [approved F3] plain stop() replaced by stop(error("Fatal Error: ..."))
-  expect_error(gl2bayesAss(testset.gl, ploidy = 4, verbose = 0),
+  expect_error(gl2bayesAss(testset2.gl, ploidy = 4, verbose = 0),
                "only caters for ploidy = 2")
 })
 
 test_that("gl2bayesAss rejects SilicoDArT data", {
   # [approved F1] accept = "SNP" now stops presence/absence data from being
   # pushed through the diploid recode table.
-  expect_error(gl2bayesAss(testset.gs[1:5, 1:5], outfile = "gs.txt",
+  expect_error(gl2bayesAss(testset2.gs[1:5, 1:5], outfile = "gs.txt",
                            outpath = tempdir(), verbose = 0),
                "SNP")
 })
