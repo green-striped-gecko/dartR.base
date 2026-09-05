@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2structure()`: four fixes. (1) A re-run with
+  `export.marker.names = FALSE` appended to the existing file instead of
+  overwriting it, silently doubling every individual for STRUCTURE; the
+  file is now truncated whenever no marker-name header precedes the data.
+  (2) SilicoDArT objects were admitted and exported as fabricated diploid
+  genotypes; the function now stops with a clear datatype error
+  (`accept = "SNP"`). (3) Duplicated locus names collapsed genotype
+  columns (header listed all loci, data rows carried fewer, misaligning
+  every column after the collision); columns are now assigned
+  positionally. (4) The NULL return is now invisible. Docs corrected: the
+  object needs no lat/long location data, and the `ind.names` default is
+  `indNames(x)`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

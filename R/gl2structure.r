@@ -11,32 +11,40 @@
 #' Clark. (2017, August 22). lvclark/R_genetics_conv: R_genetics_conv 1.1
 #' (Version v1.1). Zenodo: doi.org/10.5281/zenodo.846816.
 
-#' @param x Name of the genlight object containing the SNP data and location
-#' data, lat longs [required].
-#' @param ind.names Specify individuals names to be added 
-#' [if NULL, defaults to ind.names(x)].
-#' @param add.columns Additional columns to be added before genotypes 
+#' @details
+#' Each individual is written as ploidy rows (two for diploid data), with
+#' genotypes coded as allele pairs (0 -> 1/1, 1 -> 1/2, 2 -> 2/2) and
+#' missing data as -9. If export.marker.names is TRUE, a header row of
+#' locus names precedes the data.
+#'
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param ind.names Specify individuals names to be added
+#' [if NULL, defaults to indNames(x)].
+#' @param add.columns Additional columns to be added before genotypes
 #' [default NULL].
 #' @param ploidy Set the ploidy [defaults 2].
-#' @param export.marker.names If TRUE, locus names locNames(x) will be included 
+#' @param export.marker.names If TRUE, locus names locNames(x) will be included
 #' [default TRUE].
-#' @param outfile File name of the output file (including extension) 
+#' @param outfile File name of the output file (including extension)
 #' [default "gl.str"].
-#' @param outpath Path where to save the output file [default global working 
+#' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' 
-#' @author Bernd Gruber (wrapper) and Lindsay V. Clark [lvclark@illinois.edu]; 
-#' Custodian Bernd Gruber
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return  returns no value (i.e. NULL)
+#'
+#' @author Author(s): Bernd Gruber (wrapper), Lindsay V. Clark
+#' (lvclark@illinois.edu). Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl2structure(testset.gl[1:10,1:50], outpath=tempdir())
-#' 
+#'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2structure <- function(x,
                          ind.names = NULL,
@@ -61,7 +69,9 @@ gl2structure <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    # SNP only: the 1/2 allele coding has no meaning for presence/absence
+    # (SilicoDArT) data
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
     
     # FUNCTION SPECIFIC ERROR CHECKING
     
@@ -136,13 +146,15 @@ gl2structure <- function(x,
         }
     }
     
-    # add genetic data
+    # add genetic data; columns are assigned by position, not by locus
+    # name, so duplicated locus names cannot overwrite an earlier column
+    firstgen <- ncol(StructTab) + 1
     for (i in 1:dim(genmat)[2]) {
         thesegen <- genmat[, i] + 1
         thesegen[is.na(thesegen)] <- ploidy + 2
-        StructTab[[dimnames(genmat)[[2]][i]]] <-
-            unlist(G[thesegen])
+        StructTab[[ncol(StructTab) + 1]] <- unlist(G[thesegen])
     }
+    names(StructTab)[firstgen:ncol(StructTab)] <- dimnames(genmat)[[2]]
     
     # add marker name header
     if (export.marker.names) {
@@ -151,12 +163,14 @@ gl2structure <- function(x,
             file = outfilespec)
     }
     
-    # export all data
+    # export all data; append only after the marker-name header has
+    # truncated the file, otherwise start afresh (re-runs must overwrite,
+    # not accumulate)
     write.table(
         StructTab,
         row.names = FALSE,
         col.names = FALSE,
-        append = TRUE,
+        append = export.marker.names,
         sep = "\t",
         file = outfilespec,
         quote = FALSE
@@ -174,5 +188,5 @@ gl2structure <- function(x,
         cat(report("Completed:", funname, "\n"))
     }
     
-    return(NULL)
+    invisible(NULL)
 }
