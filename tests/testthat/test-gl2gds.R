@@ -5,7 +5,7 @@
 test_that("gl2gds default path writes a gds with zero pos/chrom and raw dosage", {
   skip_if_not_installed("SNPRelate")
   skip_if_not_installed("gdsfmt")
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   # small is 6 individuals x 7 loci
   td <- file.path(tempdir(), "gds_char")
   dir.create(td, showWarnings = FALSE)
@@ -87,7 +87,7 @@ test_that("gl2gds is silent at verbose = 0", {
   skip_if_not_installed("SNPRelate")
   # Updated for approved finding F3 (VRB5): the "Structure of gds file"
   # banner, snpgdsSummary and print(genofile) are now gated at verbose >= 3.
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "gds_char")
   dir.create(td, showWarnings = FALSE)
   f <- file.path(td, "v0.gds")
@@ -102,8 +102,8 @@ test_that("gl2gds rejects SilicoDArT input", {
   skip_if_not_installed("SNPRelate")
   # Updated for approved finding F4 (DAT7): accept = "SNP" now rejects
   # presence/absence data instead of writing a pseudo-SNP gds.
-  gs <- testset.gs[1:4, 1:6]
-  gs@other$loc.metrics <- testset.gs@other$loc.metrics[1:6, ]
+  gs <- testset2.gs[1:4, 1:6]
+  gs@other$loc.metrics <- testset2.gs@other$loc.metrics[1:6, ]
   td <- file.path(tempdir(), "gds_char")
   dir.create(td, showWarnings = FALSE)
   expect_error(
