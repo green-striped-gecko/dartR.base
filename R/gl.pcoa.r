@@ -38,6 +38,13 @@
 #'The function is essentially a wrapper for glPca \{adegenet\} or pcoa \{ape\}
 #'with default settings apart from those specified as parameters in this
 #'function.
+#'
+#' Two algorithms are used for the PCA, depending on how the genotypes are
+#' stored. For ordinary (in-memory) genlight objects the PCA is undertaken
+#' with glPca \{adegenet\}, which handles missing values internally. For
+#' file-backed (FBM) dartR objects the PCA is undertaken with big_SVD
+#' \{bigstatsr\}; missing values are first imputed using
+#' gl.impute(x, method='neighbour').
 #'\strong{ Sources of stress in the visual representation }
 #' While, technically, any distance matrix can be represented in an ordinated
 #' space, the representation will not typically be exact.There are three major
@@ -724,13 +731,13 @@ gl.pcoa <- function(x,
                 round(eig.raw.pos.pc[1], 1),
                 "% of the total variance\n"
             ))
-            if(length(eig.top >= 2)){cat(
+            if (length(eig.raw.pos.pc) >= 2) {cat(
                 paste(
                     "    PCoA Axis 1 and 2 combined explain",
                     round(eig.raw.pos.pc[1] + eig.raw.pos.pc[2], 1),
                     "% of the total variance\n"))
             }
-            if(length(eig.top >= 3)){cat(paste(
+            if (length(eig.raw.pos.pc) >= 3) {cat(paste(
                 "    PCoA Axis 1-3 combined explain",
                 round(
                     eig.raw.pos.pc[1] + eig.raw.pos.pc[2] + eig.raw.pos.pc[3],
@@ -740,10 +747,18 @@ gl.pcoa <- function(x,
             }
         }
         # Construct a universal output file
+        # Clamp nfactors to the number of axes the ordination yields, else
+        # the subset below fails with "subscript out of bounds"
+        nf.use <- min(nfactors, ncol(pco$vectors))
+        if (nf.use < nfactors && verbose >= 2) {
+            cat(warn("  Warning: nfactors reduced from", nfactors, "to",
+                     nf.use, "-- the distance matrix yields only",
+                     ncol(pco$vectors), "axes\n"))
+        }
         p.object <- list()
-        p.object$scores <- pco$vectors[, 1:nfactors]
+        p.object$scores <- pco$vectors[, 1:nf.use]
         p.object$eig <- pco$values$Eigenvalues
-        p.object$loadings <- pco$vectors.cor[, 1:nfactors]
+        p.object$loadings <- pco$vectors.cor[, 1:nf.use]
         p.object$call <- match.call()
         
     }  ######## END DISTANCE DATA
@@ -785,6 +800,16 @@ gl.pcoa <- function(x,
         # construct glPca object
          pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
          class(pca) <- "glPca"
+        # Truncate scores and loadings to nfactors, matching
+        # glPca(nf = nfactors) on the in-memory path; $eig stays full length
+        # because the pc.select criteria below need all eigenvalues
+         nf.use <- min(nfactors, ncol(dummy$u))
+         if (nf.use < nfactors && verbose >= 2) {
+           cat(warn("  Warning: nfactors reduced from", nfactors, "to",
+                    nf.use, "-- only", ncol(dummy$u), "axes available\n"))
+         }
+         pca$scores <- pca$scores[, 1:nf.use, drop = FALSE]
+         pca$loadings <- pca$loadings[, 1:nf.use, drop = FALSE]
       } else {
         pca <-
             glPca(x,
@@ -845,14 +870,17 @@ gl.pcoa <- function(x,
           }
         }
         
-        e <- pca$eig[pca$eig > sum(pca$eig / length(pca$eig))]
         e <- eig.top
         e <- round(e * 100 / sum(pca$eig), 1)
         if (verbose >= 3) {
           cat(paste("  Ordination yielded", length(e), "informative dimensions(", pc.select, "criterion) from", nInd(x) - 1, "original dimensions\n"))
           cat(paste("    PCA Axis 1 explains", e[1], "% of the total variance\n"))
-          cat(paste("    PCA Axis 1 and 2 combined explain", e[1] + e[2], "% of the total variance\n"))
-          cat(paste("    PCA Axis 1-3 combined explain", e[1] + e[2] + e[3], "% of the total variance\n"))
+          if (length(e) >= 2) {
+            cat(paste("    PCA Axis 1 and 2 combined explain", e[1] + e[2], "% of the total variance\n"))
+          }
+          if (length(e) >= 3) {
+            cat(paste("    PCA Axis 1-3 combined explain", e[1] + e[2] + e[3], "% of the total variance\n"))
+          }
         }
         
         # Construct a universal output file
