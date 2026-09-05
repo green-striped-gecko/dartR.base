@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2bayesAss()`: SilicoDArT (presence/absence) data was silently accepted
+  and written as fake diploid BA3 genotypes; the function now stops with an
+  error unless the data are SNP. The `ploidy != 2` refusal now uses the
+  standard fatal-error message format, and `ploidy` is documented as a
+  diploid-confirmation guard rather than a settable option.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
