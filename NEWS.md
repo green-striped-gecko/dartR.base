@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gi2gl()`: a genind containing any locus with more than two alleles was
+  silently corrupted -- the tab-column walk assumed at most two alleles
+  per locus, so every locus after a multiallelic one read the wrong
+  column; such input now raises a fatal error naming the offending loci.
+  A single-locus genind crashed ("argument is of length zero"); fixed.
+  Non-diploid genind objects are now rejected (their allele counts
+  cannot be represented as 0/1/2 dosages). Allele spellings are now
+  reconstructed from the genind allele names instead of a uniform
+  placeholder, consistent with the returned dosages. The function's
+  documentation page was merged into `gl2gi`'s (`@name gl2gi` in
+  gi2gl.R); `gi2gl` now has its own manual page with examples.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
