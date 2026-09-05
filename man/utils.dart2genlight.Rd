@@ -42,6 +42,11 @@ called id. Here the ids have to match the ids in the dart object
 pop: specifies the population membership of each individual. lat and lon
 specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
+
+Note that the ind.metafile acts as a filter as well as a source of
+metadata: individuals in the DArT file that have no matching id row in
+the ind.metafile are REMOVED from the returned object (a warning
+reports how many were removed).
 }
 \seealso{
 Other utilities: 
