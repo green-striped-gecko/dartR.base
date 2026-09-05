@@ -12,6 +12,14 @@
 #' therefore for comparisons between coancestry and related we suggest to use
 #' the command line version of coancestry.
 
+#' @details
+#' The exported file (and the returned data frame) codes each locus as two
+#' columns, one per allele: the reference allele is written as 1 and the
+#' alternate allele as 3, so a heterozygote is 1 3, a homozygous reference
+#' is 1 1 and a homozygous alternate is 3 3. Missing genotypes are written
+#' as 0 0. The first column holds the individual names. The file is
+#' tab-separated with no header and no quoting, as expected by COANCESTRY.
+
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default 'related.txt'].
@@ -23,11 +31,13 @@
 #' [default TRUE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
-#' 
-#' @author Bernd Gruber (bugs? Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return A data.frame that can be used to run with the related package
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
 #' gtd <- gl2related(bandicoot.gl[1:10,1:20], save=FALSE, )
@@ -44,9 +54,8 @@
 #' related: related: an R package for analyzing pairwise relatedness
 #'  data based on codominant molecular markers.
 #'  R package version 0.8/r2. https://R-Forge.R-project.org/projects/related/
-#'   
+#'
 #' @export
-#' @return A data.frame that can be used to run with the related package
 
 gl2related <- function(x,
                        outfile = "related.txt",
@@ -67,7 +76,9 @@ gl2related <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    # SNP only: the recoding assumes 0/1/2 dosage; SilicoDArT presence
+    # scores would be written as heterozygotes (F2)
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
     
     # DO THE JOB
     
@@ -94,7 +105,9 @@ gl2related <- function(x,
             file = fn,
             sep = "\t",
             col.names = F,
-            row.names = F
+            row.names = F,
+            # COANCESTRY reads the name column literally; no quotes (F1)
+            quote = F
         )
     
     # FLAG SCRIPT END
