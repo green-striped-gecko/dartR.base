@@ -184,8 +184,20 @@ Pre-existing; unreachable on the packaged multi-locus datasets, visible
 on a single-locus conversion (274 -> 273 individuals with 274-row
 `ind.metrics`). Characterized in the test file.
 
-Round-trip re-verification (post gl2gi + gi2gl fixes): recorded after
-the `gi2gl` branch — see the gi2gl report's Outcome.
+### Round-trip re-verification with both fixes (this branch + gi2gl PR #344)
+
+Run 2026-09-05 with this branch's `gl2gi.r` and `review-gi2gl`'s
+`gi2gl.R` loaded together:
+
+- `gl.filter.allna(testset.gl)` (752 loci): dimensions, indNames,
+  locNames, pop and NA pattern identical; `loc.metrics` 752 rows,
+  `ind.metrics` 274 rows (in register); 596 of 752 loci come back as
+  exact 0 <-> 2 complements and every locus is identical-or-complement
+  (the documented reference-allele ambiguity, unchanged); `loc.all` is
+  set-equal to the original pair on all 611 loci biallelic in the data.
+- Raw `testset.gl` (755 loci incl. 3 all-NA): the round trip now
+  SUCCEEDS — 752 loci with 752-row `loc.metrics` (previously crashed in
+  `gl.recalc.metrics`).
 
 ```json
 {
