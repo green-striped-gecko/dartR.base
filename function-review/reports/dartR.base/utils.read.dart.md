@@ -172,7 +172,8 @@ this round and are deferred; INFO items carry no action.
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-utils.read.dart` (base upstream/dev
-ddaed27): changes 1-5 (F1-F5, with F8's count-table recomputation folded
+ddaed27); PR #360 to `dev`
+(https://github.com/green-striped-gecko/dartR.base/pull/360): changes 1-5 (F1-F5, with F8's count-table recomputation folded
 into change 1 as scoped). Changes 6-7 (F6-F7, LOW) deferred - roxygen
 untouched, so `man/utils.read.dart.Rd` and NAMESPACE are unchanged
 (`devtools::document()` run to confirm).
@@ -219,6 +220,6 @@ only by `gl.read.dart` (dartR.base); the chain was re-verified above.
     "DAT6 FBM: out of scope for this function"
   ],
   "status": "pr-open",
-  "pr": null
+  "pr": 360
 }
 ```
