@@ -80,6 +80,7 @@ adjacency, NA handling) is byte-identical to the pre-review snapshot.
 End-to-end run on `testset.gl` at `verbose = 3` verified (274 x 1512
 dataframe). Sibling-clone grep across the 8 dartR-verse packages: no callers
 of `gl2demerelate` -- all clear. NEWS.md entry added.
+PR: green-striped-gecko/dartR.base#349.
 
 ```json
 {
@@ -98,6 +99,6 @@ of `gl2demerelate` -- all clear. NEWS.md entry added.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "Demerelate round-trip: package archived on CRAN"],
   "status": "pr-open",
-  "pr": null
+  "pr": 349
 }
 ```
