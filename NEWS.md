@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.read.PLINK()`: the returned object now contains the genotypes at
+  every verbosity. Previously `gl.gen2fbm()` always ran and the result
+  was discarded at verbose <= 2 (the default), so default-settings calls
+  returned an object with no genotype data; at verbose = 3 the object
+  came back FBM-backed even with `fbm = FALSE`. The `fbm` argument now
+  decides the backend, as documented. Individual metafile rows are now
+  matched to the .fam individuals by `id` (previously bound in file
+  order, silently misassigning metadata when the orders differed), and
+  a `pop` column in the metafile is now applied to `pop(gl)`. A missing
+  AlleleID column in the locus metafile now stops with the intended
+  message instead of an unrelated subscript error. The .ped-to-.bed
+  conversion now runs in a temporary directory (previously it wrote
+  .bed/.bim/.fam/.log into the user's input directory) and PLINK's
+  console chatter is suppressed below verbose 3. Documentation: the
+  dosage orientation is now stated (counts allele.2, the PLINK 1.x
+  major allele -- the opposite orientation to `gl.read.vcf()`, which
+  counts ALT).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

@@ -95,6 +95,7 @@ gl <- gl.read.dart(dartfile, ind.metafile = metadata, fbm=TRUE)
 
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.read.silicodart}()},
