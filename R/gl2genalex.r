@@ -18,8 +18,9 @@
 #' [default 'genalex.csv'].
 #' @param outpath Path where to save the output file [default global working 
 #' directory or if not specified, tempdir()].
-#' @param overwrite If FALSE and filename exists, then the file will not be
-#' overwritten [default FALSE].
+#' @param overwrite If FALSE and the file already exists, the call fails with
+#' an error and the existing file is left in place; set TRUE to overwrite it
+#' [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end;
 #' 2, progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -56,30 +57,37 @@ gl2genalex <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
     # CHECK IF PACKAGES ARE INSTALLED
     pkg <- "poppr"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
-    
+
     # DO THE JOB
-    
+
     # filtering all loci with all NAs to avoid crashing the function
+    nloc_before <- nLoc(x)
     x <- gl.filter.allna(x,verbose =0 )
-    
+    if (verbose >= 1 && nLoc(x) < nloc_before) {
+      cat(warn(
+        "  Warning:", nloc_before - nLoc(x),
+        "loci scored NA across all individuals removed before export\n"
+      ))
+    }
+
     gind <- gl2gi(x, verbose = 0)
     poppr::genind2genalex(
         gind,
         filename = outfilespec,
         sequence = TRUE,
-        overwrite = overwrite
+        overwrite = overwrite,
+        quiet = (verbose < 2)
     )
     
     if (verbose > 2) {
@@ -94,6 +102,6 @@ gl2genalex <- function(x,
         cat(report("Completed:", funname, "\n"))
     }
     
-    return(NULL)
-    
+    return(invisible(NULL))
+
 }
