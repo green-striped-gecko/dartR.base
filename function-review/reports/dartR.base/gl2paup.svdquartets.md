@@ -123,7 +123,7 @@ outfile-derived PAUP filenames) -- 22 assertions pass. End-to-end runs at
 verbose = 3 on testset.gl (methods 1 and 2) and testset.gs completed
 cleanly. Sibling grep across the 8 clones: no package-code callers of
 `gl2paup.svdquartets` -- all clear.
-PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
+PR: https://github.com/green-striped-gecko/dartR.base/pull/341
 
 ```json
 {
@@ -147,6 +147,6 @@ PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
   ],
   "coverage_skipped": ["PAUP execution of generated command block: no PAUP binary", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 341
 }
 ```
