@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.read.dart()`: `verbose = 0` no longer leaks the full
+  `gl.compliance.check()` progress log; the internal `utils.recalc.maf()`
+  result is now assigned (previously discarded -- the final object was
+  rescued by the compliance check); the lastmetric autodetection now runs
+  after the standard preamble, checks that the file exists and fails with
+  a clear message (naming the `lastmetric` parameter) when the file has no
+  '*' header rows, instead of dying pre-banner with "argument of length
+  0"; and DArT reports lacking CallRate/AvgCountRef/AvgCountSnp no longer
+  crash the read-depth calculation ("replacement has length zero") --
+  `rdepth` is set NA with a gated warning.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
