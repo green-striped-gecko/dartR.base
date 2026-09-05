@@ -188,7 +188,7 @@ written as 0 — no tag offsets or fabricated coordinates.
 
 ## Outcome (Phase C)
 
-Applied 2026-09-05 on branch `review-gl2vcf` (base upstream/dev,
+Applied 2026-09-05 on branch `review-gl2vcf`; PR #352 (base upstream/dev,
 ddaed27 — which predates the PR #330 `is.null` test; the rewritten
 coordinate block below embeds the genome-only convention either way).
 All nine changes applied:
@@ -267,6 +267,6 @@ repairs its small-dataset path. NEWS.md entry added.
   ],
   "coverage_skipped": ["external VCF validator: not installed", "chr.format numeric path: no numeric-chromosome fixture", "DAT6: no FBM fixture"],
   "status": "pr-open",
-  "pr": null
+  "pr": 352
 }
 ```
