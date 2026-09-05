@@ -116,6 +116,7 @@ fixed -N, F7/F8 silence at verbose = 0) — 23 assertions pass. End-to-end
 runs on testset.gs at verbose = 3 (standard and bash modes) completed
 cleanly; generated PBS directives inspected. Sibling grep across the 8
 clones: no package-code callers of `gl2paup.parsimony` — all clear.
+PR: https://github.com/green-striped-gecko/dartR.base/pull/336
 
 ```json
 {
@@ -140,6 +141,6 @@ clones: no package-code callers of `gl2paup.parsimony` — all clear.
   ],
   "coverage_skipped": ["test=TRUE path: stochastic, reviewed by reading", "Gadi execution of generated scripts: no server access", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 336
 }
 ```
