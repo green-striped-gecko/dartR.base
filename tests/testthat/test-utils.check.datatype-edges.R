@@ -41,7 +41,7 @@ regen <- function(g, m) {
 # ---- the lead: all-NA courtesy scan on degenerate objects ------------------
 
 test_that("an object with every locus all-NA survives verbose 2", {
-  sub <- testset.gl[1:4, 1:6]
+  sub <- testset2.gl[1:4, 1:6]
   m <- as.matrix(sub)
   m[] <- NA_integer_
   allna <- regen(sub, m)
@@ -79,12 +79,12 @@ test_that("a zero-locus (plain genlight) object survives verbose 2", {
   expect_equal(r$val, "SNP")
 })
 
-test_that("testset.gl itself carries 3 all-NA loci that warn at verbose 2", {
+test_that("testset2.gl itself carries 3 all-NA loci that warn at verbose 2", {
   # every gl.* call on the standard fixture at default verbosity prints the
   # all-NA warning; pin the fixture fact the courtesy scan reacts to
-  n_allna <- sum(colSums(!is.na(as.matrix(testset.gl))) == 0)
+  n_allna <- sum(colSums(!is.na(as.matrix(testset2.gl))) == 0)
   expect_equal(n_allna, 3)
-  r <- cap2(utils.check.datatype(testset.gl, verbose = 2))
+  r <- cap2(utils.check.datatype(testset2.gl, verbose = 2))
   expect_true(any(grepl("loci that are scored NA across all individuals",
                         r$lines, fixed = TRUE)))
 })
@@ -124,11 +124,11 @@ test_that("classification is ploidy-driven, never content-driven", {
 # ---- accept gate matching rules --------------------------------------------
 
 test_that("accept matching is exact and case-sensitive", {
-  expect_error(utils.check.datatype(testset.gl, accept = "snp", verbose = 0),
+  expect_error(utils.check.datatype(testset2.gl, accept = "snp", verbose = 0),
                "found SNP expecting snp")
-  expect_error(utils.check.datatype(testset.gs, accept = "SNP", verbose = 0),
+  expect_error(utils.check.datatype(testset2.gs, accept = "SNP", verbose = 0),
                "found SilicoDArT expecting SNP")
-  expect_error(utils.check.datatype(testset.gl, accept = "SilicoDArT",
+  expect_error(utils.check.datatype(testset2.gl, accept = "SilicoDArT",
                                     verbose = 0),
                "found SNP expecting SilicoDArT")
 })
@@ -145,7 +145,7 @@ test_that("BUG: a data.frame is classified 'list', not 'data.frame'", {
 })
 
 test_that("fd objects resolve to 'fd'; malformed fd fails fast", {
-  fd <- gl.fixed.diff(testset.gl[1:10, 1:20], verbose = 0)
+  fd <- gl.fixed.diff(testset2.gl[1:10, 1:20], verbose = 0)
   expect_equal(utils.check.datatype(fd, accept = "fd", verbose = 0), "fd")
   expect_error(utils.check.datatype(fd, verbose = 0),
                "found fd")  # the default accept does not admit fd
@@ -170,13 +170,13 @@ test_that("unknown classes fall through to class(x)[1] and the accept gate", {
 # ---- contracts -------------------------------------------------------------
 
 test_that("the input object is never modified (read-only contract)", {
-  before <- testset.gl
-  invisible(cap2(utils.check.datatype(testset.gl, verbose = 3)))
-  expect_identical(before, testset.gl)
+  before <- testset2.gl
+  invisible(cap2(utils.check.datatype(testset2.gl, verbose = 3)))
+  expect_identical(before, testset2.gl)
 })
 
 test_that("verbose = 1 adds nothing over verbose = 0 (no begin/end banner)", {
-  out1 <- capture.output(utils.check.datatype(testset.gs, verbose = 1))
+  out1 <- capture.output(utils.check.datatype(testset2.gs, verbose = 1))
   expect_length(out1, 0)
 })
 
@@ -184,7 +184,7 @@ test_that("verbose = 1 adds nothing over verbose = 0 (no begin/end banner)", {
 
 test_that("an FBM-backed dartR object (empty @gen) classifies from ploidy", {
   skip_if_not(exists("gl.gen2fbm"), "gl.gen2fbm not available")
-  glf <- gl.gen2fbm(testset.gl, verbose = 0)
+  glf <- gl.gen2fbm(testset2.gl, verbose = 0)
   expect_length(glf@gen, 0)  # genotypes live in the FBM, not @gen
   expect_equal(utils.check.datatype(glf, verbose = 0), "SNP")
   # at verbose 2 the courtesy scan densifies via as.matrix (DAT6 exposure
