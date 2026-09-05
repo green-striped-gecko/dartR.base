@@ -1,5 +1,20 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.read.silicodart()`: four fixes. (1) A metafile without a pop
+  column always crashed with "object 'out' not found" (a variable-name
+  typo - the branch had never worked); it now mirrors the SNP path and
+  defaults every individual to 'pop1' with a gated warning. (2)
+  Duplicate non-numeric CloneIDs produced NA locus names (the
+  uniquification loop assigned new strings into a factor column); the
+  column is now converted to character first, so duplicates get the
+  promised _1, _2 suffixes. (3) All messages are verbosity-gated, raw
+  cat() calls routed through the colour helpers, and verbose is passed
+  to the closing gl.compliance.check: `verbose = 0` is silent
+  (previously 31 lines printed). (4) Individuals absent from the
+  ind.metafile are still removed (the contract aligned with the SNP
+  path), but the removal is now announced with a warning stating how
+  many individuals were REMOVED, and the message no longer mislabels
+  them "loci" ("Subsetting loci now!").
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
