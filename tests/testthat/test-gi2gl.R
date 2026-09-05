@@ -2,13 +2,13 @@
 # (review baseline, bugs included), including the gl2gi -> gi2gl round
 # trip. Captured 2026-09-05 at ed99203.
 
-test_that("round trip gl -> gi -> gl on raw testset.gl", {
+test_that("round trip gl -> gi -> gl on raw testset2.gl", {
   # Baseline behaviour: crashed via gl2gi's loc.metrics desync on dropped
   # all-NA loci (gl2gi finding F1, fixed on the separate review-gl2gi
   # branch). Written to hold in both merge states: with the desync still
   # present gi2gl errors on the row-count mismatch; with gl2gi fixed the
   # genind is clean and converts.
-  gi <- suppressWarnings(gl2gi(testset.gl, verbose = 0))
+  gi <- suppressWarnings(gl2gi(testset2.gl, verbose = 0))
   if (nrow(gi@other$loc.metrics) == adegenet::nLoc(gi)) {
     rt <- gi2gl(gi, verbose = 0)
     expect_equal(nLoc(rt), adegenet::nLoc(gi))
@@ -18,7 +18,7 @@ test_that("round trip gl -> gi -> gl on raw testset.gl", {
 })
 
 test_that("round trip on clean data preserves structure; dosage polarity flips per locus", {
-  x <- gl.filter.allna(testset.gl, verbose = 0)   # 752 loci, no all-NA
+  x <- gl.filter.allna(testset2.gl, verbose = 0)   # 752 loci, no all-NA
   gi <- suppressWarnings(gl2gi(x, verbose = 0))
   rt <- gi2gl(gi, verbose = 0)
 
@@ -71,7 +71,7 @@ test_that("round trip on clean data preserves structure; dosage polarity flips p
 })
 
 test_that("gi2gl rejects non-genind input", {
-  expect_error(gi2gl(testset.gl, verbose = 0), "genind object required")
+  expect_error(gi2gl(testset2.gl, verbose = 0), "genind object required")
 })
 
 test_that("gi2gl converts a single-locus genind", {
@@ -101,7 +101,7 @@ test_that("gi2gl rejects a genind with more than two alleles at a locus", {
 })
 
 test_that("gi2gl is silent at verbose = 0", {
-  x <- gl.filter.allna(testset.gl, verbose = 0)
+  x <- gl.filter.allna(testset2.gl, verbose = 0)
   gi <- suppressWarnings(gl2gi(x, verbose = 0))
   out <- capture.output(rt <- gi2gl(gi, verbose = 0))
   expect_length(out, 0)
