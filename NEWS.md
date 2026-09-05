@@ -1,5 +1,19 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2genepop()`: an all-monomorphic object wrote a silently malformed
+  file (the header claimed all loci but every row carried exactly two
+  "0000" fields); such objects now write one correctly coded genotype
+  per locus. `pop.order` entries that were unlisted, misspelled or
+  duplicated silently dropped populations from the exported file;
+  pop.order is now validated against the object's population names and
+  errors naming the offending entries. Also: the save-path message is
+  gated at `verbose >= 2` (it printed at verbose 0, with a stray path
+  separator), the per-locus column lookup is hoisted out of the
+  individual loop (was O(nInd x nLoc^2)), the SilicoDArT rejection
+  raises a proper error condition (was an empty stop()), a
+  single-individual object fails fast with a clear message (was "X is
+  not a matrix"), and all-NA locus drops are reported at
+  `verbose >= 1`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
