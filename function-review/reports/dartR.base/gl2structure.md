@@ -118,7 +118,7 @@ approved campaign-wide and applies here as change 2.
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2structure` (base upstream/dev,
-ddaed27). All five changes applied:
+ddaed27); PR #339. All five changes applied:
 
 1. F1 — `write.table(append = export.marker.names)`: the data write
    appends only when the marker-name header has just truncated the file;
@@ -162,6 +162,6 @@ no caller breaks. NEWS.md entry added.
   ],
   "coverage_skipped": ["STRUCTURE parse test: no STRUCTURE binary", "ploidy != 2: no fixture", "DAT6: no FBM fixture"],
   "status": "pr-open",
-  "pr": null
+  "pr": 339
 }
 ```
