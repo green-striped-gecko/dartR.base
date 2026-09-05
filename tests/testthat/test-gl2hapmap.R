@@ -37,8 +37,8 @@ test_that("gl2hapmap writes a HapMap file with the standard 11 metadata columns"
 test_that("gl2hapmap emits pos = 0 for every SNP when @position is NULL and pos not given", {
   od <- file.path(tempdir(), "gl2hapmap_ts")
   dir.create(od, showWarnings = FALSE)
-  expect_null(testset.gl@position)
-  capture.output(gl2hapmap(testset.gl, outfile = "ts", outpath = od,
+  expect_null(testset2.gl@position)
+  capture.output(gl2hapmap(testset2.gl, outfile = "ts", outpath = od,
                            verbose = 0))
   hm <- read.delim(file.path(od, "ts.hmp.txt"), check.names = FALSE)
   expect_true(all(hm$pos == 0))
@@ -88,7 +88,7 @@ test_that("gl2hapmap rejects SilicoDArT data with an informative condition", {
   # rejection now goes through utils.check.datatype(accept = 'SNP').
   od <- file.path(tempdir(), "gl2hapmap_gs")
   dir.create(od, showWarnings = FALSE)
-  err <- tryCatch(capture.output(gl2hapmap(testset.gs, outpath = od,
+  err <- tryCatch(capture.output(gl2hapmap(testset2.gs, outpath = od,
                                            verbose = 0)),
                   error = function(e) e)
   expect_s3_class(err, "error")
