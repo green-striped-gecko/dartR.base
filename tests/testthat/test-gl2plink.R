@@ -46,11 +46,11 @@ test_that("sex.code is recoded for scalar and vector forms", {
 test_that("NULL position/chromosome are coded as unmapped (0/0) with gated warnings", {
   td <- tempdir()
   # F5: the fallback warnings are gated; verbose = 0 is silent
-  o <- capture.output(gl2plink(testset.gl, outfile = "chplkT", outpath = td,
+  o <- capture.output(gl2plink(testset2.gl, outfile = "chplkT", outpath = td,
                                verbose = 0))
   expect_length(o, 0)
   # F5: at verbose >= 1 the fallbacks warn
-  o1 <- capture.output(gl2plink(testset.gl, outfile = "chplkT", outpath = td,
+  o1 <- capture.output(gl2plink(testset2.gl, outfile = "chplkT", outpath = td,
                                 verbose = 1))
   expect_true(any(grepl("chromosome slot is empty", o1)))
   expect_true(any(grepl("position slot is empty", o1)))
@@ -64,7 +64,7 @@ test_that("NULL position/chromosome are coded as unmapped (0/0) with gated warni
 
 test_that("SilicoDArT input is rejected at the datatype gate", {
   # F3: accept = "SNP" replaces the mid-write crash with a clear error
-  gs <- testset.gs[1:20, 1:100]
+  gs <- testset2.gs[1:20, 1:100]
   gs@other$loc.metrics <- gs@other$loc.metrics[1:100, ]
   expect_error(capture.output(gl2plink(gs, outfile = "chplkGS",
       outpath = tempdir(), verbose = 0)),
