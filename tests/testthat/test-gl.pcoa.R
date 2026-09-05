@@ -6,28 +6,28 @@
 test_that("glPca path: nfactors respected, eig full length, values stable", {
   pdf(NULL); on.exit(dev.off())
   for (nf in c(2, 5, 10)) {
-    p <- gl.pcoa(testset.gl, nfactors = nf, plot.out = FALSE, verbose = 0)
+    p <- gl.pcoa(testset2.gl, nfactors = nf, plot.out = FALSE, verbose = 0)
     expect_equal(dim(p$scores), c(274, nf))
     expect_equal(dim(p$loadings), c(611, nf))
     expect_length(p$eig, 273)
   }
-  p5 <- gl.pcoa(testset.gl, nfactors = 5, plot.out = FALSE, verbose = 0)
+  p5 <- gl.pcoa(testset2.gl, nfactors = 5, plot.out = FALSE, verbose = 0)
   expect_equal(round(p5$eig[1:3], 6), c(1.382214, 1.344892, 1.114741))
   expect_equal(round(sum(abs(p5$scores)), 3), 1186.296)
   expect_s3_class(p5, "glPca")
 })
 
-test_that("glPca path: verbose = 3 summary on testset.gl has no NA lines", {
+test_that("glPca path: verbose = 3 summary on testset2.gl has no NA lines", {
   pdf(NULL); on.exit(dev.off())
   out <- capture.output(
-    invisible(gl.pcoa(testset.gl, plot.out = FALSE, verbose = 3)))
+    invisible(gl.pcoa(testset2.gl, plot.out = FALSE, verbose = 3)))
   expect_true(any(grepl("27 informative dimensions", out)))
   expect_false(any(grepl("NA % of the total variance", out)))
 })
 
 test_that("low-rank object (<3 informative axes): verbose = 3 output", {
   pdf(NULL); on.exit(dev.off())
-  lr <- testset.gl[1:4, ]
+  lr <- testset2.gl[1:4, ]
   out <- capture.output(plr <- gl.pcoa(lr, plot.out = FALSE, verbose = 3))
   expect_length(plr$eig, 3)
   # [approved F5] axis-combination lines are now printed only when enough
@@ -85,7 +85,7 @@ test_that("dist path: verbose = 3 with <3 positive eigenvalues", {
 test_that("FBM path: nfactors and eig length", {
   skip_if_not_installed("bigstatsr")
   pdf(NULL); on.exit(dev.off())
-  fb <- gl.gen2fbm(testset.gl)
+  fb <- gl.gen2fbm(testset2.gl)
   pf <- gl.pcoa(fb, nfactors = 5, plot.out = FALSE, verbose = 0)
   # [approved F1] nfactors was silently ignored on the big_SVD path (scores
   # came back 274 x 273); scores/loadings are now truncated to nfactors,
