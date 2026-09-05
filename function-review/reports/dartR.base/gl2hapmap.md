@@ -150,7 +150,7 @@ rejection). F8 (INFO) requires no change, as scoped.
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2hapmap` (base `upstream/dev`,
-ddaed27). PR: (recorded below after opening).
+ddaed27). PR: green-striped-gecko/dartR.base#351.
 
 - F1: explicitly nominated `pos`/`chrom` loc.metrics fields now take
   precedence over populated slots; precedence documented in `@param`.
@@ -201,6 +201,6 @@ of `gl2hapmap` — all-clear. NEWS entry added.
   ],
   "coverage_skipped": ["TASSEL re-import: no external toolchain", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 351
 }
 ```
