@@ -19,14 +19,15 @@ gl2faststructure(
 \item{outfile}{File name of the output file (including extension)
 [default "gl.str"].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{probar}{Switch to show/hide progress bar [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -36,6 +37,18 @@ Recodes in the quite specific faststructure format (e.g first six columns
 need to be there, but are ignored...check faststructure documentation
  (if you find any :-( )))
 The script writes out the a file in faststructure format.
+}
+\details{
+The output file contains two rows per individual (one per allele), with
+six leading columns that faststructure requires but ignores; this function
+fills them with the individual's row index. Genotypes are coded 1/2 per
+allele and missing data as -9.
+}
+\examples{
+\donttest{
+gl2faststructure(testset.gl, outfile = "testset.str", outpath = tempdir())
+}
+
 }
 \seealso{
 Other linker: 
@@ -60,6 +73,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}

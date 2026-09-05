@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2faststructure()`: SilicoDArT (presence/absence) objects were
+  silently admitted and written as meaningless pseudo-diploid genotypes;
+  the function now accepts SNP data only and stops otherwise. The NULL
+  return is now invisible (no stray "NULL" printed on unassigned calls).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
