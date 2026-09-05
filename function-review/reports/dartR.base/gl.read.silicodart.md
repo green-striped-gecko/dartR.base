@@ -164,7 +164,8 @@ approved this round and are deferred; INFO items carry no action.
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl.read.silicodart` (base upstream/dev
-ddaed27): changes 1-4 (F1-F4). Changes 5-7 (F5-F7, LOW) deferred - roxygen
+ddaed27); PR #365 to `dev`
+(https://github.com/green-striped-gecko/dartR.base/pull/365): changes 1-4 (F1-F4). Changes 5-7 (F5-F7, LOW) deferred - roxygen
 untouched, so `man/gl.read.silicodart.Rd` and NAMESPACE are unchanged
 (`devtools::document()` run to confirm). Change 4 follows the custodian
 contract applied on the SNP path (`utils.dart2genlight` change 1): the drop
@@ -222,6 +223,6 @@ Caller grep across the 8 dartR-verse clones: no sibling package calls
     "duplicate individual names: read-only, uniquification is applied here"
   ],
   "status": "pr-open",
-  "pr": null
+  "pr": 365
 }
 ```
