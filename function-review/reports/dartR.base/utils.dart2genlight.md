@@ -171,7 +171,8 @@ this round and are deferred; INFO items carry no action.
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-utils.dart2genlight` (base upstream/dev
-ddaed27): changes 1-5 (F1-F5, with F7's line touches folded into change 5 as
+ddaed27); PR #363 to `dev`
+(https://github.com/green-striped-gecko/dartR.base/pull/363): changes 1-5 (F1-F5, with F7's line touches folded into change 5 as
 scoped). Change 6 (F6, LOW) deferred.
 
 Contract decision on change 1: the proposed change offered join semantics
@@ -232,6 +233,6 @@ and does not call this util (verified by grep).
   ],
   "interactions": {"pr330": "no shared lines with #330 hunks (checked against the PR diff); merges cleanly in either order; no #330 hunks carried on the branch"},
   "status": "pr-open",
-  "pr": null
+  "pr": 363
 }
 ```
