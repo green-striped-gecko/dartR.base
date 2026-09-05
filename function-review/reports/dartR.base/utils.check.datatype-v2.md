@@ -350,8 +350,9 @@ Caller safety: census of 217 sites re-confirmed; the 23
 campaign's gate intent); no caller passes a data.frame to a "list"
 gate.
 
-Manifest: new row `pr-open` for `review-utils.check.datatype-2`
-appended alongside the untouched 296 row.
+Manifest: new row `pr-open,368` for `review-utils.check.datatype-2`
+appended alongside the untouched 296 row. PR #368 opened, stacked on
+PR #296 (merge #296 first).
 
 ```json
 {
@@ -379,7 +380,7 @@ appended alongside the untouched 296 row.
   "baseline_test": "tests/testthat/test-utils.check.datatype-edges.R",
   "status": "applied",
   "pr": 296,
-  "pr_followup": "pending",
+  "pr_followup": 368,
   "branch_followup": "review-utils.check.datatype-2"
 }
 ```
