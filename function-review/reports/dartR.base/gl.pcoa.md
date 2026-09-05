@@ -194,7 +194,7 @@ future pass. None reaches BLOCKER/HIGH.
   no caller reaches the changed edge cases; all clear.
 - `man/gl.pcoa.Rd` regenerated (F3); NEWS.md entry added.
 - Open custodian items: F2 rescaling triple; Tracy-Widom criterion.
-- PR: pending (number added in follow-up commit)
+- PR: #369 (https://github.com/green-striped-gecko/dartR.base/pull/369)
 
 ```json
 {
@@ -226,6 +226,6 @@ future pass. None reaches BLOCKER/HIGH.
   "datasets": ["testset.gl", "crafted dist 10/4/3", "testset.gl[1:4,]", "gl.gen2fbm(testset.gl)"],
   "baseline_test": "tests/testthat/test-gl.pcoa.R",
   "status": "pr-open",
-  "pr": null
+  "pr": 369
 }
 ```
