@@ -3,7 +3,7 @@
 # [bug baseline] capture current defective behaviour on purpose; flip them
 # only against an approved finding in the Phase A report.
 
-snap_sub <- function() testset.gl[1:8, 1:15]
+snap_sub <- function() testset2.gl[1:8, 1:15]
 
 test_that("nexus output has the documented snapper structure", {
   td <- tempdir()
@@ -31,13 +31,13 @@ test_that("nexus output has the documented snapper structure", {
 
 test_that("SilicoDArT is rejected explicitly", {
   expect_error(
-    capture.output(gl2snapper(testset.gs, outpath = tempdir(), verbose = 0)),
+    capture.output(gl2snapper(testset2.gs, outpath = tempdir(), verbose = 0)),
     "SilicoDArT")
 })
 
 test_that("individual names with spaces or duplicates are mangled to safe labels", {
   td <- tempdir()
-  s <- testset.gl[1:6, 1:10]
+  s <- testset2.gl[1:6, 1:10]
   indNames(s)[2] <- indNames(s)[1]
   indNames(s)[3] <- "AA space"
   o <- capture.output(gl2snapper(s, outfile = "snap_names.nex",
@@ -53,7 +53,7 @@ test_that("individual names with spaces or duplicates are mangled to safe labels
 test_that("preprocessing options are silent at verbose 0", {
   td <- tempdir()
   set.seed(42)
-  o <- capture.output(gl2snapper(testset.gl[, 1:100], outfile = "snap_pre.nex",
+  o <- capture.output(gl2snapper(testset2.gl[, 1:100], outfile = "snap_pre.nex",
                                  outpath = td, rm.autapomorphies = TRUE,
                                  nloc = 20, verbose = 0))
   # F1 fix applied: verbose passed through to gl.allele.freq / gl.drop.loc
