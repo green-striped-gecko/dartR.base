@@ -13,6 +13,7 @@
   length 0" failure, and line-wrapped (multi-line) FASTA -- which the
   two-line reader silently mis-groups -- is rejected up front with an
   informative error, now documented.
+* R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
 * CI repair: six review-campaign test files hardcoded expectations from a

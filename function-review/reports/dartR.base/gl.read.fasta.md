@@ -222,9 +222,18 @@ snapshotted):
 - Wrapped FASTA: clear "must be on a single line" fatal error;
   all-monomorphic input: clear "no SNPs found" fatal error.
 
-Combined-behaviour integration probe (both branches loaded together):
-recorded below after the utils.read.fasta branch was built — see
-"Integration probe" at the end of this section.
+Integration probe (combined behaviour: this branch's wrapper + the
+`review-utils.read.fasta` engine, PR #362, loaded together in a scratch
+state, 2026-09-05):
+
+- test-gl.read.fasta.R: 31 pass, 0 fail, 0 skip -- the verbose-0
+  silence test activates against the gated engine and passes.
+- test-utils.read.fasta.R: 32 pass, 0 fail.
+- End to end at default verbosity, clean.fas + clean2.fas: nInd 7,
+  nLoc 5, genotypes present in @gen (@fbm NULL), N and gap cells read
+  as NA, triallelic columns absent, absent individuals NA at the other
+  file's loci -- the clean/clean2 fixtures read correctly end to end.
+- verbose = 0 through the full public surface: zero captured lines.
 
 ```json
 {
@@ -246,6 +255,6 @@ recorded below after the utils.read.fasta branch was built — see
   ],
   "coverage_skipped": ["parallel pass-through: verified at utils.read.fasta level"],
   "status": "phase-c-applied",
-  "pr": null
+  "pr": 359
 }
 ```
