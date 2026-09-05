@@ -143,7 +143,7 @@ applied here as change 2).
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2gi` (base `upstream/dev`,
-ddaed27). PR: (recorded below after opening).
+ddaed27). PR: green-striped-gecko/dartR.base#338.
 
 - F1: all-NA loci removed up front (warning at `verbose >= 1`);
   `loc.metrics` re-subset from the original object (DAT3), and a
@@ -208,6 +208,6 @@ the `gi2gl` branch — see the gi2gl report's Outcome.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 338
 }
 ```
