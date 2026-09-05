@@ -7,26 +7,33 @@
 #'  i.e. SilicoDArT data) into a file in the 'geno' and the 'lfmm' formats from 
 #'  (package LEA).
 #'  
+#' @details
+#' Loci scored as missing (NA) across all individuals are removed before
+#' writing, with a warning at verbose >= 1. Missing data are coded 9 in
+#' both output files.
+#'
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param outfile File name of the output file [default 'gl_geno'].
-#' @param outpath Path where to save the output file [default global working 
+#' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
-#' 
-#' @author Custodian: Luis Mijangos (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return  returns no value (i.e. NULL)
+#'
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @examples
 #' # SNP data
 #' gl2geno(testset.gl, outpath=tempdir())
 #' # Tag P/A data
 #' gl2geno(testset.gs, outpath=tempdir())
-#' 
+#'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2geno <- function(x,
                     outfile = "gl_geno",
@@ -61,100 +68,7 @@ gl2geno <- function(x,
     # DO THE JOB
     
     outfilespec <- file.path(outpath, outfile)
-    
-    # dat <- as.matrix(x)
-    # n <-nInd(x)
-    # L <-nLoc(x)
-    # 
-    # # Convert allelic data into absence/presence data at each locus Results are stored in the 'dat.binary' object
-    # 
-    # if (datatype == "SilicoDArT") {
-    #     dat <- as.matrix(dat)
-    #     dat.binary <- NULL
-    #     for (j in 1:L) {
-    #         allele <- sort(unique(dat[, j]))
-    #         for (i in allele[allele >= 0]) {
-    #             dat.binary <- cbind(dat.binary, dat[, j] == i)
-    #         }
-    #         LL <- ncol(dat.binary)
-    #         ind <- which(dat[, j] < 0)
-    #         if (length(ind) != 0) {
-    #             dat.binary[ind, (LL - length(allele) + 2):LL] <- -9
-    #         }
-    #     }
-    # }
-    # 
-    # if (datatype == "SNP") {
-    #     dummy_final <- NULL
-    #     for (r in 1:nrow(dat)) {
-    #         dummy <- rbind(dat[r, ], dat[r, ])
-    #         index <- colSums(dummy, na.rm = T) == 2
-    #         dummy[, index] <- c(0, 2)
-    #         dummy <- ifelse(is.na(dummy), -9, dummy)
-    #         dummy <- ifelse(dummy == 0, 1, dummy)
-    #         dummy_final <- rbind(dummy_final, dummy)
-    #     }
-    #     
-    #     dat.binary <- NULL
-    #     for (j in 1:L) {
-    #         allele <-sort(unique(dummy_final[, j]))
-    #         for (i in allele[allele >= 0]) {
-    #             dat.binary <- cbind(dat.binary, dummy_final[, j] == i)
-    #         }
-    #         LL <- dim(dat.binary)[2]
-    #         ind <- which(dummy_final[, j] < 0)
-    #         if (length(ind) != 0) {
-    #             dat.binary[ind, (LL - length(allele) + 2):LL] <- -9
-    #         }
-    #     }
-    # }
-    # 
-    # # Compute a genotype count for each allele (0,1,2 or 9 for a missing value) The results are stored in 'genotype'
-    # 
-    # n <- nrow(dat.binary)
-    # L <- ncol(dat)
-    # LL <- ncol(dat.binary)
-    # 
-    # if (datatype == "SNP") {
-    #     n <-n / 2
-    #     genotype <- matrix(NA, nrow = n, ncol = LL)
-    #     for (i in 1:n) {
-    #         genotype[i, ] <- dat.binary[2 * i - 1, ] + dat.binary[2 * i, ]
-    #         genotype[i, (genotype[i, ] < 0)] <- NA
-    #     }
-    #     if (LL == 2 * L) {
-    #         genotype <- genotype[, seq(2, LL, by = 2)]
-    #     }
-    # }
-    # 
-    # if (datatype == "SilicoDArT") {
-    #     genotype <- dat.binary
-    #     for (i in 1:n) {
-    #         genotype[i, (genotype[i, ] < 0)] <- NA
-    #     }
-    #     if (LL == 2 * L) {
-    #         genotype <- genotype[, seq(2, LL, by = 2)]
-    #     }
-    # }
-    # 
-    # genotype[is.na(genotype)] <- 9
-    # lst.monomorphic <- apply(
-    #     genotype,
-    #     2,
-    #     FUN = function(x) {
-    #         length(unique(x[x != 9]))
-    #     }
-    # )
-    # 
-    # if (sum(lst.monomorphic == 1) > 0) {
-    #     if (verbose > 0) {
-    #         cat(warn(
-    #             "  Monomorphic alleles generated during conversion were removed. \n"
-    #         ))
-    #     }
-    #     genotype <- genotype[, lst.monomorphic > 1]
-    # }
-    
+
     genotype <- as.matrix(x)
     genotype[is.na(genotype)] <- 9    
     # write lfmm
@@ -175,9 +89,12 @@ gl2geno <- function(x,
     )
     
     if (verbose > 0) {
-        cat(report("  Output files:", paste(
-            paste0(outfile, ".geno", ".lfmm."), sep = ""
-        ), "\n"))
+        cat(report(
+            "  Output files:",
+            paste0(outfilespec, ".geno"),
+            paste0(outfilespec, ".lfmm"),
+            "\n"
+        ))
     }
     
     # FLAG SCRIPT END
