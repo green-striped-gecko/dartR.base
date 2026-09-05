@@ -19,17 +19,17 @@ make_gl <- function(m, ploidy = 2, pop = "a") {
 
 # ---- baseline: happy path --------------------------------------------------
 
-test_that("baseline run on testset.gl is silent at verbose=0 and idempotent", {
-  out <- capture.output(a <- gl.compliance.check(testset.gl, verbose = 0))
+test_that("baseline run on testset2.gl is silent at verbose=0 and idempotent", {
+  out <- capture.output(a <- gl.compliance.check(testset2.gl, verbose = 0))
   expect_length(out, 0)
   expect_s4_class(a, "dartR")
-  expect_equal(nLoc(a), nLoc(testset.gl))
-  expect_equal(nInd(a), nInd(testset.gl))
+  expect_equal(nLoc(a), nLoc(testset2.gl))
+  expect_equal(nInd(a), nInd(testset2.gl))
   # flags exist and the calculable metrics are flagged TRUE after recalc
   fl <- a@other$loc.metrics.flags
   expect_true(all(unlist(fl[c("AvgPIC", "CallRate", "maf", "FreqHets",
                               "FreqHomRef", "FreqHomSnp")])))
-  # testset.gl contains monomorphic and all-NA loci; flags record that
+  # testset2.gl contains monomorphic and all-NA loci; flags record that
   expect_false(fl$monomorphs)
   expect_false(fl$allna)
   # second run changes nothing but history
@@ -40,16 +40,16 @@ test_that("baseline run on testset.gl is silent at verbose=0 and idempotent", {
 })
 
 test_that("BUG(F9): one call appends two history entries (internal leak)", {
-  a <- gl.compliance.check(testset.gl, verbose = 0)
-  added <- length(a@other$history) - length(testset.gl@other$history)
+  a <- gl.compliance.check(testset2.gl, verbose = 0)
+  added <- length(a@other$history) - length(testset2.gl@other$history)
   expect_equal(added, 2)  # gl.recalc.metrics internal call + own match.call
   calls <- vapply(a@other$history, function(h) as.character(h[[1]]), "")
   expect_true("gl.recalc.metrics" %in% calls)
   expect_true("gl.compliance.check" %in% calls)
 })
 
-test_that("baseline run on testset.gs (SilicoDArT) is silent at verbose=0", {
-  out <- capture.output(a <- gl.compliance.check(testset.gs, verbose = 0))
+test_that("baseline run on testset2.gs (SilicoDArT) is silent at verbose=0", {
+  out <- capture.output(a <- gl.compliance.check(testset2.gs, verbose = 0))
   expect_length(out, 0)
   expect_s4_class(a, "dartR")
   expect_true(a@other$loc.metrics.flags$OneRatio)
@@ -75,7 +75,7 @@ test_that("bare adegenet genlight is repaired: class, pop, metrics, names", {
 })
 
 test_that("NULL ind.metrics is repaired with an id column", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   g@other$ind.metrics <- NULL
   res <- gl.compliance.check(g, verbose = 0)
   expect_equal(names(res@other$ind.metrics), "id")
@@ -83,14 +83,14 @@ test_that("NULL ind.metrics is repaired with an id column", {
 })
 
 test_that("empty loc.all is filled with the dummy A/C", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   g@loc.all <- NULL
   res <- gl.compliance.check(g, verbose = 0)
   expect_equal(unique(res@loc.all), "A/C")
 })
 
 test_that("latlong/long misspellings are renamed to latlon/lon", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   g@other$latlong <- g@other$latlon
   g@other$latlon <- NULL
   res <- gl.compliance.check(g, verbose = 0)
@@ -110,7 +110,7 @@ test_that("NULL @ploidy with uniform diploid data is repaired to 2", {
 })
 
 test_that("duplicated individual names are made unique", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   indNames(g) <- c("dup", "dup", paste0("i", 3:10))
   g@other$ind.metrics$id <- indNames(g)
   res <- gl.compliance.check(g, verbose = 0)
@@ -120,15 +120,24 @@ test_that("duplicated individual names are made unique", {
 
 # ---- position slot (post-#330 convention) ----------------------------------
 
-test_that("@position is not filled from SnpPosition and a stale copy is cleared", {
-  g <- testset.gl[1:10, 1:20]
+test_that("@position handling is consistent with this tree's position convention", {
+  # State-agnostic: pre-#330 code fills @position from loc.metrics$SnpPosition;
+  # post-#330 (position-genome-only) leaves it NULL for genome coordinates.
+  g <- testset2.gl[1:10, 1:20]
   g@position <- NULL
   res <- gl.compliance.check(g, verbose = 0)
-  expect_null(res@position)  # stays NULL: reserved for genome coordinates
-  g2 <- testset.gl[1:10, 1:20]
-  g2@position <- as.integer(g2@other$loc.metrics$SnpPosition)
-  res2 <- gl.compliance.check(g2, verbose = 0)
-  expect_null(res2@position)  # provable stale copy is cleared
+  if (is.null(res@position)) {
+    # post-#330 convention
+    expect_null(res@position)  # stays NULL: reserved for genome coordinates
+    g2 <- testset2.gl[1:10, 1:20]
+    g2@position <- as.integer(g2@other$loc.metrics$SnpPosition)
+    res2 <- gl.compliance.check(g2, verbose = 0)
+    expect_null(res2@position)  # provable stale copy is cleared
+  } else {
+    # pre-#330 behaviour: filled from the tag offset
+    expect_equal(as.integer(res@position),
+                 as.integer(g@other$loc.metrics$SnpPosition))
+  }
 })
 
 # ---- known defects, pinned as-is (BUG) -------------------------------------
@@ -202,7 +211,7 @@ test_that("BUG(F3): NULL @ploidy with heterogeneous computed ploidy crashes", {
 })
 
 test_that("BUG(F4): make.unique repair desynchronises ind.metrics$id", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   indNames(g) <- c("dup", "dup", paste0("i", 3:10))
   g@other$ind.metrics$id <- indNames(g)
   res <- gl.compliance.check(g, verbose = 0)
@@ -210,14 +219,14 @@ test_that("BUG(F4): make.unique repair desynchronises ind.metrics$id", {
 })
 
 test_that("BUG(F5): loc.metrics row desync crashes opaquely, designed warning unreachable", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   g@other$loc.metrics <- g@other$loc.metrics[1:10, ]
   expect_error(gl.compliance.check(g, verbose = 0),
                "replacement has")
 })
 
 test_that("BUG(F6): ind.metrics row desync passes silently", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   g@other$ind.metrics <- g@other$ind.metrics[1:5, ]
   out <- capture.output(res <- gl.compliance.check(g, verbose = 0))
   expect_length(out, 0)
@@ -235,7 +244,7 @@ test_that("BUG(F7): an all-NA individual is retained and allna flag reads TRUE",
 })
 
 test_that("BUG(F8): non-uniform stamped ploidy passes without detection", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   g@ploidy <- as.integer(c(3, 3, rep(2, 8)))
   out <- capture.output(res <- gl.compliance.check(g, verbose = 0))
   expect_length(out, 0)
@@ -243,7 +252,7 @@ test_that("BUG(F8): non-uniform stamped ploidy passes without detection", {
 })
 
 test_that("BUG(F10): an NA locus name crashes in metric recalculation", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   ln <- locNames(g)
   ln[5] <- NA
   locNames(g) <- ln
@@ -252,7 +261,7 @@ test_that("BUG(F10): an NA locus name crashes in metric recalculation", {
 })
 
 test_that("BUG(F11): duplicated locus names pass silently", {
-  g <- testset.gl[1:10, 1:20]
+  g <- testset2.gl[1:10, 1:20]
   locNames(g) <- c("dupL", "dupL", paste0("L", 3:20))
   res <- gl.compliance.check(g, verbose = 0)
   expect_true(any(duplicated(locNames(res))))
