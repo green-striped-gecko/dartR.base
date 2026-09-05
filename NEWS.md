@@ -1,5 +1,25 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2plink()`: (1) When `@chromosome`/`@position` are unset, the .map no
+  longer fabricates coordinates (chromosome "1", positions 1..nLoc);
+  unmapped loci are written with PLINK's own convention, chromosome 0 and
+  position 0, so downstream position-aware operations (LD pruning,
+  clumping) cannot silently run on fictitious coordinates. The fallback
+  is documented, along with the hazard of within-tag offsets in
+  `@position`. (2) `sex.code` is recoded to PLINK's 1/2/0 codes
+  unconditionally -- a scalar (including the default "unknown") was
+  previously written verbatim into the .ped sex column, so an all-female
+  cohort supplied as `sex.code = "F"` silently lost its sex information.
+  (3) SilicoDArT input is rejected at the datatype gate
+  (`accept = "SNP"`) instead of crashing mid-write. (4) With
+  `bed.files = TRUE`, the written allele list (now named
+  `<outfile>_a2_alleles.txt`) is passed to PLINK via `--a2-allele`, so
+  the .bed/.bim ref/alt orientation matches the genlight instead of
+  being reassigned by minor-allele frequency. (5) The fallback warnings
+  are gated at `verbose >= 1` (they printed at `verbose = 0`).
+  (6) `@description` states the two-file default (.ped embeds the fam
+  columns) rather than promising bed/bim/fam unconditionally.
+  (7) Roxygen conformance and re-documentation.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
