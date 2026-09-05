@@ -9,19 +9,31 @@
 #'  (if you find any :-( )))
 
 #' The script writes out the a file in faststructure format.
-#' 
+#'
+#' @details
+#' The output file contains two rows per individual (one per allele), with
+#' six leading columns that faststructure requires but ignores; this function
+#' fills them with the individual's row index. Genotypes are coded 1/2 per
+#' allele and missing data as -9.
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param outfile File name of the output file (including extension)
 #' [default "gl.str"].
-#' @param outpath Path where to save the output file [default global working 
+#' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
 #' @param probar Switch to show/hide progress bar [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' 
-#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
+#' @examples
+#' \donttest{
+#' gl2faststructure(testset.gl, outfile = "testset.str", outpath = tempdir())
+#' }
+#'
 #' @importFrom utils getTxtProgressBar setTxtProgressBar txtProgressBar
 #' @export
 #' @return  returns no value (i.e. NULL)
@@ -31,25 +43,25 @@ gl2faststructure <- function(x,
                              outpath = NULL,
                              probar = FALSE,
                              verbose = NULL) {
-    
+
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
+
     # SET WORKING DIRECTORY
     outpath <- gl.check.wd(outpath,verbose=0)
     outfilespec <- file.path(outpath, outfile)
-    
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
-    
+
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
     # DO THE JOB
-    
+
     x <- as.matrix(x)
     # add six dummy colums
     nc <- ncol(x) + 6
@@ -58,6 +70,8 @@ gl2faststructure <- function(x,
                              1,
                              style = 3,
                              initial = NA)
+    # write through a single open connection rather than reopening the file
+    # by path once per individual
     zz <- file(outfilespec, "w")
     for (i in 1:nrow(x)) {
         dummy <- rbind(x[i, ], x[i, ])
@@ -68,10 +82,9 @@ gl2faststructure <- function(x,
         dummy <- cbind(i, i, i, i, i, i, dummy)
         write(
             t(dummy),
-            file = outfilespec,
+            file = zz,
             sep = "\t",
-            ncolumns = nc,
-            append = TRUE
+            ncolumns = nc
         )
         if (probar)
             setTxtProgressBar(pb, i / nrow(x))
@@ -79,7 +92,7 @@ gl2faststructure <- function(x,
     close(zz)
     if (probar)
         close(pb)
-   
+
     if (verbose >= 2) {
         cat(report(paste0("Saved faststructure file: ", outfilespec, "\n")))
     }
@@ -92,12 +105,12 @@ gl2faststructure <- function(x,
             "loci."
         )))
     }
-    
+
     # FLAG SCRIPT END
-    
+
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(NULL)
+
+    return(invisible(NULL))
 }
