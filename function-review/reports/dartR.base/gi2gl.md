@@ -144,8 +144,8 @@ input is a genind, guarded by the existing `is(gi, "genind")` check).
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gi2gl` (base `upstream/dev`,
-ddaed27; independent of `review-gl2gi`, no stacking). PR: (recorded
-below after opening).
+ddaed27; independent of `review-gl2gi`, no stacking). PR:
+green-striped-gecko/dartR.base#344.
 
 - F1: fatal error naming the offending loci when any locus has more
   than two alleles; the tab-column offset is now `cumsum` over the
@@ -210,6 +210,6 @@ Run 2026-09-05 with `review-gl2gi`'s `gl2gi.r` and this branch's
   ],
   "coverage_skipped": ["DAT6: not applicable (genind input)", "haploid genind probe: asserted from code reading"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 344
 }
 ```
