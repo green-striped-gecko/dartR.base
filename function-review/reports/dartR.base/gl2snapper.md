@@ -134,7 +134,7 @@ change was needed here).
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2snapper` (base upstream/dev,
-ddaed27). All six changes applied:
+ddaed27); PR #334. All six changes applied:
 
 1. F1 — name-mangling warnings and the two preprocessing `cat(report())`
    lines gated at `verbose >= 2`; `verbose = 0` passed to
@@ -180,6 +180,6 @@ gl2snapper outside dartR.base — all clear. NEWS.md entry added.
   ],
   "coverage_skipped": ["BEAUti load test: no BEAST2 install", "DAT6: no FBM fixture"],
   "status": "pr-open",
-  "pr": null
+  "pr": 334
 }
 ```
