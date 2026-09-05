@@ -1,5 +1,23 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.check.datatype()`: four fixes to the package's central datatype
+  dispatcher. (1) The all-NA screen ran a full `gl.filter.allna()` pass on
+  every function entry at `verbose >= 2` (~50 ms per call on the small
+  test dataset); replaced with a direct single-pass check -- same
+  warnings, strictly less work -- and the all-NA-individuals warning no
+  longer carries the copy-pasted loci wording. (2) Mixed or non-diploid
+  ploidy was silently classified as SNP with no notice (the
+  misspecification error was unreachable); it is still classified as SNP
+  (the polyploid paths depend on this) but now announces itself at
+  `verbose >= 2`. (3) `accept = "genlight"` (or "dartR") alone rejected
+  every genlight object because the returned datatype is never literally
+  "genlight"; those entries now admit both genotype datatypes, unless a
+  specific datatype is also listed, in which case the specific listing
+  governs (so `c("genlight","SNP")` remains SNP-only). (4) The
+  unknown-class warning printed at `verbose = 0` (gated at >= 1); dead
+  code removed and the @return documentation aligned with the strings
+  actually returned ("matrix", "glPca").
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
