@@ -151,6 +151,7 @@ loci, on both sides). End-to-end run on `testset.gl` at `verbose = 3`
 wrote a 274 x 755 gds with the structure summary printed at level 3.
 Sibling-caller grep across the 8 dartRverse clones: no callers of
 `gl2gds` — all clear. NEWS entry added.
+PR: green-striped-gecko/dartR.base#342.
 
 ```json
 {
@@ -170,6 +171,6 @@ Sibling-caller grep across the 8 dartRverse clones: no callers of
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "chr.format='numeric' branch not executed"],
   "status": "phase-c",
-  "pr": null
+  "pr": 342
 }
 ```
