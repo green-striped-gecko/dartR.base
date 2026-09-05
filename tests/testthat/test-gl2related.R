@@ -3,7 +3,7 @@
 # CURRENT behaviour, defects included, so Phase C changes surface as diffs.
 
 make_sub <- function() {
-  gg <- testset.gl[1:10, 1:20]
+  gg <- testset2.gl[1:10, 1:20]
   gg@other$loc.metrics <- gg@other$loc.metrics[1:20, ]
   gg
 }
@@ -54,7 +54,7 @@ test_that("save = FALSE writes nothing and verbose = 0 is silent", {
 test_that("SilicoDArT input is rejected", {
   # F2: accept = "SNP" stops silico presence scores being silently written
   # as heterozygote pairs
-  gs <- testset.gs[1:10, 1:20]
+  gs <- testset2.gs[1:10, 1:20]
   gs@other$loc.metrics <- gs@other$loc.metrics[1:20, ]
   expect_error(capture.output(gl2related(gs, save = FALSE, verbose = 0)),
                "expecting SNP")
