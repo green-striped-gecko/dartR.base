@@ -3,7 +3,7 @@
 # behaviour; accepted diffs must map to approved review findings.
 
 test_that("gl2gapit returns a hapmap-style data.frame with a duplicated header row", {
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   # small is 6 individuals x 7 loci
   td <- file.path(tempdir(), "gapit_char")
   dir.create(td, showWarnings = FALSE)
@@ -26,7 +26,7 @@ test_that("gl2gapit returns a hapmap-style data.frame with a duplicated header r
 })
 
 test_that("gl2gapit fills empty chromosome/position slots with dummies, silently at verbose = 0", {
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "gapit_char")
   dir.create(td, showWarnings = FALSE)
   out <- capture.output(res <- gl2gapit(small, outfile = "gap2", outpath = td,
@@ -43,7 +43,7 @@ test_that("gl2gapit fills empty chromosome/position slots with dummies, silently
 test_that("gl2gapit writes the hapmap table to outpath/outfile", {
   # Updated for approved finding F2 (DOC5): the function now writes the
   # tab-delimited hapmap file its parameters and message always promised.
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "gapit_none")
   dir.create(td, showWarnings = FALSE)
   capture.output(res <- gl2gapit(small, outfile = "gap3", outpath = td,
@@ -73,8 +73,8 @@ test_that("gl2gapit recodes chromosome names to stable alphabetical codes", {
 test_that("gl2gapit rejects SilicoDArT input with a clear datatype error", {
   # Updated for approved finding F5 (DAT7): accept = "SNP" now rejects
   # presence/absence data up front instead of crashing in the fill loop.
-  gs <- testset.gs[1:4, 1:6]
-  gs@other$loc.metrics <- testset.gs@other$loc.metrics[1:6, ]
+  gs <- testset2.gs[1:4, 1:6]
+  gs@other$loc.metrics <- testset2.gs@other$loc.metrics[1:6, ]
   expect_error(capture.output(gl2gapit(gs, verbose = 0)),
                "inappropriate object passed to function")
 })
