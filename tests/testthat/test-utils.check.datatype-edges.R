@@ -8,8 +8,10 @@
 # fallback classes, FBM-backed objects, and the read-only contract.
 #
 # Pins CURRENT behaviour (integration-local, PR #296 merged), defects
-# included. Where upstream/dev (ddaed27) behaves differently the divergence
-# is noted inline:
+# included. Assertions marked [approved F<n>] were flipped in Phase C of
+# the v2 review (residuals branch review-utils.check.datatype-2). Where
+# upstream/dev (ddaed27) behaves differently the divergence is noted
+# inline:
 #   - on ddaed27 the all-NA courtesy check calls gl.filter.allna, which
 #     ERRORS ("Subsetting resulted in zero loci.") at verbose >= 2 when
 #     every locus is all-NA, and hits "subscript out of bounds" on a
@@ -103,14 +105,30 @@ test_that("a genlight without ploidy fails fast with the compliance hint", {
   expect_error(utils.check.datatype(g0, verbose = 0), "ploidy not set")
 })
 
-test_that("classification is ploidy-driven, never content-driven", {
-  # 0/1 (presence/absence style) values stamped ploidy 2 classify as SNP:
-  # contradictory content is not detected, so a mis-stamped silico object
-  # passes an accept = 'SNP' gate
+test_that("classification is ploidy-driven, with a content consistency check", {
+  # [approved F7] baseline: 0/1 (presence/absence style) values stamped
+  # ploidy 2 classified as SNP -- contradictory content was not detected,
+  # so a mis-stamped silico object passed an accept = 'SNP' gate into
+  # dosage-based arithmetic. Now caught at the gate: uniform ploidy 2
+  # with all non-missing genotypes 0/1 AND no SNP metadata (empty
+  # loc.all, no SNP/SnpPosition metrics) is fatal at any verbosity. A
+  # clean SNP subset lacking the homozygous-alternate class keeps its
+  # loc.all slot and is unaffected (protected use case, see
+  # test-gl.smearplot.R and test-gl.report.basics.R).
   m_pa <- matrix(c(0L, 1L, 1L, 0L, 0L, 1L, 1L, 0L), nrow = 2)
   g_pa <- methods::new("genlight", gen = m_pa)
   adegenet::ploidy(g_pa) <- rep(2L, 2)
-  expect_equal(utils.check.datatype(g_pa, accept = "SNP", verbose = 0), "SNP")
+  expect_error(utils.check.datatype(g_pa, accept = "SNP", verbose = 0),
+               "ploidy slot and genotype content disagree")
+  # [approved F7] the protected clean case: a testset.gl subset with no
+  # homozygous-alternate scores passes -- its loc.all slot vouches for
+  # the SNP label
+  m_gl <- as.matrix(testset.gl)
+  no2 <- which(colSums(m_gl == 2, na.rm = TRUE) == 0 &
+                 colSums(!is.na(m_gl)) > 0)
+  sub_no2 <- testset.gl[, no2[1:2]]
+  expect_equal(utils.check.datatype(sub_no2, accept = "SNP", verbose = 0),
+               "SNP")
   # 0/1-valued data with inferred ploidy 1 classifies as SilicoDArT
   g_bin <- methods::new("genlight", gen = matrix(c(0L, 1L, 1L, 0L), nrow = 2))
   expect_equal(utils.check.datatype(g_bin, verbose = 0), "SilicoDArT")
@@ -119,6 +137,10 @@ test_that("classification is ploidy-driven, never content-driven", {
   g_flagless <- methods::new("genlight",
                              gen = matrix(c(0L, 1L, 2L, 1L, 0L, 2L), nrow = 2))
   expect_equal(utils.check.datatype(g_flagless, verbose = 0), "SNP")
+  # [approved F7] clean SNP content (a 2 present) passes the consistency
+  # check even under an accept = 'SNP' gate
+  expect_equal(utils.check.datatype(g_flagless, accept = "SNP",
+                                    verbose = 0), "SNP")
 })
 
 # ---- accept gate matching rules --------------------------------------------
@@ -135,13 +157,18 @@ test_that("accept matching is exact and case-sensitive", {
 
 # ---- non-genlight inputs ---------------------------------------------------
 
-test_that("BUG: a data.frame is classified 'list', not 'data.frame'", {
-  # is.list() catches the data.frame before any data.frame branch; a caller
-  # gating on accept = 'matrix' reads 'found list expecting matrix'
-  expect_equal(utils.check.datatype(data.frame(a = 1), accept = "list",
-                                    verbose = 0), "list")
+test_that("a data.frame is classified 'data.frame'", {
+  # [approved F8] baseline: is.list() caught the data.frame before any
+  # data.frame branch, so it was classified 'list' and a caller gating on
+  # accept = 'matrix' read 'found list expecting matrix'. Now a data.frame
+  # reports its own name.
+  expect_equal(utils.check.datatype(data.frame(a = 1),
+                                    accept = "data.frame",
+                                    verbose = 0), "data.frame")
+  expect_error(utils.check.datatype(data.frame(a = 1), accept = "list",
+                                    verbose = 0), "found data.frame")
   expect_error(utils.check.datatype(data.frame(a = 1), accept = "matrix",
-                                    verbose = 0), "found list")
+                                    verbose = 0), "found data.frame")
 })
 
 test_that("fd objects resolve to 'fd'; malformed fd fails fast", {
@@ -187,8 +214,8 @@ test_that("an FBM-backed dartR object (empty @gen) classifies from ploidy", {
   glf <- gl.gen2fbm(testset.gl, verbose = 0)
   expect_length(glf@gen, 0)  # genotypes live in the FBM, not @gen
   expect_equal(utils.check.datatype(glf, verbose = 0), "SNP")
-  # at verbose 2 the courtesy scan densifies via as.matrix (DAT6 exposure
-  # on large data) but completes on the test fixture
+  # [approved F2] at verbose 2 the courtesy scan reads the FBM in column
+  # blocks (no full densification) and completes
   r <- cap2(utils.check.datatype(glf, verbose = 2))
   expect_true(is.na(r$err))
   expect_equal(r$val, "SNP")

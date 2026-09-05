@@ -1,5 +1,24 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.check.datatype()`: residual findings of the second-pass review
+  applied. (1) The courtesy all-NA scan no longer densifies an FBM-backed
+  object at `verbose >= 2`; it reads the FBM in column blocks instead of
+  materialising the full genotype matrix. (2) Content-vs-ploidy
+  consistency: an object of uniform ploidy 2 whose non-missing genotypes
+  are all 0 or 1 AND that carries no SNP metadata (empty `loc.all` slot,
+  no `SNP`/`SnpPosition` locus metrics) -- presence/absence content
+  mislabelled as SNP -- is now rejected with an actionable fatal at any
+  verbosity, instead of passing `accept = "SNP"` gates into dosage-based
+  0/1/2 arithmetic. Clean SNP objects are unaffected: the scan exits at
+  the first genotype of 2, and a subset that merely lacks the
+  homozygous-alternate class is vouched for by its `loc.all` slot.
+  (3) A data.frame is now classified `"data.frame"` rather than `"list"`.
+  (4) The classification-affecting mixed-ploidy notice prints from
+  `verbose >= 1` (was `>= 2`); the accept-gate fatal gained its missing
+  trailing newline; the ploidy-slot-only classification contract, the
+  case-sensitivity of `accept`, and the data.frame mapping are now
+  documented; an `Author(s):` line was added to the header.
+
 * `utils.check.datatype()`: four fixes to the package's central datatype
   dispatcher. (1) The all-NA screen ran a full `gl.filter.allna()` pass on
   every function entry at `verbose >= 2` (~50 ms per call on the small
