@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.read.csv()`: five fixes from function review. (1) The documented
+  `loc.metafile` feature crashed on every use ("argument is of length
+  zero"); the metrics file's own AlleleID column is now validated against
+  the locus names of the input data and then attached. (2) Out-of-range
+  numeric genotype codes (e.g. a stray 5) were admitted silently and
+  survived into the returned object; they now raise a fatal error naming
+  the offending values. (3) Files with fewer than 5 loci or 5 individuals
+  crashed on the unclamped 5x5 type-sniff window. (4) An ind.metafile
+  with the id column anywhere but first was spuriously rejected; the id
+  column is now compared by name, as documented. (5) Character-data
+  allele pairs are now stored in `loc.all` (ref = most frequent allele)
+  instead of the uniform "A/C" compliance placeholder, so downstream
+  exports (gl2vcf, gl2fasta, gl2plink) see the real allele spellings.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
