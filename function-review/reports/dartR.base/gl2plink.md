@@ -102,7 +102,7 @@ pass-through previously crashed inside the recoding and now stops at the
 clear datatype gate; `gl.report.ld.map` requires mapped data by contract,
 and the fabricated-coordinate path it could have inherited is precisely
 the F1 defect. Neither breaks.
-PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
+PR: https://github.com/green-striped-gecko/dartR.base/pull/350
 
 ```json
 {
@@ -124,6 +124,6 @@ PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
   ],
   "coverage_skipped": ["bed.files=TRUE PLINK invocation: no binary", "chr.format=numeric coercion path: not exercised", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 350
 }
 ```
