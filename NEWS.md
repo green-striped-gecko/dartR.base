@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2bayescan()`: SilicoDArT (presence/absence) data was silently accepted
+  and its tag counts doubled into a codominant (diploid gene-copy) BayeScan
+  file; the function now stops with an error unless the data are SNP.
+  Population x locus combinations with no genotyped individuals (written as
+  samples of zero gene copies) are now counted and reported with a warning
+  at `verbose >= 1`, with a recommendation to filter on call rate before
+  export. The console sink is protected with `on.exit()` so an error during
+  writing no longer leaves the session's console redirected, and the
+  function returns NULL invisibly (an unassigned call no longer prints
+  NULL).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
