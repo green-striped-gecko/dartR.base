@@ -110,15 +110,19 @@ gl.read.csv <- function(filename,
                 "Input data should be a csv file with individuals as rows, loci as columns\n"
             )
         )
+        # clamp the confirmation prints to the actual dimensions so small
+        # files do not index beyond the data
+        nshow.loc <- min(5, numcols - 1)
+        nshow.ind <- min(5, numrows - 1)
         cat("  ",
             numcols - 1,
-            "loci, confirming first 5:",
-            as.matrix(df0[1, 2:6]),
+            "loci, confirming first", nshow.loc, ":",
+            as.matrix(df0[1, 2:(nshow.loc + 1)]),
             "\n")
         cat("  ",
             numrows - 1,
-            "individuals, confirming first 5:",
-            as.matrix(df0[2:6, 1]),
+            "individuals, confirming first", nshow.ind, ":",
+            as.matrix(df0[2:(nshow.ind + 1), 1]),
             "\n")
         cat(important(
             "    If these are reversed, re-run the script with transpose=TRUE\n"
@@ -148,10 +152,17 @@ gl.read.csv <- function(filename,
     
     # Validate and convert the SNP data
     
-    test <- paste0(data[1:5,1:5], collapse = "")
+    # clamp the type-sniff window to the actual dimensions so files with
+    # fewer than 5 loci or individuals do not crash on out-of-bounds indexing
+    sniff.rows <- min(5, nrow(data))
+    sniff.cols <- min(5, ncol(data))
+    test <- paste0(data[1:sniff.rows, 1:sniff.cols, drop = FALSE], collapse = "")
     test <- gsub("NA", "9", test)
     test <- gsub(" ", "", test)
-    if (nchar(test) > nrow(data[1:5,1:5]) * ncol(data[1:5,1:5])) {
+    # true allele pairs are only known for character data; NULL signals the
+    # numeric branch, where no allele information is available
+    loc.alleles <- NULL
+    if (nchar(test) > sniff.rows * sniff.cols) {
         if (verbose >= 2) {
             cat(
                 report(
@@ -174,7 +185,9 @@ gl.read.csv <- function(filename,
             )
             stop()
         }
-        # Check that the data are bi-allelic
+        # Check that the data are bi-allelic, recording the true allele pair
+        # per locus so it can be attached to the genlight object
+        loc.alleles <- character(dim(data)[2])
         for (i in 1:dim(data)[2]) {
             v1 <- data[, i]
             v1 <- paste(v1, collapse = " ")
@@ -189,7 +202,15 @@ gl.read.csv <- function(filename,
                 cat(error("Fatal Error: Loci are not bi-allelic\n"))
                 stop()
             }
-            
+
+            # Record the observed allele pair, ref (most frequent) first;
+            # a monomorphic locus carries its single allele twice
+            if (length(names(tmp)) == 2) {
+                loc.alleles[i] <- paste0(names(tmp)[1], "/", names(tmp)[2])
+            } else {
+                loc.alleles[i] <- paste0(names(tmp)[1], "/", names(tmp)[1])
+            }
+
             # Step through and convert data to 0, 1, 2, NA
             homRef <- paste0(names(tmp)[1],"/",names(tmp)[1])
             homAlt <- paste0(names(tmp)[2],"/",names(tmp)[2])
@@ -227,13 +248,13 @@ gl.read.csv <- function(filename,
         s1 <- paste(data, collapse = " ")
         s2 <- unlist(strsplit(s1, " "))
         tmp <- table(s2)
-        if ( any(names(tmp) %in% c("0","1","2","NA"))==FALSE){
-            cat(
-                error(
-                    "Fatal Error: Genotypes must be defined by the numbers 0, 1, 2 or missing NA\n"
-                )
-            )
-            stop()
+        bad.codes <- names(tmp)[!(names(tmp) %in% c("0", "1", "2", "NA"))]
+        if (length(bad.codes) > 0) {
+            stop(error(
+                "Fatal Error: Genotypes must be defined by the numbers 0, 1, 2 or missing NA; found:",
+                paste(bad.codes, collapse = ", "),
+                "\n"
+            ))
         }
     }
     
@@ -249,6 +270,13 @@ gl.read.csv <- function(filename,
         )
     
     pop(gl) <- array("A", nInd(gl))
+
+    # Attach the real allele pairs from character data so loc.all does not
+    # fall back to the compliance placeholder
+    if (!is.null(loc.alleles)) {
+        alleles(gl) <- loc.alleles
+    }
+
     gl <- gl.compliance.check(gl, verbose = verbose)
     gl@other$ind.metrics <- data.frame(id = indNames(gl),
                                        pop = array("A", nInd(gl)))
@@ -263,15 +291,24 @@ gl.read.csv <- function(filename,
                 stringsAsFactors = TRUE
             )
         if (!("AlleleID" %in% names(loc.metrics))) {
-            cat(
+            stop(
                 error(
-                    "Fatal Error: mandatory AlleleID column absent
-                                               from the locus metrics file\n"
+                    "Fatal Error: mandatory AlleleID column absent from the locus metrics file\n"
                 )
             )
         }
+        if (nrow(loc.metrics) != nLoc(gl)) {
+            stop(
+                error(
+                    "Fatal Error: the locus metrics file has", nrow(loc.metrics),
+                    "rows but the SNP data have", nLoc(gl), "loci\n"
+                )
+            )
+        }
+        # Validate the file's own AlleleID column against the locus names of
+        # the input data, position-wise per the documented same-order contract
         for (i in 1:nLoc(gl)) {
-            if (loc.metrics[i, 1] != gl@other$loc.metrics$AlleleID[i]) {
+            if (as.character(loc.metrics$AlleleID[i]) != locNames(gl)[i]) {
                 stop(
                     error(
                         "Fatal Error: AlleleID in the locus metrics file does not correspond with",
@@ -281,7 +318,7 @@ gl.read.csv <- function(filename,
             }
         }
         gl@other$loc.metrics <- loc.metrics
-        
+
     }
     gl <- gl.recalc.metrics(gl, verbose = 0)
     if (verbose >= 2) {
@@ -313,7 +350,9 @@ gl.read.csv <- function(filename,
             stop()
         }
         for (i in 1:nInd(gl)) {
-            if (ind.metrics[i, 1] != gl@other$ind.metrics$id[i]) {
+            # compare the id column by name, not by position; the docs
+            # require an id column, not that it comes first
+            if (ind.metrics$id[i] != gl@other$ind.metrics$id[i]) {
                 cat(
                     error(
                         "Fatal Error: id in the individual metrics file does not correspond with",
