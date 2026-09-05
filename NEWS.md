@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2treemix()`: SilicoDArT objects were admitted with each ploidy-1
+  individual counted as two allele copies, understating drift throughout
+  a treemix run; the function now stops with a clear datatype error
+  (`accept = "SNP"`). Also: the gz write restores the console and closes
+  its connection if it fails midway; the `verbose > 2` record count now
+  reports loci (and populations) instead of individuals; the NULL return
+  is now invisible. SNP output is unchanged.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
