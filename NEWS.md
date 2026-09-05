@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2hapmap()`: the documented `pos` and `chrom` arguments were silently
+  ignored whenever the corresponding slot (`@position`, `@chromosome`)
+  was already populated -- a nominated loc.metrics field now takes
+  precedence over the slot, so output positions change for callers who
+  passed these arguments against an object with populated slots. A
+  genlight without allele definitions (`loc.all` NULL) now fails fast
+  with a clear message instead of an opaque replacement-length error.
+  The zero-fill convention for positions is documented and messaged at
+  `verbose >= 2`. The saved-file message printed at `verbose = 0` (now
+  gated at `verbose >= 2`) and the visible NULL return auto-printed
+  (now invisible). The SilicoDArT rejection raised a condition with an
+  empty message (`cat(error()); stop()`); it now goes through
+  `utils.check.datatype(accept = "SNP")`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

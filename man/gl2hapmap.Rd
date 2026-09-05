@@ -29,10 +29,12 @@ gl2hapmap(
 directory or if not specified, tempdir()].}
 
 \item{chrom}{Field name from the slot loc.metrics where the chromosome of
-each is stored [default NULL].}
+each SNP is stored; if supplied, this field takes precedence over the
+chromosome slot [default NULL].}
 
 \item{pos}{Field name from the slot loc.metrics where the SNP position is
-stored [default NULL].}
+stored; if supplied, this field takes precedence over the position slot
+[default NULL].}
 
 \item{strand}{Orientation of the SNP in the DNA strand. Thus, SNPs could be
 in the forward (+) or in the reverse (-) orientation relative to the
@@ -64,7 +66,9 @@ Convert a \code{genlight} object into HapMap format, producing a file with
 the standard columns for SNP marker ID, chromosome, position, allele
 definitions and per-sample genotype calls encoded as nucleotide pairs.
 
- The chromosome information for unmapped SNPS is coded as 0.
+ The chromosome information for unmapped SNPs is coded as 0, and the
+ position of SNPs without chromosome-scale position information is
+ likewise coded as 0.
 }
 \examples{
 \donttest{
