@@ -1,5 +1,29 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.read.vcf()`: six fixes. (1) In dosage mode every individual was
+  stamped diploid even though the matrix holds copy numbers up to the
+  data's ploidy (a triploid vcf returned dosages of 3 under
+  `ploidy == 2`); the ploidy is now set from the data's maximum copy
+  number per the documented dosage semantics (uniform across
+  individuals, as `gl.compliance.check()` requires a single ploidy
+  level), and ploidy 2 is forced only in genotype mode. (2) INFO fields were split
+  positionally with column names taken from the first record, so any vcf
+  whose INFO keys vary in order or presence across records (merged or
+  multi-caller vcfs) got silently swapped locus metrics; INFO is now
+  parsed per record by key. (3) `verbose = 0` printed a full compliance
+  transcript (~48 lines) because `gl.compliance.check()` and
+  `gl.recalc.metrics()` were called without the user's verbosity; it is
+  now passed through, and the metafile id-mismatch warnings are gated at
+  `verbose >= 1`. (4) The presence of one multi-allelic record coerced
+  every INFO column to numeric, destroying FILTER ("PASS" -> NA) and any
+  character INFO field for all retained loci; only numeric-parseable
+  columns are now coerced. (5) Individuals absent from the ind.metafile
+  were silently dropped from the returned object; they are now retained
+  with NA metadata and listed in a warning at `verbose >= 1`. (6) Haploid
+  or polyploid calls read in genotype mode were silently recoded onto the
+  diploid scale; a warning now states this at `verbose >= 1`, and the
+  dosage orientation (counts ALT -- the opposite of `gl.read.PLINK()`,
+  which counts allele.2) is documented.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
