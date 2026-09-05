@@ -93,6 +93,7 @@ invisible return); 14 assertions pass. End-to-end run on `testset.gl` at
 `verbose = 3` verified: identical GESTE records, and the F2 warning reports
 the 815 zero-sample cells. Sibling-clone grep across the 8 dartR-verse
 packages: no callers of `gl2bayescan` -- all clear. NEWS.md entry added.
+PR: green-striped-gecko/dartR.base#340.
 
 ```json
 {
@@ -113,6 +114,6 @@ packages: no callers of `gl2bayescan` -- all clear. NEWS.md entry added.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "BayeScan executable round-trip: binary unavailable"],
   "status": "pr-open",
-  "pr": null
+  "pr": 340
 }
 ```
