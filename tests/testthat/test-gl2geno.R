@@ -4,7 +4,7 @@
 test_that("gl2geno writes geno and lfmm files for SNP data (all-NA loci dropped)", {
   od <- file.path(tempdir(), "gl2geno_snp")
   dir.create(od, showWarnings = FALSE)
-  res <- gl2geno(testset.gl, outfile = "ts", outpath = od, verbose = 0)
+  res <- gl2geno(testset2.gl, outfile = "ts", outpath = od, verbose = 0)
 
   # returns NULL invisibly
   expect_null(res)
@@ -12,7 +12,7 @@ test_that("gl2geno writes geno and lfmm files for SNP data (all-NA loci dropped)
   geno <- readLines(file.path(od, "ts.geno"))
   lfmm <- readLines(file.path(od, "ts.lfmm"))
 
-  # testset.gl has 755 loci of which 3 are all-NA; gl2geno removes them
+  # testset2.gl has 755 loci of which 3 are all-NA; gl2geno removes them
   # via gl.filter.allna before writing
   expect_equal(length(geno), 752)          # geno: one row per locus
   expect_equal(length(lfmm), 274)          # lfmm: one row per individual
@@ -28,7 +28,7 @@ test_that("gl2geno writes geno and lfmm files for SNP data (all-NA loci dropped)
   expect_true(all(f1 %in% c("0", "1", "2", "9")))
 
   # values agree with the genotype matrix (NA -> 9), individuals in order
-  m <- as.matrix(gl.filter.allna(testset.gl, verbose = 0))
+  m <- as.matrix(gl.filter.allna(testset2.gl, verbose = 0))
   m[is.na(m)] <- 9
   expect_equal(as.integer(f1), unname(m[1, ]))
 })
@@ -36,9 +36,9 @@ test_that("gl2geno writes geno and lfmm files for SNP data (all-NA loci dropped)
 test_that("gl2geno handles SilicoDArT data (0/1 alphabet plus 9)", {
   od <- file.path(tempdir(), "gl2geno_gs")
   dir.create(od, showWarnings = FALSE)
-  gl2geno(testset.gs, outfile = "gs", outpath = od, verbose = 0)
+  gl2geno(testset2.gs, outfile = "gs", outpath = od, verbose = 0)
   geno <- readLines(file.path(od, "gs.geno"))
-  expect_equal(length(geno), 752)          # testset.gs also has 3 all-NA loci
+  expect_equal(length(geno), 752)          # testset2.gs also has 3 all-NA loci
   chars <- sort(unique(strsplit(paste(geno, collapse = ""), "")[[1]]))
   expect_equal(chars, c("0", "1", "9"))
 })
@@ -46,7 +46,7 @@ test_that("gl2geno handles SilicoDArT data (0/1 alphabet plus 9)", {
 test_that("gl2geno is silent at verbose = 0", {
   od <- file.path(tempdir(), "gl2geno_v0")
   dir.create(od, showWarnings = FALSE)
-  out <- capture.output(gl2geno(testset.gl, outfile = "v0", outpath = od,
+  out <- capture.output(gl2geno(testset2.gl, outfile = "v0", outpath = od,
                                 verbose = 0))
   expect_length(out, 0)
 })
@@ -56,7 +56,7 @@ test_that("gl2geno output-file message names both real files at verbose >= 1", {
   # two real output paths instead of the garbled '<outfile>.geno.lfmm.'.
   od <- file.path(tempdir(), "gl2geno_msg")
   dir.create(od, showWarnings = FALSE)
-  out <- capture.output(gl2geno(testset.gl, outfile = "msg", outpath = od,
+  out <- capture.output(gl2geno(testset2.gl, outfile = "msg", outpath = od,
                                 verbose = 1))
   expect_true(any(grepl(file.path(od, "msg.geno"), out, fixed = TRUE)))
   expect_true(any(grepl(file.path(od, "msg.lfmm"), out, fixed = TRUE)))
