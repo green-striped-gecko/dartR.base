@@ -1,5 +1,24 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2bpp()`: seven fixes. (1) On plain genlight input (any object built
+  by adegenet/vcfR rather than dartR) the internal position sort did not
+  carry `loc.metrics`, so locus names were paired with the wrong
+  TrimmedSequence and the alignment was genetically wrong with no warning;
+  the sort now re-subsets the metadata explicitly and dartR-class and plain
+  genlight input produce identical output. (2) The `merge.secondaries`
+  block produced a structurally invalid file (stale block-header lengths,
+  orphan headers when a clone had three or more secondaries, a duplicated
+  segment between the last two SNP positions, and labels read from the
+  wrong lines); it is rewritten block-wise and verified on a synthetic
+  secondary pair. (3) `method` is now validated -- an invalid value
+  previously ran to "Completed" and silently wrote no alignment.
+  (4) An object without `loc.metrics.flags` crashed with "argument is of
+  length zero"; absent flags are now treated as monomorphs-not-confirmed
+  (gated warning). (5) A vestigial dependency guard on seqinr (never used
+  by the function; non-stopping `return(-1)` idiom) is removed. (6) Output
+  lines no longer carry stray leading/trailing spaces. (7) The return is
+  `invisible(NULL)` and the roxygen header is brought to the house
+  template.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
