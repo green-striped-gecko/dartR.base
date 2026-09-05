@@ -28,7 +28,8 @@ relatedness and not export to coancestry. See the example below
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A data.frame that can be used to run with the related package
@@ -42,6 +43,14 @@ code as coancestry and therefore should have identical results. Also running
 coancestry with thousands of SNPs via the GUI seems to be not reliable and
 therefore for comparisons between coancestry and related we suggest to use
 the command line version of coancestry.
+}
+\details{
+The exported file (and the returned data frame) codes each locus as two
+columns, one per allele: the reference allele is written as 1 and the
+alternate allele as 3, so a heterozygote is 1 3, a homozygous reference
+is 1 1 and a homozygous alternate is 3 3. Missing genotypes are written
+as 0 0. The first column holds the individual names. The file is
+tab-separated with no header and no quoting, as expected by COANCESTRY.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
@@ -85,7 +94,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Bernd Gruber (bugs? Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
