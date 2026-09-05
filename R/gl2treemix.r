@@ -9,18 +9,26 @@
 #'  be sourced from the treemix download page.
 
 
+#' @details
+#' The output file has a header row of population names followed by one
+#' row per locus, each cell holding the reference and alternate allele
+#' counts for that population as 'ref,alt'.
+#'
 #' @param x Name of the genlight object [required].
 #' @param outfile File name of the output file (including gz extension)
 #' [default 'treemix_input.gz'].
-#' @param outpath Path where to save the output file [default global working 
+#' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' 
-#' [default 2 or as specified using gl.set.verbosity].
-#' @author Custodian: Arthur Georges (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return  returns no value (i.e. NULL)
+#'
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gl2treemix(testset.gl, outpath=tempdir())
@@ -28,9 +36,8 @@
 #' @references Pickrell and Pritchard (2012). Inference of population splits and
 #' mixtures from genome-wide allele frequency data. PLoS Genetics
 #'  https://doi.org/10.1371/journal.pgen.1002967
-#'  
+#'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2treemix <- function(x,
                        outfile = "treemix_input.gz",
@@ -51,7 +58,10 @@ gl2treemix <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    # SNP only: the allele-count arithmetic below assumes two allele
+    # copies per scored individual, which is wrong for ploidy-1
+    # (SilicoDArT) data
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
     
     # DO THE JOB
     
@@ -75,8 +85,16 @@ gl2treemix <- function(x,
             )
         ))
     }
-    sink(gzfile(outfilespec))
-    
+    # Restore the console and close the gz connection if the write fails
+    # or is interrupted; the success path closes both explicitly below
+    sink.depth <- sink.number()
+    con <- gzfile(outfilespec)
+    sink(con)
+    on.exit({
+        while (sink.number() > sink.depth) sink()
+        tryCatch(close(con), error = function(e) NULL)
+    }, add = TRUE)
+
     cat(unique(as.character(freq$popn)), "\n")
     k <- 1
     for (j in 1:nLoc(x)) {
@@ -86,11 +104,13 @@ gl2treemix <- function(x,
         cat("\n")
         k <- k + nPop(x)
     }
-    
+
     sink()
+    close(con)
     if (verbose > 2) {
         cat(report(
-            paste("    Records written to", outfilespec, ":", nInd(x), "\n")
+            paste("    Records (loci) written to", outfilespec, ":",
+                  nLoc(x), "for", nPop(x), "populations\n")
         ))
     }
     
@@ -101,6 +121,6 @@ gl2treemix <- function(x,
         cat(important("Output file has been gzipped for input to treemix\n"))
     }
     
-    return(NULL)
-    
+    invisible(NULL)
+
 }
