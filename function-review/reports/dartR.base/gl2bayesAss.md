@@ -86,7 +86,7 @@ behaviour changes (F1 SilicoDArT rejection, F3 error-message format); all 13
 assertions pass. End-to-end run on `testset.gl` at `verbose = 3` verified
 (206870 rows; SNP recode unchanged). Sibling-clone grep across the 8
 dartR-verse packages: no callers of `gl2bayesAss` — all clear. NEWS.md entry
-added.
+added. PR: green-striped-gecko/dartR.base#335.
 
 ```json
 {
@@ -107,6 +107,6 @@ added.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "BA3 executable round-trip: binary unavailable"],
   "status": "pr-open",
-  "pr": null
+  "pr": 335
 }
 ```
