@@ -4,7 +4,7 @@
 
 test_that("gl2genalex writes a GenAlEx codominant csv with 1-4 allele codes and 0 missing", {
   skip_if_not_installed("poppr")
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   # small is 6 individuals x 7 loci, 6 populations
   td <- file.path(tempdir(), "galex_char")
   dir.create(td, showWarnings = FALSE)
@@ -38,7 +38,7 @@ test_that("gl2genalex is silent at verbose = 0", {
   skip_if_not_installed("poppr")
   # Updated for approved findings F3 (quiet = (verbose < 2) passed to
   # poppr::genind2genalex) and F5 (invisible NULL return).
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "galex_char")
   dir.create(td, showWarnings = FALSE)
   out <- capture.output(vis <- withVisible(
@@ -52,7 +52,7 @@ test_that("gl2genalex is silent at verbose = 0", {
 
 test_that("gl2genalex overwrite = FALSE leaves an existing file in place", {
   skip_if_not_installed("poppr")
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "galex_char")
   dir.create(td, showWarnings = FALSE)
   f <- file.path(td, "keep.csv")
@@ -69,8 +69,8 @@ test_that("gl2genalex rejects SilicoDArT input", {
   skip_if_not_installed("poppr")
   # Updated for approved finding F1 (DAT7): accept = "SNP" now rejects
   # presence/absence data instead of exporting pseudo-codominant genotypes.
-  gs <- testset.gs[1:4, 1:6]
-  gs@other$loc.metrics <- testset.gs@other$loc.metrics[1:6, ]
+  gs <- testset2.gs[1:4, 1:6]
+  gs@other$loc.metrics <- testset2.gs@other$loc.metrics[1:6, ]
   td <- file.path(tempdir(), "galex_char")
   dir.create(td, showWarnings = FALSE)
   expect_error(
