@@ -71,7 +71,7 @@ pass, including the cell-by-cell allele-coding checks unchanged.
 End-to-end on a testset.gl subset at verbose = 3: clean; the written
 file starts with the bare individual name. Sibling grep across the 8
 clones: no package-code callers of `gl2related` -- all clear.
-PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
+PR: https://github.com/green-striped-gecko/dartR.base/pull/353
 
 ```json
 {
@@ -90,6 +90,6 @@ PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
   ],
   "coverage_skipped": ["COANCESTRY/related round-trip: programs not installed", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 353
 }
 ```
