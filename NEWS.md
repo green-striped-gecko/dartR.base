@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2phylip()`: (1) With `bstrap > 1` the function returned the LAST
+  bootstrap replicate's distance matrix; it now returns the observed-data
+  matrix as documented. (2) Bootstrap resampling subsetted the genlight
+  with duplicated locus indices, hitting the adegenet SNPbin defect that
+  silently converts missing genotypes to homozygous reference; loci are
+  now resampled at the matrix level, so replicate values change on data
+  with missing genotypes. (3) Allele frequencies are computed with
+  `na.rm = TRUE` -- previously any missing genotype voided the whole
+  population x locus cell (35% of cells on testset.gl), leaving each
+  pairwise distance resting on an undisclosed locus subset; numerical
+  output changes for datasets with missing genotypes, and a warning
+  reports cells with no scored genotypes. (4) SilicoDArT input is now
+  rejected (`accept = "SNP"`): the diploid-dosage math halved all
+  presence/absence frequencies. (5) `outpath` follows the family idiom
+  (`NULL` resolved via `gl.check.wd`). (6) The output sink is released
+  on error. (7) A warning is given when 10-character truncation collides
+  population names. (8) Build tag and roxygen conformance.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

@@ -2,73 +2,71 @@
 % Please edit documentation in R/gl2phylip.r
 \name{gl2phylip}
 \alias{gl2phylip}
-\title{Creates a Phylip input distance matrix from a genlight (SNP) \{adegenet\}
+\title{Creates a Phylip input distance matrix from a genlight (SNP)
  object}
 \usage{
 gl2phylip(
   x,
   outfile = "phyinput.txt",
-  outpath = tempdir(),
+  outpath = NULL,
   bstrap = 1,
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP or presence/absence
-(SilicoDArT) data [required].}
+\item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{outfile}{Name of the file to become the input file for phylip
 [default "phyinput.txt"].}
 
-\item{outpath}{Path where to save the output file 
-[default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
- when calling this function to direct output files to your working directory.}
+\item{outpath}{Path where to save the output file [default global working
+directory or if not specified, tempdir()].}
 
 \item{bstrap}{Number of bootstrap replicates [default 1].}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2, 
-progress log; 3, progress and results summary; 5, full report 
-[default 2 or as specified using gl.set.verbosity]}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-Matrix of Euclidean distances between populations.
+Matrix of Euclidean distances between populations, computed from
+the observed data.
 }
 \description{
-This function calculates and returns a matrix of Euclidean distances between 
-populations and produces an input file for the phylogenetic program Phylip 
+This function calculates and returns a matrix of Euclidean distances between
+populations and produces an input file for the phylogenetic program Phylip
 (Joe Felsenstein).
+}
+\details{
+Distances are computed from allele frequencies, locus by population: the
+mean allele dosage of the scored individuals divided by 2. Missing
+genotypes are excluded from each frequency; if a population has no scored
+individuals at a locus, the cell is left NA and the affected distances
+rest on the remaining loci (a warning is given).
+
+Population names are truncated to the 10-character phylip name field; a
+warning is given when truncation renders two populations identical.
+
+If bstrap > 1, the loci are resampled with replacement for each bootstrap
+replicate and the replicate distance matrices are appended to the output
+file. The returned matrix is always the distance matrix computed from the
+observed data.
 }
 \examples{
 \donttest{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-result <- gl2phylip(testset.gl, outfile='test.txt', bstrap=10)
+result <- gl2phylip(testset.gl, outfile='test.txt', outpath=tempdir(), bstrap=10)
 }
 
 }
 \seealso{
-Other linker: 
-\code{\link{gl2bayesAss}()},
-\code{\link{gl2bayescan}()},
-\code{\link{gl2bpp}()},
-\code{\link{gl2demerelate}()},
-\code{\link{gl2eigenstrat}()},
-\code{\link{gl2faststructure}()},
-\code{\link{gl2gds}()},
-\code{\link{gl2genalex}()},
-\code{\link{gl2genepop}()},
-\code{\link{gl2geno}()},
-\code{\link{gl2gi}()},
-\code{\link{gl2hapmap}()},
-\code{\link{gl2hiphop}()},
-\code{\link{gl2plink}()},
-\code{\link{gl2related}()},
-\code{\link{gl2snapper}()},
-\code{\link{gl2structure}()},
-\code{\link{gl2treemix}()},
-\code{\link{gl2vcf}()}
+Other linkers: 
+\code{\link{gl2paup.parsimony}()},
+\code{\link{gl2paup.svdquartets}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+ \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{linker}
+\concept{linkers}
