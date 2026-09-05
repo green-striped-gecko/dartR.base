@@ -115,6 +115,7 @@ approved diffs: SilicoDArT rejection (F1) and invisible NULL return (F3);
 wrote 548 rows (2 x 274 individuals) to tempdir. Sibling-caller grep
 across the 8 dartRverse clones: no code callers of `gl2faststructure`
 (one doc mention in `gl2structure.r`) — all clear. NEWS entry added.
+PR: green-striped-gecko/dartR.base#333.
 
 ```json
 {
@@ -134,6 +135,6 @@ across the 8 dartRverse clones: no code callers of `gl2faststructure`
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "genome-position lens: format has no coordinate fields"],
   "status": "phase-c",
-  "pr": null
+  "pr": 333
 }
 ```
