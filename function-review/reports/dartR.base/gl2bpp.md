@@ -125,6 +125,7 @@ example pipeline is unchanged (12375 alignment lines, header `274 69`).
 End-to-end runs at `verbose = 3` for methods 1 and 2 verified. Sibling-clone
 grep across the 8 dartR-verse packages: no callers of `gl2bpp` -- all clear.
 NEWS.md entry added.
+PR: green-striped-gecko/dartR.base#347.
 
 ```json
 {
@@ -147,6 +148,6 @@ NEWS.md entry added.
   ],
   "coverage_skipped": ["merge.secondaries with real secondaries: no multi-locus clones in testset.gl", "DAT6: no FBM fixture", "BPP executable round-trip: binary unavailable"],
   "status": "pr-open",
-  "pr": null
+  "pr": 347
 }
 ```
