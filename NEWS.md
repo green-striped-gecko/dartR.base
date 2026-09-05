@@ -1,6 +1,30 @@
 # dartR.base 1.2.3 (development)
 
-* R CMD check: silenced "no visible binding" NOTEs for ggplot aes
+* `utils.read.fasta()` (the engine behind `gl.read.fasta()`): the
+  genotype-classification core was redesigned. Previously anything that
+  was not hom-ref or hom-alt fell through to heterozygous, so missing
+  data (N, gaps, V/H/D/B) was coded 1 instead of NA, silently inflating
+  heterozygosity; truly triallelic columns of homozygote classes escaped
+  the more-than-2-alleles skip and their third allele came back as a fake
+  het; lowercase (softmasked) bases registered as distinct alleles and
+  fabricated loci; and the documented most-frequent-allele reference
+  actually followed the modal GENOTYPE class, flipping polarity when the
+  het was modal. Genotypes are now classified explicitly against the
+  allele pool (NA for unrecognized codes), multiallelism is detected from
+  the pool, sequences are upper-cased on read, and ref/alt follow summed
+  allele counts. Note the output changes: NA at masked/missing sites,
+  triallelic columns dropped, polarity corrected at het-modal loci.
+  Also: unequal-length sequences now stop with an error naming the
+  offending records (base-R recycling previously fabricated loci from
+  ragged input); the self-referential signature defaults
+  (`parallel = parallel`, `verbose = verbose`) are replaced with working
+  ones; `parallel = TRUE` works (n.cores = NULL resolves to all cores;
+  Windows falls back to serial with a gated warning); the
+  multiallelic-skip and no-polymorphism messages are gated at
+  `verbose >= 1` (they printed even at verbose 0); and `merge_gl_fasta()`
+  refuses duplicate individual names per file, which `merge()` previously
+  joined many-to-one, silently copying one record's genotypes onto
+  several rows.
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
 * CI repair: six review-campaign test files hardcoded expectations from a
