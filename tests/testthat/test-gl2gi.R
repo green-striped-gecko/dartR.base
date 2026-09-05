@@ -2,14 +2,14 @@
 # (review baseline, bugs included). Captured 2026-09-05 at ed99203.
 
 test_that("gl2gi converts SNP genlight to genind preserving names, pop, ploidy", {
-  gi <- suppressWarnings(gl2gi(testset.gl, verbose = 0))
+  gi <- suppressWarnings(gl2gi(testset2.gl, verbose = 0))
 
   expect_s4_class(gi, "genind")
   expect_equal(unique(adegenet::ploidy(gi)), 2)
   expect_equal(adegenet::nInd(gi), 274)
-  expect_identical(adegenet::indNames(gi), indNames(testset.gl))
+  expect_identical(adegenet::indNames(gi), indNames(testset2.gl))
   expect_identical(as.character(adegenet::pop(gi)),
-                   as.character(pop(testset.gl)))
+                   as.character(pop(testset2.gl)))
 
   # Expectation updated per approved finding F1: all-NA loci are now
   # removed up front and loc.metrics is subset to the surviving loci, so
@@ -18,7 +18,7 @@ test_that("gl2gi converts SNP genlight to genind preserving names, pop, ploidy",
   expect_equal(nrow(gi@other$loc.metrics), 752)
 
   # surviving locus names are unmangled and in order
-  kept <- locNames(testset.gl)[locNames(testset.gl) %in%
+  kept <- locNames(testset2.gl)[locNames(testset2.gl) %in%
                                  adegenet::locNames(gi)]
   expect_identical(adegenet::locNames(gi), kept)
 
@@ -29,7 +29,7 @@ test_that("gl2gi converts SNP genlight to genind preserving names, pop, ploidy",
 })
 
 test_that("gl2gi genotype coding: 0 -> hom ref allele, 1 -> het, 2 -> hom alt allele", {
-  x <- gl.filter.allna(testset.gl, verbose = 0)[1:20, 1:50]
+  x <- gl.filter.allna(testset2.gl, verbose = 0)[1:20, 1:50]
   gi <- suppressWarnings(gl2gi(x, verbose = 0))
   m <- as.matrix(x)
   tab <- adegenet::tab(gi)
@@ -58,7 +58,7 @@ test_that("gl2gi rejects SilicoDArT input", {
   # Expectation updated per approved finding F2 (DAT7): accept = 'SNP'
   # now rejects presence/absence data, which previously converted to a
   # meaningless ploidy-2 genind.
-  expect_error(gl2gi(testset.gs, verbose = 0))
+  expect_error(gl2gi(testset2.gs, verbose = 0))
 })
 
 test_that("gl2gi fabricates allele labels when loc.all is NULL (current behaviour)", {
@@ -76,7 +76,7 @@ test_that("gl2gi converts a single-locus genlight", {
   # Note: df2genind removes the one individual with no scored genotype
   # at this locus (274 -> 273); its ind.metrics row is not removed —
   # pre-existing behaviour, recorded in the report as a follow-up.
-  x <- gl.filter.allna(testset.gl, verbose = 0)[, 1]
+  x <- gl.filter.allna(testset2.gl, verbose = 0)[, 1]
   gi <- suppressWarnings(gl2gi(x, verbose = 0))
   expect_s4_class(gi, "genind")
   expect_equal(adegenet::nLoc(gi), 1)
@@ -84,7 +84,7 @@ test_that("gl2gi converts a single-locus genlight", {
 })
 
 test_that("gl2gi is silent at verbose = 0 (console output)", {
-  out <- capture.output(gi <- suppressWarnings(gl2gi(testset.gl,
+  out <- capture.output(gi <- suppressWarnings(gl2gi(testset2.gl,
                                                      verbose = 0)))
   expect_length(out, 0)
 })
