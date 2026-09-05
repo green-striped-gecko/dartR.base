@@ -130,6 +130,30 @@ fixed 196) and possibly the dartR.data 1.2.4 dependency (PR #10 over
 there). Flagged for Bernd/the coordinators when the PR backlog is
 merged.
 
+## Addendum 2026-09-06 (v2 review)
+
+The second-pass review (`utils.check.datatype-v2.md`, this directory on the
+follow-up branch) established that on the reviewed state (ddaed27,
+upstream/dev) the courtesy all-NA screen could kill the caller's run
+outright: at `verbose >= 2` (the default), `gl.filter.allna` cannot return
+a zero-locus object, so any object in which every locus is scored NA died
+in the preamble with "Subsetting resulted in zero loci.", and a zero-locus
+object died with "subscript out of bounds" — before the calling function,
+or its own `accept` gate, ever saw the object. The same call at
+`verbose = 0/1` proceeded: a verbosity flag changed control flow. This is
+the residual lead recorded by the PR #367 (gl.compliance.check) review,
+now confirmed and root-caused (v2 review, its finding F1, HIGH).
+
+This PR's F1 change (the direct `colSums`/`rowSums` scan) removes the
+filter call and with it every crash path. The fix was not recorded here at
+the time — the v1 review replaced the call for cost and message-wording
+reasons without observing the crash it also removed. The behaviour is now
+pinned against regression by the edge baseline added with this addendum
+(`tests/testthat/test-utils.check.datatype-edges.R`, 37 assertions,
+passing on this branch), which covers the all-all-NA and zero-locus
+survivals alongside the degenerate-input, accept-gate, FBM and read-only
+contracts.
+
 ```json
 {"function": "utils.check.datatype", "package": "dartR.base", "family_mode": "utility",
  "commit": "ddaed27", "skill_version": "2.0.0",
