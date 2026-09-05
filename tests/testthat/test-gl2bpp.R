@@ -5,7 +5,7 @@
 # Deterministic input used across tests (same pipeline as the roxygen example)
 bpp_test_object <- function() {
   set.seed(42)
-  test <- gl.filter.callrate(testset.gl, threshold = 1, verbose = 0)
+  test <- gl.filter.callrate(testset2.gl, threshold = 1, verbose = 0)
   test <- gl.filter.monomorphs(test, verbose = 0)
   gl.subsample.loc(test, n = 50, verbose = 0)
 }
@@ -51,11 +51,11 @@ test_that("gl2bpp method 2 writes a file of the same shape (seeded)", {
 test_that("gl2bpp all-missing loci become all-N sequences for every individual", {
   od <- file.path(tempdir(), "bpp_n")
   dir.create(od, showWarnings = FALSE)
-  # first 6 individuals of testset.gl are all NA at locus 100049698-16-G/A
-  a <- strsplit(as.character(testset.gl@other$loc.metrics$AlleleID), "\\|")
+  # first 6 individuals of testset2.gl are all NA at locus 100049698-16-G/A
+  a <- strsplit(as.character(testset2.gl@other$loc.metrics$AlleleID), "\\|")
   cloneid <- unlist(lapply(a, "[", 1))
   keep <- which(cloneid %in% c("100049687", "100049698", "100049728"))
-  tsec <- testset.gl[1:6, keep]
+  tsec <- testset2.gl[1:6, keep]
   gl2bpp(tsec, outfile = "n.txt", outpath = od, verbose = 0)
   bs <- readLines(file.path(od, "n.txt"))
   nblock <- grep("100049698-16-G/A", bs, value = TRUE)
@@ -64,7 +64,7 @@ test_that("gl2bpp all-missing loci become all-N sequences for every individual",
 })
 
 test_that("gl2bpp rejects SilicoDArT data", {
-  expect_error(gl2bpp(testset.gs, outpath = tempdir(), verbose = 0),
+  expect_error(gl2bpp(testset2.gs, outpath = tempdir(), verbose = 0),
                "SilicoDArT")
 })
 
@@ -109,11 +109,11 @@ test_that("gl2bpp output is identical for dartR-class and plain genlight input",
 test_that("gl2bpp merge.secondaries merges clone blocks into one valid block", {
   # [approved F2] the merge block is rewritten: header recomputed from the
   # merged length, ALL superseded blocks deleted, non-overlapping segment
-  # concatenation, labels indexed from the clone's first block. testset.gl
+  # concatenation, labels indexed from the clone's first block. testset2.gl
   # carries no multi-locus clones, so a synthetic secondary pair is built.
   od <- file.path(tempdir(), "bpp_sec")
   dir.create(od, showWarnings = FALSE)
-  sub <- testset.gl[1:4, 1:3]
+  sub <- testset2.gl[1:4, 1:3]
   tag <- paste(rep(c("A", "C", "G", "T"), 10), collapse = "")  # 40 bases
   lm <- sub@other$loc.metrics
   lm$AlleleID <- as.character(lm$AlleleID)
