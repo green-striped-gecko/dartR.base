@@ -1,5 +1,23 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.pcoa()`: five fixes from the function-review campaign (findings
+  verified empirically from an external code-read handed over by the
+  custodian). (1) `nfactors` was silently ignored on the file-backed (FBM)
+  big_SVD path -- scores/loadings came back with `nInd - 1` columns;
+  they are now truncated to `nfactors` (clamped with a warning when fewer
+  axes exist), `$eig` stays full length as on the glPca path. (2) The
+  distance-matrix path crashed with "subscript out of bounds" when the
+  matrix had fewer than `nfactors + 1` entities; `nfactors` is now clamped
+  to the available axes with a warning. (3) The `verbose >= 3` summary
+  printed "NA % of the total variance" lines when fewer than 2-3
+  informative/positive axes existed (the dist-branch guard
+  `length(eig.top >= 2)` tested the length of a logical, a precedence
+  bug); axis-combination lines now print only when enough axes exist.
+  (4) A dead assignment to `e` (immediately overwritten) was removed.
+  (5) `@details` now documents the second algorithm: FBM-backed objects
+  use `bigstatsr::big_SVD()` after neighbour imputation, in-memory
+  objects use `adegenet::glPca()`. The FBM reconstruction rescaling and
+  the Tracy-Widom criterion remain open custodian items.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
