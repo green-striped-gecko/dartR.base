@@ -144,7 +144,9 @@ this round and are deferred; INFO items carry no action.
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl.read.dart` (base upstream/dev
-ddaed27): changes 1-4 (F1-F4). Change 5 (F5, LOW) deferred - roxygen
+ddaed27); PR #356 to `dev`
+(https://github.com/green-striped-gecko/dartR.base/pull/356): changes 1-4
+(F1-F4). Change 5 (F5, LOW) deferred - roxygen
 untouched, so `man/gl.read.dart.Rd` and NAMESPACE are unchanged
 (`devtools::document()` run to confirm).
 
@@ -185,6 +187,6 @@ Caller grep across the 8 dartR-verse clones: no sibling package calls
     "recalc/mono.rm combinations: dominated by separately-reviewed filters"
   ],
   "status": "pr-open",
-  "pr": null
+  "pr": 356
 }
 ```
