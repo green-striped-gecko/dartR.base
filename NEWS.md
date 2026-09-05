@@ -1,5 +1,42 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.check.datatype()`: residual findings of the second-pass review
+  applied. (1) The courtesy all-NA scan no longer densifies an FBM-backed
+  object at `verbose >= 2`; it reads the FBM in column blocks instead of
+  materialising the full genotype matrix. (2) Content-vs-ploidy
+  consistency: an object of uniform ploidy 2 whose non-missing genotypes
+  are all 0 or 1 AND that carries no SNP metadata (empty `loc.all` slot,
+  no `SNP`/`SnpPosition` locus metrics) -- presence/absence content
+  mislabelled as SNP -- is now rejected with an actionable fatal at any
+  verbosity, instead of passing `accept = "SNP"` gates into dosage-based
+  0/1/2 arithmetic. Clean SNP objects are unaffected: the scan exits at
+  the first genotype of 2, and a subset that merely lacks the
+  homozygous-alternate class is vouched for by its `loc.all` slot.
+  (3) A data.frame is now classified `"data.frame"` rather than `"list"`.
+  (4) The classification-affecting mixed-ploidy notice prints from
+  `verbose >= 1` (was `>= 2`); the accept-gate fatal gained its missing
+  trailing newline; the ploidy-slot-only classification contract, the
+  case-sensitivity of `accept`, and the data.frame mapping are now
+  documented; an `Author(s):` line was added to the header.
+
+* `utils.check.datatype()`: four fixes to the package's central datatype
+  dispatcher. (1) The all-NA screen ran a full `gl.filter.allna()` pass on
+  every function entry at `verbose >= 2` (~50 ms per call on the small
+  test dataset); replaced with a direct single-pass check -- same
+  warnings, strictly less work -- and the all-NA-individuals warning no
+  longer carries the copy-pasted loci wording. (2) Mixed or non-diploid
+  ploidy was silently classified as SNP with no notice (the
+  misspecification error was unreachable); it is still classified as SNP
+  (the polyploid paths depend on this) but now announces itself at
+  `verbose >= 2`. (3) `accept = "genlight"` (or "dartR") alone rejected
+  every genlight object because the returned datatype is never literally
+  "genlight"; those entries now admit both genotype datatypes, unless a
+  specific datatype is also listed, in which case the specific listing
+  governs (so `c("genlight","SNP")` remains SNP-only). (4) The
+  unknown-class warning printed at `verbose = 0` (gated at >= 1); dead
+  code removed and the @return documentation aligned with the strings
+  actually returned ("matrix", "glPca").
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

@@ -15,16 +15,19 @@ utils.check.datatype(
 fixed difference list (fd) [required].}
 
 \item{accept}{Vector containing the classes of objects that are to be
-accepted [default c('genlight','SNP','SilicoDArT'].}
+accepted. Matching is exact and case-sensitive. The entries 'genlight'
+and 'dartR' accept both genotype datatypes ('SNP' and 'SilicoDArT')
+[default c('genlight','SNP','SilicoDArT','dartR')].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
- distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
-  class(x)[1].
+datatype (returned invisibly): 'SNP' for SNP data, 'SilicoDArT' for
+P/A data, 'dist' for a distance matrix, 'matrix' for a data matrix, 'glPca'
+for an ordination file, 'fd' for a fixed difference object, 'data.frame'
+for a data frame, 'list' for any other list, or class(x)[1].
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
@@ -36,11 +39,23 @@ Most functions require access to a genlight object, dist matrix, data matrix
   SNP dataset or a SilicoDArT object, and reports back if verbosity is >=2.
   
 This function checks the class of passed object and sets the datatype to
-'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
+'SNP', 'SilicoDArT', 'dist', 'matrix', 'glPca', 'fd', 'data.frame',
+'list', or class(x)[1] as appropriate.
+A genlight object is classified from its ploidy slot alone (uniformly 1,
+'SilicoDArT'; uniformly 2, 'SNP'; mixed or other ploidy is treated as
+'SNP', with a warning) -- genotype values, dartR flags and locus metrics
+are not consulted, with one exception: an object of uniform ploidy 2
+whose non-missing genotypes are all 0 or 1, and which carries no SNP
+metadata (an empty loc.all slot and no SNP or SnpPosition locus
+metrics), is rejected as presence/absence (SilicoDArT) content
+mislabelled as SNP, since it would otherwise pass into dosage-based
+(0/1/2) arithmetic. A clean SNP subset that merely lacks the
+homozygous-alternate class is not affected: its loc.all slot vouches
+for the label. Content-level validation beyond that check is the job
+of \code{gl.compliance.check}.
 Note also that this function checks to see if there are individuals or loci
-scored as all missing (NA) and if so, issues the user with a warning.
-Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
- TRUE.
+scored as all missing (NA) and if so, issues the user with a warning
+(verbose >= 2).
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -80,7 +95,7 @@ Other utilities:
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
