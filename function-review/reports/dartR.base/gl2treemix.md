@@ -114,7 +114,7 @@ the haploid-branch alternative).
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2treemix` (base upstream/dev,
-ddaed27). All five changes applied:
+ddaed27); PR #343. All five changes applied:
 
 1. F1 — `utils.check.datatype(x, accept = "SNP", ...)`: SilicoDArT is a
    fatal error instead of silently doubled allele copies.
@@ -155,6 +155,6 @@ clones: no callers of gl2treemix — all clear. NEWS.md entry added.
   ],
   "coverage_skipped": ["treemix run test: no treemix binary", "DAT6: no FBM fixture"],
   "status": "pr-open",
-  "pr": null
+  "pr": 343
 }
 ```
