@@ -100,7 +100,7 @@ applied here as change 1).
 ## Outcome (Phase C)
 
 Applied 2026-09-05 on branch `review-gl2hiphop` (base `upstream/dev`,
-ddaed27). PR: (recorded below after opening).
+ddaed27). PR: green-striped-gecko/dartR.base#354.
 
 - F1: `accept = "SNP"` — SilicoDArT input now errors instead of
   returning 0/2 pseudo-genotypes.
@@ -146,6 +146,6 @@ own reviews.
   ],
   "coverage_skipped": ["hiphop end-to-end: hiphop not installed", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 354
 }
 ```
