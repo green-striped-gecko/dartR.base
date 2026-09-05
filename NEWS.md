@@ -1,5 +1,25 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2eigenstrat()`: the genotype file counted the wrong allele -- the raw
+  dartR score (copies of the ALTERNATE allele, the sixth column of the .snp
+  file) was written where EIGENSTRAT defines copies of the REFERENCE allele
+  (the fifth column), so every genotype was allele-flipped relative to the
+  declared ref/var and downstream statistics keyed to allele identity were
+  inverted; the geno value is now `2 - score` (9 stays missing). Numerical
+  output therefore changes for every exported dataset. Factor metadata
+  fields nominated via `snp.chr`/`snp.pos` were coerced with `as.numeric()`
+  directly, writing factor LEVEL CODES instead of the actual values; the
+  coercion now goes through `as.character()`, chromosome labels 'X', 'Y',
+  'MT'/'mtDNA' and 'XY' are mapped to the documented 23/24/90/91 encoding,
+  and the documented (but never implemented) removal of loci with illegal
+  chromosome values now happens, with a warning at `verbose >= 1`; if no
+  locus is encodable the function stops (the roxygen example no longer
+  nominates the un-encodable platypus chromosome field). SilicoDArT data
+  (which produced a malformed 4-column .snp file) is now rejected.
+  `sex.code`/`phen.value` lengths are validated instead of being silently
+  recycled down the .ind file. Docs aligned with the signature (`pos.cM`
+  default is 0; the numeric sentinel semantics of `snp.pos`/`snp.chr` are
+  stated).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
