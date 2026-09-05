@@ -4,7 +4,7 @@
 
 test_that("distance matrix and file structure are stable (bstrap = 1)", {
   td <- tempdir()
-  d <- gl2phylip(testset.gl, outfile = "chphy1.txt", outpath = td, verbose = 0)
+  d <- gl2phylip(testset2.gl, outfile = "chphy1.txt", outpath = td, verbose = 0)
   expect_true(is.matrix(d))
   expect_equal(dim(d), c(31, 31))
   # names padded/truncated to the phylip 10-character width
@@ -21,9 +21,9 @@ test_that("distance matrix and file structure are stable (bstrap = 1)", {
 
 test_that("bstrap > 1 appends replicate matrices and returns the observed matrix", {
   td <- tempdir()
-  d1 <- gl2phylip(testset.gl, outfile = "chphyA.txt", outpath = td, verbose = 0)
+  d1 <- gl2phylip(testset2.gl, outfile = "chphyA.txt", outpath = td, verbose = 0)
   set.seed(1)
-  d3 <- gl2phylip(testset.gl, outfile = "chphy3.txt", outpath = td,
+  d3 <- gl2phylip(testset2.gl, outfile = "chphy3.txt", outpath = td,
                   bstrap = 3, verbose = 0)
   ln <- readLines(file.path(td, "chphy3.txt"))
   expect_length(ln, 96)  # three 32-line matrices
@@ -33,7 +33,7 @@ test_that("bstrap > 1 appends replicate matrices and returns the observed matrix
 
 test_that("verbose = 0 is silent and the sink is released", {
   td <- tempdir()
-  o <- capture.output(invisible(gl2phylip(testset.gl, outfile = "chphyv.txt",
+  o <- capture.output(invisible(gl2phylip(testset2.gl, outfile = "chphyv.txt",
                                           outpath = td, verbose = 0)))
   expect_length(o, 0)
   expect_equal(sink.number(), 0)
@@ -42,7 +42,7 @@ test_that("verbose = 0 is silent and the sink is released", {
 test_that("SilicoDArT input is rejected", {
   # F4: the diploid-dosage math is SNP-only; SilicoDArT now errors at the
   # datatype gate instead of converting with halved frequencies
-  gs <- testset.gs[1:20, 1:100]
+  gs <- testset2.gs[1:20, 1:100]
   gs@other$loc.metrics <- gs@other$loc.metrics[1:100, ]
   td <- tempdir()
   expect_error(capture.output(gl2phylip(gs, outfile = "chphygs.txt",
