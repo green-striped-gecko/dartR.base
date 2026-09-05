@@ -207,8 +207,23 @@ gl2fasta <- function(x,
     }
 
     # The overshoot pre-filter (output captured: its own reporting is
-    # driven by this function's accounting below)
-    invisible(capture.output(x <- gl.filter.overshoot(x, verbose = 0)))
+    # driven by this function's accounting below). If the filter removes
+    # every locus the subsetting layer errors first - convert that into
+    # this function's informative diagnosis.
+    x <- tryCatch({
+        invisible(capture.output(xx <- gl.filter.overshoot(x, verbose = 0)))
+        xx
+    }, error = function(e) {
+        stop(error(
+            "Fatal Error: no loci remain after the overshoot pre-filter.
+                    The SnpPosition values are inconsistent with the
+                    TrimmedSequence lengths - a known hazard in merged or
+                    co-analysed datasets. Check
+                    @other$loc.metrics$SnpPosition against
+                    nchar(@other$loc.metrics$TrimmedSequence).
+"
+        ))
+    })
 
     nloc_removed <- nloc_start - nLoc(x)
     if (nloc_removed > 0 && verbose >= 1) {
