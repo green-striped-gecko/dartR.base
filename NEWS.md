@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.compliance.check()`: two fixes from its function review, applied at
+  a deliberately minimal scope. (1) The genotype-coding check was vacuous
+  whenever the data contained a missing value (`max(mat)` without na.rm is
+  NA, and `NA %in% c(0, 1, 2, NA)` is TRUE), so out-of-range genotypes
+  passed as "confirmed"; the check now tests the value set exactly.
+  Message gating and warn-not-stop semantics are unchanged: violations are
+  reported at `verbose >= 1`, not repaired and not fatal. (2) Input in
+  which every locus is monomorphic crashed the monomorph check
+  ("Subsetting resulted in zero loci" via `gl.filter.monomorphs()`), and
+  input in which every locus is all missing crashed the all-NA check the
+  same way; both cases now complete with the relevant flag set FALSE and
+  a gated message. With every locus all missing and `verbose >= 2`, the
+  same root cause still errors earlier inside `utils.check.datatype()`
+  (pre-existing, recorded in the review report). The review's remaining
+  findings are recorded as deferred in
+  `function-review/reports/dartR.base/gl.compliance.check.md`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
