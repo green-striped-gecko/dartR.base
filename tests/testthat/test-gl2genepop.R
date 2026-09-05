@@ -3,7 +3,7 @@
 # behaviour; accepted diffs must map to approved review findings.
 
 test_that("gl2genepop writes title, locus line, Pop blocks and 2-digit genotypes", {
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   # small is 6 individuals x 7 loci, 6 populations of 1
   td <- file.path(tempdir(), "gpop_char")
   dir.create(td, showWarnings = FALSE)
@@ -27,7 +27,7 @@ test_that("gl2genepop writes title, locus line, Pop blocks and 2-digit genotypes
 })
 
 test_that("gl2genepop 3-digit format pads alleles and uses 000000 for missing", {
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "gpop_char")
   dir.create(td, showWarnings = FALSE)
   capture.output(gl2genepop(small, outfile = "small3.gen", outpath = td,
@@ -43,7 +43,7 @@ test_that("gl2genepop on an all-monomorphic object writes one genotype per locus
   # all-monomorphic object (one allele column per locus in the genind) no
   # longer collapses to two "0000" fields per row — each row carries one
   # correctly coded genotype per claimed locus.
-  g3 <- gl.filter.allna(testset.gl[1:9, 1:6], verbose = 0)
+  g3 <- gl.filter.allna(testset2.gl[1:9, 1:6], verbose = 0)
   pop(g3) <- rep(c("A", "B", "C"), each = 3)
   td <- file.path(tempdir(), "gpop_char")
   dir.create(td, showWarnings = FALSE)
@@ -62,7 +62,7 @@ test_that("gl2genepop pop.order errors on unlisted, misspelled or duplicated pop
   # Updated for approved finding F2: pop.order is now validated against
   # popNames(x); unlisted or misspelled names raise a fatal error naming
   # the offending entries instead of silently dropping populations.
-  g3 <- gl.filter.allna(testset.gl[1:9, 1:6], verbose = 0)
+  g3 <- gl.filter.allna(testset2.gl[1:9, 1:6], verbose = 0)
   pop(g3) <- rep(c("A", "B", "C"), each = 3)
   td <- file.path(tempdir(), "gpop_char")
   dir.create(td, showWarnings = FALSE)
@@ -86,15 +86,15 @@ test_that("gl2genepop pop.order errors on unlisted, misspelled or duplicated pop
 })
 
 test_that("gl2genepop rejects SilicoDArT with a proper error and is silent at verbose = 0", {
-  gs <- testset.gs[1:4, 1:6]
-  gs@other$loc.metrics <- testset.gs@other$loc.metrics[1:6, ]
+  gs <- testset2.gs[1:4, 1:6]
+  gs@other$loc.metrics <- testset2.gs@other$loc.metrics[1:6, ]
   # Updated for approved finding F5 (VRB2): the rejection now raises a
   # condition carrying the message (previously cat(error(...)) + bare stop()).
   expect_error(capture.output(gl2genepop(gs, verbose = 0)),
                "Only SNPs \\(diploid\\) data")
   # Updated for approved finding F3 (VRB5): the save-path message is gated
   # at verbose >= 2 (and no longer passes "\n" through file.path)
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "gpop_char")
   dir.create(td, showWarnings = FALSE)
   out <- capture.output(gl2genepop(small, outfile = "v0.gen", outpath = td,
@@ -106,7 +106,7 @@ test_that("gl2genepop rejects SilicoDArT with a proper error and is silent at ve
 test_that("gl2genepop fails fast with a clear message on a single-individual object", {
   # Updated for approved finding F6: previously died inside the genind
   # conversion with "X is not a matrix".
-  one <- gl.filter.allna(testset.gl[1, 1:8], verbose = 0)
+  one <- gl.filter.allna(testset2.gl[1, 1:8], verbose = 0)
   td <- file.path(tempdir(), "gpop_char")
   dir.create(td, showWarnings = FALSE)
   expect_error(
