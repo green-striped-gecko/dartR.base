@@ -3,7 +3,7 @@
 # correct behaviour; accepted diffs must map to approved review findings.
 
 test_that("gl2faststructure writes 2 rows per individual, 6 dummy cols, 1/2/-9 coding", {
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   # small is 6 individuals x 7 loci
   td <- file.path(tempdir(), "fs_char")
   dir.create(td, showWarnings = FALSE)
@@ -28,7 +28,7 @@ test_that("gl2faststructure writes 2 rows per individual, 6 dummy cols, 1/2/-9 c
 })
 
 test_that("gl2faststructure het/hom recoding matches the 0/1/2 dosage input", {
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "fs_char")
   dir.create(td, showWarnings = FALSE)
   capture.output(gl2faststructure(small, outfile = "small2.str",
@@ -47,8 +47,8 @@ test_that("gl2faststructure het/hom recoding matches the 0/1/2 dosage input", {
 test_that("gl2faststructure rejects SilicoDArT input", {
   # Updated for approved finding F1 (DAT7): accept = "SNP" now rejects
   # presence/absence data instead of writing pseudo-diploid rows.
-  gs <- testset.gs[1:4, 1:6]
-  gs@other$loc.metrics <- testset.gs@other$loc.metrics[1:6, ]
+  gs <- testset2.gs[1:4, 1:6]
+  gs@other$loc.metrics <- testset2.gs@other$loc.metrics[1:6, ]
   expect_error(
     capture.output(gl2faststructure(gs, outfile = "gs.str",
                                     outpath = tempdir(), verbose = 0))
@@ -57,7 +57,7 @@ test_that("gl2faststructure rejects SilicoDArT input", {
 
 test_that("gl2faststructure returns NULL invisibly", {
   # Updated for approved finding F3 (FS10/VRB5): return(invisible(NULL)).
-  small <- gl.filter.allna(testset.gl[1:6, 1:8], verbose = 0)
+  small <- gl.filter.allna(testset2.gl[1:6, 1:8], verbose = 0)
   td <- file.path(tempdir(), "fs_char")
   dir.create(td, showWarnings = FALSE)
   vis <- withVisible(gl2faststructure(small, outfile = "vis.str",
