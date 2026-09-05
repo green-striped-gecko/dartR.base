@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2gapit()`: now actually writes the hapmap table to
+  `outpath/outfile` (tab-delimited) -- previously the parameters and the
+  progress message promised output files but nothing was written. The
+  roxygen header belonged to `gl2geno` (so `?gl2gapit` found nothing); a
+  genuine header and man page now document the invisible hapmap
+  data.frame return. Chromosome names are recoded to stable integer
+  codes (alphabetical order of the distinct names, mapping reported at
+  `verbose >= 2`) instead of unstable factor level indices; the
+  `assembly` column is NA (was hardcoded "Oilpalm"); SilicoDArT input is
+  rejected with a clear datatype error (previously an opaque crash); the
+  empty-slot warnings are verbosity-gated; and the genotype mapping is
+  vectorised.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
