@@ -3,7 +3,7 @@
 # [bug baseline] capture current defective behaviour on purpose; flip them
 # only against an approved finding in the Phase A report.
 
-tm_sub <- function() testset.gl[1:8, 1:15]
+tm_sub <- function() testset2.gl[1:8, 1:15]
 
 test_that("gzipped treemix file has header plus one aligned row per locus", {
   td <- tempdir()
@@ -41,7 +41,7 @@ test_that("SilicoDArT is rejected explicitly", {
   # F1 fix applied: accept = 'SNP' (DAT7) makes ploidy-1 data a fatal
   # error instead of silently doubling allele copies
   expect_error(
-    capture.output(gl2treemix(testset.gs[1:6, 1:5], outfile = "tm_gs.gz",
+    capture.output(gl2treemix(testset2.gs[1:6, 1:5], outfile = "tm_gs.gz",
                               outpath = tempdir(), verbose = 0)),
     "SilicoDArT")
 })
