@@ -102,7 +102,9 @@ gl.read.silicodart <- function(filename,
         nskip <- sum(tdummy[, 1] == "*")
         if (nskip > 0) {
             topskip <- nskip
-            cat(paste("  Set topskip to ", nskip, ". Proceeding ...\n"))
+            if (verbose >= 2) {
+                cat(report(paste("  Set topskip to ", nskip, ". Proceeding ...\n")))
+            }
         } else {
             stop(
                 error(
@@ -139,14 +141,15 @@ gl.read.silicodart <- function(filename,
     ind.names <-
         trimws(ind.names, which = "both")  #trim for spaces
     if (length(ind.names) != length(unique(ind.names))) {
-        cat(report("  The following labels for individuals are not unique:\n"))
-        cat(ind.names[duplicated(ind.names)])
-        cat("\n")
-        cat(
-            warn(
-                "Warning: Rendering locus names unique with sequential suffix _1, _2 for duplicates.\n"
+        if (verbose >= 1) {
+            cat(report("  The following labels for individuals are not unique:\n"))
+            cat(warn(paste(ind.names[duplicated(ind.names)], collapse = " "), "\n"))
+            cat(
+                warn(
+                    "Warning: Rendering locus names unique with sequential suffix _1, _2 for duplicates.\n"
+                )
             )
-        )
+        }
         ind.names <- make.unique(ind.names)
     }
     
@@ -155,8 +158,8 @@ gl.read.silicodart <- function(filename,
     stdmetricscols <- 1:lmet
     
     if (verbose >= 2) {
-        cat("    Added the following locus metrics:\n")
-        cat(paste(paste(names(snpraw)[stdmetricscols], collapse = " "), ".\n"))
+        cat(report("    Added the following locus metrics:\n"))
+        cat(report(paste(paste(names(snpraw)[stdmetricscols], collapse = " "), ".\n")))
     }
     covmetrics <- snpraw[, stdmetricscols]
     
@@ -199,12 +202,19 @@ gl.read.silicodart <- function(filename,
     index <-
         unique(covmetrics$CloneID[which(duplicated(covmetrics$CloneID))])
     if (length(index > 0)) {
-        cat(warn("  Warning: Locus names [CloneIDs] are not unique!\n"))
-        cat(
-            warn(
-                "         Rendering locus names unique with sequential suffix _1, _2 for duplicates.\n"
+        # read.csv(stringsAsFactors = TRUE) makes CloneID a factor when it
+        # is non-numeric; assigning pasted suffix strings into a factor
+        # yields NA (the new strings are not levels), so the uniquified
+        # locus names must be written on a character column.
+        covmetrics$CloneID <- as.character(covmetrics$CloneID)
+        if (verbose >= 1) {
+            cat(warn("  Warning: Locus names [CloneIDs] are not unique!\n"))
+            cat(
+                warn(
+                    "         Rendering locus names unique with sequential suffix _1, _2 for duplicates.\n"
+                )
             )
-        )
+        }
         for (i in 1:length(index)) {
             loc <- index[i]
             i2 <- which(covmetrics$CloneID %in% loc)
@@ -230,31 +240,39 @@ gl.read.silicodart <- function(filename,
     if (!"TrimmedSequence" %in% names(glout@other$loc.metrics)) {
       if ("TrimmedSequenceSnp" %in% names(glout@other$loc.metrics)) {
         glout@other$loc.metrics$TrimmedSequence <- glout@other$loc.metrics$TrimmedSequenceSnp
-        cat(
-          warn(
-            "TrimmedSequence field in loc.metrics was created from field TrimmedSequenceSnp"
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "TrimmedSequence field in loc.metrics was created from field TrimmedSequenceSnp\n"
+            )
           )
-        )
+        }
       } else if ("AlleleSequenceSnp" %in% names(glout@other$loc.metrics)) {
         glout@other$loc.metrics$TrimmedSequence <- glout@other$loc.metrics$AlleleSequenceSnp
-        cat(
-          warn(
-            "TrimmedSequence field in loc.metrics was created from field AlleleSequenceSnp"
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "TrimmedSequence field in loc.metrics was created from field AlleleSequenceSnp\n"
+            )
           )
-        )
+        }
       } else{
-        cat(
-          warn(
-            "TrimmedSequence field was not found in your DArT report, so some functions may not work"
+        if (verbose >= 1) {
+          cat(
+            warn(
+              "TrimmedSequence field was not found in your DArT report, so some functions may not work\n"
+            )
           )
-        )
+        }
       }
-    } 
+    }
     
     if (!is.null(ind.metafile)) {
-        cat(report(
-            paste("  Adding individual metadata:", ind.metafile, ".\n")
-        ))
+        if (verbose >= 2) {
+            cat(report(
+                paste("  Adding individual metadata:", ind.metafile, ".\n")
+            ))
+        }
         ind.cov <-
             read.csv(ind.metafile,
                      header = T,
@@ -276,27 +294,42 @@ gl.read.silicodart <- function(filename,
             }
             # reorder
             if (length(ind.cov[, id.col]) != length(names(datas))) {
-                cat(
-                    warn(
-                        "  Warning: Ids for individual metadata does not match in number the ids in the SNP data file. Maybe this is fine if a subset matches.\n"
+                if (verbose >= 1) {
+                    cat(
+                        warn(
+                            "  Warning: Ids for individual metadata does not match in number the ids in the SNP data file. Maybe this is fine if a subset matches.\n"
+                        )
                     )
-                )
+                }
             }
             ord <- match(names(datas), ind.cov[, id.col])
             ord <- ord[!is.na(ord)]
             
             if (length(ord) > 1 & length(ord) <= nind) {
-                cat(report(
-                    paste(
-                        "  Ids for individual metadata (at least a subset of) are matching!\n  Found ",
-                        length(ord == nind),
-                        "matching ids out of",
-                        nrow(ind.cov),
-                        "ids provided in the ind.metadata file. Subsetting loci now!.\n "
-                    )
-                ))
+                if (verbose >= 2) {
+                    cat(report(
+                        paste(
+                            "  Ids for individual metadata (at least a subset of) are matching!\n  Found ",
+                            length(ord == nind),
+                            "matching ids out of",
+                            nrow(ind.cov),
+                            "ids provided in the ind.metadata file.\n "
+                        )
+                    ))
+                }
                 ord2 <-
                     match(ind.cov[ord, id.col], indNames(glout))
+                # The metafile acts as a filter as well as a metadata
+                # source: individuals without a metafile row are removed
+                # (same contract as the SNP path in utils.dart2genlight).
+                # Make that removal loud - it changes the returned object.
+                n.dropped <- nInd(glout) - length(ord2)
+                if (n.dropped > 0 && verbose >= 1) {
+                    cat(warn(
+                        "  Warning:", n.dropped,
+                        "individuals in the SilicoDArT file had no matching row in the ind.metafile and were REMOVED from the returned object.\n"
+                    ))
+                }
                 glout <- glout[ord2,]
             } else {
                 stop(error("Fatal Error: Ids are not matching!!!!\n"))
@@ -306,27 +339,40 @@ gl.read.silicodart <- function(filename,
         pop.col <-match("pop", names(ind.cov))
         
         if (is.na(pop.col)) {
-            cat(warn("  Please note: there is no pop column\n"))
-            pop(out) <- array(NA, nInd(glout))
-            cat(warn("  Warning: Created pop column with NAs\n"))
+            # Mirrors the SNP path (utils.dart2genlight): a missing pop
+            # column defaults every individual to 'pop1'. (The previous
+            # code assigned pop(out) - an object that never existed - so
+            # this branch always crashed with "object 'out' not found".)
+            if (verbose >= 1) {
+                cat(
+                    warn(
+                        "  Warning: There is no pop column, created one with all 'pop1' as default for all individuals\n"
+                    )
+                )
+            }
+            pop(glout) <- factor(rep("pop1", nInd(glout)))
         } else {
             pop(glout) <- as.factor(ind.cov[ord, pop.col])
-            cat(report("    Added pop factor.\n"))
+            if (verbose >= 2) {
+                cat(report("    Added pop factor.\n"))
+            }
         }
         
         lat.col <-match("lat", names(ind.cov))
         lon.col <-match("lon", names(ind.cov))
         
-        if (is.na(lat.col)) {
+        if (is.na(lat.col) && verbose >= 2) {
             cat(warn("  Please note: there is no lat column\n"))
         }
-        if (is.na(lon.col)) {
+        if (is.na(lon.col) && verbose >= 2) {
             cat(warn("  Please note: there is no lon column\n"))
         }
         if (!is.na(lat.col) & !is.na(lon.col)) {
             glout@other$latlon <- ind.cov[ord, c(lat.col, lon.col)]
             rownames(glout@other$latlon) <- ind.cov[ord, id.col]
-            cat(report("    Added latlon data.\n"))
+            if (verbose >= 2) {
+                cat(report("    Added latlon data.\n"))
+            }
         }
         
         # known.col <- names( ind.cov) %in% c('id','pop', 'lat', 'lon') known.col <- ifelse(is.na(known.col), , known.col) other.col <-
@@ -336,13 +382,15 @@ gl.read.silicodart <- function(filename,
             glout@other$ind.metrics <- ind.cov[ord, other.col, drop = FALSE]
             rownames(glout@other$ind.metrics) <-
                 ind.cov[ord, id.col]
-            cat(report(
-                paste(
-                    "    Added ",
-                    other.col,
-                    " to the other$ind.metrics slot.\n"
-                )
-            ))
+            if (verbose >= 2) {
+                cat(report(
+                    paste(
+                        "    Added ",
+                        other.col,
+                        " to the other$ind.metrics slot.\n"
+                    )
+                ))
+            }
         }
     }
     
@@ -372,7 +420,7 @@ gl.read.silicodart <- function(filename,
     names(glout@other$loc.metrics.flags) <- recalc.flags
     glout@other$verbose <- 2
     
-    glout <- gl.compliance.check(glout)
+    glout <- gl.compliance.check(glout, verbose = verbose)
     
     # FLAG SCRIPT END
     
