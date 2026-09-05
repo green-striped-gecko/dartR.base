@@ -4,15 +4,15 @@
 \alias{utils.vcfr2genlight.polyploid}
 \title{Utility function to convert polyploid vcfR object as genlight}
 \usage{
-utils.vcfr2genlight.polyploid(x, n.cores = 1, mode2 = mode)
+utils.vcfr2genlight.polyploid(x, n.cores = 1, mode2 = "genotype")
 }
 \arguments{
 \item{x}{Name of the vcfR object [defined in function \code{\link{gl.read.vcf}}].}
 
 \item{n.cores}{Number of cores [default 1]}
 
-\item{mode2}{genotype: all heterozygous sites will be coded as 1 regardless ploidy level, 
-dosage: sites will be codes as copy number of alternate allele [defined in function \code{\link{gl.read.vcf}}].}
+\item{mode2}{genotype: all heterozygous sites will be coded as 1 regardless ploidy level,
+dosage: sites will be codes as copy number of alternate allele [default 'genotype'].}
 }
 \value{
 genlight object
@@ -22,8 +22,9 @@ WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END
 }
 \details{
 This function uses parameters from \code{\link{gl.read.vcf}} for conversion
-Note also that this function checks to see if there are input of mode, missing input of mode 
-will issued the user with a error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+The ploidy of each individual is derived from the allele count (arity) of
+its genotype calls. Half-missing calls (e.g. 0/., ./1) are treated as
+missing data (NA) in both modes.
 Please carefully check the data if "dosage" mode is used. (codes were modified from
 'vcfR2genlight' in vcfR packge to convert polyploid data)
 }

@@ -1,5 +1,19 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.vcfr2genlight.polyploid()` (the genotype-conversion engine of
+  `gl.read.vcf()`): three fixes. (1) Genotype mode coded half-missing
+  calls (`0/.`, `./1`) as heterozygous -- a call with no observed ALT
+  allele returned 1, inflating heterozygosity on low-coverage vcfs;
+  dosage mode handled the same calls inconsistently (1 and 0). Any call
+  still carrying a "." after separator stripping is now NA in both
+  modes. (2) Ploidy was whatever adegenet inferred from each
+  individual's maximum dosage (a triploid individual with no 1/1/1 call
+  was stamped diploid; genotype-mode objects came back haploid/diploid
+  mixtures); ploidy is now derived from the allele count (arity) of the
+  GT calls, which is exact. (3) Omitting `mode2` failed with an
+  unrelated closure-coercion error (the signature default `mode2 = mode`
+  resolved to `base::mode`); the default is now "genotype", matching the
+  caller.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
