@@ -12,16 +12,15 @@
 #'   individual, resolving heterozygous SNPs by replacing them with standard
 #' ambiguity codes (method=2).
 
-#' If the data are tag presence/absence, then method=2 is assumed.
-
-#' @references Chifman, J. and L. Kubatko. 2014. Quartet inference from SNP data
-#' under the coalescent. Bioinformatics 30: 3317-3324
+#' If the data are tag presence/absence, then method=2 is assumed and the
+#' nexus file is written with datatype = standard (0/1 characters).
 
 #' @param x Name of the genlight object containing the SNP data or tag P/A data
 #' [required].
 #' @param outfile File name of the output file (including extension)
-#' [default 'svd.nex'].
-#' @param outpath Path where to save the output file [default global working 
+#' [default 'svd.nex']. The PAUP log and tree file names inside the file's
+#' paup block are derived from this name.
+#' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
 #' @param method Method = 1, nexus file with two lines per individual; method =
 #'  2, nexus file with one line per individual, ambiguity codes for SNP
@@ -29,19 +28,20 @@
 #' @param nbootstraps Number of bootstrap replicates [default 10000]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity]
-#' 
-#' @author Custodian: Arthur Georges (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#' @return returns no value (i.e. NULL)
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#' @references Chifman, J. and L. Kubatko. 2014. Quartet inference from SNP data
+#' under the coalescent. Bioinformatics 30: 3317-3324
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' gg <- testset.gl[1:20,1:100]
 #' gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 #' gl2paup.svdquartets(gg, outpath=tempdir(),nbootstraps=100)
-#' 
+#'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2paup.svdquartets <- function(x,
                            outfile = "svd.nex",
@@ -76,30 +76,56 @@ gl2paup.svdquartets <- function(x,
     }
     
     # Check for monomorphic loci
-    
-    if (!x@other$loc.metrics.flags$monomorphs) {
-        cat(warn(
-            "  Warning: genlight object may contain monomorphic loci\n"
-        ))
+    # Tolerate objects not built by dartR, whose loc.metrics.flags are absent (F3)
+    monomorphs.flag <- x@other$loc.metrics.flags$monomorphs
+    if (is.null(monomorphs.flag) || isFALSE(monomorphs.flag)) {
+        if (verbose >= 2) {
+            cat(warn(
+                "  Warning: genlight object may contain monomorphic loci\n"
+            ))
+        }
     }
-    
+
     # FUNCTION SPECIFIC ERROR CHECKING
-    
-    if (method < 0 | method > 2) {
-        cat(
-            warn(
-                "  Warning: method must be either 1 or 2, set to 2, one line per individual using ambiguity codes for SNP data, 0 or 1 for tag P/A data \n"
+
+    # method = 0 was silently accepted by the old range check (F5)
+    if (!method %in% c(1, 2)) {
+        # Results-affecting coercion: warn at verbose >= 1 (VRB4)
+        if (verbose >= 1) {
+            cat(
+                warn(
+                    "  Warning: method must be either 1 or 2, set to 2, one line per individual using ambiguity codes for SNP data, 0 or 1 for tag P/A data \n"
+                )
             )
-        )
+        }
         method <- 2
     }
-    
+
+    # The roxygen promises "If the data are tag presence/absence, then
+    # method=2 is assumed"; without this coercion method=1 crashed on the
+    # unbuilt refseq/altseq (documented assumption, implemented with F5)
+    if (datatype == "SilicoDArT" && method != 2) {
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: method=2 is assumed for tag presence/absence data\n"
+            ))
+        }
+        method <- 2
+    }
+
     # Render lables consistent with PAUP
     pop(x) <- gsub(" ", "_", pop(x))
     pop(x) <- gsub("\\(", "_", pop(x))
     pop(x) <- gsub(")", "_", pop(x))
+    # Individual names get the same substitution set as populations (F7)
     indNames(x) <- gsub(" ","_",indNames(x))
-    
+    indNames(x) <- gsub("\\(", "_", indNames(x))
+    indNames(x) <- gsub(")", "_", indNames(x))
+
+    # Sort on population once, ahead of the ploidy branch, so SilicoDArT
+    # taxpartition ranges correspond to the matrix rows (F2, F4)
+    x <- gl.sort(x, sort.by = "pop", verbose = 0)
+
     # DO THE JOB
     
     ######## SNP data
@@ -124,11 +150,6 @@ gl2paup.svdquartets <- function(x,
                 strsplit(x, split = "/")[1][[1]][2]))
         # alt <- unlist(lapply(snp, `[`, 2))
         
-        # Sort the data on population
-        if (verbose >= 2) {
-            cat(report(paste("    Sorting ....\n")))
-        }
-        x <- gl.sort(x,sort.by="pop")
         df <- data.frame(as.matrix(x))
         df <- cbind(indNames(x), pop(x), df)
         df <- df[order(df$pop), ]
@@ -252,11 +273,17 @@ gl2paup.svdquartets <- function(x,
     b <- array(data = NA, dim = length(poplabels))
     a[1] <- 1
     b <- table(poplabels)
-    for (i in 2:length(b)) {
-        b[i] <-b[i] + b[i - 1]
-        a[i] <-b[i - 1] + 1
+    # Guard for a single population: 2:length(b) would run 2:1 and index b[0] (F4)
+    if (length(b) > 1) {
+        for (i in 2:length(b)) {
+            b[i] <-b[i] + b[i - 1]
+            a[i] <-b[i - 1] + 1
+        }
     }
     plabels <- unique(poplabels)
+
+    # Derive the PAUP log/tree filenames from outfile (F6)
+    fileprefix <- sub("\\.[^.]*$", "", outfile)
     
     # Create the svd file
     if (verbose > 1) {
@@ -273,7 +300,12 @@ gl2paup.svdquartets <- function(x,
     } else {
         cat(paste0("     dimensions ntax = ", nInd(x), " nchar = ", nLoc(x), " ;\n"))
     }
-    cat("     format datatype = dna gap = - ;\n\n")
+    # SilicoDArT matrices hold 0/1 characters, outside the dna alphabet (F1)
+    if (datatype == "SilicoDArT") {
+        cat("     format datatype = standard symbols = \"01\" gap = - ;\n\n")
+    } else {
+        cat("     format datatype = dna gap = - ;\n\n")
+    }
     cat("matrix\n")
     if (method == 1) {
         for (i in 1:nInd(x)) {
@@ -289,13 +321,16 @@ gl2paup.svdquartets <- function(x,
     cat("end;\n\n")
     cat("begin sets;\n")
     cat("    taxpartition pops =\n")
-    for (i in 1:(length(plabels) - 1)) {
-        cat(paste0("        ", plabels[i], " : ", a[i], "-", b[i], ",\n"))
+    # With a single population only the terminal line is written (F4)
+    if (length(plabels) > 1) {
+        for (i in 1:(length(plabels) - 1)) {
+            cat(paste0("        ", plabels[i], " : ", a[i], "-", b[i], ",\n"))
+        }
     }
     cat("       ", paste0(plabels[length(plabels)], " : ", a[length(plabels)], "-", b[length(plabels)], ";\n"))
     cat("end;\n\n")
     cat("begin paup;\n")
-    cat("log file=svd.txt;\n")
+    cat(paste0("log file=",fileprefix,".txt;\n"))
     cat("lset nthreads=3;\n")
     cat("SVDQuartets\n")
     cat("    evalQuartets=random\n")
@@ -304,8 +339,8 @@ gl2paup.svdquartets <- function(x,
     cat("    bootstrap=standard\n")
     cat("    nreps=",nbootstraps,"\n")
     cat("    ambigs=distribute\n")
-    cat("    treeFile=svd.tre;\n")
-    cat("savetrees file=svd_boot.tre from=1 to=1 maxdecimals=2;\n")
+    cat(paste0("    treeFile=",fileprefix,".tre;\n"))
+    cat(paste0("savetrees file=",fileprefix,"_boot.tre from=1 to=1 maxdecimals=2;\n"))
     cat("log stop;\n")
     cat("quit;\n")
     cat("end;\n")
@@ -323,7 +358,7 @@ gl2paup.svdquartets <- function(x,
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(NULL)
-    
+
+    return(invisible(NULL))
+
 }

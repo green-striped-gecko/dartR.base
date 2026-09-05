@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2paup.svdquartets()`: (1) SilicoDArT output is written with
+  `format datatype = standard` (0/1 symbols) instead of `dna`, which PAUP
+  rejects for presence/absence characters. (2) Data is sorted by
+  population once, ahead of the ploidy branch, so SilicoDArT taxpartition
+  ranges correspond to the matrix rows; `gl.sort` runs quietly and the
+  monomorph warning is gated, making `verbose = 0` fully silent. (3) The
+  monomorph check tolerates genlight objects without dartR
+  `loc.metrics.flags`. (4) Single-population input no longer crashes on
+  the taxpartition construction. (5) `method = 0` (or any value other
+  than 1/2) is coerced to 2 with a warning instead of silently accepted,
+  and the documented "method=2 is assumed" for presence/absence data is
+  now enforced (silico with `method = 1` previously crashed). (6) The
+  PAUP log/tree filenames inside the paup block are derived from
+  `outfile` instead of hardcoded `svd.*`. (7) Individual names are
+  sanitised for parentheses like population names. (8) The return is
+  `invisible(NULL)`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
