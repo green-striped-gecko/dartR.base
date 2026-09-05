@@ -168,6 +168,7 @@ missing, duplicated header row, dims) unchanged. End-to-end run on
 `testset.gl` at `verbose = 3` returned a 756 x 285 data.frame and wrote
 756 lines to tempdir. Sibling-caller grep across the 8 dartRverse
 clones: no callers of `gl2gapit` — all clear. NEWS entry added.
+PR: green-striped-gecko/dartR.base#337.
 
 ```json
 {
@@ -189,6 +190,6 @@ clones: no callers of `gl2gapit` — all clear. NEWS entry added.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "GAPIT not executed; missing-code acceptance checked statically"],
   "status": "phase-c",
-  "pr": null
+  "pr": 337
 }
 ```
