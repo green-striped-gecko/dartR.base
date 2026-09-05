@@ -1,5 +1,27 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2vcf()`: coordinate and fidelity fixes. (1) Explicitly supplied
+  `snp.pos`/`snp.chr` fields now take precedence over populated
+  `@position`/`@chromosome` slots -- previously the arguments were
+  silently ignored whenever the slots were already set (including stale
+  tag-offset copies in legacy objects), emitting within-tag offsets as
+  genome POS; the source used is announced at `verbose >= 1`, and a
+  malformed (wrong-length) slot is discarded with a warning instead of
+  silently. POS values change for callers passing `snp.pos` on objects
+  with a populated position slot. (2) REF is now pinned from `loc.all`
+  via PLINK's `--a2-allele`, so loci fixed for the alternate allele in
+  the exported sample keep their recorded reference base instead of
+  degrading to `N`. (3) SilicoDArT objects now stop with a clear datatype
+  error (`accept = "SNP"`) instead of failing cryptically inside
+  gl2plink. (4) A factor-typed `snp.pos` field previously exported its
+  factor level codes as POS; values are coerced via character and
+  non-integer position fields are a fatal error. (5) The PLINK binary is
+  checked up front with a download URL in the error. (6) `verbose = 0`
+  is silent: gl2plink runs at the passed verbosity and PLINK's captured
+  log prints only at `verbose >= 2`. (7) The ped/map intermediates are
+  written to tempdir() and, with PLINK's .log/.nosex by-products,
+  removed on success. Docs corrected accordingly.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

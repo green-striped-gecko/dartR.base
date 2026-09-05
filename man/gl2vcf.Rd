@@ -23,7 +23,7 @@ gl2vcf(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{plink.bin.path}{Path of PLINK binary file [default getwd())].}
+\item{plink.bin.path}{Path of PLINK binary file [default getwd()].}
 
 \item{outfile}{File name of the output file [default 'gl_vcf'].}
 
@@ -57,7 +57,8 @@ containing the phenotype value. '1' = control, '2' = case, '0' = unknown
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -67,12 +68,15 @@ This function exports a genlight object into VCF format and save it into a
 file.
 }
 \details{
-This function requires to download the binary file of PLINK 1.9 and provide
-its path (plink.bin.path).
+This function requires the binary file of PLINK 1.9 to be downloaded and
+its path provided (plink.bin.path).
 The binary file can be downloaded from:
 \url{https://www.cog-genomics.org/plink/}
 
-The chromosome information for unmapped SNPS is coded as 0.
+The slots \code{@position} and \code{@chromosome} hold genome
+coordinates. Explicitly supplied snp.pos/snp.chr loc.metrics fields take
+precedence over the slots; when neither a valid slot nor a field is
+available, CHROM and POS are written as 0 (unmapped).
 
 Family ID is taken from  x$pop
 
@@ -118,7 +122,7 @@ Other linker:
 \code{\link{gl2treemix}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
