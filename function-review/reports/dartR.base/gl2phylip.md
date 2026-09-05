@@ -108,7 +108,7 @@ verbose = 3 with bstrap = 3: clean, including the new F3 warning (815
 unscored population x locus cells reported). verbose = 0 captures zero
 lines and leaves no sink open. Sibling grep across the 8 clones: no
 package-code callers of `gl2phylip` -- all clear.
-PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
+PR: https://github.com/green-striped-gecko/dartR.base/pull/346
 
 ```json
 {
@@ -131,6 +131,6 @@ PR: https://github.com/green-striped-gecko/dartR.base/pull/PRNUM
   ],
   "coverage_skipped": ["F2 end-to-end bias magnitude: mechanism confirmed separately, not re-measured", "phylip execution: no binary", "DAT6: no FBM fixture"],
   "status": "phase-c-complete",
-  "pr": null
+  "pr": 346
 }
 ```
