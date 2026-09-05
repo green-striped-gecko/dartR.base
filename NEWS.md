@@ -25,6 +25,7 @@
   refuses duplicate individual names per file, which `merge()` previously
   joined many-to-one, silently copying one record's genotypes onto
   several rows.
+* R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
 * CI repair: six review-campaign test files hardcoded expectations from a
