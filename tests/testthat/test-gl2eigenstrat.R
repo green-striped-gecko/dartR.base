@@ -2,21 +2,21 @@
 # (review baseline, function-review campaign). Bugs are captured as-is and
 # annotated; do not treat every expectation here as intended behaviour.
 
-test_that("gl2eigenstrat writes the three EIGENSTRAT files for testset.gl", {
+test_that("gl2eigenstrat writes the three EIGENSTRAT files for testset2.gl", {
   od <- file.path(tempdir(), "es_base")
   dir.create(od, showWarnings = FALSE)
 
-  ret <- gl2eigenstrat(testset.gl, outfile = "es", outpath = od, verbose = 0)
+  ret <- gl2eigenstrat(testset2.gl, outfile = "es", outpath = od, verbose = 0)
   expect_null(ret)
 
   g <- readLines(file.path(od, "es.eigenstratgeno"))
   s <- readLines(file.path(od, "es.snp"))
   ind <- readLines(file.path(od, "es.ind"))
 
-  expect_length(g, nLoc(testset.gl))          # one line per SNP
-  expect_equal(nchar(g[1]), nInd(testset.gl)) # one character per individual
-  expect_length(s, nLoc(testset.gl))
-  expect_length(ind, nInd(testset.gl))
+  expect_length(g, nLoc(testset2.gl))          # one line per SNP
+  expect_equal(nchar(g[1]), nInd(testset2.gl)) # one character per individual
+  expect_length(s, nLoc(testset2.gl))
+  expect_length(ind, nInd(testset2.gl))
   # defaults: chrom = 1, genetic position = 0 (pos.cM signature default,
   # despite the roxygen claiming [default 1]), physical position = 1
   expect_equal(s[1], "100049687-12-C/T 1 0 1 C T")
@@ -30,10 +30,10 @@ test_that("gl2eigenstrat counts REFERENCE-allele copies in the geno file", {
   # 2 2 NA 2 2 (homozygous alternate) so the file line now starts 00900.
   od <- file.path(tempdir(), "es_geno")
   dir.create(od, showWarnings = FALSE)
-  invisible(gl2eigenstrat(testset.gl, outfile = "es2", outpath = od,
+  invisible(gl2eigenstrat(testset2.gl, outfile = "es2", outpath = od,
                           verbose = 0))
   g <- readLines(file.path(od, "es2.eigenstratgeno"))
-  m <- as.matrix(testset.gl)
+  m <- as.matrix(testset2.gl)
   expect_equal(unname(m[1:5, 1]), c(2, 2, NA, 2, 2))
   expect_equal(substr(g[1], 1, 5), "00900")
   # NA is coded 9 throughout
@@ -64,7 +64,7 @@ test_that("gl2eigenstrat maps X/Y/MT/XY labels and removes illegal-chromosome lo
   # verbose >= 1, and the geno file shrinks in step with the .snp file.
   od <- file.path(tempdir(), "es_map")
   dir.create(od, showWarnings = FALSE)
-  sub <- testset.gl[1:5, 1:8]
+  sub <- testset2.gl[1:5, 1:8]
   lm <- sub@other$loc.metrics
   lm$chrom_test <- factor(c("1", "X", "Y", "0", "MT", "scaffold_7", "XY", "2"))
   sub@other$loc.metrics <- lm
@@ -88,7 +88,7 @@ test_that("gl2eigenstrat is silent at verbose = 0", {
   od <- file.path(tempdir(), "es_sil")
   dir.create(od, showWarnings = FALSE)
   out <- capture.output(
-    invisible(gl2eigenstrat(testset.gl[1:5, 1:10], outfile = "sil",
+    invisible(gl2eigenstrat(testset2.gl[1:5, 1:10], outfile = "sil",
                             outpath = od, verbose = 0)))
   expect_length(out, 0)
 })
@@ -97,7 +97,7 @@ test_that("gl2eigenstrat rejects SilicoDArT data", {
   # [approved F4] accept = "SNP" now stops presence/absence data, which
   # previously produced a malformed 4-column .snp file (no loc.all, so the
   # ref/var columns vanished in a positional layout).
-  expect_error(gl2eigenstrat(testset.gs[1:5, 1:10], outfile = "gs",
+  expect_error(gl2eigenstrat(testset2.gs[1:5, 1:10], outfile = "gs",
                              outpath = tempdir(), verbose = 0),
                "SNP")
 })
@@ -107,16 +107,16 @@ test_that("gl2eigenstrat validates sex.code and phen.value lengths", {
   # .ind file (e.g. a 2-value sex.code alternating M/F).
   od <- file.path(tempdir(), "es_len")
   dir.create(od, showWarnings = FALSE)
-  expect_error(gl2eigenstrat(testset.gl[1:4, 1:5], outfile = "len",
+  expect_error(gl2eigenstrat(testset2.gl[1:4, 1:5], outfile = "len",
                              sex.code = c("male", "female"),
                              outpath = od, verbose = 0),
                "sex.code")
-  expect_error(gl2eigenstrat(testset.gl[1:4, 1:5], outfile = "len",
+  expect_error(gl2eigenstrat(testset2.gl[1:4, 1:5], outfile = "len",
                              phen.value = c("Case", "Control"),
                              outpath = od, verbose = 0),
                "phen.value")
   # full-length vectors are accepted
-  expect_no_error(gl2eigenstrat(testset.gl[1:4, 1:5], outfile = "len",
+  expect_no_error(gl2eigenstrat(testset2.gl[1:4, 1:5], outfile = "len",
                                 sex.code = rep("male", 4),
                                 phen.value = rep("Control", 4),
                                 outpath = od, verbose = 0))
