@@ -1,5 +1,24 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.read.ped()` (vendored copy of `snpStats::read.pedfile`; used by
+  `gl.report.ld.map()`): four fixes. (1) `lex.order = TRUE` swapped the
+  map alleles but discarded the switched genotype matrix, so dosages at
+  reordered loci counted the wrong allele relative to the returned map;
+  the switched matrix is now assigned. (2) `show_warnings = FALSE` also
+  disabled the multi-allelic NA reset, silently retaining genotypes at
+  loci the function itself had classified as unreliable; the reset now
+  runs regardless and only the warnings are gated. (3) Multi-allelic
+  detection missed a novel allele whenever it was paired with a known
+  one (e.g. an A/T carrier at an A/G locus was coded homozygous A/A,
+  unflagged); detection is now per allele column. (4) The `split`
+  argument was honoured when counting loci but ignored on data lines
+  (a comma-separated file returned mangled ids and all-NA genotypes
+  without error); it is now applied to every line. Real documentation
+  replaces the placeholder header (the previous `@return` wrongly
+  claimed a genlight object; the function returns a
+  list(genotypes, fam, map)) and the helper is now exported with the
+  internal-use warning, per the utils convention. F1/F3/F4 reproduce in
+  the installed snpStats original and are candidates to offer upstream.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
