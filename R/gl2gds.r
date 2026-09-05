@@ -20,7 +20,8 @@
 #' 'character', see details [default 'character'].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' 
 #' @details
 #' This function orders the SNPS by chromosome and by position before converting
@@ -46,8 +47,8 @@
 #' Remember to close the GDS file before working in a different GDS object with
 #' the function \link[SNPRelate]{snpgdsClose} (package SNPRelate).
 #' 
-#' @author Custodian: Luis Mijangos (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
 #' \donttest{
@@ -82,17 +83,14 @@ gl2gds <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
     # DO THE JOB
-    
+
     # ordering loc.metrics by chromosome and snp position
     snp_order_temp <- x$other$loc.metrics
     snp_order_temp$snp_id <- locNames(x)
-    
-    # adding snps order to be used to order snp matrix
-    snp_order_temp$order <- 1:nLoc(x)
-    
+
     if (snp.chr == 0) {
         snp_order_temp$chrom <- 0
     } else {
@@ -120,31 +118,35 @@ gl2gds <- function(x,
     # Convert any NA values to 0 (genlight objects have NA for missing; 
     #SNPRelate has 0 in this instance)
     snp_order_temp[snp_order_temp$snp.pos == 0, "chrom"] <- 0
-    snp_order_temp <-
-        snp_order_temp[with(snp_order_temp, order(chrom, snp.pos)), ]
-    
-    # ordering snp matrix
+
+    # one sort permutation, applied to EVERY per-locus field, so genotype
+    # rows, snp.id, snp.allele, positions and chromosomes stay aligned
+    # record by record
+    ord <- order(snp_order_temp$chrom, snp_order_temp$snp.pos)
+
+    # ordering snp matrix; SNPRelate defines the stored genotype as the
+    # count of the FIRST allele of snp.allele, while the genlight dosage
+    # counts the second, so the dosage is inverted (2 - dosage) with
+    # missing coded 3
     genmat_temp <- t(as.matrix(x))
-    genmat_temp <- genmat_temp[order(snp_order_temp$order), ]
+    genmat_temp <- genmat_temp[ord, , drop = FALSE]
+    genmat_temp <- 2 - genmat_temp
     genmat_temp[is.na(genmat_temp)] <- 3
-    
-    snp.id_temp <- locNames(x)
-    snp.id_temp <- snp.id_temp[order(snp_order_temp$order)]
-    
-    snp.allele_temp <- x@loc.all
-    snp.allele_temp <-
-        snp.allele_temp[order(snp_order_temp$order)]
-    
+
+    snp.id_temp <- locNames(x)[ord]
+
+    snp.allele_temp <- x@loc.all[ord]
+
     sample.id_temp <- indNames(x)
     sample.id_temp <-
         gsub(" ", replacement = "_", sample.id_temp)
-    
+
     geno_list <-
         list(
             sample.id = sample.id_temp,
             snp.id = snp.id_temp,
-            snp.position = snp_order_temp$snp.pos,
-            snp.chromosome = snp_order_temp$chrom,
+            snp.position = snp_order_temp$snp.pos[ord],
+            snp.chromosome = snp_order_temp$chrom[ord],
             snp.allele = snp.allele_temp,
             genotype = genmat_temp
         )
@@ -174,9 +176,11 @@ gl2gds <- function(x,
         cat(report("  Writing data to file", outfilespec, "\n"))
     }
     genofile <- SNPRelate::snpgdsOpen(outfilespec)
-    cat(important("Structure of gds file\n\n"))
-    SNPRelate::snpgdsSummary(genofile)
-    print(genofile)
+    if (verbose >= 3) {
+        cat(report("Structure of gds file\n\n"))
+        SNPRelate::snpgdsSummary(genofile)
+        print(genofile)
+    }
     
     # Close the GDS file
     if (verbose >= 2) {

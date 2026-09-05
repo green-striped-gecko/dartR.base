@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2gds()`: two silent data corruptions fixed. (1) With
+  `snp.pos`/`snp.chr` supplied, the genotype/snp.id/snp.allele records
+  were reordered with the INVERSE of the chromosome/position sort
+  permutation while the coordinate columns took the forward-sorted
+  values, so almost every record in the written gds carried another
+  locus's position and chromosome (7 of 8 in the platypus
+  demonstration); one permutation now reorders every per-locus field
+  together, and each record's coordinates map 1:1 to the supplied
+  loc.metrics fields (verified with SNPRelate across all 1000 platypus
+  loci). (2) The stored genotype was the raw genlight dosage (count of
+  the second allele) although SNPRelate defines it as the count of the
+  first allele of snp.allele; the dosage is now written as 2 - dosage,
+  so `snpgdsSNPRateFreq` and every ref/alt-aware export report correct
+  allele frequencies (PCA/IBD were unaffected). Also: the gds structure
+  dump no longer prints at `verbose < 3`, and SilicoDArT input is
+  rejected (`accept = "SNP"`) instead of being written as a pseudo-SNP
+  gds.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
