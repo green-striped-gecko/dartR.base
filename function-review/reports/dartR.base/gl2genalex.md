@@ -126,6 +126,7 @@ reporting this checkout's 3 all-NA loci. The poppr-absent guard path
 remains reasoned from code only (poppr is installed here). Sibling-caller
 grep across the 8 dartRverse clones: no callers of `gl2genalex` — all
 clear. NEWS entry added.
+PR: green-striped-gecko/dartR.base#345.
 
 ```json
 {
@@ -146,6 +147,6 @@ clear. NEWS entry added.
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "poppr-absent guard path not executed", "genome-position lens: format has no coordinate fields"],
   "status": "phase-c",
-  "pr": null
+  "pr": 345
 }
 ```
