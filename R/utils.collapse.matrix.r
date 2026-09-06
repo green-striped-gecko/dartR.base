@@ -72,10 +72,22 @@ utils.collapse.matrix <- function(D,
   if (!is.matrix(mat) || nrow(mat) != ncol(mat)) {
     stop(error("Fatal Error: Input must be a square distance matrix or object of class 'dist'\n"))
   }
-  
-  # Ensure row and column names in the matrix match individual names
+
+  # The matrix must carry individual names for the name-based collapse
+  if (is.null(rownames(mat)) || is.null(colnames(mat))) {
+    stop(error("Fatal Error: Matrix must have row and column names matching individual names in the genlight object\n"))
+  }
+
+  # Ensure row and column names in the matrix match individual names,
+  # in both directions: every matrix name must be a known individual,
+  # and every individual must be present in the matrix (a D computed on
+  # a subset of individuals would otherwise die later with a bare
+  # subscript error)
   if (!all(rownames(mat) %in% indNames(x)) || !all(colnames(mat) %in% indNames(x))) {
     stop(error("Fatal Error: Matrix row/column names do not match individual names in genlight object\n"))
+  }
+  if (!all(indNames(x) %in% rownames(mat)) || !all(indNames(x) %in% colnames(mat))) {
+    stop(error("Fatal Error: Some individuals in the genlight object are missing from the matrix row/column names\n"))
   }
   
   # DO THE JOB

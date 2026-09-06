@@ -5,7 +5,10 @@
   it; matrix output only - dist consumers such as gl.dist.pop are
   unaffected); empty fatal-error messages restored; off-diagonal
   means verified exact (unchanged); marked internal (stays
-  exported).
+  exported). Addendum from the population-distance chain review: the
+  name guard is two-directional (a D computed on a subset of the
+  object's individuals, or an unnamed matrix, now fails with a clear
+  message instead of a bare subscript/dimnames error).
 
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
