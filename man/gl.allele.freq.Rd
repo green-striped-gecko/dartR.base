@@ -15,17 +15,20 @@ allele proportions are given [default FALSE]}
 
 \item{by}{If by='popxloc' then breakdown is given by population and locus; if by='pop'
 then breakdown is given by population with statistics averaged across loci; if by='loc'
-then breakdown is given by locus with statistics averaged across individuals [default 'pop']}
+then breakdown is given by locus, with the frequency computed across all
+individuals and the other statistics (nobs, nmissing, n) averaged across
+populations [default 'pop']}
 
-\item{simple}{A legacy option to return a dataframe with the frequency of the 
-reference allele (alf1) and the frequency of the alternate allele (alf2) by locus [default FALSE]}
+\item{simple}{A legacy option to return a dataframe with the frequency of the
+reference allele (alf1) and the frequency of the alternate allele (alf2) by locus;
+overrides percent and by (sets by='loc' and percent=FALSE) [default FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity]}
 }
 \value{
-A matrix with allele (SNP data) or presence/absence frequencies
+A data.frame with allele (SNP data) or presence/absence frequencies
 (Tag P/A data) broken down by population and locus
 }
 \description{
