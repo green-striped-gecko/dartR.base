@@ -1,5 +1,28 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.tree.nj()`: THE DEFAULT TREE CHANGES on any dataset with missing
+  data -- the default Euclidean distance is now computed from
+  per-population allele frequencies with missing genotypes excluded
+  (na.rm = TRUE), matching the policy of `gl.dist.pop()`; previously a
+  single missing genotype nullified a population's frequency at that
+  locus (23.8% of the frequency matrix on `testset.gl`, topology shift
+  RF 32). Frequencies are also scaled by ploidy, so Tag P/A
+  (SilicoDArT) branch lengths are no longer halved. Other repairs:
+  `by.pop = FALSE` (individual-level tree) crashed on any ordinary
+  dataset ("Vector length does no match number of populations") -- now
+  functional; `method = "UPGMA"`/`"upgma"` is now accepted (previously
+  only the misspelling "ugpma" selected UPGMA and the correct spelling
+  silently returned an nj tree; "ugpma" is retained as a synonym), and
+  the unknown-method fallback warning is gated (was printing at
+  `verbose = 0`); plotting is decoupled from the result (new
+  `plot.display` argument, forced FALSE at `verbose = 0`, and a plot
+  failure no longer loses the computed tree); `type` is validated up
+  front; outgroup rooting resolves the root so `ape::is.rooted()` is
+  TRUE; a `dist.matrix` supplied as a plain matrix is coerced with
+  `as.dist()` (the ugpma path previously failed opaquely); the `as.pop`
+  error message now points at `ind.metrics` (was `loc.metrics`);
+  documentation corrected (return value, parameter order, method
+  spelling, plot types).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

@@ -14,6 +14,7 @@ gl.tree.nj(
   outgroup = NULL,
   labelsize = 0.7,
   treefile = NULL,
+  plot.display = TRUE,
   verbose = NULL
 )
 }
@@ -22,15 +23,18 @@ gl.tree.nj(
 
 \item{dist.matrix}{Distance matrix [default NULL].}
 
-\item{method}{Clustering method -- nj, neighbor-joining tree; UGPMA, UGPMA tree [default 'nj'].}
+\item{method}{Clustering method -- nj, neighbour-joining tree; upgma,
+UPGMA tree [default 'nj'].}
 
-\item{by.pop}{If TRUE, populations are the terminal taxa; if FALSE, individuals are the terminal taxa [default TRUE]}
+\item{by.pop}{If TRUE, populations are the terminal taxa; if FALSE,
+individuals are the terminal taxa [default TRUE].}
 
 \item{as.pop}{Assign another ind.metric as the population for
 the purposes of displaying more informative tip labels [default NULL].}
 
-\item{type}{Type of dendrogram "phylogram"|"cladogram"|"fan"|"unrooted"
-[default "phylogram"].}
+\item{type}{Type of dendrogram
+"phylogram"|"cladogram"|"fan"|"unrooted"|"radial"|"tidy"
+ [default "phylogram"].}
 
 \item{outgroup}{Vector containing the population names that are the outgroups
 [default NULL].}
@@ -38,24 +42,42 @@ the purposes of displaying more informative tip labels [default NULL].}
 \item{labelsize}{Size of the labels as a proportion of the graphics default
 [default 0.7].}
 
-\item{treefile}{Name of the file for the tree topology using Newick format 
+\item{treefile}{Name of the file for the tree topology using Newick format
 [default NULL].}
 
-\item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
-begin and end; 2, progress log; 3, progress and results summary; 5, full
-report [default 2 or as specified using gl.set.verbosity].}
+\item{plot.display}{If TRUE, the tree is plotted in the plot window
+[default TRUE].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A tree file of class phylo.
+A tree of class phylo. If treefile is specified, the tree is also
+written to that file in Newick format.
 }
 \description{
-This function is a wrapper for the nj function in package ape and hclust function in stats applied to Euclidean
+This function is a wrapper for the nj function in package ape (and, for
+method='upgma', the hclust function in stats) applied to Euclidean
 distances calculated from the genlight object.
 }
 \details{
-An euclidean distance matrix is calculated by default [dist.matrix = NULL]. 
-Optionally the user can use as input for the tree any other distance matrix
-using this parameter, see for example the function  \code{\link{gl.dist.pop}}.
+A Euclidean distance matrix is calculated by default [dist.matrix = NULL]
+from allele frequencies computed for each population at each locus,
+excluding missing genotypes. Frequencies are scaled by ploidy, so SNP
+(0/1/2) and Tag P/A (0/1) data both yield frequencies in the range 0 to 1.
+Optionally the user can use as input for the tree any other distance
+matrix using this parameter, see for example the function
+\code{\link{gl.dist.pop}}.
+
+The tree is built with the neighbour-joining algorithm [method='nj'] or
+by UPGMA clustering [method='upgma']; the legacy spelling 'ugpma' is
+accepted as a synonym of 'upgma'. If an outgroup is specified, the tree
+is rooted on that outgroup with the root resolved.
+
+The tree is computed and returned whether or not it is plotted; a failure
+in plotting does not affect the returned tree.
 }
 \examples{
 # SNP data
@@ -64,7 +86,7 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 # Tag P/A data
   gl.tree.nj(testset.gs,type='fan')
   res <- gl.tree.nj(platypus.gl)
-  
+
 }
 \seealso{
 Other graphics: 
@@ -77,7 +99,7 @@ Other graphics:
 \code{\link{gl.smearplot}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{graphics}
