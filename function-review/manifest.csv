@@ -63,3 +63,4 @@ gl.keep.pop,dartR.base,data manipulation,arthur,done,239
 gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
+utils.collapse.matrix,dartR.base,utility,arthur,pr-open,325
