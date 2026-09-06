@@ -1,5 +1,24 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.dist.phylo()`: numerics unchanged at defaults; the documentation
+  now states what the numbers mean -- heterozygous sites carry no
+  distance signal (heterozygotes are written as IUPAC ambiguity codes,
+  which `ape::dist.dna()` treats as missing data), and a warning at
+  `verbose >= 1` reports the fraction of heterozygous genotype calls,
+  with a stronger warning when `pairwise.missing = FALSE` deletes every
+  het-bearing site globally. The gamma corrections and variances the
+  details promised are now requestable (new `gamma` and `variance`
+  parameters forwarded to `ape::dist.dna()`; defaults reproduce the
+  previous output exactly). Also: the `setwd()` round-trip is gone, so a
+  mid-pipeline failure can no longer strand the session working
+  directory in `tempdir()`; SilicoDArT input is rejected up front with
+  the redirect to `gl.dist.pop`/`gl.dist.ind` (the previous check
+  compared against the wrong case and never fired); a single-population
+  object with `by.pop = TRUE` and an all-monomorphic object now fail
+  with informative errors instead of "subscript out of bounds" and a
+  bare subsetting message; the `by.pop = FALSE` label format
+  (indName_pop), the BH87 asymmetric-matrix return and the
+  TrimmedSequence/SnpPosition/loc.all prerequisites are documented.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
