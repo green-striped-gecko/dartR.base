@@ -8,22 +8,27 @@ gl.amova(x, distance = NULL, permutations = 100, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight containing the SNP genotypes, with
-population information [required].}
+population information (at least two populations) [required].}
 
-\item{distance}{Distance matrix between individuals (if not provided NeisD
+\item{distance}{Distance matrix (class matrix or dist) between
+individuals, labelled with the individual names (if not provided NeisD
 from StAMPP::stamppNeisD is calculated) [default NULL].}
 
 \item{permutations}{Number of permutations to perform for hypothesis
 testing [default 100]. Please note should be set to 1000 for analysis.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-An object of class 'amova' which is a list with a table of sums of
-square deviations (SSD), mean square deviations (MSD), and the number of
-degrees of freedom, and a vector of variance components.
+An object of class 'amova' (package pegas): a list with a table
+(tab) of sums of square deviations (SSD), mean square deviations (MSD)
+and degrees of freedom; the variance components (varcomp; a data.frame
+of sigma2 and P.value when permutations > 0, otherwise a vector of
+sigma2); the variance coefficients (varcoef); and the matched call.
+Phi statistics are displayed when the object is printed.
 }
 \description{
 This script performs an AMOVA based on the genetic distance matrix from
@@ -33,6 +38,27 @@ information use their help pages: ?pegas::amova, ?StAMPP::stamppAmova. Be
 aware due to a conflict of the amova functions from various packages I had
 to 'hack' StAMPP::stamppAmova to avoid a namespace conflict.
 }
+\details{
+The analysis is one-level only: the populations assigned in the pop slot
+are the single stratum. There is no provision for a nested hierarchy
+(for example regions containing populations). At least two populations
+are required.
+
+A distance matrix supplied via the distance argument must cover exactly
+the individuals in x and must be labelled with the individual names
+(dimnames for a matrix, Labels for a dist object). The matrix is aligned
+to indNames(x) by those labels before use, so a matrix whose rows are
+ordered differently from x is reordered correctly; a matrix without
+labels, or with labels that do not match indNames(x), is a fatal error.
+
+Significance is assessed by the one-tailed permutation test of
+pegas::amova(): the reported P.value is k/(permutations + 1), where k is
+the number of permuted variance components at least as large as the
+observed one, so a P.value of 0 is attainable. There is no seed argument;
+for a reproducible test, call set.seed() before calling this function.
+Set permutations = 0 to skip the test and return the variance components
+alone.
+}
 \examples{
 #permutations should be higher, here set to 1 because of speed
 if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
@@ -40,7 +66,7 @@ out <- gl.amova(bandicoot.gl, permutations=1)
 
 }
 \author{
-Bernd Gruber (bugs? Post to 
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{basic statistics}

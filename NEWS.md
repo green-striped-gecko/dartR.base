@@ -1,5 +1,24 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.amova()`: default-path numerics unchanged (components verified
+  against direct `pegas::amova()`, a hand-computed Excoffier one-level
+  AMOVA and `StAMPP::stamppAmova`). A user-supplied `distance` is now
+  validated: its dimension must match `nInd(x)` and it must be labelled
+  with the individual names, and it is aligned to `indNames(x)` by those
+  labels before use -- previously the matrix was applied positionally
+  with labels ignored, so a correctly labelled but re-ordered matrix
+  silently misassigned every distance. Unlabelled or mislabelled
+  matrices, and wrong-dimension matrices, are now informative fatal
+  errors. Also: a single-population object errors informatively instead
+  of returning an all-NaN table; SilicoDArT input is rejected per the
+  documented SNP-only contract (it previously ran on an unvalidated
+  presence-absence distance basis); non-finite distances error naming
+  the individuals involved; the pegas dependency guard stops instead of
+  returning `-1`; a dead block that densified the whole genotype matrix
+  to read population names was removed; a results summary (AMOVA table,
+  variance components, Phi_ST, P.value) prints at `verbose >= 3`; docs
+  state the one-level-only design, the `k/(permutations + 1)` p-value
+  definition and the `set.seed()` guidance.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
