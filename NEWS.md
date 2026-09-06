@@ -1,5 +1,31 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.dist.pop()`: distances landed on the wrong population labels
+  whenever the population factor levels were not in alphabetical order
+  -- the frequency matrix rows come back from `reshape2::dcast` in
+  alphabetical order while the matrix labels were assigned positionally
+  from `popNames(x)`. The rows are now re-anchored to `popNames(x)` by
+  name, so euclidean, nei, reynolds and chord distances follow their
+  labels for any level order (numerical output changes -- becomes
+  correct -- for objects with non-alphabetical population levels;
+  alphabetical-level objects, including all the packaged datasets, are
+  unchanged, verified to the anchor values). Also: `plot.file` with
+  `plot.display = FALSE` (including any `verbose = 0` call) no longer
+  crashes with "object 'p3' not found" after computing the distances --
+  the plot is built whenever it is displayed or saved; an unknown
+  `method` now stops (previously a non-fatal "Fatal Error" printed at
+  every verbosity and euclidean ran silently); `type = "matrix"` returns
+  a full symmetric zero-diagonal matrix for every method (previously the
+  SNP frequency methods returned only the lower triangle, upper triangle
+  and diagonal NA); the missing-reshape2 guard stops instead of
+  returning -1; fewer than two populations fails fast with a clear
+  message; documentation corrected (the scaled SNP euclidean maximum is
+  0.5, not 1; the SilicoDArT method list completed; the reynolds
+  -log(1-D) linearised variant and the chord 2*sqrt(2)/pi scaling
+  constant stated; the `as.pop` error message points at ind.metrics).
+  Note: `method = "sorensen"` routes through `gl.dist.ind()`, whose
+  companion fix (adding sorensen to its accepted methods) delivers true
+  Sorensen distances here once merged.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

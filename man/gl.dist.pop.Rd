@@ -27,8 +27,9 @@ the purposes of deletions [default NULL].}
 
 \item{method}{Specify distance measure [default euclidean].}
 
-\item{scale}{If TRUE and method='Euclidean', the distance will be scaled to 
-fall in the range [0,1] [default FALSE].}
+\item{scale}{If TRUE and method='euclidean', the distance will be scaled:
+for SilicoDArT data the scaled distance falls in the range [0,1]; for SNP
+data the attainable maximum is 0.5 (see Details) [default FALSE].}
 
 \item{type}{Specify the type of output, dist or matrix [default 'dist']}
 
@@ -58,8 +59,29 @@ This script calculates various distances between populations based on allele
 frequencies (SNP genotypes) or frequency of presences in PA (SilicoDArT) data
 }
 \details{
-For SNP data, the distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
-'nei' and 'chord'. For SilicoDArT data, the distance measure can be one of 'Refer to the documentation of functions in
+For SNP data, the distance measure can be one of 'euclidean', 'nei',
+'reynolds', 'chord' or 'fixed-diff'. For SilicoDArT data, the distance
+measure can be one of 'euclidean', 'simple', 'jaccard' or 'sorensen'.
+
+Two of the SNP measures are variants of their textbook forms. The
+'reynolds' distance is the linearised (divergence-time) variant
+-log(1 - D) of the Reynolds, Weir and Cockerham (1983) coancestry
+distance D. The 'chord' distance is the Cavalli-Sforza and Edwards
+(1967) chord distance scaled by the constant 2*sqrt(2)/pi.
+
+With scale=TRUE and method='euclidean', the scaled distance falls in
+the range [0,1] for SilicoDArT data; for SNP data the attainable
+maximum is 0.5 (two populations fixed for opposite alleles at every
+locus), a consequence of the 0.5 scaling factor applied to the SNP
+form.
+
+The euclidean distance for SilicoDArT data is computed from the
+population frequencies of tag presence; it is a different statistic
+from a between-individual euclidean distance averaged over population
+pairs ('simple', 'jaccard' and 'sorensen' are computed the latter
+way, via gl.dist.ind).
+
+Refer to the documentation of functions in
   https://doi.org/10.1101/2023.03.22.533737 for algorithms
   and definitions.
 }
