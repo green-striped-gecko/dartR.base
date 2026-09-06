@@ -30,8 +30,8 @@ gl.colors,dartR.base,utility,arthur,pr-open,276
 gl.select.colors,dartR.base,utility,arthur,pr-open,274
 gl.report.basics,dartR.base,report,arthur,pr-open,285
 gl.fixed.diff,dartR.base,analysis,arthur,pr-open,278
-gl.Ho,dartR.base,utility,arthur,pr-open,273
-gl.He,dartR.base,utility,arthur,pr-open,273
+gl.Ho,dartR.sim,utility,arthur,moved-to-dartR.sim,44
+gl.He,dartR.sim,utility,arthur,moved-to-dartR.sim,44
 gl.smearplot,dartR.base,graphics,arthur,pr-open,277
 gl.make.recode.pop,dartR.base,data manipulation,arthur,pr-open,270
 gl.make.recode.ind,dartR.base,data manipulation,arthur,pr-open,269

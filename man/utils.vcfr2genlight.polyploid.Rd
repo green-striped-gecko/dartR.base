@@ -44,8 +44,6 @@ Kamvar, Z. N., & Tabima, J. F. (2023). Package 'vcfR'.
 }
 \seealso{
 Other utilities: 
-\code{\link{gl.He}()},
-\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},

@@ -39,8 +39,6 @@ the individuals that could be scored.
 \code{gl.recalc.rdepth} for recalculating average read depth
 
 Other utilities: 
-\code{\link{gl.He}()},
-\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},

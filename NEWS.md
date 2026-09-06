@@ -1,5 +1,7 @@
 # dartR.base 1.2.3 (development)
 
+- gl.Ho and gl.He have moved to dartR.sim (their only dartRverse caller is gl.diagnostics.sim); the reviewed versions and their test travel with them (dartR.sim PR #44).
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
