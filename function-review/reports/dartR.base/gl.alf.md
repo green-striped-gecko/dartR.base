@@ -363,8 +363,9 @@ removed.
 
 ## Outcome
 
-Applied on `review-gl.alf` from upstream/dev at ddaed27. All four
-approved changes are in; F5 remains noted only.
+Applied on `review-gl.alf` from upstream/dev at ddaed27, PR
+green-striped-gecko/dartR.base#382. All four approved changes are in;
+F5 remains noted only.
 
 **Scope note.** The gate is a deliberate departure from the
 preamble-free accessor style ratified for gl.Ho/gl.He (PR #273). It is
@@ -474,6 +475,6 @@ bare still works because the gate takes only the object.
   "baseline_after": {"tests": 21, "assertions": 68, "failures": 0},
   "timing_after_ms": {"testset.gl": 19.5, "possums.gl": 14.5, "platypus.gl": 8.0, "lapply30": 47.0, "gate_overhead": 0.35},
   "status": "pr-open",
-  "pr": null
+  "pr": 382
 }
 ```
