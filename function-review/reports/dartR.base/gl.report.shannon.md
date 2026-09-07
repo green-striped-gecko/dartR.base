@@ -130,7 +130,7 @@ All 8 approved changes applied on branch `review-gl.report.shannon` (from `upstr
 - NEWS.md entry added, leading with the beta/gamma consequence.
 - `devtools::document()` run; `man/gl.report.shannon.Rd` regenerated (NAMESPACE unchanged).
 
-PR: green-striped-gecko/dartR.base #(see JSON `pr` field), branch `review-gl.report.shannon` → `dev`.
+PR: green-striped-gecko/dartR.base #379, branch `review-gl.report.shannon` → `dev`.
 
 ```json
 {
@@ -155,6 +155,6 @@ PR: green-striped-gecko/dartR.base #(see JSON `pr` field), branch `review-gl.rep
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "issue-tracker search: no web access"],
   "status": "pr-open",
-  "pr": null
+  "pr": 379
 }
 ```
