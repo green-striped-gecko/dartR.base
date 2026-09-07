@@ -1,5 +1,7 @@
 # dartR.base 1.2.3 (development)
 
+- gl.amova has moved to dartR.popgen (green-striped-gecko/dartR.popgen#88), carrying the PR #378 review fixes and its test; no dartRverse code calls it.
+
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
