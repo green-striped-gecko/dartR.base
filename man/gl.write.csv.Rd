@@ -42,6 +42,7 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \seealso{
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},

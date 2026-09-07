@@ -1,40 +1,70 @@
 #' @name gl.read.PLINK
 #' @title Reads PLINK data file into a genlight object
-#' @description This function imports PLINK data into a genlight object and 
+#' @family io
+#' @description This function imports PLINK data into a genlight object and
 #' append available metadata.
 #'
 #' @details This function handles .ped or .bed file (with the associate files -
 #' e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be
 #' installed and it is used to convert the .ped into a .bed, which is then
-#'  converted into a genlight.
+#'  converted into a genlight. The conversion is run in a temporary
+#' directory, so no files are written into the input directory.
 #'
-#' Additional metadata can be included passing .csv files. These will be 
+#' Genotypes are coded as the count of \code{allele.2} (column 6 of the
+#' .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
+#' \code{allele.1}, 2 = homozygous \code{allele.2}. Note that this is the
+#' opposite orientation to \code{\link{gl.read.vcf}}, which counts the ALT
+#' allele.
+#'
+#' Additional metadata can be included passing .csv files. These will be
 #' appended to the existing metadata present in the PLINK files.
 #'
 #' The locus metadata needs to be in a csv file with headings, with a mandatory
 #' column headed AlleleID corresponding exactly to the locus identity labels
-#' provided with the SNP data
+#' provided with the SNP data.
 #'
-#' @param filename Fully qualified path to PLINK input file (without including 
-#' the extension)
+#' The individual metadata needs a mandatory column headed id whose entries
+#' match the individual labels in the PLINK .fam file; rows are matched to
+#' individuals by id, so their order in the file does not matter. If a pop
+#' column is present it is used to assign populations.
+#'
+#' @param filename Fully qualified path to PLINK input file (without including
+#' the extension) [required].
 #' @param ind.metafile Name of the csv file containing the metrics for
-#' individuals [optional].
+#' individuals [default NULL].
 #' @param loc.metafile Name of the csv file containing the metrics for
-#' loci [optional].
-#' @param fbm Logical. If TRUE, the returned genlight object will contain a
-#' file-backed matrix (fbm) in its @genome slot. This is useful for very
-#' large datasets that do not fit into RAM. Note that using fbm objects
-#' requires the package bigsnpr to be installed. [default FALSE]. to back convert
-#' use \code{gl.fbm2gen()}.
-#' @param plink.flags additional possible parameters passed on to plink.
+#' loci [default NULL].
+#' @param fbm Logical. If TRUE, the genotypes of the returned object are held
+#' in a file-backed matrix (fbm) in its @fbm slot rather than in @gen. This
+#' is useful for very large datasets that do not fit into RAM. Note that
+#' using fbm objects requires the package bigsnpr to be installed. To back
+#' convert use \code{gl.fbm2gen()} [default FALSE].
+#' @param plink.flags additional possible parameters passed on to plink
+#' [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' @inheritParams utils.plink.run
 #' @return A genlight object with the SNP data and associated metadata included.
-#' @export
-#' @author Custodian: Carlo Pacioni -- Post to
+#' @author Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' @examples
+#' \donttest{
+#' # Create a small PLINK binary fileset (4 individuals x 4 SNPs) and read it
+#' base <- file.path(tempdir(), "toy")
+#' writeLines(c("1\tsnp1\t0\t100\tG\tA", "1\tsnp2\t0\t200\tT\tG",
+#'              "2\tsnp3\t0\t150\tA\tC", "2\tsnp4\t0\t300\tC\tT"),
+#'            paste0(base, ".bim"))
+#' writeLines(c("FAM1 ind1 0 0 1 1", "FAM1 ind2 0 0 2 1",
+#'              "FAM2 ind3 0 0 1 2", "FAM2 ind4 0 0 2 2"),
+#'            paste0(base, ".fam"))
+#' writeBin(as.raw(c(0x6c, 0x1b, 0x01, 0xcb, 0x2f, 0xab, 0xb7)),
+#'          paste0(base, ".bed"))
+#' gl <- gl.read.PLINK(base, verbose = 0)
+#' as.matrix(gl)
+#' }
+#' @export
 #' @rawNamespace import(data.table, except = c(melt,dcast))
 #' @importFrom snpStats read.plink write.SnpMatrix row.summary
 
@@ -114,8 +144,11 @@ gl.read.PLINK <- function(filename,
         # This should mean that there is one .ped
         if (length(plink.fn) == 1) {
           # But it is checked here for safety
+          # Copy the fileset to the temporary directory so the conversion
+          # does not write into the user's data directory (F5)
+          file.copy(plink.fns, dir.out, overwrite = TRUE)
           utils.plink.run(
-            dir.in = dirname(filename),
+            dir.in = dir.out,
             plink.cmd = plink.cmd,
             plink.path = plink.path,
             out = basename(filename),
@@ -124,14 +157,14 @@ gl.read.PLINK <- function(filename,
               basename(filename),
               "--make-bed",
               plink.flags
-            )
+            ),
+            verbose = verbose
           )
-          plink.fn <- list.files(
-            path = dirname(filename),
-            pattern = ".bed$",
-            full.names = TRUE,
-            recursive = TRUE
-          )
+          plink.fn <- file.path(dir.out, paste0(basename(filename), ".bed"))
+          if (!file.exists(plink.fn)) {
+            stop(error("PLINK did not produce a .bed file. Check that PLINK",
+                       "is installed and the input files are valid\n"))
+          }
         } else {
           # If we got it wrong stop the FUN
           stop(error("Couldn't find any .bed or .ped file\n"))
@@ -179,19 +212,15 @@ gl.read.PLINK <- function(filename,
   )
   
   if (length(unique(fam$member)) != length(fam$member)) {
-    cat(
-      error(
-        "Fatal Error: Individual labels are not unique, check and edit your input file\n"
-      )
-    )
-    stop()
+    stop(error(
+      "Fatal Error: Individual labels are not unique, check and edit your input file\n"
+    ))
   }
-  
+
   if (length(unique(map$snp.name)) != length(map$snp.name)) {
-    cat(error(
+    stop(error(
       "Fatal Error: AlleleID not unique, check and edit your input file\n"
     ))
-    stop()
   }
   
   pop(gl) <- array("A", nInd(gl))
@@ -209,12 +238,9 @@ gl.read.PLINK <- function(filename,
                header = TRUE,
                stringsAsFactors = TRUE)
     if (!("AlleleID" %in% names(loc.metrics))) {
-      cat(
-        error(
-          "Fatal Error: mandatory AlleleID column absent
-                                               from the locus metrics file\n"
-        )
-      )
+      stop(error(
+        "Fatal Error: mandatory AlleleID column absent from the locus metrics file\n"
+      ))
     }
     
     if (nrow(loc.metrics) != nLoc(gl))
@@ -287,8 +313,13 @@ gl.read.PLINK <- function(filename,
       )
       ind.metrics$pop <- array("A", nInd(gl))
     }
-    
+
+    # Match the metafile rows to the individuals in .fam order by id, so
+    # the row order of the metafile does not matter (F2)
+    ind.metrics <- ind.metrics[match(fam$member, ind.metrics$id), ]
+
     gl@other$ind.metrics <- cbind(gl@other$ind.metrics, ind.metrics)
+    pop(gl) <- as.character(ind.metrics$pop)
     if (verbose >= 2) {
       cat(report(
         paste(
@@ -313,14 +344,15 @@ gl.read.PLINK <- function(filename,
     cat(report("Completed:", funname, "\n"))
   }
   
-  #convert to fbm 
-  if (fbm) {}
-  gl <- gl.gen2fbm(gl, verbose = verbose) 
-  if (verbose>2) {
-    cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-  } else gl@fbm <- NULL
-  
-  
+  # convert to fbm only when requested; otherwise the object remains
+  # @gen-backed (F1)
+  if (fbm) {
+    gl <- gl.gen2fbm(gl, verbose = verbose)
+    if (verbose >= 2) {
+      cat(report(" Created a file-backed matrix (fbm) dartR object\n"))
+    }
+  }
+
   return(gl)
   
 }

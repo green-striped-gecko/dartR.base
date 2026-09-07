@@ -64,3 +64,5 @@ gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
 gl.impute,dartR.base,data manipulation,claude,pr-open,373
+gl.dist.ind,dartR.base,analysis,claude,pr-open,375
+gl.read.PLINK,dartR.base,io,arthur,pr-open,358

@@ -26,6 +26,37 @@
   PLINK up front with informative errors (instead of returning -1 or a
   raw system error) and no longer blanks singleton-scaffold chromosome
   names in the returned object.
+* `gl.dist.ind()`: `method = "sorensen"` now computes the Sorensen (=
+  Dice) distance -- previously "sorensen" was missing from the
+  accepted-methods list, so it was silently coerced to simple matching
+  with a warning that leaked at `verbose = 0` (numerical output changes
+  for sorensen callers, including `gl.dist.pop(method = "sorensen")`,
+  which routes through here). Also: the unknown-method fallback warnings
+  are gated at `verbose >= 1`; `type` is normalised with `tolower()` and
+  validated ("Matrix" now returns a matrix; an unrecognised type stops
+  instead of silently returning a dist); NA distances (e.g. from an
+  individual with no scored genotypes in common with another) are
+  counted and warned at `verbose >= 1` instead of propagating silently;
+  documentation corrected (`scale` default is FALSE and applies to
+  euclidean only; the Sorensen/Bray-Curtis synonymy for binary data is
+  stated; the `@author` line repaired).
+* `gl.read.PLINK()`: the returned object now contains the genotypes at
+  every verbosity. Previously `gl.gen2fbm()` always ran and the result
+  was discarded at verbose <= 2 (the default), so default-settings calls
+  returned an object with no genotype data; at verbose = 3 the object
+  came back FBM-backed even with `fbm = FALSE`. The `fbm` argument now
+  decides the backend, as documented. Individual metafile rows are now
+  matched to the .fam individuals by `id` (previously bound in file
+  order, silently misassigning metadata when the orders differed), and
+  a `pop` column in the metafile is now applied to `pop(gl)`. A missing
+  AlleleID column in the locus metafile now stops with the intended
+  message instead of an unrelated subscript error. The .ped-to-.bed
+  conversion now runs in a temporary directory (previously it wrote
+  .bed/.bim/.fam/.log into the user's input directory) and PLINK's
+  console chatter is suppressed below verbose 3. Documentation: the
+  dosage orientation is now stated (counts allele.2, the PLINK 1.x
+  major allele -- the opposite orientation to `gl.read.vcf()`, which
+  counts ALT).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
