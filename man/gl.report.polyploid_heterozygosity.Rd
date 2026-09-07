@@ -328,8 +328,7 @@ Other unmatched report:
 \code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
-\code{\link{gl.report.excess.het}()},
-\code{\link{gl.report.heterozygosity}()}
+\code{\link{gl.report.excess.het}()}
 }
 \author{
 Custodian: Ching Ching Lau (Post to

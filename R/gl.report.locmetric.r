@@ -1,26 +1,12 @@
 #' @name gl.report.locmetric
 #' @title Reports summary of the slot $other$loc.metrics
 #' @family matched report
-#' 
+
 #' @description
 #' This function reports summary statistics (mean, minimum, average, quantiles), histograms
-#' and boxplots for any loc.metric with numeric values (stored in 
+#' and boxplots for any loc.metric with numeric values (stored in
 #' $other$loc.metrics) to assist the decision of choosing thresholds for the filter
 #' function \code{\link{gl.filter.locmetric}}.
-
-#' @param x Name of the genlight object containing the SNP or presence/absence
-#' (SilicoDArT) data [required].
-#' @param metric Name of the metric to be used for filtering [required].
-#' @param plot.display Specify if plot is to be produced [default TRUE].
-#' @param plot.theme User specified theme [default theme_dartR()].
-#' @param plot.colors Vector with two color names for the borders and fill
-#' [default c("#2171B5", "#6BAED6")].
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()]
-#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default NULL, unless specified using gl.set.verbosity].
 
 #' @details
 #'The function \code{\link{gl.filter.locmetric}} will filter out the
@@ -78,7 +64,25 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#' @author Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @param x Name of the genlight object containing the SNP or presence/absence
+#' (SilicoDArT) data [required].
+#' @param metric Name of the metric to be used for filtering [required].
+#' @param plot.display Specify if plot is to be produced [default TRUE].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.colors Vector with two color names for the borders and fill
+#' [default c("#2171B5", "#6BAED6")].
+#' @param plot.dir Directory to save the plot RDS files [default as specified
+#' by the global working directory or tempdir()]
+#' @param plot.file Filename (minus extension) for the RDS plot file [Required for plot save]
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+
+#' @return An unaltered genlight object.
+
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos (Post to
+#' \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples
 #' # SNP data
@@ -90,7 +94,6 @@
 #' @seealso \code{\link{gl.filter.locmetric}}
 
 #' @export
-#' @return An unaltered genlight object.
 
 gl.report.locmetric <- function(x,
                                 metric,
@@ -103,10 +106,16 @@ gl.report.locmetric <- function(x,
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
     if(verbose==0){plot.display <- FALSE}
-    
+
+    # FLAG SCRIPT START
+    funname <- match.call()[[1]]
+    utils.flag.start(func = funname,
+                     build = "v.2023.3",
+                     verbose = verbose)
+
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
-	
+
     # SET COLOURS
     if(is.null(plot.colors)){
       plot.colors <- c("#2171B5", "#6BAED6")
@@ -116,18 +125,12 @@ gl.report.locmetric <- function(x,
         plot.colors <- plot.colors[1:2]
       }
     }
-    
-    # FLAG SCRIPT START
-    funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
-                     build = "v.2023.3",
-                     verbose = verbose)
-    
+
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
-    
+
     # FUNCTION SPECIFIC ERROR CHECKING
-    
+
     # check whether the field exists in the genlight object
     if (!(metric %in% colnames(x$other$loc.metrics))) {
         stop(error("  Fatal Error: name of the metric not found\n"))
@@ -135,48 +138,50 @@ gl.report.locmetric <- function(x,
     if (!is.numeric(unlist(x$other$loc.metrics[metric]))) {
         stop(error("  Fatal Error: metric is not numeric\n"))
     }
-    
+
     # DO THE JOB
-    
+
     field <- which(colnames(x@other$loc.metrics) == metric)
-    
+
     # get title for plots
-    if (all(x@ploidy == 2)) {
+    if (datatype == "SNP") {
         title1 <- paste0("SNP data - ", metric, " by Locus")
     } else {
         title1 <- paste0("Fragment P/A data - ", metric, " by Locus")
     }
-    
+
     metric_df <- data.frame(x$other$loc.metrics[field])
     colnames(metric_df) <- "field"
-    
+
     p1 <-
         ggplot(metric_df, aes(y = field)) + geom_boxplot(color = plot.colors[1], fill = plot.colors[2]) + coord_flip() + plot.theme + xlim(range = c(-1,
                                                                                                                                                      1)) + ylab(metric) + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle(title1)
-    
+
     p2 <-
         ggplot(metric_df, aes(x = field)) + geom_histogram(bins = 50,
                                                            color = plot.colors[1],
                                                            fill = plot.colors[2]) + xlab(metric) + ylab("Count") +
         plot.theme
-    
+
     # Print out some statistics
-    stats <- summary(metric_df)
-    cat("  Reporting", metric, "by Locus\n")
-    cat("  No. of loci =", nLoc(x), "\n")
-    cat("  No. of individuals =", nInd(x), "\n")
-    cat("    Minimum      : ", stats[1], "\n")
-    cat("    1st quantile : ", stats[2], "\n")
-    cat("    Median       : ", stats[3], "\n")
-    cat("    Mean         : ", stats[4], "\n")
-    cat("    3r quantile  : ", stats[5], "\n")
-    cat("    Maximum      : ", stats[6], "\n\n")
-    
+    stats <- summary(metric_df$field)
+    if (verbose >= 1) {
+        cat("  Reporting", metric, "by Locus\n")
+        cat("  No. of loci =", nLoc(x), "\n")
+        cat("  No. of individuals =", nInd(x), "\n")
+        cat("    Minimum      : ", stats[1], "\n")
+        cat("    1st quartile : ", stats[2], "\n")
+        cat("    Median       : ", stats[3], "\n")
+        cat("    Mean         : ", stats[4], "\n")
+        cat("    3rd quartile : ", stats[5], "\n")
+        cat("    Maximum      : ", stats[6], "\n\n")
+    }
+
     # Determine the loss of loci for a given threshold using quantiles
     quantile_res <-
         quantile(metric_df$field, probs = seq(0, 1, 1 / 20),type=1,na.rm = TRUE)
     retained <- unlist(lapply(quantile_res, function(y) {
-        res <- length(metric_df$field[metric_df$field >= y])
+        res <- sum(metric_df$field >= y, na.rm = TRUE)
     }))
     pc.retained <- round(retained * 100 / nLoc(x), 1)
     filtered <- nLoc(x) - retained
@@ -198,28 +203,28 @@ gl.report.locmetric <- function(x,
     df <- df[order(-df$Quantile), ]
     df$Quantile <- paste0(df$Quantile, "%")
     rownames(df) <- NULL
-    
+
     # PRINTING OUTPUTS
 
     # using package patchwork
       p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
       if (plot.display) {print(p3)}
-      print(df)
-    
+      if (verbose >= 1) {print(df)}
+
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p3,
                              dir=plot.dir,
                              file=plot.file,
                              verbose=verbose)
     }
-    
+
     # FLAG SCRIPT END
-    
+
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
+
     # RETURN
     invisible(x)
-    
+
 }

@@ -7,7 +7,7 @@
 #' replicates, sample duplicates, and other near-identical samples, and to suggest
 #' which individual to remove based on missing-data rate.
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param loc_threshold Minimum number of loci required to asses that two 
+#' @param loc_threshold Minimum number of loci required to assess that two 
 #' individuals are replicates [default 100].
 #' @param perc_geno Minimum percentage of genotypes in which two individuals 
 #' should be the same [default 0.95]. 
@@ -20,7 +20,7 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 #' @details
-#' ## What the function computes
+#' \strong{What the function computes}
 #' 
 #' The input is coerced to a numeric matrix. For every pair of
 #' individuals \eqn{i,j}, the function counts:
@@ -35,20 +35,20 @@
 #' Pairs are reported as putative replicates/duplicates when both conditions hold:
 #' `nloc > loc_threshold` and `perc > perc_geno`.
 #'
-#' ## How the computation is implemented 
+#' \strong{How the computation is implemented}
 #' 
 #' The pairwise counts (`nsame` and `nloc`) are computed with a C++ routine 
 #' compiled at run time. This requires the Rcpp/RcppParallel packages. The 
 #' first call in a session will be slower because the C++ code must be compiled;
 #' subsequent calls are fast.
 #'
-#' ## Suggested individual to drop
+#' \strong{Suggested individual to drop}
 #' For each flagged pair, the function calculates per-individual missingness as the
 #' proportion of `NA` genotypes across all loci. The replicate suggested for removal
 #' (`ind_to_drop`) is the member of the pair with the higher missingness, so that
 #' the retained replicate maximises usable genotype information.
 #'
-#' ## How to interpret the histograms
+#' \strong{How to interpret the histograms}
 #' When `plot.out = TRUE`, the function draws:
 #' \enumerate{
 #'   \item A histogram of `perc` across *all* pairwise comparisons.
@@ -56,7 +56,7 @@
 #' }
 #' In an ideal large dataset containing a mixture of unrelated and related
 #' individuals plus several replicated individuals (e.g., capture/mark/recapture),
-#' the first histogram often shows four approximate modes (“peaks”):
+#' the first histogram often shows four approximate modes ('peaks'):
 #' \enumerate{
 #'   \item Unrelated pairs (lowest `perc`).
 #'   \item Second-degree relatives (e.g., cousins).
@@ -70,13 +70,14 @@
 #' gap), you should treat replicate calls as uncertain and consider increasing
 #' marker quality/quantity, tightening filters, or raising `loc_threshold` and/or
 #' `perc_geno`.
-#' @return A list with three elements:
+#' @return A list with three elements (returned invisibly):
 #'\itemize{
 #'\item table.rep: A dataframe with pairwise results of percentage of same 
 #'genotypes between two individuals, the number of loci used in the comparison 
 #'and the missing data for each individual.
-#'\item ind.list.drop: A vector of replicated individuals to be dropped.
-#' Replicated individual with the least missing data is reported.
+#'\item ind.list.drop: A vector of replicated individuals suggested for
+#' removal -- for each pair, the member with the higher missing-data rate
+#' (ties drop the second-named individual).
 #'\item ind.list.rep: A list of of each individual that has replicates in the 
 #'dataset, the name of the replicates and the percentage of the same genotype.
 #'  }
@@ -88,7 +89,7 @@
 #' res_rep <- gl.report.replicates(platypus.gl, loc_threshold = 500, 
 #' perc_geno = 0.85)
 #' }
-#' @family report functions
+#' @family matched report
 #' @export
 
 gl.report.replicates <- function(x,
@@ -111,7 +112,25 @@ gl.report.replicates <- function(x,
   
   # Flag the start of this function call (internal helper)
   utils.flag.start(func = funname, build = "Jody", verbose = verbose)
-  
+
+  # CHECK DATATYPE
+  datatype <- utils.check.datatype(x, verbose = verbose)
+
+  if (verbose == 0) {
+    plot.out <- FALSE
+  }
+
+  # CHECK IF PACKAGES ARE INSTALLED
+  for (pkg in c("Rcpp", "RcppParallel")) {
+    if (!(requireNamespace(pkg, quietly = TRUE))) {
+      stop(error(
+        "Package", pkg,
+        " needed for this function to work. Please install it.
+"
+      ))
+    }
+  }
+
   # Convert genlight or other object to plain numeric matrix
   xx <- as.matrix(x)
   
@@ -192,24 +211,41 @@ gl.report.replicates <- function(x,
   # Compute proportion identical at each pair
   mat_prop <- mat_same / mat_nonmiss
   
-  # Melt into a long table: one row per pair
+  # One row per unordered pair (upper triangle): ind1 is the individual
+  # earlier in the object, ind2 the later
+  ut <- upper.tri(mat_prop)
+  idx <- which(ut, arr.ind = TRUE)
   tab <- data.table(
-    ind1 = rep(indNames(x), each = nrow(mat_prop)),
-    ind2 = rep(indNames(x),  times = nrow(mat_prop)),
-    perc = as.vector(mat_prop),     # proportion identical
-    nloc = as.vector(mat_nonmiss)   # number of loci compared
+    ind1 = indNames(x)[idx[, 1]],
+    ind2 = indNames(x)[idx[, 2]],
+    perc = mat_prop[ut],            # proportion identical
+    nloc = mat_nonmiss[ut]          # number of loci compared
   )[!is.na(perc)]                   # drop any NA proportions
   
   # Find pairs exceeding both thresholds
   col_same <- tab[nloc > loc_threshold & perc > perc_geno][order(-perc)]
   
-  # If none, return a message suggesting to lower thresholds
+  # If none, report (gated) and return the documented, empty structure
   if (!nrow(col_same)) {
-    msg <- sprintf(
-      "No pair of individuals share > %.1f%% identical genotypes across > %d loci.  Lower the thresholds?",
-      perc_geno * 100, loc_threshold
+    if (verbose >= 1) {
+      cat(report(sprintf(
+        "  No pair of individuals share > %.1f%% identical genotypes across > %d loci. Lower the thresholds?
+",
+        perc_geno * 100, loc_threshold
+      )))
+      cat(report("Completed:", funname, "
+"))
+    }
+    empty <- data.table(
+      ind1 = character(0), ind2 = character(0), perc = numeric(0),
+      nloc = numeric(0), ind1_miss = numeric(0), ind2_miss = numeric(0),
+      ind_to_drop = character(0)
     )
-    return(msg)
+    return(invisible(list(
+      table.rep     = empty,
+      ind.list.drop = character(0),
+      ind.list.rep  = list()
+    )))
   }
   
   # Calculate per-individual missing-data proportion
@@ -226,8 +262,10 @@ gl.report.replicates <- function(x,
   col_same[, ind_to_drop := ifelse(ind1_miss > ind2_miss, ind1, ind2)]
   ind_list <- unique(col_same$ind_to_drop)
   
-  # Also prepare a list of all replicates per focal sample
-  keep_pairs   <- mat_prop >= perc_geno & mat_nonmiss > loc_threshold
+  # Also prepare a list of all replicates per focal sample (same strict
+  # thresholds as table.rep; the NaN diagonal is treated as no match)
+  keep_pairs   <- mat_prop > perc_geno & mat_nonmiss > loc_threshold
+  keep_pairs[is.na(keep_pairs)] <- FALSE
   ind_list_rep <- apply(keep_pairs, 2, function(v) indNames(x)[v])
   ind_list_rep <- ind_list_rep[lengths(ind_list_rep) > 0]
   
@@ -249,13 +287,19 @@ gl.report.replicates <- function(x,
     print(p_all / p_zoom)
   }
   
+  # Display the results table if requested
+  if (verbose >= 3) {
+    cat(report("  Putative replicate pairs:\n"))
+    print(col_same[])
+  }
+
   # Final verbose message if requested
   if (verbose >= 1) cat(report("Completed:", funname, "\n"))
-  
-  list(
+
+  invisible(list(
     table.rep     = col_same[],
     ind.list.drop = ind_list,
     ind.list.rep  = ind_list_rep
-  )
-  
+  ))
+
 }

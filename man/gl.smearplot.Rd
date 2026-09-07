@@ -33,7 +33,7 @@ gl.smearplot(
 
 \item{label.size}{Size of the individual labels [default 10].}
 
-\item{group.pop}{If ind.labels is TRUE, group by population [default TRUE].}
+\item{group.pop}{If ind.labels is TRUE, group by population [default FALSE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default NULL].}
@@ -41,32 +41,32 @@ gl.smearplot(
 \item{plot.colors}{List of four color names for the column fill for homozygous reference,
 heterozygous, homozygous alternate, and missing value (NA) [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].}
 
-\item{loc.names}{If TRUE, loci names are shown on the horiontal axis 
+\item{loc.names}{If TRUE, loci names are shown on the horiontal axis
 [default FALSE].}
 
 \item{loc.order}{If TRUE, loci are ordered by chromosome and by SNP position
 [default FALSE].}
 
-\item{interactive}{If TRUE, an interactive version is generated 
+\item{interactive}{If TRUE, an interactive version is generated
 [default FALSE].}
 
-\item{den}{If TRUE, a dendrogram is generated and used to order individuals 
-[default FALSE].
+\item{den}{If TRUE, a dendrogram is generated and used to order individuals
 [default FALSE].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()]#'}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
+by the global working directory or tempdir()].}
 
-\item{het.only}{If TRUE, show only the heterozygous state [default FALSE]}
+\item{het.only}{If TRUE, show only the heterozygous state (SNP data only)
+[default FALSE].}
 
-\item{legend}{Position of the legend: “left”, “top”, “right”, “bottom” or
-'none' [default = 'bottom'].}
+\item{legend}{Position of the legend: 'left', 'top', 'right', 'bottom' or
+'none' [default 'bottom'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity]}
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 Returns the ggplot object
@@ -74,10 +74,11 @@ Returns the ggplot object
 \description{
 Each locus is color coded for scores of 0, 1, 2 and NA for SNP data and 0, 1
 and NA for presence/absence (SilicoDArT) data. Individual labels can be added.
-Plot may become cluttered if ind.labels If there are too many individuals, 
-it is best to use ind.labels = FALSE.
+The plot may become cluttered if there are too many individuals;
+if so, it is best to use ind.labels = FALSE.
 
-Works with both SNP data and P/A data (SilicoDArT)
+Works with both SNP data and P/A data (SilicoDArT). Missing data are
+shown in the NA color (the fourth plot color) without a legend entry.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)

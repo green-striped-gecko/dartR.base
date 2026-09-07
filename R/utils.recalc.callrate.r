@@ -52,7 +52,7 @@ utils.recalc.callrate <- function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(

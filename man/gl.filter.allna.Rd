@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.filter.allna.r
 \name{gl.filter.allna}
 \alias{gl.filter.allna}
-\title{Filters loci that are all NA across individuals and/or populations 
+\title{Filters loci with all NA across individuals and/or individuals
 with all NA across loci}
 \usage{
 gl.filter.allna(x, by.pop = FALSE, recalc = FALSE, verbose = NULL)
@@ -27,7 +27,8 @@ across all loci, or loci that are scored NA across all individuals.
 \description{
 This script deletes loci or individuals with all calls missing (NA),
  from a genlight object.
- 
+}
+\details{
 A DArT dataset will not have loci for which the calls are scored all as
 missing (NA) for a particular individual, but such loci can arise rarely when
  populations or individuals are deleted. Similarly, a DArT dataset will not
@@ -35,13 +36,13 @@ missing (NA) for a particular individual, but such loci can arise rarely when
  all loci, but such individuals may sneak in to the dataset when loci are
  deleted. Retaining individual or loci with all NAs can cause issues for
  several functions.
- 
+
  Also, on occasions an analysis will require that there are some loci scored
  in each population. Setting by.pop=TRUE will result in removal of loci when
  they are all missing in any one population.
- 
+
 Note that loci that are missing for all individuals in a population are
-not imputed with method 'frequency' or 'HW'. Consider 
+not imputed with method 'frequency' or 'HW'. Consider
 using the function \code{\link{gl.filter.allna}} with by.pop=TRUE.
 }
 \examples{
@@ -53,12 +54,21 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other filter functions: 
-\code{\link{gl.filter.hwe}()},
 \code{\link{gl.report.allna}()}
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{filter functions}
-\concept{unmatched filter}
+\concept{matched filter}

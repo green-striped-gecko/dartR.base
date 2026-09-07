@@ -17,12 +17,12 @@ progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-The input object
+The input object, returned invisibly
 }
 \description{
 This is a wrapper for saveRDS().
-The script saves the object in binary form to the current workspace and
-returns the input gl object.
+The script saves the object in compressed binary form to the nominated
+file and returns the input gl object unchanged.
 }
 \examples{
 gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
@@ -32,6 +32,7 @@ gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},

@@ -83,7 +83,10 @@ progress log; 3, progress and results summary; 5, full report
 }
 \value{
 A dataframe containing population labels, heterozygosities, FIS,
-their standard deviations and sample sizes.
+their standard deviations and sample sizes. When subsample.pop = TRUE
+(method='pop'), a named list with two elements: $subsample (the
+subsampling results for populations of at least n.limit individuals) and
+$results (the dataframe described above).
 }
 \description{
 Calculates the observed, expected and unbiased expected (i.e.
@@ -350,16 +353,22 @@ distance from a small number of individuals. Genetics, 89(3), 583-590.
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
 
-Other unmatched report: 
-\code{\link{gl.allele.freq}()},
-\code{\link{gl.report.allelerich}()},
-\code{\link{gl.report.basics}()},
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.excess.het}()},
-\code{\link{gl.report.polyploid_heterozygosity}()}
+Other matched report: 
+\code{\link{gl.filter.excess.het}()},
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos, Carlo Pacioni. Custodian: Luis Mijangos
+-- Post to \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{unmatched report}
+\concept{matched report}

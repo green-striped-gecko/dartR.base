@@ -32,6 +32,8 @@ Uses saveRDS() to save the file with an .RDS extension; can be reloaded with gl.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},

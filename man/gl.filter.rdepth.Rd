@@ -3,8 +3,7 @@
 \name{gl.filter.rdepth}
 \alias{gl.filter.rdepth}
 \title{Filters loci based on counts of sequence tags scored at a locus (read
- depth)
- @family matched filter}
+ depth)}
 \usage{
 gl.filter.rdepth(
   x,
@@ -26,10 +25,10 @@ presence/absence data [required].}
 [default 5].}
 
 \item{upper}{Upper threshold value above which loci will be removed
-[default infinite=1000].}
+[default 1000].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
-[default TRUE].}
+\item{plot.display}{If TRUE, histograms of read depth before and after
+filtering are displayed in the plot window [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
@@ -43,7 +42,8 @@ plots [default c("#2171B5", "#6BAED6")].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 Returns a genlight object retaining loci with a Read Depth in the
@@ -55,12 +55,17 @@ of sequence tags for the reference and alternate alleles respectively. These
 can be used to back calculate Read Depth. Fragment presence/absence datasets
 as provided by DArT (SilicoDArT) provide Average Read Depth and Standard
  Deviation of Read Depth as standard columns in their report.
-Filtering on Read Depth using the companion script gl.filter.rdepth can be on
- the basis of loci with exceptionally low counts,
-or loci with exceptionally high counts.
+
+This function filters out loci with a read depth below the lower threshold
+or above the upper threshold. Loci with a read depth equal to a threshold
+are retained. Use the companion function \code{\link{gl.report.rdepth}} to
+choose the thresholds.
 }
 \details{
-For examples of themes, see:
+Loci for which the read depth metric is missing (NA) are removed, because
+they cannot be assessed against the thresholds.
+
+ For examples of themes, see:
  \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
@@ -75,12 +80,26 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 # Tag P/A data
   result <- gl.filter.rdepth(testset.gs, lower=8, upper=50, verbose=3)
   }
-  res <- gl.filter.rdepth(platypus.gl)
+require("dartR.data")
+res <- gl.filter.rdepth(platypus.gl)
 }
 \seealso{
-\code{\link{gl.filter.rdepth}}
+\code{\link{gl.report.rdepth}}
+
+Other matched filter: 
+\code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.ld}()},
+\code{\link{gl.filter.locmetric}()},
+\code{\link{gl.filter.maf}()},
+\code{\link{gl.filter.monomorphs}()},
+\code{\link{gl.filter.overshoot}()},
+\code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.replicates}()},
+\code{\link{gl.filter.secondaries}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
+Custodian: Arthur Georges. Author(s): Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{matched filter}

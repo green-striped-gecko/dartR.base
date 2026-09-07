@@ -36,6 +36,8 @@ Tolerance in the definition of a fixed difference is provided by the t
 \code{\link{gl.fixed.diff}}
 
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},

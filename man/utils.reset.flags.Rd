@@ -52,6 +52,8 @@ of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele
 frequency, \code{gl.recalc.rdepth} for recalculating average read depth
 
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},

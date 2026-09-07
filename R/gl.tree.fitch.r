@@ -1,11 +1,13 @@
 #' @name gl.tree.fitch
-#' @title Generates a distance phylogeny
-#' 
+#' @title Generates a Fitch-Margoliash distance phylogeny
+#'
 #' @family phylogeny
-#' 
+#'
 #' @description
-#' Generates a distance phylogeny from a distance object
-#'  using the Fitch-Margoliash algorithm in Phylip.
+#' Generates a distance phylogeny from a distance object using the
+#' Fitch-Margoliash weighted least-squares method implemented by program
+#' fitch in the Phylip suite of executables, optionally with bootstrap
+#' support values computed by resampling loci from the genlight object.
 
 #' @param D Name of the distance matrix for tree building [required]
 #' @param x Name of the genlight object containing the SNP data [required for bootstrapping, default NULL].
@@ -13,14 +15,27 @@
 #' @param out.path Path to the directory to save files produced by the analysis [default tempdir()]
 
 # Parameters that govern tree selection
-#' @param tree.method Algorithm used for constructing trees and selecting the best tree [default "FM"]
-#' @param outgroup Name of the outgroup taxon [default NULL, no outgroup, tree not rooted]
+#' @param tree.method Algorithm used for constructing trees and selecting the best tree; only "FM" (Fitch-Margoliash) is implemented [default "FM"]
+#' @param outgroup Name of the outgroup taxon; if supplied, the returned tree is rooted on it [default NULL, no outgroup, tree not rooted]
 #' @param global.rearrange If TRUE, undertake global rearrangements when generating the tree [default FALSE].
 #' @param randomize If TRUE, randomize the order of the input taxa [default FALSE].
 #' @param n.jumble Number of randomizations of the input order, must be odd [default 9]
-#' @param bstrap Number of bootstrap replicates [default 1000]
-#' 
+#' @param bstrap Number of bootstrap replicates [default 1, no bootstrapping]
+
+# Parameters that govern the bootstrap resampling; must match the settings
+# used to generate D
+#' @param subst.model The substitution model used by gl.dist.phylo() when
+#' recomputing distances for the bootstrap replicates; set to the model used
+#' to build D [default "F81"]
+#' @param pairwise.missing Whether gl.dist.phylo() deletes sites with missing
+#' data pairwise when recomputing distances for the bootstrap replicates; set
+#' to the value used to build D [default TRUE]
+#' @param min.tag.len Minimum tag length applied by gl.dist.phylo() when
+#' recomputing distances for the bootstrap replicates; set to the value used
+#' to build D [default NULL]
+#'
 # Parameters that govern the appearance of the tree
+#' @param plot.display If TRUE, the tree is plotted in the plot window [default TRUE]
 #' @param plot.type One of 'phylogram','cladogram','unrooted','fan','tidy','radial' [default "phylogram"]
 #' @param bstrap.threshold Threshold for bootstrap values to be displayed on the tree [default 0.8]
 #' @param branch.width Width of the branches [default 2]
@@ -28,36 +43,66 @@
 #' @param node.label.color Colour of the node labels [default "red"]
 #' @param terminal.label.cex Height of the taxon label text [default 0.8]
 #' @param node.label.cex Height of the node label text [default 0.8]
-#' @param offset Horizontal offset of the node labels from the node [default 1.8]
-#' 
+#' @param offset Horizontal offset of the node labels from the node [default 1.2]
+#'
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
 #' @details
-#' The script takes a distance object as input. This distance object is typically created with gl.dist.phylo().
-#' The script then creates a file consistent with what is expected
-#' by program fitch in the Phylip suite of executables. It then runs fitch to generate the "best" phylogenetic
-#' tree. Program fitch is run again with bstrap replicates to generate bootstrap support for each node
-#' in the tree and plots these on the tree.
-#' 
+#' The script takes a distance object as input. This distance object is
+#' typically created with gl.dist.phylo(). The script writes the distance
+#' matrix to a file in the format expected by program fitch in the Phylip
+#' suite of executables, then runs fitch to generate the best tree by the
+#' Fitch-Margoliash method -- weighted least-squares fitting of branch
+#' lengths to the distances (power 2, negative branch lengths disallowed).
+#' This is a distance method, not maximum parsimony.
+#'
+#' Program fitch requires at least four taxa, and taxon names are truncated
+#' to the 10 characters of the Phylip format (execution stops if the
+#' truncated names are not unique). The Phylip tree file carries branch
+#' lengths to 6 decimal places only, which would leave SNP-scale distances
+#' with one or two significant digits; the distance matrix is therefore
+#' scaled by 10,000 before it is passed to fitch and the branch lengths are
+#' rescaled on return. The Fitch-Margoliash criterion is invariant to this
+#' scaling, so the topology and relative branch lengths are unaffected.
+#'
 #'      tree.method : Currently only Fitch-Margoliash is implemented.
-#'      
-#'      outgroup : Name the taxon to be used as outgroup. Must be among the names of the populations defined in the genlight object.
-#' 
-#' @author Custodian: Arthur Georges -- Post to 
+#'
+#'      outgroup : Name the taxon to be used as outgroup. Must be among the
+#'      names of the populations defined in the genlight object. When
+#'      supplied, the returned tree is rooted on the outgroup.
+#'
+#' If bstrap > 1, bootstrap replicates are generated by resampling loci with
+#' replacement from the genlight object x, and distances for each replicate
+#' are recomputed with gl.dist.phylo() using the settings given by
+#' subst.model, pairwise.missing and min.tag.len -- set these to the values
+#' used to build D, otherwise the support values will measure the stability
+#' of trees built under a different model. The support for each node of the
+#' best tree is the proportion of replicate trees that contain the same
+#' bipartition (computed with ape::prop.clades) and is attached to the
+#' returned tree as node.label; the Phylip majority-rule consensus tree from
+#' consense is attached as attribute "consensus.tree". The seeds for the
+#' Phylip-side searches are fixed (12345 for the jumbled input order, 331
+#' for the replicate analyses); global.rearrange and randomize apply to the
+#' search for the best tree only, not to the replicate searches; and the
+#' locus resampling is governed by the R session's random number generator
+#' (use set.seed() for reproducibility).
+#'
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' tmp <- gl.filter.monomorphs(testset.gl)
 #' D <- gl.dist.phylo(testset.gl,subst.model="F81")
-#' gl.phylip(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
+#' gl.tree.fitch(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
 #' node.label.cex=0.5,terminal.label.cex=0.6,global.rearrange = FALSE, bstrap=10)
 #' }
-#' 
+#'
 # Testing
 # gl <- testset.gl
 # gl <- gl.filter.callrate(gl)
@@ -67,11 +112,14 @@
 # gl.tree.fitch(D=dd,phylip.path="D:/workspace/R/phylip-3.695/exe",global.rearrange = TRUE)
 # gl.tree.fitch(D=dd,phylip.path="D:/workspace/R/phylip-3.695/exe",outgroup="EmvicVictJasp")
 # gl.tree.fitch(D=dd,x=gl,plot.type="tidy",bstrap=5,phylip.path="D:/workspace/R/phylip-3.695/exe",outgroup="EmvicVictJasp",verbose=3)
-#' 
+#'
 #' @import ape
-#' 
+#'
 #' @export
-#' @return The tree file in newick format.
+#' @return A tree of class phylo. When bstrap > 1, node.label carries the
+#' bootstrap support proportions for the corresponding internal nodes and
+#' the Phylip majority-rule consensus tree is attached as attribute
+#' "consensus.tree".
 
 gl.tree.fitch <- function(D,
                       x=NULL,
@@ -83,6 +131,10 @@ gl.tree.fitch <- function(D,
                       randomize=FALSE,
                       n.jumble=9,
                       bstrap=1, # No bootstrapping unless set to > 1, e.g. 1000
+                      subst.model="F81",
+                      pairwise.missing=TRUE,
+                      min.tag.len=NULL,
+                      plot.display=TRUE,
                       plot.type="phylogram",
                       bstrap.threshold=0.8,
                       branch.width=2,
@@ -94,167 +146,154 @@ gl.tree.fitch <- function(D,
                       verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
-  
+  if (verbose == 0) {
+    plot.display <- FALSE
+  }
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "v2023.3",
                    verbose = verbose)
-  
+
   # STANDARD ERROR CHECKING
   # Check datatype
-  
+
   datatype1 <- utils.check.datatype(D, accept=c('dist'), verbose = verbose)
-  
+
+  # FUNCTION SPECIFIC ERROR CHECKING
+
+  # Phylip fitch requires at least 4 taxa (it writes an empty tree file for
+  # 3 taxa and crashes for 2) [approved F9]
+  n.taxa <- length(attr(D, "Labels"))
+  if (n.taxa < 4) {
+    stop(error("Fatal Error: Phylip fitch requires at least 4 taxa; the distance matrix has", n.taxa, "\n"))
+  }
+
+  # Taxon names are truncated to the 10 characters of the Phylip format and
+  # must remain unique after truncation [approved F17]
+  labels10 <- substr(attr(D, "Labels"), 1, 10)
+  if (anyDuplicated(labels10) > 0) {
+    dups <- unique(labels10[duplicated(labels10)])
+    stop(error("Fatal Error: taxon labels are not unique when truncated to the 10 characters of the Phylip format:", paste(dups, collapse = ", "), "\n"))
+  }
+
   if(bstrap > 1){
     if(is.null(x)){
-      cat(warn("  Bootstrapping requires access to the genlight object, not provided, bootstrapping disabled\n"))
+      if (verbose >= 1) {
+        cat(warn("  Bootstrapping requires access to the genlight object, not provided, bootstrapping disabled\n"))
+      }
       bstrap <- 1
     } else {
       datatype2 <- utils.check.datatype(x, verbose = verbose)
+      # Replicate matrices are computed from x, so its populations must be
+      # the taxa of D [approved F16]
+      if (!setequal(popNames(x), attr(D, "Labels"))) {
+        stop(error("Fatal Error: the populations of x do not match the taxa of D; bootstrap replicates would be built for different taxa\n"))
+      }
     }
-  } 
-  
+  }
+
   # n.jumble must be odd
     if(n.jumble %% 2 == 0){
       n.jumble <- n.jumble+1
-      cat(warn("  Parameter n.jumble must be an odd integer, adding 1 to give",n.jumble,"\n"))}
-  
-  # # Check for monomorphic loci
-  # tmp <- gl.filter.monomorphs(x, verbose = 0)
-  # if ((nLoc(tmp) < nLoc(x))) {
-  #   if(verbose >= 2){cat(warn("  Warning: genlight object contains monomorphic loci\n"))}
-  # }
-  
+      if (verbose >= 1) {
+        cat(warn("  Parameter n.jumble must be an odd integer, adding 1 to give",n.jumble,"\n"))
+      }
+    }
+
+  # Only the Fitch-Margoliash method is implemented; reject anything else
+  # rather than running FM silently [approved F14]
   tree.method <- toupper(tree.method)
   if(tree.method=="F-M"){tree.method <- "FM"}
-  if(tree.method != "FM"){
-    cat(warn(  "  Using Fitch-Margoliash method of tree construction\n"))
-  }
-  
+  tree.method <- match.arg(tree.method, c("FM"))
+
+  og.label <- NULL
   if(!is.null(outgroup)){
     if(!outgroup %in% attr(D,"Labels")){
-      cat(warn("  Specified outgroup not in list of available taxa, set to unrooted\n"))
+      if (verbose >= 1) {
+        cat(warn("  Specified outgroup not in list of available taxa, set to unrooted\n"))
+      }
       outgroup <- NULL
     } else {
+      # Keep the (truncated) label for rooting the returned tree; Phylip
+      # takes the taxon by its index
+      og.label <- trimws(substr(outgroup, 1, 10))
       outgroup <- which(attr(D,"Labels") == outgroup)
       outgroup <- outgroup[1]
     }
-  }  
-  
-  # Specify the Phylip program fitch and command line to run it
-  #  on different platforms
-  
-  if(Sys.info()["sysname"] == "Windows") {
-    prog <- "fitch.exe"
-    cmd.fm <- paste0("fitch.exe < fitch.cmd")
   }
-  
-  if (Sys.info()["sysname"] == "Linux") {
-    prog <- "fitch"
-    cmd.fm <- "./fitch < fitch.cmd"
-  }
-  
-  if (Sys.info()["sysname"] == "Darwin") {
-    prog <- "fitch"
-    cmd.fm <- "./fitch < fitch.cmd"
-  }
-  
-  # Transfer the Phylip executable fitch.exe to the tempdir
-  
-  if (file.exists(file.path(phylip.path, prog))) {
-    file.copy(file.path(phylip.path, prog),
-              to = tempdir(),
-              overwrite = TRUE)
-    if(verbose >= 2){cat(report("  Transferred fitch executables to tempdir\n"))}
-  } else{
-    cat(
-      error(
-        " Cannot find",
-        prog,
-        "in the specified folder :",
-        phylip.path,
-        "\n"
-      )
-    )
-    stop()
-  }
-  
-  # Specify the Phylip program consense and command line to run it
-  #  on different platforms
-  
-  if(Sys.info()["sysname"] == "Windows") {
-    prog <- "consense.exe"
-    cmd.cns <- paste0("consense.exe < consense.cmd")
-  }
-  
-  if (Sys.info()["sysname"] == "Linux") {
-    prog <- "consense"
-    cmd.cns <- "./consense < consense.cmd"
-  }
-  
-  if (Sys.info()["sysname"] == "Darwin") {
-    prog <- "consense"
-    cmd.cns <- "./consense < consense.cmd"
-  }
-  
-  # Transfer the Phylip executable consense.exe to the tempdir
-  
-  if (file.exists(file.path(phylip.path, prog))) {
-    file.copy(file.path(phylip.path, prog),
-              to = tempdir(),
-              overwrite = TRUE)
-    if(verbose > 1){cat(report("  Transferred consense executables to tempdir\n"))}
-  } else{
-    cat(
-      error(
-        " Cannot find",
-        prog,
-        "in the specified folder :",
-        phylip.path,
-        "\n"
-      )
-    )
-    stop()
-  }
-  
-  # DO THE JOB
-  
-  # # Calculate the distance matrix
-  # D <- gl.dist.phylo(x)
-  
-  # Convert dist object to matrix of form expected by phylip
-  mat <- as.matrix(D)
-  rownames(mat) <- NULL
-  colnames(mat) <- NULL
-  names <- sapply(attr(D,"Labels"),function(x) substr(x, start = 1, stop = 10))
-  names <- sprintf("%-10s",names)
-  mat <- cbind(names,mat)
-  
-  # Output the distance matrix in phylip format to tempdir()
-  hold <- getwd()
-  setwd(tempdir())
-    write(length(attr(D,"Labels")),file="infile")
-    write.table(mat,file="infile",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
-    #write.table(D,file="infile",quote=FALSE,append=TRUE)
-    #cat("Hello Vietnam\n")
-  setwd(hold)
-  
-  #### TREE BUILDING
-  #### METHOD = FITCH
 
-  # Delete previous versions of output and outtree 
+  # Name the Phylip executables for the platform
+
+  if(Sys.info()["sysname"] == "Windows") {
+    prog.fitch <- "fitch.exe"
+    prog.consense <- "consense.exe"
+  } else {
+    prog.fitch <- "fitch"
+    prog.consense <- "consense"
+  }
+
+  # Transfer the Phylip executables to the tempdir
+
+  for (prog in c(prog.fitch, prog.consense)) {
+    if (file.exists(file.path(phylip.path, prog))) {
+      file.copy(file.path(phylip.path, prog),
+                to = tempdir(),
+                overwrite = TRUE)
+      if(verbose >= 2){cat(report("  Transferred", prog, "executable to tempdir\n"))}
+    } else {
+      # A proper error condition, not a bare stop() [approved F12]
+      stop(error("Fatal Error: cannot find", prog, "in the specified folder:", phylip.path, "\n"))
+    }
+  }
+
+  # DO THE JOB
+
+  # Phylip's outtree carries branch lengths to 6 decimal places; scale the
+  # distances up before writing and rescale the branch lengths after
+  # reading. The Fitch-Margoliash fit is invariant to the scaling
+  # [approved F10]
+  scale.factor <- 10000
+
+  # Write a dist object to file in the Phylip distance-matrix format
+  phylip.write <- function(d, file, append = FALSE) {
+    mat <- as.matrix(d) * scale.factor
+    rownames(mat) <- NULL
+    colnames(mat) <- NULL
+    names <- sprintf("%-10s", substr(attr(d, "Labels"), 1, 10))
+    mat <- cbind(names, mat)
+    write(length(attr(d, "Labels")), file = file, append = append)
+    write.table(mat, file = file, row.names = FALSE, col.names = FALSE,
+                quote = FALSE, append = TRUE)
+  }
+
+  # Subprocess output (the Phylip menu dialogue) is shown only at
+  # verbose >= 2 [approved F7]
+  subprocess.out <- if (verbose >= 2) "" else FALSE
+
+  # All Phylip input/output happens in tempdir(); restore the working
+  # directory on every exit path, including errors [approved F5]
   hold <- getwd()
   setwd(tempdir())
-  if(file.exists(file.path(tempdir(),"outfile"))){
+  on.exit(setwd(hold), add = TRUE)
+
+  # Output the distance matrix in Phylip format to tempdir()
+  phylip.write(D, file = "infile")
+
+  #### TREE BUILDING
+  #### METHOD = FITCH (Fitch-Margoliash)
+
+  # Delete previous versions of outfile and outtree so fitch is not
+  # prompted to replace them
+  if(file.exists("outfile")){
     unlink("outfile")
   }
-  if(file.exists(file.path(tempdir(),"outtree"))){
+  if(file.exists("outtree")){
     unlink("outtree")
   }
-  setwd(hold)
-  
-  # Create the command file for fitch
+
+  # Create the command file for fitch (answers to the Phylip menu prompts)
   vector <- rep(NA,7)
   if(!is.null(outgroup)){
     vector[1] <- "O"
@@ -269,40 +308,43 @@ gl.tree.fitch <- function(D,
     vector[6] <- n.jumble
   }
   vector[7] <- "Y"
-  vector <- na.omit(vector)
-  
-  fitch.cmd <- file.path(tempdir(), "fitch.cmd")
-  sink(fitch.cmd)
+  vector <- as.vector(na.omit(vector))
+  writeLines(vector, "fitch.cmd")
 
-  cat(vector,sep="\n")
-  
-  sink()
-  
-  # Execute the command file by passing it to fitch
+  # Execute fitch, feeding it the command file on stdin. system2() performs
+  # the redirection itself on all platforms; system("fitch.exe < fitch.cmd")
+  # passed '<' as an argument on Windows and never fed the command file to
+  # fitch [approved F1]
   if(verbose >= 2){cat(report("  Running fitch from the Phylip executables\n"))}
-  hold <- getwd()
-  setwd(tempdir())
-     system(cmd.fm)
-  setwd(hold)
+  system2(file.path(tempdir(), prog.fitch), stdin = "fitch.cmd",
+          stdout = subprocess.out, stderr = subprocess.out)
   # This will produce an output file called outfile, and a newick file called outtree
-  
-  # Display the newick file for the phylogeny    
-  if(verbose>=2){
-    newick <- readLines(file.path(tempdir(),"outtree"))
-    if(verbose > 2){
-      cat(report("Newick format tree file:\n"))
-      cat(newick, sep = "\n")
-    }
+
+  if (!file.exists("outtree") || file.size("outtree") == 0) {
+    stop(error("Fatal Error: Phylip fitch did not produce a tree; check the distance matrix and the Phylip installation in", phylip.path, "\n"))
   }
-  
-  # Save the 'best' tree
-  tree <- read.tree(file.path(tempdir(),"outtree"))
-  tree_1 <- tree
-  
+
+  # Display the newick file for the phylogeny [gated >= 3, approved F18]
+  if(verbose >= 3){
+    newick <- readLines("outtree")
+    cat(report("Newick format tree file:\n"))
+    cat(newick, sep = "\n")
+  }
+
+  # Save the 'best' tree, restoring the pre-scaling branch lengths
+  tree_1 <- ape::read.tree("outtree")
+  tree_1$edge.length <- tree_1$edge.length / scale.factor
+
+  # Root the tree on the outgroup if one was supplied [approved F11]
+  if (!is.null(outgroup)) {
+    tree_1 <- ape::root(tree_1, outgroup = og.label, resolve.root = TRUE)
+  }
+
   # BOOTSTRAPS -- USING CONSENSE
-  
-  if(bstrap > 1){ 
-    
+
+  supports <- NULL
+  if(bstrap > 1){
+
     if (verbose >= 2) {
       cat(report("Writing bootstrap distance matricies to the Phylip input file\n"))
       cat(report(
@@ -311,87 +353,66 @@ gl.tree.fitch <- function(D,
         "iterations\n"
       ))
     }
-    
-    # First the n=bstrap trees
-    
-    count <- 0
-    hold <- getwd()
-    setwd(tempdir())
+
+    # First the n=bstrap replicate matrices: resample loci with replacement
+    # and recompute the distances under the SAME model settings that built
+    # D [approved F3]
+
     for(i in 1:bstrap){
-      count <- count + 1
-      if(verbose >= 2){cat("  Bootstrap replicate",count,"\n")}
-      # Create the sequences
+      if(verbose >= 2){cat(report("  Bootstrap replicate",i,"\n"))}
+      # Create the resampled data
       tmp <- gl.subsample.loc(x,n = nLoc(x),replace=TRUE,verbose=0)
-      
-      dd <- gl.dist.phylo(tmp,by.pop=TRUE,verbose=verbose)
-      mat <- as.matrix(dd)
-      rownames(mat) <- NULL
-      colnames(mat) <- NULL
-      names <- sapply(attr(dd,"Labels"),function(x) substr(x, start = 1, stop = 10))
-      names <- sprintf("%-10s", names)
-      mat <- cbind(names,mat)
-      # gl2fasta(x,outfile="tmp.fas",outpath = tempdir(),verbose=0)
-      # sequences <- ape::read.dna("tmp.fas", format = "fasta")
-      # # Calculate distances
-      # D <- ape::dist.dna(sequences,model=subst.model,pairwise.deletion = pairwise.missing)
-      # #Calculate average distances for pairwise populations
-      # D <- avg.dist(x,D,verbose=0)
-      if(count==1){
-        write(length(attr(dd,"Labels")),file="infile")
-      } else {
-        write(length(attr(dd,"Labels")),file="infile",append=TRUE)
-      }
-      write.table(mat,file="infile",row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE)
-      #write.table(D,file="infile",quote=FALSE,append=TRUE)
+      dd <- gl.dist.phylo(tmp,
+                          subst.model = subst.model,
+                          min.tag.len = min.tag.len,
+                          pairwise.missing = pairwise.missing,
+                          by.pop = TRUE,
+                          verbose = 0)
+      phylip.write(dd, file = "infile", append = (i > 1))
     }
-    setwd(hold) ### infile contains the multiple bootstrapped matricies
-    
-    
+    ### infile contains the multiple bootstrapped matricies
+
     #### Run fitch to generate the outtree file to pass to consense
-    
-    #Delete previous versions of output and outtree
-    hold <- getwd()
-    setwd(tempdir())
-    if(file.exists(file.path(tempdir(),"outtree"))){
-      cat("    Deleting old outtree file\n")
+
+    # outfile from the first run is deliberately left in place: the leading
+    # "A" in the command file answers fitch's outfile-exists prompt
+    # (Append). outtree is deleted so no second prompt desynchronises the
+    # menu answers
+    if(file.exists("outtree")){
+      if (verbose >= 2) {
+        cat(report("  Deleting old outtree file\n"))
+      }
       unlink("outtree")
     }
-    
-    # Create the command file for fitch
+
+    # Create the command file for fitch: M = analyse multiple data sets
+    # (bstrap of them; the Phylip-side seed is fixed at 331). The search
+    # options global.rearrange/randomize apply to the primary search only
     vector <- rep(NA,11)
     vector[1] <- "A"
     if(!is.null(outgroup)){
       vector[2] <- "O"
       vector[3] <- outgroup
     }
-    # if(global.rearrange){
-    #   vector[4] <- "G"
-    # }
-    # if(randomize){
-    #   vector[5] <- "J"
-    #   vector[6] <- 12345
-    #   vector[7] <- n.jumble
-    # }
     vector[8] <- "M"
     vector[9] <- bstrap
     vector[10] <- 331
     vector[11] <- "Y"
     vector <- as.vector(na.omit(vector))
-    
-    fitch.cmd <- file.path(tempdir(), "fitch.cmd")
-    sink(fitch.cmd)
-    cat(vector,sep="\n")
-    sink()
-    
+    writeLines(vector, "fitch.cmd")
+
     # Execute the command file by passing it to fitch
-    
-    system(cmd.fm)
-    
-    # Copy the outtree file from fitch to the intree for consense
+
+    system2(file.path(tempdir(), prog.fitch), stdin = "fitch.cmd",
+            stdout = subprocess.out, stderr = subprocess.out)
+
+    # Copy the outtree file from fitch (one tree per replicate) to the
+    # intree for consense
     file.copy("outtree", "intree", overwrite = TRUE)
     unlink("outtree")
-    
-    # Create the consensus command file
+
+    # Create the consensus command file ("A" appends to the existing
+    # outfile)
     vector <- rep(NA,4)
     vector[1] <- "A"
     if(!is.null(outgroup)){
@@ -399,55 +420,72 @@ gl.tree.fitch <- function(D,
       vector[3] <- outgroup
     }
     vector[4] <- "Y"
-    vector <- na.omit(vector)
-    
-    consense.cmd <- file.path(tempdir(), "consense.cmd")
-    sink(consense.cmd)
-    cat(vector,sep="\n")
-    sink()
-    
+    vector <- as.vector(na.omit(vector))
+    writeLines(vector, "consense.cmd")
+
     # Execute the command file by passing it to consense
-    # hold <- getwd()
-    #  setwd(tempdir())
-    system(cmd.cns)
-    #setwd(hold)
-    # This will append to an output file called outfile, and output a newick file called outtree
-    
-    tree.bstraps <- ape::read.tree(file.path(tempdir(),"outtree"))
-    if(verbose==3){
-      newick <- readLines(file.path(tempdir(),"outtree"))
-      if(verbose > 2){
-        cat(report("Newick format for the bootstrap tree file showing node values:\n"))
-        cat(newick, sep = "\n")
-      }
+    system2(file.path(tempdir(), prog.consense), stdin = "consense.cmd",
+            stdout = subprocess.out, stderr = subprocess.out)
+    # This will append to an output file called outfile, and output a
+    # newick file called outtree holding the majority-rule consensus tree
+
+    tree.bstraps <- ape::read.tree("outtree")
+    if(verbose >= 3){
+      newick <- readLines("outtree")
+      cat(report("Newick format for the bootstrap consensus tree file showing node values:\n"))
+      cat(newick, sep = "\n")
     }
-    # Extracting branch lengths
-    branch_lengths <- tree.bstraps$edge.length
-    # The number of tips is the same as the number of leaf labels
-    num_tips <- length(tree.bstraps$tip.label)
-    # Branch lengths associated with internal nodes start after all the tips in the tree structure
-    # Because in a fully bifurcating tree, the number of internal nodes is one less than the number of tips
-    node_values <- branch_lengths[(num_tips + 1):length(branch_lengths)]/bstrap
-    node_values[node_values < bstrap.threshold] <- 0
-    node_values <- as.character(node_values)
-    node_values[node_values=="0"] <- " "
-    
-    # cat(report(node_values))
-    # cat("\n")
+
+    # Bootstrap support for each node of the best tree: the proportion of
+    # replicate trees containing the same bipartition, matched by clade
+    # content with ape::prop.clades -- never by edge order [approved F2].
+    # Attached to the returned tree so the supports survive the call and
+    # round-trip through ape::write.tree [approved F4]
+    boot.trees <- ape::read.tree("intree")
+    if (inherits(boot.trees, "phylo")) {
+      boot.trees <- c(boot.trees)
+    }
+    supports <- ape::prop.clades(tree_1, boot.trees, rooted = FALSE) / bstrap
+    tree_1$node.label <- supports
+    attr(tree_1, "consensus.tree") <- tree.bstraps
   }
-  
-  # Plot the tree
-  
-  plot(tree_1, type = plot.type, edge.width = branch.width, edge.color = branch.color, cex = terminal.label.cex)
-  if(bstrap > 1){
-    nodelabels(node_values, frame = "none", cex = node.label.cex, col = node.label.color,adj=offset)
+
+  # Plot the tree -- after the result is secured; a plotting failure must
+  # not destroy the computed tree [approved F8]
+
+  if (plot.display) {
+    tryCatch({
+      plot(tree_1, type = plot.type, edge.width = branch.width,
+           edge.color = branch.color, cex = terminal.label.cex)
+      if(bstrap > 1){
+        node.text <- ifelse(!is.na(supports) & supports >= bstrap.threshold,
+                            sprintf("%.2f", supports), " ")
+        ape::nodelabels(node.text, frame = "none", cex = node.label.cex,
+                        col = node.label.color, adj = offset)
+      }
+      if(verbose >= 3){cat(report("Plotting a Fitch-Margoliash Distance Phylogeny\n"))}
+    }, error = function(e) {
+      if (verbose >= 1) {
+        cat(warn("  Warning: plotting failed (", conditionMessage(e), "); the tree is still returned\n"))
+      }
+    })
   }
-  if(verbose > 2){cat(report("Plotting a Fitch-Margoliash Distance Phylogeny\n"))}
-  
+
+  # Copy the Phylip artefacts to out.path [approved F6]
+
+  if (normalizePath(out.path, mustWork = FALSE) != normalizePath(tempdir())) {
+    if (!dir.exists(out.path)) {
+      dir.create(out.path, recursive = TRUE)
+    }
+    artefacts <- c("infile", "outfile", "outtree", "intree")
+    file.copy(artefacts[file.exists(artefacts)], to = out.path,
+              overwrite = TRUE)
+  }
+
   # FLAG SCRIPT END
-  
+
   if (verbose > 0) {
-    cat(report("Output files from Phylip written to", tempdir(),"\n"))
+    cat(report("Output files from Phylip written to", out.path,"\n"))
     cat(report("Completed:", funname, "\n"))
   }
 

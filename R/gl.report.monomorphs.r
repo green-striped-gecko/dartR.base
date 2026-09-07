@@ -5,10 +5,6 @@
 #' @description
 #' This script reports the number of monomorphic loci and those with all NAs in
 #' a genlight \{adegenet\} object
-#' @param x Name of the input genlight object [required].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default NULL, unless specified using gl.set.verbosity].
 #' @details
 #' A DArT dataset will not have monomorphic loci, but they can arise, along with
 #' loci that are scored all NA, when populations or individuals are deleted.
@@ -18,7 +14,14 @@
 #' Note that for SNP data, NAs likely represent null alleles; in tag
 #' presence/absence data, NAs represent missing values (presence/absence could
 #' not be reliably scored)
-#' @author Custodian: Arthur Georges -- Post to
+#' @param x Name of the input genlight object [required].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, unless specified using gl.set.verbosity].
+#'
+#' @return An unaltered genlight object
+#'
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' # SNP data
@@ -29,7 +32,6 @@
 #' @seealso \code{\link{gl.filter.monomorphs}}
 
 #' @export
-#' @return An unaltered genlight object
 
 gl.report.monomorphs <- function(x,
                                  verbose = NULL) {
@@ -100,21 +102,22 @@ gl.report.monomorphs <- function(x,
     }
     
     # PRINTING OUTPUTS Report results
-    cat("\n  No. of loci:", nLoc(hold), "\n")
-    cat("    Polymorphic loci:", nLoc(x), "\n")
-    cat("    Monomorphic loci:", nLoc(hold) - nLoc(x), "\n")
-    cat("    Loci scored all NA:", na.counter, "\n")
-    cat("  No. of individuals:", nInd(x), "\n")
-    cat("  No. of populations:", nPop(x), "\n\n")
-    
+    if (verbose >= 1) {
+        cat("\n  No. of loci:", nLoc(hold), "\n")
+        cat("    Polymorphic loci:", nLoc(x), "\n")
+        cat("    Monomorphic loci:", nLoc(hold) - nLoc(x), "\n")
+        cat("    Loci scored all NA:", na.counter, "\n")
+        cat("  No. of individuals:", nInd(x), "\n")
+        cat("  No. of populations:", nPop(x), "\n\n")
+    }
+
     # FLAG SCRIPT END
-    
+
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    # RETURN
-    
-    invisible(x)
-    
+
+    # RETURN the input unaltered, as documented
+    invisible(hold)
+
 }

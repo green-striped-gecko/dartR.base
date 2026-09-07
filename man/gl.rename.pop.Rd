@@ -7,7 +7,8 @@
 gl.rename.pop(x, old = NULL, new = NULL, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing SNP genotypes [required].}
+\item{x}{Name of the genlight object containing SNP genotypes or Tag P/A
+data (SilicoDArT) [required].}
 
 \item{old}{Name of population to be changed [required].}
 
@@ -15,23 +16,34 @@ gl.rename.pop(x, old = NULL, new = NULL, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A genlight object with the new population name.
 }
 \description{
+This script renames a nominated population in a genlight object.
+}
+\details{
 Individuals are assigned to populations based on the specimen metadata data
 file (csv) used with gl.read.dart().
-This script renames a nominated population.
+
+The nominated population must exist in the genlight object, and the new
+name must not already be in use — renaming to an existing population name
+is a fatal error, to guard against inadvertently merging populations. To
+amalgamate populations, use \code{\link{gl.recode.pop}}.
+
 The script returns a genlight object with the new population name.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
    gl <- gl.rename.pop(testset.gl, old='EmsubRopeMata', new='Outgroup')
-   
 }
 \seealso{
+\code{\link{gl.recode.pop}} for bulk recoding or amalgamating
+populations
+
 Other data manipulation: 
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
@@ -44,6 +56,7 @@ Other data manipulation:
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
@@ -56,7 +69,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

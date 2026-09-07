@@ -3,8 +3,7 @@
 \name{gl.make.recode.pop}
 \alias{gl.make.recode.pop}
 \title{Creates a proforma recode_pop_table file for reassigning population
- names
- @family data manipulation}
+ names}
 \usage{
 gl.make.recode.pop(
   x,
@@ -19,15 +18,17 @@ gl.make.recode.pop(
 \item{out.recode.file}{File name of the output file (including extension)
 [default recode_pop_table.csv].}
 
-\item{outpath}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()]}
+\item{outpath}{Directory in which to save the proforma recode file
+[default as specified by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A vector containing the new population names.
+NULL, returned invisibly. The proforma recode table is written to
+the nominated file.
 }
 \description{
 Renaming populations may be required when there have been errors in
@@ -41,9 +42,9 @@ proforma file with current population names in two identical columns. Edit
 the second column to reassign populations. Use keyword 'Delete' to delete a
 population.
 When caution needs to be exercised because of the potential for breaking the
- 'chain of evidence' associated with the samples, recoding individuals using
+ 'chain of evidence' associated with the samples, recoding populations using
  a recode table (csv) can provide a clear record of the changes.
-Use outpath=getwd() or when calling this function to direct output files 
+Use outpath=getwd() when calling this function to direct output files
 to your working directory.
 The function works with both genlight objects
 containing SNP genotypes and Tag P/A data (SilicoDArT).
@@ -53,7 +54,35 @@ Apply the recoding using gl.recode.pop().
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 result <- gl.make.recode.pop(testset.gl,out.recode.file='test.csv',outpath=tempdir(),verbose=2)
 }
+\seealso{
+\code{\link{gl.recode.pop}}
+
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sim.genotypes}()},
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()}
+}
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}

@@ -13,6 +13,8 @@ gl.report.hwe(
   alpha_val = 0.05,
   pvalue_type = "midp",
   cc_val = 0.5,
+  direction = "both",
+  min.hobs = 0,
   sig_only = TRUE,
   min_sample_size = 5,
   plot.out = TRUE,
@@ -48,7 +50,17 @@ Either 'dost','selome','midp' (see details) [default 'midp'].}
 \item{cc_val}{The continuity correction applied to the ChiSquare test
 [default 0.5].}
 
-\item{sig_only}{Whether the returned table should include loci with a 
+\item{direction}{Restrict reporting to loci departing from Hardy-Weinberg
+proportions in a particular direction: 'both' (any departure), 'excess'
+(heterozygote excess, i.e. observed heterozygotes exceed Hardy-Weinberg
+expectation) or 'deficit' (heterozygote deficit) [default 'both'].}
+
+\item{min.hobs}{Restrict testing to loci with observed heterozygosity
+greater than or equal to this proportion; 0 disables the screen. The
+screen is applied before any adjustment for multiple comparisons, so it
+also confines the adjustment to the screened loci [default 0].}
+
+\item{sig_only}{Whether the returned table should include loci with a
 significant departure from Hardy-Weinberg proportions [default TRUE].}
 
 \item{min_sample_size}{Minimum number of individuals per population in which
@@ -66,14 +78,18 @@ temporary directory (tempdir) [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A dataframe containing loci, counts of reference SNP homozygotes,
-heterozygotes and alternate SNP homozygotes; probability of departure from
-H-W proportions, per locus significance with and without correction for
-multiple comparisons and the number of population where the same locus is 
-significantly out of HWE.
+heterozygotes and alternate SNP homozygotes; the expected heterozygote
+count under Hardy-Weinberg proportions (Het.exp); probability of departure
+from H-W proportions and per locus significance with and without
+correction for multiple comparisons. When sig_only = TRUE the table also
+carries npop, the number of populations in which the same locus is
+significantly out of HWE. Rows with a probability exactly equal to
+alpha_val carry NA in the significance columns.
 }
 \description{
 Calculates the probabilities of agreement with H-W proportions based on 
@@ -150,6 +166,21 @@ error rate, so these methods are more powerful than the others, especially
 when number of tests is large.
 The number of tests on which the adjustment for multiple comparisons is
 the number of populations times the number of loci.
+\strong{Heterozygote excess and deficit}
+Loci with a significant excess of heterozygotes are candidate sex-linked or
+paralogous (collapsed duplicate) loci (Robledo-Ruiz et al., 2023); loci with
+a heterozygote deficit can indicate null alleles, inbreeding or population
+substructure (Wahlund effect). Setting direction='excess' (or 'deficit')
+restricts the report to loci whose observed heterozygote count exceeds
+(falls below) the Hardy-Weinberg expectation, which is included in the
+output as the column Het.exp. To reproduce the workflow of the deprecated
+gl.report.excess.het() (Robledo-Ruiz et al., 2023), use:
+direction='excess', min.hobs=0.5, method_sig='ChiSquare', multi_comp=TRUE,
+multi_comp_method='fdr' (cc_val=0.5 corresponds to Yates=TRUE, cc_val=0 to
+Yates=FALSE). The min.hobs=0.5 screen — testing only loci with observed
+heterozygosity of at least 0.5 — is an integral part of that published
+workflow: it targets the strong-excess loci characteristic of sex linkage
+and confines the false-discovery-rate adjustment to the screened set.
 \strong{Ternary plots}
 Ternary plots can be used to visualise patterns of H-W proportions (plot.out
 = TRUE). P-values and the statistical (non)significance of a large number of
@@ -184,6 +215,11 @@ molecular biology, 12(4), 433-448.
  on a modified Bonferroni test. Biometrika, 75, 383–386.
 \item Rice, W. R. (1989). Analyzing tables of statistical tests. Evolution,
  43(1), 223-225.
+\item Robledo-Ruiz, D. A., Austin, L., Amos, J. N., Castrejon-Figueroa, J.,
+Harley, D. K., Magrath, M. J., Sunnucks, P. & Pavlova, A. (2023).
+Easy-to-use R functions to separate reduced-representation genomic datasets
+into sex-linked and autosomal loci, and conduct sex assignment. Molecular
+Ecology Resources.
 \item Waples, R. S. (2015). Testing for Hardy–Weinberg proportions: have we
 lost the plot?. Journal of heredity, 106(1), 1-19.
 \item Wigginton, J.E., Cutler, D.J., & Abecasis, G.R. (2005). A Note on Exact
@@ -193,8 +229,22 @@ Tests of Hardy-Weinberg Equilibrium. American Journal of Human Genetics
 }
 \seealso{
 \code{\link{gl.filter.hwe}}
+
+Other matched report: 
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{matched report}

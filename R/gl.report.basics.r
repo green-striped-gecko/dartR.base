@@ -17,9 +17,8 @@
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl.report.basics(platypus.gl)
 #' 
-# @import tibble
+#' @return Returns NULL invisibly; the results are printed to the console.
 #' @export
-#' @return NULL
 
 gl.report.basics <- function(x,
                            verbose = NULL) {
@@ -33,7 +32,7 @@ gl.report.basics <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = 0)
+    datatype <- utils.check.datatype(x, verbose = verbose)
 
     if(verbose >= 1){
       cat(report("\nSUMMARY STATISTICS\n\n"))
@@ -53,107 +52,78 @@ gl.report.basics <- function(x,
       
       # Report average read depth
       cat(report("Average Read Depth: "))
-      cat(mean(x@other$loc.metrics$rdepth))
+      if (is.null(x@other$loc.metrics$rdepth)) {
+        cat("not available")
+      } else {
+        cat(round(mean(x@other$loc.metrics$rdepth, na.rm = TRUE), 2))
+      }
       cat("\n")
-      
-      # Report composition
+
+      # Report composition (tabulated over explicit levels so the table
+      # has a fixed shape for both datatypes and for data in which a
+      # genotype class is entirely absent)
       cat(report("Values: "))
       cat(nLoc(x)*nInd(x),"\n")
-      tmp <- table(as.matrix(x),useNA='always')
-      tmp <- round(tmp*100/(nLoc(x)*nInd(x)),1)
-      tmp <- t(as.data.frame(tmp))
-      colnames(tmp) <- c("0","1","2","NA")
-      tmp <- tmp[2,]
-      tmp <- as.data.frame(t(tmp))
+      mat <- as.matrix(x)
+      if (datatype == "SilicoDArT") {
+        lv <- c("0", "1")
+      } else {
+        lv <- c("0", "1", "2")
+      }
+      tmp <- table(factor(mat, levels = lv), useNA = "always")
+      tmp <- round(tmp * 100 / (nLoc(x) * nInd(x)), 1)
+      tmp <- as.data.frame(t(as.matrix(tmp)))
+      colnames(tmp) <- c(lv, "NA")
       rownames(tmp) <- "percent"
       print(tmp)
       cat("\n")
-      
-      # Report Monomorphic loci
+
+      # Report Monomorphic loci (all-NA loci count as monomorphic,
+      # consistent with gl.filter.monomorphs)
+      non.na <- colSums(!is.na(mat))
       if (datatype == "SilicoDArT") {
-        mat <- as.matrix(x)
-        mono.count <- 0
-        for (i in 1:nLoc(x)) {
-          row <- mat[, i]  # Row for each locus
-          if (all(row == 0, na.rm = TRUE) |
-              all(row == 1, na.rm = TRUE)) {
-            mono.count <- mono.count + 1
-          }
-        }
-      }
-      
-      # SNP data
-      if (datatype == "SNP") {
-        mat <- as.matrix(x)
-        mono.count <- 0
-        for (i in 1:nLoc(x)) {
-          row <- mat[, i]  # Row for each locus
-          if (all(row == 0, na.rm = TRUE) |
-              all(row == 2, na.rm = TRUE)) {
-            mono.count <- mono.count + 1
-          }
-        }
+        mono.count <- sum(colSums(mat == 0, na.rm = TRUE) == non.na |
+                            colSums(mat == 1, na.rm = TRUE) == non.na)
+      } else {
+        mono.count <- sum(colSums(mat == 0, na.rm = TRUE) == non.na |
+                            colSums(mat == 2, na.rm = TRUE) == non.na)
       }
       cat(report("Monomorphic Loci: "))
       cat(mono.count,"\n")
-      
+
       # Report allNA
       # Loci
-      na.counter <- 0
-      matrix <- as.matrix(x)
-      for (i in 1:nLoc(x)) {
-        row <- matrix[, i]  # Row for each locus
-        if (all(is.na(row))) {
-          na.counter <-na.counter + 1
-        }
-      }
       cat(report("Loci all NA: "))
-      cat(na.counter,"\n")
+      cat(sum(non.na == 0),"\n")
       # Individuals
-      na.counter <- 0
-      ind.list <- array(NA, nInd(x))
-      matrix <- as.matrix(x)
-      i.names <- indNames(x)
-      for (i in 1:nInd(x)) {
-        col <- matrix[i, ]  # Row for each individual
-        if (all(is.na(col))) {
-          ind.list[i] <- i.names[i]
-          na.counter <-na.counter + 1
-        }
-      }
+      ind.all.na <- indNames(x)[rowSums(!is.na(mat)) == 0]
       cat(report("Individuals all NA: "))
-      cat(na.counter,"\n")
-      if(na.counter > 0){cat(ind.list,"\n")}
+      cat(length(ind.all.na),"\n")
+      if(length(ind.all.na) > 0){cat(ind.all.na,"\n")}
       cat("\n")
-      
+
       # Report sample sizes
       cat(report("Sample Sizes:\n"))
       tmp <- table(pop(x))
       print(tmp)
       cat("\n")
-      
-      # Report loci allNA by pop
-      tmp <- array(NA,nPop(x))
+
+      # Report loci and individuals allNA by pop (single pass)
+      loc.na.pop <- array(NA,nPop(x))
+      ind.na.pop <- array(NA,nPop(x))
       for (i in 1:nPop(x)){
-        tmpop <- as.matrix(gl.keep.pop(x,popNames(x)[i],verbose=0))
-        tmpsums <- apply(tmpop,2,function(x){all(is.na(x))})
-        tmp[i] <- sum(tmpsums)
+        tmpop <- mat[as.character(pop(x)) == popNames(x)[i], , drop = FALSE]
+        loc.na.pop[i] <- sum(colSums(!is.na(tmpop)) == 0)
+        ind.na.pop[i] <- sum(rowSums(!is.na(tmpop)) == 0)
       }
-      tmp <- t(as.data.frame(tmp))
+      tmp <- t(as.data.frame(loc.na.pop))
       colnames(tmp) <- popNames(x)
       rownames(tmp) <- ""
       cat(report("Loci all NA across individuals by Population\n"))
       print(tmp)
       cat("\n")
-      
-      # Report individuals allNA by pop
-      tmp <- array(NA,nPop(x))
-      for (i in 1:nPop(x)){
-        tmpop <- as.matrix(gl.keep.pop(x,popNames(x)[i],verbose=0))
-        tmpsums <- apply(tmpop,1,function(x){all(is.na(x))})
-        tmp[i] <- sum(tmpsums)
-      }
-      tmp <- t(as.data.frame(tmp))
+
+      tmp <- t(as.data.frame(ind.na.pop))
       colnames(tmp) <- popNames(x)
       rownames(tmp) <- ""
       cat(report("Individuals all NA across loci by Population\n"))

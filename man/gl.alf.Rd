@@ -29,6 +29,8 @@ barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},

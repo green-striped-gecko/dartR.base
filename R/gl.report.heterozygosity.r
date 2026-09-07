@@ -1,7 +1,7 @@
 #' @name gl.report.heterozygosity
 #' @title Reports observed, expected and unbiased heterozygosities and FIS
 #' (inbreeding coefficient) by population or by individual from SNP data
-#' @family unmatched report
+#' @family matched report
 #'
 #' @description Calculates the observed, expected and unbiased expected (i.e.
 #' corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
@@ -282,8 +282,8 @@
 #'     amount of processing time, therefore parallelisation in Windows machines
 #'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #'    
-#' @author Custodian: Luis Mijangos (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Luis Mijangos, Carlo Pacioni. Custodian: Luis Mijangos
+#' -- Post to \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @references
 #' \itemize{
@@ -308,9 +308,12 @@
 
 #' @seealso \code{\link{gl.filter.heterozygosity}}
 
-#' @export
 #' @return A dataframe containing population labels, heterozygosities, FIS,
-#' their standard deviations and sample sizes.
+#' their standard deviations and sample sizes. When subsample.pop = TRUE
+#' (method='pop'), a named list with two elements: $subsample (the
+#' subsampling results for populations of at least n.limit individuals) and
+#' $results (the dataframe described above).
+#' @export
 
 gl.report.heterozygosity <- function(x,
                                      method = "pop",
@@ -347,16 +350,16 @@ gl.report.heterozygosity <- function(x,
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   if(verbose==0){plot.display <- FALSE}
-  
-  # SET WORKING DIRECTORY
-  plot.dir <- gl.check.wd(plot.dir,verbose=0)
-  
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
-  
+
+  # SET WORKING DIRECTORY
+  plot.dir <- gl.check.wd(plot.dir,verbose=0)
+
   # CHECK DATATYPE
   datatype <-
     utils.check.datatype(x, accept = "SNP", verbose = verbose)
@@ -364,20 +367,24 @@ gl.report.heterozygosity <- function(x,
   # FUNCTION SPECIFIC ERROR CHECKING
   
   if (!(method == "pop" | method == "ind")) {
-    cat(
-      warn(
-        "Warning: Method must either be by population or by individual,
+    if (verbose >= 1) {
+      cat(
+        warn(
+          "Warning: Method must either be by population or by individual,
                 set to method='pop'\n"
+        )
       )
-    )
+    }
     method <- "pop"
   }
-  
+
   if (n.invariant < 0) {
-    cat(warn(
-      "Warning: Number of invariant loci must be non-negative, set to
+    if (verbose >= 1) {
+      cat(warn(
+        "Warning: Number of invariant loci must be non-negative, set to
             zero\n"
-    ))
+      ))
+    }
     n.invariant <- 0
     if (verbose == 5) {
       cat(report(
@@ -386,26 +393,36 @@ gl.report.heterozygosity <- function(x,
       ))
     }
   }
-  
+
   if (any(grepl(x@other$history, pattern = "gl.filter.secondaries") == TRUE) &
       n.invariant > 0) {
-    cat(
-      warn(
-        "  Warning: Estimation of adjusted heterozygosity requires that
+    if (verbose >= 1) {
+      cat(
+        warn(
+          "  Warning: Estimation of adjusted heterozygosity requires that
                 secondaries not to be removed. A gl.filter.secondaries call was
                 found in the history. This may cause the results to be
                 incorrect\n"
+        )
       )
-    )
+    }
   }
-  
+
   if( nboots == 0 & error.bar == "CI" ){
-    cat(error(
-"  Number of boostraps ('nboots' parameter) must be > 0 to calculate confidence 
-   intervals \n"))
-    stop()
+    stop(error(
+      "  Number of bootstraps ('nboots' parameter) must be > 0 to calculate confidence intervals\n"
+    ))
   }
-  
+
+  if (subsample.pop == TRUE && method == "ind") {
+    if (verbose >= 1) {
+      cat(warn(
+        "  Warning: subsample.pop applies to method='pop' only -- ignored\n"
+      ))
+    }
+    subsample.pop <- FALSE
+  }
+
   # DO THE JOB
   
   ########### FOR METHOD BASED ON POPULATIONS
@@ -835,7 +852,9 @@ gl.report.heterozygosity <- function(x,
           res_sub_plot <- res_sub
           res_sub_plot$pop <- as.factor(res_sub_plot$pop)
           res_sub_plot$subsample <- as.factor(res_sub_plot$subsample )
-          res_sub_plot$color <- rep(colors_pops,each=5)
+          # key colours by population name; populations below n.limit are
+          # skipped by utils.subsample.pop, so a positional rep() desyncs
+          res_sub_plot$color <- colors_pops[as.character(res_sub_plot$pop)]
           
           res_sub_plot_2 <- reshape2::melt(res_sub_plot, id = c("pop", "color", "subsample","res_SE"))
           
@@ -1058,15 +1077,14 @@ gl.report.heterozygosity <- function(x,
         plot.theme
     }
     
-    if (plot.display) 
-      {
-      outliers_temp <-
-      ggplot_build(p1)$data[[1]]$outliers[[1]]
+    # Outliers are computed from the data (Tukey boxplot statistics, the
+    # same rule ggplot uses) so the verbose >= 3 report does not depend
+    # on the plot being displayed
+    outliers_temp <- grDevices::boxplot.stats(df$Ho)$out
     outliers <-
       data.frame(ID = as.character(df$ind.name[df$Ho %in% outliers_temp]),
-                 Ho = outliers_temp)
-    }
-    
+                 Ho = df$Ho[df$Ho %in% outliers_temp])
+
     # OUTPUT REPORT
     if (verbose >= 3) {
       cat("Reporting Heterozygosity by Individual\n")
@@ -1105,12 +1123,18 @@ gl.report.heterozygosity <- function(x,
   }
   
   # Optionally save the plot ---------------------
-  
+
   if(!is.null(plot.file)){
-    tmp <- utils.plot.save(p3,
-                           dir=plot.dir,
-                           file=plot.file,
-                           verbose=verbose)
+    if (exists("p3", inherits = FALSE)) {
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
+    } else if (verbose >= 1) {
+      cat(warn(
+        "  Warning: plot.file specified but no plot was built (plot.display is FALSE); nothing saved\n"
+      ))
+    }
   }
   
   if (verbose >= 3) {
@@ -1124,9 +1148,9 @@ gl.report.heterozygosity <- function(x,
   
   # RETURN
   if(subsample.pop==TRUE){
-   return(invisible(list(res_sub,df)))
+   return(invisible(list(subsample = res_sub, results = df)))
   }else{
   return(invisible(df))
   }
-  
+
 }

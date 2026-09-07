@@ -18,7 +18,7 @@ gl.report.replicates(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{loc_threshold}{Minimum number of loci required to asses that two 
+\item{loc_threshold}{Minimum number of loci required to assess that two 
 individuals are replicates [default 100].}
 
 \item{perc_geno}{Minimum percentage of genotypes in which two individuals 
@@ -38,13 +38,14 @@ progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-A list with three elements:
+A list with three elements (returned invisibly):
 \itemize{
 \item table.rep: A dataframe with pairwise results of percentage of same 
 genotypes between two individuals, the number of loci used in the comparison 
 and the missing data for each individual.
-\item ind.list.drop: A vector of replicated individuals to be dropped.
-Replicated individual with the least missing data is reported.
+\item ind.list.drop: A vector of replicated individuals suggested for
+removal -- for each pair, the member with the higher missing-data rate
+(ties drop the second-named individual).
 \item ind.list.rep: A list of of each individual that has replicates in the 
 dataset, the name of the replicates and the percentage of the same genotype.
  }
@@ -57,7 +58,7 @@ replicates, sample duplicates, and other near-identical samples, and to suggest
 which individual to remove based on missing-data rate.
 }
 \details{
-## What the function computes
+\strong{What the function computes}
 
 The input is coerced to a numeric matrix. For every pair of
 individuals \eqn{i,j}, the function counts:
@@ -72,20 +73,20 @@ individuals \eqn{i,j}, the function counts:
 Pairs are reported as putative replicates/duplicates when both conditions hold:
 `nloc > loc_threshold` and `perc > perc_geno`.
 
-## How the computation is implemented 
+\strong{How the computation is implemented}
 
 The pairwise counts (`nsame` and `nloc`) are computed with a C++ routine 
 compiled at run time. This requires the Rcpp/RcppParallel packages. The 
 first call in a session will be slower because the C++ code must be compiled;
 subsequent calls are fast.
 
-## Suggested individual to drop
+\strong{Suggested individual to drop}
 For each flagged pair, the function calculates per-individual missingness as the
 proportion of `NA` genotypes across all loci. The replicate suggested for removal
 (`ind_to_drop`) is the member of the pair with the higher missingness, so that
 the retained replicate maximises usable genotype information.
 
-## How to interpret the histograms
+\strong{How to interpret the histograms}
 When `plot.out = TRUE`, the function draws:
 \enumerate{
   \item A histogram of `perc` across *all* pairwise comparisons.
@@ -93,7 +94,7 @@ When `plot.out = TRUE`, the function draws:
 }
 In an ideal large dataset containing a mixture of unrelated and related
 individuals plus several replicated individuals (e.g., capture/mark/recapture),
-the first histogram often shows four approximate modes (“peaks”):
+the first histogram often shows four approximate modes ('peaks'):
 \enumerate{
   \item Unrelated pairs (lowest `perc`).
   \item Second-degree relatives (e.g., cousins).
@@ -116,11 +117,22 @@ perc_geno = 0.85)
 }
 }
 \seealso{
-Other report functions: 
-\code{\link{gl.report.pa}()}
+Other matched report: 
+\code{\link{gl.filter.excess.het}()},
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{report functions}
+\concept{matched report}

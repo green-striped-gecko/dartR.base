@@ -5,8 +5,8 @@
 #' @description
 #' This is a wrapper for saveRDS().
 
-#' The script saves the object in binary form to the current workspace and
-#' returns the input gl object.
+#' The script saves the object in compressed binary form to the nominated
+#' file and returns the input gl object unchanged.
 
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param file Name of the file to receive the binary version of the object
@@ -22,8 +22,8 @@
 #' gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 #' @seealso \code{\link{gl.load}}
 #' 
+#' @return The input object, returned invisibly
 #' @export
-#' @return The input object
 
 gl.save <- function(x,
                     file,
@@ -41,19 +41,32 @@ gl.save <- function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # DO THE JOB
-    
-    #check if fbm (needs to be converted to gen)
-    fbm <- .fbm_or_null(x)
-    if (!is.null(fbm)) {
-      x <- dartR.base::gl.fbm2gen(x)
-      cat(report("  Converted from dartR-FBM to dartR-gen object for saving\n"))
+
+    if (!dir.exists(dirname(file))) {
+        stop(error(
+            "Fatal Error: directory", dirname(file), "does not exist\n"
+        ))
     }
-    
-    attributes(class(x))<- list(package="dartR.base")
-    
-    saveRDS(x, file)
-    cat(report("  Saved object of type", datatype, "to a compressed RDA file\n"))
-    cat(report("  Load again using function gl.load\n"))
+
+    # Save a copy; the input object is returned unchanged
+    xsave <- x
+
+    #check if fbm (needs to be converted to gen)
+    fbm <- .fbm_or_null(xsave)
+    if (!is.null(fbm)) {
+      xsave <- dartR.base::gl.fbm2gen(xsave)
+      if (verbose >= 2) {
+        cat(report("  Converted from dartR-FBM to dartR-gen object for saving\n"))
+      }
+    }
+
+    attributes(class(xsave)) <- list(package="dartR.base")
+
+    saveRDS(xsave, file)
+    if (verbose >= 2) {
+      cat(report("  Saved object of type", datatype, "to a compressed RDS file\n"))
+      cat(report("  Load again using function gl.load\n"))
+    }
     
     # FLAG SCRIPT END
     

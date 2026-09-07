@@ -24,7 +24,7 @@
 #' @param mono.rm If TRUE, loci that are monomorphic across all individuals are
 #' removed before beginning computations [default TRUE].
 #' @param pb If TRUE, show a progress bar on time consuming loops
-#' [default FALSE].
+#' (displayed when verbose >= 2) [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -37,8 +37,8 @@
 #' will occur through sampling error, compounded when many loci are examined.
 #' Simulations suggest that sample sizes of n1=5 and n2=5 are adequate to reduce
 #' the probability of [experiment-wide] type 1 error to negligible levels
-#' [ploidy=2]. A warning is issued if comparison between two populations
-#' involves sample sizes less than 5, taking into account allele drop-out.
+#' [ploidy=2]. A warning is issued (at verbose >= 3) if the minimum sample
+#' size in the dataset is less than 10.
 
 #' Optionally, if test=TRUE, the script will test the fixed differences between
 #' final OTUs for statistical significance, using simulation, and then further
@@ -76,7 +76,6 @@
 #' @seealso \code{\link{utils.is.fixed}}
 #' 
 #' @import utils
-#' @export
 #' @return A list of Class 'fd' containing the gl object and square matrices,
 #' as follows:
 #' \enumerate{
@@ -92,6 +91,7 @@
 #'        \item $pval -- if test=TRUE, the significance of the count of fixed
 #'        differences [by simulation])
 #'         }
+#' @export
 
 gl.fixed.diff <- function(x,
                           tloc = 0,
@@ -127,12 +127,14 @@ gl.fixed.diff <- function(x,
             "Fatal Error: Parameter tloc should be positive in the range 0 to 0.5\n"
         ))
     }
-    if (!(tloc == 0) & test == TRUE) {
-        cat(
-            warn(
-                "  Warning: false positives can only be simulated for tloc=0, setting tloc to zero\n"
+    if (tloc != 0 && test) {
+        if (verbose >= 2) {
+            cat(
+                warn(
+                    "  Warning: false positives can only be simulated for tloc=0, setting tloc to zero\n"
+                )
             )
-        )
+        }
         tloc <- 0
     }
     
@@ -163,17 +165,19 @@ gl.fixed.diff <- function(x,
     }
     
     # Checking for and removing monomorphic loci
-    if (!x@other$loc.metrics.flags$monomorphs) {
+    if (mono.rm) {
+        if (!x@other$loc.metrics.flags$monomorphs) {
+            if (verbose >= 2) {
+                cat(report("  Removing monomorphic loci\n"))
+            }
+            x <- gl.filter.monomorphs(x, verbose = 0)
+        }
+    } else {
         if (verbose >= 2) {
             cat(warn(
                 "  Warning: Monomorphic loci retained, used in calculations\n"
             ))
         }
-    } else {
-        if (verbose >= 2) {
-            cat(report("  Monomorphic loci removed\n"))
-        }
-        x <- gl.filter.monomorphs(x, verbose = 0)
     }
     # define dist2list function
     
@@ -235,6 +239,25 @@ gl.fixed.diff <- function(x,
     ind.count.matrix <- array(-1, c(npops, npops))
     loc.count.matrix <- array(-1, c(npops, npops))
     p.false.pos.matrix <- array(NA, c(npops, npops))
+
+    # Row and column names, and diagonals, are loop-invariant
+    pnames <- levels(pop(x))
+    dimnames(fixed.matrix) <- list(pnames, pnames)
+    dimnames(pcfixed.matrix) <- list(pnames, pnames)
+    dimnames(loc.count.matrix) <- list(pnames, pnames)
+    dimnames(ind.count.matrix) <- list(pnames, pnames)
+    dimnames(exp.matrix) <- list(pnames, pnames)
+    dimnames(sd.matrix) <- list(pnames, pnames)
+    dimnames(p.false.pos.matrix) <- list(pnames, pnames)
+    diag(fixed.matrix) <- 0
+    diag(pcfixed.matrix) <- 0
+    diag(loc.count.matrix) <- NA
+    diag(ind.count.matrix) <- NA
+    if (test) {
+        diag(exp.matrix) <- 0
+        diag(sd.matrix) <- 0
+        diag(p.false.pos.matrix) <- 0
+    }
     
     # Set up the progress counter
     if (verbose >= 2 & pb) {
@@ -264,7 +287,7 @@ gl.fixed.diff <- function(x,
             p1 <- ftable[ftable$popn == levels(pop(x))[popi],]
             p2 <- ftable[ftable$popn == levels(pop(x))[popj],]
             # Calculate fixed differences
-            fixed <- c(rep(0, nloci))
+            fixed <- rep(0, nloci)
             for (i in 1:nloci) {
                 # For each locus
                 fixed[i] <-
@@ -277,41 +300,17 @@ gl.fixed.diff <- function(x,
                 round(fixed.matrix[popi, popj] * 100 / sum(!is.na(fixed)), 0)
             ind.count.matrix[popi, popj] <-
                 round(mean(p1$nobs[p1$nobs > 0]) + mean(p2$nobs[p2$nobs > 0]), 1)
-            # Make full matrix and add row and column names
+            # Complete the symmetric entries
             fixed.matrix[popj, popi] <- fixed.matrix[popi, popj]
-            fixed.matrix[popi, popi] <- 0
-            fixed.matrix[npops, npops] <- 0
-            rownames(fixed.matrix) <- levels(pop(x))
-            colnames(fixed.matrix) <- levels(pop(x))
-            
             loc.count.matrix[popj, popi] <-
                 loc.count.matrix[popi, popj]
-            loc.count.matrix[popi, popi] <- NA
-            loc.count.matrix[npops, npops] <- NA
-            rownames(loc.count.matrix) <- levels(pop(x))
-            colnames(loc.count.matrix) <- levels(pop(x))
-            
             pcfixed.matrix[popj, popi] <-
                 pcfixed.matrix[popi, popj]
-            pcfixed.matrix[popi, popi] <- 0
-            pcfixed.matrix[npops, npops] <- 0
-            rownames(pcfixed.matrix) <- levels(pop(x))
-            colnames(pcfixed.matrix) <- levels(pop(x))
-            
             ind.count.matrix[popj, popi] <-
                 ind.count.matrix[popi, popj]
-            ind.count.matrix[popi, popi] <- NA
-            ind.count.matrix[npops, npops] <- NA
-            rownames(ind.count.matrix) <- levels(pop(x))
-            colnames(ind.count.matrix) <- levels(pop(x))
-            
+
             # Calculate the probability that the observed differences are false positives
             if (test) {
-                if (tloc != 0) {
-                    cat(report("  Setting tloc to zero\n"))
-                    tloc.hold <- tloc
-                    tloc <- 0
-                }
                 outlist <-
                     gl.fdsim(
                         x,
@@ -340,25 +339,11 @@ gl.fixed.diff <- function(x,
                         )
                     }
                 }
-                # Make full matrix and add row and column names
+                # Complete the symmetric entries
                 exp.matrix[popj, popi] <- exp.matrix[popi, popj]
-                exp.matrix[popi, popi] <- 0
-                exp.matrix[npops, npops] <- 0
-                rownames(exp.matrix) <- levels(pop(x))
-                colnames(exp.matrix) <- levels(pop(x))
-                
                 sd.matrix[popj, popi] <- sd.matrix[popi, popj]
-                sd.matrix[popi, popi] <- 0
-                sd.matrix[npops, npops] <- 0
-                rownames(sd.matrix) <- levels(pop(x))
-                colnames(sd.matrix) <- levels(pop(x))
-                
                 p.false.pos.matrix[popj, popi] <-
                     p.false.pos.matrix[popi, popj]
-                p.false.pos.matrix[popi, popi] <- 0
-                p.false.pos.matrix[npops, npops] <- 0
-                rownames(p.false.pos.matrix) <- levels(pop(x))
-                colnames(p.false.pos.matrix) <- levels(pop(x))
             }
         }
         if (verbose >= 2 & pb) {
@@ -393,14 +378,14 @@ gl.fixed.diff <- function(x,
         cat(
             report(
                 "Returning a list containing the gl object and square matricies, as follows:\n",
-                "         [[1]] $gl -- input genlight object;\n",
+                "         [[1]] $gl -- output genlight object;\n",
                 "         [[2]] $fd -- raw fixed differences;\n",
                 "         [[3]] $pcfd -- percent fixed differences;\n",
                 "         [[4]] $nobs -- mean no. of individuals used in each comparison;\n",
                 "         [[5]] $nloc -- total number of loci used in each comparison;\n",
                 "         [[6]] $expfpos -- if test=TRUE, the expected count of false positives for each comparison [by simulation]\n",
-                "         [[7]] $sdfpos -- if test=TRUE, the expected count of false positives for each comparison [by simulation]\n",
-                "         [[8]] $prob -- if test=TRUE, the significance of the count of fixed differences [by simulation]\n"
+                "         [[7]] $sdfpos -- if test=TRUE, the standard deviation of the count of false positives for each comparison [by simulation]\n",
+                "         [[8]] $pval -- if test=TRUE, the significance of the count of fixed differences [by simulation]\n"
             )
         )
     }
