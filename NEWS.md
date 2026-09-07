@@ -1,5 +1,24 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.tree.fitch()`: bootstrap support values change -- the previous
+  values were extracted from the wrong edges of the wrong tree (an
+  edge-order assumption that ape does not honour) and typically displayed
+  full support regardless of the data; supports are now computed by clade
+  matching (`ape::prop.clades`) against the replicate trees, returned on
+  the tree as `node.label` together with the majority-rule consensus tree
+  (attribute `consensus.tree`), and the replicate distances are computed
+  under the same substitution-model settings as the main tree (new
+  `subst.model`, `pairwise.missing`, `min.tag.len` parameters). Also: the
+  function now works on Windows (the PHYLIP invocation performed no stdin
+  redirection, so no run could complete); the working directory is
+  restored after bootstrap runs; `out.path` actually receives the PHYLIP
+  output files; a supplied `outgroup` roots the returned tree; the
+  distance matrix is scaled to preserve branch-length precision through
+  PHYLIP's 6-decimal tree file; guards added for fewer than 4 taxa,
+  duplicate 10-character truncated labels and D/x population mismatch;
+  `verbose = 0` is now fully silent (previously the whole PHYLIP menu
+  dialogue printed); plotting is optional (`plot.display`) and decoupled
+  from the returned result.
 * `gl.set.verbosity()`: invalid values were a silent no-op that claimed
   success -- `gl.set.verbosity(7)` warned, left the global option
   untouched, and then printed "Global verbosity set to: 7"; a character
