@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.set.verbosity()`: invalid values were a silent no-op that claimed
+  success -- `gl.set.verbosity(7)` warned, left the global option
+  untouched, and then printed "Global verbosity set to: 7"; a character
+  value rode string comparisons through the same false echo; and
+  `gl.set.verbosity(NULL)` crashed with "argument is of length zero".
+  Invalid values (including NULL) now warn and coerce to the default 2,
+  which is then genuinely set and honestly reported. The function also
+  returns the value actually set (invisibly), honouring its @return
+  contract (it returned NULL), validation runs before the start banner,
+  and the header gains its @family tag.
+
 * `gl.impute()`: **`method = "frequency"` changes numerical output.** It now
   does what its documentation always claimed -- a deterministic fill with
   the expected dosage 2q at the locus in the individual's population,
