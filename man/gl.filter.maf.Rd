@@ -110,7 +110,6 @@ Other matched filter:
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()}
 \code{\link{gl.filter.secondaries}()},
 \code{\link{gl.filter.taglength}()}
 }

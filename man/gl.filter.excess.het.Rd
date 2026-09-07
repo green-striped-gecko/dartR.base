@@ -72,8 +72,10 @@ Molecular Ecology Resources.
 \code{\link{gl.filter.hwe}}, \code{\link{gl.report.hwe}}
 
 Other matched filter: 
+\code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.hamming}()},
+\code{\link{gl.filter.heterozygosity}()},
 \code{\link{gl.filter.hwe}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
@@ -81,22 +83,11 @@ Other matched filter:
 \code{\link{gl.filter.monomorphs}()},
 \code{\link{gl.filter.overshoot}()},
 \code{\link{gl.filter.pa}()},
+\code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
-\code{\link{gl.filter.secondaries}()}
-Other matched report: 
-\code{\link{gl.report.allna}()},
-\code{\link{gl.report.callrate}()},
-\code{\link{gl.report.factorloadings}()},
-\code{\link{gl.report.hamming}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.locmetric}()},
-\code{\link{gl.report.maf}()},
-\code{\link{gl.report.overshoot}()},
-\code{\link{gl.report.pa}()},
-\code{\link{gl.report.rdepth}()},
-\code{\link{gl.report.reproducibility}()},
-\code{\link{gl.report.secondaries}()},
-\code{\link{gl.report.taglength}()}
+\code{\link{gl.filter.reproducibility}()},
+\code{\link{gl.filter.secondaries}()},
+\code{\link{gl.filter.taglength}()}
 }
 \author{
 Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz (Custodian: Ching Ching Lau) -- Post
