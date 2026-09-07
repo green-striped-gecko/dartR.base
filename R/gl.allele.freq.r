@@ -39,7 +39,6 @@
 #' (Tag P/A data) broken down by population and locus
 #
 # FOR THE DEVELOPER
-# gl.alf(x) is replaced by gl.allele.freq(x,simple=TRUE); gl.alf is deprecated
 # gl.percent.freq(x) is replaced by gl.allele.freq(x,percent=TRUE,by="popxloc"); gl.percent.freq is deprecated
 
 gl.allele.freq <- function(x,

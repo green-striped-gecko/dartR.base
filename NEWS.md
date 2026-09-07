@@ -666,3 +666,30 @@
   the "3r quartile" typo in both branches, `ind.to.list = 0` listing one
   individual instead of none, and the `@param bins` default documented as
   25 when the signature default is 50.
+* `gl.alf()`: retained as the documented fast path for per-locus allele
+  frequencies rather than deprecated. The inert commented-out deprecation
+  notice in the function body and the "gl.alf is deprecated" developer
+  note in `gl.allele.freq.r` are removed: the nominated replacement,
+  `gl.allele.freq(x, simple = TRUE)`, rounds to 4 decimal places, costs
+  5-19x more because it splits the object by population first, cannot be
+  passed as a bare one-argument function to `lapply()` or
+  `utils.jackknife()`, and rejects genlight objects not built by dartR --
+  and after the companion SilicoDArT fix it will no longer return the same
+  quantity for Tag P/A data. Fifteen call sites across dartR.base,
+  dartR.captive, dartR.popgen and dartR.sim depend on the fast path.
+  Two behaviour fixes. (1) Duplicate locus names silently discarded the
+  locus keys: `data.frame()` substitutes row names `1:n` whenever the
+  names it is given are not unique, so callers that read
+  `rownames(gl.alf(x))` as locus names got integers --
+  `gl.report.heterozygosity(method = 'pop')` then reported every locus as
+  polymorphic and returned negative monomorphic-locus counts. Row names
+  are now set from `locNames()` and disambiguated with `make.unique()`,
+  keeping positional correspondence with the loci of the input. (2) The
+  function now rejects SilicoDArT data with a fatal error; presence/
+  absence data has ploidy 1 but was divided by the SNP ploidy, so `alf2`
+  was half the presence frequency and `alf1` was not a complement of
+  anything. Values for SNP data are unchanged. Documentation brought to
+  standard: `@return` named columns "ref" and "alt" that the function has
+  never produced (they are `alf1` and `alf2`), and the header gains a
+  description, details stating the semantics and the relationship to
+  `gl.allele.freq()`, an author/custodian line, and cross-links.
