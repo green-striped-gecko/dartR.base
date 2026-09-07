@@ -59,7 +59,10 @@ utils.plink.run <- function(dir.in,
   # }
   
   cmd <- paste0(plink.path,"/",plink.cmd," ", syntax, "--out ", out, collapse=" ")
-  system(cmd)
+  # Suppress the child process's console chatter below verbose 3; it
+  # bypasses sink() and would print even at verbose = 0 (gl.read.PLINK
+  # review, F5)
+  system(cmd, ignore.stdout = verbose < 3)
   # file.remove(from = exe, to = file.path(dir.in, basename(exe)))
   
   # FLAG SCRIPT END

@@ -19,6 +19,74 @@
   `verbose = 0` is now fully silent (previously the whole PHYLIP menu
   dialogue printed); plotting is optional (`plot.display`) and decoupled
   from the returned result.
+* `gl.set.verbosity()`: invalid values were a silent no-op that claimed
+  success -- `gl.set.verbosity(7)` warned, left the global option
+  untouched, and then printed "Global verbosity set to: 7"; a character
+  value rode string comparisons through the same false echo; and
+  `gl.set.verbosity(NULL)` crashed with "argument is of length zero".
+  Invalid values (including NULL) now warn and coerce to the default 2,
+  which is then genuinely set and honestly reported. The function also
+  returns the value actually set (invisibly), honouring its @return
+  contract (it returned NULL), validation runs before the start banner,
+  and the header gains its @family tag.
+
+* `gl.impute()`: **`method = "frequency"` changes numerical output.** It now
+  does what its documentation always claimed -- a deterministic fill with
+  the expected dosage 2q at the locus in the individual's population,
+  rounded to the nearest valid genotype (exact ties, 2q = 0.5 or 1.5, go to
+  the heterozygote). It was previously a random Bernoulli(q)-pair draw,
+  distributionally identical to `method = "HW"`; every existing
+  "frequency" result therefore changes, and repeated runs now give
+  identical results without a seed. For presence-absence data the fill is
+  the majority band state (ties to presence).
+* `gl.impute()`: residual missing values on FBM-backed objects are now
+  preserved as NA in the imputed object; the raw FBM write-back previously
+  coerced them to genotype 0, fabricating homozygous-reference calls at
+  all-NA loci. Dense and FBM-backed runs now return identical genotypes.
+* `gl.impute()`: presence-absence (SilicoDArT) support is now real:
+  "random" draws from 0/1, "HW" becomes a Bernoulli draw with the band
+  frequency, and the residual fill draws Bernoulli from the global band
+  frequency ("random" and "frequency" previously wrote genotype 2s into
+  0/1 data, and "frequency"/"HW" then crashed with "negative
+  probability"); "beagle" is blocked for presence-absence data with a
+  clear error. Also: `method` is validated up front; all-missing-locus
+  warnings are ploidy-aware and no longer fire for any locus above 50%
+  missing; the random/beagle branches report every affected population
+  rather than only the last; the beagle path checks the jar, java and
+  PLINK up front with informative errors (instead of returning -1 or a
+  raw system error) and no longer blanks singleton-scaffold chromosome
+  names in the returned object.
+* `gl.dist.ind()`: `method = "sorensen"` now computes the Sorensen (=
+  Dice) distance -- previously "sorensen" was missing from the
+  accepted-methods list, so it was silently coerced to simple matching
+  with a warning that leaked at `verbose = 0` (numerical output changes
+  for sorensen callers, including `gl.dist.pop(method = "sorensen")`,
+  which routes through here). Also: the unknown-method fallback warnings
+  are gated at `verbose >= 1`; `type` is normalised with `tolower()` and
+  validated ("Matrix" now returns a matrix; an unrecognised type stops
+  instead of silently returning a dist); NA distances (e.g. from an
+  individual with no scored genotypes in common with another) are
+  counted and warned at `verbose >= 1` instead of propagating silently;
+  documentation corrected (`scale` default is FALSE and applies to
+  euclidean only; the Sorensen/Bray-Curtis synonymy for binary data is
+  stated; the `@author` line repaired).
+* `gl.read.PLINK()`: the returned object now contains the genotypes at
+  every verbosity. Previously `gl.gen2fbm()` always ran and the result
+  was discarded at verbose <= 2 (the default), so default-settings calls
+  returned an object with no genotype data; at verbose = 3 the object
+  came back FBM-backed even with `fbm = FALSE`. The `fbm` argument now
+  decides the backend, as documented. Individual metafile rows are now
+  matched to the .fam individuals by `id` (previously bound in file
+  order, silently misassigning metadata when the orders differed), and
+  a `pop` column in the metafile is now applied to `pop(gl)`. A missing
+  AlleleID column in the locus metafile now stops with the intended
+  message instead of an unrelated subscript error. The .ped-to-.bed
+  conversion now runs in a temporary directory (previously it wrote
+  .bed/.bim/.fam/.log into the user's input directory) and PLINK's
+  console chatter is suppressed below verbose 3. Documentation: the
+  dosage orientation is now stated (counts allele.2, the PLINK 1.x
+  major allele -- the opposite orientation to `gl.read.vcf()`, which
+  counts ALT).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
