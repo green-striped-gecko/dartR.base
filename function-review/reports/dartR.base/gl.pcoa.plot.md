@@ -362,7 +362,8 @@ acknowledging the consequences recorded against changes 2, 6, 7 and 8.
 
 ## Outcome
 
-Phase C applied on branch `review-gl.pcoa.plot` off `upstream/dev` (ddaed27).
+Phase C applied on branch `review-gl.pcoa.plot` off `upstream/dev` (ddaed27);
+PR #381 into `dev`.
 Seventeen findings applied (F1-F17); F18 left as approved.
 
 **Verification** (ggplot/plotly object introspection under `pdf(NULL)`; no
@@ -470,6 +471,6 @@ with label positions moved by change 2. No other caller in the eight clones.
   "data_truth_after": "pass",
   "baseline_flips": 15,
   "status": "pr-open",
-  "pr": null
+  "pr": 381
 }
 ```
