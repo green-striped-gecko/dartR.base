@@ -38,6 +38,7 @@ gl <- gl.load(f)
 \code{\link{gl.save}}
 
 Other io: 
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
