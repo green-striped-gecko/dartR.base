@@ -1,5 +1,47 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.pcoa.plot()`: three documented parameters were accepted and then
+  ignored, and one documented save location was wrong. All four now behave
+  as the help page describes, so existing calls can produce different
+  output. (1) `hadjust` and `vadjust` were validated and never used; they
+  now set the horizontal and vertical justification of the point labels, so
+  labels move -- including on default calls, since the defaults
+  `hadjust = 1.5`, `vadjust = 1` are not the neutral 0.5. Pass
+  `hadjust = 0.5, vadjust = 0.5` for the previous centred labels. (2)
+  `pop.labels = 'ind'` passed validation but no branch built the plot, so
+  the call died with "object 'plott' not found"; it now labels each point
+  with its individual name. (3) `plot.file` with the default `plot.dir`
+  wrote the RDS into the current working directory; the function now
+  resolves `plot.dir` through `gl.check.wd()`, so the file lands in
+  `tempdir()` (or the directory set by `gl.setwd()`) unless `plot.dir` is
+  given. (4) The axis-range check reset an out-of-range `yaxis` to the
+  constant 2 and `zaxis` to 3 without checking those against the ordination,
+  so any ordination holding fewer axes -- `gl.pcoa(gl, nfactors = 1)`, a
+  two-individual object, `zaxis = 5` on a two-factor ordination -- died with
+  "subscript out of bounds". Axis choices are now bounds-checked, must
+  differ from one another, and too-small ordinations stop with a message
+  naming the shortfall.
+* `gl.pcoa.plot()`: conformance and message fixes. A `plot.display`
+  argument (default TRUE) was added and, per the house rule that
+  `verbose = 0` is fully silent, `verbose = 0` no longer displays the plot;
+  callers that relied on `verbose = 0` to silence messages while still
+  showing the plot (including `gl.assign.pca()` in dartR.captive and
+  dartR.popgen) will no longer see it. Twelve messages that printed at
+  `verbose = 0` are now gated at `verbose >= 2`. A PCoA of a distance matrix
+  corrected with `cailliez` or `lingoes` was labelled "PCA Axis" because the
+  classification keyed on `$loadings` being absent; it is now identified
+  from the shape of the loadings and labelled "PCoA Axis". `@return`
+  documented NULL although a visible ggplot is returned. The `directlabels`,
+  `plotly`, `gganimate` and `tibble` guards returned `-1` instead of
+  stopping. An ordination whose entities do not match the genlight object
+  (for example one built from `gl.dist.pop()`) failed with "arguments imply
+  differing number of rows" and now stops with a message that names the
+  mismatch. `pt.colors` and `pt.shapes` are honoured in the
+  `interactive = TRUE` branch and documented as unavailable for shapes in
+  3D. The `as.pop` error named `loc.metrics` where the lookup is in
+  `ind.metrics`; the `legend` branch rendered its legend titled "pop"
+  despite mapping `Population`; a `plot.theme` argument
+  (default `theme_dartR()`) was added.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
