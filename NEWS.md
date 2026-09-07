@@ -1,5 +1,31 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.impute()`: **`method = "frequency"` changes numerical output.** It now
+  does what its documentation always claimed -- a deterministic fill with
+  the expected dosage 2q at the locus in the individual's population,
+  rounded to the nearest valid genotype (exact ties, 2q = 0.5 or 1.5, go to
+  the heterozygote). It was previously a random Bernoulli(q)-pair draw,
+  distributionally identical to `method = "HW"`; every existing
+  "frequency" result therefore changes, and repeated runs now give
+  identical results without a seed. For presence-absence data the fill is
+  the majority band state (ties to presence).
+* `gl.impute()`: residual missing values on FBM-backed objects are now
+  preserved as NA in the imputed object; the raw FBM write-back previously
+  coerced them to genotype 0, fabricating homozygous-reference calls at
+  all-NA loci. Dense and FBM-backed runs now return identical genotypes.
+* `gl.impute()`: presence-absence (SilicoDArT) support is now real:
+  "random" draws from 0/1, "HW" becomes a Bernoulli draw with the band
+  frequency, and the residual fill draws Bernoulli from the global band
+  frequency ("random" and "frequency" previously wrote genotype 2s into
+  0/1 data, and "frequency"/"HW" then crashed with "negative
+  probability"); "beagle" is blocked for presence-absence data with a
+  clear error. Also: `method` is validated up front; all-missing-locus
+  warnings are ploidy-aware and no longer fire for any locus above 50%
+  missing; the random/beagle branches report every affected population
+  rather than only the last; the beagle path checks the jar, java and
+  PLINK up front with informative errors (instead of returning -1 or a
+  raw system error) and no longer blanks singleton-scaffold chromosome
+  names in the returned object.
 * `gl.dist.ind()`: `method = "sorensen"` now computes the Sorensen (=
   Dice) distance -- previously "sorensen" was missing from the
   accepted-methods list, so it was silently coerced to simple matching
