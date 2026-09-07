@@ -1,5 +1,25 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.shannon()`: **results change for `level = 'beta'` and
+  `'gamma'`**. Both returned degenerate constants (beta identically 1,
+  gamma identical to alpha, one row per individual) because a single
+  individual's dosage vector was fed to machinery expecting an abundance
+  matrix. They now compute the real population-level partition of Ma, Li &
+  Zhang (2020): each population's individuals form an abundance matrix,
+  gamma is the diversity of the pooled locus abundances, alpha the mean
+  within-individual diversity, and beta = gamma/alpha the effective number
+  of distinct individuals; the partition gamma = alpha x beta holds at
+  every order and the output is one row per population (`pop`, q0 ...).
+  `level = 'alpha'` results are unchanged (verified byte-identical). Also:
+  `verbose = NULL` default, so the global `gl.set.verbosity()` setting is
+  honoured; `verbose = 0` is now fully silent (reshape2 melt message
+  removed, plot gated off); `level` and `order` are validated with
+  informative errors instead of failing deep in the loop; a malformed,
+  dead dependency guard removed; individuals with no non-missing,
+  non-zero dosages return NA rows (was 0/1/Inf) with a gated warning
+  naming them; roxygen header rewritten to describe the actual
+  computation (per-individual Hill-number profiles q0, q1, q2 ...,
+  natural-log convention, and the population partition semantics).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
