@@ -1,5 +1,19 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.dist.ind()`: `method = "sorensen"` now computes the Sorensen (=
+  Dice) distance -- previously "sorensen" was missing from the
+  accepted-methods list, so it was silently coerced to simple matching
+  with a warning that leaked at `verbose = 0` (numerical output changes
+  for sorensen callers, including `gl.dist.pop(method = "sorensen")`,
+  which routes through here). Also: the unknown-method fallback warnings
+  are gated at `verbose >= 1`; `type` is normalised with `tolower()` and
+  validated ("Matrix" now returns a matrix; an unrecognised type stops
+  instead of silently returning a dist); NA distances (e.g. from an
+  individual with no scored genotypes in common with another) are
+  counted and warned at `verbose >= 1` instead of propagating silently;
+  documentation corrected (`scale` default is FALSE and applies to
+  euclidean only; the Sorensen/Bray-Curtis synonymy for binary data is
+  stated; the `@author` line repaired).
 * `gl.read.PLINK()`: the returned object now contains the genotypes at
   every verbosity. Previously `gl.gen2fbm()` always ran and the result
   was discarded at verbose <= 2 (the default), so default-settings calls
