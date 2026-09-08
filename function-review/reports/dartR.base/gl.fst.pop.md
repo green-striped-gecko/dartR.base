@@ -372,7 +372,7 @@ follow-up job. Nothing in this change touches the location of either function.
 ## Outcome
 
 Applied 2026-09-08 on branch `review-gl.fst.pop`, cut from `upstream/dev` at `ddaed27`, by
-Claude Fable 5 (claude-fable-5, Claude Code). All 10 approved changes are in; change 5 is
+Claude Opus 5 (claude-opus-5, Claude Code). All 10 approved changes are in; change 5 is
 superseded by change 6.
 
 **Applied**
@@ -548,7 +548,7 @@ discarded.
     "date": "2026-09-08",
     "branch": "review-gl.fst.pop",
     "base_commit": "ddaed27",
-    "model": "claude-fable-5",
+    "model": "claude-opus-5",
     "departures": [
       "no seed parameter added; reproducibility comes from the session RNG, as in PR #384",
       "no (k+1)/(nboots+1) floor on the p-value; the approval documents mean(replicates <= 0)",
