@@ -1,5 +1,35 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.sample()`: any population with exactly one member was silently
+  dropped from the sample and its slots filled with unrelated individuals
+  drawn from elsewhere in the object. `sample(v, n)` treats a length-1 `v`
+  as the range `1:v`, so a single-member population's index became a
+  range to draw from. The returned individual count was always right,
+  which is why the substitution went unnoticed. On `testset.gl` this hit
+  every call, the default call included, because the two singleton
+  populations set the default `nsample` to 1; over 20 consecutive runs
+  those populations appeared zero times. Singleton populations now return
+  their own member, repeated `nsample` times. **Sampled objects change
+  for any dataset containing a population of one, seeded output
+  included.** Second fix in the same call: the result was assembled with
+  `do.call(rbind, ...)`, whose SNPbin fallback discarded the whole
+  `@other` list, so `loc.metrics`, `ind.metrics`, `latlon`,
+  `loc.metrics.flags` and `history` came back `NULL` and
+  `gl.filter.callrate()` on the result failed with "incorrect number of
+  dimensions". A single positive-index subset replaces the assembly, so
+  individual metadata now tracks the drawn individuals (repeated rows
+  included) and the FBM and SNPbin paths return the same object for the
+  same call and seed. Also: all `loc.metrics.flags` are set FALSE because
+  resampling individuals invalidates every locus metric computed across
+  individuals (on one test object 248 of 255 stored `CallRate` values
+  disagreed with the truth while the flag still read TRUE); the call is
+  appended to `@other$history`; `ind.metrics$id` is kept in step with the
+  renamed `indNames`; `nsample` is validated, so `nsample = 2.7` now
+  errors instead of silently truncating to 2 and an over-large `nsample`
+  under `replace = FALSE` names the smallest population; row order now
+  follows draw order whether or not `nsample * nPop` exceeds `nInd`; and
+  the roxygen block documents that `nsample` is per-population under
+  `onepop = FALSE` and a whole-object total under `onepop = TRUE`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
