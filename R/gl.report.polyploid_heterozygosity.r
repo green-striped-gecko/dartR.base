@@ -513,13 +513,17 @@ gl.report.polyploid_heterozygosity <- function(x,
       df.params <- data.frame(
         Ho = round(as.numeric(Ho),6),
         HoSD = round(HoSD,6),
-        HoSE = round(HoSE, 6),
+        HoSE = round(HoSE, 6)
     )
-    } else {
+    } else {      df.params <- data.frame(
+        Ho = round(as.numeric(Ho),6),
+        HoSD = round(HoSD,6),
+        HoSE = round(HoSE, 6)
+    )
       df.params <- data.frame(
         Ho.adj = round(as.numeric(Ho.adj),6),
         Ho.adjSD = round(Ho.adjSD,6),
-        Ho.adjSE = round(Ho.adjSE, 6),
+        Ho.adjSE = round(Ho.adjSE, 6)
         )
     }
     
