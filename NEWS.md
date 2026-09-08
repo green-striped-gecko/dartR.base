@@ -1,5 +1,43 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.recalc.metrics()`: nine fixes from its function review. The values of
+  every metric the function computes are unchanged. (1) An object with no
+  `loc.metrics` data frame was corrupted rather than repaired: the helpers
+  read the slot with `$`, which partial-matches to `loc.metrics.flags`, so
+  with more than one locus the call died with "replacement has N rows, data
+  has 1" and with exactly one locus it silently returned the flags table as
+  the locus metrics, losing AlleleID, TrimmedSequence, rdepth and the read
+  counts without a message. A conforming table is now built, with a gated
+  message; a table whose row count does not match the number of loci is now
+  a fatal error naming the condition. (2) History: `gl.recalc.metrics()` is
+  an implementation step of 26 functions in this package and two in
+  dartR.popgen, and appended an entry on each of their behalf, so nested
+  calls multiplied entries (two successive `gl.compliance.check()` calls on
+  `testset.gl` went 1 -> 3 -> 5). A call made from inside another dartRverse
+  function now appends nothing, and `mono.rm = TRUE` no longer adds
+  `gl.filter.monomorphs()`' entry as well as its own. A direct call still
+  appends exactly one entry recording the call. **This changes the history
+  contents of every function that calls `gl.recalc.metrics()` internally.**
+  (3) The `monomorphs` flag was passed through untouched when
+  `mono.rm = FALSE`, so a stale TRUE suppressed the monomorph warnings of
+  every downstream report; the flag is now set from a check made on the
+  metrics just recalculated. (4) `mono.rm = TRUE` on data in which every
+  locus is monomorphic crashed with "Subsetting resulted in zero loci"; the
+  case now completes with a gated warning and the flag set FALSE. (5)
+  `mono.rm` is validated. (6) The six `utils.recalc.*` helpers are called
+  with `verbose = 0` and this function reports on their behalf, so
+  `verbose = 1` prints two lines rather than fourteen and a warning is not
+  repeated once per helper. (7) `@family environment` was indented, so
+  roxygen read it as part of the title; the function now appears in its
+  family index. (8) Documentation corrected: `maf` listed as recalculated,
+  the false "only RepAvg and TrimmedSeq are unaltered" claim replaced with
+  the accurate split, `@param x` widened to SilicoDArT, the standard
+  `verbose` wording adopted, an `Author(s):` line and `@details` added. (9)
+  The outdated `build =` argument dropped from `utils.flag.start()`. The
+  review's F1 (`rdepth` and silico `AvgReadDepth` are not recalculated and
+  can contradict the refreshed metrics) is deferred by the custodian and
+  remains open, with its evidence in
+  `function-review/reports/dartR.base/gl.recalc.metrics.md`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
