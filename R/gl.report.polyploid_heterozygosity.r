@@ -431,14 +431,14 @@ gl.report.polyploid_heterozygosity <- function(x,
     HoSD <-
       unlist(lapply(sgl, function(x)
         sd(
-          colMeans(gamete_obs_het(x), na.rm = TRUE), na.rm = TRUE
+          colMeans(gamete_obs_het(x) > 0, na.rm = TRUE), na.rm = TRUE
         )))
     
     HoSE <- unlist(lapply(sgl, function(x)
       std.error(colMeans(
-        gamete_obs_het(x), na.rm = TRUE
+        gamete_obs_het(x) > 0, na.rm = TRUE
       ))))
-    
+
     ##########
     
     # Calculate the number of loci that are not all NAs CP ###
