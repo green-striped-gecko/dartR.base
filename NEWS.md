@@ -1,5 +1,29 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.fstat()`: **every confidence interval this function has
+  produced was computed on the wrong data and all CI output changes.**
+  `boot::boot()` was handed an individuals-by-loci data frame, so it drew
+  its resample indices over individuals, while the statistic applied those
+  indices to the columns (loci). Only the first `nInd` loci of a pair could
+  ever enter a replicate -- 40 of 1000 on `platypus.gl` -- and on a fixture
+  whose leading loci are unrepresentative the reported 95 per cent interval
+  was `[-0.0175, -0.0175]` around a value of 0.8622. The bootstrap now
+  resamples loci, and the interval brackets the point estimate. Point
+  estimates are unchanged. The bootstrap kernel was also a stale inlined
+  copy of `utils.basic.stats()`, so the interval and the value beside it
+  came from different estimators and data with loci absent from one
+  population aborted the whole call; the copy is deleted and the shared
+  helper is called. SilicoDArT data is now refused (`accept = "SNP"`)
+  instead of being read as SNP dosages. Arguments are validated:
+  `nboots = 1`, negative or fractional `nboots`, an unknown `CI.type` or
+  `plot.stat`, `conf` outside (0, 1), fewer than two populations, and
+  `CI.type = "bca"` below 200 replicates now stop with an informative
+  message. `verbose = 0` is fully silent and draws no heatmap; the results
+  summary moved from `verbose >= 2` to `verbose >= 3`; dropped
+  single-individual populations are named from `verbose >= 1`. The
+  `nboots = 0` return with more than two populations names its second
+  element `Stat_tables` and no longer prefixes its columns with
+  `Stat_tables.`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
