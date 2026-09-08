@@ -1,5 +1,30 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.fst.pop()`: **the bootstrap confidence limits and p-values change
+  numerically, and are now reproducible.** They were computed by
+  `StAMPP::stamppFst()` inside `foreach %dopar%` on a PSOCK cluster StAMPP
+  creates itself, whose worker RNG streams are never seeded from the calling
+  session; six runs under the same `set.seed(99)` returned six different
+  intervals and p-values of 0.02, 0.01, 0.01, 0.03, 0.02, 0.02, so no
+  reported interval or p-value could be reproduced from the script that
+  produced it. The locus bootstrap now runs in the calling session, so
+  `set.seed()` immediately before the call fixes the result. Point
+  estimates are unchanged: they still come from `StAMPP::stamppFst()` and
+  match it to a maximum absolute difference of 0, and match
+  `hierfstat::pairwise.WCfst()` to 1.4e-17 on filtered fixtures. Other
+  changes: SilicoDArT input now errors instead of returning a
+  ploidy-driven artefact in the range Fst normally occupies; `nboots = 0`,
+  fractional or negative `nboots`, `percent` outside (0, 100), `nclusters`
+  below 1 and single-population input now stop with dartR messages instead
+  of R-internals messages; 40 or fewer bootstrap replicates now warn that
+  the reported lower confidence limit is the smallest replicate rather than
+  the 2.5th percentile; population pairs returning a non-finite Fst are
+  named at `verbose >= 1`; the results summary promised at `verbose >= 3`
+  now prints; and the help page documents the estimator as Weir and
+  Cockerham's (1984) theta, states the p-value definition
+  (`mean(replicates <= 0)`, one-tailed, no multiple-testing correction
+  across up to 435 pairs) and describes the matrix actually returned
+  instead of a `dist`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).

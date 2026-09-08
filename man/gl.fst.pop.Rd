@@ -2,43 +2,96 @@
 % Please edit documentation in R/gl.fst.pop.r
 \name{gl.fst.pop}
 \alias{gl.fst.pop}
-\title{Calculates a pairwise Fst values for populations in a genlight object
-This script calculates pairwise Fst values based on the implementation in the
-StAMPP package (?stamppFst). It allows to run bootstrap to estimate
-probability of Fst values to be different from zero. For detailed information
-please check the help pages (?stamppFst).}
+\title{Calculates pairwise Fst between populations in a genlight object}
 \usage{
 gl.fst.pop(x, nboots = 1, percent = 95, nclusters = 1, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight containing the SNP genotypes [required].}
 
-\item{nboots}{Number of bootstraps to perform across loci to generate
-confidence intervals and p-values [default 1].}
+\item{nboots}{Number of bootstrap replicates over loci used to generate
+confidence intervals and p-values. A whole number; 1 returns the point
+estimates alone [default 1].}
 
-\item{percent}{Percentile to calculate the confidence interval around
-[default 95].}
+\item{percent}{Percentile to calculate the confidence interval around,
+greater than 0 and less than 100 [default 95].}
 
 \item{nclusters}{Number of processor threads or cores to use during
-calculations [default 1].}
+calculation of the point estimates [default 1].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A matrix of distances between populations (class dist), if nboots =1,
-otherwise a list with Fsts (in a matrix), Pvalues (a matrix of pvalues),
-Bootstraps results (data frame of all runs). Hint: Use
-\code{as.matrix(as.dist(fsts))} if you want to have a squared matrix with
-symmetric entries returned, instead of a dist object.
+A base matrix of class \code{c("matrix", "array")} when
+\code{nboots} is 1: nPop x nPop, with the pairwise theta values in the
+lower triangle and NA on the diagonal and in the upper triangle. It is
+not an object of class \code{dist}. Rows and columns are named by
+population in order of first appearance in the data, not in factor-level
+order. Use \code{as.matrix(as.dist(fsts))} for a symmetric square matrix.
+
+When \code{nboots} is greater than 1, a list of three elements:
+\itemize{
+\item \code{Fsts} - the same lower-triangular nPop x nPop matrix.
+\item \code{Pvalues} - an nPop x nPop matrix of p-values, lower triangle
+populated.
+\item \code{Bootstraps} - a data frame with one row per pair of
+populations and columns "Population1", "Population2", the \code{nboots}
+replicate thetas sorted in increasing order, "Lower bound CI limit",
+"Upper bound CI limit", "p-value" and "Fst".
+}
 }
 \description{
-Calculates a pairwise Fst values for populations in a genlight object
-This script calculates pairwise Fst values based on the implementation in the
-StAMPP package (?stamppFst). It allows to run bootstrap to estimate
-probability of Fst values to be different from zero. For detailed information
-please check the help pages (?stamppFst).
+Calculates the pairwise fixation index Fst between every pair of
+populations in a genlight object, with optional bootstrap confidence
+intervals and p-values obtained by resampling loci.
+}
+\details{
+The statistic is Weir and Cockerham's (1984) theta, estimated by
+\code{\link[StAMPP]{stamppFst}} from allele frequencies, observed
+heterozygosities and per-locus sample sizes computed separately for each
+population. Theta is a variance-components estimator that corrects for
+unequal sample sizes, so it is not the same quantity as the Nei (1987)
+Gst-family statistics reported by \code{\link{gl.report.fstat}} under the
+same word "Fst"; the two can differ substantially on unevenly sampled
+data. Loci missing from one member of a pair contribute nothing to that
+pair.
+
+\strong{Bootstrap.} When \code{nboots} is greater than 1 the function
+resamples \emph{loci} with replacement, nLoc at a time, and recomputes
+theta on each replicate with the same estimator that produced the point
+estimate. The locus is the unit of resampling because it is the unit the
+variance components are summed over. The replicates are drawn in the
+calling session, so \code{set.seed()} immediately before the call makes
+the confidence limits and the p-values reproducible. There is no
+\code{seed} parameter. The point estimates do not depend on the bootstrap
+and are the same whatever \code{nboots} is set to.
+
+\strong{Confidence limits.} The limits are the order statistics of the
+sorted replicates at positions \code{ceiling(a * nboots)} and
+\code{floor((1 - a) * nboots)}, where \code{a = ((100 - percent)/100)/2}.
+At the default \code{percent = 95} the lower position is 1 for every
+\code{nboots} up to 40, so with 40 or fewer replicates the reported lower
+limit is the smallest replicate rather than the 2.5th percentile and the
+interval is the observed range. The function warns at
+\code{verbose >= 1} whenever the requested percentile cannot be reached.
+
+\strong{P-values.} The p-value for a pair is the one-tailed bootstrap
+fraction \code{mean(replicates <= 0)}: the proportion of replicate thetas
+at or below zero. Its resolution is \code{1/nboots}, and it can be
+exactly 0 or exactly 1. A p of 1 means every replicate was at or below
+zero, which is what undifferentiated populations produce; it is a failure
+to reject, not evidence of no differentiation. No correction for multiple
+testing is applied across the \code{nPop*(nPop-1)/2} pairs tested, which
+is 435 pairs for a 30-population object. Apply one yourself if the
+pairwise tests are to be read as a family.
+
+\strong{Non-finite pairs.} A pair returns NaN when the estimator cannot
+be formed, most often because a population holds a single individual or
+because no locus is polymorphic in the pair. Such pairs are named at
+\code{verbose >= 1}.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
@@ -46,7 +99,23 @@ test <- gl.filter.callrate(platypus.gl,threshold = 1)
 test <- gl.filter.monomorphs(test)
 out <- gl.fst.pop(test, nboots=1)
 }
-\author{
-Bernd Gruber (bugs? Post to
-\url{https://groups.google.com/d/forum/dartr})
+\references{
+Weir, B.S. and Cockerham, C.C. (1984). Estimating F-statistics for the
+analysis of population structure. Evolution 38, 1358-1370.
 }
+\seealso{
+\code{\link{gl.report.fstat}}, which reports the Nei (1987)
+Gst-family statistics Fst, Fstp, Dest and Gst_H rather than the Weir and
+Cockerham theta returned here.
+
+Other distance: 
+\code{\link{gl.dist.ind}()},
+\code{\link{gl.dist.pop}()},
+\code{\link{gl.fdsim}()},
+\code{\link{utils.dist.ind.snp}()}
+}
+\author{
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
+}
+\concept{distance}
