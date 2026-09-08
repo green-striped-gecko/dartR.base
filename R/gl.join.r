@@ -20,8 +20,10 @@
 #' 
 #' @param x1 Name of the first genlight object [required].
 #' @param x2 Name of the second genlight object [required].
-#' @param method Legacy parameter, deprecated and no longer required
-#' [default NULL].
+#' @param method Legacy parameter, deprecated and no longer required.
+#' Accepted legacy values for backward compatibility: 'join.by.loc' or
+#' 'end2end' (same loci, individuals combined); 'join.by.ind' or
+#' 'sidebyside' (same individuals, loci combined) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
@@ -32,8 +34,11 @@
 #' identical individuals (in the same order), the loci are combined; if they
 #' have identical loci (in the same order), the individuals are combined.
 #' Individual names duplicated across the two objects are made unique.
-#' The legacy method parameter ('join.by.loc' or 'join.by.ind') is deprecated
-#' and no longer required.
+#' The legacy method parameter is deprecated and no longer required; the
+#' historical values 'join.by.loc'/'end2end' (join by shared loci) and
+#' 'join.by.ind'/'sidebyside' (join by shared individuals) remain accepted
+#' for backward compatibility, and the requested join is validated against
+#' the data.
 
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -150,18 +155,27 @@ gl.join <- function(x1,
       if (verbose >= 2) {
         cat(warn("  Warning: The parameter method is deprecated, no longer required\n"))
       }
-      if (method=="join.by.loc"){
+      if (method %in% c("join.by.loc", "end2end")){
         if(verbose >= 3){
           cat(report(" Joining two genlight datasets with the same loci but different individuals\n"))
         }
         flag <- "loc"
-      } else if (method=="join.by.ind"){
+      } else if (method %in% c("join.by.ind", "sidebyside")){
         if(verbose >= 3){
           cat(report(" Joining two genlight datasets with the same individuals but different loci\n"))
         }
         flag <- "ind"
       } else {
         stop(error("Fatal Error: method parameter is deprecated, no longer required. Please remove from function call\n"))
+      }
+      # Validate the requested join against the data, as the auto-detect
+      # path does, so a mismatch fails clearly here rather than
+      # cryptically in cbind/rbind
+      if (flag == "loc" && !identical(locNames(x1), locNames(x2))) {
+        stop(error("Fatal Error: method requests a join by shared loci, but the loci in the two genlight objects do not match\n"))
+      }
+      if (flag == "ind" && !identical(indNames(x1), indNames(x2))) {
+        stop(error("Fatal Error: method requests a join by shared individuals, but the individuals in the two genlight objects do not match\n"))
       }
     }
 

@@ -11,8 +11,10 @@ gl.join(x1, x2, method = NULL, verbose = NULL)
 
 \item{x2}{Name of the second genlight object [required].}
 
-\item{method}{Legacy parameter, deprecated and no longer required
-[default NULL].}
+\item{method}{Legacy parameter, deprecated and no longer required.
+Accepted legacy values for backward compatibility: 'join.by.loc' or
+'end2end' (same loci, individuals combined); 'join.by.ind' or
+'sidebyside' (same individuals, loci combined) [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -41,8 +43,11 @@ metadata. The join mode is detected automatically: if the two objects have
 identical individuals (in the same order), the loci are combined; if they
 have identical loci (in the same order), the individuals are combined.
 Individual names duplicated across the two objects are made unique.
-The legacy method parameter ('join.by.loc' or 'join.by.ind') is deprecated
-and no longer required.
+The legacy method parameter is deprecated and no longer required; the
+historical values 'join.by.loc'/'end2end' (join by shared loci) and
+'join.by.ind'/'sidebyside' (join by shared individuals) remain accepted
+for backward compatibility, and the requested join is validated against
+the data.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
