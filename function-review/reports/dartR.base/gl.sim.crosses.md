@@ -729,6 +729,6 @@ None. All 14 proposed changes were approved and applied.
   "applied_date": "2026-09-09",
   "branch": "review-gl.sim.crosses",
   "test_assertions_after": 114,
-  "pr": null
+  "pr": 388
 }
 ```
