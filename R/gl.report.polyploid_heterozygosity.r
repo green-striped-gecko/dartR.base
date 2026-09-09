@@ -609,6 +609,7 @@ gl.report.polyploid_heterozygosity <- function(x,
     if (plot.display) {
       res.mean <- subsample <- error_L <- error_H <- value <- color <- variable <- He.adj <- res_SE <- NULL
       
+      pop_order <- unique(as.character(pop(x))) 
       # printing plots and reports assigning colors to populations
       if (is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop(length(levels(pop(x))))
@@ -617,6 +618,7 @@ gl.report.polyploid_heterozygosity <- function(x,
       if (!is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop
       }
+      colors_pops <- setNames(colors_pops, pop_order)
       
       if (n.invariant == 0) {
         
@@ -641,7 +643,7 @@ gl.report.polyploid_heterozygosity <- function(x,
           colnames(pop_list_plot_error) <- c("pop","variable","error")
           pop_list_plot_error <- pop_list_plot_error[,c("pop","error")]
           pop_list_plot_stat <- cbind(pop_list_plot_stat,error=pop_list_plot_error$error)
-          }
+        }
         
         if(error.bar=="CI"){
           pop_list_plot_error_L <- pop_list_plot[,c("HoLCI","pop")]
