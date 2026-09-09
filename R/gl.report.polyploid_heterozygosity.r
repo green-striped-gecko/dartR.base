@@ -626,11 +626,11 @@ gl.report.polyploid_heterozygosity <- function(x,
         pop_list_plot$pop <- as.factor(pop_list_plot$pop)
         pop_list_plot$color <- colors_pops
         
-        pop_list_plot_stat <- pop_list_plot[,c("Ho", "pop",  "n.Ind","color")]
+        pop_list_plot_stat <- pop_list_plot[,c("Ho", "n.Ind",  "pop",  "color")]
         pop_list_plot_stat <- reshape2::melt(pop_list_plot_stat, id = c("pop", "color", "n.Ind"))
         
         if(error.bar=="SD"){
-          pop_list_plot_error <- pop_list_plot[,c("HoSD","pop")]
+          pop_list_plot_error <- pop_list_plot[,c("HoSD", "pop")]
           pop_list_plot_error <- reshape2::melt(pop_list_plot_error,id = c("pop"))
           colnames(pop_list_plot_error) <- c("pop","variable","error")
           pop_list_plot_error <- pop_list_plot_error[,c("pop","error")]
@@ -673,11 +673,10 @@ gl.report.polyploid_heterozygosity <- function(x,
                    color = "black", 
                    position = position_dodge())+ 
           facet_wrap(~variable, nrow=1) +
-          scale_fill_manual(values = pop_list_plot_stat$color) +
-          scale_x_discrete(labels = paste(pop_list_plot_stat$pop,
-                                          round(pop_list_plot_stat$n.Ind,
-                                                0),
-                                          sep = " | ")) +
+          scale_fill_manual(values = colors_pops,
+                            breaks = pop_order,
+                            limits = pop_order) +
+          scale_x_discrete(limits = pop_order, labels = labels_named) +
           plot.theme +
           theme(
             axis.ticks.x = element_blank(),
@@ -698,7 +697,7 @@ gl.report.polyploid_heterozygosity <- function(x,
             geom_errorbar(aes(ymin = value, 
                               ymax = value + error), 
                           width=0.5)+
-            ggtitle(label = "Gametic Heterozygosities by Population",
+            ggtitle(label = "Heterozygosities by Population",
                     subtitle = "Error bars show Standard Deviation")
         }
         
@@ -707,7 +706,7 @@ gl.report.polyploid_heterozygosity <- function(x,
             geom_errorbar(aes(ymin = value - error, 
                               ymax = value + error), 
                           width=0.5) +
-            ggtitle(label = "Gametic Heterozygosities by Population",
+            ggtitle(label = "Heterozygositiesby Population",
                     subtitle = "Error bars show Standard Error")
         }
         
@@ -716,7 +715,7 @@ gl.report.polyploid_heterozygosity <- function(x,
             geom_errorbar(aes(ymin = error_L, 
                               ymax = error_H), 
                           width=0.5)+
-            ggtitle(label = "Gametic Heterozygosities by Population",
+            ggtitle(label = "Heterozygosities by Population",
                     subtitle = "Error bars show Confidence Intervals")
         }
         
@@ -760,63 +759,7 @@ gl.report.polyploid_heterozygosity <- function(x,
           
         }
         
-      } else {
-
-        df.ordered <- df
-        df.ordered$color <- colors_pops
-        df.ordered <- df.ordered[order(df.ordered$Ho.adj), ]
-        df.ordered$pop <- factor(df.ordered$pop, levels = df.ordered$pop)
-        p1 <-
-          ggplot(df.ordered, aes(
-            x = pop,
-            y = Ho.adj,
-            fill = pop
-          )) + geom_bar(position = "dodge",
-                        stat = "identity",
-                        color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
-          scale_x_discrete(labels = paste(df.ordered$pop,
-                                          round(df.ordered$n.Ind, 0),
-                                          sep = " | ")) + plot.theme + theme(
-                                            axis.ticks.x = element_blank(),
-                                            axis.text.x = element_blank(),
-                                            axis.title.x = element_blank(),
-                                            axis.ticks.y = element_blank(),
-                                            axis.title.y = element_blank(),
-                                            legend.position = "none"
-                                          ) +
-          labs(fill = "Population") +
-          ggtitle("Adjusted Observed Heterozygosity by Population")
-        
-        p2 <-
-          ggplot(df.ordered, aes(
-            x = pop,
-            y = He.adj,
-            fill = pop
-          )) + geom_bar(position = "dodge",
-                        stat = "identity",
-                        color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
-          scale_x_discrete(labels = paste(df.ordered$pop,
-                                          round(df.ordered$n.Ind, 0),
-                                          sep = " | ")) + plot.theme + theme(
-                                            axis.ticks.x = element_blank(),
-                                            axis.text.x = element_text(
-                                              angle = 90,
-                                              hjust = 1,
-                                              face = "bold",
-                                              size = 12
-                                            ),
-                                            axis.title.x = element_blank(),
-                                            axis.ticks.y = element_blank(),
-                                            axis.title.y = element_blank(),
-                                            legend.position = "none"
-                                          ) +
-          labs(fill = "Population") +
-          ggtitle("Adjusted Expected Heterozygosity by Population")
-        
-        p3 <- (p1 / p2)
-      }
+      } 
     }
     
     # OUTPUT REPORT
@@ -826,33 +769,20 @@ gl.report.polyploid_heterozygosity <- function(x,
       cat("  No. of individuals =", nInd(x), "\n")
       cat("  No. of populations =", nPop(x), "\n")
       if (n.invariant == 0) {
-      cat("    Minimum Observed Gametic Heterozygosity: ", round(min(df$Ho, na.rm = TRUE), 6), "\n")
-      cat("    Maximum Observed GameticHeterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6), "\n")
-      cat("    Average Observed Gametic Heterozygosity: ", round(mean(df$Ho, na.rm = TRUE), 6), "\n\n")
-      cat(" Gametic Heterozygosity estimates not corrected for uncalled invariant loci\n")
-      
-      } else {
+        cat("    Minimum Observed Heterozygosity: ", round(min(df$Ho, na.rm = TRUE), 6), "\n")
+        cat("    Maximum Observed Heterozygosity: ", round(max(df$Ho, na.rm = TRUE), 6), "\n")
+        cat("    Average Observed Heterozygosity: ", round(mean(df$Ho, na.rm = TRUE), 6), "\n\n")
+        cat("  Heterozygosity estimates not corrected for uncalled invariant loci\n")
         
-        cat("    Minimum Observed Gametic adjusted Heterozygosity: ", 
-            round(min(df$Ho.adj, na.rm = TRUE), 6), "\n")
-        cat("    Maximum Observed Gametic adjusted Heterozygosity: ", 
-            round(max(df$Ho.adj, na.rm = TRUE), 6), "\n")
-        cat("    Average Observed Gametic adjusted Heterozygosity: ",
-            round(mean(df$Ho.adj, na.rm = TRUE), 6), "\n\n")
-        cat(
-          "  Average correction factor for invariant loci =",
-          mean(n_loc / (n_loc + n.invariant), na.rm = TRUE),
-          "\n"
-        )
-      }
+      } 
     }
-      
+    
     # PRINTING OUTPUTS
     if (plot.display) {
       suppressWarnings(print(p3))
     }
     if (verbose >= 2) {
-        print(df)
+      print(df)
     }
   }
   
@@ -917,11 +847,14 @@ gl.report.polyploid_heterozygosity <- function(x,
         plot.theme
     }
     
-    outliers_temp <-
-      ggplot_build(p1)$data[[1]]$outliers[[1]]
-    outliers <-
-      data.frame(ID = as.character(df$ind.name[df$Ho %in% outliers_temp]),
-                 Ho = outliers_temp)
+    if (plot.display) 
+    {
+      outliers_temp <-
+        ggplot_build(p1)$data[[1]]$outliers[[1]]
+      outliers <-
+        data.frame(ID = as.character(df$ind.name[df$Ho %in% outliers_temp]),
+                   Ho = outliers_temp)
+    }
     
     # OUTPUT REPORT
     if (verbose >= 3) {
@@ -980,9 +913,9 @@ gl.report.polyploid_heterozygosity <- function(x,
   
   # RETURN
   if(subsample.pop==TRUE){
-   return(invisible(list(res_sub,df)))
+    return(invisible(list(res_sub,df)))
   }else{
-  return(invisible(df))
+    return(invisible(df))
   }
   
 }
