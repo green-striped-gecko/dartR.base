@@ -414,13 +414,8 @@ gl.report.polyploid_heterozygosity <- function(x,
       return(gamete_het)
     }
       
-    # function to calculate gametic heterozygosity with allele frequencies
-
-    
-    Ho.loc.gamete <-
-      lapply(sgl, function(x)
-        colMeans(gamete_obs_het(x), na.rm = TRUE))
-    
+    # function to calculate observed gametic heterozygosity without allele frequencies
+ 
     Ho <-
       unlist(lapply(sgl, function(x)
         mean(
@@ -493,7 +488,23 @@ gl.report.polyploid_heterozygosity <- function(x,
     }
     
     
-    
+    ind.count <- function(x) {
+      # the loci that are completely missing
+      loci.na <-
+        which(colSums(is.na(as.matrix(x))) == nrow(as.matrix(x)))
+      # the number of samples in the matrix the number of non-genotyped
+      # samples remove the loci that are completely missing
+      if (length(loci.na) > 0) {
+        nind <-
+          mean(nrow(as.matrix(x)) - colSums(is.na(as.matrix(x)))[-loci.na])
+        # the number of samples in the matrix the number of
+        # non-genotyped samples
+      } else {
+        nind <- mean(nrow(as.matrix(x)) - colSums(is.na(as.matrix(x))))
+      }
+      
+      return(nind)
+    }
     n_ind <- sapply(sgl, ind.count)
     
     ##########
@@ -520,11 +531,6 @@ gl.report.polyploid_heterozygosity <- function(x,
         HoSD = round(HoSD,6),
         HoSE = round(HoSE, 6)
     )
-      df.params <- data.frame(
-        Ho.adj = round(as.numeric(Ho.adj),6),
-        Ho.adjSD = round(Ho.adjSD,6),
-        Ho.adjSE = round(Ho.adjSE, 6)
-        )
     }
     
     df <- cbind(df.base, df.params)
@@ -556,9 +562,9 @@ gl.report.polyploid_heterozygosity <- function(x,
                           simplify = FALSE)
       
       if(nparams == 4) {
-        pop_res <- rbind(Ho, Hexp, uHexp, FIS)
+        pop_res <- Ho
       } else {
-        pop_res <- rbind(Ho.adj, Hexp.adj)
+        pop_res <- Ho
       }
       
       for (pop_n in 1:length(sgl)) {
@@ -838,26 +844,7 @@ gl.report.polyploid_heterozygosity <- function(x,
       suppressWarnings(print(p3))
     }
     if (verbose >= 2) {
-      # if (n.invariant > 0) {
         print(df)
-      # } else {
-      #   print(df[, c(
-      #     "pop",
-      #     "n.Ind",
-      #     "n.Loc",
-      #     "polyLoc",
-      #     "monoLoc",
-      #     "all_NALoc",
-      #     "Ho",
-      #     "HoSD",
-      #     "He",
-      #     "HeSD",
-      #     "uHe",
-      #     "uHeSD",
-      #     "FIS",
-      #     "FISSD"
-      #   )], row.names = FALSE)
-      # }
     }
   }
   
