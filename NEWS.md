@@ -1,5 +1,38 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.sim.crosses()`: **simulated datasets produced by earlier versions
+  carry fabricated correlation between loci and between parents, and
+  should be regenerated.** Gametes were drawn with
+  `ifelse(mmat == 1, sample(c(0, 2), mhet, replace = TRUE), mmat)`, which
+  draws only `mhet` values -- the total number of heterozygous calls in
+  the parent matrix -- and lets `ifelse()` recycle them across the whole
+  matrix. Heterozygous calls at column-major positions congruent modulo
+  `mhet` therefore always transmitted the same allele, within a parent
+  and between unrelated parents. Per-locus segregation ratios were
+  correct throughout, so the defect is invisible in any per-locus
+  summary; the joint structure of the simulated cohort was not. Anything
+  depending on that joint structure -- relatedness or kinship estimation,
+  parentage assignment, LD, power analysis, Fst between simulated cohorts
+  -- was invalid. Each heterozygous call now gets its own draw. Output
+  changes for every call, under any seed.
+  Also in this function: the documented `n` (offspring to retain) was
+  read only by a warning test and is now applied, with `n = NULL`
+  resolving to the documented lesser of 1000 and the brood total;
+  `error.check = FALSE`, the path `@details` recommends for simulations,
+  aborted with "object 'noff' not found" and now works; SilicoDArT input
+  is refused instead of being crossed as though 1 meant heterozygote;
+  `compliance.check = FALSE` now returns a structurally valid object
+  (`ind.metrics` was assigned into a NULL and came back a bare list);
+  non-positive or fractional `broodsize` and out-of-range `sexratio` now
+  actually assign their documented fallbacks instead of only announcing
+  them; unequal parent cohorts and mismatched locus panels raise
+  informative errors; parental sequence-level locus metrics are carried
+  onto the offspring; `ind.metrics` records `mother` and `father`;
+  history is the call itself rather than the internal helper calls; the
+  standard preamble and the history append no longer sit inside the
+  optional `error.check` block; `verbose = 0` is silent; and the roxygen
+  header is documented under `gl.sim.crosses` (was `gl.sim.cross`) with
+  a runnable `@details` recipe and `@examples`.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
