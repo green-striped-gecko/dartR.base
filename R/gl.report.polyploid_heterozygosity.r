@@ -655,8 +655,14 @@ gl.report.polyploid_heterozygosity <- function(x,
                                       error_L = pop_list_plot_error$error_L,
                                       error_H = pop_list_plot_error$error_H)
           
-          }
+        }
         
+        pop_list_plot_stat$pop <- factor(pop_list_plot_stat$pop, levels = pop_order)
+        
+        lab_df <- pop_list_plot_stat[!duplicated(pop_list_plot_stat$pop),
+                                     c("pop","n.Ind")]
+        labels_named <- setNames(paste(lab_df$pop, round(lab_df$n.Ind, 0), sep = " | "),
+                                 lab_df$pop)
         p3 <-
           ggplot(data = pop_list_plot_stat, aes(x = pop, 
                                                 y = value,
