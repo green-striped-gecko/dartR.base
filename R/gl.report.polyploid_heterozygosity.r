@@ -512,7 +512,7 @@ gl.report.polyploid_heterozygosity <- function(x,
     # Prep for results
     df.base <-
       data.frame(
-        pop = popNames(x),
+        pop = popNames(x), 
         n.Ind = round(n_ind, 6),
         n.Loc = n_loc,
         n.Loc.adj = n_loc / (n_loc + n.invariant),
@@ -624,7 +624,7 @@ gl.report.polyploid_heterozygosity <- function(x,
         pop_list_plot$pop <- as.factor(pop_list_plot$pop)
         pop_list_plot$color <- colors_pops
         
-        pop_list_plot_stat <- pop_list_plot[,c("Ho", "pop",  "color")]
+        pop_list_plot_stat <- pop_list_plot[,c("Ho", "pop",  "n.Ind","color")]
         pop_list_plot_stat <- reshape2::melt(pop_list_plot_stat, id = c("pop", "color", "n.Ind"))
         
         if(error.bar=="SD"){
