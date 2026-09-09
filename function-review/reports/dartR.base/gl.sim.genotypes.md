@@ -459,6 +459,6 @@ the finding text.
   "fixtures_candidate": true,
   "fixtures_candidate_finding": "F1",
   "status": "pr-open",
-  "pr": null
+  "pr": 389
 }
 ```
