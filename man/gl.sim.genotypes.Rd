@@ -9,20 +9,63 @@ gl.sim.genotypes(x, n.ind = 200, verbose = NULL)
 \arguments{
 \item{x}{Name of the genlight object [required].}
 
-\item{n.ind}{Number of individuals to be simulated (should be less than the number of loci) [default 200]}
+\item{n.ind}{Number of individuals to be simulated in each population. Must
+be a single whole number of 1 or more; a non-integer value is rounded with
+a warning. Capped at the number of loci [default 200].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity]}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-Returns a genlight object with the simulated genotypes
+A genlight object holding the simulated genotypes, with n.ind
+individuals in each population of the source object.
 }
 \description{
-Generate random genotypes for a single population drawing upon the allele
-frequencies from that population.
+Generates random genotypes for each population of a genlight object by
+drawing, locus by locus, from the allele frequencies of that population.
+}
+\details{
+Allele frequencies are estimated WITHIN each population of x, and each
+population is then simulated separately. For every locus, two haplotype
+vectors of length n.ind are drawn independently, each with probability
+equal to the allele frequency of that population at that locus, and the
+two are added to give a dosage of 0, 1 or 2. The simulated genotypes are
+therefore in Hardy-Weinberg equilibrium within each population, and the
+allele frequency differences among the populations of x -- the population
+structure -- are carried through to the simulated object.
+n.ind is the number of individuals simulated PER POPULATION, so an object
+with nPop(x) populations returns n.ind * nPop(x) individuals. The simulated
+individuals are named Ind_1 ... Ind_n and are assigned the population names
+of the source object. Locus names, and the number of loci, are those of the
+source object.
+A locus with no called genotypes in a given population has no estimable
+allele frequency. Such a locus is returned as missing (NA) for every
+individual of that population rather than aborting the run, so a locus that
+is all-missing across the whole source object is all-missing in the
+simulated object. No other missing data are simulated: every locus with an
+estimable frequency is called for every individual of that population.
+If n.ind exceeds the number of loci, n.ind is reduced to the number of loci.
+Ordinations such as PCA require more attributes (loci) than entities
+(individuals), and the cap keeps each simulated population inside that
+bound.
+The returned object carries the call that made it as its only history
+entry, so gl.print.history() on a saved simulated dataset reports the
+simulation rather than the internal housekeeping calls.
+}
+\examples{
+# possums.gl has 10 populations, so this returns 10 x 20 = 200 individuals
+sim <- gl.sim.genotypes(possums.gl, n.ind = 20, verbose = 0)
+nInd(sim)
+table(pop(sim))
+# Loci with no calls in a population come back missing for that population
+sim2 <- gl.sim.genotypes(testset.gl, n.ind = 10, verbose = 0)
+nLoc(sim2) == nLoc(testset.gl)
 }
 \seealso{
+\code{\link{gl.sim.crosses}}, \code{\link{gl.filter.allna}}
+
 Other data manipulation: 
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
@@ -48,7 +91,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

@@ -1,5 +1,44 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.sim.genotypes()`: **behaviour change.** Allele frequencies are now
+  estimated WITHIN each population and each population is simulated
+  separately, so the population structure of the source object is carried
+  through to the simulated object. Previously every individual was pooled
+  into one panmictic gene pool without a check or a message: on
+  `possums.gl` (10 populations) simulated mean Ho was 0.472, the pooled He,
+  against a source Ho of 0.347. Per population, simulated Ho now tracks its
+  own source population (for example A 0.328 -> 0.322, C 0.428 -> 0.404).
+  `n.ind` is consequently the number of individuals simulated PER
+  POPULATION, so a call on a 10-population object returns `10 * n.ind`
+  individuals; this is documented in `@details`. A single-population source
+  is unaffected.
+* `gl.sim.genotypes()`: a locus with no calls -- and therefore no estimable
+  allele frequency -- aborted the run inside `sample()` with "NA in
+  probability vector", naming neither the locus nor the function. Such a
+  locus is now returned as missing for the individuals of the population
+  concerned, so the number of loci and the missingness structure of the
+  source are preserved. The function ran on only one of the five packaged
+  datasets (`possums.gl`); it now runs on all of them (`testset.gl` 3/255
+  all-NA loci, `testset2.gl` 3/755, `platypus.gl` 6/1000).
+* `gl.sim.genotypes()`: the announced `n.ind` cap is now applied. The
+  function printed "Setting n.ind to <nLoc>" and then simulated the full
+  requested `n.ind`; the branch contained no assignment.
+  `gl.sim.genotypes(possums.gl, n.ind = 300)` on 200 loci returned 300
+  individuals per the old code and now returns 200 per population.
+* `gl.sim.genotypes()`: SilicoDArT input is refused
+  (`accept = "SNP"`). The algorithm is diploid dosage arithmetic, so
+  presence/absence data was silently returned as a ploidy-2 SNP object.
+* `gl.sim.genotypes()`: the returned object records the call that created
+  it as its history, in place of the two internal `gl.recalc.metrics()` and
+  `gl.compliance.check()` entries it carried; `ind.metrics` now holds `id`
+  and `pop`, and neither `loc.metrics` nor `loc.metrics.flags` carries the
+  `array(NA, nLoc(x))` / `array(NA, 1)` column inherited from the
+  compliance check. `n.ind` is validated (invalid values reached base R and
+  failed there); the `n.ind` warning no longer prints at `verbose = 0`;
+  `ploidy` is built per individual rather than per locus; a plain genlight
+  is accepted; `verbose = 3` prints the results summary it promised; and
+  the roxygen block gains `@details`, runnable `@examples` and an
+  `Author(s):` line.
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
