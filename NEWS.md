@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.ld()`: crash-restart fixed — rerunning with the same
+  `chunkname` at `verbose < 2` used to crash with "subscript out of
+  bounds" (the cached-return sat inside a verbosity guard), and chunk
+  discovery searched the working directory while chunks were saved to
+  `outpath`, silently defeating the restart for the default
+  `outpath = tempdir()`. Chunk files are now written only when
+  `save = TRUE` (previously always, with collision-prone
+  `LD_chunks__i.rdata` names). Dependency guards now `stop()` instead of
+  printing and returning -1 (and the redundant guards for Imports
+  packages are gone); the internal `gl2gi` conversion is silenced at
+  `verbose = 0`; SilicoDArT is rejected (`accept = "SNP"`). Documentation
+  now describes what the function computes — LD across all loci with all
+  individuals POOLED, not per population (use `gl.report.ld.map` for
+  within-population LD) — and drops the incorrect claim that genind
+  input is accepted. The returned statistics are unchanged.
+
 * `gl.tree.fitch()`: bootstrap support values change -- the previous
   values were extracted from the wrong edges of the wrong tree (an
   edge-order assumption that ape does not honour) and typically displayed
