@@ -169,7 +169,23 @@ frame unchanged (change 1 rejected), so no caller is affected. All clear.
 
 ## Outcome
 
-(pending Phase C)
+Changes 2-7 applied on branch review-gl.report.ld.map (commit a43ee15), PR
+green-striped-gecko/dartR.base#390.
+
+- Characterization suite green (29 assertions); every diff from the
+  pre-review baseline maps to an approved change: silence at verbose 0 (F3),
+  plot built and saved with plot.display = FALSE (F2), SilicoDArT rejected
+  at entry (F6).
+- Returned data frame identical to baseline on the mapped (496 rows) and
+  unmapped (17 rows) fixtures.
+- End-to-end run at verbose = 3 on platypus.gl clean; the new exclusion
+  message surfaced 9-11 duplicate-position loci silently dropped per
+  population (F5 evidence).
+
+Addendum (mid-apply observation, below HIGH): the snpStats dependency guard
+also uses the cat(error()) + return(-1) idiom (DEP1), and snpStats is in
+Imports so the guard is redundant; left untouched as it is outside the
+approved change set.
 
 ```json
 {
@@ -181,16 +197,16 @@ frame unchanged (change 1 rejected), so no caller is affected. All clear.
   "verdict_standards": "needs_work",
   "verdict_spec": "needs_work",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "PLT3", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "proposed", "change": 3},
-    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 4},
-    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "VRB4", "status": "proposed", "change": 5},
-    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DAT7", "status": "proposed", "change": 6},
-    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "STY1", "status": "proposed", "change": 7}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "rejected", "change": 1},
+    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "PLT3", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "approved", "change": 3},
+    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 4},
+    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "VRB4", "status": "approved", "change": 5},
+    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DAT7", "status": "approved", "change": 6},
+    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "STY1", "status": "approved", "change": 7}
   ],
   "coverage_skipped": ["DAT6: no FBM path exercised", "Google Group: not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 390
 }
 ```
