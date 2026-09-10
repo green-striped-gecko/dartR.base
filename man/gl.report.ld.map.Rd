@@ -36,8 +36,9 @@ loci. If a value > 1 is provided it will be interpreted as MAC (i.e. the
 "D.prime", "R.squared", and "R". See function ld from snpstats
  (package snpStats) for details [default "R.squared"].}
 
-\item{ind.limit}{Minimum number of individuals that a population should
-contain to take it in account to report loci in LD [default 10].}
+\item{ind.limit}{Number of individuals a population must exceed to be
+included in the analysis; populations with \code{ind.limit} or fewer
+individuals are skipped with a warning [default 10].}
 
 \item{stat.keep}{Name of the column from the slot \code{loc.metrics} to be
 used to choose SNP to be kept [default "AvgPIC"].}
@@ -45,8 +46,8 @@ used to choose SNP to be kept [default "AvgPIC"].}
 \item{ld.threshold.pops}{LD threshold to report in the plot of "Number of 
 populations in which the same SNP pair are in LD" [default 0.2].}
 
-\item{plot.display}{If TRUE, histograms of base composition are displayed in the plot window
-[default TRUE].}
+\item{plot.display}{If TRUE, the resultant plots are displayed in the plot
+window [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
@@ -73,29 +74,32 @@ progress log; 3, progress and results summary; 5, full report
 A dataframe with information for each SNP pair in LD.
 }
 \description{
-This function calculates pairwise linkage disequilibrium (LD) by population 
+This function calculates pairwise linkage disequilibrium (LD) by population
 using the function ld from package snpStats.
-If SNPs are not mapped to a reference genome, the parameter
- \code{ld.max.pairwise}
- should be set as NULL (the default). In this case, the 
-function will assign the same chromosome ("1") to all the SNPs in the dataset
- and assign a sequence from 1 to n loci as the position of each SNP. The 
- function will then calculate LD for all possible SNP pair combinations. 
-If SNPs are mapped to a reference genome, the parameter 
-\code{ld.max.pairwise}
- should be filled out (i.e. not NULL). In this case, the
- information for SNP's position should be stored in the genlight accessor
-  "@position" and the SNP's chromosome name in the accessor "@chromosome"
-   (see examples). The function will then calculate LD within each chromosome
-    and for all possible SNP pair combinations within a distance of
-     \code{ld.max.pairwise}.
+If SNPs are mapped to a reference genome, the information for the SNP's
+position should be stored in the genlight accessor "@position" and the
+SNP's chromosome name in the accessor "@chromosome" (see examples). The
+function will then calculate LD within each chromosome and for all possible
+SNP pair combinations within a distance of \code{ld.max.pairwise}.
+If SNPs are not mapped to a reference genome (the "@chromosome" accessor
+is empty), the function will assign the same chromosome ("1") to all the
+SNPs in the dataset, assign a sequence from 1 to n loci as the position of
+each SNP, and calculate LD for all possible SNP pair combinations. Setting
+\code{ld.max.pairwise = NULL} forces this all-pairs behaviour even when
+chromosome information is present.
 }
 \details{
-This function reports LD between SNP pairs by population. 
+This function reports LD between SNP pairs by population.
 The function \code{\link{gl.filter.ld}} filters out the SNPs in LD using as
-input the results of \code{\link{gl.report.ld.map}}. The actual number of 
-SNPs to be filtered out depends on the parameters set in the function 
+input the results of \code{\link{gl.report.ld.map}}. The actual number of
+SNPs to be filtered out depends on the parameters set in the function
 \code{\link{gl.filter.ld}}.
+Only SNP pairs with a positive value of the chosen statistic are reported;
+pairs with a zero or negative value (possible for the signed statistics
+"R", "Covar" and "Q") are omitted from the report and the plots. Within
+each chromosome, loci sharing the same map position are represented by the
+first of them; the others are excluded from the analysis (a message
+reports the exclusions).
 Boxplots of LD by population and
 a histogram showing LD frequency are presented.
 }
@@ -112,17 +116,25 @@ ld_res <- gl.report.ld.map(x,ld.max.pairwise = 10000000)
 \seealso{
 \code{\link{gl.filter.ld}}
 
-Other graphics: 
-\code{\link{gl.colors}()},
-\code{\link{gl.map.interactive}()},
-\code{\link{gl.plot.heatmap}()},
-\code{\link{gl.select.colors}()},
-\code{\link{gl.select.shapes}()},
-\code{\link{gl.smearplot}()},
-\code{\link{gl.tree.nj}()}
+Other matched report: 
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
 Custodian: Luis Mijangos -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{graphics}
+\concept{matched report}
