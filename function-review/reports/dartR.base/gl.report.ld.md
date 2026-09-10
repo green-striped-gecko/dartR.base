@@ -168,7 +168,22 @@ dartR.* clones outside dartR.base. All clear.
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-7 applied on branch review-gl.report.ld (commit e16f9bb), PR
+green-striped-gecko/dartR.base#392. Change 1 applied as the approved
+docs-only Option A; Option B (per-population computation) remains recorded
+here as the custodian's alternative.
+
+- Characterization suite green (13 assertions); every diff from the
+  pre-review baseline maps to an approved change: silence at verbose 0
+  (F5), restart returning cached results at any verbosity and with wd !=
+  outpath (F2), no chunk files with save = FALSE (F6), SilicoDArT rejected
+  (F7).
+- Returned statistics unchanged: pooled 25-locus platypus baseline (300
+  pairs; first-pair D/R2/n to 1e-6).
+- End-to-end run at verbose = 3 clean; chunk/result files named
+  LD_chunks_LDallp_*.rdata / LDallp.rdata.
+- API notes recorded in NEWS and the PR body: doParallel guard now stops,
+  save = FALSE writes nothing, default chunk-file names changed.
 
 ```json
 {
@@ -180,18 +195,18 @@ dartR.* clones outside dartR.base. All clear.
   "verdict_standards": "needs_work",
   "verdict_spec": "rework",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 7},
-    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DEP1", "status": "proposed", "change": 3},
-    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "proposed", "change": 4},
-    {"id": "F6", "severity": "MEDIUM", "confidence": "medium", "rule": "DOC5", "status": "proposed", "change": 5},
-    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DAT7", "status": "proposed", "change": 6},
-    {"id": "F8", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 7},
-    {"id": "F9", "severity": "INFO", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": null}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 7},
+    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DEP1", "status": "approved", "change": 3},
+    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "approved", "change": 4},
+    {"id": "F6", "severity": "MEDIUM", "confidence": "medium", "rule": "DOC5", "status": "approved", "change": 5},
+    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DAT7", "status": "approved", "change": 6},
+    {"id": "F8", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 7},
+    {"id": "F9", "severity": "INFO", "confidence": "high", "rule": "DOC5", "status": "no-action", "change": null}
   ],
   "coverage_skipped": ["ncores>1 not exercised", "DAT6: gl2gi densifies by design", "Google Group: not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 392
 }
 ```
