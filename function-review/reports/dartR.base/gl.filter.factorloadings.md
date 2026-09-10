@@ -162,7 +162,20 @@ column shows data-frame row numbers, not locus names, because
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-7 applied on branch review-gl.filter.factorloadings (commit
+a958dee), PR green-striped-gecko/dartR.base#393.
+
+- Characterization suite green (17 assertions); every diff from the
+  pre-review baseline maps to an approved change: retain = TRUE now returns
+  the 31-locus high-loading set (F1), the mismatched-pca case errors
+  clearly (F2), a single history entry names the function (F3), the glPca /
+  axis / threshold error paths are labelled (F4, F5, F7).
+- retain = FALSE unchanged (80 loci); the two retain values now partition
+  the 111 polymorphic loci.
+- End-to-end runs at verbose = 3 for both retain values clean; messages
+  consistent with the returned counts.
+- Consequences of changes 1 and 2 recorded in NEWS and the PR's API impact
+  section; caller grep all-clear.
 
 ```json
 {
@@ -174,16 +187,16 @@ column shows data-frame row numbers, not locus names, because
   "verdict_standards": "needs_work",
   "verdict_spec": "rework",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "DAT2", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "FS8", "status": "proposed", "change": 3},
-    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "FS5", "status": "proposed", "change": 4},
-    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "FS5", "status": "proposed", "change": 5},
-    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 6},
-    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 7}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "DAT2", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "FS8", "status": "approved", "change": 3},
+    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "FS5", "status": "approved", "change": 4},
+    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "FS5", "status": "approved", "change": 5},
+    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 6},
+    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 7}
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "Google Group: not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 393
 }
 ```
