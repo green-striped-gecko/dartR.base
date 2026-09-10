@@ -2,9 +2,8 @@
 % Please edit documentation in R/gl.report.ld.r
 \name{gl.report.ld}
 \alias{gl.report.ld}
-\title{Calculates pairwise population based Linkage Disequilibrium across all loci
- using the specified number of cores
- @family matched report}
+\title{Calculates pairwise linkage disequilibrium across all loci, pooled
+over all individuals}
 \usage{
 gl.report.ld(
   x,
@@ -19,13 +18,13 @@ gl.report.ld(
 )
 }
 \arguments{
-\item{x}{A genlight or genind object created (genlight objects are internally
-converted via \code{\link{gl2gi}} to genind) [required].}
+\item{x}{A genlight object containing the SNP data [required].}
 
-\item{name}{Character string for rdata file. If not given genind object name
-is used [default NULL].}
+\item{name}{Character string for the rdata file holding the results. If
+not given, "LDallp" is used [default NULL].}
 
-\item{save}{Switch if results are saved in a file [default TRUE].}
+\item{save}{Switch if results and intermediate chunks are saved to files
+[default TRUE].}
 
 \item{outpath}{Folder where chunks and results are saved (if save=TRUE)
 [default tempdir()].}
@@ -38,29 +37,51 @@ the routine crashes more bits are lost) [default 2].}
 \item{chunkname}{The name of the chunks for saving [default NULL].}
 
 \item{probar}{if TRUE, a progress bar is displayed for long loops
-[default = TRUE].}
+[default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-Returns calculation of pairwise LD across all loci between
-subpopulations. This functions uses if specified many cores on your computer
-to speed up. And if save is used can restart (if save=TRUE is used) with the
-same command starting where it crashed. The final output is a data frame that
- holds all statistics of pairwise LD between loci. (See ?LD in package
- genetics for details).
+A data frame with pairwise LD statistics (D, D', r, R2, n, X2, p)
+for every pair of loci, computed over all individuals pooled. (See ?LD in
+package genetics for details on the statistics.)
 }
 \description{
-This function is implemented in a parallel fashion to speed up the process.
-There is also the ability to restart the function if crashed by specifying
-the chunk file names or restarting the function exactly in the same way as in
-the first run. This is implemented because sometimes, due to connectivity loss
-between cores, the function may crash half way. Before running the function, 
-it is advisable to use the function \code{\link{gl.filter.allna}} to remove
- loci with all missing data.
+This function calculates pairwise LD for every pair of loci, with all
+individuals in the dataset pooled (populations are NOT analysed
+separately; for within-population LD use
+\code{\link{gl.report.ld.map}}).
+
+The computation can be spread over multiple cores and, when
+\code{save = TRUE}, intermediate chunks are written to \code{outpath} so
+a crashed run can be restarted where it stopped by rerunning the same
+command with the same \code{chunkname}. Before running the function,
+it is advisable to use the function \code{\link{gl.filter.allna}} to
+remove loci with all missing data.
+}
+\seealso{
+Other matched report: 
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
+\concept{matched report}
