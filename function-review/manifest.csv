@@ -68,3 +68,4 @@ gl.set.verbosity,dartR.base,utility,arthur,pr-open,297
 gl.impute,dartR.base,data manipulation,claude,pr-open,373
 gl.dist.ind,dartR.base,analysis,claude,pr-open,375
 gl.read.PLINK,dartR.base,io,arthur,pr-open,358
+gl.filter.factorloadings,dartR.base,matched filter,arthur,pr-open,
