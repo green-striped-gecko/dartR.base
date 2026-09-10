@@ -4,54 +4,52 @@
 \alias{gl.filter.ld}
 \title{Filters loci based on linkage disequilibrium (LD)}
 \usage{
-gl.filter.ld(
-  x,
-  ld.report,
-  threshold = 0.2,
-  pop.limit = ceiling(nPop(x)/2),
-  verbose = NULL
-)
+gl.filter.ld(x, ld.report, threshold = 0.2, pop.limit = NULL, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{ld.report}{Output from function \code{\link{gl.report.ld.map}} 
+\item{ld.report}{Output from function \code{\link{gl.report.ld.map}}
 [required].}
 
-\item{threshold}{Threshold value above which loci will be removed
+\item{threshold}{Threshold value at or above which loci will be removed
 [default 0.2].}
 
 \item{pop.limit}{Minimum number of populations in which LD should be more
-than the threshold for a locus to be filtered out.
-The default value is half of the populations [default ceiling(nPop(x)/2)].}
+than the threshold for a locus to be filtered out [default half of the
+populations represented in ld.report, i.e. ceiling(n/2)].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-The reduced genlight object.
+The reduced genlight object (returned invisibly).
 }
 \description{
-This function uses the statistic set in the parameter \code{stat.keep} from 
-function \code{\link{gl.report.ld.map}} to choose the SNP to keep when two 
-SNPs are in LD. When a SNP is selected to be filtered out in each pairwise 
-comparison, the function stores its  name in a list. In subsequent pairwise
- comparisons, if the SNP is already in the list, the other SNP will be kept.
+This function uses the statistic set in the parameter \code{stat.keep} from
+function \code{\link{gl.report.ld.map}} to choose the SNP to keep when two
+SNPs are in LD. When a SNP is selected to be filtered out in a pairwise
+comparison, the function stores its name in a list; a SNP already in the
+list is not listed again.
+}
+\details{
+Within each population, the pairs reported by
+\code{\link{gl.report.ld.map}} with \code{ld.stat} at or above
+\code{threshold} are processed in the order they appear in the report. For
+each pair, the locus with the lower \code{stat.keep} value is marked for
+removal. Note that comparisons are strictly pairwise and sequential: a
+locus can be marked for removal against a partner that was itself marked
+by an earlier comparison. A locus is removed from the dataset when it is
+marked in at least \code{pop.limit} populations.
 }
 \examples{
 \donttest{
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
-test <- platypus.gl
-test <- gl.filter.callrate(test,threshold = 1)
-res <- gl.report.ld.map(test)
-res_2 <- gl.filter.ld(x=test,ld.report = res)
-}
-if ((requireNamespace("snpStats", quietly = TRUE)) & (requireNamespace("fields", quietly = TRUE))) {
 test <- gl.filter.callrate(platypus.gl, threshold = 1)
 test <- gl.filter.monomorphs(test)
-report <- gl.report.ld.map(test)
-res <- gl.filter.ld(x=test,ld.report = report)
+res <- gl.report.ld.map(test)
+res_2 <- gl.filter.ld(x = test, ld.report = res)
 }
 }
 \seealso{
@@ -72,7 +70,6 @@ Other matched filter:
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()}
 \code{\link{gl.filter.secondaries}()},
 \code{\link{gl.filter.taglength}()}
 }
