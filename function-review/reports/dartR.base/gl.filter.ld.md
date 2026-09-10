@@ -154,7 +154,20 @@ dartR.* clones outside dartR.base. All clear.
 
 ## Outcome
 
-(pending Phase C)
+Changes 2-7 applied on branch review-gl.filter.ld (commit a5df83d), PR
+green-striped-gecko/dartR.base#391.
+
+- Characterization suite green (20 assertions); every diff from the
+  pre-review baseline maps to an approved change: silence at verbose 0
+  (F2), single history entry (F3), no-crash on missing flags (F4), the new
+  fail-fast validation error (F5).
+- Loci removed unchanged: platypus baseline 383 -> 380 (defaults) and 349
+  (pop.limit = 1); default-pop.limit equivalence with the explicit
+  computation asserted on the 30-population testset fixture.
+- End-to-end run at verbose = 3 on platypus.gl clean.
+- The pop.limit signature default changed from `ceiling(nPop(x) / 2)` to
+  `NULL` (resolved to the same value); recorded in NEWS and the PR's API
+  impact section.
 
 ```json
 {
@@ -166,16 +179,16 @@ dartR.* clones outside dartR.base. All clear.
   "verdict_standards": "needs_work",
   "verdict_spec": "needs_work",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "FS8", "status": "proposed", "change": 3},
-    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DAT5", "status": "proposed", "change": 4},
-    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "FS5", "status": "proposed", "change": 5},
-    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "STY1", "status": "proposed", "change": 6},
-    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 7}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "rejected", "change": 1},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "FS8", "status": "approved", "change": 3},
+    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DAT5", "status": "approved", "change": 4},
+    {"id": "F5", "severity": "MEDIUM", "confidence": "high", "rule": "FS5", "status": "approved", "change": 5},
+    {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "STY1", "status": "approved", "change": 6},
+    {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 7}
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "Google Group: not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 391
 }
 ```
