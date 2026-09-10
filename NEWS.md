@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.ld.map()`: `plot.file` now works with `plot.display = FALSE`
+  (previously crashed with "object 'p4' not found" after the full
+  computation); fully silent at `verbose = 0` (warnings gated, plot
+  suppressed); loci sharing a map position that are excluded from the
+  analysis are now reported at `verbose >= 1`; SilicoDArT objects are
+  rejected at the entry datatype check; documentation corrected
+  (`ld.max.pairwise` semantics, `plot.display` text, `ind.limit`
+  boundary, family "matched report") and the truncation to pairs with a
+  positive statistic value is now documented. The returned data frame is
+  unchanged.
+
 * `gl.tree.fitch()`: bootstrap support values change -- the previous
   values were extracted from the wrong edges of the wrong tree (an
   edge-order assumption that ape does not honour) and typically displayed
