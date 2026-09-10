@@ -1,4 +1,4 @@
-﻿function,package,family,claimed_by,status,pr
+function,package,family,claimed_by,status,pr
 gl.report.callrate,dartR.base,report,arthur,done,247
 gl.filter.allna,dartR.base,matched filter,arthur,pr-open,252
 gl.filter.monomorphs,dartR.base,matched filter,arthur,pr-open,251
