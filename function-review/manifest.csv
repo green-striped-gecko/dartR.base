@@ -69,3 +69,6 @@ gl.impute,dartR.base,data manipulation,claude,pr-open,373
 gl.dist.ind,dartR.base,analysis,claude,pr-open,375
 gl.read.PLINK,dartR.base,io,arthur,pr-open,358
 gl.report.ld.map,dartR.base,matched report,arthur,pr-open,390
+gl.filter.ld,dartR.base,matched filter,arthur,pr-open,391
+gl.report.ld,dartR.base,report,arthur,pr-open,392
+gl.filter.factorloadings,dartR.base,matched filter,arthur,pr-open,393
