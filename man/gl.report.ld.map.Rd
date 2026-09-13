@@ -123,6 +123,7 @@ Other matched report:
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.hwe}()},
+\code{\link{gl.report.ld}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},

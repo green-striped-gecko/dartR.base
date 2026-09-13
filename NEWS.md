@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.impute` helpers: matrix2gen(parallel = TRUE) no longer
+  crashes ("object 'i' not found" - a live path via gl.impute's
+  parallel argument); the placeholder documentation block replaced
+  with real @noRd headers and the ghost utils.impute Rd removed.
+
 * `utils.recalc.freqhomsnp()` review: SilicoDArT input is now rejected
   (was silently given diploid metrics); NULL-safe monomorphs-flag
   check; marked internal; arithmetic verified exact (unchanged).

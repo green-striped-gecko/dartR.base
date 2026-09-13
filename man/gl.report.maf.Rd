@@ -99,6 +99,8 @@ Other matched report:
 \code{\link{gl.report.hamming}()},
 \code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.hwe}()},
+\code{\link{gl.report.ld}()},
+\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},

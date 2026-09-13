@@ -88,6 +88,7 @@ Other matched filter:
 \code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
 \code{\link{gl.filter.excess.het}()},
+\code{\link{gl.filter.factorloadings}()},
 \code{\link{gl.filter.heterozygosity}()},
 \code{\link{gl.filter.hwe}()},
 \code{\link{gl.filter.ld}()},
