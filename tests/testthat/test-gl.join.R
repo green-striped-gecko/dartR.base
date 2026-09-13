@@ -40,6 +40,31 @@ test_that("legacy method parameter", {
                                       verbose = 0)))
 })
 
+test_that("historical end2end/sidebyside legacy values are honoured", {
+  # [amendment, member-nominated re-review 2026-08-31] the pre-refactor
+  # gl.join accepted method='end2end'/'sidebyside' and the docs kept
+  # describing them, but the legacy shim only mapped join.by.loc/ind -
+  # real callers (dartR.popgen gl.assign.*) crashed. Now mapped, and the
+  # requested join is validated against the data.
+  x1 <- testset.gl[1:7, ]; x2 <- testset.gl[11:14, ]
+  invisible(capture.output(g1 <- gl.join(x1, x2, method = "end2end",
+                                         verbose = 0)))
+  invisible(capture.output(g0 <- gl.join(x1, x2, verbose = 0)))
+  expect_equal(nInd(g1), 11)
+  expect_identical(as.matrix(g1), as.matrix(g0))
+  y1 <- platypus.gl[, 1:100]; y2 <- platypus.gl[, 101:200]
+  invisible(capture.output(g2 <- gl.join(y1, y2, method = "sidebyside",
+                                         verbose = 0)))
+  expect_equal(nLoc(g2), 200)
+  # a requested join that contradicts the data fails clearly
+  expect_error(capture.output(gl.join(x1, x2, method = "sidebyside",
+                                      verbose = 0)),
+               "do not match")
+  expect_error(capture.output(gl.join(y1, y2, method = "end2end",
+                                      verbose = 0)),
+               "do not match")
+})
+
 test_that("ind-join on testset-style flags (no OneRatio/PIC columns)", {
   # [approved diff F2] baseline: the flags block assigned OneRatio/PIC
   # products that do not exist in testset.gl's flags data.frame ->
