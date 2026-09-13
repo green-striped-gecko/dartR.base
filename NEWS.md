@@ -38,6 +38,140 @@
   can contradict the refreshed metrics) is deferred by the custodian and
   remains open, with its evidence in
   `function-review/reports/dartR.base/gl.recalc.metrics.md`.
+* `gl.report.ld.map()`: `plot.file` now works with `plot.display = FALSE`
+  (previously crashed with "object 'p4' not found" after the full
+  computation); fully silent at `verbose = 0` (warnings gated, plot
+  suppressed); loci sharing a map position that are excluded from the
+  analysis are now reported at `verbose >= 1`; SilicoDArT objects are
+  rejected at the entry datatype check; documentation corrected
+  (`ld.max.pairwise` semantics, `plot.display` text, `ind.limit`
+  boundary, family "matched report") and the truncation to pairs with a
+  positive statistic value is now documented. The returned data frame is
+  unchanged.
+* `gl.filter.ld()`: `ld.report` is now validated at entry (a clear error
+  names `gl.report.ld.map` instead of an obscure downstream failure);
+  objects without `loc.metrics.flags` no longer crash with "argument is of
+  length zero"; the "No pair of loci" message gates at `verbose >= 1`; a
+  single history entry is appended per call (previously two, one exposing
+  internal variable names); the `pop.limit` default is computed explicitly
+  as half of the populations represented in `ld.report` (same value as
+  before, previously an accident of lazy evaluation) and documented as
+  such; documentation corrected (threshold boundary "at or above", actual
+  sequential pair-resolution rule described). Loci removed are unchanged.
+* `gl.report.ld()`: crash-restart fixed — rerunning with the same
+  `chunkname` at `verbose < 2` used to crash with "subscript out of
+  bounds" (the cached-return sat inside a verbosity guard), and chunk
+  discovery searched the working directory while chunks were saved to
+  `outpath`, silently defeating the restart for the default
+  `outpath = tempdir()`. Chunk files are now written only when
+  `save = TRUE` (previously always, with collision-prone
+  `LD_chunks__i.rdata` names). Dependency guards now `stop()` instead of
+  printing and returning -1 (and the redundant guards for Imports
+  packages are gone); the internal `gl2gi` conversion is silenced at
+  `verbose = 0`; SilicoDArT is rejected (`accept = "SNP"`). Documentation
+  now describes what the function computes — LD across all loci with all
+  individuals POOLED, not per population (use `gl.report.ld.map` for
+  within-population LD) — and drops the incorrect claim that genind
+  input is accepted. The returned statistics are unchanged.
+* `gl.filter.factorloadings()`: `retain = TRUE` results change — it
+  previously returned exactly the same object as `retain = FALSE` (the
+  high-loading loci were dropped instead of kept, i.e. the complement of
+  what was documented); it now retains the loci with |loading| at or above
+  the threshold, as documented. A pca that does not match the genlight
+  (different locus count after monomorph removal) now raises a clear error
+  instead of silently recycling loadings onto the wrong loci. A single
+  history entry naming the function replaces the two internal entries;
+  glPca and axis validation errors are labelled; the documented `...`
+  (save parameters) is now forwarded; documentation corrected (`@return`,
+  family, verbose text).
+
+* `gl.tree.fitch()`: bootstrap support values change -- the previous
+  values were extracted from the wrong edges of the wrong tree (an
+  edge-order assumption that ape does not honour) and typically displayed
+  full support regardless of the data; supports are now computed by clade
+  matching (`ape::prop.clades`) against the replicate trees, returned on
+  the tree as `node.label` together with the majority-rule consensus tree
+  (attribute `consensus.tree`), and the replicate distances are computed
+  under the same substitution-model settings as the main tree (new
+  `subst.model`, `pairwise.missing`, `min.tag.len` parameters). Also: the
+  function now works on Windows (the PHYLIP invocation performed no stdin
+  redirection, so no run could complete); the working directory is
+  restored after bootstrap runs; `out.path` actually receives the PHYLIP
+  output files; a supplied `outgroup` roots the returned tree; the
+  distance matrix is scaled to preserve branch-length precision through
+  PHYLIP's 6-decimal tree file; guards added for fewer than 4 taxa,
+  duplicate 10-character truncated labels and D/x population mismatch;
+  `verbose = 0` is now fully silent (previously the whole PHYLIP menu
+  dialogue printed); plotting is optional (`plot.display`) and decoupled
+  from the returned result.
+* `gl.set.verbosity()`: invalid values were a silent no-op that claimed
+  success -- `gl.set.verbosity(7)` warned, left the global option
+  untouched, and then printed "Global verbosity set to: 7"; a character
+  value rode string comparisons through the same false echo; and
+  `gl.set.verbosity(NULL)` crashed with "argument is of length zero".
+  Invalid values (including NULL) now warn and coerce to the default 2,
+  which is then genuinely set and honestly reported. The function also
+  returns the value actually set (invisibly), honouring its @return
+  contract (it returned NULL), validation runs before the start banner,
+  and the header gains its @family tag.
+
+* `gl.impute()`: **`method = "frequency"` changes numerical output.** It now
+  does what its documentation always claimed -- a deterministic fill with
+  the expected dosage 2q at the locus in the individual's population,
+  rounded to the nearest valid genotype (exact ties, 2q = 0.5 or 1.5, go to
+  the heterozygote). It was previously a random Bernoulli(q)-pair draw,
+  distributionally identical to `method = "HW"`; every existing
+  "frequency" result therefore changes, and repeated runs now give
+  identical results without a seed. For presence-absence data the fill is
+  the majority band state (ties to presence).
+* `gl.impute()`: residual missing values on FBM-backed objects are now
+  preserved as NA in the imputed object; the raw FBM write-back previously
+  coerced them to genotype 0, fabricating homozygous-reference calls at
+  all-NA loci. Dense and FBM-backed runs now return identical genotypes.
+* `gl.impute()`: presence-absence (SilicoDArT) support is now real:
+  "random" draws from 0/1, "HW" becomes a Bernoulli draw with the band
+  frequency, and the residual fill draws Bernoulli from the global band
+  frequency ("random" and "frequency" previously wrote genotype 2s into
+  0/1 data, and "frequency"/"HW" then crashed with "negative
+  probability"); "beagle" is blocked for presence-absence data with a
+  clear error. Also: `method` is validated up front; all-missing-locus
+  warnings are ploidy-aware and no longer fire for any locus above 50%
+  missing; the random/beagle branches report every affected population
+  rather than only the last; the beagle path checks the jar, java and
+  PLINK up front with informative errors (instead of returning -1 or a
+  raw system error) and no longer blanks singleton-scaffold chromosome
+  names in the returned object.
+* `gl.dist.ind()`: `method = "sorensen"` now computes the Sorensen (=
+  Dice) distance -- previously "sorensen" was missing from the
+  accepted-methods list, so it was silently coerced to simple matching
+  with a warning that leaked at `verbose = 0` (numerical output changes
+  for sorensen callers, including `gl.dist.pop(method = "sorensen")`,
+  which routes through here). Also: the unknown-method fallback warnings
+  are gated at `verbose >= 1`; `type` is normalised with `tolower()` and
+  validated ("Matrix" now returns a matrix; an unrecognised type stops
+  instead of silently returning a dist); NA distances (e.g. from an
+  individual with no scored genotypes in common with another) are
+  counted and warned at `verbose >= 1` instead of propagating silently;
+  documentation corrected (`scale` default is FALSE and applies to
+  euclidean only; the Sorensen/Bray-Curtis synonymy for binary data is
+  stated; the `@author` line repaired).
+* `gl.read.PLINK()`: the returned object now contains the genotypes at
+  every verbosity. Previously `gl.gen2fbm()` always ran and the result
+  was discarded at verbose <= 2 (the default), so default-settings calls
+  returned an object with no genotype data; at verbose = 3 the object
+  came back FBM-backed even with `fbm = FALSE`. The `fbm` argument now
+  decides the backend, as documented. Individual metafile rows are now
+  matched to the .fam individuals by `id` (previously bound in file
+  order, silently misassigning metadata when the orders differed), and
+  a `pop` column in the metafile is now applied to `pop(gl)`. A missing
+  AlleleID column in the locus metafile now stops with the intended
+  message instead of an unrelated subscript error. The .ped-to-.bed
+  conversion now runs in a temporary directory (previously it wrote
+  .bed/.bim/.fam/.log into the user's input directory) and PLINK's
+  console chatter is suppressed below verbose 3. Documentation: the
+  dosage orientation is now stated (counts allele.2, the PLINK 1.x
+  major allele -- the opposite orientation to `gl.read.vcf()`, which
+  counts ALT).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
