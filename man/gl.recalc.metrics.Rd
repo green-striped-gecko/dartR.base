@@ -3,45 +3,86 @@
 \name{gl.recalc.metrics}
 \alias{gl.recalc.metrics}
 \title{Recalculates locus metrics when individuals or populations are deleted from a
- genlight \{adegenet\} object
- @family environment}
+ genlight \{adegenet\} object}
 \usage{
 gl.recalc.metrics(x, mono.rm = FALSE, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing SNP genotypes [required].}
+\item{x}{Name of the genlight object containing SNP or presence/absence
+(SilicoDArT) data [required].}
 
 \item{mono.rm}{If TRUE, removes monomorphic loci [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(), or
+2 if no global is set].}
 }
 \value{
 A genlight object with the recalculated locus metadata.
 }
 \description{
-When individuals,or populations, are deleted from a genlight object, the
+When individuals, or populations, are deleted from a genlight object, the
 locus metrics no longer apply. For example, the Call Rate may be different
 considering the subset of individuals, compared with the full set. This
- script recalculates those affected locus metrics, namely, avgPIC, CallRate,
-freqHets, freqHomRef, freqHomSnp, OneRatioRef, OneRatioSnp, PICRef and
- PICSnp.
- Metrics that remain unaltered are RepAvg and TrimmedSeq as they are
-  unaffected by the removal of individuals.
+script recalculates those affected locus metrics. For SNP data these are
+AvgPIC, CallRate, FreqHets, FreqHomRef, FreqHomSnp, OneRatioRef,
+OneRatioSnp, PICRef, PICSnp and maf. For SilicoDArT (tag presence/absence)
+data they are CallRate, OneRatio and PIC.
+}
+\details{
 The script optionally removes resultant monomorphic loci or loci
-with all values missing and deletes them (using gl.filter.monomorphs.r).
+with all values missing and deletes them (using gl.filter.monomorphs).
 The script returns a genlight object with the recalculated locus metadata.
+Metrics that are not recalculated fall into two groups. Some are unaffected
+by the removal of individuals and are correctly left as they are: RepAvg,
+TrimmedSequence, AlleleSequence, SNP, SnpPosition, clone and uid for SNP
+data; Qpmr and Reproducibility for SilicoDArT data. Others are affected by
+the removal of individuals but cannot be recovered from the genotypes,
+because they derive from raw read counts that a genlight object does not
+carry: rdepth, AvgCountRef and AvgCountSnp for SNP data; AvgReadDepth and
+StDevReadDepth for SilicoDArT data. These keep the values read from the DArT
+file, and can therefore be inconsistent with the recalculated metrics.
+Precondition on the locus metrics: the function requires
+\code{x@other$loc.metrics} to be a data frame with one row per locus, the
+structure that gl.read.dart and gl.compliance.check produce. If the slot is
+absent or is not a data frame, as in a genlight object assembled by hand, an
+empty data frame with one row per locus is created to receive the metrics
+and a message states that the DArT metadata is not present. If the slot is a
+data frame whose row count does not match the number of loci, the object is
+not repairable here and the function stops.
+Monomorphic loci: the monomorphs flag records whether the object is known to
+be free of monomorphic loci. With mono.rm = FALSE the flag is set from a
+check made on the metrics just recalculated, so it never reports a state
+that was not examined. With mono.rm = TRUE the loci are removed and the flag
+is set by gl.filter.monomorphs; if every locus is monomorphic or scored all
+NA, none can be removed, and the function reports that condition and
+completes with the flag FALSE.
+Messages: the utils.recalc.* helpers are called with verbose = 0 and this
+function reports on their behalf, so one call produces one set of progress
+messages rather than one set per helper.
+History: gl.recalc.metrics is an implementation step of many other
+dartRverse functions. An entry is appended to \code{x@other$history} only
+when the function is called directly. A call made from inside another
+dartRverse function appends nothing, so the history records the calls the
+user made rather than the steps beneath them.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
   gl <- gl.recalc.metrics(testset.gl, verbose=2)
-  
 }
 \seealso{
 \code{\link{gl.filter.monomorphs}}
+
+Other environment: 
+\code{\link{gl.check.verbosity}()},
+\code{\link{gl.check.wd}()},
+\code{\link{gl.print.history}()},
+\code{\link{gl.set.wd}()},
+\code{\link{theme_dartR}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+ \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{environment}

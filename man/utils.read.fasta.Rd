@@ -4,7 +4,7 @@
 \alias{utils.read.fasta}
 \title{An internal script to read a fastA file into a genlight object}
 \usage{
-utils.read.fasta(file, parallel = parallel, n.cores = NULL, verbose = verbose)
+utils.read.fasta(file, parallel = FALSE, n.cores = NULL, verbose = NULL)
 }
 \arguments{
 \item{file}{Name of the fastA file [required]}
@@ -12,7 +12,8 @@ utils.read.fasta(file, parallel = parallel, n.cores = NULL, verbose = verbose)
 \item{parallel}{Switch to deactivate parallel version. It might not be worth
 to run it parallel most of the times [default FALSE]}
 
-\item{n.cores}{Number of cores to use in parallel [default 4]}
+\item{n.cores}{Number of cores to use if parallel = TRUE; if NULL, all
+the available cores are used [default NULL]}
 
 \item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
 begin and end; 2, progress log; 3, progress and results summary; 5, full
