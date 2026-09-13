@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.ld()`: `ld.report` is now validated at entry (a clear error
+  names `gl.report.ld.map` instead of an obscure downstream failure);
+  objects without `loc.metrics.flags` no longer crash with "argument is of
+  length zero"; the "No pair of loci" message gates at `verbose >= 1`; a
+  single history entry is appended per call (previously two, one exposing
+  internal variable names); the `pop.limit` default is computed explicitly
+  as half of the populations represented in `ld.report` (same value as
+  before, previously an accident of lazy evaluation) and documented as
+  such; documentation corrected (threshold boundary "at or above", actual
+  sequential pair-resolution rule described). Loci removed are unchanged.
 * `gl.report.ld()`: crash-restart fixed — rerunning with the same
   `chunkname` at `verbose < 2` used to crash with "subscript out of
   bounds" (the cached-return sat inside a verbosity guard), and chunk
