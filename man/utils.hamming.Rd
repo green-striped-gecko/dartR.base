@@ -59,7 +59,6 @@ Other utilities:
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
