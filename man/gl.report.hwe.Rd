@@ -233,12 +233,15 @@ Tests of Hardy-Weinberg Equilibrium. American Journal of Human Genetics
 Other matched report: 
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}

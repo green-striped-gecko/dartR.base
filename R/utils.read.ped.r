@@ -1,28 +1,52 @@
 #' @name utils.read.ped
-#' @title An internal script [Custodian to provide a title]
+#' @title Reads a PLINK .ped file into a SnpMatrix with family and map data
 #' @family utilities
-#' 
-#' @description 
+#'
+#' @description
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
-#' @param file Custodian to provide
-#' @param snps Custodian to provide
-#' @param which Custodian to provide
-#' @param split Custodian to provide
-#' @param sep Custodian to provide
-#' @param na.strings Custodian to provide
-#' @param lex.order Custodian to provide
-#' @param show_warnings Custodian to provide
-#'  
-#' #[Custodian to provide other parameter descriptions]
-
+#'
 #' @details
-#' #[Custodian to provide details]
-#' 
+#' A vendored, lightly modified copy of \code{snpStats::read.pedfile}. The
+#' file is read twice: a first pass counts the lines, a second parses each
+#' line into the six pedigree columns and the genotype allele pairs. For
+#' each locus the first allele encountered in file order becomes
+#' \code{allele.1} and the second becomes \code{allele.2}; genotypes are
+#' coded on that basis (raw SnpMatrix coding; as numeric, the count of
+#' \code{allele.2}). Loci at which more than two alleles are observed are
+#' set entirely to NA. The only in-package caller is
+#' \code{gl.report.ld.map}.
+#'
+#' @param file Name of the .ped file to read (plain text or gzipped)
+#' [required].
+#' @param snps Either the name of the associated .map file, or a character
+#' vector of locus names (one per locus) [optional; if missing, loci are
+#' named locus.1, locus.2, ...].
+#' @param which When snps is a map file, the column of that file holding
+#' the locus names [optional; defaults to the first column with no
+#' duplicates].
+#' @param split Regular expression used to split fields on each line
+#' [default "\\t| +", i.e. tabs and spaces].
+#' @param sep Separator used when constructing locus and subject names
+#' [default "."].
+#' @param na.strings Strings to be treated as missing values. Note that
+#' the default treats the conventional PLINK missing-allele code as
+#' missing [default "0"].
+#' @param lex.order If TRUE, alleles at each locus are reordered
+#' lexicographically, and the genotype codes are switched to match
+#' [default FALSE].
+#' @param show_warnings If FALSE, the warnings for no-data, monomorphic
+#' and multi-allelic loci are suppressed. The multi-allelic NA reset is
+#' applied regardless [default TRUE].
+#'
+#' @return A list with elements: \code{genotypes} (a
+#' \code{snpStats::SnpMatrix}, individuals x loci), \code{fam} (a data
+#' frame with pedigree, member, father, mother, sex, affected) and
+#' \code{map} (a data frame with the locus names and alleles, plus the
+#' .map columns when one was supplied).
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
-
-# @export
-#' @return The resultant genlight object
+#' @keywords internal
+#' @export
 #' @importFrom snpStats switch.alleles
 
 utils.read.ped <- function (file, 
@@ -111,7 +135,7 @@ utils.read.ped <- function (file,
   mallelic <- rep(FALSE, m)
   for (i in 1:n) {
     line <- readLines(con, n = 1)
-    fields <- strsplit(line, "\t| +")[[1]]
+    fields <- strsplit(line, split)[[1]]
     to.na <- fields %in% na.strings
     fields[to.na] <- NA
     ped[i] <- fields[1]
@@ -136,7 +160,12 @@ utils.read.ped <- function (file,
       a2m[br4] <- FALSE
       br5 <- br3 & (a2 == ak)
       two[br5] <- TRUE
-      mallelic <- mallelic | !(akm | one | two)
+      # A locus is multi-allelic when THIS column's allele matches
+      # neither a1 (br2) nor a2 (br5) and is not missing. The original
+      # test used the accumulated one/two, which are set per individual
+      # across both allele columns, so a novel allele paired with a
+      # known one escaped detection (F3).
+      mallelic <- mallelic | !(akm | br2 | br5)
     }
     gt <- rep(r0, m)
     gt[one & !two] <- r1
@@ -152,9 +181,13 @@ utils.read.ped <- function (file,
   if (any(mono & show_warnings==T)){ 
     warning(sum(mono), " loci were monomorphic")
   }
-  if (any(mallelic & show_warnings==T)) {
+  if (any(mallelic)) {
+    # The NA reset is data cleaning, not messaging: it must run
+    # regardless of show_warnings; only the warning is gated (F2).
     result[, mallelic] <- r0
-    warning(sum(mallelic), " loci were multi-allelic --- set to NA")
+    if (show_warnings) {
+      warning(sum(mallelic), " loci were multi-allelic --- set to NA")
+    }
   }
   if (gen){ 
     snps <- paste("locus", 1:m, sep = sep)
@@ -175,7 +208,9 @@ utils.read.ped <- function (file,
   result <- new("SnpMatrix", result)
   if (lex.order) {
     swa <- (!(is.na(a1) | is.na(a2)) & (a1 > a2))
-    snpStats::switch.alleles(result, swa)
+    # Assign the switched matrix; the original discarded the return
+    # value, swapping the map alleles but not the genotypes (F1).
+    result <- snpStats::switch.alleles(result, swa)
     a1n <- a1
     a1n[swa] <- a2[swa]
     a2[swa] <- a1[swa]
