@@ -19,14 +19,14 @@
 #' @param ind.limit Minimum number of individuals that a population should
 #' contain to calculate MAF. Only used if by.pop=TRUE [default 10].
 #' @param recalc Recalculate the locus metadata statistics [default FALSE].
-#' @param plot.display If TRUE, histograms of base composition are displayed in
-#'  the plot window [default TRUE].
+#' @param plot.display If TRUE, histograms of the MAF distribution pre- and
+#' post-filtering are displayed in the plot window [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
 #'  plots [default c("#2171B5", "#6BAED6")].
-#' @param plot.dir Directory in which to save files
-#' [default = working directory].
+#' @param plot.dir Directory in which to save the plot RDS files [default as
+#' specified by the global working directory or tempdir()].
 #' @param plot.file Name for the RDS binary file to save (base name only,
 #' exclude extension) [default NULL].
 #' @param bins Number of bins to display in histograms [default 25].
@@ -57,8 +57,11 @@
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' result <- gl.filter.maf(platypus.gl, threshold = 0.05, verbose = 3)
 #' #result <- gl.filter.maf(platypus.gl, by.pop = TRUE, threshold = 0.05, verbose = 3)
+#' @return The reduced genlight dataset, returned invisibly. Loci with
+#' undefined MAF (all genotypes missing) are removed by the global filter and
+#' itemised at verbose >= 3; under by.pop, loci with undefined MAF in a
+#' population do not count towards that population's tally.
 #' @export
-#' @return The reduced genlight dataset
 
 gl.filter.maf <- function(x,
                           threshold = 0.01,
@@ -73,9 +76,6 @@ gl.filter.maf <- function(x,
                           plot.dir = NULL,
                           bins = 25,
                           verbose = NULL) {
-  hold <- x
-  plot.colors.pop <- plot.colors
-  
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
@@ -100,7 +100,7 @@ gl.filter.maf <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
   
   # Work around a bug in adegenet if genlight object is created by subsetting
   if (nLoc(x) != nrow(x@other$loc.metrics)) {
@@ -112,23 +112,19 @@ gl.filter.maf <- function(x,
     )
   }
   
-  # Check for monomorphic loci
-  tmp <- gl.filter.monomorphs(x, verbose = 0)
-  if ((nLoc(tmp) < nLoc(x)) & verbose >= 2) {
-    cat(warn("  Warning: genlight object contains monomorphic loci\n"))
-  }
-  
   # FUNCTION SPECIFIC ERROR CHECKING
-  if (threshold >= 1)
+  if (threshold > 1)
     threshold <- threshold / (length(indNames(x)) *
                                 mean(ploidy(x)))
   if (threshold > 0.5 | threshold <= 0) {
-    cat(
-      warn(
-        "  Warning: threshold must be in the range (0,0.5], but usually
+    if (verbose >= 1) {
+      cat(
+        warn(
+          "  Warning: threshold must be in the range (0,0.5], but usually
                 small, set to 0.01\n"
+        )
       )
-    )
+    }
     threshold <- 0.01
   }
   
@@ -146,29 +142,47 @@ gl.filter.maf <- function(x,
         )
       )
     }
-    #x <- utils.recalc.maf(x, verbose = 0)
     pop.list <- seppop(x)
-    #col=gl.select.colors(library="brewer",palette="Blues",select=c(7,5), verbose=0)
-    
+
     # getting populations with more than ind.limit
     ind_per_pop <-
       which(unlist(lapply(pop.list, nInd)) >= ind.limit)
     pop.list <- pop.list[ind_per_pop]
-    # recalculating MAF by population
-    pop.list <- lapply(pop.list, utils.recalc.maf, verbose = 0)
-    # getting loci with MAF < threshold
-    loci.list <- lapply(pop.list, function(y) {
-      y$other$loc.metrics$maf <= threshold
-    })
-    # getting the loci in which MAF < threshold and in at least pop.limit
-    # populations
-    loci.list <- Reduce("+", loci.list)
-    loci.list <- which(loci.list >= pop.limit)
-    
-    x2 <- x[,-loci.list]
-    x2@other$loc.metrics <- x@other$loc.metrics[-loci.list, ]
-    
-    x2 <- utils.recalc.maf(x2, verbose = 0)
+    if (length(pop.list) == 0) {
+      if (verbose >= 1) {
+        cat(warn(
+          "  Warning: no populations have at least", ind.limit,
+          "individuals; MAF could not be assessed by population and no loci were removed\n"
+        ))
+      }
+      x2 <- x
+    } else {
+      # recalculating MAF by population
+      pop.list <- lapply(pop.list, utils.recalc.maf, verbose = 0)
+      # getting loci with MAF < threshold
+      loci.list <- lapply(pop.list, function(y) {
+        y$other$loc.metrics$maf < threshold
+      })
+      # getting the loci in which MAF < threshold in at least pop.limit
+      # populations
+      loci.list <- Reduce("+", loci.list)
+      loci.list <- which(loci.list >= pop.limit)
+
+      if (length(loci.list) > 0) {
+        x2 <- x[,-loci.list]
+        x2@other$loc.metrics <- x@other$loc.metrics[-loci.list, ]
+      } else {
+        if (verbose >= 2) {
+          cat(report(
+            "  No loci fall below the threshold in at least", pop.limit,
+            "populations; no loci removed\n"
+          ))
+        }
+        x2 <- x
+      }
+
+      x2 <- utils.recalc.maf(x2, verbose = 0)
+    }
   } else{
     # Recalculate the relevant loc.metrics
     if (verbose >= 2) {
@@ -183,18 +197,25 @@ gl.filter.maf <- function(x,
     }
     
     x <- utils.recalc.maf(x, verbose = 0)
-    
-    # Remove loci with NA count <= 1-threshold
+
+    # Retain loci with MAF at or above the threshold; loci with undefined
+    # MAF (all genotypes missing) are removed
     index <- which(x@other$loc.metrics$maf >= threshold)
-    
+    if (verbose >= 3) {
+      n.na.maf <- sum(is.na(x@other$loc.metrics$maf))
+      if (n.na.maf > 0) {
+        cat("  Note:", n.na.maf,
+            "loci with undefined MAF (all genotypes missing) removed\n")
+      }
+    }
+
     x2 <- x[, index]
     x2@other$loc.metrics <- x@other$loc.metrics[index, ]
-    
+
     x2 <- utils.recalc.maf(x2, verbose = 0)
   }
   
   if (plot.display & by.pop == FALSE) {
-    popn.hold <- FALSE
     maf <- NULL
     # Plot a histogram of MAF
     maf_pre <- data.frame(x@other$loc.metrics$maf)
@@ -295,6 +316,9 @@ gl.filter.maf <- function(x,
         plot_temp <- mafs_plots_pre[[y]] / mafs_plots_post[[y]]
         return(plot_temp)
       })
+    # name by the populations the plots were built from, so selection by
+    # the qualifying-population names below cannot mislabel them
+    names(plots_pops_merge) <- names(pops_maf_pre)
     
     # Check for status -- any populations with ind > ind.limit; and is
     #nPop > 1
@@ -313,9 +337,7 @@ gl.filter.maf <- function(x,
     # testing which populations comply with thresholds
     popn.hold <-
       test_pop[which(test_pop$ind_per_pop >= ind.limit), "pop"]
-    
-    names(plots_pops_merge) <- popn.hold
-    
+
     mafs_plots_print <- plots_pops_merge[popn.hold]
     
     if (length(popn.hold) > 1) {
@@ -492,23 +514,34 @@ gl.filter.maf <- function(x,
   
   # PRINTING OUTPUTS using package patchwork
   if (plot.display) {
-    if (length(popn.hold) > 1 & by.pop == TRUE) {
-      suppressWarnings(print(p2))
-      suppressWarnings(print(p3))
-      p3 <- c(p3, p2)
-    } else{
+    if (by.pop == TRUE) {
+      if (length(popn.hold) > 1) {
+        suppressWarnings(print(p2))
+        suppressWarnings(print(p3))
+        p3 <- c(p3, p2)
+      } else {
+        # p3 was built by the 0/1-qualifying-population case blocks
+        suppressWarnings(print(p3))
+      }
+    } else {
       p3 <- (p1 / p2) + plot_layout(heights = c(1, 1))
       suppressWarnings(print(p3))
     }
   }
-  
+
   # Optionally save the plot ---------------------
-  
+
   if (!is.null(plot.file)) {
-    tmp <- utils.plot.save(p3,
-                           dir = plot.dir,
-                           file = plot.file,
-                           verbose = verbose)
+    if (exists("p3", inherits = FALSE)) {
+      tmp <- utils.plot.save(p3,
+                             dir = plot.dir,
+                             file = plot.file,
+                             verbose = verbose)
+    } else if (verbose >= 1) {
+      cat(warn(
+        "  Warning: plot.file specified but no plot was built (plot.display is FALSE); nothing saved\n"
+      ))
+    }
   }
   
   # ADD TO HISTORY
@@ -520,6 +553,6 @@ gl.filter.maf <- function(x,
   if (verbose > 0) {
     cat(report("Completed:", funname, "\n"))
   }
-  
-  return(x2)
+
+  return(invisible(x2))
 }
