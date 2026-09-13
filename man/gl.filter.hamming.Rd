@@ -87,8 +87,8 @@ x2 <- gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = 2)
 Other matched filter: 
 \code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
-\code{\link{gl.filter.heterozygosity}()},
 \code{\link{gl.filter.excess.het}()},
+\code{\link{gl.filter.heterozygosity}()},
 \code{\link{gl.filter.hwe}()},
 \code{\link{gl.filter.ld}()},
 \code{\link{gl.filter.locmetric}()},
@@ -99,7 +99,6 @@ Other matched filter:
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()}
 \code{\link{gl.filter.secondaries}()},
 \code{\link{gl.filter.taglength}()}
 }
