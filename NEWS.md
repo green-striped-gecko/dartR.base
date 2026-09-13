@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.factorloadings()`: `retain = TRUE` results change — it
+  previously returned exactly the same object as `retain = FALSE` (the
+  high-loading loci were dropped instead of kept, i.e. the complement of
+  what was documented); it now retains the loci with |loading| at or above
+  the threshold, as documented. A pca that does not match the genlight
+  (different locus count after monomorph removal) now raises a clear error
+  instead of silently recycling loadings onto the wrong loci. A single
+  history entry naming the function replaces the two internal entries;
+  glPca and axis validation errors are labelled; the documented `...`
+  (save parameters) is now forwarded; documentation corrected (`@return`,
+  family, verbose text).
+
 * `gl.tree.fitch()`: bootstrap support values change -- the previous
   values were extracted from the wrong edges of the wrong tree (an
   edge-order assumption that ape does not honour) and typically displayed
