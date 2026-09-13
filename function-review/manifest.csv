@@ -64,6 +64,7 @@ gl.keep.pop,dartR.base,data manipulation,arthur,done,239
 gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
+gl.report.pa,dartR.base,matched report,arthur,pr-open,299
 gl.report.diversity,dartR.base,report,arthur,pr-open,301
 gl.report.maf,dartR.base,matched report,arthur,pr-open,294
 gl2eigenstrat,dartR.base,io,arthur,pr-open,355
