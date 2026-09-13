@@ -31,13 +31,8 @@ the individuals that could be scored.
 This function only applies to SNP genotype data not Tag P/A data (SilicoDArT).
 }
 \seealso{
-\code{utils.recalc.metrics} for recalculating all metrics,
-\code{utils.recalc.callrate} for recalculating CallRate,
-\code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-reference, \code{utils.recalc.avgpic} for recalculating AvgPIC,
-\code{utils.recalc.freqhet} for recalculating frequency of heterozygotes,
-\code{gl.recalc.maf} for recalculating minor allele frequency,
-\code{gl.recalc.rdepth} for recalculating average read depth
+\code{\link{gl.recalc.metrics}} for recalculating all
+locus metrics
 
 Other utilities: 
 \code{\link{gl.He}()},
@@ -72,3 +67,4 @@ Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}

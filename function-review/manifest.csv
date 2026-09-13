@@ -64,6 +64,7 @@ gl.keep.pop,dartR.base,data manipulation,arthur,done,239
 gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
+utils.recalc.freqhomsnp,dartR.base,utility,arthur,pr-open,305
 utils.recalc.freqhets,dartR.base,utility,arthur,pr-open,303
 gl.filter.pa,dartR.base,matched filter,arthur,pr-open,300
 utils.check.datatype,dartR.base,utility,arthur,pr-open,296

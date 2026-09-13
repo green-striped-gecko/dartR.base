@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.freqhomsnp()` review: SilicoDArT input is now rejected
+  (was silently given diploid metrics); NULL-safe monomorphs-flag
+  check; marked internal; arithmetic verified exact (unchanged).
+
 * `utils.recalc.freqhets()` review: SilicoDArT input is now rejected
   (previously presences were silently counted as heterozygotes);
   NULL-safe monomorphs-flag check (no crash on flag-less objects);
