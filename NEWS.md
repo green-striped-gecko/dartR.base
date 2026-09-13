@@ -1,5 +1,7 @@
 # dartR.base 1.2.3 (development)
 
+- gl.amova has moved to dartR.popgen (green-striped-gecko/dartR.popgen#88), carrying the PR #378 review fixes and its test; no dartRverse code calls it.
+
 * `utils.read.fasta()` (the engine behind `gl.read.fasta()`): the
   genotype-classification core was redesigned. Previously anything that
   was not hom-ref or hom-alt fell through to heterozygous, so missing
