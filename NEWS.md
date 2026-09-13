@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.freqhets()` review: SilicoDArT input is now rejected
+  (previously presences were silently counted as heterozygotes);
+  NULL-safe monomorphs-flag check (no crash on flag-less objects);
+  marked internal; FreqHets arithmetic verified exact (unchanged).
+
 * `gl.filter.pa()` review: SilicoDArT frequencies are no longer halved
   as if diploid, so presence-fixed private alleles are found (on
   testset.gs the kept set grows from 45 to 66 loci); a bogus population
