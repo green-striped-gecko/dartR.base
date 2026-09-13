@@ -1,22 +1,26 @@
 #' @name gl.report.ld
-#' @title Calculates pairwise population based Linkage Disequilibrium across all loci
-#'  using the specified number of cores
-#'  @family matched report
+#' @title Calculates pairwise linkage disequilibrium across all loci, pooled
+#' over all individuals
+#' @family matched report
 
 #' @description
-#' This function is implemented in a parallel fashion to speed up the process.
-#' There is also the ability to restart the function if crashed by specifying
-#' the chunk file names or restarting the function exactly in the same way as in
-#' the first run. This is implemented because sometimes, due to connectivity loss
-#' between cores, the function may crash half way. Before running the function, 
-#' it is advisable to use the function \code{\link{gl.filter.allna}} to remove
-#'  loci with all missing data.
+#' This function calculates pairwise LD for every pair of loci, with all
+#' individuals in the dataset pooled (populations are NOT analysed
+#' separately; for within-population LD use
+#' \code{\link{gl.report.ld.map}}).
+#'
+#' The computation can be spread over multiple cores and, when
+#' \code{save = TRUE}, intermediate chunks are written to \code{outpath} so
+#' a crashed run can be restarted where it stopped by rerunning the same
+#' command with the same \code{chunkname}. Before running the function,
+#' it is advisable to use the function \code{\link{gl.filter.allna}} to
+#' remove loci with all missing data.
 
-#' @param x A genlight or genind object created (genlight objects are internally
-#'  converted via \code{\link{gl2gi}} to genind) [required].
-#' @param name Character string for rdata file. If not given genind object name
-#' is used [default NULL].
-#' @param save Switch if results are saved in a file [default TRUE].
+#' @param x A genlight object containing the SNP data [required].
+#' @param name Character string for the rdata file holding the results. If
+#' not given, "LDallp" is used [default NULL].
+#' @param save Switch if results and intermediate chunks are saved to files
+#' [default TRUE].
 #' @param outpath Folder where chunks and results are saved (if save=TRUE)
 #' [default tempdir()].
 #' @param nchunks How many subchunks will be used (the less the faster, but if
@@ -24,21 +28,20 @@
 #' @param ncores How many cores should be used [default 1].
 #' @param chunkname The name of the chunks for saving [default NULL].
 #' @param probar if TRUE, a progress bar is displayed for long loops
-#' [default = TRUE].
+#' [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' 
-#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @import foreach
 #' @export
-#' @return Returns calculation of pairwise LD across all loci between
-#' subpopulations. This functions uses if specified many cores on your computer
-#' to speed up. And if save is used can restart (if save=TRUE is used) with the
-#' same command starting where it crashed. The final output is a data frame that
-#'  holds all statistics of pairwise LD between loci. (See ?LD in package
-#'  genetics for details).
+#' @return A data frame with pairwise LD statistics (D, D', r, R2, n, X2, p)
+#' for every pair of loci, computed over all individuals pooled. (See ?LD in
+#' package genetics for details on the statistics.)
 
 gl.report.ld <- function(x,
                          name = NULL,
@@ -52,51 +55,29 @@ gl.report.ld <- function(x,
   
   pkg <- "doParallel"
   if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
+    stop(error(
       "Package",
       pkg,
       " needed for this function to work. Please install it.\n"
     ))
-    return(-1)
   }
-  
-  pkg <- "data.table"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  }
-  
-  pkg <- "foreach"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  } else {
+
         # SET VERBOSITY
         verbose <- gl.check.verbosity(verbose)
-        
+
         # FLAG SCRIPT START
         funname <- match.call()[[1]]
         utils.flag.start(func = funname,
                          build = "Jackson",
                          verbose = verbose)
-        
+
         # CHECK DATATYPE
         datatype <-
-            utils.check.datatype(x, verbose = verbose)
-        
+            utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
         # convert genlight to genind
-        if (is(x,"genlight")) {
-            gi <- gl2gi(x)
-        }
-        
+        gi <- gl2gi(x, verbose = 0)
+
         # library(doParallel) library(adegenet) library(data.table)
         if (verbose >= 2) {
             cat(report(paste(
@@ -150,15 +131,16 @@ gl.report.ld <- function(x,
                 cat(report("  You specified results from a previous run ...\n"))
                 cat(report(
                     paste(
-                        "  Loooking for LD_chunks_",
+                        "  Looking for LD_chunks_",
                         chunkname,
                         "files.\n"
                     )
                 ))
             }
             chunkfiles <-
-                list.files(pattern = paste0("LD_chunks_", chunkname))
-            if (length(chunkfiles > 0)) {
+                list.files(path = outpath,
+                           pattern = paste0("LD_chunks_", chunkname))
+            if (length(chunkfiles) > 0) {
                 if (verbose >= 2) {
                     cat(report(paste(
                         "  Found",
@@ -187,11 +169,11 @@ gl.report.ld <- function(x,
                     if (verbose >= 2) {
                         cat(
                             important(
-                                "  Already everyting is calculated. If you want to recalculate please delete al LD_chunk files or specify a different chunkname.\n Aborting function...\n"
+                                "  Everything is already calculated. If you want to recalculate please delete all LD_chunk files or specify a different chunkname.\n Aborting function...\n"
                             )
                         )
-                        return(lddone)
                     }
+                    return(lddone)
                 }
                 allp <- allp[,-c(1:done)]
                 if (verbose >= 2) {
@@ -328,6 +310,16 @@ gl.report.ld <- function(x,
             splitruns <- chunks(runs, nchunks)
         }
         
+        # chunk files are only written when save = TRUE; when no chunkname is
+        # given they are named after the results object
+        chunkfile.base <- if (!is.null(chunkname)) {
+            chunkname
+        } else if (!is.null(name)) {
+            name
+        } else {
+            "LDallp"
+        }
+
         ldchunks <- list()
         cl <-
             parallel::makeCluster(ncores)#adjust the number of cores of your computer!!!!
@@ -372,10 +364,13 @@ gl.report.ld <- function(x,
                 setTxtProgressBar(pbar, i)
             }
             ldc <- ldchunks[[i]]
-            save(ldc, file = file.path(
-                outpath,
-                paste0("LD_chunks_", chunkname, "_", i + chunknr, ".rdata")
-            ))
+            if (save) {
+                save(ldc, file = file.path(
+                    outpath,
+                    paste0("LD_chunks_", chunkfile.base, "_", i + chunknr,
+                           ".rdata")
+                ))
+            }
         }
         parallel::stopCluster(cl)
         LDres2 <- data.table::rbindlist(ldchunks)
@@ -390,7 +385,7 @@ gl.report.ld <- function(x,
         if (verbose >= 2) {
             cat(report(
                 paste(
-                    "\n  No. of Simulations:",
+                    "\n  No. of locus pairs calculated:",
                     n,
                     ". Took",
                     round(proc.time()[3] - ptm),
@@ -437,6 +432,5 @@ gl.report.ld <- function(x,
         }
         
         return(LDres2)
-        
-    }
+
 }
