@@ -15,16 +15,19 @@ utils.check.datatype(
 fixed difference list (fd) [required].}
 
 \item{accept}{Vector containing the classes of objects that are to be
-accepted [default c('genlight','SNP','SilicoDArT'].}
+accepted. The entries 'genlight' and 'dartR' accept both genotype
+datatypes ('SNP' and 'SilicoDArT')
+[default c('genlight','SNP','SilicoDArT','dartR')].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
- distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
-  class(x)[1].
+datatype (returned invisibly): 'SNP' for SNP data, 'SilicoDArT' for
+P/A data, 'dist' for a distance matrix, 'matrix' for a data matrix, 'glPca'
+for an ordination file, 'fd' for a fixed difference object, 'list' for a
+list, or class(x)[1].
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
@@ -36,11 +39,11 @@ Most functions require access to a genlight object, dist matrix, data matrix
   SNP dataset or a SilicoDArT object, and reports back if verbosity is >=2.
   
 This function checks the class of passed object and sets the datatype to
-'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
+'SNP', 'SilicoDArT', 'dist', 'matrix', 'glPca', 'fd', 'list', or
+class(x)[1] as appropriate.
 Note also that this function checks to see if there are individuals or loci
-scored as all missing (NA) and if so, issues the user with a warning.
-Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
- TRUE.
+scored as all missing (NA) and if so, issues the user with a warning
+(verbose >= 2).
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
