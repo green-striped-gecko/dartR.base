@@ -64,3 +64,15 @@ gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
 gl.read.fasta,dartR.base,io,arthur,pr-open,359
+utils.read.ped,dartR.base,io,arthur,pr-open,361
+gl.dist.pop,dartR.base,analysis,claude,pr-open,376
+gl.recalc.metrics,dartR.base,modify,arthur,pr-open,386
+gl.tree.fitch,dartR.base,analysis,claude,pr-open,371
+gl.set.verbosity,dartR.base,utility,arthur,pr-open,297
+gl.impute,dartR.base,data manipulation,claude,pr-open,373
+gl.dist.ind,dartR.base,analysis,claude,pr-open,375
+gl.read.PLINK,dartR.base,io,arthur,pr-open,358
+gl.report.ld.map,dartR.base,matched report,arthur,pr-open,390
+gl.filter.ld,dartR.base,matched filter,arthur,pr-open,391
+gl.report.ld,dartR.base,report,arthur,pr-open,392
+gl.filter.factorloadings,dartR.base,matched filter,arthur,pr-open,393
