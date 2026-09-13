@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.callrate()` review: marked internal
+  (@keywords internal, per the utility-function policy); seealso
+  corrected; CallRate arithmetic verified exact (unchanged).
+
 * `gl.report.pa()` review: the Chao1/Chao2 estimates of undetected
   private alleles are now computed from the pair being compared
   (previously they were based on minor allele frequencies recomputed
