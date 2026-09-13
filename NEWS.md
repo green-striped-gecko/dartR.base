@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.filter.pa()` review: SilicoDArT frequencies are no longer halved
+  as if diploid, so presence-fixed private alleles are found (on
+  testset.gs the kept set grows from 45 to 66 loci); a bogus population
+  name now fails informatively; the filtered object returns invisibly
+  with a before/after summary at verbose >= 2.
+
 * `utils.check.datatype()`: four fixes to the package's central datatype
   dispatcher. (1) The all-NA screen ran a full `gl.filter.allna()` pass on
   every function entry at `verbose >= 2` (~50 ms per call on the small
