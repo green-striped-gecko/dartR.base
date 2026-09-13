@@ -32,14 +32,14 @@ provided here, but they must have the same number of SNPs [default NULL].}
 \item{method}{Method to calculate private alleles: 'pairwise' comparison or
 compare each population against the rest 'one2rest' [default 'pairwise'].}
 
-\item{loc.names}{Whether names of loci with private alleles and fixed 
-differences should reported. If TRUE, loci names are reported using a list}
+\item{loc.names}{Whether names of loci with private alleles and fixed
+differences should be reported. If TRUE, loci names are reported using a
+list [default FALSE].}
 
 \item{test.asym}{Bootstrap test for significant differences of private 
 alleles (see details section) [default FALSE].}
 
-\item{test.asym.boot}{Number of bootstraps [default 100].
-[default FALSE].}
+\item{test.asym.boot}{Number of permutations [default 100].}
 
 \item{plot.display}{Specify if Sankey plot is to be produced [default FALSE].}
 
@@ -56,7 +56,7 @@ alleles between populations is to be produced [default FALSE].}
 
 \item{palette.discrete}{A discrete palette for the color of populations or a
 list with as many colors as there are populations in the dataset
- [default gl.select.colors(x)].}
+[default NULL, in which case gl.select.colors(x) is used].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
 
@@ -121,34 +121,34 @@ differentiation metric displaying intuitive properties which provides a
 valuable alternative to FST. For details about its properties and how it is
 calculated see Berner (2019).
 
-\strong{The Bootstrap test} for significant differences of private alleles 
-uses a bootstrap simulation by shuffling individuals between a pair of 
-populations and drawing with replacement. For each bootstrap the ratio of 
-private alleles is compared to the actual ratio and recorded how often it is 
-larger than the simulated one. If number of individuals are different between
- population bootstrap is done using the smaller number of samples in both 
- populations.
+\strong{The test for asymmetry of private alleles} (test.asym) is a
+permutation test: for each pair, the genotypes at each locus are permuted
+among the pooled individuals of the two populations (retaining the
+original sample sizes), and the ratio of private alleles
+pop1/(pop1 + pop2) is recomputed for each of test.asym.boot permutations.
+The reported significance is the proportion of permuted ratios exceeding
+the observed ratio. Available for SNP data only.
+
+For method 'one2rest', the Chao estimates, the asymmetry test and the
+interactive map are not reported; they apply to method 'pairwise' only.
 
 The function also reports an estimation of the lower bound of the number of
  undetected private alleles using the Good-Turing frequency formula,
  originally developed for cryptography, which estimates in an ecological 
  context the true frequencies of rare species in a single assemblage based on
-  an incomplete sample of individuals. The approach is described in Chao et 
-  al. (2017). For this function, the equation 2c is used. This estimate is 
-  reported in the output table as Chao1 and Chao2. 
+  an incomplete sample of individuals. The approach is described in Chao et
+  al. (2017). For this function, equation 2c is used, based on the counts
+  of private alleles observed once and twice in the pooled sample of the
+  two populations compared. The estimate is reported in the output table
+  as Chao1 and Chao2 (SNP data only).
   
 In this function a Sankey Diagram is used to visualize patterns of private
 alleles between populations. This diagram allows to display flows (private
 alleles) between nodes (populations). Their links are represented with arcs
 that have a width proportional to the importance of the flow (number of
 private alleles).
-
-if save2temp=TRUE, resultant plot(s) and the tabulation(s) are saved to the
-session's temporary directory.
 }
 \examples{
-out <- gl.report.pa(platypus.gl)
-
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 out <- gl.report.pa(platypus.gl)
 }
@@ -174,16 +174,13 @@ Other matched report:
 \code{\link{gl.report.maf}()},
 \code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
-
-Other report functions: 
-\code{\link{gl.report.replicates}()}
 }
 \author{
 Custodian: Bernd Gruber -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}
-\concept{report functions}
