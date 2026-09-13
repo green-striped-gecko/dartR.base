@@ -7,37 +7,39 @@
 gl.filter.pa(x, pop1, pop2, invers = FALSE, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing the SNP or SilicoDArT
+data [required].}
 
 \item{pop1}{Name of the first parental population (in quotes) [required].}
 
 \item{pop2}{Name of the second parental population (in quotes) [required].}
 
-\item{invers}{Switch to filter for all loci that have no private alleles and
-are not fixed [FALSE].}
+\item{invers}{Switch to filter for all loci that have no private alleles
+and are not fixed [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-The reduced genlight dataset, containing now only fixed and private
-alleles.
+The reduced genlight dataset, containing only loci with fixed
+differences or private alleles between the two populations (or the
+complement if invers = TRUE).
 }
 \description{
 This script is meant to be used prior to \code{gl.nhybrids} to maximise the
 information content of the SNPs used to identify hybrids (currently
- newhybrids does allow only 200 SNPs). The idea is to use first all loci that
-  have fixed alleles between the potential source populations and then 'fill
-   up' to 200 loci using loci that have private alleles between those. The
-   functions filters for those loci (if invers is set to TRUE, the opposite
-   is returned (all loci that are not fixed and have no private alleles - not
-    sure why yet, but maybe useful.)
+newhybrids allows only 200 SNPs). The idea is to use first all loci that
+have fixed alleles between the potential source populations and then 'fill
+up' to 200 loci using loci that have private alleles between those
+populations. The function filters for those loci. If invers is set to TRUE,
+the complement is returned (all loci that are not fixed and have no private
+alleles).
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-result <- gl.filter.pa(testset.gl, pop1=pop(testset.gl)[1], 
-pop2=pop(testset.gl)[2],verbose=3)
+result <- gl.filter.pa(testset.gl, pop1 = popNames(testset.gl)[1],
+pop2 = popNames(testset.gl)[2], verbose = 3)
 
 }
 \seealso{
@@ -56,7 +58,6 @@ Other matched filter:
 \code{\link{gl.filter.rdepth}()},
 \code{\link{gl.filter.replicates}()},
 \code{\link{gl.filter.reproducibility}()},
-\code{\link{gl.filter.secondaries}()}
 \code{\link{gl.filter.secondaries}()},
 \code{\link{gl.filter.taglength}()}
 }
