@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2genalex()`: SilicoDArT (presence/absence) objects were silently
+  exported as meaningless codominant GenAlEx genotypes; the function now
+  accepts SNP data only. A missing poppr installation raises a proper
+  error condition instead of returning -1 (scripts relying on the -1
+  return now see an error). Also: poppr's conversion chatter is
+  suppressed below `verbose = 2`, all-NA loci dropped before export are
+  reported at `verbose >= 1`, the NULL return is invisible, and the
+  `overwrite = FALSE` doc now states the actual raise-on-exists
+  behaviour.
 * `gl2structure()`: four fixes. (1) A re-run with
   `export.marker.names = FALSE` appended to the existing file instead of
   overwriting it, silently doubling every individual for STRUCTURE; the
