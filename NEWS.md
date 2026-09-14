@@ -1,5 +1,7 @@
 # dartR.base 1.2.3 (development)
 
+- gl.propShared has moved to dartR.spatial (green-striped-gecko/dartR.spatial#34), where its only callers (gl.ibd, gl.spatial.autoCorr) live.
+
 - gl.Ho and gl.He have moved to dartR.sim (their only dartRverse caller is gl.diagnostics.sim); the reviewed versions and their test travel with them (dartR.sim PR #44).
 
 * `gl.sim.genotypes()`: **behaviour change.** Allele frequencies are now
