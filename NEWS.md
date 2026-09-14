@@ -1,5 +1,6 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.stats` (std.error): documented; computation verified.
 * `utils.plot.save()` review: the documented default verbose = NULL
   no longer crashes (verbosity is normalized on entry); a nonexistent
   save directory now falls back to tempdir() instead of crashing on a
