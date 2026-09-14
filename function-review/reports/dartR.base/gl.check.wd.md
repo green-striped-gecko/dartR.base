@@ -137,7 +137,19 @@ character/NULL wd, so no caller is affected. All clear.
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-4 applied on branch review-gl.check.wd (commit df042cf), PR
+green-striped-gecko/dartR.base#395.
+
+- Characterization suite green (16 assertions); every diff from the
+  pre-review baseline maps to an approved change: silence at verbose 0 with
+  a bad path (F1), tempdir fallback for non-character / NA / length>1 wd
+  (F2, F3).
+- Returned working directory unchanged for the three resolution sources and
+  for any valid character / NULL wd.
+- End-to-end: gl.report.callrate(x, plot.dir = "no/such/path", verbose = 0)
+  now emits 0 lines (was 1) — F1 leak closed at a real call site;
+  gl.check.wd(verbose = 3) runs clean.
+- Signature unchanged; the 87-caller survey is all-clear.
 
 ```json
 {
@@ -149,14 +161,14 @@ character/NULL wd, so no caller is affected. All clear.
   "verdict_standards": "needs_work",
   "verdict_spec": "needs_work",
   "findings": [
-    {"id": "F1", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "proposed", "change": 2},
-    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 3},
-    {"id": "F5", "severity": "INFO", "confidence": "high", "rule": "STY1", "status": "proposed", "change": 4}
+    {"id": "F1", "severity": "MEDIUM", "confidence": "high", "rule": "VRB5", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "approved", "change": 2},
+    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 3},
+    {"id": "F5", "severity": "INFO", "confidence": "high", "rule": "STY1", "status": "approved", "change": 4}
   ],
   "coverage_skipped": ["GitHub issues not queried", "Google Group not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 395
 }
 ```
