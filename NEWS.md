@@ -1,6 +1,15 @@
 # dartR.base 1.2.3 (development)
 
 * `utils.stats` (std.error): documented; computation verified.
+* `utils.plot.save()` review: the documented default verbose = NULL
+  no longer crashes (verbosity is normalized on entry); a nonexistent
+  save directory now falls back to tempdir() instead of crashing on a
+  tempfile() path; the "No plot saved" note respects verbose 0; the
+  unused ggsave passthrough claim dropped from the docs; marked
+  internal (stays exported - called family-wide).
+* `utils.flag.start()` review: verbosity contract verified (no
+  behaviour change); docs completed; marked internal (stays
+  exported - called family-wide).
 
 * `utils.jackknife()` review: a unit vector of length > 1 now reaches
   the informative stop instead of crashing ("the condition has length
