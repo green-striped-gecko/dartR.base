@@ -34,7 +34,8 @@ each is stored [default '0'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -96,7 +97,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}

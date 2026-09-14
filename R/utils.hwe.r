@@ -3,6 +3,10 @@
 ################################################################################
 
 ####################################### GenerateSamples #######################
+#' Enumerates all genotype compositions (AA, AB, BB) of a sample of size n
+#' @param n Sample size (number of individuals)
+#' @return A matrix with columns AA, AB, BB; one row per composition
+#' @noRd
 GenerateSamples <- function(n = 5) {
     # generates all possible samples of size n.
     Res <- NULL
@@ -21,9 +25,13 @@ GenerateSamples <- function(n = 5) {
 }
 
 ############################################## CritSam #######################
+#' Critical genotype samples for the HWE exact test (HardyWeinberg::HWExact)
+#' @param n Sample size; Dpos TRUE for D > 0 (heterozygote excess) side;
+#' alphalimit significance limit; pvaluetype passed to HWExact
+#' @return list(Xn = critical genotype frequencies, Ds, fA)
+#' @noRd
 CritSam <- function(n, Dpos, alphalimit, pvaluetype) {
     X <- GenerateSamples(n)
-    ncomp <- nrow(X)
     Res <- NULL
     Ds <- NULL
     pval <- NULL
@@ -65,9 +73,12 @@ CritSam <- function(n, Dpos, alphalimit, pvaluetype) {
 }
 
 ############################################ CritSam_Chi #######################
+#' Critical genotype samples for the HWE chi-square test
+#' (HardyWeinberg::HWChisq); cc is the continuity correction
+#' @return list(Xn = critical genotype frequencies, Ds, fA)
+#' @noRd
 CritSam_Chi <- function(n, Dpos, alphalimit, cc) {
     X <- GenerateSamples(n)
-    ncomp <- nrow(X)
     Res <- NULL
     Ds <- NULL
     pval <- NULL

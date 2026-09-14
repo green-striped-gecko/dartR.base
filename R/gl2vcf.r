@@ -6,8 +6,25 @@
 #' This function exports a genlight object into VCF format and save it into a
 #' file.
 #'
+#' @details
+#' This function requires the binary file of PLINK 1.9 to be downloaded and
+#' its path provided (plink.bin.path).
+#' The binary file can be downloaded from:
+#' \url{https://www.cog-genomics.org/plink/}
+#'
+#' The slots \code{@position} and \code{@chromosome} hold genome
+#' coordinates. Explicitly supplied snp.pos/snp.chr loc.metrics fields take
+#' precedence over the slots; when neither a valid slot nor a field is
+#' available, CHROM and POS are written as 0 (unmapped).
+#'
+#' Family ID is taken from  x$pop
+#'
+#' Within-family ID (cannot be '0') is taken from indNames(x)
+#'
+#' Variant identifier is taken from locNames(x)
+#'
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param plink.bin.path Path of PLINK binary file [default getwd())].
+#' @param plink.bin.path Path of PLINK binary file [default getwd()].
 #' @param outfile File name of the output file [default 'gl_vcf'].
 #' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
@@ -30,24 +47,13 @@
 #' [default '0'].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #'
-#' @details
-#' This function requires to download the binary file of PLINK 1.9 and provide
-#' its path (plink.bin.path).
-#' The binary file can be downloaded from:
-#' \url{https://www.cog-genomics.org/plink/}
+#' @return  returns no value (i.e. NULL)
 #'
-#' The chromosome information for unmapped SNPS is coded as 0.
-#'
-#' Family ID is taken from  x$pop
-#'
-#' Within-family ID (cannot be '0') is taken from indNames(x)
-#'
-#' Variant identifier is taken from locNames(x)
-#'
-#' @author Custodian: Luis Mijangos (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @examples
 #' \dontrun{
@@ -64,7 +70,6 @@
 #'  format and VCFtools. Bioinformatics, 27(15), 2156-2158.
 #'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2vcf <- function(x,
                    plink.bin.path = getwd(),
@@ -92,69 +97,102 @@ gl2vcf <- function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
-  
-  # DO THE JOB
-  
-  # assigning SNP position information
-  # When reading a DArT report, the position of the SNP in the trimmedsequence
-  # (presumably is always less than 1000) is assigned to the slot position.
-  # If the SNP position in the chromosome has been assigned before from a
-  # reference genome for example  (presumably always more than 1000), use that
-  # information directly.
-  
-  # only reset positions if the current max is < 1000
-  if (max(x$position, na.rm = TRUE) < 1000L) {
-    # no SNP‐position field supplied: zero out
-    if (is.null(snp.pos)) {
-      x$position <- integer(nLoc(x))
-    } else {
-      metrics <- x$other$loc.metrics
-      # field must exist in loc.metrics
-      if (!snp.pos %in% names(metrics)) {
-        stop(error(sprintf(
-          "The field '%s' with SNP position information is not present in loc.metrics.\n",
-          snp.pos
-        )))
-      }
-      # verbose message
-      if (verbose >= 2) {
-        message(report(
-          "Using SNP positions from loc.metrics field '", snp.pos, "'.\n"
-        ))
-      }
-      # pull it out and coerce to integer
-      x$position <- as.integer(metrics[[snp.pos]])
-    }
+  # SNP only: the ped/map recoding requires loc.all and 0/1/2 dosages,
+  # neither of which SilicoDArT (presence/absence) data carries
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
+  # FUNCTION SPECIFIC ERROR CHECKING
+
+  # PLINK 1.9 must be present before any work is done
+  if (!any(file.exists(file.path(plink.bin.path, c("plink", "plink.exe"))))) {
+    stop(error(
+      "Cannot find the PLINK executable ('plink' or 'plink.exe') in '",
+      plink.bin.path, "'. This function needs PLINK 1.9 to work. Please ",
+      "download it from https://www.cog-genomics.org/plink/ and supply ",
+      "its directory via plink.bin.path.\n"
+    ))
   }
-  
-  # assign chromosome information if missing
-  if (is.null(x$chromosome)) {
-    metrics <- x$other$loc.metrics
-    if (is.null(snp.chr)) {
-      # no chromosome field: set all to "0"
-      x$chromosome <- factor(rep("0", nLoc(x)))
-      if (verbose >= 2) {
-        message(report(
-          "Chromosome slot was NULL; setting all SNP chromosomes to '0'.\n"
-        ))
-      }
-    } else {
-      # require that the chosen field exists
-      if (!snp.chr %in% names(metrics)) {
-        stop(error(sprintf(
-          "The field '%s' with chromosome information is not present in loc.metrics.\n",
-          snp.chr
-        )))
-      }
-      if (verbose >= 2) {
-        message(report(
-          "Using chromosome data from loc.metrics field '", snp.chr, "'.\n"
-        ))
-      }
-      # extract and coerce to factor
-      x$chromosome <- factor(metrics[[snp.chr]])
+
+  # DO THE JOB
+
+  # assigning SNP position and chromosome information
+  # The @position/@chromosome slots are reserved for genome coordinates
+  # and are NULL until assigned (the position of the SNP within the
+  # sequence tag lives in @other$loc.metrics$SnpPosition). An explicitly
+  # supplied snp.pos/snp.chr field takes precedence over the slots;
+  # otherwise a valid slot is used as found; otherwise coordinates are
+  # written as 0 (unmapped).
+  metrics <- x$other$loc.metrics
+
+  if (!is.null(snp.pos)) {
+    # field must exist in loc.metrics
+    if (!snp.pos %in% names(metrics)) {
+      stop(error(sprintf(
+        "The field '%s' with SNP position information is not present in loc.metrics.\n",
+        snp.pos
+      )))
     }
+    # coerce via character so a factor-typed field yields its labels,
+    # not its level codes; refuse values that are not integer positions
+    pos.tmp <- suppressWarnings(as.integer(as.character(metrics[[snp.pos]])))
+    if (any(is.na(pos.tmp))) {
+      stop(error(sprintf(
+        "The field '%s' contains values that cannot be interpreted as integer SNP positions.\n",
+        snp.pos
+      )))
+    }
+    if (verbose >= 1) {
+      cat(report(
+        "  Using SNP positions from loc.metrics field '", snp.pos, "'\n"
+      ))
+    }
+    x$position <- pos.tmp
+  } else if (!is.null(x$position) && length(x$position) == nLoc(x)) {
+    # a valid slot is used as found
+    if (verbose >= 1) {
+      cat(report("  Using SNP positions from the @position slot\n"))
+    }
+  } else {
+    # no usable source: zero out (unmapped), warning if a malformed
+    # slot is being discarded
+    if (!is.null(x$position) && verbose >= 1) {
+      cat(warn(
+        "  Warning: @position slot has length", length(x$position),
+        "but the object has", nLoc(x), "loci; positions set to 0\n"
+      ))
+    }
+    x$position <- integer(nLoc(x))
+  }
+
+  if (!is.null(snp.chr)) {
+    # require that the chosen field exists
+    if (!snp.chr %in% names(metrics)) {
+      stop(error(sprintf(
+        "The field '%s' with chromosome information is not present in loc.metrics.\n",
+        snp.chr
+      )))
+    }
+    if (verbose >= 1) {
+      cat(report(
+        "  Using chromosome data from loc.metrics field '", snp.chr, "'\n"
+      ))
+    }
+    x$chromosome <- factor(metrics[[snp.chr]])
+  } else if (!is.null(x$chromosome) && length(x$chromosome) == nLoc(x)) {
+    # a valid slot is used as found
+    if (verbose >= 1) {
+      cat(report("  Using chromosomes from the @chromosome slot\n"))
+    }
+  } else {
+    # no usable source: set all to "0" (unmapped), warning if a
+    # malformed slot is being discarded
+    if (!is.null(x$chromosome) && verbose >= 1) {
+      cat(warn(
+        "  Warning: @chromosome slot has length", length(x$chromosome),
+        "but the object has", nLoc(x), "loci; chromosomes set to '0'\n"
+      ))
+    }
+    x$chromosome <- factor(rep("0", nLoc(x)))
   }
   
   # Chromosome "0" is assigned to unmmapped SNPs
@@ -167,26 +205,31 @@ gl2vcf <- function(x,
   #drop any now‐unused levels
   x$chromosome <- droplevels(x$chromosome)
   
+  # the ped/map intermediates are not part of the requested output:
+  # write them to the per-session tempdir() rather than outpath
   gl2plink(
     x = x,
     outfile = "gl_plink_temp",
-    outpath = outpath,
+    outpath = tempdir(),
     chr.format = chr.format,
     pos.cM = pos.cM,
     ID.dad = ID.dad,
     ID.mum = ID.mum,
     sex.code = sex.code,
     phen.value = phen.value,
-    verbose = NULL
+    verbose = verbose
   )
-  
-  prefix.in_temp <- paste0(outpath, "/gl_plink_temp")
+
+  prefix.in_temp <- file.path(tempdir(), "gl_plink_temp")
   prefix.out_temp <- file.path(outpath, outfile)
-  
+
+  # allele list for PLINK: column 2 = alternate allele (forced A1),
+  # column 3 = reference allele (forced A2), so REF/ALT always come from
+  # loc.all, including loci fixed for the alternate allele in the sample
   allele_tmp <- gsub("/", " ", x$loc.all)
   allele_tmp <- strsplit(allele_tmp, split = " ")
-  allele_tmp <- Reduce(rbind, allele_tmp)[, 2]
-  allele_tmp <- cbind(locNames(x), allele_tmp)
+  allele_tmp <- Reduce(rbind, allele_tmp)
+  allele_tmp <- cbind(locNames(x), allele_tmp[, 2], allele_tmp[, 1])
   write.table(
     allele_tmp,
     file = file.path(tempdir(), "mylist.txt"),
@@ -194,51 +237,81 @@ gl2vcf <- function(x,
     col.names = FALSE,
     quote = FALSE
   )
-  
+
+  # PLINK 1.9 rejects --a1-allele (--reference-allele) and --a2-allele in
+  # the same run, so the alleles are pinned in two passes: A1 (= ALT)
+  # while converting to bed, then A2 (= REF) while recoding to VCF. This
+  # keeps REF/ALT faithful to loc.all even for loci fixed for one allele
+  # in the exported sample.
+  prefix.bed_temp <- file.path(tempdir(), "gl_plink_temp_bed")
   make_plink <-
     function(plink.bin.path,
              prefix.in = prefix.in_temp,
              prefix.out = prefix.out_temp,
              autosome.only = FALSE,
              extra.options = "") {
-      bedfile.out <- paste0(prefix.out, ".bed")
       system_verbose(
         paste(
           plink.bin.path,
           "--file",
           prefix.in,
-          "--recode",
-          "vcf",
+          "--make-bed",
           if (autosome.only)
             "--autosome"
           else
             "",
           "--allow-no-sex",
-          paste("--reference-allele", file.path(tempdir(), 'mylist.txt')),
-          # "--keep-allele-order",
-          # "--real-ref-alleles",
-          # paste("--a1-allele", file.path(outpath,'alleles.csv'),"1"),
-          # paste("--a2-allele", file.path(outpath,'alleles.csv'),"2"),
+          paste("--a1-allele", file.path(tempdir(), 'mylist.txt'), "2", "1"),
+          "--out",
+          prefix.bed_temp,
+          extra.options
+        )
+      )
+      system_verbose(
+        paste(
+          plink.bin.path,
+          "--bfile",
+          prefix.bed_temp,
+          "--recode",
+          "vcf",
+          "--allow-no-sex",
+          paste("--a2-allele", file.path(tempdir(), 'mylist.txt'), "3", "1"),
           "--out",
           prefix.out,
           extra.options
         )
       )
     }
-  
+
+  # PLINK's console log is progress information: keep it captured for
+  # error diagnosis but print it only at verbose >= 2 (PLINK's stderr
+  # stream is likewise suppressed below that level)
   system_verbose <- function(...) {
-    report <- system(..., intern = T)
-    message(
-      paste0(
-        "\n\n----------Output of function start:\n\n",
-        paste(report, collapse = "\n"),
-        "\n\n----------Output of function finished...\n\n"
+    plink.log <- system(..., intern = TRUE, ignore.stderr = (verbose < 2))
+    if (verbose >= 2) {
+      message(
+        paste0(
+          "\n\n----------Output of function start:\n\n",
+          paste(plink.log, collapse = "\n"),
+          "\n\n----------Output of function finished...\n\n"
+        )
       )
-    )
+    }
+    invisible(plink.log)
   }
-  
+
   make_plink(plink.bin.path = paste0(plink.bin.path, "/plink"),
              extra.options = "--aec")
+
+  # tidy up: on success, remove the ped/map/bed intermediates and the
+  # PLINK by-products (.log, .nosex); on failure they are left for
+  # diagnosis
+  if (file.exists(paste0(prefix.out_temp, ".vcf"))) {
+    unlink(paste0(prefix.in_temp, c(".map", ".ped")))
+    unlink(paste0(prefix.bed_temp,
+                  c(".bed", ".bim", ".fam", ".log", ".nosex")))
+    unlink(paste0(prefix.out_temp, c(".log", ".nosex")))
+  }
   
   # FLAG SCRIPT END
   
