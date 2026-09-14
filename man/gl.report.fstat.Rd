@@ -24,10 +24,12 @@ gl.report.fstat(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{nboots}{Number of bootstrap replicates to obtain confidence intervals
-[default 0].}
+\item{nboots}{Number of bootstrap replicates to obtain confidence intervals.
+A whole number, either 0 (no bootstrap) or at least 2; with
+CI.type = "bca", at least 200 [default 0].}
 
-\item{conf}{The confidence level of the required interval  [default 0.95].}
+\item{conf}{The confidence level of the required interval, between 0 and 1
+[default 0.95].}
 
 \item{CI.type}{Method to estimate confidence intervals. One of
 "norm", "basic", "perc" or "bca" [default "bca"].}
@@ -54,17 +56,33 @@ exclude extension) [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default NULL, unless specified using gl.set.verbosity]}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 
 \item{...}{Parameters passed to function \link[gplots]{heatmap.2} (package
 gplots).}
 }
 \value{
-Two lists, the first list contains matrices with genetic statistics
-taken pairwise by population, the second list contains tables with the
-genetic statistics for each pair of populations. If nboots > 0, tables with
-the four statistics calculated with Low Confidence Intervals (LCI) and High
-Confidence Intervals (HCI).
+The shape of the returned object depends on the number of
+populations and on whether a bootstrap was requested. In every shape the
+statistics are Fst, Fstp, Dest and Gst_H, and pairs of populations are
+named "<pop1>_vs_<pop2>".
+\itemize{
+\item More than two populations, nboots > 0: a list of two elements.
+"Stat_matrices" holds one nPop x nPop symmetric matrix per statistic;
+"Confidence_Intervals" holds one data frame per pair of populations, with
+one row per statistic and columns "Value", "LCI" (low confidence interval)
+and "HCI" (high confidence interval).
+\item Two populations, nboots > 0: a list of two elements. "Stat_tables"
+is a data frame with one row per statistic and one column for the pair;
+"Confidence_Intervals" is a single data frame with columns "Value", "LCI"
+and "HCI".
+\item More than two populations, nboots = 0: a list of two elements,
+"Stat_matrices" as above and "Stat_tables", a data frame with one row per
+statistic and one column per pair of populations.
+\item Two populations, nboots = 0: a data frame with one row per statistic
+and one column for the pair, not a list.
+}
 }
 \description{
 This function calculates four genetic differentiation between populations
@@ -75,7 +93,7 @@ statistics (see the "Details" section for further information).
 subpopulations (Nei, 1987).
 \item \strong{Fstp} - Unbiased (i.e. corrected for sampling error, see 
 explanation below) Fst (Nei, 1987).
-\item \strong{Dest} - Jost’s D (Jost, 2008).
+\item \strong{Dest} - Jost's D (Jost, 2008).
 \item \strong{Gst_H} - Gst standardized by the maximum level that it can obtain for
 the observed amount of genetic variation (Hedrick 2005).
 }
@@ -83,7 +101,7 @@ the observed amount of genetic variation (Hedrick 2005).
 Sampling errors arise because allele frequencies in our samples differ from 
 those in the subpopulations from which they were taken (Holsinger, 2012).
 
-Confidence Intervals are obtained using bootstrapping.
+Confidence Intervals are obtained by bootstrapping over loci.
 }
 \details{
 Even though Fst and its relatives can predict evolutionary processes
@@ -149,11 +167,12 @@ properties that make them valuable resources to interpret genetic
     \figure{Htpequation.jpg}
 
     \item
-    \emph{Dstp} - Unbiased estimate of the average allele frequency 
-    differentiation between populations (Nei, 1987, pp. 165) is calculated
-     as:
+    \emph{Dstp} - Unbiased estimate of the average allele frequency
+    differentiation between populations (Nei, 1987, pp. 165), where
+    \emph{s} is the number of subpopulations that carry the locus, is
+    calculated as:
 
-    \figure{Dstequation.jpg}
+    \deqn{Dstp = Dst * s / (s - 1)}
 
     \item
     \emph{Fst} - Measure of the extent of genetic differentiation 
@@ -168,9 +187,9 @@ properties that make them valuable resources to interpret genetic
     \figure{Fstpequation.jpg}
 
     \item
-    \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
+    \emph{Dest} - Jost's D (Jost, 2008, eq. 12) is calculated as:
 
-    \figure{Dstequation.jpg}
+    \deqn{Dest = Dstp / (1 - Hs)}
 
     \item
     \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
@@ -195,12 +214,22 @@ value with a specified probability (i.e. confidence level; the parameter
 "conf" in this function).
 
 In this function, CI are obtained using Bootstrap which is an inference
-method that samples with replacement the data (i.e. loci) and calculates the
+method that samples with replacement the data and calculates the
  statistics every time.
+
+ The unit of resampling is the locus, which is the unit the statistics are
+ averaged over. Each of the "nboots" replicates draws nLoc loci with
+ replacement from the pair of populations being compared, and the four
+ statistics are recalculated on that replicate by the same estimator that
+ produces the reported value.
 
  This function uses the function \link[boot]{boot} (package boot) to perform
  the bootstrap replicates and the function \link[boot]{boot.ci}
  (package boot) to perform the calculations for the CI.
+
+ The function has no seed parameter. To obtain the same intervals twice,
+ set the global random number generator immediately before the call, for
+ example \code{set.seed(1234)}.
 
  Four different types of nonparametric CI can be calculated
   (parameter "CI.type" in this function):
@@ -234,7 +263,10 @@ The studentized bootstrap interval ("stud") was not included in the CI types
   obtained if too few number of bootstrap replicates are used.
   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
    if bootstrap replicates are too few. Consider increasing then number of
-   bootstrap replicates to at least 200.
+   bootstrap replicates to at least 200. With the default
+   CI.type = "bca", fewer than 200 replicates is refused with an
+   informative error rather than passed to \link[boot]{boot.ci}, which
+   fails with "estimated adjustment 'a' is NA".
 
    The "bca" interval is often cited as the best for theoretical reasons,
    however it may produce unstable results if the bootstrap distribution
@@ -340,13 +372,25 @@ Holsinger, K. E., & Weir, B. S. (2009). Genetics in geographically structured
 }
 }
 \seealso{
-Other matched reports: 
-\code{\link{gl.mahal.assign}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.report.monomorphs}()}
+Other matched report: 
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.factorloadings}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{matched reports}
+\concept{matched report}

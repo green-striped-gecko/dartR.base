@@ -24,7 +24,7 @@
 \item{quiet}{suppress warnings. default: TRUE}
 }
 \value{
-A genlight object
+A dartR object
 }
 \description{
 cbind is a bit lazy and does not take care for the metadata (so data in the

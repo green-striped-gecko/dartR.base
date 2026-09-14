@@ -4,44 +4,78 @@
 \alias{gl.sample}
 \title{Samples individuals from populations}
 \usage{
-gl.sample(
-  x,
-  nsample = min(table(pop(x))),
-  replace = TRUE,
-  onepop = FALSE,
-  verbose = NULL
-)
+gl.sample(x, nsample = NULL, replace = TRUE, onepop = FALSE, verbose = NULL)
 }
 \arguments{
-\item{x}{genlight object containing SNP/silicodart genotypes}
+\item{x}{Name of the genlight object containing the SNP or presence/absence
+(SilicoDArT) data [required].}
 
-\item{nsample}{the number of individuals that should be sampled}
+\item{nsample}{Number of individuals to draw, per population when
+onepop = FALSE and in total when onepop = TRUE. Must be a positive whole
+number [default NULL, the size of the smallest population when
+onepop = FALSE, nInd(x) when onepop = TRUE].}
 
-\item{replace}{a switch to sample by replacement (default).}
+\item{replace}{If TRUE, sampling is with replacement [default TRUE].}
 
-\item{onepop}{switch to ignore population settings of the genlight object and sample from all individuals disregarding the population definition. [default FALSE].}
+\item{onepop}{If TRUE, ignore the population assignments of the genlight
+object and draw from all individuals as a single pool [default FALSE].}
 
-\item{verbose}{set verbosity}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-returns a genlight object with nsample samples from each populations.
+A genlight object holding the drawn individuals, in draw order.
+Individual-indexed metadata in @other (ind.metrics, latlon and the like) is
+subset to the drawn individuals, repeating rows for individuals drawn more
+than once; @other$loc.metrics is carried over unchanged because the loci are
+unchanged; all entries of @other$loc.metrics.flags are set to FALSE; and the
+call is appended to @other$history. Individuals are renamed with a
+zero-padded ordinal prefix (see Details).
 }
 \description{
-A function to subsample individuals in a genlight object
+Draws a subsample of individuals from a genlight object, with or without
+replacement, either from each population separately or from the object as a
+whole.
 }
 \details{
-This is convenience function to facilitate a bootstrap approach
+This function supports a bootstrap approach in dartR. For a bootstrap it is
+often desirable to draw a defined number of individuals from each of the
+populations in a genlight object, calculate a quantity for that subset, and
+repeat the draw many times.
 
-This function is often used to support a bootstrap 
-approach in dartR. For a bootstrap approach it is often 
-desirable to sample a defined number of individuals for 
-each of the populations in a genlight object and then 
-calculate a certain quantity for that subset (redo a 
-1000 times)
+Parameter nsample has two meanings, set by onepop:
+\itemize{
+ \item onepop = FALSE: nsample is a per-population count. The result holds
+ nsample individuals from every population, including a population with only
+ one member, so nInd is nsample times the number of populations.
+ \item onepop = TRUE: population structure is ignored and nsample is a
+ whole-object total. The result holds nsample individuals drawn from all
+ individuals, each carrying its original population label.
+}
+The default nsample follows the same split: the size of the smallest
+population when onepop = FALSE, and nInd(x) when onepop = TRUE. Population
+factor levels with no members are ignored.
+
+An individual drawn more than once under replace = TRUE would give the result
+duplicate individual names, and duplicate names corrupt any downstream join
+on individual identity. Every returned individual is therefore renamed with a
+zero-padded ordinal prefix recording its position in the sample, for example
+01_AA013220, which makes the names unique by construction. The same names are
+written to @other$ind.metrics$id so that the two agree.
+
+Resampling individuals invalidates every locus metric computed across
+individuals, so all entries of @other$loc.metrics.flags are set to FALSE.
+The stored locus metrics themselves are left as they are, which keeps the
+cost of a bootstrap replicate down; downstream report and filter functions
+recalculate what they need because the flags tell them the stored values are
+stale. Call gl.recalc.metrics() to refresh the metrics in place.
 }
 \examples{
 \donttest{
-#bootstrap for 2 possums populations to check effect of sample size on fixed alleles
+# bootstrap for 2 possums populations to check effect of sample size on
+# fixed alleles
 gl.set.verbosity(0)
 if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
 pp <- possums.gl[c(1:30,91:120),]
@@ -50,7 +84,6 @@ nss <- seq(1,10,2)
 res <- expand.grid(nrep=nrep, nss=nss)
 for (i in 1:nrow(res)) {
 dummy <- gl.sample(pp, nsample=res$nss[i], replace=TRUE)
-dummy <- gl.compliance.check(dummy)
 pas <- gl.report.pa(dummy, plot.display= FALSE)
 res$fixed[i] <- pas$fixed[1]
 }
@@ -83,7 +116,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
-\concept{base dartR}
 \concept{data manipulation}
