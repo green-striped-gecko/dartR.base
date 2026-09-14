@@ -139,7 +139,17 @@ recode/edit family as a whole, not this function alone.
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-5 applied on branch review-gl.edit.recode.ind (commit 7dfda8c), PR
+green-striped-gecko/dartR.base#399.
+
+- Characterization suite green (10 assertions); every diff from the
+  pre-review baseline maps to an approved change: flags reset at verbose 0/1
+  too (F1), recode file written to outpath (F4), no crash on a missing
+  monomorphs flag (F2).
+- End-to-end: recalc = FALSE gives the CallRate flag FALSE at both verbose 0
+  and verbose 3 (identical); the recode file lands in the nominated outpath.
+- Behaviour for recalc = TRUE and the interactive recode/delete unchanged.
+- No internal callers; user-facing interactive function.
 
 ```json
 {
@@ -151,14 +161,14 @@ recode/edit family as a whole, not this function alone.
   "verdict_standards": "needs_work",
   "verdict_spec": "needs_work",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT4", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "DAT5", "status": "proposed", "change": 3},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 4},
-    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "FS7", "status": "proposed", "change": 2},
-    {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 5}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT4", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "DAT5", "status": "approved", "change": 3},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 4},
+    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "FS7", "status": "approved", "change": 2},
+    {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 5}
   ],
   "coverage_skipped": ["interactive edit() path not unit-tested", "GitHub issues not queried", "Google Group not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 399
 }
 ```
