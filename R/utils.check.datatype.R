@@ -8,7 +8,9 @@
 #' @param x Name of the genlight object, dist matrix, data matrix, glPCA, or
 #' fixed difference list (fd) [required].
 #' @param accept Vector containing the classes of objects that are to be
-#' accepted [default c('genlight','SNP','SilicoDArT'].
+#' accepted. The entries 'genlight' and 'dartR' accept both genotype
+#' datatypes ('SNP' and 'SilicoDArT')
+#' [default c('genlight','SNP','SilicoDArT','dartR')].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, unless specified using gl.set.verbosity].
@@ -20,13 +22,12 @@
 #'   SNP dataset or a SilicoDArT object, and reports back if verbosity is >=2.
 #'   
 #' This function checks the class of passed object and sets the datatype to
-#' 'SNP', 'SilicoDArT', 'dist', 'mat', or class[1](x) as appropriate.
+#' 'SNP', 'SilicoDArT', 'dist', 'matrix', 'glPca', 'fd', 'list', or
+#' class(x)[1] as appropriate.
 
 #' Note also that this function checks to see if there are individuals or loci
-#' scored as all missing (NA) and if so, issues the user with a warning.
-
-#' Note: One and only one of gl.check, fd.check, dist.check or mat.check can be
-#'  TRUE.
+#' scored as all missing (NA) and if so, issues the user with a warning
+#' (verbose >= 2).
 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -38,10 +39,11 @@
 #' fd <- gl.fixed.diff(testset.gl)
 #' datatype <- utils.check.datatype(fd,accept='fd')
 #'  
+#' @return datatype (returned invisibly): 'SNP' for SNP data, 'SilicoDArT' for
+#' P/A data, 'dist' for a distance matrix, 'matrix' for a data matrix, 'glPca'
+#' for an ordination file, 'fd' for a fixed difference object, 'list' for a
+#' list, or class(x)[1].
 #' @export
-#' @return datatype, 'SNP' for SNP data, 'SilicoDArT' for P/A data, 'dist' for a
-#'  distance matrix, 'mat' for a data matrix, 'glPCA' for an ordination file, or
-#'   class(x)[1].
 
 utils.check.datatype <- function(x,
                                  accept = c("genlight", "SNP", "SilicoDArT","dartR"),
@@ -70,33 +72,33 @@ utils.check.datatype <- function(x,
                 cat(report(" with SNP data\n"))
             }
             datatype <- "SNP"
-        } else if (is.null(ploidy(x))==F) {
+        } else {
+          # Mixed or non-diploid ploidy (e.g. polyploid data) is treated
+          # as SNP data, with notice
           if (verbose >= 2) {
             cat(report(" with SNP data\n"))
+            cat(warn(
+              "  Warning: ploidy is not uniformly 2; treating as SNP data\n"
+            ))
           }
           datatype <- "SNP"
-        } else {
-          stop(
-            error(
-              "Fatal Error -- SNP or SilicoDArT coding misspecified, run gl <- gl.compliance.check(gl)"
-            )
-          )
-
         }
         # Check for individuals or loci scoring all missing values (NA)
+        # (a direct single-pass check; running a full gl.filter.allna
+        # here cost ~50 ms on every function entry)
         if (verbose > 1) {
-            tmp <- gl.filter.allna(x, verbose = 0)
-            if (nLoc(tmp) < nLoc(x)) {
+            namat <- is.na(as.matrix(x))
+            if (any(colSums(!namat) == 0)) {
                 cat(
                     warn(
                         "  Warning: data include loci that are scored NA across all individuals.\n  Consider filtering using gl <- gl.filter.allna(gl)\n"
                     )
                 )
             }
-            if (nInd(tmp) < nInd(x)) {
+            if (any(rowSums(!namat) == 0)) {
                 cat(
                     warn(
-                        "  Warning: data include loci that are scored NA across all individuals.\n  Consider filtering using gl <- gl.filter.allna(gl)\n"
+                        "  Warning: data include individuals that are scored NA across all loci.\n  Consider filtering using gl <- gl.filter.allna(gl)\n"
                     )
                 )
             }
@@ -108,18 +110,14 @@ utils.check.datatype <- function(x,
             if (verbose >= 2) {
                 cat(report("  Processing a fixed difference (fd) object"))
             }
-            if (all(ploidy(x$gl) == 1)) {
-                if (verbose >= 2) {
+            if (verbose >= 2) {
+                if (all(ploidy(x$gl) == 1)) {
                     cat(report(
                         " with Presence/Absence (SilicoDArT) data\n"
                     ))
-                }
-                type <- "SilicoDArT"
-            } else if (all(ploidy(x$gl) == 2)) {
-                if (verbose >= 2) {
+                } else {
                     cat(report(" with SNP data\n"))
                 }
-                type <- "SNP"
             }
         } else {
             stop(
@@ -129,8 +127,6 @@ utils.check.datatype <- function(x,
             )
         }
         datatype <- "fd"
-        # if(verbose>=2 & type=='SilicoDArT'){ cat(report(' Processing a fixed difference (fd) object with Presence/Absence (SilicoDArT)
-        # data\n')) } if(verbose>=2 & type=='SNP'){ cat(report(' Processing a fixed difference (fd) object with SNP data\n')) }
     } else if (is(x, "dist")) {
         if (verbose >= 2) {
             cat(report("  Processing a distance matrix\n"))
@@ -152,12 +148,23 @@ utils.check.datatype <- function(x,
         }
         datatype <- "list"
     } else {
-        cat(warn("  Warning: Found object of class", class(x)[1], "\n"))
+        if (verbose >= 1) {
+            cat(warn("  Warning: Found object of class", class(x)[1], "\n"))
+        }
         datatype <- class(x)[1]
     }
-    
+
     #### CHECK WHETHER TO THROW AN ERROR ####
-    
+
+    # 'genlight' or 'dartR' in accept admits both genotype datatypes,
+    # unless a specific genotype datatype is also listed (in which case
+    # the specific listing governs, e.g. c('genlight','SNP') is SNP-only)
+    if (datatype %in% c("SNP", "SilicoDArT") &&
+        any(c("genlight", "dartR") %in% accept) &&
+        !any(c("SNP", "SilicoDArT") %in% accept)) {
+        accept <- union(accept, c("SNP", "SilicoDArT"))
+    }
+
     if (!(datatype %in% accept)) {
         stop(
             error(
