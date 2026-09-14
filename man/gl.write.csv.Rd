@@ -7,7 +7,8 @@
 gl.write.csv(x, outfile = "outfile.csv", outpath = tempdir(), verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing the SNP or SilicoDArT data
+[required].}
 
 \item{outfile}{File name of the output file (including extension)
 [default "outfile.csv"].}
@@ -16,9 +17,10 @@ gl.write.csv(x, outfile = "outfile.csv", outpath = tempdir(), verbose = NULL)
 [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
 when calling this function to direct output files to your working directory.}
 
-\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end;
-2, progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 Saves a genlight object to csv, returns NULL.
@@ -28,9 +30,10 @@ This script writes to file the SNP genotypes with specimens as entities
 (columns) and loci as attributes (rows). Each row has associated locus
  metadata. Each column, with header of specimen id, has population in the
  first row.
-The data coding differs from the DArT 1row format in that 0 = reference
-homozygous, 2 = alternate homozygous, 1 = heterozygous, and NA = missing SNP
-assignment.
+For SNP data the coding differs from the DArT 1row format in that
+0 = reference homozygous, 2 = alternate homozygous, 1 = heterozygous, and
+NA = missing SNP assignment. For SilicoDArT (presence-absence) data the
+values written are 0 = absent, 1 = present, and NA = missing.
 }
 \examples{
 # SNP data

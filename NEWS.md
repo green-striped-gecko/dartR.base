@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.write.csv()`: now returns `invisible(NULL)` instead of a visible NULL
+  (it previously printed a bare "NULL" at the console on every un-assigned
+  call, even at `verbose = 0`); `outpath` is now resolved through
+  `gl.check.wd()`, so a non-existent output directory falls back to
+  tempdir() (with a warning at `verbose >= 1`) as the other io functions
+  do, instead of failing with an opaque "cannot open the connection" error.
+  Documentation now notes the SilicoDArT (0/1) coding and adopts the
+  standard verbose text. The written file is otherwise unchanged.
+
 * `gl.dist.phylo()`: subst.model = "BH87" with the default
   pairwise.missing = TRUE crashed the R session (ape::dist.dna has no
   pairwise-deletion routine for BH87 and its C code faults on N/ambiguity
