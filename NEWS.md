@@ -1,5 +1,11 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.dist.binary()` review: method="bray-curtis" is now accepted
+  (it was documented and implemented but missing from the validation
+  list, silently falling back to simple matching); the scale warning
+  respects verbose 0; Jaccard and Sorensen verified exact
+  (unchanged); doc leftovers ("N11") removed.
+
 * `utils.dist.ind.snp()` review: the Simple and Absolute distances
   are now invariant to which allele is scored as reference, computing
   shared alleles per locus as documented (previously both-homozygous-
