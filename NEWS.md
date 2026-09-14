@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2gi()`: df2genind silently dropped loci with no scored alleles while
+  the full `loc.metrics` table was copied wholesale, so converting data
+  containing all-NA loci returned a genind whose locus metadata was out
+  of register with the genotypes (and `gi2gl(gl2gi(x))` crashed on such
+  data); all-NA loci are now removed up front (gated warning) and
+  `loc.metrics` is subset to the surviving loci. SilicoDArT input, which
+  previously converted without warning to a meaningless ploidy-2 genind,
+  is now rejected (`accept = "SNP"`). Single-locus objects no longer
+  crash ("X is not a matrix"). A warning is issued when placeholder
+  alleles are fabricated for objects without allele definitions. The
+  genotype recode is vectorised; the progress message is gated at
+  `verbose >= 2`; docs corrected (`probar` default is FALSE).
 * `gl2genalex()`: SilicoDArT (presence/absence) objects were silently
   exported as meaningless codominant GenAlEx genotypes; the function now
   accepts SNP data only. A missing poppr installation raises a proper

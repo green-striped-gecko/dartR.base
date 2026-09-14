@@ -14,21 +14,40 @@ gl2gi(x, probar = FALSE, verbose = NULL)
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
+
+\item{x}{A genlight object [required].}
+
+\item{probar}{If TRUE, a progress bar is displayed for long loops
+[default FALSE]. Retained for backward compatibility; the vectorised
+conversion completes without one.}
 }
 \value{
 A genind object, with all slots filled.
 }
 \description{
-Converts a genlight object to genind object
+Converts a genlight object containing SNP data into a genind object
+(package adegenet), retaining individual names, populations and locus
+metadata.
 }
 \details{
 This function uses a faster version of df2genind (from the adegenet
- package)
+ package).
+
+ Loci scored as missing (NA) across all individuals are removed before
+ conversion, with a warning at verbose >= 1 -- df2genind would remove
+ them silently, leaving the locus metadata out of register with the
+ genotypes. When the genlight object carries no allele definitions
+ (\code{loc.all} is NULL), placeholder alleles are fabricated (A/T for
+ each locus, C/G for the first) and a warning is issued at
+ verbose >= 1; the fabricated labels are placeholders, not sequence
+ data.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
 gl2gi(possums.gl[1:10,1:20])
+
 }
 \seealso{
 Other linker: 
@@ -55,5 +74,8 @@ Other linker:
 }
 \author{
 Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
