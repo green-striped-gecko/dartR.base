@@ -4,13 +4,14 @@
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 #' @param x Name of the vcfR object [defined in function \code{\link{gl.read.vcf}}].
-#' @param mode2 genotype: all heterozygous sites will be coded as 1 regardless ploidy level, 
-#' dosage: sites will be codes as copy number of alternate allele [defined in function \code{\link{gl.read.vcf}}].
+#' @param mode2 genotype: all heterozygous sites will be coded as 1 regardless ploidy level,
+#' dosage: sites will be codes as copy number of alternate allele [default 'genotype'].
 #' @param n.cores Number of cores [default 1]
 #' @details
 #' This function uses parameters from \code{\link{gl.read.vcf}} for conversion
-#' Note also that this function checks to see if there are input of mode, missing input of mode 
-#' will issued the user with a error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+#' The ploidy of each individual is derived from the allele count (arity) of
+#' its genotype calls. Half-missing calls (e.g. 0/., ./1) are treated as
+#' missing data (NA) in both modes.
 #' Please carefully check the data if "dosage" mode is used. (codes were modified from
 #' 'vcfR2genlight' in vcfR packge to convert polyploid data)
 #' @author Custodian: Ching Ching Lau -- Post to
@@ -31,7 +32,7 @@
 #' @return genlight object
 #' @export
 
-utils.vcfr2genlight.polyploid <- function(x, n.cores=1, mode2=mode) {
+utils.vcfr2genlight.polyploid <- function(x, n.cores=1, mode2="genotype") {
     bi <- vcfR::is.biallelic(x)
     if(sum(!bi) > 0){
       msg <- paste("Found", sum(!bi), "loci with more than two alleles.")
@@ -48,8 +49,30 @@ utils.vcfr2genlight.polyploid <- function(x, n.cores=1, mode2=mode) {
     ID    <- x@fix[,'ID']
     
     x <- vcfR::extract.gt(x)
+
+    # Ploidy is the allele count per GT call (arity), read off the raw
+    # calls before the separators are stripped -- exact, unlike the
+    # max-dosage inference adegenet applies at object creation (F2).
+    ploidy_ind <- apply(x, 2, function(g) {
+      g <- g[!is.na(g)]
+      if (length(g) == 0) return(NA_integer_)
+      max(nchar(gsub("[^/|]", "", g))) + 1L
+    })
+    if (all(is.na(ploidy_ind))) {
+      ploidy_ind[] <- 2L
+    } else if (any(is.na(ploidy_ind))) {
+      # individuals with no called genotypes take the modal ploidy
+      ploidy_ind[is.na(ploidy_ind)] <-
+        as.integer(names(which.max(table(ploidy_ind))))
+    }
+
     x <- gsub("/", "", x)
     x <- gsub("|", "", x, fixed = TRUE)
+    # Half-missing calls (e.g. 0/., ./1) still carry a "." after the
+    # separators are stripped; they are missing data, not evidence of a
+    # heterozygote or a dosage -- convert them to NA before the mode
+    # rules (F1).
+    x[grepl(".", x, fixed = TRUE)] <- NA
     # code all polyploid heterozygous sites to 1
     if (mode2=="genotype"){
       x[stringr::str_count(as.character(x),"0") == nchar(as.character(x))] <- 0
@@ -80,6 +103,9 @@ utils.vcfr2genlight.polyploid <- function(x, n.cores=1, mode2=mode) {
     }
     #  x <- adegenet::as.genlight(t(x), n.cores=3)
     #  x <- adegenet::as.genlight(t(x))
+    # Stamp the arity-derived ploidy over adegenet's max-dosage
+    # inference (F2).
+    adegenet::ploidy(x) <- ploidy_ind
     adegenet::chromosome(x) <- CHROM
     adegenet::position(x)   <- POS
     adegenet::locNames(x)   <- ID
