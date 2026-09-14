@@ -15,24 +15,32 @@ gl2bayesAss(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{ploidy}{Set the ploidy [defaults 2].}
+\item{ploidy}{Confirmation that the data are diploid; 2 is the only
+accepted value, other values stop the function [default 2].}
 
 \item{outfile}{File name of the output file [default 'gl.BayesAss.txt'].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns the input file as data.table
 }
 \description{
-This function exports a genlight object into bayesAss format and save it into a
-file.
-This function only caters for \code{ploidy=2}.
+This function exports a genlight object into bayesAss format and saves it
+into a file.
+This function only caters for \code{ploidy = 2}.
+}
+\details{
+The output file has one row per individual per locus, in the format
+expected by BayesAss (BA3) and BA3-SNPs: individual identifier,
+population, locus name, then the two alleles coded as 1 (reference) and
+2 (alternate). Missing genotypes are written as 0 0.
 }
 \examples{
 require("dartR.data")
@@ -41,20 +49,22 @@ if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl2bayesAss(platypus.gl[,1:100], outpath=tempdir())
 }
 \references{
-Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs: 
-Contemporary migration reconfigured in BayesAss for next-generation sequence data. 
+Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs:
+Contemporary migration reconfigured in BayesAss for next-generation sequence data.
 Methods in Ecology and Evolution 10, 1808-1813.
 
-Wilson G. A. and Rannala B. (2003) Bayesian Inference of Recent Migration Rates 
+Wilson G. A. and Rannala B. (2003) Bayesian Inference of Recent Migration Rates
 Using Multilocus Genotypes. Genetics 163, 1177-1191.
 }
 \seealso{
 Other linker: 
+\code{\link{gi2gl}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
 \code{\link{gl2faststructure}()},
+\code{\link{gl2gapit}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
@@ -62,8 +72,6 @@ Other linker:
 \code{\link{gl2gi}()},
 \code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
@@ -71,7 +79,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Carlo Pacioni (Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
