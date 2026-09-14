@@ -23,6 +23,11 @@
 #' pop: specifies the population membership of each individual. lat and lon
 #' specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 #' columns with individual metadata can be imported (e.g. age, gender).
+#'
+#' Note that the ind.metafile acts as a filter as well as a source of
+#' metadata: individuals in the DArT file that have no matching id row in
+#' the ind.metafile are REMOVED from the returned object (a warning
+#' reports how many were removed).
 #' 
 #' @author Maintainer: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
@@ -83,11 +88,14 @@ utils.dart2genlight <- function(dart,
         }
     }
     
-    # if (sum(c("SNP", "SnpPosition") %in% names(sraw)) != 2) {
-    #     stop(error(
-    #         "Could not find SNP or SnpPosition in Dart file. Check you headers!!!"
-    #     ))
-    # }
+    # Fail fast when the allele column is missing: without it 'alleles'
+    # below would resolve to adegenet's alleles() function and substr()
+    # would die with an opaque "cannot coerce type 'closure'" error.
+    if (!any(c("SNP", "Variant") %in% names(sraw))) {
+        stop(error(
+            "Fatal Error: could not find a 'SNP' or 'Variant' column among the locus metrics of the DArT file. Check your headers!\n"
+        ))
+    }
     
     if (verbose >= 2) {
         cat(report("Starting conversion....\n"))
@@ -133,17 +141,39 @@ utils.dart2genlight <- function(dart,
     geninddata <- matrix(NA, nrow = nsnp, ncol = nind)
     
     if (nrows == 2) {
+        # Exhaustive translation of ref-row/snp-row pairs. 0/0 (double
+        # null) and pairs with a missing half carry no callable genotype
+        # and map to NA deliberately; any pattern outside the table (a
+        # corrupted file) is counted and reported rather than dissolving
+        # into NA through silent coercion.
+        translate <- c(
+            "0/1" = 2,
+            "1/0" = 0,
+            "1/1" = 1,
+            "0/0" = NA,
+            "NA/NA" = NA,
+            "NA/0" = NA,
+            "0/NA" = NA,
+            "NA/1" = NA,
+            "1/NA" = NA
+        )
+        unmatched <- character(0)
         for (i in 1:nind) {
             isnp <-paste(sdata[esl - 1, i], sdata[esl, i], sep = "/")
-            g <- isnp
-            g <- gsub("0/1", 2, g)
-            g <- gsub("1/0", 0, g)
-            g <- gsub("1/1", 1, g)
-            g <- gsub("NA/NA", NA, g)
-            geninddata[, i] <- as.numeric(g)
+            g <- unname(translate[isnp])
+            unmatched <- union(unmatched,
+                               unique(isnp[!(isnp %in% names(translate))]))
+            geninddata[, i] <- g
             if (probar) {
                 setTxtProgressBar(pb, i / nind)
             }
+        }
+        if (length(unmatched) > 0 && verbose >= 1) {
+            cat(warn(
+                "  Warning: unrecognised genotype pattern(s)",
+                paste(unmatched, collapse = ", "),
+                "found in the two-row data and set to NA. Check the file for corruption.\n"
+            ))
         }
     } else {
         for (i in 1:nind) {
@@ -174,7 +204,6 @@ utils.dart2genlight <- function(dart,
     }
     
     # refactor data.frame
-    x<- NULL
     df <-
         as.data.frame(lapply(sraw[esl, ], function(x)
             if (is.factor(x))
@@ -187,26 +216,32 @@ utils.dart2genlight <- function(dart,
     if (!"TrimmedSequence" %in% names(gout@other$loc.metrics)) {
       if ("TrimmedSequenceSnp" %in% names(gout@other$loc.metrics)) {
         gout@other$loc.metrics$TrimmedSequence <- gout@other$loc.metrics$TrimmedSequenceSnp
-        cat(
-          warn(
-            "TrimmedSequence field in loc.metrics was created from field TrimmedSequenceSnp"
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "TrimmedSequence field in loc.metrics was created from field TrimmedSequenceSnp\n"
+            )
           )
-        )
+        }
       } else if ("AlleleSequenceSnp" %in% names(gout@other$loc.metrics)) {
         gout@other$loc.metrics$TrimmedSequence <- gout@other$loc.metrics$AlleleSequenceSnp
-        cat(
-          warn(
-            "TrimmedSequence field in loc.metrics was created from field AlleleSequenceSnp"
+        if (verbose >= 2) {
+          cat(
+            warn(
+              "TrimmedSequence field in loc.metrics was created from field AlleleSequenceSnp\n"
+            )
           )
-        )
+        }
       } else{
-        cat(
-          warn(
-            "TrimmedSequence field was not found in your DArT report, so some functions may not work"
+        if (verbose >= 1) {
+          cat(
+            warn(
+              "TrimmedSequence field was not found in your DArT report, so some functions may not work\n"
+            )
           )
-        )
+        }
       }
-    } 
+    }
 
     df_ind.metrics <- as.data.frame(matrix(nrow = nInd(gout), ncol = 2))
     colnames(df_ind.metrics) <- c("service", "plate_location")
@@ -236,31 +271,32 @@ utils.dart2genlight <- function(dart,
                 trimws(ind.cov[, id.col], which = "both")  #trim spaces
             
             if (length(ind.cov[, id.col]) != length(unique(ind.cov[, id.col]))) {
-                cat(error(
-                    "Individual names are not unique. You need to change them!\n"
+                stop(error(
+                    "Fatal Error: individual names in the ind.metafile are not unique. You need to change them!\n"
                 ))
-                stop()
             }
             
             # reorder
             if (length(ind.cov[, id.col]) != length(names(sdata))) {
-                cat(
-                    warn(
-                        "Ids for individual metadata does not match the number of ids in the SNP data file. Maybe this is fine if a subset matches.\n"
+                if (verbose >= 1) {
+                    cat(
+                        warn(
+                            "Ids for individual metadata does not match the number of ids in the SNP data file. Maybe this is fine if a subset matches.\n"
+                        )
                     )
-                )
+                }
                 nam.indmeta <- ind.cov[, id.col]
                 nam.dart <- names(sdata)
-                
+
                 nm.indmeta <-
                     nam.indmeta[!nam.indmeta %in% nam.dart]
                 nm.inddart <-
                     nam.dart[!nam.dart %in% nam.indmeta]
-                if (length(nm.indmeta) > 0) {
+                if (length(nm.indmeta) > 0 && verbose >= 2) {
                     cat(warn("ind.metafile ids not matched were:\n"))
                     print(nm.indmeta)
                 }
-                if (length(nm.inddart) > 0) {
+                if (length(nm.inddart) > 0 && verbose >= 2) {
                     cat(warn("DArT file ids not matched were:\n"))
                     print(nm.inddart)
                 }
@@ -279,7 +315,7 @@ utils.dart2genlight <- function(dart,
                     cat(report(
                         paste(
                             "  Found ",
-                            length(ord == nind),
+                            length(ord),
                             "matching ids out of",
                             nrow(ind.cov),
                             "ids provided in the ind.metadata file.\n "
@@ -288,6 +324,16 @@ utils.dart2genlight <- function(dart,
                 }
                 ord2 <-
                     match(ind.cov[ord, id.col], indNames(gout))
+                # The metafile acts as a filter as well as a metadata
+                # source: individuals without a metafile row are removed.
+                # Make that removal loud - it changes the returned object.
+                n.dropped <- nInd(gout) - length(ord2)
+                if (n.dropped > 0 && verbose >= 1) {
+                    cat(warn(
+                        "  Warning:", n.dropped,
+                        "individuals in the DArT file had no matching row in the ind.metafile and were REMOVED from the returned object.\n"
+                    ))
+                }
                 gout <- gout[ord2, ]
             } else {
                 stop(error(
