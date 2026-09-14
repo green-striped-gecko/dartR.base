@@ -56,6 +56,14 @@
 #' @param ... Additional arguments passed to \code{\link{image}}.
 #'
 #' @details
+#' This function is a modified copy of \code{gplots::heatmap.2},
+#' vendored so that dendrogram leaf labels can be drawn and colored
+#' (via \pkg{dendextend}, arguments \code{colRow}/\code{colCol}) - the
+#' original suppresses them. Other local modifications: dendrogram
+#' margins auto-sized from the column names,
+#' \code{ColSideColors}/\code{RowSideColors} default to NULL, and a
+#' local \code{invalid2()} replaces gplots' unexported helper.
+#'
 #' If \code{Rowv} or \code{Colv} are dendrograms, they are honored
 #' without reordering; otherwise they are computed via
 #' \code{as.dendrogram(hclustfun(distfun(...)))} and optionally reordered.
@@ -91,6 +99,7 @@
 #'
 #' @importFrom graphics layout strheight strwidth mtext rect abline plot.new title
 #'
+#' @keywords internal
 #' @examples
 #' data(mtcars)
 #' x <- as.matrix(mtcars)
@@ -169,7 +178,21 @@ utils.heatmap <- function(x,
     x
   }
   
-  margin_dendrogram <- (max(nchar(colnames(x)))/2) + 0.5
+  # auto-size the dendrogram margin from the column names; unnamed
+  
+  # matrices fall back to the base margin (max over an empty vector
+  
+  # would send -Inf into par(mar = ))
+  
+  margin_dendrogram <- if (is.null(colnames(x))) {
+  
+      0.5
+  
+  } else {
+  
+      (max(nchar(colnames(x))) / 2) + 0.5
+  
+  }
   
   # Initialize return value list
   retval <- list()

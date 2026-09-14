@@ -12,7 +12,8 @@ glSum(x, alleleAsUnit = TRUE, useC = FALSE)
 \item{alleleAsUnit}{logical; if TRUE, the mean is calculated per allele,
 if FALSE, per individual}
 
-\item{useC}{FALSE, default if set to true not sure what happens ;-)}
+\item{useC}{Passed through to adegenet::glSum for non-FBM objects
+[default FALSE]}
 }
 \value{
 A numeric vector of sum of second allele per locus
