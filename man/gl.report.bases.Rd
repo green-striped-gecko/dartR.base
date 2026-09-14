@@ -82,7 +82,6 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other matched reports: 
-\code{\link{gl.report.fstat}()},
 \code{\link{gl.report.monomorphs}()}
 }
 \author{

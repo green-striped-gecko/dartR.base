@@ -69,6 +69,7 @@ sympatric=TRUE,verbose=3)
 Other distance: 
 \code{\link{gl.dist.ind}()},
 \code{\link{gl.dist.pop}()},
+\code{\link{gl.fst.pop}()},
 \code{\link{utils.dist.ind.snp}()}
 }
 \author{
