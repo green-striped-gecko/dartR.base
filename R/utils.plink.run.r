@@ -57,7 +57,10 @@ utils.plink.run <- function(dir.in,
     exe <- file.path(plink.path, plink.cmd)
   }
   cmd <- paste(exe, syntax, paste0("--out ", out))
-  system(cmd)
+  # Suppress the child process's console chatter below verbose 3; it
+  # bypasses sink() and would print even at verbose = 0 (gl.read.PLINK
+  # review, F5)
+  system(cmd, ignore.stdout = verbose < 3)
   
   # FLAG SCRIPT END
   
