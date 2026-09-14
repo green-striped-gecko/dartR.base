@@ -14,6 +14,12 @@
 #' to which they refer, but it provides the opportunity for moving labels around
 #'  using graphics software (e.g. Adobe Illustrator).
 
+#' Labels are selected with pop.labels -- 'pop' labels each cluster of points
+#' with its population name, 'ind' labels each point with its individual name,
+#' 'legend' identifies populations in a legend beside the plot, and 'none'
+#' plots the points alone. The hadjust and vadjust parameters set the
+#' justification of those labels against the point they annotate.
+
 #' 3D plotting is activated by specifying a zaxis.
 
 #' Any pair or trio of axes can be specified from the ordination, provided they
@@ -25,20 +31,20 @@
 #' Colors and shapes of the points can be altered by passing a vector of shapes
 #' and/or a vector of colors. These vectors can be created with
 #' gl.select.shapes() and gl.select.colors() and passed to this script using the
-#'  pt.shapes and pt.colors parameters.
+#'  pt.shapes and pt.colors parameters. Shapes are not available in the 3D plot.
 
 #' Points displayed in the ordination can be identified if the option
 #'  interactive=TRUE is chosen, in which case the resultant plot is ggplotly()
 #'  friendly. Identification of points is by moving the mouse over them. Refer
 #'  to the plotly package for further information.
 #' The interactive option is automatically enabled for 3D plotting.
-#' 
-#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
+#'
+#' If a plot.file is given, the ggplot arising from this function is saved as an "RDS"
+#' binary file using saveRDS(); can be reloaded with readRDS(). A file name must be
 #' specified for the plot to be saved.
 
 #' If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
-#'  directory; otherwise to the tempdir(). 
+#'  directory; otherwise to the tempdir().
 
 #' @param glPca Name of the PCA or PCoA object containing the factor scores and
 #' eigenvalues [required].
@@ -51,10 +57,13 @@
 #' @param plevel Value of the percentile for the ellipse to encapsulate points
 #' for each population [default 0.95].
 #' @param pop.labels How labels will be added to the plot
-#' ['none'|'pop'|'legend', default = 'pop'].
-#' @param hadjust Horizontal adjustment of label position in 2D plots
-#' [default 1.5].
-#' @param vadjust Vertical adjustment of label position in 2D plots [default 1].
+#' ['none'|'ind'|'pop'|'legend', default = 'pop'].
+#' @param hadjust Horizontal justification of the label against the point it
+#' annotates in 2D plots; 0.5 centres the label on the point, larger values
+#' shift it to the left [default 1.5].
+#' @param vadjust Vertical justification of the label against the point it
+#' annotates in 2D plots; 0.5 centres the label on the point, larger values
+#' shift it downward [default 1].
 #' @param interactive If TRUE then the populations are plotted without labels,
 #' mouse-over to identify points [default FALSE].
 #' @param as.pop Assign another metric to represent populations for the plot
@@ -69,19 +78,26 @@
 #' @param pt.colors Optionally provide a vector of nPop colors
 #' (run gl.select.colors() for color options) [default NULL].
 #' @param pt.shapes Optionally provide a vector of nPop shapes
-#'  (run gl.select.shapes() for shape options) [default NULL].
+#'  (run gl.select.shapes() for shape options); not applied to the 3D plot
+#'  [default NULL].
 #' @param label.size Specify the size of the point labels [default 1].
 #' @param axis.label.size Specify the size of the displayed axis labels
 #' [default 1.5].
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
+#' @param plot.display If TRUE, the resultant plot is displayed in the plot
+#' window [default TRUE].
+#' @param plot.theme Theme for the plot [default theme_dartR()].
+#' @param plot.dir Directory to save the plot RDS files [default as specified
 #' by the global working directory or tempdir()].
-#' @param plot.file Name for the RDS binary file to save (base name only, 
+#' @param plot.file Name for the RDS binary file to save (base name only,
 #' exclude extension) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
 
-#' @return returns no value (i.e. NULL)
+#' @return The plot object -- a ggplot for the 2D plots, a plotly htmlwidget
+#' for the interactive and 3D plots, and a gganimate object for an ordination
+#' of a list of simulated generations. The object is returned visibly, so an
+#' unassigned call renders the plot.
 
 #' @author Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
@@ -98,13 +114,13 @@
 #' # RUN PCA
 #' pca<-gl.pcoa(gl,nfactors=5)
 #' # VARIOUS EXAMPLES
-#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop', 
+#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop',
 #' axis.label.size=1, hadjust=1.5,vadjust=1)
-#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend', 
+#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 #' axis.label.size=1)
-#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend', 
+#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 #' axis.label.size=1.5,scale=TRUE)
-#' gl.pcoa.plot(pca, gl, ellipse=TRUE, axis.label.size=1.2, xaxis=1, yaxis=3, 
+#' gl.pcoa.plot(pca, gl, ellipse=TRUE, axis.label.size=1.2, xaxis=1, yaxis=3,
 #' scale=TRUE)
 #' gl.pcoa.plot(pca, gl, pop.labels='none',scale=TRUE)
 #' #gl.pcoa.plot(pca, gl,  interactive=TRUE)
@@ -113,7 +129,7 @@
 #' shp <- gl.select.shapes(select=c(16,17,17,0,2))
 #' col <- gl.select.colors(library='brewer',palette='Spectral',ncolors=11,
 #' select=c(1,9,3,11,11))
-#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop', 
+#' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop',
 #' pt.colors=col, pt.shapes=shp, axis.label.size=1, hadjust=1.5,vadjust=1)
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 #'  pt.colors=col, pt.shapes=shp, axis.label.size=1)
@@ -145,43 +161,41 @@ gl.pcoa.plot <- function(glPca,
                          pt.shapes = NULL,
                          label.size = 1,
                          axis.label.size = 1.5,
+                         plot.display = TRUE,
+                         plot.theme = theme_dartR(),
                          plot.file=NULL,
                          plot.dir=NULL,
                          verbose = NULL) {
-    
+
     hold_x <- x
     hold_glPca <- glPca
-    
+
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
+    if (verbose == 0) {plot.display <- FALSE}
+
+    # SET WORKING DIRECTORY
+    plot.dir <- gl.check.wd(plot.dir, verbose = 0)
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "2024_v1",
                      verbose = verbose)
-    
+
     # CHECK DATATYPE
     # Check the glPca parameter object
     datatype1 <-
         utils.check.datatype(glPca, accept = c("glPca","list"),
                              verbose = verbose)
-    # Further refine the data type -- is it a PCA or is it a PCoA object
-    if(datatype1=="glPca"){
-      if(is.null(glPca$loadings)){
-        datatype1 <- "PCoA"
-      } else {
-        datatype1 <- "PCA"
-      }
-    }
-    
+
     # Check the genlight object type, parameter x
     datatype2 <-
         utils.check.datatype(x,
                              accept = c("SNP", "SilicoDArT", "fd",
                                         "list"),
                              verbose = verbose)
-    
+
     # If an fd object, pull out the genlight object
     if (datatype2 == "fd") {
       x <- x$fd
@@ -189,132 +203,252 @@ gl.pcoa.plot <- function(glPca,
         utils.check.datatype(x, accept = c("SNP", "SilicoDArT", "fd", "list"),
                              verbose = 0)
     }
-    
+
     # SCRIPT SPECIFIC ERROR CHECKING
-    
+
+    # The ordination and the genlight object must describe the same entities.
+    # The animation branch takes a list of ordinations paired with a list of
+    # genlight objects; anything else pairs one ordination with one object.
+    if (datatype1 == "list" | datatype2 == "list") {
+      if (!(datatype1 == "list" & datatype2 == "list")) {
+        stop(
+          error(
+            "Fatal Error: the animation plot requires a list of ordinations",
+            "(glPca) paired with a list of genlight objects (x); found",
+            datatype1,
+            "paired with",
+            datatype2,
+            "\n"
+          )
+        )
+      }
+    }
+
     # Required packages
     pkg <- "directlabels"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
-    
+
     if (interactive | !is.null(zaxis)) {
         pkg <- "plotly"
         if (!(requireNamespace(pkg, quietly = TRUE))) {
-          cat(error(
+          stop(error(
             "Package",
             pkg,
             " needed for this function to work. Please install it.\n"
           ))
-          return(-1)
         }
     }
-    
+
     if (datatype1=="list") {
         pkg <- "gganimate"
         if (!(requireNamespace(pkg, quietly = TRUE))) {
-          cat(error(
+          stop(error(
             "Package",
             pkg,
             " needed for this function to work. Please install it.\n"
           ))
-          return(-1)
         }
-        
+
         pkg <- "tibble"
         if (!(requireNamespace(pkg, quietly = TRUE))) {
-          cat(error(
+          stop(error(
             "Package",
             pkg,
             " needed for this function to work. Please install it.\n"
           ))
-          return(-1)
         }
         x <- x[[1]]
         glPca <- glPca[[1]]
     }
-    
+
+    # How many entities and how many axes does the ordination hold? A
+    # single-axis ordination arrives as a plain vector, with no dim().
+    if (is.null(dim(glPca$scores))) {
+      n.entities <- length(glPca$scores)
+      n.axes <- 1L
+    } else {
+      n.entities <- nrow(glPca$scores)
+      n.axes <- ncol(glPca$scores)
+    }
+
+    # Further refine the data type -- is it a PCA or is it a PCoA object.
+    # A PCoA of a distance matrix corrected with 'cailliez' or 'lingoes' carries
+    # the corrected entity vectors in $loadings, so the absence of loadings is
+    # not on its own a reliable PCoA signal. A PCA holds one loading per locus;
+    # a PCoA holds one per entity.
+    if (datatype1 == "glPca") {
+      if (is.null(glPca$loadings)) {
+        datatype1 <- "PCoA"
+      } else {
+        n.loadings <- nrow(as.matrix(glPca$loadings))
+        if (datatype2 %in% c("SNP", "SilicoDArT") &&
+            !is.null(n.loadings) && n.loadings == nLoc(x)) {
+          datatype1 <- "PCA"
+        } else if (!is.null(n.loadings) && n.loadings == n.entities) {
+          datatype1 <- "PCoA"
+        } else {
+          datatype1 <- "PCA"
+        }
+      }
+    }
+
+    # The ordination and the genlight object must hold the same entities. An
+    # ordination of a population-level distance matrix (gl.dist.pop) holds
+    # populations, not individuals, and cannot be labelled from x.
+    if (datatype1 != "list" & datatype2 %in% c("SNP", "SilicoDArT")) {
+      if (n.entities != nInd(x)) {
+        stop(
+          error(
+            "Fatal Error: the ordination holds",
+            n.entities,
+            "entities but the genlight object holds",
+            nInd(x),
+            "individuals.\n",
+            " This function labels individuals, so the ordination and the",
+            "genlight object must describe the same entities. An ordination",
+            "of a population-level distance matrix (e.g. from gl.dist.pop)",
+            "cannot be plotted with this function.\n"
+          )
+        )
+      }
+    }
+
     # Check parameter values
-    
+
     axis.label.size <- axis.label.size * 10
     PCoAx <- PCoAy <- NULL
-    
+
     if (pop.labels != "none" &&
         pop.labels != "ind" &&
         pop.labels != "pop" && pop.labels != "legend") {
-        cat(
+        if (verbose >= 2) {
+          cat(
             warn(
                 "  Warning: Parameter 'pop.labels' must be one of none|ind|pop|legend, set to 'pop'\n"
             )
-        )
+          )
+        }
         pop.labels <- "pop"
     }
-    
+
     if (plevel < 0 | plevel > 1) {
-        cat(warn(
+        if (verbose >= 2) {
+          cat(warn(
             "  Warning: Parameter 'plevel' must fall between 0 and 1, set to 0.95\n"
-        ))
+          ))
+        }
         plevel <- 0.95
     }
-    
+
     if (hadjust < 0 | hadjust > 3) {
-        cat(warn(
+        if (verbose >= 2) {
+          cat(warn(
             "  Warning: Parameter 'hadjust' must fall between 0 and 3, set to 1.5\n"
-        ))
+          ))
+        }
         hadjust <- 1.5
     }
-    
-    if (vadjust < 0 | hadjust > 3) {
-        cat(warn(
-            "  Warning: Parameter 'vadjust' must fall between 0 and 3, set to 1.5\n"
-        ))
-        vadjust <- 1.5
+
+    if (vadjust < 0 | vadjust > 3) {
+        if (verbose >= 2) {
+          cat(warn(
+            "  Warning: Parameter 'vadjust' must fall between 0 and 3, set to 1\n"
+          ))
+        }
+        vadjust <- 1
     }
-    
-    if (xaxis < 1 | xaxis > ncol(glPca$scores)) {
-        cat(
+
+    # Axis selection. The ordination must hold enough axes for the plot that has
+    # been asked for, and each axis can be used only once.
+    if (is.null(zaxis)) {
+      if (n.axes < 2) {
+        stop(
+          error(
+            "Fatal Error: a 2D plot requires at least 2 axes but the",
+            "ordination holds only",
+            n.axes,
+            "; rerun gl.pcoa() with a larger nfactors\n"
+          )
+        )
+      }
+    } else {
+      if (n.axes < 3) {
+        stop(
+          error(
+            "Fatal Error: a 3D plot requires at least 3 axes but the",
+            "ordination holds only",
+            n.axes,
+            "; rerun gl.pcoa() with a larger nfactors, or omit zaxis\n"
+          )
+        )
+      }
+    }
+
+    if (xaxis < 1 | xaxis > n.axes) {
+        if (verbose >= 2) {
+          cat(
             warn(
                 "  Warning: X-axis must be specified to lie between 1 and the number of retained dimensions of the ordination",
-                ncol(glPca$scores),
+                n.axes,
                 "; set to 1\n"
             )
-        )
+          )
+        }
         xaxis <- 1
     }
-    
-    if (yaxis < 1 | yaxis > ncol(glPca$scores)) {
-        cat(
+
+    if (yaxis < 1 | yaxis > n.axes) {
+        if (verbose >= 2) {
+          cat(
             warn(
                 "  Warning: Y-axis must be specified to lie between 1 and the number of retained dimensions of the ordination",
-                ncol(glPca$scores),
+                n.axes,
                 "; set to 2\n"
             )
-        )
-        yaxis <- 2
+          )
+        }
+        yaxis <- min(2, n.axes)
     }
-    
+
     if (!is.null(zaxis)) {
-        if (zaxis < 1 | zaxis > ncol(glPca$scores)) {
-            cat(
+        if (zaxis < 1 | zaxis > n.axes) {
+            if (verbose >= 2) {
+              cat(
                 warn(
                     "  Warning: Z-axis must be specified to lie between 1 and the number of retained dimensions of the ordination",
-                    ncol(glPca$scores),
+                    n.axes,
                     "; set to 3\n"
                 )
-            )
-            zaxis <- 3
+              )
+            }
+            zaxis <- min(3, n.axes)
         }
     }
-    
+
+    axes.chosen <- c(xaxis, yaxis, zaxis)
+    if (anyDuplicated(axes.chosen) > 0) {
+        stop(
+          error(
+            "Fatal Error: the axes chosen for the plot must differ from one",
+            "another; found xaxis, yaxis (and zaxis) =",
+            paste(axes.chosen, collapse = ", "),
+            "\n"
+          )
+        )
+    }
+
     # Assign the new populations if as.pop is specified
     if(!is.null(as.pop)){
       if(!(datatype2 %in% c("SNP","SilicoDArT"))){
-        cat(warn("  Warning: as.pop parameter specified, only appropriate for SNP and SilicoDArT genlight objects. Ignored \n"))
+        if (verbose >= 2) {
+          cat(warn("  Warning: as.pop parameter specified, only appropriate for SNP and SilicoDArT genlight objects. Ignored \n"))
+        }
       }
     }
     if(datatype2 %in% c("SNP","SilicoDArT")){
@@ -334,41 +468,41 @@ gl.pcoa.plot <- function(glPca,
         } else {
             stop(
                 error(
-                    "Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"
+                    "Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$ind.metrics) and select again\n"
                 )
             )
         }
         }
     }
-    
+
 
     # Comment: The script now has either a genlight object (genlight, fd) with the population labels or it has a distance matrix or list
     # object that needs to be attended to separately to identify population labels.
-    
+
     # DO THE JOB
     # Set NULL to variables to pass CRAN checks
-    gen <- NULL  
-    
+    gen <- NULL
+
     if(datatype1=="list"){
-      
+
       gen_number <- length(hold_x)
       df_sim <- as.data.frame(matrix(ncol = 5))
       colnames(df_sim) <- c("PCoAx","PCoAy","ind","pop","gen")
-      
+
       test_pos_neg <- as.data.frame(matrix(nrow = gen_number,ncol = 3 ))
       colnames(test_pos_neg) <- c("gen","test_x","test_y")
-      
-      # the direction of the PCA axes are chosen at random 
+
+      # the direction of the PCA axes are chosen at random
       # this is to set the same direction in every generation
-      # first get the individual with more variance for axis x and y 
+      # first get the individual with more variance for axis x and y
       # for the first generation of the simulations
       ind_x_axis <- which.max(abs(hold_glPca[[1]]$scores[,xaxis]))
       ind_y_axis <- which.max(abs(hold_glPca[[1]]$scores[,yaxis]))
-      
+
       # check whether is positive or negative
-      test_pos_neg[1, "test_x"] <- 
+      test_pos_neg[1, "test_x"] <-
         if(hold_glPca[[1]]$scores[ind_x_axis,xaxis]>=0)"positive"else"negative"
-      test_pos_neg[1, "test_y"]  <- 
+      test_pos_neg[1, "test_y"]  <-
         if(hold_glPca[[1]]$scores[ind_y_axis,yaxis]>=0)"positive"else"negative"
       for(sim_i in 1:gen_number){
         glPca <- hold_glPca[[sim_i]]
@@ -386,28 +520,28 @@ gl.pcoa.plot <- function(glPca,
         gen <- unique(x$other$sim.vars$generation)
         df <- cbind(df, ind, pop,unique(x$other$sim.vars$generation))
         colnames(df) <- c("PCoAx", "PCoAy", "ind", "pop","gen")
-        
-        test_pos_neg[ sim_i, "test_x"] <- 
+
+        test_pos_neg[ sim_i, "test_x"] <-
           if(hold_glPca[[sim_i]]$scores[ind_x_axis,xaxis]>=0)"positive"else"negative"
-        test_pos_neg[ sim_i, "test_y"]  <- 
+        test_pos_neg[ sim_i, "test_y"]  <-
           if(hold_glPca[[sim_i]]$scores[ind_y_axis,yaxis]>=0)"positive"else"negative"
-        
+
         if(test_pos_neg[1, "test_x"] != test_pos_neg[ sim_i, "test_x"]){
           df$PCoAx <- df$PCoAx * -1
-          # test_pos_neg[ sim_i, "test_x"] <- test_pos_neg[ axis_ind-1, "test_x"] 
+          # test_pos_neg[ sim_i, "test_x"] <- test_pos_neg[ axis_ind-1, "test_x"]
         }
-        
+
         if(test_pos_neg[ 1, "test_y"] != test_pos_neg[ sim_i, "test_y"]){
           df$PCoAy <- df$PCoAy * -1
-          
-          # test_pos_neg[ sim_i, "test_y"] <- test_pos_neg[ axis_ind-1, "test_y"] 
+
+          # test_pos_neg[ sim_i, "test_y"] <- test_pos_neg[ axis_ind-1, "test_y"]
         }
-        
+
         df_sim <- rbind(df_sim,df)
       }
       df_sim <- tibble::as_tibble(df_sim)
       df_sim <- df_sim[-1,]
-      
+
       p  <- ggplot(df_sim, aes(PCoAx, PCoAy, colour = pop)) +
         geom_point(size=3) +
         labs(title = 'Generation: {frame_time}', x = xlab, y = ylab) +
@@ -416,7 +550,7 @@ gl.pcoa.plot <- function(glPca,
       return(p)
     }
     # End if datatype1=="list"
-    
+
     # Create a dataframe to hold the required scores
     if (is.null(zaxis)) {
       m <- cbind(glPca$scores[, xaxis], glPca$scores[, yaxis])
@@ -425,13 +559,13 @@ gl.pcoa.plot <- function(glPca,
         cbind(glPca$scores[, xaxis], glPca$scores[, yaxis], glPca$scores[, zaxis])
     }
     df <- data.frame(m)
-    
+
     # Convert the eigenvalues to percentages
     s <- sum(glPca$eig[glPca$eig >= 0])
     e <- round(glPca$eig * 100 / s, 1)
-    
+
     # Labels for the axes and points
-    
+
     if (datatype2 == "SNP" | datatype2 == "SilicoDArT") {
       if(datatype1 == "PCA"){
         xlab <- paste("PCA Axis", xaxis, "(", e[xaxis], "%)")
@@ -462,15 +596,15 @@ gl.pcoa.plot <- function(glPca,
           colnames(df) <- c("PCoAx", "PCoAy", "PCoAz", "ind", "pop")
         }
       }
-    } 
-    
+    }
+
     # if(datatype2=="dist"){
     #   xlab <- paste("PCoA Axis", xaxis, "(", e[xaxis], "%)")
     #   ylab <- paste("PCoA Axis", yaxis, "(", e[yaxis], "%)")
     #   if (!is.null(zaxis)) {
     #     zlab <- paste("PCA Axis", zaxis, "(", e[zaxis], "%)")
     #   }
-    #   
+    #
     #   ind <- rownames(as.matrix(x))
     #   pop <- ind
     #   df <- cbind(df, ind, pop)
@@ -491,11 +625,11 @@ gl.pcoa.plot <- function(glPca,
     #   }
     #   pop.labels <- "pop"
     # }
-    
+
     ####### 2D PLOT
     if (is.null(zaxis)) {
         # If population labels
-        
+
         if (pop.labels == "pop") {
             if (datatype2 == "SNP") {
                 if (verbose >= 2)
@@ -513,7 +647,7 @@ gl.pcoa.plot <- function(glPca,
                 if (verbose >= 2)
                     cat(report("  Plotting entities from the Distance Matrix\n"))
             }
-            
+
             # Plot
             if (is.null(pt.shapes)) {
                 plott <-
@@ -535,23 +669,26 @@ gl.pcoa.plot <- function(glPca,
                                shape = pop
                            ))
             }
-            plott <- plott + geom_point(size = pt.size, aes(color = pop)) + 
+            plott <- plott + geom_point(size = pt.size, aes(color = pop)) +
                 directlabels::geom_dl(aes(label = pop),
-                                      method = list("smart.grid", 
-                                                    cex = label.size)) + 
-                theme(axis.title = element_text(face = "bold.italic", 
+                                      hjust = hadjust,
+                                      vjust = vadjust,
+                                      method = list("smart.grid",
+                                                    cex = label.size)) +
+                plot.theme +
+                theme(axis.title = element_text(face = "bold.italic",
                                                 size = axis.label.size,
                                                 color = "black"),
-                      axis.text.x = element_text(face = "bold", 
+                      axis.text.x = element_text(face = "bold",
                                                  angle = 0,
                                                  vjust = 0.5,
                                                  size = axis.label.size),
-                      axis.text.y = element_text(face = "bold", 
+                      axis.text.y = element_text(face = "bold",
                                                  angle = 0,
                                                  vjust = 0.5,
                                                  size = axis.label.size)) +
                 labs(x = xlab, y = ylab)
-            
+
             if (!is.null(pt.shapes)) {
                 plott <- plott + scale_shape_manual(values = pt.shapes)
             }
@@ -559,43 +696,122 @@ gl.pcoa.plot <- function(glPca,
                 plott <- plott + scale_color_manual(values = pt.colors)
             }
             plott <-
-                plott + geom_hline(yintercept = 0) + 
-                geom_vline(xintercept = 0) + 
+                plott + geom_hline(yintercept = 0) +
+                geom_vline(xintercept = 0) +
                 theme(legend.position = "none")
-            # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
+            # Scale the axes to equal data units, if requested
             if (scale == TRUE) {
-              s1 <- (max(df$PCoAy)-min(df$PCoAy))
-              s2 <- (max(df$PCoAx)-min(df$PCoAx))
-              r <- s1/s2
               plott <- plott + coord_fixed(ratio = 1)
-              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
-              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
-              # r <- s1/s2
-              # plott <- plott + coord_fixed(ratio = r)
             }
             # Add ellipses if requested
             if (ellipse == TRUE) {
               plott <- plott + stat_ellipse(type = "norm", level = plevel)
             }
         }
-        
-        # If interactive labels
-        
-        if (interactive) {
-            cat(report("  Displaying an interactive plot\n"))
-            cat(
-                warn(
-                    "  NOTE: Returning the ordination scores, not a ggplot2 compatable object\n"
-                )
-            )
-            
+
+        # If individual labels
+
+        if (pop.labels == "ind") {
+            if (verbose >= 2) {
+                cat(report(
+                    "  Plotting individuals labelled with their names\n"
+                ))
+            }
+
             # Plot
+            if (is.null(pt.shapes)) {
+                plott <-
+                    ggplot(df,
+                           aes(
+                               x = PCoAx,
+                               y = PCoAy,
+                               group = pop,
+                               color = pop
+                           ))
+            } else {
+                plott <-
+                    ggplot(df,
+                           aes(
+                               x = PCoAx,
+                               y = PCoAy,
+                               group = pop,
+                               color = pop,
+                               shape = pop
+                           ))
+            }
+            plott <- plott + geom_point(size = pt.size, aes(color = pop)) +
+                directlabels::geom_dl(aes(label = ind),
+                                      hjust = hadjust,
+                                      vjust = vadjust,
+                                      method = list("smart.grid",
+                                                    cex = label.size)) +
+                plot.theme +
+                theme(axis.title = element_text(face = "bold.italic",
+                                                size = axis.label.size,
+                                                color = "black"),
+                      axis.text.x = element_text(face = "bold",
+                                                 angle = 0,
+                                                 vjust = 0.5,
+                                                 size = axis.label.size),
+                      axis.text.y = element_text(face = "bold",
+                                                 angle = 0,
+                                                 vjust = 0.5,
+                                                 size = axis.label.size)) +
+                labs(x = xlab, y = ylab)
+
+            if (!is.null(pt.shapes)) {
+                plott <- plott + scale_shape_manual(values = pt.shapes)
+            }
+            if (!is.null(pt.colors)) {
+                plott <- plott + scale_color_manual(values = pt.colors)
+            }
             plott <-
-                ggplot(df, aes(
-                    x = PCoAx,
-                    y = PCoAy,
-                    label = ind
-                )) + geom_point(size = pt.size, aes(color = pop)) + theme(
+                plott + geom_hline(yintercept = 0) +
+                geom_vline(xintercept = 0) +
+                theme(legend.position = "none")
+            # Scale the axes to equal data units, if requested
+            if (scale == TRUE) {
+              plott <- plott + coord_fixed(ratio = 1)
+            }
+            # Add ellipses if requested
+            if (ellipse == TRUE) {
+              plott <- plott + stat_ellipse(type = "norm", level = plevel)
+            }
+        }
+
+        # If interactive labels
+
+        if (interactive) {
+            if (verbose >= 2) {
+              cat(report("  Displaying an interactive plot\n"))
+              cat(
+                  report(
+                      "  NOTE: Returning an interactive plotly object, not a ggplot2 object\n"
+                  )
+              )
+            }
+
+            # Plot
+            if (is.null(pt.shapes)) {
+                plott <-
+                    ggplot(df, aes(
+                        x = PCoAx,
+                        y = PCoAy,
+                        label = ind
+                    ))
+            } else {
+                plott <-
+                    ggplot(df, aes(
+                        x = PCoAx,
+                        y = PCoAy,
+                        label = ind,
+                        shape = pop
+                    ))
+            }
+            plott <- plott +
+                geom_point(size = pt.size, aes(color = pop)) +
+                plot.theme +
+                theme(
                     axis.title = element_text(
                         face = "bold.italic",
                         size = axis.label.size,
@@ -625,19 +841,21 @@ gl.pcoa.plot <- function(glPca,
                     )
                 ) +
                 labs(x = xlab, y = ylab) + geom_hline(yintercept = 0) + geom_vline(xintercept = 0) + theme(legend.position = "none")
-            
-            # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
-            if (scale == TRUE) {
-              s1 <- (max(df$PCoAy)-min(df$PCoAy))
-              s2 <- (max(df$PCoAx)-min(df$PCoAx))
-              r <- s1/s2
-              plott <- plott + coord_fixed(ratio = 1)
-              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
-              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
-              # r <- s1/s2
-              # plott <- plott + coord_fixed(ratio = r)
+
+            # Honour the supplied point colours and shapes; the manual scales
+            # are built before ggplotly() and carry over to the plotly object
+            if (!is.null(pt.shapes)) {
+                plott <- plott + scale_shape_manual(values = pt.shapes)
             }
-            
+            if (!is.null(pt.colors)) {
+                plott <- plott + scale_color_manual(values = pt.colors)
+            }
+
+            # Scale the axes to equal data units, if requested
+            if (scale == TRUE) {
+              plott <- plott + coord_fixed(ratio = 1)
+            }
+
             # Add ellipses if requested
             if (ellipse == TRUE) {
                 plott <-
@@ -645,17 +863,19 @@ gl.pcoa.plot <- function(glPca,
                                          type = "norm",
                                          level = plevel)
             }
-            cat(warn(
+            if (verbose >= 2) {
+              cat(warn(
                 "  Ignore any warning on the number of shape categories\n"
-            ))
+              ))
+            }
         }
-        
+
         # If labels = legend
-        
+
         if (pop.labels == "legend") {
             if (verbose >= 2)
                 cat(report("  Plotting populations identified by a legend\n"))
-            
+
             # Plot
             Population <- pop
             if (is.null(pt.shapes)) {
@@ -680,8 +900,12 @@ gl.pcoa.plot <- function(glPca,
                         )
                     )
             }
+            # The colour is inherited from the plot mapping so the legend keeps
+            # its 'Population' title
             plott <-
-                plott + geom_point(size = pt.size, aes(color = pop)) + theme(
+                plott + geom_point(size = pt.size) +
+                plot.theme +
+                theme(
                     axis.title = element_text(
                         face = "bold.italic",
                         size = axis.label.size,
@@ -718,29 +942,22 @@ gl.pcoa.plot <- function(glPca,
             }
             plott <-
                 plott + geom_hline(yintercept = 0) + geom_vline(xintercept = 0)
-            # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
+            # Scale the axes to equal data units, if requested
             if (scale == TRUE) {
-              s1 <- (max(df$PCoAy)-min(df$PCoAy))
-              s2 <- (max(df$PCoAx)-min(df$PCoAx))
-              r <- s1/s2
               plott <- plott + coord_fixed(ratio = 1)
-              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
-              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
-              # r <- s1/s2
-              # plott <- plott + coord_fixed(ratio = r)
             }
             # Add ellipses if requested
             if (ellipse == TRUE) {
                 plott <- plott + stat_ellipse(type = "norm", level = plevel)
             }
         }
-        
+
         # If labels = none
-        
+
         if (pop.labels == "none" | pop.labels == FALSE) {
-            if (verbose >= 0)
+            if (verbose >= 2)
                 cat(report("  Plotting points with no labels\n"))
-            
+
             # Plot
             if (is.null(pt.shapes)) {
                 plott <- ggplot(df, aes(
@@ -759,7 +976,9 @@ gl.pcoa.plot <- function(glPca,
                            ))
             }
             plott <-
-                plott + geom_point(size = pt.size, aes(color = pop)) + theme(
+                plott + geom_point(size = pt.size, aes(color = pop)) +
+                plot.theme +
+                theme(
                     axis.title = element_text(
                         face = "bold.italic",
                         size = axis.label.size,
@@ -786,34 +1005,28 @@ gl.pcoa.plot <- function(glPca,
             }
             plott <-
                 plott + geom_hline(yintercept = 0) + geom_vline(xintercept = 0) + theme(legend.position = "none")
-            # Scale the axes in proportion to % explained, if requested if(scale==TRUE) 
+            # Scale the axes to equal data units, if requested
             if (scale == TRUE) {
-              s1 <- (max(df$PCoAy)-min(df$PCoAy))
-              s2 <- (max(df$PCoAx)-min(df$PCoAx))
-              r <- s1/s2
               plott <- plott + coord_fixed(ratio = 1)
-              # s1 <- (max(df$PCoAy)-min(df$PCoAy))/e[yaxis]
-              # s2 <- (max(df$PCoAx)-min(df$PCoAx))/e[xaxis]
-              # r <- s1/s2
-              # plott <- plott + coord_fixed(ratio = r)
             }
             # Add ellipses if requested
             if (ellipse == TRUE) {
                 plott <- plott + stat_ellipse(type = "norm", level = plevel)
             }
         }
-        
+
         if (verbose >= 2) {
             cat(report("  Preparing plot .... please wait\n"))
         }
+        # The plot object is built regardless of whether it is displayed
         if (interactive) {
             plott <- plotly::ggplotly(plott)
-            show(plott)
-        } else {
+        }
+        if (plot.display) {
             show(plott)
         }
     }  # End 2D plot
-    
+
     ##### IF 3D PLOT
     if (!is.null(zaxis)) {
         if (verbose >= 2) {
@@ -851,12 +1064,14 @@ gl.pcoa.plot <- function(glPca,
                     )
                 )
             )
-        show(plott)
+        if (plot.display) {
+            show(plott)
+        }
         if (verbose >= 2) {
             cat(warn("  May need to zoom out to place 3D plot within bounds\n"))
         }
     }
-    
+
     # # creating temp file names
     # if (save2tmp) {
     #     temp_plot <- tempfile(pattern = "Plot_")
@@ -877,7 +1092,7 @@ gl.pcoa.plot <- function(glPca,
     #         # cat(report(' NOTE: Retrieve output files from tempdir using gl.list.reports() and gl.print.reports()\n'))
     #     }
     # }
-    
+
     # Optionally save the plot ---------------------
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(plott,
@@ -885,16 +1100,16 @@ gl.pcoa.plot <- function(glPca,
                              file=plot.file,
                              verbose=verbose)
     }
-    
+
     # FLAG SCRIPT END
-    
+
     # # Reassign the initial population list if as.pop is specified if (!is.null(as.pop)){ pop(x) <- pop.hold if (verbose >= 3)
     # {cat(report(' Resetting population assignments to initial state\n'))} }
-    
+
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
+
     return(plott)
     # invisible(NULL)
 }

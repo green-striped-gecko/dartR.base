@@ -2,7 +2,7 @@
 #' @title
 #' Reports various statistics of genetic differentiation between
 #' populations with confidence intervals
-#' @family matched reports
+#' @family matched report
 #' @description
 #' This function calculates four genetic differentiation between populations
 #' statistics (see the "Details" section for further information).
@@ -12,7 +12,7 @@
 #' subpopulations (Nei, 1987).
 #' \item \strong{Fstp} - Unbiased (i.e. corrected for sampling error, see 
 #' explanation below) Fst (Nei, 1987).
-#' \item \strong{Dest} - Jost’s D (Jost, 2008).
+#' \item \strong{Dest} - Jost's D (Jost, 2008).
 #' \item \strong{Gst_H} - Gst standardized by the maximum level that it can obtain for
 #' the observed amount of genetic variation (Hedrick 2005).
 #' }
@@ -20,12 +20,14 @@
 #' Sampling errors arise because allele frequencies in our samples differ from 
 #' those in the subpopulations from which they were taken (Holsinger, 2012).
 #'
-#' Confidence Intervals are obtained using bootstrapping.
+#' Confidence Intervals are obtained by bootstrapping over loci.
 #'
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param nboots Number of bootstrap replicates to obtain confidence intervals
-#' [default 0].
-#' @param conf The confidence level of the required interval  [default 0.95].
+#' @param nboots Number of bootstrap replicates to obtain confidence intervals.
+#' A whole number, either 0 (no bootstrap) or at least 2; with
+#' CI.type = "bca", at least 200 [default 0].
+#' @param conf The confidence level of the required interval, between 0 and 1
+#' [default 0.95].
 #' @param CI.type Method to estimate confidence intervals. One of
 #' "norm", "basic", "perc" or "bca" [default "bca"].
 #' @param ncpus Number of processes to be used in parallel operation. If ncpus
@@ -43,7 +45,8 @@
 #' exclude extension) [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#'  [default NULL, unless specified using gl.set.verbosity]
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' @param ... Parameters passed to function \link[gplots]{heatmap.2} (package
 #' gplots).
 #' @details
@@ -111,11 +114,12 @@
 #'     \figure{Htpequation.jpg}
 #'
 #'     \item
-#'     \emph{Dstp} - Unbiased estimate of the average allele frequency 
-#'     differentiation between populations (Nei, 1987, pp. 165) is calculated
-#'      as:
+#'     \emph{Dstp} - Unbiased estimate of the average allele frequency
+#'     differentiation between populations (Nei, 1987, pp. 165), where
+#'     \emph{s} is the number of subpopulations that carry the locus, is
+#'     calculated as:
 #'
-#'     \figure{Dstequation.jpg}
+#'     \deqn{Dstp = Dst * s / (s - 1)}
 #'
 #'     \item
 #'     \emph{Fst} - Measure of the extent of genetic differentiation 
@@ -130,9 +134,9 @@
 #'     \figure{Fstpequation.jpg}
 #'
 #'     \item
-#'     \emph{Dest} - Jost’s D (Jost, 2008, eq. 12) is calculated as:
+#'     \emph{Dest} - Jost's D (Jost, 2008, eq. 12) is calculated as:
 #'
-#'     \figure{Dstequation.jpg}
+#'     \deqn{Dest = Dstp / (1 - Hs)}
 #'
 #'     \item
 #'     \emph{Gst-max} - The maximum level that Gst can obtain for the observed 
@@ -157,12 +161,22 @@
 #' "conf" in this function).
 #'
 #' In this function, CI are obtained using Bootstrap which is an inference
-#' method that samples with replacement the data (i.e. loci) and calculates the
+#' method that samples with replacement the data and calculates the
 #'  statistics every time.
+#'
+#'  The unit of resampling is the locus, which is the unit the statistics are
+#'  averaged over. Each of the "nboots" replicates draws nLoc loci with
+#'  replacement from the pair of populations being compared, and the four
+#'  statistics are recalculated on that replicate by the same estimator that
+#'  produces the reported value.
 #'
 #'  This function uses the function \link[boot]{boot} (package boot) to perform
 #'  the bootstrap replicates and the function \link[boot]{boot.ci}
 #'  (package boot) to perform the calculations for the CI.
+#'
+#'  The function has no seed parameter. To obtain the same intervals twice,
+#'  set the global random number generator immediately before the call, for
+#'  example \code{set.seed(1234)}.
 #'
 #'  Four different types of nonparametric CI can be calculated
 #'   (parameter "CI.type" in this function):
@@ -196,7 +210,10 @@
 #'   obtained if too few number of bootstrap replicates are used.
 #'   Therefore, the function \link[boot]{boot.ci} will throw warnings and errors
 #'    if bootstrap replicates are too few. Consider increasing then number of
-#'    bootstrap replicates to at least 200.
+#'    bootstrap replicates to at least 200. With the default
+#'    CI.type = "bca", fewer than 200 replicates is refused with an
+#'    informative error rather than passed to \link[boot]{boot.ci}, which
+#'    fails with "estimated adjustment 'a' is NA".
 #'
 #'    The "bca" interval is often cited as the best for theoretical reasons,
 #'    however it may produce unstable results if the bootstrap distribution
@@ -256,7 +273,7 @@
 #'     amount of processing time, therefore parallelisation in Windows machines
 #'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #'
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @examples
@@ -302,12 +319,27 @@
 #'  theory broadens the spectrum of molecular ecology and evolution. Trends in
 #'   Ecology & Evolution, 32(12), 948-963.
 #' }
+#' @return The shape of the returned object depends on the number of
+#' populations and on whether a bootstrap was requested. In every shape the
+#' statistics are Fst, Fstp, Dest and Gst_H, and pairs of populations are
+#' named "<pop1>_vs_<pop2>".
+#' \itemize{
+#' \item More than two populations, nboots > 0: a list of two elements.
+#' "Stat_matrices" holds one nPop x nPop symmetric matrix per statistic;
+#' "Confidence_Intervals" holds one data frame per pair of populations, with
+#' one row per statistic and columns "Value", "LCI" (low confidence interval)
+#' and "HCI" (high confidence interval).
+#' \item Two populations, nboots > 0: a list of two elements. "Stat_tables"
+#' is a data frame with one row per statistic and one column for the pair;
+#' "Confidence_Intervals" is a single data frame with columns "Value", "LCI"
+#' and "HCI".
+#' \item More than two populations, nboots = 0: a list of two elements,
+#' "Stat_matrices" as above and "Stat_tables", a data frame with one row per
+#' statistic and one column per pair of populations.
+#' \item Two populations, nboots = 0: a data frame with one row per statistic
+#' and one column for the pair, not a list.
+#' }
 #' @export
-#' @return Two lists, the first list contains matrices with genetic statistics
-#' taken pairwise by population, the second list contains tables with the
-#' genetic statistics for each pair of populations. If nboots > 0, tables with
-#' the four statistics calculated with Low Confidence Intervals (LCI) and High
-#' Confidence Intervals (HCI).
 #'
 # ----------------------
 # Function
@@ -328,139 +360,135 @@ gl.report.fstat <- function(x,
   # PRELIMINARIES -- checking ----------------
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
-  
+
+  # verbose 0 is fully silent: no console output and no graphics [approved F4]
+  if (verbose == 0) {
+    plot.display <- FALSE
+  }
+
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir, verbose = 0)
-  
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
-                   build = "v.2023.2",
                    verbose = verbose)
-  
+
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
-  
+  # the arithmetic is SNP dosage specific throughout: heterozygotes are
+  # scores of 1 and allele frequencies are the dosage mean halved, neither
+  # of which means anything for presence/absence data [approved F3]
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
+  # FUNCTION SPECIFIC ERROR CHECKING [approved F5, F7, F8]
+  if (!is.numeric(nboots) || length(nboots) != 1 || is.na(nboots) ||
+      nboots < 0 || nboots != round(nboots)) {
+    stop(error(
+      "Fatal Error: nboots must be a single non-negative whole number\n"))
+  }
+
+  if (nboots == 1) {
+    stop(error(
+      "Fatal Error: nboots = 1 gives a bootstrap distribution of a",
+      "single value, from which no confidence interval can be",
+      "calculated. Set nboots = 0 for point estimates alone, or at",
+      "least 200 replicates for confidence intervals\n"))
+  }
+
+  if (length(CI.type) != 1 ||
+      !CI.type %in% c("norm", "basic", "perc", "bca")) {
+    stop(error(
+      "Fatal Error: CI.type must be one of 'norm', 'basic', 'perc' or 'bca'\n"))
+  }
+
+  if (!is.numeric(conf) || length(conf) != 1 || is.na(conf) ||
+      conf <= 0 || conf >= 1) {
+    stop(error(
+      "Fatal Error: conf must be a single number greater than 0",
+      "and less than 1\n"))
+  }
+
+  if (length(plot.stat) != 1 ||
+      !plot.stat %in% c("Fst", "Fstp", "Dest", "Gst_H")) {
+    stop(error(
+      "Fatal Error: plot.stat must be one of 'Fst', 'Fstp',",
+      "'Dest' or 'Gst_H'\n"))
+  }
+
+  # boot.ci's bca interval needs enough replicates to estimate the
+  # acceleration constant; below 200 it aborts with "estimated adjustment
+  # 'a' is NA" from inside boot
+  if (nboots > 0 && CI.type == "bca" && nboots < 200) {
+    stop(error(
+      "Fatal Error: CI.type = 'bca' requires at least 200 bootstrap",
+      "replicates. Increase nboots, or choose CI.type = 'perc',",
+      "'norm' or 'basic'\n"))
+  }
+
   # keeping populations with more than 1 individuals
   pop_names <- popNames(x)[which(table(pop(x)) > 1)]
-  
+
+  if (length(pop_names) < 2) {
+    stop(error(
+      "Fatal Error: at least two populations of more than one",
+      "individual each are required for pairwise comparisons\n"))
+  }
+
   if (length(pop_names) < nPop(x)) {
-    if (verbose >= 2) {
-      cat(warn("   Keeping populations with more than one individuals.\n"))
+    # dropping populations changes the result, so it is announced whenever
+    # the user is listening at all [approved F10]
+    if (verbose >= 1) {
+      cat(warn(paste0(
+        "  Keeping only populations with more than one individual. Dropped: ",
+        paste(setdiff(popNames(x), pop_names), collapse = ", "),
+        "\n"
+      )))
     }
     x <- gl.keep.pop(x,
                      pop.list = pop_names,
                      verbose = verbose)
   }
-  
+
   #converting to dartR object
   class(x) <- "dartR"
   
-  # bootstrapping function
-  pop.diff <- function(x,
+  # BOOTSTRAP STATISTIC [approved F1, F2] ----------
+  # The unit of resampling is the locus, because that is the unit the four
+  # statistics are averaged over. boot::boot draws its indices from the rows
+  # of the data it is given, so it is handed a one-column data frame of
+  # locus positions; the statistic then subsets the genotype matrix by
+  # those positions. Previously boot was handed an individuals-by-loci
+  # frame and the statistic applied the row indices to the columns, so only
+  # the first nInd loci could ever enter a replicate.
+  #
+  # The replicate is rebuilt from the decoded genotype matrix with new()
+  # rather than by subsetting the genlight, because adegenet's SNPbin "["
+  # method drops NA on repeated indices and a draw with replacement always
+  # produces repeated indices.
+  #
+  # The replicate statistics come from utils.basic.stats, the same function
+  # that produces the reported point estimate, so the interval and the value
+  # it brackets are the same estimator. The estimator was previously
+  # duplicated inline here, and the copy had drifted.
+  pop.diff <- function(loc.index,
                        indices,
+                       gen.mat,
                        pops.info) {
-    pop.diff_fun <- function(df,
-                             pops.info) {
-      df$pop <- as.factor(pops.info)
-      n.ind <- table(df$pop)
-      
-      pop.names <- names(n.ind)
-      sgl_mat <- split(df, f = df$pop)
-      sgl_mat <- lapply(sgl_mat, function(x) {
-        x[, -ncol(x)]
-      })
-      pop.vec <- 1:length(pop.names)
-      
-      n.pop <- lapply(pop.vec, function(y) {
-        apply(sgl_mat[[y]], 2, function(x) {
-          all(is.na(x))
-        })
-      })
-      
-      n.pop <- Reduce("+", n.pop)
-      n.pop <- length(pop.names) - n.pop
-      
-      np <- lapply(pop.vec, function(y) {
-        colSums(!is.na(sgl_mat[[y]]))
-      })
-      
-      np <- Reduce(cbind, np)
-      
-      mn <- apply(np, 1, function(y) {
-        1 / mean(1 / y)
-      })
-      
-      Ho <- lapply(pop.vec, function(y) {
-        colMeans(sgl_mat[[y]] == 1, na.rm = TRUE)
-      })
-      Ho <- Reduce(cbind, Ho)
-      colnames(Ho) <- pop.names
-      mHo <- rowMeans(Ho, na.rm = TRUE)
-      
-      q <- lapply(pop.vec, function(y) {
-        colMeans(sgl_mat[[y]], na.rm = TRUE) / 2
-      })
-      
-      Hs <- lapply(pop.vec, function(y) {
-        n <- nrow(sgl_mat[[y]]) - colSums(apply(sgl_mat[[y]], 2, is.na))
-        Hs <- 2 * (1 - q[[y]]) * q[[y]] - Ho[, y] / 2 / n
-        return(n / (n - 1) * Hs)
-      })
-      
-      Hs <- Reduce(cbind, Hs)
-      colnames(Hs) <- pop.names
-      q_m <- Reduce(cbind, q)
-      sd2 <- q_m ^ 2 + (1 - q_m) ^ 2
-      msp2 <- rowMeans(sd2, na.rm = TRUE)
-      mHs <- mn / (mn - 1) * (1 - msp2 - mHo / 2 / mn)
-      q_mean <- rowMeans(Reduce(cbind, q), na.rm = TRUE)
-      Ht <- 2 * (1 - q_mean) * q_mean
-      Ht <- Ht + mHs / mn / n.pop - mHo / 2 / mn / n.pop
-      Dst <- Ht - mHs
-      Dstp <- n.pop / (n.pop - 1) * Dst
-      Htp <- mHs + Dstp
-      Fst <- Dst / Ht
-      Gst_max <- ((n.pop - 1) * (1 - mHs)) / (n.pop - 1 + mHs)
-      Fstp <- Dstp / Htp
-      Gst_H <- Fstp / Gst_max
-      Dest <- Dstp / (1 - mHs)
-      res <-
-        cbind(mHo, mHs, Ht, Dst, Htp, Dstp, Fst, Fstp, Dest, Gst_max, Gst_H)
-      
-      colnames(res) <-
-        c("Ho",
-          "Hs",
-          "Ht",
-          "Dst",
-          "Htp",
-          "Dstp",
-          "Fst",
-          "Fstp",
-          "Dest",
-          "Gst_max",
-          "Gst_H")
-      
-      overall <- colMeans(res, na.rm = TRUE)
-      overall["Fst"] <- overall["Dst"] / overall["Ht"]
-      overall["Dest"] <- overall["Dstp"] / (1 - overall["Hs"])
-      overall["Fstp"] <- overall["Dstp"] / overall["Htp"]
-      overall["Gst_H"] <- overall["Fstp"] / overall["Gst_max"]
-      
-      all.res <- list(overall = round(overall, 4))
-      
-      return(all.res$overall[c("Fst", "Fstp", "Dest", "Gst_H")])
-    }
-    
-    df <- x[, indices]
-    
-    res <- pop.diff_fun(df,
-                        pops.info)
-    
+    gl.boot <- new(
+      "genlight",
+      gen = gen.mat[, loc.index$loc[indices], drop = FALSE],
+      ploidy = 2,
+      pop = pops.info,
+      parallel = FALSE
+    )
+
+    res <- utils.basic.stats(gl.boot)$overall[c("Fst", "Fstp", "Dest",
+                                                "Gst_H")]
+
     return(res)
-    
+
   }
-  
+
   # setting parallel
   # if(ncpus>1){
   if (grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
@@ -495,13 +523,11 @@ gl.report.fstat <- function(x,
       # bootstrapping
       pairpop_boot <- apply(pairs_pops, 1, function(y) {
         tpop <- rbind.dartR(pops[[y[1]]], pops[[y[2]]])
-        
-        df <- as.data.frame(as.matrix(tpop))
-        pops.info_tmp <- as.character(pop(tpop))
-        
+
         res_boots <- boot::boot(
-          data = df,
+          data = data.frame(loc = seq_len(nLoc(tpop))),
           statistic = pop.diff,
+          gen.mat = as.matrix(tpop),
           pops.info = as.character(pop(tpop)),
           R = nboots,
           parallel = parallel,
@@ -542,14 +568,12 @@ gl.report.fstat <- function(x,
     
     if (nboots > 0) {
       res_CI <- as.data.frame(matrix(nrow = 4, ncol = 2))
-      
-      df <- as.data.frame(as.matrix(tpop))
-      pops.info_tmp <- as.character(pop(tpop))
-      
+
       # bootstrapping
       pairpop_boot <- boot::boot(
-        data = df,
+        data = data.frame(loc = seq_len(nLoc(tpop))),
         statistic = pop.diff,
+        gen.mat = as.matrix(tpop),
         pops.info = as.character(pop(tpop)),
         R = nboots,
         parallel = parallel,
@@ -626,30 +650,32 @@ gl.report.fstat <- function(x,
   colnames(pairpop_res) <- pairs_pops_names
   
   # Printing outputs -----------
-  if (verbose >= 2) {
+  # the results summary belongs at verbose 3; verbose 2 is a progress log
+  # [approved F9]
+  if (verbose >= 3) {
     if (nboots > 0 & npops > 2) {
       print(list(
         Stat_matrices = mat_pops,
         Confidence_Intervals = CI
       ))
     }
-    
+
     if (nboots > 0 & npops <= 2) {
       print(list(
-        Stat_tables = data.frame(pairpop_res),
+        Stat_tables = pairpop_res,
         Confidence_Intervals = CI
       ))
     }
-    
+
     if (nboots == 0 & npops > 2) {
       print(list(
         Stat_matrices = mat_pops,
-        Stat_tables = data.frame(Stat_tables = pairpop_res)
+        Stat_tables = pairpop_res
       ))
     }
-    
+
     if (nboots == 0 & npops <= 2) {
-      print(data.frame(Stat_tables = pairpop_res))
+      print(pairpop_res)
     }
   }
   
@@ -678,12 +704,17 @@ gl.report.fstat <- function(x,
         p3()
       },
       error = function(e) {
+        # report what actually failed; not every heatmap error is a pane
+        # size problem [approved F7]
         cat(
           warn(
-            "   Your plot was not shown in full because your 'Plots' pane
-    is too small. Increase the size of the 'Plots' pane and run the
-    function again. Alternatively, use the parameter 'plot.file' to
-    save the plot to a file.\n"
+            paste0(
+              "   The heatmap was not drawn. The error was: ",
+              conditionMessage(e),
+              "\n   If your 'Plots' pane is too small, increase its size and
+    run the function again. Alternatively, use the parameter 'plot.file'
+    to save the plot to a file.\n"
+            )
           )
         )
       }
@@ -729,13 +760,16 @@ gl.report.fstat <- function(x,
                 Confidence_Intervals = CI))
   }
   
+  # the pairwise table is named as a list element, not wrapped in a
+  # data.frame() call that prefixes every column with "Stat_tables."
+  # [approved F6, F11]
   if (nboots == 0 & npops > 2) {
     return(list(Stat_matrices = mat_pops,
-                data.frame(Stat_tables = pairpop_res)))
+                Stat_tables = pairpop_res))
   }
-  
+
   if (nboots == 0 & npops <= 2) {
-    return(data.frame(Stat_tables = pairpop_res))
+    return(pairpop_res)
   }
   
 }

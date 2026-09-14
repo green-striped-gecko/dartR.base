@@ -2,8 +2,8 @@
 % Please edit documentation in R/gl.report.shannon.r
 \name{gl.report.shannon}
 \alias{gl.report.shannon}
-\title{Report SNP diversity from a genlight object, with reference to Ma, Z., Li, L., & Zhang, Y. P. (2020). Defining individual-level 
-genetic diversity and similarity profiles. Scientific reports, 10(1), 5805.}
+\title{Reports Shannon-based diversity profiles (Hill numbers) for
+individuals and populations}
 \usage{
 gl.report.shannon(
   x,
@@ -13,54 +13,101 @@ gl.report.shannon(
   plot.file = NULL,
   level = "alpha",
   order = 5,
-  verbose = 2
+  verbose = NULL
 )
 }
 \arguments{
-\item{x}{A genlight file (works only for diploid data) [required].}
+\item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{plot.display}{Specify if plot is to be produced [default TRUE].}
+\item{plot.display}{If TRUE, resultant plots are displayed in the plot
+window [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
 
-\item{plot.dir}{Directory to save the plot RDS files [default as specified 
-by the global working directory or tempdir()]..}
+\item{plot.dir}{Directory to save the plot RDS files [default as specified
+by the global working directory or tempdir()].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, 
+\item{plot.file}{Name for the RDS binary file to save (base name only,
 exclude extension) [default NULL].}
 
-\item{level}{The types of SNP diversity to report. [default 'alpha', also accept 'beta', 'gamma'].}
+\item{level}{The level of diversity to report: 'alpha' for a profile per
+individual; 'beta' or 'gamma' for the partition of diversity among
+individuals within each population [default 'alpha'].}
 
-\item{order}{The number of order to report. Starts from 0. [default 5].}
+\item{order}{The number of diversity orders to report, spanning q = 0 to
+order - 1 [default 5].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A dataframe containing SNP diversity per individual
+A dataframe, returned invisibly: for level = 'alpha', one row per
+individual (ID, q0 ... q(order-1)); for level = 'beta' or 'gamma', one row
+per population (pop, q0 ... q(order-1)).
 }
 \description{
-This function needs package adegenet, please install it.
+Calculates diversity of order q (Hill numbers) from SNP dosages, following
+Ma, Li & Zhang (2020). With level = 'alpha' (the default) the function
+reports a diversity profile for each individual; with level = 'beta' or
+'gamma' it partitions diversity among the individuals within each
+population and reports one profile per population.
 }
 \details{
-details
+Genotypes are taken as dosages of the alternate allele (0, 1 or 2), and the
+dosages act as abundances. For each individual, missing genotypes and zero
+dosages are dropped, the remaining dosages are normalised to proportions p,
+and the diversity of order q is computed as
 \itemize{
-\item SNP diversity per individual}
+\item q = 0: the number of loci with non-zero dosage (richness);
+\item q = 1: exp(-sum(p log p)), the exponential of Shannon entropy
+(natural logarithms; Hill numbers are free of the logarithm base);
+\item q >= 2: (sum(p^q))^(1/(1-q)) (q = 2 is the inverse Simpson index).
+}
+The profile spans orders q = 0 to order - 1.
+For level = 'beta' or 'gamma', the individuals of each population form an
+abundance matrix (individuals x loci, missing genotypes as zero) and the
+matrix forms of Ma, Li & Zhang (2020) apply per population: gamma is the
+diversity of the pooled locus abundances, alpha is the mean
+within-individual diversity (normalised over the population total), and
+beta = gamma / alpha is the effective number of distinct individuals in the
+population (ranging from 1, all individuals identical in profile, to the
+number of individuals). The multiplicative partition gamma = alpha x beta
+holds at every order. If the object has no population assignments, all
+individuals are assigned to a single population 'pop1' with a warning.
+Individuals with no non-missing, non-zero dosages (all genotypes missing or
+all homozygous for the reference allele) carry no abundance information:
+their rows are reported as NA at level = 'alpha', they are excluded from the
+population matrices at level = 'beta' and 'gamma', and a warning names them.
+If a plot.file is given, the ggplot arising from this function is saved as an
+"RDS" binary file using saveRDS(); can be reloaded with readRDS(). A file
+name must be specified for the plot to be saved. If a plot directory
+(plot.dir) is specified, the ggplot binary is saved to that directory;
+otherwise to the tempdir().
 }
 \examples{
-\dontrun{
-if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
-obj <- gl.report.shannon(possums.gl[1:30,])
-}
+require("dartR.data")
+div <- gl.report.shannon(possums.gl[1:30, ])
+div.beta <- gl.report.shannon(possums.gl[1:30, ], level = "beta", order = 3)
 }
 \references{
 \itemize{
-\item Ma, Z., Li, L., & Zhang, Y. P. (2020). Defining individual-level 
+\item Ma, Z., Li, L., & Zhang, Y. P. (2020). Defining individual-level
 genetic diversity and similarity profiles. Scientific reports, 10(1), 5805.}
 }
-\author{
-Ching Ching Lau (Post to
-\url{https://groups.google.com/d/forum/dartr})
+\seealso{
+Other unmatched report: 
+\code{\link{gl.allele.freq}()},
+\code{\link{gl.report.allelerich}()},
+\code{\link{gl.report.basics}()},
+\code{\link{gl.report.diversity}()},
+\code{\link{gl.report.excess.het}()},
+\code{\link{gl.report.polyploid_heterozygosity}()}
 }
+\author{
+Author(s): Ching Ching Lau. Custodian: Ching Ching Lau -- Post to
+\url{https://groups.google.com/d/forum/dartr}
+}
+\concept{unmatched report}

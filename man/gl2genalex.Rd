@@ -21,8 +21,9 @@ gl2genalex(
 \item{outpath}{Path where to save the output file [default global working 
 directory or if not specified, tempdir()].}
 
-\item{overwrite}{If FALSE and filename exists, then the file will not be
-overwritten [default FALSE].}
+\item{overwrite}{If FALSE and the file already exists, the call fails with
+an error and the existing file is left in place; set TRUE to overwrite it
+[default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end;
 2, progress log; 3, progress and results summary; 5, full report
@@ -51,20 +52,20 @@ http://bioinformatics.oxfordjournals.org/content/28/19/2537
 }
 \seealso{
 Other linker: 
+\code{\link{gi2gl}()},
 \code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
 \code{\link{gl2faststructure}()},
+\code{\link{gl2gapit}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
 \code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
