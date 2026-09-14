@@ -10,6 +10,7 @@ gl.drop.pop,dartR.base,data manipulation,arthur,done
 gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
 gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
+gl.filter.overshoot,dartR.base,matched filter,arthur,pr-open,262
 gl.report.heterozygosity,dartR.base,matched report,arthur,pr-open,291
 gl.filter.heterozygosity,dartR.base,matched filter,arthur,pr-open,272
 gl.load,dartR.base,io,arthur,pr-open,289
@@ -64,3 +65,62 @@ gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
 gl2structure,dartR.base,io,arthur,pr-open,339
+gl2bayescan,dartR.base,io,arthur,pr-open,340
+gl2genepop,dartR.base,io,arthur,pr-open,348
+gl2snapper,dartR.base,io,arthur,pr-open,334
+gl2gapit,dartR.base,io,arthur,pr-open,337
+gi2gl,dartR.base,io,arthur,pr-open,344
+gl2geno,dartR.base,io,arthur,pr-open,332
+gl2bayesAss,dartR.base,io,arthur,pr-open,335
+gl2vcf,dartR.base,io,arthur,pr-open,352
+gl2fasta,dartR.base,io,arthur,pr-open,329
+utils.dartR.class.def,dartR.base,utility,arthur,pr-open,328
+utils.heatmap,dartR.base,utility,arthur,pr-open,327
+utils.plink.run,dartR.base,utility,arthur,pr-open,326
+utils.collapse.matrix,dartR.base,utility,arthur,pr-open,325
+utils.transpose,dartR.base,utility,arthur,pr-open,323
+utils.stats,dartR.base,utility,arthur,pr-open,322
+utils.plot.save,dartR.base,utility,arthur,pr-open,321
+utils.flag.start,dartR.base,utility,arthur,pr-open,320
+utils.jackknife,dartR.base,utility,arthur,pr-open,319
+utils.hamming,dartR.base,utility,arthur,pr-open,317
+utils.dist.binary,dartR.base,utility,arthur,pr-open,316
+utils.dist.ind.snp,dartR.base,utility,arthur,pr-open,315
+utils.n.var.invariant,dartR.base,utility,arthur,pr-open,314
+utils.allelic.richness,dartR.base,utility,arthur,pr-open,313
+utils.hwe,dartR.base,utility,arthur,pr-open,312
+utils.het.pop,dartR.base,utility,arthur,pr-open,311
+utils.is.fixed,dartR.base,utility,arthur,pr-open,310
+utils.basic.stats,dartR.base,utility,arthur,pr-open,309
+utils.reset.flags,dartR.base,utility,arthur,pr-open,308
+utils.recalc.avgpic,dartR.base,utility,arthur,pr-open,307
+utils.recalc.maf,dartR.base,utility,arthur,pr-open,306
+utils.recalc.freqhomref,dartR.base,utility,arthur,pr-open,304
+utils.hamming.blocks,dartR.base,utility,arthur,pr-open,318
+utils.impute,dartR.base,utility,arthur,pr-open,324
+utils.recalc.freqhomsnp,dartR.base,utility,arthur,pr-open,305
+utils.recalc.freqhets,dartR.base,utility,arthur,pr-open,303
+gl.filter.pa,dartR.base,matched filter,arthur,pr-open,300
+utils.check.datatype,dartR.base,utility,arthur,pr-open,296
+gl.filter.maf,dartR.base,matched filter,arthur,pr-open,295
+utils.recalc.callrate,dartR.base,utility,arthur,pr-open,302
+gl.report.pa,dartR.base,matched report,arthur,pr-open,299
+gl.report.diversity,dartR.base,report,arthur,pr-open,301
+gl.report.maf,dartR.base,matched report,arthur,pr-open,294
+gl2eigenstrat,dartR.base,io,arthur,pr-open,355
+gl.amova,dartR.popgen,analysis,arthur,moved-to-dartR.popgen,88
+utils.read.fasta,dartR.base,io,arthur,pr-open,362
+utils.read.dart,dartR.base,io,arthur,pr-open,360
+gl.read.fasta,dartR.base,io,arthur,pr-open,359
+utils.read.ped,dartR.base,io,arthur,pr-open,361
+gl.dist.pop,dartR.base,analysis,claude,pr-open,376
+gl.recalc.metrics,dartR.base,modify,arthur,pr-open,386
+gl.tree.fitch,dartR.base,analysis,claude,pr-open,371
+gl.set.verbosity,dartR.base,utility,arthur,pr-open,297
+gl.impute,dartR.base,data manipulation,claude,pr-open,373
+gl.dist.ind,dartR.base,analysis,claude,pr-open,375
+gl.read.PLINK,dartR.base,io,arthur,pr-open,358
+gl.report.ld.map,dartR.base,matched report,arthur,pr-open,390
+gl.filter.ld,dartR.base,matched filter,arthur,pr-open,391
+gl.report.ld,dartR.base,report,arthur,pr-open,392
+gl.filter.factorloadings,dartR.base,matched filter,arthur,pr-open,393
