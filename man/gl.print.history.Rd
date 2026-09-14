@@ -38,6 +38,8 @@ gl.print.history(gl3)
 Other environment: 
 \code{\link{gl.check.verbosity}()},
 \code{\link{gl.check.wd}()},
+\code{\link{gl.recalc.metrics}()},
+\code{\link{gl.set.verbosity}()},
 \code{\link{gl.set.wd}()},
 \code{\link{theme_dartR}()}
 }
