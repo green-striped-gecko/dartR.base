@@ -135,7 +135,23 @@ Proposed change: correct the parameter descriptions, verbose text and the
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-5 applied on branch review-gl.edit.recode.pop (commit e327ecf), PR
+green-striped-gecko/dartR.base#400.
+
+- Characterization suite green (13 assertions); every diff from the
+  pre-review baseline maps to an approved change: pop.recode loaded & applied
+  and the input file preserved, out.recode.file written under outpath (F1),
+  flags reset at verbose 0/1 too (F2), no crash on a missing monomorphs flag
+  (F3). edit() mocked in the dartR.base namespace (which imports utils::edit)
+  so the tests run deterministically without opening an editor.
+- End-to-end: an existing MERGED recode table passed via pop.recode recodes
+  all populations to MERGED and leaves the file unchanged; the CallRate flag
+  is identical at verbose 0 and 3.
+- Behaviour for recalc = TRUE and the interactive recode/delete unchanged.
+- No internal callers; user-facing interactive function.
+- Testing note: edit() blocks under testthat's execution context (it opens
+  the data editor); mocking it in the dartR.base namespace is required for a
+  non-hanging, deterministic test.
 
 ```json
 {
@@ -147,14 +163,14 @@ Proposed change: correct the parameter descriptions, verbose text and the
   "verdict_standards": "needs_work",
   "verdict_spec": "rework",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT2", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "DAT4", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DAT5", "status": "proposed", "change": 3},
-    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 4},
-    {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 5}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT2", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "HIGH", "confidence": "high", "rule": "DAT4", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "DAT5", "status": "approved", "change": 3},
+    {"id": "F4", "severity": "MEDIUM", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 4},
+    {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 5}
   ],
-  "coverage_skipped": ["interactive edit() path not unit-tested", "GitHub issues not queried", "Google Group not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "coverage_skipped": ["GitHub issues not queried", "Google Group not queried"],
+  "status": "pr-open",
+  "pr": 400
 }
 ```
