@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.freqhomref()` review: SilicoDArT input is now rejected
+  (was silently given diploid metrics); NULL-safe monomorphs-flag
+  check; marked internal; arithmetic verified exact (unchanged).
+
 * `utils.hamming.engine()` review: verified sound - the block-hashing
   dedup detector matches a brute-force scan exactly and pairwise
   mismatch counts are exact. No changes; characterization tests
