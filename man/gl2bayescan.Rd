@@ -12,19 +12,30 @@ gl2bayescan(x, outfile = "bayescan.txt", outpath = NULL, verbose = NULL)
 \item{outfile}{File name of the output file (including extension)
 [default bayescan.txt].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-returns no value (i.e. NULL)
+returns no value (i.e. NULL), invisibly
 }
 \description{
-The output text file contains the SNP data and relevant BAyescan command
- lines to guide input.
+The output text file contains the SNP data and relevant BayeScan command
+lines to guide input.
+}
+\details{
+The output follows BayeScan's codominant (GESTE) format: for each
+population, one row per locus giving the number of gene copies sampled,
+the number of alleles (2), and the counts of the alternate and reference
+alleles. A population x locus combination with no genotyped individuals
+is written as a sample of zero gene copies; a warning reports how many
+such rows were written. Filtering on call rate
+(\code{gl.filter.callrate}) before export is recommended to avoid empty
+samples.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -59,7 +70,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
