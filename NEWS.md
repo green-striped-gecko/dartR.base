@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2snapper()`: the autapomorphy classifier (`rm.autapomorphies = TRUE`)
+  now scores a population as polymorphic from allele counts (both alleles
+  observed) instead of thresholds on rounded frequencies, so near-fixed
+  polymorphic populations no longer cause informative loci to be dropped;
+  the set of retained loci can change. Also: preprocessing chatter
+  (name-mangling warnings, gl.allele.freq/gl.drop.loc progress) is gated
+  so `verbose = 0` is silent; the nexus write restores the console if it
+  fails midway; the NULL return is now invisible; the documented
+  `rm.autapomorphies` default corrected to FALSE (the signature default,
+  which is unchanged).
 * `gl2gapit()`: now actually writes the hapmap table to
   `outpath/outfile` (tab-delimited) -- previously the parameters and the
   progress message promised output files but nothing was written. The
