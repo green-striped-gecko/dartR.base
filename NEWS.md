@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2fasta()` review (driven by a user report of single-locus output
+  on a merged/co-analysed dataset - reproduced): the internal
+  overshoot pre-filter is no longer silent - removals are warned at
+  verbose >= 1, and fewer than 2 surviving loci is a fatal error
+  explaining the SnpPosition-vs-TrimmedSequence inconsistency;
+  factor-coded SnpPosition is now recovered correctly (it previously
+  fed substr with factor level codes, silently corrupting method-1
+  sequences) and genuinely non-numeric positions are fatal; sink() is
+  guarded with on.exit (a mid-write crash could hijack the session
+  console); the documented method=0 help listing works (a cat():cat()
+  typo crashed it); NULL-safe flag check; @return corrected; FASTA
+  lines written without trailing spaces.
 * `utils.dartR.class.def` (the dartR S4 class layer) review: the show
   method's loc.metrics detail no longer vanishes when ind.metrics is
   absent (a copy-paste guard); subsetting with an unmatched locus name
