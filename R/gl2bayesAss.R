@@ -1,39 +1,48 @@
 #' @name gl2bayesAss
 #' @title Converts a genlight object into bayesAss (BA3) input format
 #' @family linker
-#' 
+#'
 #' @description
-#' This function exports a genlight object into bayesAss format and save it into a
-#' file.
-#' This function only caters for \code{ploidy=2}.
-#' 
+#' This function exports a genlight object into bayesAss format and saves it
+#' into a file.
+#' This function only caters for \code{ploidy = 2}.
+#'
+#' @details
+#' The output file has one row per individual per locus, in the format
+#' expected by BayesAss (BA3) and BA3-SNPs: individual identifier,
+#' population, locus name, then the two alleles coded as 1 (reference) and
+#' 2 (alternate). Missing genotypes are written as 0 0.
+#'
 #' @param x Name of the genlight object containing the SNP data [required].
-#' @param ploidy Set the ploidy [defaults 2].
+#' @param ploidy Confirmation that the data are diploid; 2 is the only
+#' accepted value, other values stop the function [default 2].
 #' @param outfile File name of the output file [default 'gl.BayesAss.txt'].
-#' @param outpath Path where to save the output file [default global working 
+#' @param outpath Path where to save the output file [default global working
 #' directory or if not specified, tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' 
-#' @author Custodian: Carlo Pacioni (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
-#'  
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return returns the input file as data.table
+#'
+#' @author Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
+#' @references
+#' Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs:
+#' Contemporary migration reconfigured in BayesAss for next-generation sequence data.
+#' Methods in Ecology and Evolution 10, 1808-1813.
+#'
+#' Wilson G. A. and Rannala B. (2003) Bayesian Inference of Recent Migration Rates
+#' Using Multilocus Genotypes. Genetics 163, 1177-1191.
+#'
 #' @examples
 #' require("dartR.data")
 #' #only the first 100 due to check time
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl2bayesAss(platypus.gl[,1:100], outpath=tempdir())
-#' @references
-#' Mussmann S. M., Douglas M. R., Chafin T. K. and Douglas M. E. (2019) BA3-SNPs: 
-#' Contemporary migration reconfigured in BayesAss for next-generation sequence data. 
-#' Methods in Ecology and Evolution 10, 1808-1813.
-#' 
-#' Wilson G. A. and Rannala B. (2003) Bayesian Inference of Recent Migration Rates 
-#' Using Multilocus Genotypes. Genetics 163, 1177-1191.
-#' 
 #' @export
-#' @return  returns the input file as data.table
 gl2bayesAss <-  function(x, 
                          ploidy=2, 
                          outfile="gl.BayesAss.txt", 
@@ -52,10 +61,12 @@ gl2bayesAss <-  function(x,
                    verbose = verbose)
   
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
-  
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
   # FUNCTION SPECIFIC ERROR CHECKING
-  if(ploidy != 2) stop("This function only caters for ploidy=2")
+  if (ploidy != 2) {
+    stop(error("Fatal Error: this function only caters for ploidy = 2\n"))
+  }
   
   # DO THE JOB
   # Set NULL to variables to pass CRAN checks
