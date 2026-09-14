@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.flag.start()` review: verbosity contract verified (no
+  behaviour change); docs completed; marked internal (stays
+  exported - called family-wide).
+
 * `utils.jackknife()` review: a unit vector of length > 1 now reaches
   the informative stop instead of crashing ("the condition has length
   > 1" - the check took length(unit == 1), the length of the
