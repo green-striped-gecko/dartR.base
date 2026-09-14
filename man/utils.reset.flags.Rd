@@ -2,8 +2,8 @@
 % Please edit documentation in R/utils.reset.flags.r
 \name{utils.reset.flags}
 \alias{utils.reset.flags}
-\title{#' An internal utility function to reset to FALSE (or TRUE) the locus metric flags after
-some individuals or populations have been deleted.}
+\title{An internal utility function to reset to FALSE (or TRUE) the locus
+metric flags after some individuals or populations have been deleted.}
 \usage{
 utils.reset.flags(x, set = FALSE, value = 2, verbose = NULL)
 }
@@ -12,8 +12,7 @@ utils.reset.flags(x, set = FALSE, value = 2, verbose = NULL)
 
 \item{set}{Set the flags to TRUE or FALSE [default FALSE].}
 
-\item{value}{Set the default verbosity for all functions, where verbosity is
-not specified [default 2].}
+\item{value}{The default verbosity to store in the object's}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -43,27 +42,21 @@ result <- utils.reset.flags(testset.gl)
 
 }
 \seealso{
-\code{utils.recalc.metrics} for recalculating all metrics,
-\code{utils.recalc.callrate} for recalculating CallRate,
-\code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
-of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele 
-frequency, \code{gl.recalc.rdepth} for recalculating average read depth
+\code{\link{gl.recalc.metrics}} for recalculating all
+locus metrics
 
 Other utilities: 
 \code{\link{gl.He}()},
 \code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -84,3 +77,4 @@ Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
