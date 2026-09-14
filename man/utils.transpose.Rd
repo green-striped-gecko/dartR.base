@@ -19,7 +19,8 @@ WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END
 }
 \details{
 This is a function to transpose a genlight object, that is, to set loci as
-entities and individuals as attributes.
+entities and individuals as attributes. Depends on matrix2gen
+(utils.impute.R). Assumes uniform ploidy.
 }
 \seealso{
 Other utilities: 
@@ -50,3 +51,4 @@ Other utilities:
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \concept{utilities}
+\keyword{internal}

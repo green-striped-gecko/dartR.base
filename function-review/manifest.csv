@@ -65,6 +65,13 @@ gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
 utils.dartR.class.def,dartR.base,utility,arthur,pr-open,328
+utils.heatmap,dartR.base,utility,arthur,pr-open,327
+utils.plink.run,dartR.base,utility,arthur,pr-open,326
+utils.collapse.matrix,dartR.base,utility,arthur,pr-open,325
+utils.transpose,dartR.base,utility,arthur,pr-open,323
+utils.stats,dartR.base,utility,arthur,pr-open,322
+utils.plot.save,dartR.base,utility,arthur,pr-open,321
+utils.flag.start,dartR.base,utility,arthur,pr-open,320
 utils.jackknife,dartR.base,utility,arthur,pr-open,319
 utils.hamming,dartR.base,utility,arthur,pr-open,317
 utils.dist.binary,dartR.base,utility,arthur,pr-open,316

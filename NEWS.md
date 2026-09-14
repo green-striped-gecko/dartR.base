@@ -13,6 +13,39 @@
   ecosystem-level resolution (retired dartR monolith defines the same
   class); adegenet-internal getFromNamespace fragility; glSum/glMean
   shadow-function dispatch limitation.
+* `utils.heatmap()` review: documented as a deliberate fork of
+  gplots::heatmap.2 (colored dendrogram leaf labels via dendextend,
+  auto-sized margins, NULL side-color defaults); matrices without
+  dimnames no longer crash on the auto-margin; clustering verified
+  identical to gplots::heatmap.2. Note for the custodian: gplots
+  remains in Imports but is no longer used anywhere in the package.
+* `utils.plink.run()` review: the composed command is now well
+  formed - plink.path="path" performs a bare PATH lookup as
+  documented (previously a literal "path/" prefix), and a space is
+  guaranteed before --out (previously glued onto the last syntax
+  token); marked internal (stays exported).
+* `utils.collapse.matrix()` review: the within-population diagonal
+  now averages distinct pairs only (self-distances of zero deflated
+  it; matrix output only - dist consumers such as gl.dist.pop are
+  unaffected); empty fatal-error messages restored; off-diagonal
+  means verified exact (unchanged); marked internal (stays
+  exported). Addendum from the population-distance chain review: the
+  name guard is two-directional (a D computed on a subset of the
+  object's individuals, or an unnamed matrix, now fails with a clear
+  message instead of a bare subscript/dimnames error).
+* `utils.transpose()` review: verified exact (dimension/name/metric
+  swaps; double transpose reproduces the original genotypes);
+  narration comments tidied; marked internal.
+* `utils.stats` (std.error): documented; computation verified.
+* `utils.plot.save()` review: the documented default verbose = NULL
+  no longer crashes (verbosity is normalized on entry); a nonexistent
+  save directory now falls back to tempdir() instead of crashing on a
+  tempfile() path; the "No plot saved" note respects verbose 0; the
+  unused ggsave passthrough claim dropped from the docs; marked
+  internal (stays exported - called family-wide).
+* `utils.flag.start()` review: verbosity contract verified (no
+  behaviour change); docs completed; marked internal (stays
+  exported - called family-wide).
 
 * `utils.jackknife()` review: a unit vector of length > 1 now reaches
   the informative stop instead of crashing ("the condition has length
