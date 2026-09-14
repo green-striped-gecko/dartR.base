@@ -18,24 +18,26 @@ gl.impute(
 \item{x}{Name of the genlight object containing the SNP or presence-absence
 data [required].}
 
-\item{method}{Imputation method, either "frequency" or "HW" or "neighbour" 
+\item{method}{Imputation method, either "frequency" or "HW" or "neighbour"
 or "random" or "beagle" [default "neighbour"].}
 
-\item{fill.residual}{Should any residual missing values remaining after 
-imputation be set to 0, 1, 2 at random, taking into account global allele 
-frequencies at the particular locus [default TRUE].}
+\item{fill.residual}{Should any residual missing values remaining after
+imputation be filled at random, drawing from the global allele profile at
+the particular locus (for presence-absence data, a Bernoulli draw with the
+global band frequency) [default TRUE].}
 
 \item{parallel}{A logical indicating whether multiple cores -if available-
 should be used for the computations (TRUE), or not (FALSE); requires the
 package parallel to be installed [default FALSE].}
 
-\item{beagle.bin.path}{Path of beagle.27Feb25.75f.jar file [default getwd())].}
+\item{beagle.bin.path}{Path of beagle.27Feb25.75f.jar file [default getwd()].}
 
-\item{plink.bin.path}{Path of PLINK binary file [default getwd())].}
+\item{plink.bin.path}{Path of PLINK binary file [default getwd()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A genlight object with the missing data imputed.
@@ -50,45 +52,66 @@ We recommend that imputation be performed on sampling locations, before
 any aggregation. Imputation is achieved by replacing missing values using
 either of five methods:
 \itemize{
-\item If "frequency", genotypes scored as missing at a locus in an individual
- are imputed using the average allele frequencies at that locus in the 
- population from which the individual was drawn.
-\item If "HW", genotypes scored as missing at a locus in an individual are 
-imputed by sampling at random assuming Hardy-Weinberg equilibrium. Applies 
-only to genotype data.
+\item If "frequency", a genotype scored as missing at a locus in an
+individual is set deterministically from the allele frequencies at that
+locus in the population from which the individual was drawn. For SNP
+genotype data the imputed value is the expected genotype dosage 2q (q
+being the frequency of the alternate allele in that population) rounded
+to the nearest valid genotype (0, 1 or 2); exact ties (2q = 0.5 or
+2q = 1.5) resolve to the heterozygote (1). For presence-absence data the
+imputed value is the more frequent band state (0 or 1) in the population;
+a tie (band frequency exactly 0.5) resolves to presence (1). This method
+involves no random draw -- repeated runs give identical results (values
+filled by fill.residual remain random draws).
+\item If "HW", a genotype scored as missing at a locus in an individual is
+drawn at random. For SNP genotype data the draw assumes Hardy-Weinberg
+equilibrium, using the genotype probabilities (p^2, 2pq, q^2) at that
+locus in the population. For presence-absence data the draw is Bernoulli
+with the band frequency at that locus in the population.
 \item If "neighbour", substitute the missing values for the focal individual
  with the values taken from the nearest neighbour. Repeat with next nearest
  and so on until all missing values are replaced.
-\item if "random", missing data are substituted by random values (0, 1 or 2). 
-\item if "beagle", missing data is imputed using using BEAGLE 
-(beagle.27Feb25.75f.jar), which infers missing genotypes by modelling 
-shared haplotype patterns among individuals. Beagle can be downloaded using 
-the following link: 
+\item if "random", missing data are substituted by values drawn at random
+with equal probability from the valid genotypes (0, 1 or 2 for SNP
+genotype data; 0 or 1 for presence-absence data).
+\item if "beagle", missing data is imputed using using BEAGLE
+(beagle.27Feb25.75f.jar), which infers missing genotypes by modelling
+shared haplotype patterns among individuals. Applies only to SNP genotype
+data. Beagle can be downloaded using the following link:
 
 https://faculty.washington.edu/browning/beagle/beagle.html#download.
 
-After downloading the Beagle binary move it to your working directory. 
+After downloading the Beagle binary move it to your working directory.
 
 For method = "beagle" it is also required to download the binary file of PLINK 1.9
 and move it to your working directory. The binary file can be downloaded from:
 
 \url{https://www.cog-genomics.org/plink/}
 }
-  The nearest neighbour is the one at the smallest Euclidean distance from 
+  The spelling "neighbor" is accepted as an alias for "neighbour".
+
+  The nearest neighbour is the one at the smallest Euclidean distance from
   the focal individual.
-  
+
   The advantage of this approach is that it works regardless of how many
   individuals are in the population to which the focal individual belongs,
   and the displacement of the individual is haphazard as opposed to:
   (a) Drawing the individual toward the population centroid (HW and Frequency).
   (b) Drawing the individual toward the global centroid (glPCA).
-  
-Note that loci that are missing for all individuals in a population are not 
+
+Note that loci that are missing for all individuals in a population are not
 imputed with method 'frequency' or 'HW' and can give unpredictable results
 for particular individuals using 'neighbour'.
 
- Consider using the function 
+ Consider using the function
 \code{\link{gl.filter.allna}} with by.pop=TRUE to remove them first.
+
+Loci scored NA across all individuals in the dataset cannot be imputed
+from allele frequencies or neighbours: with methods 'frequency', 'HW' and
+'neighbour' they remain NA in the returned object, regardless of
+fill.residual (the global frequency at such loci is undefined). Method
+'random' substitutes unconditioned random values at such loci. Use
+\code{\link{gl.filter.allna}} (without by.pop) to remove them first.
 }
 \examples{
  \donttest{
@@ -97,20 +120,20 @@ require("dartR.data")
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 gl <- gl.filter.callrate(platypus.gl,threshold=0.95)
 gl <- gl.filter.allna(gl)
-gl <- gl.impute(gl, method="frequency") 
+gl <- gl.impute(gl, method="frequency")
 # Sequence Tag presence-absence data
 gs <- gl.filter.callrate(testset.gs,threshold=0.95)
-gl <- gl.filter.allna(gl)
-#gs <- gl.impute(gs, method="neighbour")
+gs <- gl.filter.allna(gs)
+gs <- gl.impute(gs, method="neighbour")
 }
 gl <- gl.impute(platypus.gl,method ="random")
 
 }
 \references{
 \itemize{
-\item Browning, B. L., & Browning, S. R. (2016). Genotype imputation with 
-millions of reference samples. American Journal of Human Genetics, 98(1), 
-116–126. https://doi.org/10.1016/j.ajhg.2015.11.020
+\item Browning, B. L., & Browning, S. R. (2016). Genotype imputation with
+millions of reference samples. American Journal of Human Genetics, 98(1),
+116-126. https://doi.org/10.1016/j.ajhg.2015.11.020
 }
 }
 \seealso{
@@ -139,7 +162,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Luis Mijangos 
-(Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

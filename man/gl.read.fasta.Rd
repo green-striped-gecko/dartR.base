@@ -64,6 +64,10 @@ Ambiguity characters are often used to code heterozygotes. However, using
  heterozygotes as ambiguity characters may bias many estimates. See more
   information in the link below:
 \url{https://evodify.com/heterozygotes-ambiguity-characters/}
+
+Each record in a FASTA file must occupy exactly two lines: a '>' header
+line followed by the full sequence on a single line. Line-wrapped
+(multi-line) FASTA is not supported and is rejected with an error.
 }
 \examples{
 # Folder where the fasta files are located. 
@@ -79,6 +83,7 @@ obj <- gl.read.fasta(file_names)
 \seealso{
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.silicodart}()},
