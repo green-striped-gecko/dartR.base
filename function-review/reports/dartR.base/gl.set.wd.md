@@ -114,7 +114,20 @@ default, correct the typos.
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-2 applied on branch review-gl.set.wd (commit 0ca3e50), PR
+green-striped-gecko/dartR.base#396. Invalid-path contract: **error loudly**
+(Arthur's choice from three offered).
+
+- Characterization suite green (12 assertions); every diff from the
+  pre-review baseline maps to the approved change: a non-existent path, a
+  file, a non-character, NULL, and a length>1 wd all raise a clear "does not
+  exist" error and leave the prior wd untouched (F1, F2, F3).
+- Behaviour for a valid existing directory unchanged: option set, path
+  returned, gl.check.wd round-trip intact.
+- End-to-end: gl.set.wd(<existing dir>, verbose = 3) sets the option;
+  gl.set.wd("C:/definitely/not/here") errors with the new message and the
+  previously-set option is unchanged.
+- No internal callers; user-facing setter only.
 
 ```json
 {
@@ -126,13 +139,13 @@ default, correct the typos.
   "verdict_standards": "needs_work",
   "verdict_spec": "rework",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "proposed", "change": 1},
-    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "proposed", "change": 1},
-    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 2}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "approved", "change": 1},
+    {"id": "F3", "severity": "MEDIUM", "confidence": "high", "rule": "STY3", "status": "approved", "change": 1},
+    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 2}
   ],
   "coverage_skipped": ["GitHub issues not queried", "Google Group not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 396
 }
 ```
