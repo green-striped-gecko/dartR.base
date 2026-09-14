@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.add.indmetrics()`: a metadata file whose ids are a superset of (or
+  only partly overlap) the genlight no longer crashes. The function subsets
+  x to the matching individuals but had left the metadata frame at its full
+  row count, so `ind.cov$pop_old <- x@pop` failed with "replacement has N
+  rows, data has M" whenever the metadata carried any individual not present
+  in x -- the very "a subset matches is fine" case the function's own
+  warning describes. The metadata is now aligned to the matched individuals
+  before use. Also: the duplicate-id check raises a proper
+  `stop(error(...))`; the match-count message is corrected; and the roxygen
+  gains a `@family` tag and a corrected datatype description (SNP or
+  SilicoDArT genlight, not "genind"). Behaviour for exact-match and
+  strict-subset metadata is unchanged.
+
 * `gl.dist.phylo()`: subst.model = "BH87" with the default
   pairwise.missing = TRUE crashed the R session (ape::dist.dna has no
   pairwise-deletion routine for BH87 and its C code faults on N/ambiguity

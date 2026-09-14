@@ -7,22 +7,23 @@
 gl.add.indmetrics(x, ind.metafile, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data, or the genind
-object containing the SilocoDArT data [required].}
+\item{x}{Name of the genlight object containing the SNP or SilicoDArT data
+[required].}
 
 \item{ind.metafile}{path and name of CSV file containing the metadata
 information for each individual (see details for explanation) [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A genlight object with metadata information for each individual.
 }
 \description{
 This function adds the metadata information to the slot ind.metrics and
-populates population and coordinates information slots if the they are
+populates population and coordinates information slots if they are
 found in the metadata.
 }
 \details{
@@ -47,7 +48,34 @@ gl <- gl.read.dart(dartfile, probar=FALSE)
 if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
 gl <- gl.add.indmetrics(gl, ind.metafile = metadata)
 }
+\seealso{
+Other data manipulation: 
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sim.genotypes}()},
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()}
+}
 \author{
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}
