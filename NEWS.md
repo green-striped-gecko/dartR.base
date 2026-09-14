@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.hwe` helpers (GenerateSamples, CritSam, CritSam_Chi):
+  documented with @noRd headers; enumeration and critical-sample
+  outputs verified; unused variable removed.
+
 * `utils.het.pop()` review: the returned vector now carries
   population names; documentation added (including the mean-n
   definition of the unbiased correction); computation verified
