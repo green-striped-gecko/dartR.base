@@ -290,8 +290,12 @@ gl2fasta <- function(x,
             cat(report("Generating haplotypes ... This may take some time\n"))
         }
         
+        # Only unwind sinks this function opened: a caller's sink (e.g.
+        # capture.output / testthat) must survive the normal path, where the
+        # explicit sink() below has already closed ours
+        sink.level <- sink.number()
         sink(outfilespec)
-        on.exit(if (sink.number() > 0) sink(), add = TRUE)
+        on.exit(while (sink.number() > sink.level) sink(), add = TRUE)
 
         for (i in 1:nInd(x)) {
             seq <- NA
@@ -363,8 +367,12 @@ gl2fasta <- function(x,
             cat(report("Generating haplotypes ... This may take some time\n"))
         }
         
+        # Only unwind sinks this function opened: a caller's sink (e.g.
+        # capture.output / testthat) must survive the normal path, where the
+        # explicit sink() below has already closed ours
+        sink.level <- sink.number()
         sink(outfilespec)
-        on.exit(if (sink.number() > 0) sink(), add = TRUE)
+        on.exit(while (sink.number() > sink.level) sink(), add = TRUE)
 
         # For each individual, and for each locus, generate the relevant haplotype
         seq <- rep(" ", c)

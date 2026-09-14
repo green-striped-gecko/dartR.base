@@ -123,7 +123,8 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gg <- testset.gs[1:20,1:100]
 gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
 gl2paup.parsimony(gg,outfileprefix="test",outpath=tempdir(),nreps=1,nbootstraps=10)
-gl2paup.parsimony(gg,outfileprefix="test",out.type="newick",outpath=tempdir(),nreps=1,nbootstraps=10)
+gl2paup.parsimony(gg,outfileprefix="test",out.type="newick",outpath=tempdir(),
+                  nreps=1,nbootstraps=10)
 
 }
 \seealso{
