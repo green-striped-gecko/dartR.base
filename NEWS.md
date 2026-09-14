@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2bayescan()`: SilicoDArT (presence/absence) data was silently accepted
+  and its tag counts doubled into a codominant (diploid gene-copy) BayeScan
+  file; the function now stops with an error unless the data are SNP.
+  Population x locus combinations with no genotyped individuals (written as
+  samples of zero gene copies) are now counted and reported with a warning
+  at `verbose >= 1`, with a recommendation to filter on call rate before
+  export. The console sink is protected with `on.exit()` so an error during
+  writing no longer leaves the session's console redirected, and the
+  function returns NULL invisibly (an unassigned call no longer prints
+  NULL).
 * `gl2genepop()`: an all-monomorphic object wrote a silently malformed
   file (the header claimed all loci but every row carried exactly two
   "0000" fields); such objects now write one correctly coded genotype
