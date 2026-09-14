@@ -4,6 +4,478 @@
   documented with @noRd headers; enumeration and critical-sample
   outputs verified; unused variable removed.
 
+* `utils.het.pop()` review: the returned vector now carries
+  population names; documentation added (including the mean-n
+  definition of the unbiased correction); computation verified
+  exact.
+
+* `utils.is.fixed()` review: documentation corrected to the numeric
+  1/0/NA contract callers rely on (docs claimed TRUE/FALSE); truth
+  table and tolerance boundaries verified; marked internal (stays
+  exported for dartR.popgen).
+
+* `utils.basic.stats()` review: loci absent from one or more
+  populations no longer NaN-poison the cross-population statistics
+  (the harmonic mean sample size is now taken over the populations
+  that carry the locus, and single-population loci drop from the
+  overall averages as undefined) - output now matches
+  `hierfstat::basic.stats` exactly in all verified cases, honouring
+  the documented equivalence claim; overall Fst/Fis change on
+  datasets with per-population absent loci; the single-individual-pop
+  error regains its message; marked internal (stays exported for
+  dartR.popgen).
+
+* `utils.reset.flags()` review: the `value` argument is now honoured
+  when creating @other$verbose (it was validated then ignored -
+  hardcoded 2); the bogus loc.metrics$monomorphs COLUMN is no longer
+  invented (monomorphs is a flag, not a locus metric); the
+  out-of-range value warning is gated at verbose >= 1; marked internal
+  but stays exported (dartR.sim calls it).
+
+* `utils.recalc.avgpic()` review: NULL-safe monomorphs-flag check (no
+  crash on flag-less objects); marked internal; SNP and SilicoDArT
+  arithmetic both verified exact (unchanged).
+
+* `utils.recalc.maf()` review: SilicoDArT input is now rejected (the
+  doc already promised SNP-only); NULL-safe monomorphs-flag check;
+  marked internal; maf arithmetic verified exact (unchanged).
+
+* `utils.recalc.freqhomref()` review: SilicoDArT input is now rejected
+  (was silently given diploid metrics); NULL-safe monomorphs-flag
+  check; marked internal; arithmetic verified exact (unchanged).
+
+* `utils.hamming.engine()` review: verified sound - the block-hashing
+  dedup detector matches a brute-force scan exactly and pairwise
+  mismatch counts are exact. No changes; characterization tests
+  added.
+
+* `utils.impute` helpers: matrix2gen(parallel = TRUE) no longer
+  crashes ("object 'i' not found" - a live path via gl.impute's
+  parallel argument); the placeholder documentation block replaced
+  with real @noRd headers and the ghost utils.impute Rd removed.
+
+* `utils.recalc.freqhomsnp()` review: SilicoDArT input is now rejected
+  (was silently given diploid metrics); NULL-safe monomorphs-flag
+  check; marked internal; arithmetic verified exact (unchanged).
+
+* `utils.recalc.freqhets()` review: SilicoDArT input is now rejected
+  (previously presences were silently counted as heterozygotes);
+  NULL-safe monomorphs-flag check (no crash on flag-less objects);
+  marked internal; FreqHets arithmetic verified exact (unchanged).
+
+* `gl.filter.pa()` review: SilicoDArT frequencies are no longer halved
+  as if diploid, so presence-fixed private alleles are found (on
+  testset.gs the kept set grows from 45 to 66 loci); a bogus population
+  name now fails informatively; the filtered object returns invisibly
+  with a before/after summary at verbose >= 2.
+
+* `utils.check.datatype()`: four fixes to the package's central datatype
+  dispatcher. (1) The all-NA screen ran a full `gl.filter.allna()` pass on
+  every function entry at `verbose >= 2` (~50 ms per call on the small
+  test dataset); replaced with a direct single-pass check -- same
+  warnings, strictly less work -- and the all-NA-individuals warning no
+  longer carries the copy-pasted loci wording. (2) Mixed or non-diploid
+  ploidy was silently classified as SNP with no notice (the
+  misspecification error was unreachable); it is still classified as SNP
+  (the polyploid paths depend on this) but now announces itself at
+  `verbose >= 2`. (3) `accept = "genlight"` (or "dartR") alone rejected
+  every genlight object because the returned datatype is never literally
+  "genlight"; those entries now admit both genotype datatypes, unless a
+  specific datatype is also listed, in which case the specific listing
+  governs (so `c("genlight","SNP")` remains SNP-only). (4) The
+  unknown-class warning printed at `verbose = 0` (gated at >= 1); dead
+  code removed and the @return documentation aligned with the strings
+  actually returned ("matrix", "glPca").
+
+* `gl.filter.maf()`: six fixes; the global-path arithmetic was verified
+  against an independent recomputation and is unchanged. (1) The by.pop
+  path collapsed when NO loci qualified for removal -- `x[, -integer(0)]`
+  subset to zero loci and crashed (e.g. whenever no population met
+  ind.limit); the object is now returned unchanged with gated messages
+  for both the no-qualifying-loci and no-qualifying-populations cases.
+  (2) `plot.file` with `plot.display = FALSE` crashed ("object 'p3' not
+  found"), and the by.pop display path with 0-1 qualifying populations
+  referenced a plot built only in the global path; each path now prints
+  the plots it builds and the save is guarded with a gated notice. (3)
+  The per-population plot list was named positionally with the
+  qualifying-population names, mislabeling plots whenever a
+  non-qualifying population preceded a qualifying one; plots are now
+  named by their source population. (4) The threshold-range warning
+  printed at `verbose = 0` (gated), and the MAC interpretation applied at
+  `threshold >= 1` while the documentation says "> 1" (aligned). (5) The
+  by.pop tally used `maf <= threshold` against the documented "less than"
+  (aligned to `<`); loci with undefined MAF removed by the global filter
+  are itemised at `verbose >= 3` and the NA policy is documented; the
+  return is invisible per the filter convention; dead assignments and an
+  irrelevant monomorphs preamble removed. (6) SilicoDArT objects were
+  accepted and run through the MAF machinery producing meaningless
+  values; the function is now restricted to SNP data (fatal on
+  presence/absence input), with the matched report to follow.
+
+* `utils.recalc.callrate()` review: marked internal
+  (@keywords internal, per the utility-function policy); seealso
+  corrected; CallRate arithmetic verified exact (unchanged).
+
+* `gl.report.pa()` review: the Chao1/Chao2 estimates of undetected
+  private alleles are now computed from the pair being compared
+  (previously they were based on minor allele frequencies recomputed
+  across ALL populations in the dataset, pairs with zero private
+  alleles silently fell back to the full locus set, and f1/f2 were
+  taken by table position rather than by category) - Chao values
+  change for most datasets; `plot.file` without `plot.display` no
+  longer crashes; a mistyped `method` and a datatype-mismatched `x2`
+  now fail informatively; `method="one2rest"` with the default palette
+  no longer crashes and its orientation no longer depends on
+  population names sorting before the internal sentinel; missing
+  suggested packages are now fatal errors; `test.asym` documentation
+  now describes the implemented permutation test and the test is
+  skipped with a warning for SilicoDArT; verbose=0 is now silent.
+
+* `gl.filter.overshoot()`: loci whose overshoot status cannot be
+  assessed (missing TrimmedSequence or SnpPosition) previously passed
+  through the filter silently; by direction of the module coordinator
+  they are RETAINED (not removed), and their count is reported in the
+  `verbose >= 3` summary so the user knows they were not assessed. The
+  no-op message is gated at `verbose >= 1`, the return is invisible, and
+  the verbose >= 3 locus listing no longer carries a stray trailing
+  comma. Core removal logic verified exact against independent
+  recomputation (testset.gl: 21 removed, 234 retained).
+* `gl.report.diversity()` review: the Shannon (q=1) measures no longer
+  count per-population all-missing loci as zero diversity, and the
+  internal vector misalignment that corrupted one_H_beta via logical
+  recycling is fixed; pairwise one_H_beta and two_H_beta are now pooled
+  from the pair being compared with the pairwise correction factor
+  (previously they pooled ALL populations, so a pair's beta changed
+  when unrelated populations were present - zero_H_beta already
+  behaved correctly) - q=1 values and the q=1/q=2 beta matrices change;
+  tables now print at verbose >= 1 only and an invalid `table` value is
+  a fatal error instead of silently suppressing output; `plot.file`
+  without `plot.display` no longer crashes; SilicoDArT input is now
+  rejected (the entropy formulas assume diploid SNP genotypes;
+  previously it computed meaningless indices silently); no gl.colors
+  banner at verbose 0.
+
+* `gl.report.maf()`: five fixes; the MAF values themselves are unchanged
+  (verified against a hand computation). (1) The verbosity contract was
+  broken wholesale -- a hardcoded `verbose = 3` inside the per-population
+  function overrode the caller's setting, and the overall statistics, the
+  quantile table, the limit-coercion warnings and the singleton-drop
+  notice were all ungated, printing 343 lines at `verbose = 0` on the
+  test dataset. Per-population statistics now display at `verbose >= 3`,
+  the overall statistics and quantile table at `verbose >= 1`, warnings
+  at `verbose >= 1` and the singleton notice at `verbose >= 2`. (2) A
+  second handwritten FLAG SCRIPT START block duplicated the "Starting"
+  banner and referenced a `build` variable that resolved only by lexical
+  accident to a stale package-level constant -- removed. (3) The
+  singleton-drop notice reported population indices instead of names.
+  (4) The overall statistics printed the unfiltered locus count while the
+  statistics were computed on monomorph-filtered data (both counts now
+  shown); the bad-as.pop error directed users to loc.metrics though the
+  check is against ind.metrics. (5) Docs: @return corrected (the function
+  returns an invisible dataframe of MAF by locus and population, not "an
+  unaltered genlight object"); as.pop wording; "3r quantile" typo (x2);
+  verbose canon. (Amendment, with gl.filter.maf F6:) restricted to SNP
+  data -- MAF is undefined for presence/absence data, which was
+  previously accepted and produced meaningless values.
+
+* `gl2eigenstrat()`: the genotype file counted the wrong allele -- the raw
+  dartR score (copies of the ALTERNATE allele, the sixth column of the .snp
+  file) was written where EIGENSTRAT defines copies of the REFERENCE allele
+  (the fifth column), so every genotype was allele-flipped relative to the
+  declared ref/var and downstream statistics keyed to allele identity were
+  inverted; the geno value is now `2 - score` (9 stays missing). Numerical
+  output therefore changes for every exported dataset. Factor metadata
+  fields nominated via `snp.chr`/`snp.pos` were coerced with `as.numeric()`
+  directly, writing factor LEVEL CODES instead of the actual values; the
+  coercion now goes through `as.character()`, chromosome labels 'X', 'Y',
+  'MT'/'mtDNA' and 'XY' are mapped to the documented 23/24/90/91 encoding,
+  and the documented (but never implemented) removal of loci with illegal
+  chromosome values now happens, with a warning at `verbose >= 1`; if no
+  locus is encodable the function stops (the roxygen example no longer
+  nominates the un-encodable platypus chromosome field). SilicoDArT data
+  (which produced a malformed 4-column .snp file) is now rejected.
+  `sex.code`/`phen.value` lengths are validated instead of being silently
+  recycled down the .ind file. Docs aligned with the signature (`pos.cM`
+  default is 0; the numeric sentinel semantics of `snp.pos`/`snp.chr` are
+  stated).
+- gl.amova has moved to dartR.popgen (green-striped-gecko/dartR.popgen#88), carrying the PR #378 review fixes and its test; no dartRverse code calls it.
+
+* `utils.read.fasta()` (the engine behind `gl.read.fasta()`): the
+  genotype-classification core was redesigned. Previously anything that
+  was not hom-ref or hom-alt fell through to heterozygous, so missing
+  data (N, gaps, V/H/D/B) was coded 1 instead of NA, silently inflating
+  heterozygosity; truly triallelic columns of homozygote classes escaped
+  the more-than-2-alleles skip and their third allele came back as a fake
+  het; lowercase (softmasked) bases registered as distinct alleles and
+  fabricated loci; and the documented most-frequent-allele reference
+  actually followed the modal GENOTYPE class, flipping polarity when the
+  het was modal. Genotypes are now classified explicitly against the
+  allele pool (NA for unrecognized codes), multiallelism is detected from
+  the pool, sequences are upper-cased on read, and ref/alt follow summed
+  allele counts. Note the output changes: NA at masked/missing sites,
+  triallelic columns dropped, polarity corrected at het-modal loci.
+  Also: unequal-length sequences now stop with an error naming the
+  offending records (base-R recycling previously fabricated loci from
+  ragged input); the self-referential signature defaults
+  (`parallel = parallel`, `verbose = verbose`) are replaced with working
+  ones; `parallel = TRUE` works (n.cores = NULL resolves to all cores;
+  Windows falls back to serial with a gated warning); the
+  multiallelic-skip and no-polymorphism messages are gated at
+  `verbose >= 1` (they printed even at verbose 0); and `merge_gl_fasta()`
+  refuses duplicate individual names per file, which `merge()` previously
+  joined many-to-one, silently copying one record's genotypes onto
+  several rows.
+* `utils.read.dart()` (affects `gl.read.dart()` imports): five fixes.
+  (1) A DArT report in which any locus ID had an unexpected row count
+  (e.g. one allele row hand-deleted or duplicated) previously had EVERY
+  locus removed by the duplicate-ID cleanup, and the read died with a
+  misleading "must be either 1row or 2row" error; now only loci whose
+  row count departs from the modal count are removed, and the removal
+  is reported accurately. (2) A genuine 1-row report with no
+  heterozygous calls was silently misread as 2-row, halving the locus
+  count and pairing unrelated rows into fabricated genotypes; the
+  genotype-range and locus-ID-count signals are now cross-checked and
+  the read stops with a clear error when they disagree. (3) The
+  service/plate extraction read past the header block when the file had
+  fewer header rows than plate.row + 2, pasting the column-header and
+  first data rows into ind.metrics (the canonical
+  testset_SNPs_2Row.csv, with 3 header rows, got plate_location
+  "UC_1-AA0109150"); out-of-range rows now yield NA with a gated
+  warning. (4) The duplicate-individual-name uniquification was
+  computed but never applied - the promised '_n' suffixes now actually
+  reach the genotype column names (previously read.csv's '.1' suffixes
+  leaked through, contradicting the printed warning). (5) All warnings
+  are now verbosity-gated: `verbose = 0` is silent.
+* `gl.read.fasta()`: the closing fbm block ignored the `fbm` argument --
+  an empty `if (fbm) {}` guard meant `gl.gen2fbm()` always ran (clearing
+  `@gen`), and at `verbose <= 2` a misattached else-branch wiped `@fbm`
+  as well, so every default-verbosity call (including the documentation
+  example) returned an object with no genotype data at all (nInd = 0),
+  and `verbose >= 3` calls returned an FBM-backed object although fbm
+  was declined. The conversion now runs only when `fbm = TRUE`. Note
+  the output change: at default verbosity the function now returns the
+  actual data. Also: input where no file yields SNPs (no polymorphism)
+  now stops with a clear message instead of an opaque "argument of
+  length 0" failure, and line-wrapped (multi-line) FASTA -- which the
+  two-line reader silently mis-groups -- is rejected up front with an
+  informative error, now documented.
+* `utils.read.ped()` (vendored copy of `snpStats::read.pedfile`; used by
+  `gl.report.ld.map()`): four fixes. (1) `lex.order = TRUE` swapped the
+  map alleles but discarded the switched genotype matrix, so dosages at
+  reordered loci counted the wrong allele relative to the returned map;
+  the switched matrix is now assigned. (2) `show_warnings = FALSE` also
+  disabled the multi-allelic NA reset, silently retaining genotypes at
+  loci the function itself had classified as unreliable; the reset now
+  runs regardless and only the warnings are gated. (3) Multi-allelic
+  detection missed a novel allele whenever it was paired with a known
+  one (e.g. an A/T carrier at an A/G locus was coded homozygous A/A,
+  unflagged); detection is now per allele column. (4) The `split`
+  argument was honoured when counting loci but ignored on data lines
+  (a comma-separated file returned mangled ids and all-NA genotypes
+  without error); it is now applied to every line. Real documentation
+  replaces the placeholder header (the previous `@return` wrongly
+  claimed a genlight object; the function returns a
+  list(genotypes, fam, map)) and the helper is now exported with the
+  internal-use warning, per the utils convention. F1/F3/F4 reproduce in
+  the installed snpStats original and are candidates to offer upstream.
+* `gl.dist.pop()`: distances landed on the wrong population labels
+  whenever the population factor levels were not in alphabetical order
+  -- the frequency matrix rows come back from `reshape2::dcast` in
+  alphabetical order while the matrix labels were assigned positionally
+  from `popNames(x)`. The rows are now re-anchored to `popNames(x)` by
+  name, so euclidean, nei, reynolds and chord distances follow their
+  labels for any level order (numerical output changes -- becomes
+  correct -- for objects with non-alphabetical population levels;
+  alphabetical-level objects, including all the packaged datasets, are
+  unchanged, verified to the anchor values). Also: `plot.file` with
+  `plot.display = FALSE` (including any `verbose = 0` call) no longer
+  crashes with "object 'p3' not found" after computing the distances --
+  the plot is built whenever it is displayed or saved; an unknown
+  `method` now stops (previously a non-fatal "Fatal Error" printed at
+  every verbosity and euclidean ran silently); `type = "matrix"` returns
+  a full symmetric zero-diagonal matrix for every method (previously the
+  SNP frequency methods returned only the lower triangle, upper triangle
+  and diagonal NA); the missing-reshape2 guard stops instead of
+  returning -1; fewer than two populations fails fast with a clear
+  message; documentation corrected (the scaled SNP euclidean maximum is
+  0.5, not 1; the SilicoDArT method list completed; the reynolds
+  -log(1-D) linearised variant and the chord 2*sqrt(2)/pi scaling
+  constant stated; the `as.pop` error message points at ind.metrics).
+  Note: `method = "sorensen"` routes through `gl.dist.ind()`, whose
+  companion fix (adding sorensen to its accepted methods) delivers true
+  Sorensen distances here once merged.
+* `gl.recalc.metrics()`: nine fixes from its function review. The values of
+  every metric the function computes are unchanged. (1) An object with no
+  `loc.metrics` data frame was corrupted rather than repaired: the helpers
+  read the slot with `$`, which partial-matches to `loc.metrics.flags`, so
+  with more than one locus the call died with "replacement has N rows, data
+  has 1" and with exactly one locus it silently returned the flags table as
+  the locus metrics, losing AlleleID, TrimmedSequence, rdepth and the read
+  counts without a message. A conforming table is now built, with a gated
+  message; a table whose row count does not match the number of loci is now
+  a fatal error naming the condition. (2) History: `gl.recalc.metrics()` is
+  an implementation step of 26 functions in this package and two in
+  dartR.popgen, and appended an entry on each of their behalf, so nested
+  calls multiplied entries (two successive `gl.compliance.check()` calls on
+  `testset.gl` went 1 -> 3 -> 5). A call made from inside another dartRverse
+  function now appends nothing, and `mono.rm = TRUE` no longer adds
+  `gl.filter.monomorphs()`' entry as well as its own. A direct call still
+  appends exactly one entry recording the call. **This changes the history
+  contents of every function that calls `gl.recalc.metrics()` internally.**
+  (3) The `monomorphs` flag was passed through untouched when
+  `mono.rm = FALSE`, so a stale TRUE suppressed the monomorph warnings of
+  every downstream report; the flag is now set from a check made on the
+  metrics just recalculated. (4) `mono.rm = TRUE` on data in which every
+  locus is monomorphic crashed with "Subsetting resulted in zero loci"; the
+  case now completes with a gated warning and the flag set FALSE. (5)
+  `mono.rm` is validated. (6) The six `utils.recalc.*` helpers are called
+  with `verbose = 0` and this function reports on their behalf, so
+  `verbose = 1` prints two lines rather than fourteen and a warning is not
+  repeated once per helper. (7) `@family environment` was indented, so
+  roxygen read it as part of the title; the function now appears in its
+  family index. (8) Documentation corrected: `maf` listed as recalculated,
+  the false "only RepAvg and TrimmedSeq are unaltered" claim replaced with
+  the accurate split, `@param x` widened to SilicoDArT, the standard
+  `verbose` wording adopted, an `Author(s):` line and `@details` added. (9)
+  The outdated `build =` argument dropped from `utils.flag.start()`. The
+  review's F1 (`rdepth` and silico `AvgReadDepth` are not recalculated and
+  can contradict the refreshed metrics) is deferred by the custodian and
+  remains open, with its evidence in
+  `function-review/reports/dartR.base/gl.recalc.metrics.md`.
+* `gl.report.ld.map()`: `plot.file` now works with `plot.display = FALSE`
+  (previously crashed with "object 'p4' not found" after the full
+  computation); fully silent at `verbose = 0` (warnings gated, plot
+  suppressed); loci sharing a map position that are excluded from the
+  analysis are now reported at `verbose >= 1`; SilicoDArT objects are
+  rejected at the entry datatype check; documentation corrected
+  (`ld.max.pairwise` semantics, `plot.display` text, `ind.limit`
+  boundary, family "matched report") and the truncation to pairs with a
+  positive statistic value is now documented. The returned data frame is
+  unchanged.
+* `gl.filter.ld()`: `ld.report` is now validated at entry (a clear error
+  names `gl.report.ld.map` instead of an obscure downstream failure);
+  objects without `loc.metrics.flags` no longer crash with "argument is of
+  length zero"; the "No pair of loci" message gates at `verbose >= 1`; a
+  single history entry is appended per call (previously two, one exposing
+  internal variable names); the `pop.limit` default is computed explicitly
+  as half of the populations represented in `ld.report` (same value as
+  before, previously an accident of lazy evaluation) and documented as
+  such; documentation corrected (threshold boundary "at or above", actual
+  sequential pair-resolution rule described). Loci removed are unchanged.
+* `gl.report.ld()`: crash-restart fixed — rerunning with the same
+  `chunkname` at `verbose < 2` used to crash with "subscript out of
+  bounds" (the cached-return sat inside a verbosity guard), and chunk
+  discovery searched the working directory while chunks were saved to
+  `outpath`, silently defeating the restart for the default
+  `outpath = tempdir()`. Chunk files are now written only when
+  `save = TRUE` (previously always, with collision-prone
+  `LD_chunks__i.rdata` names). Dependency guards now `stop()` instead of
+  printing and returning -1 (and the redundant guards for Imports
+  packages are gone); the internal `gl2gi` conversion is silenced at
+  `verbose = 0`; SilicoDArT is rejected (`accept = "SNP"`). Documentation
+  now describes what the function computes — LD across all loci with all
+  individuals POOLED, not per population (use `gl.report.ld.map` for
+  within-population LD) — and drops the incorrect claim that genind
+  input is accepted. The returned statistics are unchanged.
+* `gl.filter.factorloadings()`: `retain = TRUE` results change — it
+  previously returned exactly the same object as `retain = FALSE` (the
+  high-loading loci were dropped instead of kept, i.e. the complement of
+  what was documented); it now retains the loci with |loading| at or above
+  the threshold, as documented. A pca that does not match the genlight
+  (different locus count after monomorph removal) now raises a clear error
+  instead of silently recycling loadings onto the wrong loci. A single
+  history entry naming the function replaces the two internal entries;
+  glPca and axis validation errors are labelled; the documented `...`
+  (save parameters) is now forwarded; documentation corrected (`@return`,
+  family, verbose text).
+
+* `gl.tree.fitch()`: bootstrap support values change -- the previous
+  values were extracted from the wrong edges of the wrong tree (an
+  edge-order assumption that ape does not honour) and typically displayed
+  full support regardless of the data; supports are now computed by clade
+  matching (`ape::prop.clades`) against the replicate trees, returned on
+  the tree as `node.label` together with the majority-rule consensus tree
+  (attribute `consensus.tree`), and the replicate distances are computed
+  under the same substitution-model settings as the main tree (new
+  `subst.model`, `pairwise.missing`, `min.tag.len` parameters). Also: the
+  function now works on Windows (the PHYLIP invocation performed no stdin
+  redirection, so no run could complete); the working directory is
+  restored after bootstrap runs; `out.path` actually receives the PHYLIP
+  output files; a supplied `outgroup` roots the returned tree; the
+  distance matrix is scaled to preserve branch-length precision through
+  PHYLIP's 6-decimal tree file; guards added for fewer than 4 taxa,
+  duplicate 10-character truncated labels and D/x population mismatch;
+  `verbose = 0` is now fully silent (previously the whole PHYLIP menu
+  dialogue printed); plotting is optional (`plot.display`) and decoupled
+  from the returned result.
+* `gl.set.verbosity()`: invalid values were a silent no-op that claimed
+  success -- `gl.set.verbosity(7)` warned, left the global option
+  untouched, and then printed "Global verbosity set to: 7"; a character
+  value rode string comparisons through the same false echo; and
+  `gl.set.verbosity(NULL)` crashed with "argument is of length zero".
+  Invalid values (including NULL) now warn and coerce to the default 2,
+  which is then genuinely set and honestly reported. The function also
+  returns the value actually set (invisibly), honouring its @return
+  contract (it returned NULL), validation runs before the start banner,
+  and the header gains its @family tag.
+
+* `gl.impute()`: **`method = "frequency"` changes numerical output.** It now
+  does what its documentation always claimed -- a deterministic fill with
+  the expected dosage 2q at the locus in the individual's population,
+  rounded to the nearest valid genotype (exact ties, 2q = 0.5 or 1.5, go to
+  the heterozygote). It was previously a random Bernoulli(q)-pair draw,
+  distributionally identical to `method = "HW"`; every existing
+  "frequency" result therefore changes, and repeated runs now give
+  identical results without a seed. For presence-absence data the fill is
+  the majority band state (ties to presence).
+* `gl.impute()`: residual missing values on FBM-backed objects are now
+  preserved as NA in the imputed object; the raw FBM write-back previously
+  coerced them to genotype 0, fabricating homozygous-reference calls at
+  all-NA loci. Dense and FBM-backed runs now return identical genotypes.
+* `gl.impute()`: presence-absence (SilicoDArT) support is now real:
+  "random" draws from 0/1, "HW" becomes a Bernoulli draw with the band
+  frequency, and the residual fill draws Bernoulli from the global band
+  frequency ("random" and "frequency" previously wrote genotype 2s into
+  0/1 data, and "frequency"/"HW" then crashed with "negative
+  probability"); "beagle" is blocked for presence-absence data with a
+  clear error. Also: `method` is validated up front; all-missing-locus
+  warnings are ploidy-aware and no longer fire for any locus above 50%
+  missing; the random/beagle branches report every affected population
+  rather than only the last; the beagle path checks the jar, java and
+  PLINK up front with informative errors (instead of returning -1 or a
+  raw system error) and no longer blanks singleton-scaffold chromosome
+  names in the returned object.
+* `gl.dist.ind()`: `method = "sorensen"` now computes the Sorensen (=
+  Dice) distance -- previously "sorensen" was missing from the
+  accepted-methods list, so it was silently coerced to simple matching
+  with a warning that leaked at `verbose = 0` (numerical output changes
+  for sorensen callers, including `gl.dist.pop(method = "sorensen")`,
+  which routes through here). Also: the unknown-method fallback warnings
+  are gated at `verbose >= 1`; `type` is normalised with `tolower()` and
+  validated ("Matrix" now returns a matrix; an unrecognised type stops
+  instead of silently returning a dist); NA distances (e.g. from an
+  individual with no scored genotypes in common with another) are
+  counted and warned at `verbose >= 1` instead of propagating silently;
+  documentation corrected (`scale` default is FALSE and applies to
+  euclidean only; the Sorensen/Bray-Curtis synonymy for binary data is
+  stated; the `@author` line repaired).
+* `gl.read.PLINK()`: the returned object now contains the genotypes at
+  every verbosity. Previously `gl.gen2fbm()` always ran and the result
+  was discarded at verbose <= 2 (the default), so default-settings calls
+  returned an object with no genotype data; at verbose = 3 the object
+  came back FBM-backed even with `fbm = FALSE`. The `fbm` argument now
+  decides the backend, as documented. Individual metafile rows are now
+  matched to the .fam individuals by `id` (previously bound in file
+  order, silently misassigning metadata when the orders differed), and
+  a `pop` column in the metafile is now applied to `pop(gl)`. A missing
+  AlleleID column in the locus metafile now stops with the intended
+  message instead of an unrelated subscript error. The .ped-to-.bed
+  conversion now runs in a temporary directory (previously it wrote
+  .bed/.bim/.fam/.log into the user's input directory) and PLINK's
+  console chatter is suppressed below verbose 3. Documentation: the
+  dosage orientation is now stated (counts allele.2, the PLINK 1.x
+  major allele -- the opposite orientation to `gl.read.vcf()`, which
+  counts ALT).
 * R CMD check: silenced "no visible binding" NOTEs for ggplot aes
   variables in `gl.report.hamming()` (Threshold, Removed, current) and
   `gl.report.secondaries()` (count).
@@ -198,7 +670,15 @@
   duplicate block is gone, warnings are gated at `verbose >= 2`, and the
   exits use `stop(error(...))`. (4) SNP and SilicoDArT objects with
   matching names could be joined silently -- the datatypes were checked
-  individually but never compared; now fatal. (5) Messages used
+  individually but never compared; now fatal. (4a, amendment) The
+  historical legacy values `method='end2end'` and `method='sidebyside'`
+  -- accepted by the pre-refactor implementation and described in the
+  documentation ever since, and still used by real callers (the
+  dartR.popgen gl.assign functions) -- were fatal because the legacy shim
+  mapped only join.by.loc/join.by.ind; they are now mapped to their
+  historical meanings, and any explicitly requested join is validated
+  against the data so a mismatch fails with a clear message rather than
+  a cryptic cbind/rbind error. (5) Messages used
   `substitute()` inside `cat()`, which printed garbage at `verbose = 2`
   and crashed at `verbose >= 3` whenever the arguments were expressions
   rather than names (e.g. `gl.join(x[1:7, ], y)`); arguments are now
