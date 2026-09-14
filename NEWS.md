@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.dist.ind.snp()` review: the Simple and Absolute distances
+  are now invariant to which allele is scored as reference, computing
+  shared alleles per locus as documented (previously both-homozygous-
+  reference pairs scored as sharing NO alleles, so relabelling the
+  reference allele changed the distances) - Simple and Absolute
+  values change; a merge artifact is cleaned up (an ungated progress
+  message printed at verbose 0, Completed/Returning printed twice,
+  and the result was converted dist->matrix->dist); Euclidean and
+  Manhattan verified exact and unchanged.
+
 * `utils.n.var.invariant()` review: the secondaries-in-history
   warning now respects verbose 0; variant/invariant counts verified
   exact on platypus.gl; docs tidied; marked internal.
