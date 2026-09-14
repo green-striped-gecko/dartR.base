@@ -3,7 +3,8 @@
 \name{gl2paup.parsimony}
 \alias{gl2paup.parsimony}
 \title{Converts a genlight object to nexus format for parsimony phylogeny
-analysis in PAUP and, optionally produces accompanying files for parallel processing.}
+analysis in PAUP and, optionally produces accompanying files for parallel
+processing}
 \usage{
 gl2paup.parsimony(
   x,
@@ -17,6 +18,7 @@ gl2paup.parsimony(
   mem = 4,
   server = "gadi",
   base.dir.name = NULL,
+  pbs.project = "xl04",
   test = FALSE,
   verbose = NULL
 )
@@ -28,14 +30,14 @@ gl2paup.parsimony(
 \item{outfileprefix}{A prefix to use for file names of the output files
 [default 'parsimony'].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{out.type}{Specify the type of output file. Can be 'standard' (consensus tree)
 or 'newick' (newick) or 'bash' [default 'standard']}
 
 \item{tip.labels}{Specify whether the terminals should be labelled with the
-individual labels ('ind'), the population labels ('pop') or both ('indpop') 
+individual labels ('ind'), the population labels ('pop') or both ('indpop')
 [default 'ind']}
 
 \item{nreps}{Specify the number of replicate analyses to run in search of
@@ -51,11 +53,15 @@ the shortest tree [default 100]}
 
 \item{base.dir.name}{Name of the base directory on the server to act as the workspace [default NULL]}
 
+\item{pbs.project}{NCI project code for the #PBS -P directive and the storage
+directive of the generated job scripts [default 'xl04']}
+
 \item{test}{If TRUE, the analysis will run with a small subset of the data [default FALSE]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity]}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -100,6 +106,14 @@ The parameter 'server' is to allow for future development as users modify the ba
 scripts to suit other multitasking environments. This script works only for the
 Gadi server on the Australian National Computing Infrastructure (NCI).
 
+The parameter pbs.project specifies the NCI project code used for the #PBS -P
+directive in the generated PBS job scripts, and the first gdata project listed
+in the #PBS -l storage directive (gdata/if89 is always appended, as the PAUP
+module and binary reside there). If base.dir.name lies under a different
+/g/data project, that project is added to the storage directive as well.
+All generated scripts (out.type='bash') are written to outpath alongside the
+nexus file.
+
 If test=TRUE, the data will be subsetted heavily on numbers of loci, numbers individuals,
 bootstrap replicates and number of replicates for branch swapping. This is used to test
 the job run without expenditure of the resources required for the full job.
@@ -108,8 +122,8 @@ the job run without expenditure of the resources required for the full job.
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gg <- testset.gs[1:20,1:100]
 gg@other$loc.metrics <- gg@other$loc.metrics[1:100,]
-gl2paup.parsimony(gg,outfile="test.nex",outpath=tempdir(),nreps=1,nbootstraps=10)
-gl2paup.parsimony(gg,outfile="test.nex",out.type="newick",outpath=tempdir(),nreps=1,nbootstraps=10)
+gl2paup.parsimony(gg,outfileprefix="test",outpath=tempdir(),nreps=1,nbootstraps=10)
+gl2paup.parsimony(gg,outfileprefix="test",out.type="newick",outpath=tempdir(),nreps=1,nbootstraps=10)
 
 }
 \seealso{
@@ -117,7 +131,7 @@ Other linkers:
 \code{\link{gl2paup.svdquartets}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linkers}
