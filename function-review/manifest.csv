@@ -64,6 +64,7 @@ gl.keep.pop,dartR.base,data manipulation,arthur,done,239
 gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
+utils.plot.save,dartR.base,utility,arthur,pr-open,321
 utils.flag.start,dartR.base,utility,arthur,pr-open,320
 utils.jackknife,dartR.base,utility,arthur,pr-open,319
 utils.hamming,dartR.base,utility,arthur,pr-open,317
