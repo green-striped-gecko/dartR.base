@@ -81,35 +81,51 @@ gl.read.dart <- function(filename,
                          probar = FALSE,
                          verbose = NULL) {
 # Preliminaries -----------------
-  
-  # Function kindly provided by Andrew Kowalczyk
-  
-  getLastMarkerMetaDataField <- function(filepath){
-    top <- read.csv(filepath,
-                    header = FALSE,
-                    nrows = 20,
-                    stringsAsFactors = FALSE)
-    
-    last_metric <- top[last(which(top[,1]=="*"))+1, last(which(top[1,]=="*"))]  
-    return(last_metric)
-  }
-  if(is.null(lastmetric)){
-  lastmetric <- getLastMarkerMetaDataField(filename)
-  }
-  
+
   # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
+
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
-    
+
     if (verbose == 0) {
         probar <-FALSE
     }
-    
+
+    # FUNCTION SPECIFIC ERROR CHECKING
+
+    if (!file.exists(filename)) {
+        stop(error(paste(
+            "Fatal Error: file", filename, "does not exist!\n"
+        )))
+    }
+
+    # Autodetect the last locus-metric column when the user has not supplied
+    # lastmetric (autodetection logic kindly provided by Andrew Kowalczyk):
+    # the column carrying the last '*' in the first header row holds the last
+    # locus metric; its name sits in the first row after the '*' block.
+    if (is.null(lastmetric)) {
+        top <- read.csv(
+            filename,
+            header = FALSE,
+            nrows = 20,
+            stringsAsFactors = FALSE
+        )
+        star.rows <- which(top[, 1] == "*")
+        star.cols <- which(top[1, ] == "*")
+        if (length(star.rows) == 0 || length(star.cols) == 0) {
+            stop(
+                error(
+                    "Could not determine the last locus-metric column because no rows flagged with '*' were found at the top of the file. Please provide it manually by setting the lastmetric parameter.\n"
+                )
+            )
+        }
+        lastmetric <- top[last(star.rows) + 1, last(star.cols)]
+    }
+
     # DO THE JOB ----------------------
     
     # Deal with the deprecated covfilename parameter
@@ -187,6 +203,17 @@ gl.read.dart <- function(filename,
                                                   })
     
     if (is.null(glout@other$loc.metrics$rdepth)) {
+      # The calculation needs CallRate, AvgCountRef and AvgCountSnp; reports
+      # that omit them (the reason this block exists) must not crash here.
+      if (!all(c("CallRate", "AvgCountRef", "AvgCountSnp") %in%
+               names(glout@other$loc.metrics))) {
+        glout@other$loc.metrics$rdepth <- array(NA, nLoc(glout))
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: CallRate, AvgCountRef or AvgCountSnp missing from the DArT report; read depth (rdepth) set to NA\n"
+            ))
+        }
+      } else {
         if (verbose >= 2) {
             cat(report(
                 "  Read depth calculated and added to the locus metrics\n"
@@ -208,11 +235,12 @@ gl.read.dart <- function(filename,
             glout@other$loc.metrics$rdepth[i] <-
                 round((sum.count.alt + sum.count.ref) / called.ind, 1)
         }
+      }
     }
     
     # Calculate MAF
     if (is.null(glout@other$loc.metrics$maf)) {
-        utils.recalc.maf(glout, verbose = 0)
+        glout <- utils.recalc.maf(glout, verbose = 0)
         if (verbose >= 2) {
             cat(
                 report(
@@ -279,7 +307,7 @@ gl.read.dart <- function(filename,
         glout@other$history <- list(match.call())
     }
     
-    glout <- gl.compliance.check(glout)
+    glout <- gl.compliance.check(glout, verbose = verbose)
     
     # FLAG SCRIPT END ---------------------
     if (verbose > 0) {
