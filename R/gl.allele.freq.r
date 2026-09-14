@@ -13,9 +13,12 @@
 #' allele proportions are given [default FALSE]
 #' @param by If by='popxloc' then breakdown is given by population and locus; if by='pop'
 #' then breakdown is given by population with statistics averaged across loci; if by='loc'
-#' then breakdown is given by locus with statistics averaged across individuals [default 'pop']
-#' @param simple A legacy option to return a dataframe with the frequency of the 
-#' reference allele (alf1) and the frequency of the alternate allele (alf2) by locus [default FALSE]
+#' then breakdown is given by locus, with the frequency computed across all
+#' individuals and the other statistics (nobs, nmissing, n) averaged across
+#' populations [default 'pop']
+#' @param simple A legacy option to return a dataframe with the frequency of the
+#' reference allele (alf1) and the frequency of the alternate allele (alf2) by locus;
+#' overrides percent and by (sets by='loc' and percent=FALSE) [default FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
@@ -35,7 +38,7 @@
 #' @importFrom plyr rbind.fill
 #' @importFrom stats na.pass
 #' @export
-#' @return A matrix with allele (SNP data) or presence/absence frequencies
+#' @return A data.frame with allele (SNP data) or presence/absence frequencies
 #' (Tag P/A data) broken down by population and locus
 #
 # FOR THE DEVELOPER
@@ -65,9 +68,17 @@ gl.allele.freq <- function(x,
       by="loc"
       percent=FALSE
     }
-    
-    # Checking for and removing monomorphic loci
-    if (!(x@other$loc.metrics.flags$monomorphs == TRUE)) {
+
+    if (!by %in% c("pop", "loc", "popxloc")) {
+        stop(error(
+            "Fatal Error: by must be one of 'pop', 'loc' or 'popxloc'; found",
+            by, "\n"
+        ))
+    }
+
+    # Checking for and removing monomorphic loci; isTRUE guards against the
+    # flag being absent on genlight objects not built by dartR
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 1) {
             cat(warn(
                 "Warning: Monomorphic loci retained, used in calculations\n"
@@ -98,11 +109,11 @@ gl.allele.freq <- function(x,
     } else {
       if (verbose >= 2) {
         if(by=="pop"){
-          cat(report("  Calculating Tag allele frequencies for populations\n"))
+          cat(report("  Calculating allele frequencies for populations\n"))
         } else if(by=="loc"){
-          cat(report("  Calculating Tag allele frequencies for loci\n"))
+          cat(report("  Calculating allele frequencies for loci\n"))
         } else {
-          cat(report("  Calculating Tag allele frequencies broken down by population and locus\n"))
+          cat(report("  Calculating allele frequencies broken down by population and locus\n"))
         }
       }
       # if (verbose >= 3) {
@@ -190,8 +201,17 @@ gl.allele.freq <- function(x,
                      na.action=na.pass)
       # reorder by loci
       m <- m[order(m$loc_order),]
-      # calculating allele frequency
-      m$frequency <- colMeans(as.matrix(x), na.rm = TRUE) / 2
+      # calculating allele frequency across all individuals; SilicoDArT is
+      # 0/1 presence data, so the mean is the presence frequency and takes
+      # no ploidy divisor (the /2 applies to SNP dosage 0/1/2 only)
+      if (datatype == "SilicoDArT") {
+        m$frequency <- colMeans(as.matrix(x), na.rm = TRUE)
+      } else {
+        m$frequency <- colMeans(as.matrix(x), na.rm = TRUE) / 2
+      }
+      if (percent) {
+        m$frequency <- m$frequency * 100
+      }
       m$popn <- NULL
       m$sum <- NULL
       m$nobs <- round(m$nobs,1)

@@ -36,13 +36,28 @@ This function needs package vcfR, please install it.
 }
 \details{
 The ind.metadata file needs to have very specific headings. First a heading
-called id. Here the ids have to match the ids in the dartR object. 
+called id. Here the ids have to match the ids in the dartR object.
 The following column headings are optional.
 pop: specifies the population membership of each individual. lat and lon
 specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
-Note also that this function checks to see if there are input of mode, missing input of mode 
-will issue the user with an error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+Individuals in the SNP data that are absent from the ind.metafile are
+retained in the returned object with NA metadata; a warning lists them
+at verbose >= 1.
+
+Genotypes are coded as the count of the ALT allele: 0 = homozygous
+REF, 2 (or the copy number in dosage mode) = homozygous ALT. Note that
+this is the opposite orientation to \code{\link{gl.read.PLINK}}, which
+counts allele.2 (the PLINK 1.x major allele).
+
+In "genotype" mode the returned object is coded as diploid; if the vcf
+contains haploid or polyploid genotype calls a warning is issued at
+verbose >= 1 (haploid calls are recoded as diploid homozygotes,
+polyploid heterozygous calls as 1). In "dosage" mode the ploidy of the
+object is set to the data's maximum copy number of the alternate
+allele, uniform across individuals.
+Note also that this function checks to see if there are input of mode, missing input of mode
+will issue the user with an error.
 Please carefully check the data if "dosage" mode is used.
 }
 \examples{
