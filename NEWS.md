@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.het.pop()` review: the returned vector now carries
+  population names; documentation added (including the mean-n
+  definition of the unbiased correction); computation verified
+  exact.
+
 * `utils.is.fixed()` review: documentation corrected to the numeric
   1/0/NA contract callers rely on (docs claimed TRUE/FALSE); truth
   table and tolerance boundaries verified; marked internal (stays
