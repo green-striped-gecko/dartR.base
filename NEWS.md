@@ -8,6 +8,279 @@
   pseudo-inverse, rank-based chi-square df) becomes the single
   implementation, arriving with the captive-to-popgen assignment-suite
   migration. No callers existed in the family.
+* `gl2gds()`: two silent data corruptions fixed. (1) With
+  `snp.pos`/`snp.chr` supplied, the genotype/snp.id/snp.allele records
+  were reordered with the INVERSE of the chromosome/position sort
+  permutation while the coordinate columns took the forward-sorted
+  values, so almost every record in the written gds carried another
+  locus's position and chromosome (7 of 8 in the platypus
+  demonstration); one permutation now reorders every per-locus field
+  together, and each record's coordinates map 1:1 to the supplied
+  loc.metrics fields (verified with SNPRelate across all 1000 platypus
+  loci). (2) The stored genotype was the raw genlight dosage (count of
+  the second allele) although SNPRelate defines it as the count of the
+  first allele of snp.allele; the dosage is now written as 2 - dosage,
+  so `snpgdsSNPRateFreq` and every ref/alt-aware export report correct
+  allele frequencies (PCA/IBD were unaffected). Also: the gds structure
+  dump no longer prints at `verbose < 3`, and SilicoDArT input is
+  rejected (`accept = "SNP"`) instead of being written as a pseudo-SNP
+  gds.
+* `gl2phylip()`: (1) With `bstrap > 1` the function returned the LAST
+  bootstrap replicate's distance matrix; it now returns the observed-data
+  matrix as documented. (2) Bootstrap resampling subsetted the genlight
+  with duplicated locus indices, hitting the adegenet SNPbin defect that
+  silently converts missing genotypes to homozygous reference; loci are
+  now resampled at the matrix level, so replicate values change on data
+  with missing genotypes. (3) Allele frequencies are computed with
+  `na.rm = TRUE` -- previously any missing genotype voided the whole
+  population x locus cell (35% of cells on testset.gl), leaving each
+  pairwise distance resting on an undisclosed locus subset; numerical
+  output changes for datasets with missing genotypes, and a warning
+  reports cells with no scored genotypes. (4) SilicoDArT input is now
+  rejected (`accept = "SNP"`): the diploid-dosage math halved all
+  presence/absence frequencies. (5) `outpath` follows the family idiom
+  (`NULL` resolved via `gl.check.wd`). (6) The output sink is released
+  on error. (7) A warning is given when 10-character truncation collides
+  population names. (8) Build tag and roxygen conformance.
+* `gl2paup.parsimony()`: (1) a bootstraps/ncpus count that does not divide
+  evenly is now a fatal error instead of a printed "Fatal Error" that let
+  the run continue and write a fractional bootstrap count into the PAUP
+  block. (2) The three bash-mode generator scripts are written to
+  `outpath` alongside the nexus file, not to the current working
+  directory. (3) The generated PBS jobs cd into `base.dir.name` (a
+  personal directory was hardcoded) and take their project code from the
+  new `pbs.project` parameter [default 'xl04']; the storage directive
+  lists that project, the project holding `base.dir.name`, and gdata/if89
+  (PAUP's home). (4) The consensus script gains its missing shebang, all
+  #PBS directives sit directly under it, and its job name no longer
+  contains a literal `${i}`. (5) Single-population input no longer
+  crashes on the taxpartition construction. (6) Advisory and coercion
+  warnings are verbosity-gated and the return is invisible, so
+  `verbose = 0` is fully silent. (7) The examples use the real
+  `outfileprefix` parameter, and the test-mode subset respects a
+  user-supplied `ncpus`.
+* `gl2plink()`: (1) When `@chromosome`/`@position` are unset, the .map no
+  longer fabricates coordinates (chromosome "1", positions 1..nLoc);
+  unmapped loci are written with PLINK's own convention, chromosome 0 and
+  position 0, so downstream position-aware operations (LD pruning,
+  clumping) cannot silently run on fictitious coordinates. The fallback
+  is documented, along with the hazard of within-tag offsets in
+  `@position`. (2) `sex.code` is recoded to PLINK's 1/2/0 codes
+  unconditionally -- a scalar (including the default "unknown") was
+  previously written verbatim into the .ped sex column, so an all-female
+  cohort supplied as `sex.code = "F"` silently lost its sex information.
+  (3) SilicoDArT input is rejected at the datatype gate
+  (`accept = "SNP"`) instead of crashing mid-write. (4) With
+  `bed.files = TRUE`, the written allele list (now named
+  `<outfile>_a2_alleles.txt`) is passed to PLINK via `--a2-allele`, so
+  the .bed/.bim ref/alt orientation matches the genlight instead of
+  being reassigned by minor-allele frequency. (5) The fallback warnings
+  are gated at `verbose >= 1` (they printed at `verbose = 0`).
+  (6) `@description` states the two-file default (.ped embeds the fam
+  columns) rather than promising bed/bim/fam unconditionally.
+  (7) Roxygen conformance and re-documentation.
+* `gl2hapmap()`: the documented `pos` and `chrom` arguments were silently
+  ignored whenever the corresponding slot (`@position`, `@chromosome`)
+  was already populated -- a nominated loc.metrics field now takes
+  precedence over the slot, so output positions change for callers who
+  passed these arguments against an object with populated slots. A
+  genlight without allele definitions (`loc.all` NULL) now fails fast
+  with a clear message instead of an opaque replacement-length error.
+  The zero-fill convention for positions is documented and messaged at
+  `verbose >= 2`. The saved-file message printed at `verbose = 0` (now
+  gated at `verbose >= 2`) and the visible NULL return auto-printed
+  (now invisible). The SilicoDArT rejection raised a condition with an
+  empty message (`cat(error()); stop()`); it now goes through
+  `utils.check.datatype(accept = "SNP")`.
+* `gl2faststructure()`: SilicoDArT (presence/absence) objects were
+  silently admitted and written as meaningless pseudo-diploid genotypes;
+  the function now accepts SNP data only and stops otherwise. The NULL
+  return is now invisible (no stray "NULL" printed on unassigned calls).
+* `gl2treemix()`: SilicoDArT objects were admitted with each ploidy-1
+  individual counted as two allele copies, understating drift throughout
+  a treemix run; the function now stops with a clear datatype error
+  (`accept = "SNP"`). Also: the gz write restores the console and closes
+  its connection if it fails midway; the `verbose > 2` record count now
+  reports loci (and populations) instead of individuals; the NULL return
+  is now invisible. SNP output is unchanged.
+* `gl2gi()`: df2genind silently dropped loci with no scored alleles while
+  the full `loc.metrics` table was copied wholesale, so converting data
+  containing all-NA loci returned a genind whose locus metadata was out
+  of register with the genotypes (and `gi2gl(gl2gi(x))` crashed on such
+  data); all-NA loci are now removed up front (gated warning) and
+  `loc.metrics` is subset to the surviving loci. SilicoDArT input, which
+  previously converted without warning to a meaningless ploidy-2 genind,
+  is now rejected (`accept = "SNP"`). Single-locus objects no longer
+  crash ("X is not a matrix"). A warning is issued when placeholder
+  alleles are fabricated for objects without allele definitions. The
+  genotype recode is vectorised; the progress message is gated at
+  `verbose >= 2`; docs corrected (`probar` default is FALSE).
+* `gl2genalex()`: SilicoDArT (presence/absence) objects were silently
+  exported as meaningless codominant GenAlEx genotypes; the function now
+  accepts SNP data only. A missing poppr installation raises a proper
+  error condition instead of returning -1 (scripts relying on the -1
+  return now see an error). Also: poppr's conversion chatter is
+  suppressed below `verbose = 2`, all-NA loci dropped before export are
+  reported at `verbose >= 1`, the NULL return is invisible, and the
+  `overwrite = FALSE` doc now states the actual raise-on-exists
+  behaviour.
+* `gl2structure()`: four fixes. (1) A re-run with
+  `export.marker.names = FALSE` appended to the existing file instead of
+  overwriting it, silently doubling every individual for STRUCTURE; the
+  file is now truncated whenever no marker-name header precedes the data.
+  (2) SilicoDArT objects were admitted and exported as fabricated diploid
+  genotypes; the function now stops with a clear datatype error
+  (`accept = "SNP"`). (3) Duplicated locus names collapsed genotype
+  columns (header listed all loci, data rows carried fewer, misaligning
+  every column after the collision); columns are now assigned
+  positionally. (4) The NULL return is now invisible. Docs corrected: the
+  object needs no lat/long location data, and the `ind.names` default is
+  `indNames(x)`.
+* `gl2bayescan()`: SilicoDArT (presence/absence) data was silently accepted
+  and its tag counts doubled into a codominant (diploid gene-copy) BayeScan
+  file; the function now stops with an error unless the data are SNP.
+  Population x locus combinations with no genotyped individuals (written as
+  samples of zero gene copies) are now counted and reported with a warning
+  at `verbose >= 1`, with a recommendation to filter on call rate before
+  export. The console sink is protected with `on.exit()` so an error during
+  writing no longer leaves the session's console redirected, and the
+  function returns NULL invisibly (an unassigned call no longer prints
+  NULL).
+* `gl2genepop()`: an all-monomorphic object wrote a silently malformed
+  file (the header claimed all loci but every row carried exactly two
+  "0000" fields); such objects now write one correctly coded genotype
+  per locus. `pop.order` entries that were unlisted, misspelled or
+  duplicated silently dropped populations from the exported file;
+  pop.order is now validated against the object's population names and
+  errors naming the offending entries. Also: the save-path message is
+  gated at `verbose >= 2` (it printed at verbose 0, with a stray path
+  separator), the per-locus column lookup is hoisted out of the
+  individual loop (was O(nInd x nLoc^2)), the SilicoDArT rejection
+  raises a proper error condition (was an empty stop()), a
+  single-individual object fails fast with a clear message (was "X is
+  not a matrix"), and all-NA locus drops are reported at
+  `verbose >= 1`.
+* `gl2snapper()`: the autapomorphy classifier (`rm.autapomorphies = TRUE`)
+  now scores a population as polymorphic from allele counts (both alleles
+  observed) instead of thresholds on rounded frequencies, so near-fixed
+  polymorphic populations no longer cause informative loci to be dropped;
+  the set of retained loci can change. Also: preprocessing chatter
+  (name-mangling warnings, gl.allele.freq/gl.drop.loc progress) is gated
+  so `verbose = 0` is silent; the nexus write restores the console if it
+  fails midway; the NULL return is now invisible; the documented
+  `rm.autapomorphies` default corrected to FALSE (the signature default,
+  which is unchanged).
+* `gl2gapit()`: now actually writes the hapmap table to
+  `outpath/outfile` (tab-delimited) -- previously the parameters and the
+  progress message promised output files but nothing was written. The
+  roxygen header belonged to `gl2geno` (so `?gl2gapit` found nothing); a
+  genuine header and man page now document the invisible hapmap
+  data.frame return. Chromosome names are recoded to stable integer
+  codes (alphabetical order of the distinct names, mapping reported at
+  `verbose >= 2`) instead of unstable factor level indices; the
+  `assembly` column is NA (was hardcoded "Oilpalm"); SilicoDArT input is
+  rejected with a clear datatype error (previously an opaque crash); the
+  empty-slot warnings are verbosity-gated; and the genotype mapping is
+  vectorised.
+* `gi2gl()`: a genind containing any locus with more than two alleles was
+  silently corrupted -- the tab-column walk assumed at most two alleles
+  per locus, so every locus after a multiallelic one read the wrong
+  column; such input now raises a fatal error naming the offending loci.
+  A single-locus genind crashed ("argument is of length zero"); fixed.
+  Non-diploid genind objects are now rejected (their allele counts
+  cannot be represented as 0/1/2 dosages). Allele spellings are now
+  reconstructed from the genind allele names instead of a uniform
+  placeholder, consistent with the returned dosages. The function's
+  documentation page was merged into `gl2gi`'s (`@name gl2gi` in
+  gi2gl.R); `gi2gl` now has its own manual page with examples.
+* `gl2geno()`: the verbose >= 1 output-file message printed a single
+  garbled name (`<outfile>.geno.lfmm.`); it now prints the two real
+  output paths.
+* `gl2bayesAss()`: SilicoDArT (presence/absence) data was silently accepted
+  and written as fake diploid BA3 genotypes; the function now stops with an
+  error unless the data are SNP. The `ploidy != 2` refusal now uses the
+  standard fatal-error message format, and `ploidy` is documented as a
+  diploid-confirmation guard rather than a settable option.
+* `gl2vcf()`: coordinate and fidelity fixes. (1) Explicitly supplied
+  `snp.pos`/`snp.chr` fields now take precedence over populated
+  `@position`/`@chromosome` slots -- previously the arguments were
+  silently ignored whenever the slots were already set (including stale
+  tag-offset copies in legacy objects), emitting within-tag offsets as
+  genome POS; the source used is announced at `verbose >= 1`, and a
+  malformed (wrong-length) slot is discarded with a warning instead of
+  silently. POS values change for callers passing `snp.pos` on objects
+  with a populated position slot. (2) REF is now pinned from `loc.all`
+  via PLINK's `--a2-allele`, so loci fixed for the alternate allele in
+  the exported sample keep their recorded reference base instead of
+  degrading to `N`. (3) SilicoDArT objects now stop with a clear datatype
+  error (`accept = "SNP"`) instead of failing cryptically inside
+  gl2plink. (4) A factor-typed `snp.pos` field previously exported its
+  factor level codes as POS; values are coerced via character and
+  non-integer position fields are a fatal error. (5) The PLINK binary is
+  checked up front with a download URL in the error. (6) `verbose = 0`
+  is silent: gl2plink runs at the passed verbosity and PLINK's captured
+  log prints only at `verbose >= 2`. (7) The ped/map intermediates are
+  written to tempdir() and, with PLINK's .log/.nosex by-products,
+  removed on success. Docs corrected accordingly.
+
+* `gl2fasta()` review (driven by a user report of single-locus output
+  on a merged/co-analysed dataset - reproduced): the internal
+  overshoot pre-filter is no longer silent - removals are warned at
+  verbose >= 1, and fewer than 2 surviving loci is a fatal error
+  explaining the SnpPosition-vs-TrimmedSequence inconsistency;
+  factor-coded SnpPosition is now recovered correctly (it previously
+  fed substr with factor level codes, silently corrupting method-1
+  sequences) and genuinely non-numeric positions are fatal; sink() is
+  guarded with on.exit (a mid-write crash could hijack the session
+  console); the documented method=0 help listing works (a cat():cat()
+  typo crashed it); NULL-safe flag check; @return corrected; FASTA
+  lines written without trailing spaces.
+* `utils.dartR.class.def` (the dartR S4 class layer) review: the show
+  method's loc.metrics detail no longer vanishes when ind.metrics is
+  absent (a copy-paste guard); subsetting with an unmatched locus name
+  fails informatively instead of the cryptic "Cannot subset a SNPbin
+  with mixed subscripts"; negative indices now work on FBM-backed
+  objects; the dead .fbmsub_copy helper (broken free variable,
+  superseded by big_copy) removed. Verified sound: XOR validity,
+  subset/rbind/cbind round-trips exact, glSum/glMean match adegenet
+  exactly, and the FBM layer matches the gen-backed reference exactly.
+  Governance notes recorded: the duplicate-class cache message needs
+  ecosystem-level resolution (retired dartR monolith defines the same
+  class); adegenet-internal getFromNamespace fragility; glSum/glMean
+  shadow-function dispatch limitation.
+* `utils.heatmap()` review: documented as a deliberate fork of
+  gplots::heatmap.2 (colored dendrogram leaf labels via dendextend,
+  auto-sized margins, NULL side-color defaults); matrices without
+  dimnames no longer crash on the auto-margin; clustering verified
+  identical to gplots::heatmap.2. Note for the custodian: gplots
+  remains in Imports but is no longer used anywhere in the package.
+* `utils.plink.run()` review: the composed command is now well
+  formed - plink.path="path" performs a bare PATH lookup as
+  documented (previously a literal "path/" prefix), and a space is
+  guaranteed before --out (previously glued onto the last syntax
+  token); marked internal (stays exported).
+* `utils.collapse.matrix()` review: the within-population diagonal
+  now averages distinct pairs only (self-distances of zero deflated
+  it; matrix output only - dist consumers such as gl.dist.pop are
+  unaffected); empty fatal-error messages restored; off-diagonal
+  means verified exact (unchanged); marked internal (stays
+  exported). Addendum from the population-distance chain review: the
+  name guard is two-directional (a D computed on a subset of the
+  object's individuals, or an unnamed matrix, now fails with a clear
+  message instead of a bare subscript/dimnames error).
+* `utils.transpose()` review: verified exact (dimension/name/metric
+  swaps; double transpose reproduces the original genotypes);
+  narration comments tidied; marked internal.
+* `utils.stats` (std.error): documented; computation verified.
+* `utils.plot.save()` review: the documented default verbose = NULL
+  no longer crashes (verbosity is normalized on entry); a nonexistent
+  save directory now falls back to tempdir() instead of crashing on a
+  tempfile() path; the "No plot saved" note respects verbose 0; the
+  unused ggsave passthrough claim dropped from the docs; marked
+  internal (stays exported - called family-wide).
+* `utils.flag.start()` review: verbosity contract verified (no
+  behaviour change); docs completed; marked internal (stays
+  exported - called family-wide).
 
 * `utils.jackknife()` review: a unit vector of length > 1 now reaches
   the informative stop instead of crashing ("the condition has length
