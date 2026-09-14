@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2related()`: (1) The exported file no longer wraps individual names
+  in quote characters (`write.table` ran with its default `quote = TRUE`),
+  which COANCESTRY -- the file's documented consumer -- would read as part
+  of the identifier; file output changes for every caller. (2) SilicoDArT
+  input is now rejected (`accept = "SNP"`): presence scores were silently
+  written as heterozygote pairs, making relatedness estimates meaningless.
+  (3) The allele coding (1/3 alleles, 0 missing, two columns per locus,
+  tab-separated, no header) is documented in `@details`, and the
+  verbose/author/return roxygen brought to standard.
 * `gl2hiphop()`: SilicoDArT input, which was silently recoded into 0/2
   pseudo-genotypes ('heterozygote' in hiphop coding) and would score
   meaningless parentage mismatches downstream, is now rejected
