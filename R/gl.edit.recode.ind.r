@@ -13,13 +13,15 @@
 #' @param x Name of the genlight object [required].
 #' @param out.recode.file Name of the file to output the new individual labels
 #'  [optional].
-#' @param outpath Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()] 
-#' @param recalc If TRUE, recalculate the locus metadata statistics [default TRUE].
-#' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
+#' @param outpath Directory to save the recode table [default as specified
+#' by the global working directory or tempdir()]
+#' @param recalc If TRUE, recalculate the locus metadata statistics
+#' [default FALSE].
+#' @param mono.rm If TRUE, remove monomorphic loci [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress but not results; 3, progress and results summary; 5, full report
-#'  [default 2 or as specified using gl.set.verbosity].
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #'  
 #' @details
 #' Renaming individuals may be required when there have been errors in labeling
@@ -35,12 +37,12 @@
 #' 'chain of evidence' associated with the samples, recoding individuals using
 #' a recode table (csv) can provide a durable record of the changes.
 
-#' For SNP genotype data, the function, having deleted individuals, optionally 
-#' identifies resultant monomorphic loci or loci with all values missing 
-#' and deletes them. The script also optionally recalculates the
-#' locus metadata as appropriate. The optional deletion of monomorphic loci
-#' and the optional recalculation of locus statistics is not available for
-#' Tag P/A data (SilicoDArT).
+#' Having deleted individuals, the function optionally identifies resultant
+#' monomorphic loci or loci with all values missing and deletes them
+#' (\code{mono.rm}), and optionally recalculates the locus metadata as
+#' appropriate (\code{recalc}). Both are FALSE by default, so after recoding
+#' the locus metrics are flagged as no longer current (they may be
+#' recalculated later with \code{gl.recalc.metrics}).
 
 #' Use outpath=getwd() when calling this function to direct
 #' output files to your working directory.
@@ -131,7 +133,7 @@ gl.edit.recode.ind <- function(x,
         }
         write.table(
             new,
-            file = out.recode.file,
+            file = outfilespec,
             sep = ",",
             row.names = FALSE,
             col.names = FALSE
@@ -149,7 +151,7 @@ gl.edit.recode.ind <- function(x,
             }
         }
     }
-    # Assigning new populations to x
+    # Assigning new individual names to x
     if (verbose >= 2) {
         cat(report("  Assigning new individual (=specimen) names\n"))
     }
@@ -158,7 +160,7 @@ gl.edit.recode.ind <- function(x,
     # If there are populations to be deleted, then recalculate relevant locus metadata and remove monomorphic loci
     
     if ("delete" %in% indNames(x) | "Delete" %in% indNames(x)) {
-        # Remove populations flagged for deletion
+        # Remove individuals flagged for deletion
         if (verbose >= 2) {
             cat(
                 report(
@@ -180,14 +182,14 @@ gl.edit.recode.ind <- function(x,
         x <- gl.filter.monomorphs(x, verbose = 0)
     }
     # Check monomorphs have been removed
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(warn(
                 "  Warning: Resultant dataset may contain monomorphic loci\n"
             ))
         }
     }
-    
+
     # Recalculate statistics ----------------
     if (recalc) {
         x <- gl.recalc.metrics(x, verbose = 0)
@@ -195,9 +197,12 @@ gl.edit.recode.ind <- function(x,
             cat(report("  Recalculating locus metrics\n"))
         }
     } else {
+        # Individuals may have been deleted, so the locus metrics are stale;
+        # reset the flags regardless of verbosity (the reset must not depend
+        # on the reporting level)
+        x <- utils.reset.flags(x, verbose = 0)
         if (verbose >= 2) {
             cat(warn("  Locus metrics not recalculated\n"))
-            x <- utils.reset.flags(x, verbose = 0)
         }
     }
     

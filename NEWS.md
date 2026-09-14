@@ -1,5 +1,17 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.edit.recode.ind()`: the locus-metric flags are now reset whenever
+  `recalc = FALSE`, regardless of verbosity. The `utils.reset.flags()` call
+  sat inside an `if (verbose >= 2)` block, so the returned object's
+  `loc.metrics.flags` were only reset (to signal that the metrics are stale
+  after recoding/deleting individuals) at `verbose >= 2` -- the object's
+  flag state depended on the reporting level. The `out.recode.file` is now
+  written to `outpath` (it was written to the working directory, ignoring
+  the computed `outfilespec`); a missing `monomorphs` flag no longer crashes
+  the run; the documented `recalc`/`mono.rm` defaults are corrected to
+  FALSE; and roxygen/message copy-paste errors from the population-recode
+  sibling are fixed.
+
 * `gl.dist.phylo()`: subst.model = "BH87" with the default
   pairwise.missing = TRUE crashed the R session (ape::dist.dna has no
   pairwise-deletion routine for BH87 and its C code faults on N/ambiguity
