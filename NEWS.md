@@ -1,5 +1,8 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.transpose()` review: verified exact (dimension/name/metric
+  swaps; double transpose reproduces the original genotypes);
+  narration comments tidied; marked internal.
 * `utils.stats` (std.error): documented; computation verified.
 * `utils.plot.save()` review: the documented default verbose = NULL
   no longer crashes (verbosity is normalized on entry); a nonexistent
