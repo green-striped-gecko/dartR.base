@@ -64,6 +64,7 @@ gl.keep.pop,dartR.base,data manipulation,arthur,done,239
 gl.report.bases,dartR.base,matched report,arthur,pr-open,244
 gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
 gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
+utils.is.fixed,dartR.base,utility,arthur,pr-open,310
 utils.basic.stats,dartR.base,utility,arthur,pr-open,309
 utils.reset.flags,dartR.base,utility,arthur,pr-open,308
 utils.recalc.avgpic,dartR.base,utility,arthur,pr-open,307

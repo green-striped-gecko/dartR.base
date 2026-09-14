@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.is.fixed()` review: documentation corrected to the numeric
+  1/0/NA contract callers rely on (docs claimed TRUE/FALSE); truth
+  table and tolerance boundaries verified; marked internal (stays
+  exported for dartR.popgen).
+
 * `utils.basic.stats()` review: loci absent from one or more
   populations no longer NaN-poison the cross-population statistics
   (the harmonic mean sample size is now taken over the populations
