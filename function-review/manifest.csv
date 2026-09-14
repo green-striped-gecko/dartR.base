@@ -126,6 +126,7 @@ utils.recalc.freqhomsnp,dartR.base,utility,arthur,pr-open,305
 utils.recalc.freqhets,dartR.base,utility,arthur,pr-open,303
 gl.filter.pa,dartR.base,matched filter,arthur,pr-open,300
 utils.check.datatype,dartR.base,utility,arthur,pr-open,296
+utils.check.datatype,dartR.base,analysis,arthur,pr-open,368
 gl.filter.maf,dartR.base,matched filter,arthur,pr-open,295
 utils.recalc.callrate,dartR.base,utility,arthur,pr-open,302
 gl.report.pa,dartR.base,matched report,arthur,pr-open,299
