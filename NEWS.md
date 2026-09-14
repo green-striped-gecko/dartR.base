@@ -1,5 +1,8 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2geno()`: the verbose >= 1 output-file message printed a single
+  garbled name (`<outfile>.geno.lfmm.`); it now prints the two real
+  output paths.
 * `gl2bayesAss()`: SilicoDArT (presence/absence) data was silently accepted
   and written as fake diploid BA3 genotypes; the function now stops with an
   error unless the data are SNP. The `ploidy != 2` refusal now uses the
