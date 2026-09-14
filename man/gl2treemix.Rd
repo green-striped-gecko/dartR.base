@@ -12,13 +12,13 @@ gl2treemix(x, outfile = "treemix_input.gz", outpath = NULL, verbose = NULL)
 \item{outfile}{File name of the output file (including gz extension)
 [default 'treemix_input.gz'].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -28,6 +28,11 @@ The output file contains the SNP data in the format expected by treemix --
 see the treemix manual. The file will be gzipped before in order to be
 recognised by treemix. Plotting functions provided with treemix will need to
  be sourced from the treemix download page.
+}
+\details{
+The output file has a header row of population names followed by one
+row per locus, each cell holding the reference and alternate allele
+counts for that population as 'ref,alt'.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -41,12 +46,14 @@ mixtures from genome-wide allele frequency data. PLoS Genetics
 }
 \seealso{
 Other linker: 
+\code{\link{gi2gl}()},
 \code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
 \code{\link{gl2faststructure}()},
+\code{\link{gl2gapit}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
@@ -54,15 +61,13 @@ Other linker:
 \code{\link{gl2gi}()},
 \code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}
