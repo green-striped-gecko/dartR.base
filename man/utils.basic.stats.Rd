@@ -4,8 +4,7 @@
 \alias{utils.basic.stats}
 \title{Calculates mean observed heterozygosity, mean expected heterozygosity 
 and FIS per locus, per population and various population differentiation 
-measures
- @family utilities}
+measures}
 \usage{
 utils.basic.stats(x)
 }
@@ -13,16 +12,20 @@ utils.basic.stats(x)
 \item{x}{A genlight object containing the SNP genotypes [required].}
 }
 \value{
-A list with with the statistics for each population
+A list with the statistics for each population
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
  END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
-This is a re-implementation of \code{hierfstat::basics.stats} specifically 
- for genlight objects. Formula (and hence results) match exactly the original 
-version of \code{hierfstat::basics.stats} but it is much faster.
+This is a re-implementation of \code{hierfstat::basic.stats} specifically
+ for genlight objects. Formula (and hence results) match exactly the
+ original version of \code{hierfstat::basic.stats} but it is much faster.
+ Loci absent from one or more populations are computed from the
+ populations that carry them. With a single population, only Ho, Hs and
+ Fis are meaningful; the differentiation measures involve divisions by
+ zero and are not interpretable.
 }
 \examples{
 require("dartR.data")
@@ -30,7 +33,39 @@ if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 out <- utils.basic.stats(platypus.gl)
 
 }
+\seealso{
+Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
+\code{\link{gl.alf}()},
+\code{\link{utils.allelic.richness}()},
+\code{\link{utils.check.datatype}()},
+\code{\link{utils.collapse.matrix}()},
+\code{\link{utils.dart2genlight}()},
+\code{\link{utils.dist.binary}()},
+\code{\link{utils.flag.start}()},
+\code{\link{utils.hamming}()},
+\code{\link{utils.het.pop}()},
+\code{\link{utils.impute}},
+\code{\link{utils.is.fixed}()},
+\code{\link{utils.jackknife}()},
+\code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.save}()},
+\code{\link{utils.read.fasta}()},
+\code{\link{utils.read.ped}()},
+\code{\link{utils.recalc.avgpic}()},
+\code{\link{utils.recalc.callrate}()},
+\code{\link{utils.recalc.freqhets}()},
+\code{\link{utils.recalc.freqhomref}()},
+\code{\link{utils.recalc.freqhomsnp}()},
+\code{\link{utils.recalc.maf}()},
+\code{\link{utils.reset.flags}()},
+\code{\link{utils.transpose}()},
+\code{\link{utils.vcfr2genlight.polyploid}()}
+}
 \author{
 Luis Mijangos and Carlo Pacioni (post to
 \url{https://groups.google.com/d/forum/dartr})
 }
+\concept{utilities}
+\keyword{internal}
