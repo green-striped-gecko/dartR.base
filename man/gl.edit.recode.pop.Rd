@@ -17,24 +17,37 @@ gl.edit.recode.pop(
 \arguments{
 \item{x}{Name of the genlight object  [required].}
 
-\item{pop.recode}{Path to recode file [default NULL].}
+\item{pop.recode}{Path to an existing recode table (csv) to load as the
+starting point for editing. If NULL, a table is generated from the
+population assignments in x [default NULL].}
 
-\item{out.recode.file}{Name of the file to output the new individual labels
-[default NULL].}
+\item{out.recode.file}{Name of the file to save the edited population
+recode table to (written under outpath) [default NULL].}
 
-\item{outpath}{Directory to save the plot RDS files [default as specified 
+\item{outpath}{Directory to save the recode table [default as specified
 by the global working directory or tempdir()]}
 
 \item{recalc}{If TRUE, recalculate the locus metadata statistics
-[default TRUE].}
+[default FALSE].}
 
-\item{mono.rm}{If TRUE, remove monomorphic loci [default TRUE].}
+\item{mono.rm}{If TRUE, remove monomorphic loci [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress but not results; 3, progress and results summary; 5, full report
- [default 2 or as specified using gl.set.verbosity].
- 
- @details
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
+}
+\value{
+A genlight object with the revised population assignments
+}
+\description{
+A function to edit population assignments in a dartR genlight object, or to
+create a reassignment table taking the population assignments
+from a genlight object, or to edit existing population assignments in
+a pop.recode.table. The amended recode table is then applied to the genlight
+object.
+}
+\details{
 Genlight objects assign specimens to populations based on information in the
 ind.metadata file provided when the genlight object is first generated.
 Often one wishes to subset the data by deleting populations or to amalgamate
@@ -58,17 +71,7 @@ Tag P/A data (SilicoDArT).
 Use outpath=getwd() when calling this function to direct
 output files to your working directory.
 The function returns a dartR genlight object with the new population assignments  
-and the recalculated locus metadata.}
-}
-\value{
-A genlight object with the revised population assignments
-}
-\description{
-A function to edit population assignments in a dartR genlight object, or to
-create a reassignment table taking the population assignments
-from a genlight object, or to edit existing population assignments in
-a pop.recode.table. The amended recode table is then applied to the genlight
-object.
+and the recalculated locus metadata.
 }
 \examples{
 #this is an interactive example
