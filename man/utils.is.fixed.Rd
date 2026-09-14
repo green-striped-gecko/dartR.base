@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.is.fixed.r
 \name{utils.is.fixed}
 \alias{utils.is.fixed}
-\title{An internal function to tests if two populations are fixed at a given locus}
+\title{An internal function to test if two populations are fixed at a given locus}
 \usage{
 utils.is.fixed(s1, s2, tloc = 0)
 }
@@ -17,14 +17,15 @@ population [required].}
 fixed [default 0].}
 }
 \value{
-TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both s1 or s2 missing)
+1 (fixed difference), 0 (alleles shared) or NA (one or both of s1
+or s2 missing); numeric, so callers can sum or threshold the result
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
 This script compares two percent allele frequencies
-and reports TRUE if they represent a fixed difference, FALSE otherwise.
+and reports 1 if they represent a fixed difference, 0 otherwise.
 
  A fixed difference at a locus occurs when two populations share no alleles,
  noting that SNPs are biallelic (ploidy=2).
@@ -38,14 +39,13 @@ Tolerance in the definition of a fixed difference is provided by the t
 Other utilities: 
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
 \code{\link{utils.plot.save}()},
@@ -65,3 +65,4 @@ Other utilities:
 Maintainer: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}
