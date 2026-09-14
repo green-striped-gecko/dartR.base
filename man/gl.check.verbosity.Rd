@@ -25,6 +25,8 @@ gl.check.verbosity()
 Other environment: 
 \code{\link{gl.check.wd}()},
 \code{\link{gl.print.history}()},
+\code{\link{gl.recalc.metrics}()},
+\code{\link{gl.set.verbosity}()},
 \code{\link{gl.set.wd}()},
 \code{\link{theme_dartR}()}
 }
