@@ -3,22 +3,22 @@
 # Assertions marked [approved diff] were flipped in Phase C.
 
 test_that("dispatch across classes", {
-  expect_equal(utils.check.datatype(testset.gl, verbose = 0), "SNP")
-  expect_equal(utils.check.datatype(testset.gs, verbose = 0), "SilicoDArT")
+  expect_equal(utils.check.datatype(testset2.gl, verbose = 0), "SNP")
+  expect_equal(utils.check.datatype(testset2.gs, verbose = 0), "SilicoDArT")
   expect_equal(utils.check.datatype(dist(matrix(1:9, 3)),
         accept = "dist", verbose = 0), "dist")
   expect_equal(utils.check.datatype(matrix(1:4, 2),
         accept = "matrix", verbose = 0), "matrix")
   expect_equal(utils.check.datatype(list(a = 1),
         accept = "list", verbose = 0), "list")
-  v <- withVisible(utils.check.datatype(testset.gl, verbose = 0))
+  v <- withVisible(utils.check.datatype(testset2.gl, verbose = 0))
   expect_false(v$visible)
-  expect_error(utils.check.datatype(testset.gl, accept = "dist",
+  expect_error(utils.check.datatype(testset2.gl, accept = "dist",
                                     verbose = 0))
 })
 
 test_that("abnormal ploidy handling", {
-  gg <- testset.gl[1:10, 1:20]
+  gg <- testset2.gl[1:10, 1:20]
   gg@ploidy <- as.integer(c(rep(2, 5), rep(1, 5)))
   # classified SNP (polyploid paths depend on non-fatal handling)
   expect_equal(suppressWarnings(utils.check.datatype(gg, verbose = 0)),
@@ -46,11 +46,11 @@ test_that("all-NA warnings at verbose 2", {
   # LOCI wording.
   expect_false(any(grepl("loci that are scored NA", o)))
   expect_true(any(grepl("individuals that are scored NA across all loci", o)))
-  # all-NA loci (testset.gl has 3): warning present at verbose 2
-  o2 <- capture.output(utils.check.datatype(testset.gl, verbose = 2))
+  # all-NA loci (testset2.gl has 3): warning present at verbose 2
+  o2 <- capture.output(utils.check.datatype(testset2.gl, verbose = 2))
   expect_true(any(grepl("loci that are scored NA", o2)))
   # and silent at verbose 0
-  o0 <- capture.output(utils.check.datatype(testset.gl, verbose = 0))
+  o0 <- capture.output(utils.check.datatype(testset2.gl, verbose = 0))
   expect_length(o0, 0)
 })
 
@@ -68,11 +68,11 @@ test_that("accept = 'genlight' semantics", {
   # 'genlight', so a genlight-only accept rejected every genlight
   # object. Now 'genlight'/'dartR' admit both genotype datatypes,
   # unless a specific datatype is also listed (which then governs).
-  expect_equal(utils.check.datatype(testset.gl, accept = "genlight",
+  expect_equal(utils.check.datatype(testset2.gl, accept = "genlight",
                                     verbose = 0), "SNP")
-  expect_equal(utils.check.datatype(testset.gs, accept = "dartR",
+  expect_equal(utils.check.datatype(testset2.gs, accept = "dartR",
                                     verbose = 0), "SilicoDArT")
   # the specific listing still governs: c('genlight','SNP') is SNP-only
-  expect_error(utils.check.datatype(testset.gs,
+  expect_error(utils.check.datatype(testset2.gs,
         accept = c("genlight", "SNP"), verbose = 0))
 })

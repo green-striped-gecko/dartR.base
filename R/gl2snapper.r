@@ -5,21 +5,8 @@
 
 #' @description
 #' Produces a nexus file contains the SNP calls and relevant PAUP command lines
-#' suitable for for the software package BEAUti.
+#' suitable for the software package BEAUti.
 
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param outfile Name of the output file (including extension)
-#' [default "snapper.nex"].
-#' @param nloc Number of loci to subsample to bring down computational time [default NULL]
-#' @param rm.autapomorphies Prune the loci by removing autapomorphies 
-#' (not phylogentically informative), that is, SNP polymorphisms limited
-#' to only one population [default TRUE].
-#' @param outpath Path where to save the output file [default global working 
-#' directory or if not specified, tempdir()].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' 
 #' @details {
 #'Snapper is a phylogenetic approach implemented in Beauti/BEAST that can
 #'handle larger SNP datasets than can SNAPP. This script produces a nexus file 
@@ -100,10 +87,26 @@
 #'
 #'gl2snapper does not work with SilicoDArT data.
 #'}
-#' 
-#' @author Custodian: Arthur Georges (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#'
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param outfile Name of the output file (including extension)
+#' [default "snapper.nex"].
+#' @param rm.autapomorphies Prune the loci by removing autapomorphies
+#' (not phylogenetically informative), that is, SNP polymorphisms limited
+#' to only one population [default FALSE].
+#' @param nloc Number of loci to subsample to bring down computational time [default NULL]
+#' @param outpath Path where to save the output file [default global working
+#' directory or if not specified, tempdir()].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return  returns no value (i.e. NULL)
+#'
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #' x <- gl.filter.monomorphs(testset.gl)
@@ -120,7 +123,6 @@
 #'  
 #' @import stats
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2snapper <- function(x,
                      outfile = "snapper.nex",
@@ -148,12 +150,16 @@ gl2snapper <- function(x,
     # ERROR CHECKING
     # Spaces in individual names
       if(any(grepl(" ", indNames(x)))){
-        cat(warn(" Warning: Names for some entities contain spaces, converted to underscore\n"))
+        if (verbose >= 2) {
+          cat(warn(" Warning: Names for some entities contain spaces, converted to underscore\n"))
+        }
         indNames(x) <- gsub(" ", "_", indNames(x))
       }
     # Duplicate individual names
       if(length(indNames(x))!=length(unique(indNames(x)))){
-        cat(warn(" Warning: Names for some entities are not unique, rendering unique\n"))
+        if (verbose >= 2) {
+          cat(warn(" Warning: Names for some entities are not unique, rendering unique\n"))
+        }
         dupes <- duplicated(indNames(x)) | duplicated(indNames(x), fromLast = TRUE)
         if(any(dupes)) {
           suffixes <- stats::ave(indNames(x)[dupes], indNames(x)[dupes], FUN = seq_along)
@@ -164,19 +170,26 @@ gl2snapper <- function(x,
     # PREPROCESSING
     # Remove autapomorphies
     if(rm.autapomorphies){
-      freqs <- gl.allele.freq(x,by = "popxloc")
-      subset <- freqs[freqs$frequency<0.99,]
-      subset <- subset[subset$frequency>0.0001,]
+      # A population is polymorphic at a locus when both alleles are
+      # observed in it (0 < alternate allele count < 2 * scored
+      # individuals); thresholds on rounded frequencies misclassify
+      # near-fixed polymorphic populations
+      freqs <- gl.allele.freq(x,by = "popxloc",verbose = 0)
+      subset <- freqs[freqs$sum > 0 & freqs$sum < 2 * freqs$nobs,]
       tbl <- table(subset$locus)
       single_count_loci <- names(tbl[tbl == 1])
-      x <- gl.drop.loc(x,loc.list = single_count_loci)
-      cat(report(" Autapomorphic loci removed:",length(single_count_loci),"\n"))
+      x <- gl.drop.loc(x,loc.list = single_count_loci,verbose = 0)
+      if (verbose >= 2) {
+        cat(report(" Autapomorphic loci removed:",length(single_count_loci),"\n"))
+      }
     }
-    
-    # Subsample loci 
+
+    # Subsample loci
     if(!is.null(nloc)){
       x <- gl.subsample.loc(x,n=nloc,replace=FALSE,verbose=0)
-      cat(report(" Loci subsampled at random:",nloc,"retained\n"))
+      if (verbose >= 2) {
+        cat(report(" Loci subsampled at random:",nloc,"retained\n"))
+      }
     }
 
     # DO THE JOB
@@ -205,8 +218,12 @@ gl2snapper <- function(x,
         ))
     }
     
+    # Restore the console if the write fails or is interrupted; the
+    # success path closes the diversion explicitly below
+    sink.depth <- sink.number()
     sink(outfilespec)
-    
+    on.exit(while (sink.number() > sink.depth) sink(), add = TRUE)
+
     cat("#nexus\n")
     cat("BEGIN DATA;\n")
     cat(paste0("     dimensions ntax = ", nInd(x), " nchar = ", nLoc(x), " ;\n"))
@@ -235,6 +252,6 @@ gl2snapper <- function(x,
         cat(report("Completed:", funname, "\n"))
     }
     
-    return(NULL)
-    
+    invisible(NULL)
+
 }

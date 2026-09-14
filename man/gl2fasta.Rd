@@ -31,7 +31,7 @@ progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-A new gl object with all loci rendered homozygous.
+NULL, invisibly. The FASTA file is written to outpath.
 }
 \description{
 Concatenated sequence tags are useful for phylogenetic methods where
