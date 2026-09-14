@@ -56,12 +56,10 @@ gl.allele.freq(possums.gl[,1:10],simple=TRUE)
 barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
 }
 \seealso{
-\code{\link{gl.allele.freq}}, \code{\link{gl.Ho}},
-\code{\link{gl.He}}
+\code{\link{gl.allele.freq}}; gl.Ho() and gl.He() now live in
+dartR.sim
 
 Other utilities: 
-\code{\link{gl.He}()},
-\code{\link{gl.Ho}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},

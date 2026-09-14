@@ -68,8 +68,6 @@ set entirely to NA. The only in-package caller is
 }
 \seealso{
 Other utilities: 
-\code{\link{gl.He}()},
-\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.basic.stats}()},

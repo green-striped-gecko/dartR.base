@@ -26,8 +26,6 @@ A utility script to calculate allelic richness using bootstraping
 }
 \seealso{
 Other utilities: 
-\code{\link{gl.He}()},
-\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},

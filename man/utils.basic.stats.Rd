@@ -35,8 +35,6 @@ out <- utils.basic.stats(platypus.gl)
 }
 \seealso{
 Other utilities: 
-\code{\link{gl.He}()},
-\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.check.datatype}()},

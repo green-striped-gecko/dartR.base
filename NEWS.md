@@ -1,5 +1,7 @@
 # dartR.base 1.2.3 (development)
 
+- gl.Ho and gl.He have moved to dartR.sim (their only dartRverse caller is gl.diagnostics.sim); the reviewed versions and their test travel with them (dartR.sim PR #44).
+
 * `gl.sim.genotypes()`: **behaviour change.** Allele frequencies are now
   estimated WITHIN each population and each population is simulated
   separately, so the population structure of the source object is carried

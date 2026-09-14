@@ -3,8 +3,6 @@
 S3method(cbind,dartR)
 S3method(rbind,dartR)
 export(gi2gl)
-export(gl.He)
-export(gl.Ho)
 export(gl.add.indmetrics)
 export(gl.alf)
 export(gl.allele.freq)
