@@ -128,7 +128,17 @@ proposed to avoid altering the ind.metrics column types callers may rely on.
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-3 applied on branch review-gl.add.indmetrics (commit 0ff3136), PR
+green-striped-gecko/dartR.base#398.
+
+- Characterization suite green (17 assertions); every diff from the
+  pre-review baseline maps to an approved change: the superset/partial-
+  overlap case now returns the matched individuals with their metadata
+  (F1), the duplicate-id check raises a clear stop(error(...)) (F3).
+- Exact-match, reordered and strict-subset behaviour unchanged.
+- End-to-end at verbose 3: the superset case returns nInd 6 with correct
+  populations and reports the 4 unmatched ids.
+- No internal callers; user-facing metadata function.
 
 ```json
 {
@@ -140,14 +150,14 @@ proposed to avoid altering the ind.metrics column types callers may rely on.
   "verdict_standards": "needs_work",
   "verdict_spec": "rework",
   "findings": [
-    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT2", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "DOC1", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "LOW", "confidence": "high", "rule": "FS5", "status": "proposed", "change": 3},
-    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "STY1", "status": "proposed", "change": 3},
-    {"id": "F5", "severity": "INFO", "confidence": "high", "rule": "STY3", "status": "proposed", "change": null}
+    {"id": "F1", "severity": "HIGH", "confidence": "high", "rule": "DAT2", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "LOW", "confidence": "high", "rule": "FS5", "status": "approved", "change": 3},
+    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "STY1", "status": "approved", "change": 3},
+    {"id": "F5", "severity": "INFO", "confidence": "high", "rule": "STY3", "status": "no-action", "change": null}
   ],
   "coverage_skipped": ["DAT6: not exercised on FBM", "GitHub issues not queried", "Google Group not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 398
 }
 ```
