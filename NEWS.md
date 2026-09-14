@@ -1,5 +1,21 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.allele.freq()`: two frequency corrections in the `by = 'loc'`
+  breakdown -- `percent = TRUE` was silently ignored (the frequency
+  column was always a proportion; it is now rescaled to the percentage
+  scale), and for SilicoDArT presence/absence data the column was
+  exactly half the presence frequency (the raw 0/1 matrix was divided
+  by the SNP ploidy divisor; `simple = TRUE`, which routes through
+  `by = 'loc'`, returned the same halved values in `alf1`/`alf2`).
+  The `by = 'popxloc'` and `by = 'pop'` breakdowns are unchanged
+  (verified byte-identical), so downstream consumers such as
+  `gl.dist.pop()` are unaffected. Also: an unrecognised `by` now stops
+  with an informative error instead of silently returning the full
+  population x locus table; a genlight not built by dartR (no
+  `loc.metrics.flags`) no longer crashes on the monomorphs-flag access;
+  documentation corrected (`@return` is a data.frame; the
+  `simple = TRUE` override of `percent`/`by` and the `by = 'loc'`
+  column semantics are now stated).
 * `gl.read.silicodart()`: four fixes. (1) A metafile without a pop
   column always crashed with "object 'out' not found" (a variable-name
   typo - the branch had never worked); it now mirrors the SNP path and
