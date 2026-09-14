@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.n.var.invariant()` review: the secondaries-in-history
+  warning now respects verbose 0; variant/invariant counts verified
+  exact on platypus.gl; docs tidied; marked internal.
+
 * `utils.allelic.richness()` review: @return corrected (it documented
   "calling function name"); parameters documented; rarefaction kernel
   re-anchored (validated in PR #286); marked internal.
