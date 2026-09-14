@@ -23,14 +23,9 @@
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 
-#' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
-#' \code{utils.recalc.callrate} for recalculating CallRate,
-#' \code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-#' reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-#' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
-#' of heterozygotes, \code{gl.recalc.avgpic} for recalculating AvgPIC,
-#' \code{gl.recalc.rdepth} for recalculating average read depth
-#'
+#' @seealso \code{\link{gl.recalc.metrics}} for recalculating all
+#' locus metrics
+#' @keywords internal
 # @export
 #' @return The modified genlight dataset.
 
@@ -49,10 +44,10 @@ utils.recalc.maf <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
 
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
@@ -93,8 +88,7 @@ utils.recalc.maf <- function(x,
         cat(report("  Recalculating Minor Allele Frequency (MAF)\n"))
     }
     
-    #alf <- gl.allele.freq(x,simple=TRUE,verbose=0)[, 2]
-    alf <- gl.alf(x)[,2]  #does not break and is faster
+    alf <- gl.alf(x)[, 2]
     x@other$loc.metrics$maf <- ifelse(alf > 0.5, 1 - alf, alf)
     x@other$loc.metrics.flags$maf <- TRUE
     
