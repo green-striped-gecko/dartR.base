@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2bayesAss()`: SilicoDArT (presence/absence) data was silently accepted
+  and written as fake diploid BA3 genotypes; the function now stops with an
+  error unless the data are SNP. The `ploidy != 2` refusal now uses the
+  standard fatal-error message format, and `ploidy` is documented as a
+  diploid-confirmation guard rather than a settable option.
 * `gl2vcf()`: coordinate and fidelity fixes. (1) Explicitly supplied
   `snp.pos`/`snp.chr` fields now take precedence over populated
   `@position`/`@chromosome` slots -- previously the arguments were
