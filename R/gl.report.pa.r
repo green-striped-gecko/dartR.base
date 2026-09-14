@@ -14,12 +14,12 @@
 #' provided here, but they must have the same number of SNPs [default NULL].
 #' @param method Method to calculate private alleles: 'pairwise' comparison or
 #' compare each population against the rest 'one2rest' [default 'pairwise'].
-#' @param loc.names Whether names of loci with private alleles and fixed 
-#' differences should reported. If TRUE, loci names are reported using a list
+#' @param loc.names Whether names of loci with private alleles and fixed
+#' differences should be reported. If TRUE, loci names are reported using a
+#' list [default FALSE].
 #' @param test.asym Bootstrap test for significant differences of private 
 #' alleles (see details section) [default FALSE].
-#' @param test.asym.boot Number of bootstraps [default 100].
-#'  [default FALSE].
+#' @param test.asym.boot Number of permutations [default 100].
 #' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
 #' @param matrix.pa Whether to generate a matrix of private alleles
 #'  [default FALSE].
@@ -30,7 +30,7 @@
 #' @param provider Passed to leaflet [default "Esri.NatGeoWorldMap"].
 #' @param palette.discrete A discrete palette for the color of populations or a
 #' list with as many colors as there are populations in the dataset
-#'  [default gl.select.colors(x)].
+#' [default NULL, in which case gl.select.colors(x) is used].
 #' @param plot.dir Directory in which to save files [default = working directory]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
@@ -77,21 +77,26 @@
 #' valuable alternative to FST. For details about its properties and how it is
 #' calculated see Berner (2019).
 #' 
-#' \strong{The Bootstrap test} for significant differences of private alleles 
-#' uses a bootstrap simulation by shuffling individuals between a pair of 
-#' populations and drawing with replacement. For each bootstrap the ratio of 
-#' private alleles is compared to the actual ratio and recorded how often it is 
-#' larger than the simulated one. If number of individuals are different between
-#'  population bootstrap is done using the smaller number of samples in both 
-#'  populations.
+#' \strong{The test for asymmetry of private alleles} (test.asym) is a
+#' permutation test: for each pair, the genotypes at each locus are permuted
+#' among the pooled individuals of the two populations (retaining the
+#' original sample sizes), and the ratio of private alleles
+#' pop1/(pop1 + pop2) is recomputed for each of test.asym.boot permutations.
+#' The reported significance is the proportion of permuted ratios exceeding
+#' the observed ratio. Available for SNP data only.
+#'
+#' For method 'one2rest', the Chao estimates, the asymmetry test and the
+#' interactive map are not reported; they apply to method 'pairwise' only.
 #' 
 #' The function also reports an estimation of the lower bound of the number of
 #'  undetected private alleles using the Good-Turing frequency formula,
 #'  originally developed for cryptography, which estimates in an ecological 
 #'  context the true frequencies of rare species in a single assemblage based on
-#'   an incomplete sample of individuals. The approach is described in Chao et 
-#'   al. (2017). For this function, the equation 2c is used. This estimate is 
-#'   reported in the output table as Chao1 and Chao2. 
+#'   an incomplete sample of individuals. The approach is described in Chao et
+#'   al. (2017). For this function, equation 2c is used, based on the counts
+#'   of private alleles observed once and twice in the pooled sample of the
+#'   two populations compared. The estimate is reported in the output table
+#'   as Chao1 and Chao2 (SNP data only).
 #'   
 #' In this function a Sankey Diagram is used to visualize patterns of private
 #' alleles between populations. This diagram allows to display flows (private
@@ -99,14 +104,8 @@
 #' that have a width proportional to the importance of the flow (number of
 #' private alleles).
 #' 
-#' if save2temp=TRUE, resultant plot(s) and the tabulation(s) are saved to the
-#' session's temporary directory.
-#' 
 #' @author Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
-#' @examples
-#' out <- gl.report.pa(platypus.gl)
 #' 
 #' @references \itemize{
 #' \item Berner, D. (2019). Allele frequency difference AFD – an intuitive
@@ -119,7 +118,6 @@
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- gl.report.pa(platypus.gl)
-#' @family report functions
 #' @importFrom tidyr pivot_longer
 #' @export
 #' @return A data.frame. Each row shows, for each pair of populations the number
@@ -161,40 +159,31 @@ gl.report.pa <- function(x,
   datatype1 <- utils.check.datatype(x, verbose = verbose)
   if (!is.null(x2)) {
     datatype2 <- utils.check.datatype(x2, verbose = verbose)
+    if (datatype2 != datatype1) {
+      stop(error("Fatal Error: x and x2 must be of the same datatype\n"))
+    }
   }
-  
+
   # FUNCTION SPECIFIC ERROR CHECKING
+  if (!method %in% c("pairwise", "one2rest")) {
+    stop(error("Fatal Error: method must be either 'pairwise' or 'one2rest',
+                    not '", method, "'\n"))
+  }
+
+  if (test.asym && datatype1 == "SilicoDArT") {
+    if (verbose >= 1) {
+      cat(warn("  Warning: test.asym is available for SNP data only; skipping\n"))
+    }
+    test.asym <- FALSE
+  }
+
   
   # check if package is installed
-  pkg <- "tibble"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  }
-  
-  # check if package is installed
-  pkg <- "networkD3"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  }
-  
-  pkg <- "tidyr"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
+  for (pkg in c("tibble", "networkD3", "tidyr")) {
+    if (!(requireNamespace(pkg, quietly = TRUE))) {
+      stop(error("Package", pkg, "needed for this function to work.
+                    Please install it.\n"))
+    }
   }
   
   if (!is.null(x2)) {
@@ -297,7 +286,7 @@ gl.report.pa <- function(x,
         pall[i,"Chao1"] <- NA
         pall[i,"Chao2"] <- NA
       }else{
-        pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
+        pa_Chao <- utils.pa.Chao(pops[[i1]], pops[[i2]])
         pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
         pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
         
@@ -447,8 +436,10 @@ gl.report.pa <- function(x,
     for (y in 1:nPop(x)) {
       gl2 <- x
       pop(gl2) <-
-        factor(ifelse(pop(gl2) == popNames(x)[y], popNames(x)[y], "zzest"))
-      pops <- seppop(gl2)
+        factor(ifelse(pop(gl2) == popNames(x)[y], popNames(x)[y], ".rest"))
+      # explicit indexing: the focal population is always pop1, regardless
+      # of how its name sorts against the sentinel
+      pops <- seppop(gl2)[c(popNames(x)[y], ".rest")]
       pc <- t(combn(length(pops), 2))
       pall <-
         data.frame(
@@ -512,11 +503,11 @@ gl.report.pa <- function(x,
     
     if (plot.display) {
       # assigning colors to populations
-      if (is(palette.discrete, "function")) {
+      if (is.null(palette.discrete)) {
+        colors_pops <- gl.select.colors(x, verbose = 0)
+      } else if (is(palette.discrete, "function")) {
         colors_pops <- palette.discrete(length(levels(pop(x))) + 1)
-      }
-      
-      if (!is(palette.discrete, "function")) {
+      } else {
         colors_pops <- palette.discrete
         # if colors are not in RGB format
         if (grepl("#", colors_pops[1]) == FALSE) {
@@ -619,11 +610,15 @@ gl.report.pa <- function(x,
   
   # Optionally save the plot ---------------------
   
-  if(!is.null(plot.file)){
-    tmp <- utils.plot.save(p3,
-                           dir = plot.dir,
-                           file = plot.file,
-                           verbose = verbose)
+  if (!is.null(plot.file)) {
+    if (exists("p3", inherits = FALSE)) {
+      tmp <- utils.plot.save(p3,
+                             dir = plot.dir,
+                             file = plot.file,
+                             verbose = verbose)
+    } else if (verbose >= 2) {
+      cat(report("  No plot generated (plot.display = FALSE); nothing to save\n"))
+    }
   }
   
   # FLAG SCRIPT END
