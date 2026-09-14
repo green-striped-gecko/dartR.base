@@ -119,7 +119,17 @@ Proposed change: adopt the standard DOC2 verbose text.
 
 ## Outcome
 
-(pending Phase C)
+Changes 1-3 applied on branch review-gl.write.csv (commit f141839), PR
+green-striped-gecko/dartR.base#397.
+
+- Characterization suite green (16 assertions); every diff from the
+  pre-review baseline maps to an approved change: invisible return (F1),
+  tempdir fallback for a non-existent outpath (F2).
+- The written file is unchanged for a valid outpath (structure verified on
+  SNP and SilicoDArT).
+- End-to-end: gl.write.csv(x, outpath = <bad>, verbose = 1) writes to
+  tempdir and warns; visible == FALSE on the return; verbose = 3 run clean.
+- No internal callers; user-facing io only.
 
 ```json
 {
@@ -131,14 +141,14 @@ Proposed change: adopt the standard DOC2 verbose text.
   "verdict_standards": "needs_work",
   "verdict_spec": "ready",
   "findings": [
-    {"id": "F1", "severity": "MEDIUM", "confidence": "high", "rule": "FS10", "status": "proposed", "change": 1},
-    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "FS7", "status": "proposed", "change": 2},
-    {"id": "F3", "severity": "INFO", "confidence": "high", "rule": "DAT6", "status": "proposed", "change": null},
-    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "proposed", "change": 3},
-    {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "DOC2", "status": "proposed", "change": 3}
+    {"id": "F1", "severity": "MEDIUM", "confidence": "high", "rule": "FS10", "status": "approved", "change": 1},
+    {"id": "F2", "severity": "MEDIUM", "confidence": "high", "rule": "FS7", "status": "approved", "change": 2},
+    {"id": "F3", "severity": "INFO", "confidence": "high", "rule": "DAT6", "status": "no-action", "change": null},
+    {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 3},
+    {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "DOC2", "status": "approved", "change": 3}
   ],
   "coverage_skipped": ["DAT6: no FBM fixture exercised", "GitHub issues not queried", "Google Group not queried"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 397
 }
 ```
