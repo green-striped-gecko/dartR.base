@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.recalc.maf()` review: SilicoDArT input is now rejected (the
+  doc already promised SNP-only); NULL-safe monomorphs-flag check;
+  marked internal; maf arithmetic verified exact (unchanged).
+
 * `utils.recalc.freqhomref()` review: SilicoDArT input is now rejected
   (was silently given diploid metrics); NULL-safe monomorphs-flag
   check; marked internal; arithmetic verified exact (unchanged).
