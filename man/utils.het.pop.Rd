@@ -37,7 +37,6 @@ Other utilities:
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
