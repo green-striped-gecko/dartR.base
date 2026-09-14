@@ -1,6 +1,7 @@
 #' @name utils.recalc.freqhomref
-#' @title #' An internal utility function to recalculate the frequency of the homozygous reference
-#' SNP by locus after some populations have been deleted
+#' @title An internal utility function to recalculate the frequency of the
+#' homozygous reference SNP by locus after some individuals or populations
+#' have been deleted
 #' @family utilities
 
 #' @description 
@@ -25,14 +26,9 @@
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 
-#' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
-#'  \code{utils.recalc.callrate} for recalculating CallRate,
-#' \code{utils.recalc.avgpic} for recalculating AvgPIC,
-#'  \code{utils.recalc.freqhomsnp} for recalculating frequency of homozygous
-#'  alternate, \code{utils.recalc.freqhet} for recalculating frequency of
-#'  heterozygotes, \code{gl.recalc.maf} for recalculating minor allele frequency,
-#' \code{gl.recalc.rdepth} for recalculating average read depth
-#' 
+#' @seealso \code{\link{gl.recalc.metrics}} for recalculating all
+#' locus metrics
+#' @keywords internal
 # @export
 #' @return The modified genlight object
 
@@ -51,10 +47,10 @@ utils.recalc.freqhomref <- function(x,
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
