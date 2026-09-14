@@ -105,7 +105,11 @@ gl.compliance.check <- function(x,
         if (verbose >= 2) {
             cat(report("  Checking coding of SNPs\n"))
         }
-        if (max(mat) %in% scores) {
+        # Exact value-set test. The previous test, max(mat) %in% scores,
+        # was vacuous whenever the data held an NA: max() without na.rm
+        # returns NA, and NA %in% scores is TRUE because scores includes
+        # NA, so out-of-range genotypes passed as confirmed.
+        if (all(mat %in% scores)) {
             if (verbose >= 1) {
                 cat(report("    SNP data scored NA, 0, 1 or 2 confirmed\n"))
             }
@@ -125,7 +129,8 @@ gl.compliance.check <- function(x,
         if (verbose >= 2) {
             cat(report("  Checking coding of Tag P/A data\n"))
         }
-        if (max(mat) %in% scores) {
+        # Exact value-set test (see the SNP check above).
+        if (all(mat %in% scores)) {
             if (verbose >= 1) {
                 cat(
                     report(
@@ -189,8 +194,18 @@ gl.compliance.check <- function(x,
     if (verbose >= 2) {
         cat(report("  Checking for monomorphic loci\n"))
     }
-    x2 <- gl.filter.monomorphs(x, verbose = 0)
-    if (nLoc(x2) == nLoc(x)) {
+    # gl.filter.monomorphs cannot return a zero-locus object: when every
+    # locus is monomorphic, the subset in gl.drop.loc errors ("Subsetting
+    # resulted in zero loci"). Catch that error and read it as the
+    # all-monomorphic case, so the check flags rather than crashes.
+    x2 <- tryCatch(gl.filter.monomorphs(x, verbose = 0),
+                   error = function(e) NULL)
+    if (is.null(x2)) {
+        if (verbose >= 1) {
+            cat(warn("    All loci are monomorphic\n"))
+        }
+        x@other$loc.metrics.flags$monomorphs <- FALSE
+    } else if (nLoc(x2) == nLoc(x)) {
         if (verbose >= 1) {
             cat(report("    No monomorphic loci detected\n"))
         }
@@ -206,8 +221,16 @@ gl.compliance.check <- function(x,
     if (verbose >= 2) {
         cat(report("  Checking for loci with all missing data\n"))
     }
-    x2 <- gl.filter.allna(x, verbose = 0)
-    if (nLoc(x2) == nLoc(x)) {
+    # Same guard as the monomorph check: gl.filter.allna errors the same
+    # way when every locus is all missing.
+    x2 <- tryCatch(gl.filter.allna(x, verbose = 0),
+                   error = function(e) NULL)
+    if (is.null(x2)) {
+        if (verbose >= 1) {
+            cat(warn("    All loci have all missing data\n"))
+        }
+        x@other$loc.metrics.flags$allna <- FALSE
+    } else if (nLoc(x2) == nLoc(x)) {
         if (verbose >= 1) {
             cat(report("    No loci with all missing data detected\n"))
         }
