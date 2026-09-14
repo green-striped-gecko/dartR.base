@@ -21,7 +21,8 @@
 #'  format ("3_digits") [default "2_digits"].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' 
 #' @author Custodian: Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -65,15 +66,22 @@ gl2genepop <- function (x,
   datatype <- utils.check.datatype(x, verbose = verbose)
   
   # FUNCTION SPECIFIC ERROR CHECKING
-  
+
   #works only with SNP data
   if (datatype != "SNP") {
-    cat(error(
+    stop(error(
       "  Only SNPs (diploid) data can be transformed into genepop format!\n"
     ))
-    stop()
   }
-  
+
+  # the genind conversion path requires at least two individuals
+  if (nInd(x) < 2) {
+    stop(error(
+      "  Fatal Error: gl2genepop requires at least two individuals; the object has",
+      nInd(x), "\n"
+    ))
+  }
+
   if (is.null(pop(x))) {
     cat(
       important(
@@ -89,14 +97,43 @@ gl2genepop <- function (x,
   # DO THE JOB
   #ordering populations
   # filtering all loci with all NAs to avoid crashing the function
+  nloc_before <- nLoc(x)
   x <- gl.filter.allna(x,verbose =0 )
-  
+  if (verbose >= 1 && nLoc(x) < nloc_before) {
+    cat(warn(
+      "  Warning:", nloc_before - nLoc(x),
+      "loci scored NA across all individuals removed before export\n"
+    ))
+  }
+
   if(length(pop.order)==1){
     x <- x[order(pop(x)), ]
   }
-  
+
   if(length(pop.order)>1){
-    
+
+    # pop.order must name every population exactly once - unlisted or
+    # misspelled names would otherwise be dropped from the file silently
+    if (!setequal(pop.order, popNames(x)) || anyDuplicated(pop.order) > 0) {
+      unknown_pops <- setdiff(pop.order, popNames(x))
+      missing_pops <- setdiff(popNames(x), pop.order)
+      msg <- "  Fatal Error: pop.order must contain each population name exactly once."
+      if (length(unknown_pops) > 0) {
+        msg <- paste(msg, "\n  Not found in the genlight object:",
+                     paste(unknown_pops, collapse = ", "))
+      }
+      if (length(missing_pops) > 0) {
+        msg <- paste(msg, "\n  Missing from pop.order:",
+                     paste(missing_pops, collapse = ", "))
+      }
+      dup_pops <- unique(pop.order[duplicated(pop.order)])
+      if (length(dup_pops) > 0) {
+        msg <- paste(msg, "\n  Duplicated in pop.order:",
+                     paste(dup_pops, collapse = ", "))
+      }
+      stop(error(paste0(msg, "\n")))
+    }
+
     tmp <- seppop(x)
     tmp_2 <-  tmp[match(pop.order, names(tmp))]
     x <- Reduce(rbind,tmp_2)
@@ -145,15 +182,19 @@ gl2genepop <- function (x,
     loc_all$allele <- paste0("0",loc_all$allele)
   }
   
-  loci_names <- as.character(loci_names_l[-which(duplicated(loci_names_l))])
-  n.loci <- length(loci_names_l[-which(duplicated(loci_names_l))])
+  # unique() rather than negative indexing with duplicated(): when no locus
+  # has two allele columns (all monomorphic), which(duplicated(...)) is
+  # integer(0) and negative indexing empties the vector
+  loci_names <- unique(as.character(loci_names_l))
+  n.loci <- length(loci_names)
   data_gpop <- data.frame(id = paste(pop_names, "_",
                                      row.names(data), ",", sep = ""))
-  for (i in 1:n.loci) {
+  for (i in seq_len(n.loci)) {
     loc <- loci_names[i]
     a <- c()
+    # the allele columns of this locus do not depend on the individual
+    col_loc <- which(loc_all[, "locus"] == loc)
     for (j in 1:nrow(data)) {
-      col_loc <- which(loc_all[, "locus"] == loc)
       hom <- which(data[j, col_loc] == 2)
       het <- which(data[j, col_loc] == 1)
       if (length(hom) != 0) {
@@ -205,10 +246,12 @@ gl2genepop <- function (x,
     row.names = FALSE,
     col.names = FALSE
   )
-  cat(report(
-    "  The genepop file is saved as: ",
-    file.path(outpath, outfile, "\n")
-  ))
+  if (verbose >= 2) {
+    cat(report(
+      "  The genepop file is saved as: ",
+      file.path(outpath, outfile), "\n"
+    ))
+  }
   
   # FLAG SCRIPT END
   
