@@ -13,8 +13,9 @@
 #' @param method Specify distance measure [default euclidean].
 #' @param plot.display If TRUE, resultant plots are displayed in the plot window
 #' [default TRUE].
-#' @param scale If TRUE and method='Euclidean', the distance will be scaled to 
-#'  fall in the range [0,1] [default FALSE].
+#' @param scale If TRUE and method='euclidean', the distance will be scaled:
+#'  for SilicoDArT data the scaled distance falls in the range [0,1]; for SNP
+#'  data the attainable maximum is 0.5 (see Details) [default FALSE].
 #' @param type Specify the type of output, dist or matrix [default 'dist']
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
@@ -28,11 +29,32 @@
 #'   [default 2 or as specified using gl.set.verbosity].
 #'   
 #' @details
-#' For SNP data, the distance measure can be one of 'euclidean', 'fixed-diff', 'reynolds',
-#' 'nei' and 'chord'. For SilicoDArT data, the distance measure can be one of 'Refer to the documentation of functions in
+#' For SNP data, the distance measure can be one of 'euclidean', 'nei',
+#' 'reynolds', 'chord' or 'fixed-diff'. For SilicoDArT data, the distance
+#' measure can be one of 'euclidean', 'simple', 'jaccard' or 'sorensen'.
+#'
+#' Two of the SNP measures are variants of their textbook forms. The
+#' 'reynolds' distance is the linearised (divergence-time) variant
+#' -log(1 - D) of the Reynolds, Weir and Cockerham (1983) coancestry
+#' distance D. The 'chord' distance is the Cavalli-Sforza and Edwards
+#' (1967) chord distance scaled by the constant 2*sqrt(2)/pi.
+#'
+#' With scale=TRUE and method='euclidean', the scaled distance falls in
+#' the range [0,1] for SilicoDArT data; for SNP data the attainable
+#' maximum is 0.5 (two populations fixed for opposite alleles at every
+#' locus), a consequence of the 0.5 scaling factor applied to the SNP
+#' form.
+#'
+#' The euclidean distance for SilicoDArT data is computed from the
+#' population frequencies of tag presence; it is a different statistic
+#' from a between-individual euclidean distance averaged over population
+#' pairs ('simple', 'jaccard' and 'sorensen' are computed the latter
+#' way, via gl.dist.ind).
+#'
+#' Refer to the documentation of functions in
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
 #'   and definitions.
-#'   
+#'
 #' @author author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
@@ -68,12 +90,11 @@ gl.dist.pop <- function(x,
     # CHECK IF PACKAGES ARE INSTALLED
     pkg <- "reshape2"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
-        " needed for this function to work. Please install it.\n"
+        "needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
     
     # SET VERBOSITY
@@ -135,10 +156,18 @@ gl.dist.pop <- function(x,
           cat(report("  Temporarily assigning",as.pop,"as population\n"))
         }
       } else {
-        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$loc.metrics) and select again\n"))
+        stop(error("Fatal Error: individual metric assigned to 'pop' does not exist. Check names(gl@other$ind.metrics) and select again\n"))
       }
     }
-    
+
+    # Distances require at least two populations
+    if (nPop(x) < 2) {
+      stop(error(
+        "Fatal Error: distances between populations require at least two
+                populations; found", nPop(x), "\n"
+      ))
+    }
+
     # DO THE JOB
     
     available_methods <-
@@ -155,10 +184,8 @@ gl.dist.pop <- function(x,
     
     method <- tolower(method)
     if (!(method %in% available_methods)) {
-        cat(error("Fatal Error: Specified distance method is not among those 
-                available (",available_methods,"), set to Euclidean.\n"))
-      method <- "euclidean"
-
+        stop(error("Fatal Error: Specified distance method is not among those
+                available (", paste(available_methods, collapse = ", "), ")\n"))
     }
     # hard.min.p <- 0.25
 
@@ -189,6 +216,13 @@ gl.dist.pop <- function(x,
     # Reassign names to the populations, and convert from percentages to proportions
     row.names(f) <- f[, 1]
     f <- f[,-c(1)]
+    # Re-anchor the rows to the object's own population order by name:
+    # dcast orders rows by the alphabetically re-factored popn from
+    # gl.allele.freq, while the distance matrix is labelled from
+    # popNames(x), so positional use of the dcast rows mislabels the
+    # distances whenever the population factor levels are not
+    # alphabetical
+    f <- f[popNames(x), , drop = FALSE]
     p <- f / 100
 
 # For both DArTseq and SilicoDArT
@@ -312,7 +346,7 @@ gl.dist.pop <- function(x,
     
     if (method == "chord") {
         if(datatype=="SilicoDArT"){
-            stop(error("Fatal Error: Czfordi-Edwards Chord Distance is not available
+            stop(error("Fatal Error: Cavalli-Sforza-Edwards Chord Distance is not available
                        for Silicodart presence-absence data\n"))
         }
         for (i in (1:(nP - 1))) {
@@ -403,8 +437,12 @@ gl.dist.pop <- function(x,
     ############################################################################
 
     # PLOT Plot Box-Whisker plot
-    
-    if (plot.display) {
+
+    # Build the plot objects whenever they are displayed OR saved, so
+    # plot.file with plot.display = FALSE (including any verbose = 0
+    # call) does not fail on an unbuilt plot
+    plot.build <- plot.display || !is.null(plot.file)
+    if (plot.build) {
         if (datatype == "SNP") {
             title_plot <- paste0("SNP data\nUsing ", method, " distance")
         } else {
@@ -455,11 +493,14 @@ gl.dist.pop <- function(x,
     # PRINTING OUTPUTS
     
         # using package patchwork
-        
-        if (plot.display) {
+
+        if (plot.build) {
           p3 <- (p1 / p2) + plot_layout(heights = c(1, 4))
-          suppressWarnings(print(p3))}
-        
+          if (plot.display) {
+            suppressWarnings(print(p3))
+          }
+        }
+
         # Optionally save the plot ---------------------
         
         if(!is.null(plot.file)){
@@ -483,6 +524,11 @@ gl.dist.pop <- function(x,
         if(verbose >= 2){cat(report("  Returning a stats::dist object\n"))}
     } else {
         dd <- as.matrix(dd)
+        # The SNP frequency methods fill the lower triangle only;
+        # symmetrise and zero the diagonal so the matrix return is
+        # full-symmetric for every method
+        dd[upper.tri(dd)] <- t(dd)[upper.tri(dd)]
+        diag(dd) <- 0
         if(verbose >= 2){cat(report("  Returning a square matrix object\n"))}
     }
    

@@ -16,24 +16,11 @@
 #' Trimmed sequences for which the SNP has been trimmed out, rarely, by adapter
 #'  mis-identity are deleted.
 
-#' This function requires 'TrimmedSequence' to be among the locus metrics
-#' (\code{@other$loc.metrics}) and information of the type of alleles (slot
-#' loc.all e.g. 'G/A') and the position of the SNP in slot position of the
-#'  ```genlight``` object (see testset.gl@position and testset.gl@loc.all for
-#'  how to format these slots.)
+#' This function requires 'TrimmedSequence' and 'SnpPosition' (the 0-based
+#' position of the SNP within the sequence tag) to be among the locus
+#' metrics (\code{@other$loc.metrics}) and information of the type of
+#' alleles in slot loc.all (e.g. 'G/A').
 
-#' @param x Name of the genlight object containing the SNP data [required].
-#' @param method One of 1 | 2, see details [default = 1].
-#' @param merge.secondaries Logical, if TRUE, secondary loci are merged into a 
-#' single sequence [default = FALSE].
-#' @param outfile Name of the saved sequence alignment file ["output_bpp.txt"].
-#' @param imap Name of the saved Imap file ["Imap.txt"].
-#' @param outpath Path where to save the output file [default global working 
-#' directory or if not specified, tempdir()].
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#'  progress log; 3, progress and results summary; 5, full report 
-#'  [default 2 or as specified using gl.set.verbosity].
-#'  
 #' @details
 #' It's important to keep in mind that analyses based on coalescent theory, 
 #' like those done by the programme BPP, are meant to be used with sequence
@@ -49,11 +36,36 @@
 #'     heterozygous genotypes (2012) by using method = 2.
 #'     
 #'     Be mindful that there is little information in the literature on the
-#'      validity of this method. 
-#'      
-#' @author Custodian: Luis Mijangos (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
-#'  
+#'      validity of this method.
+#'
+#' @param x Name of the genlight object containing the SNP data [required].
+#' @param method One of 1 | 2, see details [default 1].
+#' @param merge.secondaries Logical, if TRUE, secondary loci are merged into a
+#' single sequence [default FALSE].
+#' @param outfile Name of the saved sequence alignment file
+#' [default 'output_bpp.txt'].
+#' @param imap Name of the saved Imap file [default 'Imap.txt'].
+#' @param outpath Path where to save the output file [default global working
+#' directory or if not specified, tempdir()].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @return returns no value (i.e. NULL), invisibly
+#'
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#'
+#' @references
+#' \itemize{
+#' \item Ellegren, Hans, et al. "The genomic landscape of species divergence in
+#'Ficedula flycatchers." Nature 491.7426 (2012): 756-760.
+#' \item Flouri T., Jiao X., Rannala B., Yang Z. (2018) Species Tree Inference
+#'with BPP using Genomic Sequences and the Multispecies Coalescent. Molecular
+#' Biology and Evolution, 35(10):2585-2593. doi:10.1093/molbev/msy147
+#'}
+#'
 #' @examples
 #' require(dartR.data)
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -61,18 +73,8 @@
 #' test <- gl.filter.monomorphs(test)
 #' test <- gl.subsample.loc(test,n=50)
 #' gl2bpp(x = test, outpath=tempdir())
-#' 
-#' @references
-#' \itemize{
-#' \item Ellegren, Hans, et al. "The genomic landscape of species divergence in 
-#'Ficedula flycatchers." Nature 491.7426 (2012): 756-760.
-#' \item Flouri T., Jiao X., Rannala B., Yang Z. (2018) Species Tree Inference 
-#'with BPP using Genomic Sequences and the Multispecies Coalescent. Molecular
-#' Biology and Evolution, 35(10):2585-2593. doi:10.1093/molbev/msy147
-#'}
 #'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2bpp <- function(x,
                    method = 1,
@@ -101,20 +103,17 @@ gl2bpp <- function(x,
   datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
   
   # FUNCTION SPECIFIC ERROR CHECKING
-  
-  # CHECK IF PACKAGES ARE INSTALLED
-  pkg <- "seqinr"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
+
+  if (!method %in% c(1, 2)) {
+    stop(error(
+      "Fatal Error: method must be 1 (ambiguity codes) or 2 (random",
+      "assignment of heterozygotes to homozygous state)\n"
     ))
-    return(-1)
   }
-  
-  # Check monomorphs have been removed up to date
-  if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+
+  # Check monomorphs have been removed up to date; an absent flag (an object
+  # not built by dartR) is treated as monomorphs not confirmed removed
+  if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
     if (verbose >= 2) {
       cat(
         warn(
@@ -132,10 +131,10 @@ gl2bpp <- function(x,
       )
     )
   }
-  if (length(x@position) != nLoc(x)) {
+  if (length(x@other$loc.metrics$SnpPosition) != nLoc(x)) {
     stop(
       error(
-        "Fatal Error: Data must include position information for each loci in the @position slot.\n"
+        "Fatal Error: Data must include position information for each loci in x@other$loc.metrics$SnpPosition.\n"
       )
     )
   }
@@ -161,20 +160,22 @@ gl2bpp <- function(x,
     ))
   }
   x <- gl.filter.overshoot(x, verbose = 0)
-  
-  #sort loci by snp position in case there are secondaries to be merged
-  
-  x <- x[,order(x@position)]
-  
-  
+
+  #sort loci by snp position in case there are secondaries to be merged.
+  # Re-subset loc.metrics explicitly from the pre-sort object (DAT3): the
+  # dartR-class `[` method co-reorders loc.metrics but adegenet's plain
+  # genlight method does not, which paired locus names with the wrong
+  # TrimmedSequence
+  ord <- order(x@other$loc.metrics$SnpPosition)
+  old.metrics <- x@other$loc.metrics
+  x <- x[, ord]
+  x@other$loc.metrics <- old.metrics[ord, , drop = FALSE]
 
   # METHOD = AMBIGUITY CODES
-  
+
   if (method == 1) {
-  
-    allnames <- locNames(x)
+
     snp <- as.character(x@loc.all)
-    trimmed <- as.character(x@other$loc.metrics$TrimmedSequence)
     snpmatrix <- as.matrix(x)
     
     # Create a lookup table for the ambiguity codes A T G C A A W R M) T W T K Y G R K G S C M Y S C
@@ -206,7 +207,7 @@ gl2bpp <- function(x,
     rownames(conversion) <- colnames(conversion)
     
     # Extract alleles 1 and 2
-    allelepos <- x@position
+    allelepos <- x@other$loc.metrics$SnpPosition
     allele1 <- gsub("(.)/(.)", "\\1", snp, perl = T)
     allele2 <- gsub("(.)/(.)", "\\2", snp, perl = T)
     
@@ -265,8 +266,8 @@ gl2bpp <- function(x,
           }
       }
 
-      cat(paste0(nInd(x)," ",nchar(seq[1])),"\n")
-      cat(paste0(locNames(x)[j],"^",indNames(x)," ",seq,"\n"))
+      cat(paste0(nInd(x), " ", nchar(seq[1]), "\n"), sep = "")
+      cat(paste0(locNames(x)[j], "^", indNames(x), " ", seq, "\n"), sep = "")
 
     }
     
@@ -305,7 +306,7 @@ gl2bpp <- function(x,
         # Reassign some variables
         trimmed <- as.character(x@other$loc.metrics$TrimmedSequence[j])
         snp <- x@loc.all[j]
-        snpos <- x@position[j]
+        snpos <- x@other$loc.metrics$SnpPosition[j]
         # Shift the index for snppos to start from 1 not zero
         snpos <- snpos + 1
         for (i in 1:r) {
@@ -365,9 +366,7 @@ gl2bpp <- function(x,
   
   # merge secondaries
   if (merge.secondaries) {
-    
-    
-    
+
     if (verbose >= 2) {
       cat(report(
         paste(
@@ -375,97 +374,83 @@ gl2bpp <- function(x,
         )
       ))
     }
-    #load bpp file
+
+    # Load the alignment written above. The file holds one block per locus,
+    # in the locus order of the position-sorted object: a header line
+    # '<nInd> <seqlen>' followed by one sequence line per individual, in
+    # indNames(x) order.
     con <- file(outfilespec, "r")
-    
     bppf <- trimws(readLines(con))
     close(con)
-    
-    b2 <- bppf
-    
-    
+
+    block.len <- nInd(x) + 1
+    blocks <- lapply(seq_len(nLoc(x)), function(j) {
+      bppf[((j - 1) * block.len + 1):(j * block.len)]
+    })
+
+    # Identify clones represented by more than one locus (secondaries)
     a <- strsplit(as.character(x@other$loc.metrics$AlleleID), "\\|")
-    cloneid <- unlist(lapply(a, "[",1))
+    cloneid <- unlist(lapply(a, "[", 1))
     tc <- table(cloneid)
     sn <- names(tc[tc > 1])
 
-    if (length(sn)>0) {    
-    for (xx in 1:length(sn))
-    {
-    dell <- NULL
-    ssl <- NA
-    cc <- 1
-    
-    a <- strsplit(b2, "-")
-    bb2 <- unlist(lapply(a, "[",1))
-      
-    sl <- which(bb2 == sn[xx])
-    
-    ll <- b2[sl]
-    
-    #find
-    allindslocs <- b2[sl]
-    
-    #go over all individuals
-    indsbpp <- str_extract(ll, "(?<=\\^)[^ ]+")
-    pos <- str_extract(ll, "(?<=-)[0-9]+(?=-)")
-    sequence <- str_match(ll, "\\^\\S+\\s([A-Z]+)$")[, 2]
-    
+    if (length(sn) > 0) {
+      drop <- rep(FALSE, nLoc(x))
 
-    for (i in 1:nInd(x)) {
-    
-      index <- which(indsbpp %in% indNames(x)[i])
-      lines <- ll[index]
-      snppos <- as.numeric(pos[index])+1
-      seq <- substr(sequence[index][1],1,snppos[1])
-      
-      
-      for (ii in 2:length(index))
-      {
-        seq <- paste0(seq, substr(sequence[index][ii],snppos[ii-1]+1,snppos[ii]))
+      for (xx in seq_along(sn)) {
+        loci <- which(cloneid == sn[xx])
+        # 1-based position of each SNP within the shared sequence tag;
+        # ascending because the object is sorted by position
+        snppos <- x@other$loc.metrics$SnpPosition[loci] + 1
+        nsec <- length(loci)
+
+        # Sequence part of each locus block, one element per individual
+        seqs <- lapply(loci, function(j) {
+          sub("^\\S+ ", "", blocks[[j]][-1])
+        })
+
+        # Concatenate non-overlapping segments: the first sequence up to and
+        # including its SNP, each later sequence from just after the previous
+        # SNP up to and including its own SNP, then the tail of the last
+        # sequence beyond its SNP
+        merged <- substr(seqs[[1]], 1, snppos[1])
+        for (ii in 2:nsec) {
+          merged <- paste0(merged,
+                           substr(seqs[[ii]], snppos[ii - 1] + 1, snppos[ii]))
+        }
+        merged <- paste0(merged,
+                         substr(seqs[[nsec]], snppos[nsec] + 1,
+                                nchar(seqs[[nsec]])))
+
+        # Replace the clone's first block with the merged block, its header
+        # recomputed from the merged length, and mark every superseded block
+        # (header and sequences) for deletion
+        labels <- sub(" .*$", "", blocks[[loci[1]]][-1])
+        blocks[[loci[1]]] <- c(paste0(nInd(x), " ", nchar(merged[1])),
+                               paste0("sec-", labels, " ", merged))
+        drop[loci[-1]] <- TRUE
       }
-      #fill in the rest...
-      seq <- paste0(seq,substr(sequence[index][ii],snppos[ii-1]+1,nchar(sequence[index][ii])))
-      #now combine and erase the lines 
 
-      ssl[cc] <- paste0("sec-", strsplit(bppf[sl[index][1]]," ")[[1]][1]," ", seq)
-      cc <- cc+1
-    }
-    b2[sl[1:nInd(x)]] <- ssl
-    
-    #delete the others (and the first line)
-    dell <- sl[-c(1:nInd(x))]
-    dell <- c(min(dell)-1, dell)  #add the first line
-    
-    b2 <- b2[-dell] 
-    
-    
-    
-    }
-    
-    
-    
-    con <- file(paste0(outfilespec), "w")
-    writeLines(b2, con = con)
-    close(con)
-   
-    
-    } #if length sn > 0 
+      con <- file(outfilespec, "w")
+      writeLines(unlist(blocks[!drop]), con = con)
+      close(con)
+
+    } #if length sn > 0
   } # if merge.secondaries
   
   
     
     # Imap file
     sink(outfilespec_imap)
-    cat(paste(indNames(x), pop(x),"\n"))
+    cat(paste0(indNames(x), " ", pop(x), "\n"), sep = "")
     sink()
-  
+
   # FLAG SCRIPT END
-  
+
   if (verbose >= 1) {
     cat(report("Completed:", funname, "\n"))
   }
-  
-  return(NULL)
-  
+
+  return(invisible(NULL))
+
 }

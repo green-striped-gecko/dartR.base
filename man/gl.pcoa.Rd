@@ -74,6 +74,13 @@ distance matrix.
 The function is essentially a wrapper for glPca \{adegenet\} or pcoa \{ape\}
 with default settings apart from those specified as parameters in this
 function.
+
+Two algorithms are used for the PCA, depending on how the genotypes are
+stored. For ordinary (in-memory) genlight objects the PCA is undertaken
+with glPca \{adegenet\}, which handles missing values internally. For
+file-backed (FBM) dartR objects the PCA is undertaken with big_SVD
+\{bigstatsr\}; missing values are first imputed using
+gl.impute(x, method='neighbour').
 \strong{ Sources of stress in the visual representation }
 While, technically, any distance matrix can be represented in an ordinated
 space, the representation will not typically be exact.There are three major
