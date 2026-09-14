@@ -4,7 +4,9 @@
 test_that("gl2hapmap writes a HapMap file with the standard 11 metadata columns", {
   od <- file.path(tempdir(), "gl2hapmap_plat")
   dir.create(od, showWarnings = FALSE)
-  capture.output(gl2hapmap(platypus.gl, outfile = "plat", outpath = od,
+  plat <- platypus.gl
+  plat@position <- NULL   # clear the stale tag-offset copy shipped in dartR.data
+  capture.output(gl2hapmap(plat, outfile = "plat", outpath = od,
                            verbose = 0))
   hm <- read.delim(file.path(od, "plat.hmp.txt"), check.names = FALSE)
 
@@ -22,14 +24,10 @@ test_that("gl2hapmap writes a HapMap file with the standard 11 metadata columns"
   expect_true(all(grepl("^[ACGTN]{2}$", gcalls)))
   expect_true("NN" %in% gcalls)                      # missing code
 
-  # platypus.gl: @chromosome is NULL -> all chrom "0".
-  # Expectation updated: the baseline (captured at ed99203) emitted the
-  # populated @position tag offsets verbatim; upstream dev (ddaed27, the
-  # base of this branch) already zero-fills positions whose maximum is
-  # < 1000 (tag offsets are not genome coordinates) -- verified on the
-  # pristine base, so this diff is upstream baseline drift, not a change
-  # made by this review. The zero-fill is now documented and messaged
-  # (approved finding F4).
+  # platypus.gl: @chromosome is NULL -> all chrom "0". With @position
+  # NULL (genome-only slot, PR #330: the max(position) < 1000 tag-offset
+  # sniff is gone, so a populated slot is exported as found) positions
+  # are zero-filled and messaged (approved finding F4).
   expect_true(all(hm$chrom == 0))
   expect_true(all(hm$pos == 0))
 })

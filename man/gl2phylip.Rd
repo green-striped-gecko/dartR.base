@@ -63,7 +63,8 @@ result <- gl2phylip(testset.gl, outfile='test.txt', outpath=tempdir(), bstrap=10
 \seealso{
 Other linkers: 
 \code{\link{gl2paup.parsimony}()},
-\code{\link{gl2paup.svdquartets}()}
+\code{\link{gl2paup.svdquartets}()},
+\code{\link{gl2plink}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

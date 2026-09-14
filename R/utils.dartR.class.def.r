@@ -195,9 +195,8 @@ setMethod ("show", "dartR", function(object) {
   
   if (!is.null(object@position)) {
     optional <- TRUE
-    cat("\n   @position: integer storing positions of the",
-        marker,
-        "[within 69 base sequence]")
+    cat("\n   @position: integer storing genomic positions of the",
+        marker)
   }
   if (!is.null(object@pop)) {
     optional <- TRUE

@@ -128,7 +128,9 @@ gl2paup.parsimony(gg,outfileprefix="test",out.type="newick",outpath=tempdir(),nr
 }
 \seealso{
 Other linkers: 
-\code{\link{gl2paup.svdquartets}()}
+\code{\link{gl2paup.svdquartets}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

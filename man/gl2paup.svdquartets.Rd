@@ -62,7 +62,9 @@ under the coalescent. Bioinformatics 30: 3317-3324
 }
 \seealso{
 Other linkers: 
-\code{\link{gl2paup.parsimony}()}
+\code{\link{gl2paup.parsimony}()},
+\code{\link{gl2phylip}()},
+\code{\link{gl2plink}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

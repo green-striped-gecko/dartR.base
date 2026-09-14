@@ -57,6 +57,7 @@ res <- gl2gapit(t1, outpath = tempdir())
 }
 \seealso{
 Other linker: 
+\code{\link{gi2gl}()},
 \code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
@@ -70,8 +71,6 @@ Other linker:
 \code{\link{gl2gi}()},
 \code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},

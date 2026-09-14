@@ -9,19 +9,14 @@ gl2gi(x, probar = FALSE, verbose = NULL)
 \arguments{
 \item{x}{A genlight object [required].}
 
-\item{probar}{If TRUE, a progress bar will be displayed for long loops
-[default TRUE].}
+\item{probar}{If TRUE, a progress bar is displayed for long loops
+[default FALSE]. Retained for backward compatibility; the vectorised
+conversion completes without one.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default NULL, adopting the global verbosity set by gl.set.verbosity(),
 or 2 if no global is set].}
-
-\item{x}{A genlight object [required].}
-
-\item{probar}{If TRUE, a progress bar is displayed for long loops
-[default FALSE]. Retained for backward compatibility; the vectorised
-conversion completes without one.}
 }
 \value{
 A genind object, with all slots filled.
@@ -58,14 +53,13 @@ Other linker:
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
 \code{\link{gl2faststructure}()},
+\code{\link{gl2gapit}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
@@ -73,8 +67,6 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
-
 Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }

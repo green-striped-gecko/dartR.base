@@ -133,7 +133,8 @@ population-based linkage analyses.' The American journal of human genetics
 \seealso{
 Other linkers: 
 \code{\link{gl2paup.parsimony}()},
-\code{\link{gl2paup.svdquartets}()}
+\code{\link{gl2paup.svdquartets}()},
+\code{\link{gl2phylip}()}
 }
 \author{
 Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
