@@ -18,9 +18,10 @@ gl2paup.svdquartets(
 [required].}
 
 \item{outfile}{File name of the output file (including extension)
-[default 'svd.nex'].}
+[default 'svd.nex']. The PAUP log and tree file names inside the file's
+paup block are derived from this name.}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
 \item{method}{Method = 1, nexus file with two lines per individual; method =
@@ -31,7 +32,8 @@ genotypes, 0 or 1 for presence/absence data [default 2].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity]}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -44,7 +46,8 @@ upon what you regard as most appropriate. One form, that used by Chifman and
   A second form, recommended by Dave Swofford, has a single line per
   individual, resolving heterozygous SNPs by replacing them with standard
 ambiguity codes (method=2).
-If the data are tag presence/absence, then method=2 is assumed.
+If the data are tag presence/absence, then method=2 is assumed and the
+nexus file is written with datatype = standard (0/1 characters).
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -62,7 +65,7 @@ Other linkers:
 \code{\link{gl2paup.parsimony}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linkers}

@@ -23,7 +23,9 @@ gl.dist.ind(
 
 \item{method}{Specify distance measure [SNP: Euclidean; P/A: Simple].}
 
-\item{scale}{If TRUE, the distances are scaled to fall in the range [0,1] [default TRUE]}
+\item{scale}{If TRUE and method='euclidean', the Euclidean distances are
+scaled to fall in the range [0,1]; scale is ignored for the other methods
+[default FALSE]}
 
 \item{swap}{If TRUE and working with presence-absence data, then presence 
 (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
@@ -72,6 +74,8 @@ The distance measure for Sequence Tag Presence/Absence data (binary) can be one 
  \item Simple Matching Distance [method = "Simple"]
  \item Jaccard Distance [method = "Jaccard"]
  \item Bray-Curtis Distance [method = "Bray-Curtis"]
+ \item Sorensen Distance [method = "Sorensen"] (identical by formula to
+ Bray-Curtis for binary data)
  }
 Refer to the documentation of functions in
   https://doi.org/10.1101/2023.03.22.533737 for algorithms
@@ -92,6 +96,7 @@ Other distance:
 \code{\link{utils.dist.ind.snp}()}
 }
 \author{
-Author(s): Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{distance}

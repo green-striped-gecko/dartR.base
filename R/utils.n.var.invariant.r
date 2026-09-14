@@ -9,9 +9,9 @@
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #'   progress log; 3, progress and results summary; 5, full report
-#'    [default NULL].
+#'    [default 2 or as specified using gl.set.verbosity].
 #'    
-#'  @details
+#' @details
 #' Calculate the number of variant and invariant sites by locus and add them as
 #' columns in \code{loc.metrics}. This can be useful to conduct further
 #' filtering, for example where only loci with secondaries are wanted for
@@ -35,6 +35,7 @@
 #' @seealso
 #' \code{\link{gl.filter.secondaries}},\code{\link{gl.report.heterozygosity}}
 
+#' @keywords internal
 # @export
 #' @return The modified genlight object.
 
@@ -61,11 +62,13 @@ utils.n.var.invariant <- function(x,
     # FUNCTION SPECIFIC ERROR CHECKING
     
     if (any(grepl(x@other$history, pattern = "gl.filter.secondaries") == TRUE)) {
-        cat(
-            warn(
-                "  Warning: This function should be run before removing secondaries. A gl.filter.secondaries call was found in the history. This may cause the results to be incorrect\n"
+        if (verbose >= 1) {
+            cat(
+                warn(
+                    "  Warning: This function should be run before removing secondaries. A gl.filter.secondaries call was found in the history. This may cause the results to be incorrect\n"
+                )
             )
-        )
+        }
     }
     
     if (isFALSE("TrimmedSequence" %in% names(x$other$loc.metrics))) {
@@ -86,7 +89,7 @@ utils.n.var.invariant <- function(x,
         a <-
             strsplit(as.character(x@other$loc.metrics$AlleleID), "\\|")
         b <-
-            unlist(a)[c(TRUE, FALSE, FALSE)]  # You may want to put these two lines in a FUN and use it here and in gl/report.scondaries
+            unlist(a)[c(TRUE, FALSE, FALSE)]
         x@other$loc.metrics$CloneID <- b
     }
     
