@@ -55,7 +55,8 @@ containing the phenotype value. '1' = control, '2' = case, '0' = unknown
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -63,7 +64,10 @@ returns no value (i.e. NULL)
 \description{
 This function exports a genlight object into PLINK format and save it into a
 file.
-This function produces the following PLINK files: bed, bim, fam, ped and map.
+By default it produces two files: a .ped file (which embeds the six sample
+columns of the .fam format) and a .map file. With bed.files = TRUE and an
+external PLINK 1.9 binary, the binary .bed, .bim and .fam files are also
+produced.
 }
 \details{
 To create PLINK files .bed, .bim and .fam (bed.files = TRUE), it is necessary
@@ -79,6 +83,15 @@ access to the binary.
 
 The chromosome of each SNP can be a character or numeric. The chromosome
 information for unmapped SNPS is coded as 0.
+
+If the accessors x$chromosome and x$position are unset (NULL), the loci are
+treated as unmapped: chromosome and base-pair position are written as 0,
+PLINK's own convention, and a warning is given. Note also that if
+x$position holds within-tag offsets (as when read directly from a DArT
+report, values typically < 70) rather than genomic coordinates, those
+offsets are written to the .map as base-pair positions; assign genomic
+coordinates before calling if downstream position-aware PLINK operations
+are intended.
 
 Family ID is taken from  x$pop.
 
@@ -118,29 +131,12 @@ population-based linkage analyses.' The American journal of human genetics
 81.3 (2007): 559-575.
 }
 \seealso{
-Other linker: 
-\code{\link{gl2bayesAss}()},
-\code{\link{gl2bayescan}()},
-\code{\link{gl2bpp}()},
-\code{\link{gl2demerelate}()},
-\code{\link{gl2eigenstrat}()},
-\code{\link{gl2faststructure}()},
-\code{\link{gl2gds}()},
-\code{\link{gl2genalex}()},
-\code{\link{gl2genepop}()},
-\code{\link{gl2geno}()},
-\code{\link{gl2gi}()},
-\code{\link{gl2hapmap}()},
-\code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2related}()},
-\code{\link{gl2snapper}()},
-\code{\link{gl2structure}()},
-\code{\link{gl2treemix}()},
-\code{\link{gl2vcf}()}
+Other linkers: 
+\code{\link{gl2paup.parsimony}()},
+\code{\link{gl2paup.svdquartets}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+ \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{linker}
+\concept{linkers}
