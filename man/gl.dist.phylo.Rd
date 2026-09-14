@@ -26,7 +26,9 @@ employ in calculating genetic distance between individuals [default "F81"].}
 analysis [default NULL].}
 
 \item{pairwise.missing}{Whether to delete the sites with missing data in a
-pairwise way [default TRUE].}
+pairwise way [default TRUE]. Not supported by ape for subst.model = 'BH87':
+forced to FALSE (global deletion) with a warning, because ape::dist.dna
+crashes the R session for that combination.}
 
 \item{by.pop}{If TRUE, the distance matrix is based on comparing
 populations; if FALSE, on individuals [default TRUE].}

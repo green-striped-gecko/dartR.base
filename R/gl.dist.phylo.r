@@ -137,7 +137,9 @@
 #' @param min.tag.len Minimum tag length of sequence tags to be used in the
 #' analysis [default NULL].
 #' @param pairwise.missing Whether to delete the sites with missing data in a
-#' pairwise way [default TRUE].
+#' pairwise way [default TRUE]. Not supported by ape for subst.model = 'BH87':
+#' forced to FALSE (global deletion) with a warning, because ape::dist.dna
+#' crashes the R session for that combination.
 #' @param by.pop If TRUE, the distance matrix is based on comparing
 #' populations; if FALSE, on individuals [default TRUE].
 #' @param gamma Gamma correction for inter-site variation in substitution
@@ -287,6 +289,19 @@ gl.dist.phylo <- function(x,
     }
   }
 
+  # ape::dist.dna(model = "BH87", pairwise.deletion = TRUE) aborts the R
+  # session (ape <= 5.8.1: BH87 has no pairwise-deletion routine and its C
+  # code faults on sequences carrying N or ambiguity codes, which gl2fasta
+  # output always does). Fall back to global deletion for this model.
+  if (toupper(subst.model) == "BH87" && isTRUE(pairwise.missing)) {
+    pairwise.missing <- FALSE
+    if (verbose >= 1) {
+      cat(warn(
+        "  Warning: ape::dist.dna does not support pairwise deletion of missing data for subst.model = 'BH87' (it crashes the R session); using global deletion (pairwise.missing = FALSE) instead\n"
+      ))
+    }
+  }
+
   # DEFINE FUNCTIONS
 
   avg.dist <- function(gl, dist) {
@@ -358,6 +373,14 @@ gl.dist.phylo <- function(x,
                      gamma = gamma,
                      variance = variance,
                      pairwise.deletion = pairwise.missing)
+
+  # ape's BH87 routine returns a full n x n matrix but never writes its
+  # diagonal (uninitialised memory, ape <= 5.8.1); a self-distance is 0 by
+  # definition, and the garbage would otherwise feed the within-population
+  # averages when by.pop = TRUE
+  if (toupper(subst.model) == "BH87" && is.matrix(D)) {
+    diag(D) <- 0
+  }
 
   if (by.pop) {
     #Calculate average distances for pairwise populations

@@ -898,7 +898,7 @@ utils.heatmap <- function(x,
     } 
     # Draw histogram if requested
     else if (density.info == "histogram") {
-      h <- hist(x, plot = FALSE, breaks = breaks)
+      h <- graphics::hist(x, plot = FALSE, breaks = breaks)
       hx <- scale01(breaks, min.raw, max.raw)
       hy <- c(h$counts, h$counts[length(h$counts)])
       

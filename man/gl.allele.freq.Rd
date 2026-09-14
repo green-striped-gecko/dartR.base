@@ -52,7 +52,8 @@ Other unmatched report:
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},
-\code{\link{gl.report.polyploid_heterozygosity}()}
+\code{\link{gl.report.polyploid_heterozygosity}()},
+\code{\link{gl.report.shannon}()}
 }
 \author{
 Custodian: Arthur Georges (Post to

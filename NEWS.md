@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.dist.phylo()`: subst.model = "BH87" with the default
+  pairwise.missing = TRUE crashed the R session (ape::dist.dna has no
+  pairwise-deletion routine for BH87 and its C code faults on N/ambiguity
+  codes, ape <= 5.8.1; this is what killed the macOS R CMD check job).
+  The combination now falls back to global deletion with a warning.
+  The same ape routine never writes the diagonal of the BH87 matrix it
+  returns (uninitialised memory); gl.dist.phylo now sets it to 0, which
+  also stops the garbage feeding within-population averages when
+  by.pop = TRUE.
+* `gl2fasta()`: the on.exit sink cleanup popped the caller's sink (e.g.
+  capture.output or testthat) after the function had already closed its
+  own; it now unwinds only the sinks it opened.
+  R CMD check hygiene: `function-review/` added to .Rbuildignore, unused
+  MASS import dropped from DESCRIPTION, gdsfmt declared in Suggests (used
+  by test-gl2gds), utils.heatmap's hist() qualified, over-long example
+  line in gl2paup.parsimony wrapped.
+
 - gl.propShared has moved to dartR.spatial (green-striped-gecko/dartR.spatial#34), where its only callers (gl.ibd, gl.spatial.autoCorr) live.
 
 - gl.Ho and gl.He have moved to dartR.sim (their only dartRverse caller is gl.diagnostics.sim); the reviewed versions and their test travel with them (dartR.sim PR #44).

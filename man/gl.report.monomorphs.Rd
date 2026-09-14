@@ -40,8 +40,7 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \code{\link{gl.filter.monomorphs}}
 
 Other matched reports: 
-\code{\link{gl.report.bases}()},
-\code{\link{gl.report.fstat}()}
+\code{\link{gl.report.bases}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

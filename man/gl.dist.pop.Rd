@@ -104,6 +104,7 @@ D <- gl.dist.pop(testset.gs[1:10,], method='euclidean')
 Other distance: 
 \code{\link{gl.dist.ind}()},
 \code{\link{gl.fdsim}()},
+\code{\link{gl.fst.pop}()},
 \code{\link{utils.dist.ind.snp}()}
 }
 \author{

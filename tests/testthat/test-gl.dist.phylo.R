@@ -146,9 +146,20 @@ test_that("structure and error paths", {
   pA <- fixA()
   # BH87 at individual level returns ape's asymmetric matrix, not the
   # documented dist object [pins defect]
+  # pairwise.missing = FALSE: ape::dist.dna(model = "BH87",
+  # pairwise.deletion = TRUE) aborts the R session (ape <= 5.8.1)
   Dbh <- gl.dist.phylo(pA, subst.model = "BH87", by.pop = FALSE,
-                       verbose = 0)
+                       pairwise.missing = FALSE, verbose = 0)
   expect_true(is.matrix(Dbh))
+  # the default pairwise.missing = TRUE is intercepted for BH87: global
+  # deletion is used instead, with a warning at verbose >= 1, and the
+  # result matches the explicit pairwise.missing = FALSE call
+  expect_output(
+    Dbh2 <- gl.dist.phylo(pA, subst.model = "BH87", by.pop = FALSE,
+                          verbose = 1),
+    "using global deletion"
+  )
+  expect_equal(Dbh2, Dbh)
   # invalid model errors from ape with its model list
   expect_error(
     gl.dist.phylo(pA, subst.model = "ugpma", by.pop = FALSE, verbose = 0),
