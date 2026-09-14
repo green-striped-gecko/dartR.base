@@ -6,6 +6,9 @@
   tempfile() path; the "No plot saved" note respects verbose 0; the
   unused ggsave passthrough claim dropped from the docs; marked
   internal (stays exported - called family-wide).
+* `utils.flag.start()` review: verbosity contract verified (no
+  behaviour change); docs completed; marked internal (stays
+  exported - called family-wide).
 
 * `utils.jackknife()` review: a unit vector of length > 1 now reaches
   the informative stop instead of crashing ("the condition has length
