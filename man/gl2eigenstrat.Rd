@@ -21,17 +21,20 @@ gl2eigenstrat(
 
 \item{outfile}{File name of the output file [default 'gl_eigenstrat'].}
 
-\item{outpath}{Path where to save the output file [default global working 
+\item{outpath}{Path where to save the output file [default global working
 directory or if not specified, tempdir()].}
 
-\item{snp.pos}{Field name from the slot loc.metrics where the SNP position is
-stored [default 1].}
+\item{snp.pos}{Field name from the slot loc.metrics where the SNP position
+is stored; when left at the numeric sentinel 1, a constant position of 1
+is written for every SNP [default 1].}
 
-\item{snp.chr}{Field name from the slot loc.metrics where the chromosome of
-each is stored [default 1].}
+\item{snp.chr}{Field name from the slot loc.metrics where the chromosome
+of each SNP is stored; when left at the numeric sentinel 1, a constant
+chromosome of 1 is written for every SNP [default 1].}
 
 \item{pos.cM}{A vector, with as many elements as there are loci, containing
-the SNP position in morgans or centimorgans [default 1].}
+the SNP position in morgans or centimorgans; the default writes 0 (unknown)
+for every SNP [default 0].}
 
 \item{sex.code}{A vector, with as many elements as there are individuals,
 containing the sex code ('male', 'female', 'unknown') [default 'unknown'].}
@@ -40,8 +43,9 @@ containing the sex code ('male', 'female', 'unknown') [default 'unknown'].}
 containing the phenotype value ('Case', 'Control') [default 'Case'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log ; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -57,17 +61,28 @@ extension 'ind.'
 }
 }
 \details{
+Each value in the genotype file is the number of copies of the reference
+allele -- the first allele of \code{loc.all}, written in the fifth column
+of the snp file: 2 homozygous reference, 1 heterozygous, 0 homozygous
+alternate, 9 missing.
+
 Eigenstrat only accepts chromosomes coded as numeric values, as follows:
 X chromosome is encoded as 23, Y is encoded as 24, mtDNA is encoded as
-90, and XY is encoded as 91. SNPs with illegal chromosome values, such
-as 0, will be removed.
+90, and XY is encoded as 91. Chromosome labels 'X', 'Y', 'MT'/'mtDNA'
+and 'XY' in the nominated field are mapped to this encoding; SNPs with
+illegal chromosome values (any other non-numeric label, or a value less
+than 1, such as 0) are removed, with a warning stating how many. If no
+locus has an encodable chromosome value, the function stops.
 }
 \examples{
 \donttest{
 require("dartR.data")
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
+# The platypus chromosome labels (e.g. 'NC_041731.1_chromosome_4') cannot
+# be encoded for Eigenstrat, so the chromosome field is left at its
+# constant default
 gl2eigenstrat(platypus.gl,snp.pos='ChromPos_Platypus_Chrom_NCBIv1',
-snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
+outpath=tempdir())
 }
 
 }
@@ -104,7 +119,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Luis Mijangos 
-(Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}

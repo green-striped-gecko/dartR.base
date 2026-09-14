@@ -1,26 +1,23 @@
 #' @name gl.report.ld.map
 #' @title Calculates pairwise linkage disequilibrium by population
-#' @family graphics
+#' @family matched report
 
 #' @description
-#' This function calculates pairwise linkage disequilibrium (LD) by population 
+#' This function calculates pairwise linkage disequilibrium (LD) by population
 #' using the function ld from package snpStats.
 
-#' If SNPs are not mapped to a reference genome, the parameter
-#'  \code{ld.max.pairwise}
-#'  should be set as NULL (the default). In this case, the 
-#' function will assign the same chromosome ("1") to all the SNPs in the dataset
-#'  and assign a sequence from 1 to n loci as the position of each SNP. The 
-#'  function will then calculate LD for all possible SNP pair combinations. 
+#' If SNPs are mapped to a reference genome, the information for the SNP's
+#' position should be stored in the genlight accessor "@@position" and the
+#' SNP's chromosome name in the accessor "@@chromosome" (see examples). The
+#' function will then calculate LD within each chromosome and for all possible
+#' SNP pair combinations within a distance of \code{ld.max.pairwise}.
 
-#' If SNPs are mapped to a reference genome, the parameter 
-#' \code{ld.max.pairwise}
-#'  should be filled out (i.e. not NULL). In this case, the
-#'  information for SNP's position should be stored in the genlight accessor
-#'   "@@position" and the SNP's chromosome name in the accessor "@@chromosome"
-#'    (see examples). The function will then calculate LD within each chromosome
-#'     and for all possible SNP pair combinations within a distance of
-#'      \code{ld.max.pairwise}. 
+#' If SNPs are not mapped to a reference genome (the "@@chromosome" accessor
+#' is empty), the function will assign the same chromosome ("1") to all the
+#' SNPs in the dataset, assign a sequence from 1 to n loci as the position of
+#' each SNP, and calculate LD for all possible SNP pair combinations. Setting
+#' \code{ld.max.pairwise = NULL} forces this all-pairs behaviour even when
+#' chromosome information is present.
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param ld.max.pairwise Maximum distance in number of base pairs at which LD 
@@ -31,14 +28,15 @@
 #' @param ld.stat The LD measure to be calculated: "LLR", "OR", "Q", "Covar",
 #'   "D.prime", "R.squared", and "R". See function ld from snpstats
 #'    (package snpStats) for details [default "R.squared"].
-#' @param ind.limit Minimum number of individuals that a population should
-#' contain to take it in account to report loci in LD [default 10].
+#' @param ind.limit Number of individuals a population must exceed to be
+#' included in the analysis; populations with \code{ind.limit} or fewer
+#' individuals are skipped with a warning [default 10].
 #' @param stat.keep Name of the column from the slot \code{loc.metrics} to be
 #'  used to choose SNP to be kept [default "AvgPIC"].
 #' @param ld.threshold.pops LD threshold to report in the plot of "Number of 
 #' populations in which the same SNP pair are in LD" [default 0.2].
-#' @param plot.display If TRUE, histograms of base composition are displayed in the plot window
-#' [default TRUE].
+#' @param plot.display If TRUE, the resultant plots are displayed in the plot
+#' window [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
@@ -55,11 +53,18 @@
 #' [default 2, unless specified using gl.set.verbosity].
 
 #' @details
-#' This function reports LD between SNP pairs by population. 
+#' This function reports LD between SNP pairs by population.
 #' The function \code{\link{gl.filter.ld}} filters out the SNPs in LD using as
-#' input the results of \code{\link{gl.report.ld.map}}. The actual number of 
-#' SNPs to be filtered out depends on the parameters set in the function 
+#' input the results of \code{\link{gl.report.ld.map}}. The actual number of
+#' SNPs to be filtered out depends on the parameters set in the function
 #' \code{\link{gl.filter.ld}}.
+
+#' Only SNP pairs with a positive value of the chosen statistic are reported;
+#' pairs with a zero or negative value (possible for the signed statistics
+#' "R", "Covar" and "Q") are omitted from the report and the plots. Within
+#' each chromosome, loci sharing the same map position are represented by the
+#' first of them; the others are excluded from the analysis (a message
+#' reports the exclusions).
 
 #' Boxplots of LD by population and
 #' a histogram showing LD frequency are presented.
@@ -99,21 +104,24 @@ gl.report.ld.map <- function(x,
                            verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
-  
+  if (verbose == 0) {
+    plot.display <- FALSE
+  }
+
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir,verbose=0)
-  
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
                    build = "v.2023.2",
                    verbose = verbose)
-  
+
   # CHECK DATATYPE
-  datatype <- utils.check.datatype(x, verbose = verbose)
-  
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
   # FUNCTION SPECIFIC ERROR CHECKING
-  
+
   # check if packages are installed
   pkg <- "snpStats"
   if (!(requireNamespace(pkg, quietly = TRUE))) {
@@ -124,36 +132,32 @@ gl.report.ld.map <- function(x,
     ))
     return(-1)
   }
-  
-  pkg <- "fields"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  }
-  
+
   # DO THE JOB
   # by default SNPs are mapped to a reference genome
   SNP_map <- TRUE
   
   if(is.null(ld.max.pairwise) |
      is.null(x$chromosome)){
-    cat(warn(
-      "  There is no information in the chromosome/position slot of the genlight object.
+    if (verbose >= 2) {
+      cat(warn(
+        "  There is no information in the chromosome/position slot of the genlight object.
       Assigning the same chromosome ('1') to all the SNPs in the dataset.
       Assigning a sequence from 1 to n loci as the position of each SNP.
       Calculating LD for all possible SNP pair combinations"
 
-    ))
+      ))
+    }
     x$position <- 1:nLoc(x)
     x$chromosome <- as.factor(rep("1",nLoc(x)))
     # SNPs are not mapped to a reference genome
     SNP_map <- FALSE
   }
-  
+
+  # cap on the distance between members of a reported pair; in the unmapped
+  # case positions are the sequence 1:nLoc(x), so nLoc(x) caps nothing
+  dis.cap <- if (SNP_map) ld.max.pairwise else nLoc(x)
+
   x_list <- seppop(x)
   
   df_linkage <- as.data.frame(matrix(nrow = 0, ncol = 11))
@@ -177,8 +181,10 @@ gl.report.ld.map <- function(x,
     pop_name <- popNames(pop_ld)
     
     if(nInd(pop_ld)<=ind.limit){
-        cat(warn(paste("  Skipping population",pop_name,"from analysis because 
-                       it has less than",ind.limit,"individuals.\n")))
+      if (verbose >= 1) {
+        cat(warn(paste("  Skipping population",pop_name,"from analysis because
+                       it has",ind.limit,"or fewer individuals.\n")))
+      }
       next()
     }
     
@@ -233,6 +239,14 @@ gl.report.ld.map <- function(x,
       # removing loci that have the same location
       dupl_loci <- which(duplicated(ld_map_loci$loc_bp))
       if (length(dupl_loci) > 0) {
+        if (verbose >= 1) {
+          cat(warn(
+            "  Population", pop_name, ":", length(dupl_loci),
+            "loci sharing a map position on chromosome",
+            paste0("'", chr_list[chrom], "'"),
+            "excluded from the LD analysis\n"
+          ))
+        }
         ld_map_loci <- ld_map_loci[-dupl_loci, ]
         genotype_loci <- genotype_loci[, -dupl_loci]
       }
@@ -256,8 +270,7 @@ gl.report.ld.map <- function(x,
         #function to calculate LD
         ld_snps <- snpStats::ld(genotype_loci,genotype_loci, stats = ld.stat)
         ld_snps[lower.tri(ld_snps,diag = TRUE)] <- 0
-        ld.max.pairwise <- nLoc(x)
-        
+
       }
      
       ld_columns <- as.matrix(ld_snps)
@@ -273,7 +286,7 @@ gl.report.ld.map <- function(x,
       # remove pairwise LD results that were calculated at larger distances than 
       # the required in the settings and then filtering and rearranging 
       # dataframes to match each other and then merge them
-      df_linkage_temp <- ld_columns[which(ld_columns$dis <= ld.max.pairwise),]
+      df_linkage_temp <- ld_columns[which(ld_columns$dis <= dis.cap),]
       if (nrow(df_linkage_temp) < 1) {
         next
       }
@@ -319,28 +332,25 @@ gl.report.ld.map <- function(x,
   
   df_ld <- df_linkage
   
-  if (plot.display) {
-    
+  # plots are built whenever they are displayed or saved
+  if (plot.display || !is.null(plot.file)) {
+
     if(is.null(histogram.colors)){
       histogram.colors <- gl.colors(2,verbose = 0)
     }
-    
+
     if(is.null(plot.theme)){
     plot.theme <- theme_dartR()
     }
-    
+
     if(is.null(boxplot.colors)){
       boxplot.colors <- gl.colors("dis",verbose = 0)(length(levels(pop(x))))
     }
-    
+
     if (is(boxplot.colors, "function")) {
       boxplot.colors <- boxplot.colors(length(levels(pop(x))))
     }
-    
-    if (!is(boxplot.colors,"function")) {
-      boxplot.colors <- boxplot.colors
-    }
-    
+
     # get title for plots
     title1 <- "SNP data - Pairwise LD"
     
@@ -383,32 +393,18 @@ gl.report.ld.map <- function(x,
       ylab("Count")+
       xlab(paste("Number of populations in which the same SNP pair are in LD with an",ld.stat,">",ld.threshold.pops)) +
       plot.theme
+
+    # using package patchwork
+    p4 <- p1 / p2 / p3
   }
-  
-  # Print out some statistics
-  # stats <- summary(ld.stat_res)
-  # cat("  Reporting pairwise LD\n")
-  # cat("  No. of pairs of loci in LD =", length(ld.stat_res), "\n")
-  # cat("  No. of individuals =", nInd(x), "\n")
-  # cat("    Minimum      : ", stats[1], "\n")
-  # cat("    1st quartile : ", stats[2], "\n")
-  # cat("    Median       : ", stats[3], "\n")
-  # cat("    Mean         : ", stats[4], "\n")
-  # cat("    3r quartile  : ", stats[5], "\n")
-  # cat("    Maximum      : ", stats[6], "\n")
-  # cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(
-  #   x
-  # ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
-  
+
   # PRINTING OUTPUTS
   if (plot.display) {
-      # using package patchwork
-      p4 <- p1 / p2 / p3
       print(p4)
   }
-  
+
   # Optionally save the plot ---------------------
-  
+
   if(!is.null(plot.file)){
     tmp <- utils.plot.save(p4,
                            dir=plot.dir,
@@ -416,25 +412,6 @@ gl.report.ld.map <- function(x,
                            verbose=verbose)
   }
 
-  # # SAVE INTERMEDIATES TO TEMPDIR
-  # 
-  # # creating temp file names
-  # if (plot.file) {
-  #   if (plot.display) {
-  #     temp_plot <- tempfile(pattern = "Plot_")
-  #     match_call <-
-  #       paste0(names(match.call()),
-  #              "_",
-  #              as.character(match.call()),
-  #              collapse = "_")
-  #     # saving to tempdir
-  #     saveRDS(list(match_call, p4), file = temp_plot)
-  #     if (verbose >= 2) {
-  #       cat(report("  Saving the ggplot to session tempfile\n"))
-  #     }
-  #   }
-  # }
-  
   # FLAG SCRIPT END
   
   if (verbose >= 1) {

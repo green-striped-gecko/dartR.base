@@ -71,7 +71,6 @@ Other graphics:
 \code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
-\code{\link{gl.report.ld.map}()},
 \code{\link{gl.select.colors}()},
 \code{\link{gl.select.shapes}()},
 \code{\link{gl.smearplot}()}
