@@ -1,5 +1,16 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.basic.stats()` review: loci absent from one or more
+  populations no longer NaN-poison the cross-population statistics
+  (the harmonic mean sample size is now taken over the populations
+  that carry the locus, and single-population loci drop from the
+  overall averages as undefined) - output now matches
+  `hierfstat::basic.stats` exactly in all verified cases, honouring
+  the documented equivalence claim; overall Fst/Fis change on
+  datasets with per-population absent loci; the single-individual-pop
+  error regains its message; marked internal (stays exported for
+  dartR.popgen).
+
 * `utils.reset.flags()` review: the `value` argument is now honoured
   when creating @other$verbose (it was validated then ignored -
   hardcoded 2); the bogus loc.metrics$monomorphs COLUMN is no longer
