@@ -1,5 +1,9 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.allelic.richness()` review: @return corrected (it documented
+  "calling function name"); parameters documented; rarefaction kernel
+  re-anchored (validated in PR #286); marked internal.
+
 * `utils.hwe` helpers (GenerateSamples, CritSam, CritSam_Chi):
   documented with @noRd headers; enumeration and critical-sample
   outputs verified; unused variable removed.
