@@ -1,5 +1,10 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.plink.run()` review: the composed command is now well
+  formed - plink.path="path" performs a bare PATH lookup as
+  documented (previously a literal "path/" prefix), and a space is
+  guaranteed before --out (previously glued onto the last syntax
+  token); marked internal (stays exported).
 * `utils.collapse.matrix()` review: the within-population diagonal
   now averages distinct pairs only (self-distances of zero deflated
   it; matrix output only - dist consumers such as gl.dist.pop are
