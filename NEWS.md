@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.mahal.assign()` REMOVED (family consolidation): one of three
+  near-duplicate Mahalanobis assignment functions across the verse
+  (with dartR.captive's `gl.assign.mahal()` and
+  `gl.assign.mahalanobis()`). The reviewed and corrected
+  `gl.assign.mahalanobis()` (envelope-dimension cap, MASS::ginv
+  pseudo-inverse, rank-based chi-square df) becomes the single
+  implementation, arriving with the captive-to-popgen assignment-suite
+  migration. No callers existed in the family.
 * `gl2gds()`: two silent data corruptions fixed. (1) With
   `snp.pos`/`snp.chr` supplied, the genotype/snp.id/snp.allele records
   were reordered with the INVERSE of the chromosome/position sort
