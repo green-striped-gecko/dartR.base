@@ -198,7 +198,7 @@ proposed.
 
 ## Outcome
 
-Branch `review-gl.plot.snp.density` from origin/dev fadab59.
+Branch `review-gl.plot.snp.density` from origin/dev fadab59. PR #407 (-> dev).
 
 - Change 1 (F2): every bin from the chromosome start to the bin of its
   last SNP is in the plot data with `n_snps = 0` where empty. Evidence:
@@ -272,7 +272,7 @@ package.
      "status": "noted", "change": null}
   ],
   "coverage_skipped": ["Google Group: no browser session"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 407
 }
 ```
