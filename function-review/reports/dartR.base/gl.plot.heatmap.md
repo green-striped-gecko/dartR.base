@@ -299,6 +299,8 @@ unexplained diff. Caller tests unchanged: test-gl.report.fstat.R 27/27,
 test-utils.heatmap.R 4/4. Function run end to end at verbose 3 on `dist`
 + `x`, matrix + `x`, `fd` + `x` and `gl.dist.pop()` + `x`.
 
+PR #406 (review-gl.plot.heatmap -> dev).
+
 Package check (`R CMD check --no-tests`): no finding from the package
 code except one new NOTE, "Namespace in Imports field not imported from:
 'gtools'", caused by change 9 removing the only gtools import. Addendum
@@ -345,6 +347,6 @@ and the R installation, not from the package.
                        "DAT6: checked by reading only",
                        "SilicoDArT x: not run"],
   "status": "pr-open",
-  "pr": null
+  "pr": 406
 }
 ```
