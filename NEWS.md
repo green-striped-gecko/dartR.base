@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.check.wd()`: the "path does not exist" fallback warning now gates at
+  `verbose >= 1` (it previously printed even at `verbose = 0`, leaking a
+  stray line into the ~87 functions across the dartRverse that call
+  `gl.check.wd(plot.dir, verbose = 0)`); a non-character, NA or
+  multi-element `wd` now takes the documented tempdir fallback instead of
+  raising an opaque error; documentation corrected (the `wd` default is
+  NULL, resolving to the dartR_wd option then tempdir(); gl.set.wd
+  reference and typos fixed). The returned working directory is unchanged
+  for any valid character or NULL `wd`.
+
 * `gl.dist.phylo()`: subst.model = "BH87" with the default
   pairwise.missing = TRUE crashed the R session (ape::dist.dna has no
   pairwise-deletion routine for BH87 and its C code faults on N/ambiguity

@@ -1,23 +1,26 @@
 #' @name gl.check.wd
 #' @title Checks the global working directory
 #' @family environment
-#' 
-#' @description 
-#' The working directory can be set in one of two ways -- (a) explicitly by the user by
-#' passing a value using the parameter plot.dir in a function, or (b) by setting
-#' the working directory globally as part of the r environment (gl.setwd). The default is in acccordance to CRAN set to tempdir().
+#'
+#' @description
+#' The working directory can be set in one of two ways -- (a) explicitly by the
+#' user by passing a value using the parameter plot.dir in a function, or (b) by
+#' setting the working directory globally as part of the r environment
+#' (gl.set.wd). In accordance with CRAN policy, the default is tempdir().
 
-#' @param wd path to the working directory [default: tempdir()].
+#' @param wd path to the working directory [default NULL; resolves to the
+#' dartR_wd option if set with gl.set.wd(), otherwise to tempdir()].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 
-#' @examples 
+#' @examples
 #' gl.check.wd()
-#' 
+#'
 #' @author Custodian: Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#'
 #' @export
 #' @return the working directory
 
@@ -25,7 +28,7 @@ gl.check.wd <- function(
     wd = NULL,
     verbose=NULL) {
   # SET VERBOSITY
-  verbose <- gl.check.verbosity(verbose)  
+  verbose <- gl.check.verbosity(verbose)
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname,
@@ -43,17 +46,22 @@ gl.check.wd <- function(
       wd <- options()$dartR_wd
     }
   } else {
-    # If wd is provided
-    if (is.character(wd) & dir.exists(wd)) {
-      # Check if it's a valid directory path
-      wd <- wd
+    # If wd is provided: it must be a single existing directory path. Use &&
+    # so dir.exists() is not evaluated on a non-character wd, and require
+    # length 1 so the if() condition is scalar (a non-character, NA, empty or
+    # multi-element wd falls through to the tempdir fallback rather than
+    # raising an opaque error).
+    if (is.character(wd) && length(wd) == 1 && !is.na(wd) && dir.exists(wd)) {
+      # a valid directory path: keep wd as supplied
     } else {
-      # If not a valid directory path, display a warning message and set wd to tempdir()
-      cat(
-        warn(
-          "Warning: The path to the working directory does not exist! Set to tempdir().\n"
+      # not a valid directory path: warn (gated) and fall back to tempdir
+      if (verbose >= 1) {
+        cat(
+          warn(
+            "Warning: The path to the working directory does not exist! Set to tempdir().\n"
+          )
         )
-      )
+      }
       wd <- tempdir()
     }
   }
@@ -62,7 +70,7 @@ gl.check.wd <- function(
   if (verbose >= 1) {
     cat(report("Completed:", funname, "\n"))
   }
-    
+
     return(wd)
-    
+
 }
