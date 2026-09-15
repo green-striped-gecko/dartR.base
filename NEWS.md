@@ -11,6 +11,44 @@
   the run; the documented `recalc`/`mono.rm` defaults are corrected to
   FALSE; and roxygen/message copy-paste errors from the population-recode
   sibling are fixed.
+* `gl.add.indmetrics()`: a metadata file whose ids are a superset of (or
+  only partly overlap) the genlight no longer crashes. The function subsets
+  x to the matching individuals but had left the metadata frame at its full
+  row count, so `ind.cov$pop_old <- x@pop` failed with "replacement has N
+  rows, data has M" whenever the metadata carried any individual not present
+  in x -- the very "a subset matches is fine" case the function's own
+  warning describes. The metadata is now aligned to the matched individuals
+  before use. Also: the duplicate-id check raises a proper
+  `stop(error(...))`; the match-count message is corrected; and the roxygen
+  gains a `@family` tag and a corrected datatype description (SNP or
+  SilicoDArT genlight, not "genind"). Behaviour for exact-match and
+  strict-subset metadata is unchanged.
+* `gl.write.csv()`: now returns `invisible(NULL)` instead of a visible NULL
+  (it previously printed a bare "NULL" at the console on every un-assigned
+  call, even at `verbose = 0`); `outpath` is now resolved through
+  `gl.check.wd()`, so a non-existent output directory falls back to
+  tempdir() (with a warning at `verbose >= 1`) as the other io functions
+  do, instead of failing with an opaque "cannot open the connection" error.
+  Documentation now notes the SilicoDArT (0/1) coding and adopts the
+  standard verbose text. The written file is otherwise unchanged.
+* `gl.set.wd()`: an invalid working directory now raises a clear error and
+  leaves the global working directory unchanged. Previously an invalid path
+  was silently ignored -- the `dartR_wd` option was not set, yet the
+  function returned the path and printed "Global working directory set to
+  <path>", so a mistyped directory sent subsequent output elsewhere with no
+  warning. A non-character, NULL or multi-element `wd` (which previously
+  raised an opaque "invalid filename argument" / condition-length error) now
+  takes the same clear error path. Behaviour for a valid directory is
+  unchanged. Documentation corrected (default, verbose text, typos).
+* `gl.check.wd()`: the "path does not exist" fallback warning now gates at
+  `verbose >= 1` (it previously printed even at `verbose = 0`, leaking a
+  stray line into the ~87 functions across the dartRverse that call
+  `gl.check.wd(plot.dir, verbose = 0)`); a non-character, NA or
+  multi-element `wd` now takes the documented tempdir fallback instead of
+  raising an opaque error; documentation corrected (the `wd` default is
+  NULL, resolving to the dartR_wd option then tempdir(); gl.set.wd
+  reference and typos fixed). The returned working directory is unchanged
+  for any valid character or NULL `wd`.
 
 * `gl.dist.phylo()`: subst.model = "BH87" with the default
   pairwise.missing = TRUE crashed the R session (ape::dist.dna has no

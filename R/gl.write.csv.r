@@ -8,19 +8,22 @@
 #'  metadata. Each column, with header of specimen id, has population in the
 #'  first row.
 
-#' The data coding differs from the DArT 1row format in that 0 = reference
-#' homozygous, 2 = alternate homozygous, 1 = heterozygous, and NA = missing SNP
-#' assignment.
-#' 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' For SNP data the coding differs from the DArT 1row format in that
+#' 0 = reference homozygous, 2 = alternate homozygous, 1 = heterozygous, and
+#' NA = missing SNP assignment. For SilicoDArT (presence-absence) data the
+#' values written are 0 = absent, 1 = present, and NA = missing.
+#'
+#' @param x Name of the genlight object containing the SNP or SilicoDArT data
+#' [required].
 #' @param outfile File name of the output file (including extension)
 #' [default "outfile.csv"].
 #' @param outpath Path where to save the output file
 #' [default tempdir(), mandated by CRAN]. Use outpath=getwd() or outpath='.'
 #' when calling this function to direct output files to your working directory.
-#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end;
-#' 2, progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' 
 #' @author Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -49,7 +52,10 @@ gl.write.csv <- function(x,
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
-    
+
+    # SET WORKING DIRECTORY (validate outpath; falls back to tempdir if the
+    # path does not exist, consistent with the other io functions)
+    outpath <- gl.check.wd(outpath, verbose = 0)
     outfilespec <- file.path(outpath, outfile)
     
     # DO THE JOB
@@ -81,6 +87,6 @@ gl.write.csv <- function(x,
     if (verbose > 0) {
         cat(report("Completed:", funname, "\n"))
     }
-    
-    return(NULL)
+
+    invisible(NULL)
 }
