@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.write.csv()`: now returns `invisible(NULL)` instead of a visible NULL
+  (it previously printed a bare "NULL" at the console on every un-assigned
+  call, even at `verbose = 0`); `outpath` is now resolved through
+  `gl.check.wd()`, so a non-existent output directory falls back to
+  tempdir() (with a warning at `verbose >= 1`) as the other io functions
+  do, instead of failing with an opaque "cannot open the connection" error.
+  Documentation now notes the SilicoDArT (0/1) coding and adopts the
+  standard verbose text. The written file is otherwise unchanged.
 * `gl.set.wd()`: an invalid working directory now raises a clear error and
   leaves the global working directory unchanged. Previously an invalid path
   was silently ignored -- the `dartR_wd` option was not set, yet the
