@@ -7,7 +7,7 @@
 gl.plot.heatmap(
   D,
   x = NULL,
-  palette.divergent = gl.colors("div"),
+  palette.divergent = gl.colors("div", verbose = 0),
   palette_discrete = NULL,
   dendrogram = "column",
   plot.out = TRUE,
@@ -46,114 +46,144 @@ gl.plot.heatmap(
 )
 }
 \arguments{
-\item{D}{Name of the distance matrix or class fd object [required].}
+\item{D}{Distance matrix (class \code{dist}), square numeric matrix, or
+object of class \code{fd} [required].}
 
-\item{x}{Genlight object to extract population information [default NULL].}
+\item{x}{Genlight object used to colour individuals by population
+[default NULL].}
 
-\item{palette.divergent}{A divergent palette for the distance values
+\item{palette.divergent}{A divergent palette function for the values
 [default gl.colors("div")].}
 
-\item{palette_discrete}{The color of populations [default NULL].}
+\item{palette_discrete}{Colours for the populations of \code{x}: a
+palette function, or a vector with one colour per population
+[default NULL, in which case colours are chosen by gl.select.colors].}
 
-\item{dendrogram}{Character string indicating whether to draw 'none',
-'row', 'column' or 'both' dendrograms [default "column"].}
+\item{dendrogram}{Which dendrograms to draw: 'none', 'row', 'column' or
+'both' [default "column"].}
 
-\item{plot.out}{A boolean that indicates whether to plot the results [default TRUE].}
+\item{plot.out}{Whether to draw the heat map [default TRUE].}
 
-\item{legend.print}{Whether to create legend (only if x is provided) 
-[default TRUE].}
+\item{legend.print}{Whether to draw the population legend (only when
+\code{x} is supplied and matches \code{D}) [default TRUE].}
 
-\item{legendx}{x coordinates for the legend[default 0].}
+\item{legendx}{x position of the legend, 0-1, or a legend keyword
+[default 0].}
 
-\item{legendy}{y coordinates for the legend[default 1].}
+\item{legendy}{y position of the legend, 0-1 [default 0.5].}
 
-\item{label.size}{Specify the size of the population labels [default 0.75].}
+\item{label.size}{Size of the population labels in the legend
+[default 0.75].}
 
 \item{legend.title}{Legend title [default "Populations"].}
 
-\item{diag.na}{Logical. If TRUE, the diagonal elements of the distance matrix are set to NA [default FALSE].}
+\item{diag.na}{If TRUE, the diagonal of the matrix is set to NA and drawn
+in \code{na.color} [default FALSE].}
 
-\item{margins}{Numeric vector of length 2 containing the margins for column
-and row names, respectively [Default = c(10, 10)].}
+\item{margins}{Numeric vector of length 2: margins for column and row
+names, respectively [default c(10, 10)].}
 
-\item{na.color}{Color to use for missing value (NA) [default "grey"].}
+\item{na.color}{Colour for missing values (NA) [default "grey"].}
 
-\item{revC}{Reverse column order. Logical value.}
+\item{revC}{Reverse column order [default FALSE].}
 
-\item{symbreaks}{Symmetric breaks setting. Logical value. Default: FALSE}
+\item{symbreaks}{Symmetric colour breaks around zero [default FALSE].}
 
-\item{trace}{Draw trace line. Must be one of: "column", "row", "both", "none". Default: "none"}
+\item{trace}{Trace lines: "column", "row", "both" or "none"
+[default "none"].}
 
-\item{tracecol}{Trace line colour. Default: "cyan"}
+\item{tracecol}{Trace line colour [default "cyan"].}
 
-\item{cexRow}{Row axis label scale. Integer value.}
+\item{cexRow}{Row label scale [default NULL, chosen from the number of
+rows].}
 
-\item{cexCol}{Column axis label scale. Integer value.}
+\item{cexCol}{Column label scale [default NULL, chosen from the number
+of columns].}
 
-\item{srtRow}{Row labels' rotation angle. Integer value.}
+\item{srtRow}{Row label rotation angle [default NULL].}
 
-\item{srtCol}{Column labels' rotation angle. Integer value. Default: 90}
+\item{srtCol}{Column label rotation angle [default 90].}
 
-\item{offsetRow}{Row labels' offset. Integer value. Default: 0.5}
+\item{offsetRow}{Row label offset [default 0.5].}
 
-\item{offsetCol}{Column labels' offset. Integer value. Default: 0.5}
+\item{offsetCol}{Column label offset [default 0.5].}
 
-\item{key}{Show colour-key. Logical value. Default: TRUE}
+\item{key}{Draw the colour key [default TRUE].}
 
-\item{keysize}{Size of colour key. Numeric value (>= 0). Default: 1.5}
+\item{keysize}{Size of the colour key [default 1.5].}
 
-\item{density.info}{Density plot for colour key. Must be one of: "histogram", "density", "none". Default: "none"}
+\item{density.info}{Density plot on the colour key: "histogram",
+"density" or "none" [default "none"].}
 
-\item{denscol}{Density plot colour. Default: "cyan"}
+\item{denscol}{Density plot colour [default "cyan"].}
 
-\item{symkey}{Symmetric colour key. Logical value. Default: FALSE}
+\item{symkey}{Symmetric colour key around zero [default FALSE].}
 
-\item{densadj}{Density plot scaling. Numeric value between 0 and 10. Default: 0.25}
+\item{densadj}{Density plot bandwidth adjustment [default 0.25].}
 
-\item{key.title}{Title for colour key. Character string.}
+\item{key.title}{Title of the colour key [default NULL].}
 
-\item{key.xlab}{X title for colour key. Character string.}
+\item{key.xlab}{X label of the colour key [default NULL].}
 
-\item{key.ylab}{Y title for colour key. Character string.}
+\item{key.ylab}{Y label of the colour key [default NULL].}
 
-\item{main}{Main plot title. Character string.}
+\item{main}{Main plot title [default NULL].}
 
-\item{xlab}{X-axis label. Character string.}
+\item{xlab}{X-axis label [default NULL].}
 
-\item{ylab}{Y-axis label. Character string.}
+\item{ylab}{Y-axis label [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity]}
+brief progress messages; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
 
-\item{...}{Parameters passed to function
-\link[gplots]{heatmap.2} (package gplots)}
+\item{...}{Further arguments passed to \code{\link{utils.heatmap}}.}
 }
 \value{
-returns no value (i.e. NULL)
+Invisibly, the list returned by \code{\link{utils.heatmap}}
+(row and column orders, the plotted matrix, dendrograms, breaks and
+colours), or NULL when \code{plot.out = FALSE}.
 }
 \description{
-The script plots a heat map to represent the distances in the distance or
-dissimilarity matrix. This function is a wrapper for
-\link[gplots]{heatmap.2} (package gplots).
+Plots a heat map of the values in a distance or dissimilarity matrix,
+with optional row and column dendrograms. When a genlight object is
+supplied, individuals are coloured by population in side bars and a
+legend. The heat map is drawn by \code{\link{utils.heatmap}}, a modified
+copy of \code{gplots::heatmap.2}.
+}
+\details{
+\code{D} can be a \code{dist} object (for example from
+\code{\link{gl.dist.ind}} or \code{\link{gl.dist.pop}}), a square numeric
+matrix with matching row and column names, or an object of class
+\code{fd} from \code{\link{gl.fixed.diff}}, in which case the raw fixed
+difference matrix (\code{$fd}) is plotted. A matrix is plotted as
+supplied: its diagonal and both triangles are drawn, so a relatedness
+matrix keeps its self-relatedness values and an asymmetric matrix keeps
+both directions. If one triangle is entirely \code{NA}, it is filled from
+the other. Set \code{diag.na = TRUE} to leave the diagonal blank.
+
+Population colours are drawn when every column of \code{D} names an
+individual of \code{x}. When \code{D} is at the population level
+(\code{gl.dist.pop}, \code{fd}), \code{x} is ignored. When some columns
+of \code{D} are not individuals of \code{x}, no colours are drawn and a
+warning is printed at \code{verbose >= 1}.
+
+\code{legendx} and \code{legendy} position the legend in the 0-1
+coordinates of the plotting region; \code{legendx} also accepts a
+keyword such as \code{"topleft"} (see \code{\link[graphics]{legend}}).
 }
 \examples{
+if (requireNamespace("dendextend", quietly = TRUE)) {
+  gl <- testset.gl[1:10, ]
+  D <- dist(as.matrix(gl))
+  gl.plot.heatmap(D, x = gl)
+  D2 <- gl.dist.pop(possums.gl)
+  gl.plot.heatmap(D2)
+}
 \donttest{
-   gl <- testset.gl[1:10,]
-   if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
-   D <- dist(as.matrix(gl),upper=TRUE,diag=TRUE)
-   gl.plot.heatmap(D)
-   if (isTRUE(getOption("dartR_fbm"))) possums.gl <- gl.gen2fbm(possums.gl)
-   D2 <- gl.dist.pop(possums.gl)
-   gl.plot.heatmap(D2)
-   if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-   D3 <- gl.fixed.diff(testset.gl)
-   gl.plot.heatmap(D3)
-   }
-   if ((requireNamespace("gplots", quietly = TRUE))) {
-   D2 <- gl.dist.pop(possums.gl)
-   gl.plot.heatmap(D2)
-   }
+D3 <- gl.fixed.diff(testset.gl)
+gl.plot.heatmap(D3)
+}
 }
 \seealso{
 Other graphics: 
@@ -165,7 +195,7 @@ Other graphics:
 \code{\link{gl.tree.nj}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{graphics}
