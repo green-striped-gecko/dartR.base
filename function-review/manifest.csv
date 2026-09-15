@@ -163,3 +163,8 @@ gl.filter.ld,dartR.base,matched filter,arthur,pr-open,391
 gl.report.ld,dartR.base,report,arthur,pr-open,392
 gl.filter.factorloadings,dartR.base,matched filter,arthur,pr-open,393
 gl.edit.recode.pop,dartR.base,data manipulation,arthur,pr-open,400
+gl.edit.recode.ind,dartR.base,data manipulation,arthur,pr-open,399
+gl.add.indmetrics,dartR.base,data manipulation,arthur,pr-open,398
+gl.write.csv,dartR.base,io,arthur,pr-open,397
+gl.set.wd,dartR.base,utility,arthur,pr-open,396
+gl.check.wd,dartR.base,utility,arthur,pr-open,395

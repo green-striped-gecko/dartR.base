@@ -21,16 +21,18 @@ gl.edit.recode.ind(
 \item{out.recode.file}{Name of the file to output the new individual labels
 [optional].}
 
-\item{outpath}{Directory to save the plot RDS files [default as specified 
+\item{outpath}{Directory to save the recode table [default as specified
 by the global working directory or tempdir()]}
 
-\item{recalc}{If TRUE, recalculate the locus metadata statistics [default TRUE].}
+\item{recalc}{If TRUE, recalculate the locus metadata statistics
+[default FALSE].}
 
-\item{mono.rm}{If TRUE, remove monomorphic loci [default TRUE].}
+\item{mono.rm}{If TRUE, remove monomorphic loci [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress but not results; 3, progress and results summary; 5, full report
- [default 2 or as specified using gl.set.verbosity].}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 An object of class ('genlight') with the revised individual labels.
@@ -52,12 +54,12 @@ object.
 When caution needs to be exercised because of the potential for breaking the
 'chain of evidence' associated with the samples, recoding individuals using
 a recode table (csv) can provide a durable record of the changes.
-For SNP genotype data, the function, having deleted individuals, optionally 
-identifies resultant monomorphic loci or loci with all values missing 
-and deletes them. The script also optionally recalculates the
-locus metadata as appropriate. The optional deletion of monomorphic loci
-and the optional recalculation of locus statistics is not available for
-Tag P/A data (SilicoDArT).
+Having deleted individuals, the function optionally identifies resultant
+monomorphic loci or loci with all values missing and deletes them
+(\code{mono.rm}), and optionally recalculates the locus metadata as
+appropriate (\code{recalc}). Both are FALSE by default, so after recoding
+the locus metrics are flagged as no longer current (they may be
+recalculated later with \code{gl.recalc.metrics}).
 Use outpath=getwd() when calling this function to direct
 output files to your working directory.
 The function returns a dartR genlight object with the new population assignments  
