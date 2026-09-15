@@ -7,19 +7,29 @@
 gl.set.wd(wd = tempdir(), verbose = NULL)
 }
 \arguments{
-\item{wd}{Set the path to the wd directory globally to be used by all functions if not set explicitely in the function.}
+\item{wd}{Path to the directory to set globally as the working directory,
+to be used by all functions when not set explicitly in the function
+[default tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-path the the working directory [set for all functions]
+path to the working directory [set for all functions]
 }
 \description{
-Many dartR functions have a plot.dir parameter which is used to save output to (e.g. ggplots as rds files)
- With this functions users can set the working directory globally so it is used in all functions, without setting is explicitely. 
- The value for wd is stored in the r environment and if not set defaults to tempdir(). This script sets the default value.
+Many dartR functions have a plot.dir parameter which is used to save output
+to (e.g. ggplots as rds files). With this function users can set the working
+directory globally so it is used in all functions, without setting it
+explicitly. The value for wd is stored in the r environment and if not set
+defaults to tempdir(). This function sets the default value.
+}
+\details{
+The nominated directory must already exist; gl.set.wd() does not create it.
+If the path does not exist (or is not a single directory path) the function
+stops with an error and the global working directory is left unchanged.
 }
 \examples{
 #set to current working directory

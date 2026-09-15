@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.set.wd()`: an invalid working directory now raises a clear error and
+  leaves the global working directory unchanged. Previously an invalid path
+  was silently ignored -- the `dartR_wd` option was not set, yet the
+  function returned the path and printed "Global working directory set to
+  <path>", so a mistyped directory sent subsequent output elsewhere with no
+  warning. A non-character, NULL or multi-element `wd` (which previously
+  raised an opaque "invalid filename argument" / condition-length error) now
+  takes the same clear error path. Behaviour for a valid directory is
+  unchanged. Documentation corrected (default, verbose text, typos).
 * `gl.check.wd()`: the "path does not exist" fallback warning now gates at
   `verbose >= 1` (it previously printed even at `verbose = 0`, leaking a
   stray line into the ~87 functions across the dartRverse that call
