@@ -63,7 +63,7 @@ Other matched filter:
 \code{\link{gl.filter.taglength}()}
 }
 \author{
-Authors: Bernd Gruber & Ella Kelly (University of Melbourne);
+Author(s): Bernd Gruber, Ella Kelly (University of Melbourne).
 Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }

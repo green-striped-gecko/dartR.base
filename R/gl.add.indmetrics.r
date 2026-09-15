@@ -27,7 +27,7 @@
 #'
 #'  Additional columns with individual metadata can be imported (e.g. age,
 #'  sex, etc).
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')

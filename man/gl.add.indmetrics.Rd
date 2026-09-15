@@ -75,7 +75,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

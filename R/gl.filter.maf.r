@@ -51,7 +51,7 @@
 #'
 #' \bold{From v2.1} The threshold can take values > 1. In this case, these are
 #' interpreted as a threshold for MAC.
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)

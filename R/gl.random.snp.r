@@ -30,7 +30,7 @@
 #' Resultant ggplots are saved to the session's temporary directory.
 
 #' @return Returns a genlight object with half of the loci re-coded.
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' require("dartR.data")

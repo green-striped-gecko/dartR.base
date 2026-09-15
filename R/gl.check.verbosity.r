@@ -12,7 +12,7 @@
 #' @examples 
 #' gl.check.verbosity()
 #' 
-#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @export
 #' @return The verbosity, in variable verbose

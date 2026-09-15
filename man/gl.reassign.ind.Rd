@@ -67,6 +67,7 @@ population assignments.
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
@@ -91,7 +92,7 @@ Other data manipulation:
 \code{\link{gl.subsample.loc}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

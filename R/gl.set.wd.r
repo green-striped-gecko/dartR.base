@@ -22,7 +22,7 @@
 #' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
 #' or 2 if no global is set].
 
-#' @author Custodian: Bernd Gruber (Post to
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #'
 #' @examples

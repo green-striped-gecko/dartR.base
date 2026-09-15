@@ -17,7 +17,7 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 #' 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples

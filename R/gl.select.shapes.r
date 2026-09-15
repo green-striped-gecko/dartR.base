@@ -35,7 +35,7 @@
 #' The palette is displayed only when plot.display=TRUE (the default) and
 #' verbose >= 1.
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples

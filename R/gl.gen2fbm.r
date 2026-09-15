@@ -17,6 +17,8 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' @return A **`dartR`** object with `@fbm` populated and `@gen` emptied.
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \dontrun{
 #' library(adegenet); library(bigstatsr); library(bigsnpr)

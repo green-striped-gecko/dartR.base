@@ -9,7 +9,7 @@
 #' If no history is provided the complete history of x is used (recreating the
 #' identical object x) [optional].
 #' 
-#' @author Bernd Gruber (bugs? Post to
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (bugs? Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples

@@ -122,7 +122,7 @@ Other matched filter:
 \code{\link{gl.filter.taglength}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched filter}

@@ -63,7 +63,7 @@
 #' tloc=0.05 means that SNP allele frequencies of 95,5 and 5,95 percent will be
 #' regarded as fixed when comparing two populations at a locus.
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
