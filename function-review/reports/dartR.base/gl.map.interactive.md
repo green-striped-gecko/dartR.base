@@ -290,7 +290,7 @@ block after the raster step.
 ## Outcome
 
 Applied on branch `review-gl.map.interactive` (from origin/dev be7cb2e);
-PR number recorded in the machine block once opened.
+PR #403.
 
 - Change 1: `centers` built from `tapply` per column with `popNames`
   row names; single-population label now at the centre for both column
@@ -359,6 +359,6 @@ PR number recorded in the machine block once opened.
   ],
   "coverage_skipped": ["rendered output: not reproducible in a test"],
   "status": "pr-open",
-  "pr": null
+  "pr": 403
 }
 ```
