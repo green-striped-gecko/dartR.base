@@ -30,11 +30,11 @@ distribution of each pairwise difference [default 1,000].}
 \item{boot.method}{Resample across individuals ("ind") or across loci ("loc")
 when bootstrapping the heterozygosity of each population [default "ind"].}
 
-\item{alpha1}{First significance level for comparison with diff=0 on plot
-[default 0.05].}
+\item{alpha1}{First significance level for the two-sided test of diff=0,
+used for the significance label and the plot [default 0.05].}
 
-\item{alpha2}{Second significance level for comparison with diff=0 on plot
-[default 0.01].}
+\item{alpha2}{Second significance level for the two-sided test of diff=0,
+used for the significance label and the plot [default 0.01].}
 
 \item{conf}{Confidence level for the bootstrap confidence interval of each
 pairwise difference [default 0.95].}
@@ -48,16 +48,17 @@ each comparison [default TRUE].}
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+plots [default gl.select.colors(ncolors = 2, verbose = 0)].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+\item{plot.file}{Base name (no extension) for the RDS files that save each
+page of plots and the result table; see Details [default NULL]}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
 by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+brief progress messages; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
 }
 \value{
 A dataframe with one row per population pair containing the two
@@ -110,18 +111,26 @@ The histogram is the bootstrap distribution of the difference in uHe
  (default 0.05).
  \item two bright red lines: the limits at level \code{alpha2} (default 0.01).
  }
+The red lines are the \code{alpha/2} and \code{1 - alpha/2} quantiles of
+the bootstrap distribution, so they bound a two-sided test at each level.
 Read significance from the blue zero line, not the green one. If zero lies
 outside the red lines of a given level, the difference is significant at that
 level; if it lies inside the \code{alpha1} lines, the difference is not
-significant. The green observed line sits near the centre of its own bootstrap
+significant. The significance label and the p value in the table are
+computed the same way and agree with each other, except that the p value
+cannot fall below 2 / (nreps + 1): with few replicates a pair can carry
+the stricter label while its p value stays at that floor, so use
+\code{nreps} of 1000 or more when the p values matter. The green observed line sits near the centre of its own bootstrap
 distribution by construction, so its position is not the test. Each panel
 subtitle gives the significance label and the p value.
 
 \strong{Saving the plot}
 
-If \code{plot.file} is given, the ggplot is saved as an RDS file with
-\code{saveRDS()} and can be reloaded with \code{readRDS()}. It is written to
-\code{plot.dir} if given, otherwise to \code{tempdir()}. Other ggplot themes
+If \code{plot.file} is given, each page of plots is saved as an RDS file
+named \code{<plot.file>_<first pair>_to_<last pair>.RDS}, and the result
+table as \code{table_<plot.file>.RDS}; both can be reloaded with
+\code{readRDS()}. They are written to \code{plot.dir} if given, otherwise
+to \code{tempdir()}. Other ggplot themes
 can be consulted at
 \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and
 \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}.
@@ -135,7 +144,7 @@ Nei, M. (1978). Estimation of average heterozygosity and genetic distance
 from a small number of individuals. Genetics, 89(3), 583-590.
 }
 \author{
-Custodian: Luis Mijangos (Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges, Luis Mijangos. Custodian: Luis Mijangos
+ -- Post to \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{Genetic variation within populations}
