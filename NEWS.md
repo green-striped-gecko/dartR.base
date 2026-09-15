@@ -9,6 +9,32 @@
   it sits in an adjacent well. Validated on a DArT plate with seven
   contaminated samples confirmed by species-diagnostic loci and a lab
   note: 7/7 flagged, 0 false positives, source well named in 5/7.
+* `gl.map.interactive()` (function review):
+  - `matrix` accepts `dist` objects (what `gl.dist.pop()` and
+    `gl.dist.ind()` return) instead of crashing with "argument is of
+    length zero".
+  - BEHAVIOUR CHANGE: an individual-level matrix was reordered by row only
+    (rows in alphabetical individual order, columns and coordinates in
+    object order), so links joined the wrong individuals whenever the
+    individuals were not already sorted. Matrices are now aligned to the
+    object by row/column names when they match `popNames`/`indNames`, and
+    taken in object order otherwise (with a warning at verbose >= 2 when
+    names are present but do not match).
+  - BEHAVIOUR CHANGE: symmetric links are drawn only for pairs with a
+    non-missing value above 0 and never from a point to itself; the
+    previous filter never fired, so every pair including self-links was
+    drawn. Line width now follows the (standardised) value as documented,
+    in addition to colour.
+  - a single-population object placed its label with latitude and
+    longitude swapped when `latlon` columns were ordered lat,lon.
+  - an asymmetric matrix with `NA` cells crashed; missing pairs are now
+    skipped in that direction and drawn in grey in the other.
+  - `ind.circle.cols` with fewer colours than populations now errors
+    instead of silently drawing the remaining individuals in leaflet's
+    default colour; `latlon` stored as a matrix is accepted; missing
+    `leaflet`/`leaflet.minicharts`/`terra`/`scales` stop with an error
+    instead of returning -1; `gl.colors()` no longer prints at
+    `verbose = 0`.
 
 * `gl.report.heterozygosity()` (from Carlo Pacioni's PR #229, re-applied
   on the reviewed code):
