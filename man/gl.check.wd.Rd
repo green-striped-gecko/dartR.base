@@ -7,19 +7,22 @@
 gl.check.wd(wd = NULL, verbose = NULL)
 }
 \arguments{
-\item{wd}{path to the working directory [default: tempdir()].}
+\item{wd}{path to the working directory [default NULL; resolves to the
+dartR_wd option if set with gl.set.wd(), otherwise to tempdir()].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 the working directory
 }
 \description{
-The working directory can be set in one of two ways -- (a) explicitly by the user by
-passing a value using the parameter plot.dir in a function, or (b) by setting
-the working directory globally as part of the r environment (gl.setwd). The default is in acccordance to CRAN set to tempdir().
+The working directory can be set in one of two ways -- (a) explicitly by the
+user by passing a value using the parameter plot.dir in a function, or (b) by
+setting the working directory globally as part of the r environment
+(gl.set.wd). In accordance with CRAN policy, the default is tempdir().
 }
 \examples{
 gl.check.wd()
