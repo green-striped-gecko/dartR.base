@@ -279,6 +279,12 @@ gl.sim.crosses <- function(fathers,
       gen = offmat,
       ind.names = ind.names,
       loc.names = locNames(mothers),
+      # carry the parental alleles: they mark the object as SNP data for
+      # utils.check.datatype, which otherwise rejects a brood that happens
+      # to carry no homozygous-alternate genotype (small broods, few loci,
+      # monomorphic parents) as presence/absence data
+      loc.all = if (length(mothers@loc.all) == ncol(offmat))
+        mothers@loc.all else character(0),
       ploidy = rep(2, nrow(offmat))
     )
   if (!is(gl2, "dartR")) {

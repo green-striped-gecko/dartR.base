@@ -168,5 +168,5 @@ gl.add.indmetrics,dartR.base,data manipulation,arthur,pr-open,398
 gl.write.csv,dartR.base,io,arthur,pr-open,397
 gl.set.wd,dartR.base,utility,arthur,pr-open,396
 gl.check.wd,dartR.base,utility,arthur,pr-open,395
-gl.map.interactive,dartR.base,graphics,luis,pr-open,403
-gl.test.heterozygosity,dartR.base,analysis,luis,pr-open,404
+gl.map.interactive,dartR.base,graphics,luis,done,403
+gl.test.heterozygosity,dartR.base,analysis,luis,done,404

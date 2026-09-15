@@ -350,14 +350,15 @@ test_that("unpaired inputs fail with a message that names the problem
   expect_no_match(err, "differing number of rows")
   expect_match(err, "entities but the genlight object holds")
   expect_match(err, "gl.dist.pop")
-  # a data.frame classifies as "list"; it is now rejected before the
-  # animation branch can subset a genlight [approved F11]
+  # a data.frame is rejected by the datatype gate before the animation
+  # branch can subset a genlight [approved F11; message updated for PR #368,
+  # which classifies data.frame separately from list]
   quiet <- capture.output(
     err2 <- tryCatch(gl.pcoa.plot(as.data.frame(f$pca$scores), f$gl,
                                   verbose = 0),
                      error = function(e) conditionMessage(e)))
   expect_no_match(err2, "not subsettable")
-  expect_match(err2, "animation plot requires")
+  expect_match(err2, "expecting glPca or list")
 })
 
 test_that("plainly wrong classes are rejected informatively by the gate", {
