@@ -39,12 +39,13 @@ test_that("baseline run on testset2.gl is silent at verbose=0 and idempotent", {
   expect_true(isTRUE(all.equal(a, b)))
 })
 
-test_that("BUG(F9): one call appends two history entries (internal leak)", {
+test_that("F9 fixed: one call appends one history entry", {
+  # [approved diff, PR #386] the internal gl.recalc.metrics call no longer
+  # leaks its own history entry
   a <- gl.compliance.check(testset2.gl, verbose = 0)
   added <- length(a@other$history) - length(testset2.gl@other$history)
-  expect_equal(added, 2)  # gl.recalc.metrics internal call + own match.call
+  expect_equal(added, 1)
   calls <- vapply(a@other$history, function(h) as.character(h[[1]]), "")
-  expect_true("gl.recalc.metrics" %in% calls)
   expect_true("gl.compliance.check" %in% calls)
 })
 
@@ -218,11 +219,13 @@ test_that("BUG(F4): make.unique repair desynchronises ind.metrics$id", {
   expect_false(identical(indNames(res), as.character(res@other$ind.metrics$id)))
 })
 
-test_that("BUG(F5): loc.metrics row desync crashes opaquely, designed warning unreachable", {
+test_that("F5 fixed: loc.metrics row desync fails with a message that names the problem", {
+  # [approved diff, PR #368] utils.check.datatype now reports the row count
+  # mismatch instead of the opaque "replacement has" error
   g <- testset2.gl[1:10, 1:20]
   g@other$loc.metrics <- g@other$loc.metrics[1:10, ]
   expect_error(gl.compliance.check(g, verbose = 0),
-               "replacement has")
+               "Locus metrics must track loci one for one")
 })
 
 test_that("BUG(F6): ind.metrics row desync passes silently", {

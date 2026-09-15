@@ -9,6 +9,42 @@
   it sits in an adjacent well. Validated on a DArT plate with seven
   contaminated samples confirmed by species-diagnostic loci and a lab
   note: 7/7 flagged, 0 false positives, source well named in 5/7.
+* `gl.sim.crosses()`: the offspring object now carries the parents'
+  `loc.all`, so a brood with no homozygous-alternate genotype (small broods,
+  few loci, monomorphic parents) is no longer rejected by the
+  content-vs-ploidy check in `utils.check.datatype()` as presence/absence
+  data.
+
+* Test suite: fixtures built by hand in the gl.sim.crosses, gl.fst.pop and
+  gl2gi tests now carry SNP metadata (`loc.all`) so they pass the
+  content-vs-ploidy check; six expectations that pinned since-fixed defects
+  (gl.compliance.check F5/F9, the history entry leaked into gl.read.dart,
+  gl.read.fasta and gl.read.vcf, gl.pcoa.plot F11, the gl.read.dart
+  plate_location header overrun) now assert the fixed behaviour.
+
+* `gl.test.heterozygosity()` (function review):
+  - METHODS CHANGE: the significance labels ("sig @0.05", "sig @0.01")
+    and the red lines on the histograms were taken from the alpha and
+    1 - alpha quantiles of the bootstrap distribution, which is a
+    two-sided test at 2 * alpha; they now use alpha/2 and 1 - alpha/2, so
+    a label at alpha agrees with the two-sided p value and the (1 - alpha)
+    confidence interval reported in the same row. Pairs whose p value lies
+    between alpha and 2 * alpha lose their "sig" label (2 of 28 pairs on
+    the 8 largest testset.gl populations at nreps = 1000).
+  - the function is restricted to SNP data (accept = "SNP"); SilicoDArT
+    objects now stop with the datatype error instead of returning
+    "heterozygosity" differences for presence/absence scores.
+  - fewer than two populations (including objects without population
+    assignments) stop with a clear message instead of "subscript out of
+    bounds" after the bootstrap has run; a genlight without
+    `loc.metrics.flags` no longer crashes on the monomorphs check.
+  - the result table prints only at verbose >= 3 and the alpha /
+    boot.method warnings only at verbose >= 2 (the returned value is
+    unchanged); when alpha1 > alpha2 the two levels are swapped so the
+    legend labels match the lines they describe.
+  - documentation: the table_<plot.file>.RDS file is documented, the
+    plot.colors default corrected.
+
 * `gl.map.interactive()` (function review):
   - `matrix` accepts `dist` objects (what `gl.dist.pop()` and
     `gl.dist.ind()` return) instead of crashing with "argument is of

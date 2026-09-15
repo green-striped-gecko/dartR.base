@@ -77,9 +77,9 @@ test_that("verbose = 3 returns a plain object when fbm = FALSE", {
   expect_equal(unname(m[, "clean_5"]), c(0, 2, 1, 0, 2, 0))
   expect_null(g@position)                  # post-PR#330 convention
   expect_null(g@chromosome)
-  # two entries: the gl.read.fasta call, then the internal
-  # gl.recalc.metrics call (history is written before recalc runs)
-  expect_length(g@other$history, 2)
+  # one entry, the gl.read.fasta call; the internal gl.recalc.metrics call
+  # no longer adds its own [approved diff, PR #386]
+  expect_length(g@other$history, 1)
   expect_false(is.null(g@other$ind.metrics))
   expect_equal(nrow(g@other$loc.metrics), nLoc(g))
 })

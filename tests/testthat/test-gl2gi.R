@@ -62,7 +62,14 @@ test_that("gl2gi rejects SilicoDArT input", {
 })
 
 test_that("gl2gi fabricates allele labels when loc.all is NULL (current behaviour)", {
-  gl.sim <- adegenet::glSim(8, 15, ploidy = 2)
+  # a hand-built 0/1/2 object with no loc.all; the genotype 2s let it pass
+  # utils.check.datatype's content-vs-ploidy gate (PR #368), which rejects
+  # 0/1-only objects without SNP metadata (adegenet::glSim gives 0/1 only)
+  set.seed(1)
+  m <- matrix(sample(0:2, 8 * 15, replace = TRUE), 8, 15,
+              dimnames = list(paste0("i", 1:8), paste0("L", 1:15)))
+  gl.sim <- new("genlight", gen = m, ind.names = rownames(m),
+                loc.names = colnames(m), ploidy = rep(2, 8))
   gi <- suppressWarnings(gl2gi(gl.sim, verbose = 0))
   alleles <- unlist(lapply(gi@all.names, paste, collapse = "/"))
   # locus 1 is labelled C/G, the rest A/T (or a subset when only one
