@@ -171,3 +171,4 @@ gl.check.wd,dartR.base,utility,arthur,pr-open,395
 gl.map.interactive,dartR.base,graphics,luis,done,403
 gl.test.heterozygosity,dartR.base,analysis,luis,done,404
 gl.plot.heatmap,dartR.base,graphics,luis,pr-open,406
+gl.plot.snp.density,dartR.base,graphics,luis,pr-open,407

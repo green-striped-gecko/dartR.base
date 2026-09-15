@@ -62,6 +62,7 @@ Other graphics:
 \code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
+\code{\link{gl.plot.snp.density}()},
 \code{\link{gl.select.colors}()},
 \code{\link{gl.smearplot}()},
 \code{\link{gl.tree.nj}()}

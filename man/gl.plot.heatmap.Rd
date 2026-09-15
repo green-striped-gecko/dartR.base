@@ -189,6 +189,7 @@ gl.plot.heatmap(D3)
 Other graphics: 
 \code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.snp.density}()},
 \code{\link{gl.select.colors}()},
 \code{\link{gl.select.shapes}()},
 \code{\link{gl.smearplot}()},
