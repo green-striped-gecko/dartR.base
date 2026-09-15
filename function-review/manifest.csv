@@ -168,3 +168,4 @@ gl.add.indmetrics,dartR.base,data manipulation,arthur,pr-open,398
 gl.write.csv,dartR.base,io,arthur,pr-open,397
 gl.set.wd,dartR.base,utility,arthur,pr-open,396
 gl.check.wd,dartR.base,utility,arthur,pr-open,395
+gl.map.interactive,dartR.base,graphics,luis,awaiting-approval,
