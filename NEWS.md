@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* New function `gl.report.contamination()`: screens a genlight object for
+  cross-contaminated samples from genotypes, population labels and, when
+  present, the plate wells stored by `gl.read.dart()`. Tier 1 flags
+  individuals whose heterozygosity is an outlier within their population
+  (with the leave-one-out rare-allele burden as supporting evidence); tier
+  2 reports each individual's strongest excess-kinship partner and whether
+  it sits in an adjacent well. Validated on a DArT plate with seven
+  contaminated samples confirmed by species-diagnostic loci and a lab
+  note: 7/7 flagged, 0 false positives, source well named in 5/7.
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness
