@@ -212,7 +212,7 @@ Proposed change: `utils.flag.start` at the top, drop `match_call`,
 ## Outcome
 
 Applied on branch `review-gl.test.heterozygosity` (from origin/dev
-98d3a98); PR number recorded in the machine block once opened.
+98d3a98); PR #404.
 
 - Change 1: quantiles at `alpha/2` and `1 - alpha/2` for the labels and
   the plot lines; labels read `alpha1`/`alpha2` directly. On the 8
@@ -272,6 +272,6 @@ Applied on branch `review-gl.test.heterozygosity` (from origin/dev
   ],
   "coverage_skipped": ["bootstrap distributional correctness: delegated to boot", "rendered plots: not reproducible in a test"],
   "status": "pr-open",
-  "pr": null
+  "pr": 404
 }
 ```
