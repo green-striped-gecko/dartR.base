@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.edit.recode.pop()`: `pop.recode` is now the read-only input recode
+  table (loaded and applied when supplied, as documented and as the rest of
+  the recode family use it) and `out.recode.file` is the output, written
+  under `outpath`. Previously `pop.recode` was neither read nor applied;
+  instead the function OVERWROTE it with a freshly generated identity table
+  -- silently destroying a user's existing recode file -- while
+  `out.recode.file` and `outpath` were ignored. Also: the locus-metric
+  flags are now reset whenever `recalc = FALSE` regardless of verbosity (the
+  `utils.reset.flags()` call sat inside an `if (verbose >= 2)` block); a
+  missing `monomorphs` flag no longer crashes the run; the documented
+  `recalc`/`mono.rm` defaults are corrected to FALSE; and roxygen
+  descriptions are fixed. Callers who passed `pop.recode` to receive the
+  output file must switch to `out.recode.file`.
 * `gl.edit.recode.ind()`: the locus-metric flags are now reset whenever
   `recalc = FALSE`, regardless of verbosity. The `utils.reset.flags()` call
   sat inside an `if (verbose >= 2)` block, so the returned object's

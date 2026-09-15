@@ -11,19 +11,22 @@
 #' object.
 
 #' @param x Name of the genlight object  [required].
-#' @param pop.recode Path to recode file [default NULL].
-#' @param out.recode.file Name of the file to output the new individual labels
-#' [default NULL].
-#' @param outpath Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()] 
+#' @param pop.recode Path to an existing recode table (csv) to load as the
+#' starting point for editing. If NULL, a table is generated from the
+#' population assignments in x [default NULL].
+#' @param out.recode.file Name of the file to save the edited population
+#' recode table to (written under outpath) [default NULL].
+#' @param outpath Directory to save the recode table [default as specified
+#' by the global working directory or tempdir()]
 #' @param recalc If TRUE, recalculate the locus metadata statistics
-#' [default TRUE].
-#' @param mono.rm If TRUE, remove monomorphic loci [default TRUE].
+#' [default FALSE].
+#' @param mono.rm If TRUE, remove monomorphic loci [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress but not results; 3, progress and results summary; 5, full report
-#'  [default 2 or as specified using gl.set.verbosity].
-#'  
-#'  @details
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @details
 #' Genlight objects assign specimens to populations based on information in the
 #' ind.metadata file provided when the genlight object is first generated.
 #' Often one wishes to subset the data by deleting populations or to amalgamate
@@ -118,28 +121,43 @@ gl.edit.recode.pop <-  function(x,
     if (verbose >= 2) {
         cat(report("  Extracting current pop assignments from the x object\n"))
     }
-    recode.table <- cbind(levels(pop(x)), levels(pop(x)))
-    
-    # Create recode table for editting, and bring up the editor
+    # Starting recode table: load an existing one if supplied (pop.recode is
+    # a read-only input), otherwise generate an identity table from x
+    if (is.null(pop.recode)) {
+        recode.table <- cbind(levels(pop(x)), levels(pop(x)))
+    } else {
+        if (verbose >= 2) {
+            cat(report("  Loading existing recode table:", pop.recode, "\n"))
+        }
+        recode.table <- as.matrix(read.csv(pop.recode, header = FALSE,
+                                           stringsAsFactors = FALSE))
+    }
+
+    # Create recode table for editing, and bring up the editor
     new <- as.matrix(edit(recode.table))
     # new <- new[,1:2]
-    
-    # Write out the recode table, if requested
-    if (is.null(pop.recode)) {
-        cat("  No output table specified, recode table not written to disk\n")
+
+    # Write out the edited recode table to out.recode.file (under outpath),
+    # if requested
+    if (is.null(out.recode.file)) {
+        if (verbose >= 2) {
+            cat(warn(
+                "  No output table specified, recode table not written to disk\n"
+            ))
+        }
     } else {
         if (verbose >= 2) {
             cat(report(
                 paste(
                     "  Writing population recode table to: ",
-                    pop.recode,
+                    outfilespec,
                     "\n"
                 )
             ))
         }
         write.table(
             new,
-            file = pop.recode,
+            file = outfilespec,
             sep = ",",
             row.names = FALSE,
             col.names = FALSE
@@ -166,7 +184,7 @@ gl.edit.recode.pop <-  function(x,
     # metadata and remove monomorphic loci
     
     if ("delete" %in% x$pop | "Delete" %in% x$pop) {
-        # Remove populations flagged for deletion
+        # Remove individuals in populations flagged for deletion
         if (verbose >= 2) {
             cat(
                 report(
@@ -189,7 +207,7 @@ gl.edit.recode.pop <-  function(x,
         x <- gl.filter.monomorphs(x, verbose = 0)
       }
       # Check monomorphs have been removed
-      if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+      if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
           cat(warn(
             "  Warning: Resultant dataset may contain monomorphic loci\n"
@@ -197,7 +215,7 @@ gl.edit.recode.pop <-  function(x,
         }
       }
     }
-    
+
     # Recalculate statistics ---------------
     if(datatype=="SNP"){
       if (recalc) {
@@ -206,9 +224,12 @@ gl.edit.recode.pop <-  function(x,
           cat(report("  Recalculating locus metrics\n"))
         }
       } else {
+        # Populations may have been deleted, so the locus metrics are stale;
+        # reset the flags regardless of verbosity (must not depend on the
+        # reporting level)
+        x <- utils.reset.flags(x, verbose = 0)
         if (verbose >= 2) {
           cat(warn("  Locus metrics not recalculated\n"))
-          x <- utils.reset.flags(x, verbose = 0)
         }
       }
     }
