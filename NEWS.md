@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.sim.crosses()`: the offspring object now carries the parents'
+  `loc.all`, so a brood with no homozygous-alternate genotype (small broods,
+  few loci, monomorphic parents) is no longer rejected by the
+  content-vs-ploidy check in `utils.check.datatype()` as presence/absence
+  data.
+
+* Test suite: fixtures built by hand in the gl.sim.crosses, gl.fst.pop and
+  gl2gi tests now carry SNP metadata (`loc.all`) so they pass the
+  content-vs-ploidy check; six expectations that pinned since-fixed defects
+  (gl.compliance.check F5/F9, the history entry leaked into gl.read.dart,
+  gl.read.fasta and gl.read.vcf, gl.pcoa.plot F11, the gl.read.dart
+  plate_location header overrun) now assert the fixed behaviour.
+
 * `gl.test.heterozygosity()` (function review):
   - METHODS CHANGE: the significance labels ("sig @0.05", "sig @0.01")
     and the red lines on the histograms were taken from the alpha and

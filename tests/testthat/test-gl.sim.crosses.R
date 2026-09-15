@@ -21,6 +21,10 @@ sc_fixture <- function(mat, prefix = "P") {
       gen = mat,
       ind.names = rownames(mat),
       loc.names = colnames(mat),
+      # loc.all marks the object as SNP data for utils.check.datatype's
+      # content-vs-ploidy gate (PR #368), which otherwise rejects 0/1-only
+      # fixtures as presence/absence
+      loc.all = rep("A/G", ncol(mat)),
       ploidy = rep(2, nrow(mat)))
 }
 

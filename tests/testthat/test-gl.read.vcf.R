@@ -67,9 +67,9 @@ test_that("gl.read.vcf reads biallelic SNPs: ALT dosage, slots, loc.metrics", {
   expect_equal(as.character(lm$FILTER), c("PASS", "PASS", "PASS"))
   expect_equal(as.numeric(as.character(lm$DP)), c(10, 12, 8))
   expect_equal(as.numeric(as.character(lm$AC)), c(2, 3, 1))
-  # history holds the gl.read.vcf call plus the entry appended by the
-  # internal gl.recalc.metrics call.
-  expect_equal(length(x@other$history), 2L)
+  # history holds the gl.read.vcf call only; the internal gl.recalc.metrics
+  # call no longer appends its own entry [approved diff, PR #386]
+  expect_equal(length(x@other$history), 1L)
 })
 
 test_that("gl.read.vcf is silent at verbose = 0", {

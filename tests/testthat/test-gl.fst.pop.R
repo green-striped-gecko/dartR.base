@@ -29,6 +29,10 @@ raw_gl <- function(m, pv) {
   g <- new("genlight", gen = m,
            ind.names = paste0("i", seq_len(nrow(m))),
            loc.names = paste0("L", seq_len(ncol(m))),
+           # loc.all marks the object as SNP data for utils.check.datatype's
+           # content-vs-ploidy gate (PR #368); all-monomorphic fixtures have
+           # no genotype scored 2 and would otherwise be rejected
+           loc.all = rep("A/G", ncol(m)),
            pop = factor(pv), ploidy = rep(2, nrow(m)))
   g <- methods::as(g, "dartR")
   g@other$loc.metrics <- data.frame(dummy = seq_len(ncol(m)))
