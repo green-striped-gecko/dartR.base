@@ -1,6 +1,7 @@
 #' @name gl.test.heterozygosity
 #' @title Tests the difference in heterozygosity between populations taken
 #'  pairwise
+#' @family Genetic variation within populations
 #' @description
 #' Tests whether the unbiased expected heterozygosity (uHe) differs between
 #' populations, for every pair of populations in a genlight object. The uHe of
@@ -15,10 +16,10 @@
 #' distribution of each pairwise difference [default 1,000].
 #' @param boot.method Resample across individuals ("ind") or across loci ("loc")
 #' when bootstrapping the heterozygosity of each population [default "ind"].
-#' @param alpha1 First significance level for comparison with diff=0 on plot
-#' [default 0.05].
-#' @param alpha2 Second significance level for comparison with diff=0 on plot
-#' [default 0.01].
+#' @param alpha1 First significance level for the two-sided test of diff=0,
+#' used for the significance label and the plot [default 0.05].
+#' @param alpha2 Second significance level for the two-sided test of diff=0,
+#' used for the significance label and the plot [default 0.01].
 #' @param conf Confidence level for the bootstrap confidence interval of each
 #' pairwise difference [default 0.95].
 #' @param plot.out If TRUE, plots a sampling distribution of the differences for
@@ -27,13 +28,14 @@
 #' @param plot.theme Theme for the plot. See Details for options
 #'  [default theme_dartR()].
 #' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default gl.colors(2)].
-#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
+#'  plots [default gl.select.colors(ncolors = 2, verbose = 0)].
+#' @param plot.file Base name (no extension) for the RDS files that save each
+#' page of plots and the result table; see Details [default NULL]
 #' @param plot.dir Directory to save the plot RDS files [default as specified 
 #' by the global working directory or tempdir()]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
-#' [default NULL, unless specified using gl.set.verbosity].
+#' brief progress messages; 3, progress and results summary; 5, full report
+#' [default 2, unless specified using gl.set.verbosity].
 #' @details
 #' \strong{Choosing the resampling unit (boot.method)}
 #'
@@ -69,18 +71,26 @@
 #'  (default 0.05).
 #'  \item two bright red lines: the limits at level \code{alpha2} (default 0.01).
 #'  }
+#' The red lines are the \code{alpha/2} and \code{1 - alpha/2} quantiles of
+#' the bootstrap distribution, so they bound a two-sided test at each level.
 #' Read significance from the blue zero line, not the green one. If zero lies
 #' outside the red lines of a given level, the difference is significant at that
 #' level; if it lies inside the \code{alpha1} lines, the difference is not
-#' significant. The green observed line sits near the centre of its own bootstrap
+#' significant. The significance label and the p value in the table are
+#' computed the same way and agree with each other, except that the p value
+#' cannot fall below 2 / (nreps + 1): with few replicates a pair can carry
+#' the stricter label while its p value stays at that floor, so use
+#' \code{nreps} of 1000 or more when the p values matter. The green observed line sits near the centre of its own bootstrap
 #' distribution by construction, so its position is not the test. Each panel
 #' subtitle gives the significance label and the p value.
 #'
 #' \strong{Saving the plot}
 #'
-#' If \code{plot.file} is given, the ggplot is saved as an RDS file with
-#' \code{saveRDS()} and can be reloaded with \code{readRDS()}. It is written to
-#' \code{plot.dir} if given, otherwise to \code{tempdir()}. Other ggplot themes
+#' If \code{plot.file} is given, each page of plots is saved as an RDS file
+#' named \code{<plot.file>_<first pair>_to_<last pair>.RDS}, and the result
+#' table as \code{table_<plot.file>.RDS}; both can be reloaded with
+#' \code{readRDS()}. They are written to \code{plot.dir} if given, otherwise
+#' to \code{tempdir()}. Other ggplot themes
 #' can be consulted at
 #' \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and
 #' \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}.
@@ -89,8 +99,8 @@
 #'  heterozygosity (pop1 - pop2), the lower and upper bounds of its bootstrap
 #'  confidence interval, the significance label and the two-sided bootstrap
 #'  p value (raw and Benjamini-Hochberg adjusted).
-#' @author Custodian: Luis Mijangos (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Arthur Georges, Luis Mijangos. Custodian: Luis Mijangos
+#'  -- Post to \url{https://groups.google.com/d/forum/dartr}
 #' @references 
 #' Nei, M. (1978). Estimation of average heterozygosity and genetic distance 
 #' from a small number of individuals. Genetics, 89(3), 583-590.
@@ -98,7 +108,6 @@
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- gl.test.heterozygosity(platypus.gl, nreps=100, verbose=3, plot.out=TRUE)
-#' @family Genetic variation within populations
 #' @import patchwork
 #' @export
 
@@ -115,56 +124,65 @@ gl.test.heterozygosity <- function(x,
                                    plot.file=NULL,
                                    plot.dir=NULL,
                                    verbose = NULL) {
-    # TRAP COMMAND
-    
-    funname <- match.call()[[1]]
-    
     # SET VERBOSITY
-    
     verbose <- gl.check.verbosity(verbose)
+    
+    # FLAG SCRIPT START
+    funname <- match.call()[[1]]
+    utils.flag.start(func = funname,
+                     verbose = verbose)
     
     # SET WORKING DIRECTORY
     plot.dir <- gl.check.wd(plot.dir,verbose=0)
     
-    # CHECKS DATATYPE
-    
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    # CHECK DATATYPE
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
     
     # SCRIPT SPECIFIC ERROR CHECKING
     
     # Upper and lower significance boundaries
     
     if (alpha1 < 0 || alpha1 > 1) {
-        cat(warn(
-            "Warning: First alpha value should be between 0 and 1, set to 0.05\n"
-        ))
+        if (verbose >= 2) {
+            cat(warn(
+                "  Warning: First alpha value should be between 0 and 1, set to 0.05\n"
+            ))
+        }
         alpha1 <- 0.05
     }
     
     if (alpha2 < 0 || alpha2 > 1) {
-        cat(warn(
-            "Warning: Second alpha value should be between 0 and 1, set to 0.01\n"
-        ))
+        if (verbose >= 2) {
+            cat(warn(
+                "  Warning: Second alpha value should be between 0 and 1, set to 0.01\n"
+            ))
+        }
         alpha2 <- 0.01
     }
 
     # Bootstrap resampling unit
     if (!(boot.method == "ind" || boot.method == "loc")) {
-        cat(warn(
-            "  Warning: boot.method must be 'ind' or 'loc', set to 'ind'\n"
-        ))
+        if (verbose >= 2) {
+            cat(warn(
+                "  Warning: boot.method must be 'ind' or 'loc', set to 'ind'\n"
+            ))
+        }
         boot.method <- "ind"
     }
     
-    upper1 <- 1 - alpha1  # significance level #1
-    upper2 <- 1 - alpha2  # significance level #2
-    if (upper1 > upper2) {
-        tmp <- upper2
-        upper2 <- upper1
-        upper1 <- tmp
+    # alpha1 is the looser level, alpha2 the stricter one, in the labels,
+    # the plot lines and the legend alike
+    if (alpha1 < alpha2) {
+        tmp <- alpha2
+        alpha2 <- alpha1
+        alpha1 <- tmp
     }
-    lower1 <- 1 - upper1
-    lower2 <- 1 - upper2
+    # Two-sided limits: alpha/2 in each tail, so a label at alpha agrees
+    # with the two-sided p value and with a (1 - alpha) percentile interval
+    upper1 <- 1 - alpha1 / 2  # significance level #1
+    upper2 <- 1 - alpha2 / 2  # significance level #2
+    lower1 <- alpha1 / 2
+    lower2 <- alpha2 / 2
     
     # Set a population if none is specified (such as if the genlight object has been generated manually)
     if (is.null(pop(x)) |
@@ -181,25 +199,22 @@ gl.test.heterozygosity <- function(x,
         pop(x) <- as.factor(pop(x))
     }
     
+    if (nPop(x) < 2) {
+        stop(error(
+            "At least two populations are needed to test pairwise differences;",
+            "the object has", nPop(x), "\n"
+        ))
+    }
+    
     # Check for monomorphic loci
     
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (isFALSE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 1) {
             cat(
                 warn(
                     "  Warning: genlight object contains monomorphic loci which will be factored into heterozygosity estimates\n"
                 )
             )
-        }
-    }
-    
-    # FLAG SCRIPT START
-    
-    if (verbose >= 1) {
-        if (verbose == 5) {
-            cat(report("\n\nStarting", funname, "[ Build =", build, "]\n\n"))
-        } else {
-            cat(report("\n\nStarting", funname, "\n\n"))
         }
     }
     
@@ -298,27 +313,27 @@ gl.test.heterozygosity <- function(x,
                 
                 # Upper and lower significance limits
                 u1quantile <-
-                    as.numeric(quantile(mat[y, z,], upper1))
+                    as.numeric(quantile(mat[y, z,], upper1, na.rm = TRUE))
                 u2quantile <-
-                    as.numeric(quantile(mat[y, z,], upper2))
+                    as.numeric(quantile(mat[y, z,], upper2, na.rm = TRUE))
                 l1quantile <-
-                    as.numeric(quantile(mat[y, z,], lower1))
+                    as.numeric(quantile(mat[y, z,], lower1, na.rm = TRUE))
                 l2quantile <-
-                    as.numeric(quantile(mat[y, z,], lower2))
+                    as.numeric(quantile(mat[y, z,], lower2, na.rm = TRUE))
                 
                 # Is zero within the range specified by the upper and lower limits
                 signif_res <- NA_character_
                 if (0 < u2quantile && 0 > l2quantile) {
-                    signif_res <- paste0("non-sig @", lower2)
+                    signif_res <- paste0("non-sig @", alpha2)
                 }
                 if (0 < u1quantile && 0 > l1quantile) {
-                    signif_res <- paste0("non-sig @", lower1)
+                    signif_res <- paste0("non-sig @", alpha1)
                 }
                 if (0 > u1quantile || 0 < l1quantile) {
-                    signif_res <- paste0("sig @", lower1)
+                    signif_res <- paste0("sig @", alpha1)
                 }
                 if (0 > u2quantile || 0 < l2quantile) {
-                    signif_res <- paste0("sig @", lower2)
+                    signif_res <- paste0("sig @", alpha2)
                 }
                 
                 # Two-sided bootstrap p value that the difference is zero, using
@@ -450,7 +465,7 @@ gl.test.heterozygosity <- function(x,
                                     "Zero value"
                                 )
                             ) + guides(color = guide_legend(
-                                override.aes = list(size = 5),
+                                override.aes = list(linewidth = 5),
                                 ncol = 2
                             )) + theme(
                                 legend.position = "bottom",
@@ -469,11 +484,6 @@ gl.test.heterozygosity <- function(x,
         
     if (plot.out) {
         # PRINTING OUTPUTS
-        match_call <-
-            paste0(names(match.call()),
-                   "_",
-                   as.character(match.call()),
-                   collapse = "_")
         # using package patchwork
         seq_1 <- seq(1, length(p_list), max_plots)
         seq_2 <- seq(1, length(p_list), max_plots) - 1
@@ -504,7 +514,9 @@ gl.test.heterozygosity <- function(x,
     # Multiple-testing correction across the pairwise comparisons
     df$pval.adj <- signif(p.adjust(df$pval, method = "BH"), 6)
 
-    print(df)
+    if (verbose >= 3) {
+        print(df)
+    }
 
     # Optionally save the plot ---------------------
     

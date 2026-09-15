@@ -9,6 +9,96 @@
   it sits in an adjacent well. Validated on a DArT plate with seven
   contaminated samples confirmed by species-diagnostic loci and a lab
   note: 7/7 flagged, 0 false positives, source well named in 5/7.
+* `gl.plot.heatmap()` (function review):
+  - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
+    the lower triangle only and set the diagonal to zero, so relatedness
+    matrices (dartR.captive `gl.relatedness()`, `gl.run.EMIBD9()`) lost
+    their self-values and asymmetric matrices lost one direction without
+    a message. A matrix is now drawn as supplied; a matrix with one
+    triangle entirely NA is mirrored from the other; a non-square matrix
+    or one whose row and column names differ stops with a message.
+    `dist` input is unchanged.
+  - `verbose = 0` is silent: the default `palette.divergent` no longer
+    prints the three `gl.colors()` lines (callers forwarding
+    `verbose = 0`, such as `gl.report.fstat()`, inherit the fix).
+  - the legend is built one row per population, so two populations
+    sharing a colour no longer swap swatches.
+  - an `fd` object with `x` supplied no longer stops with "arguments imply
+    differing number of rows"; `x` is ignored for population-level input
+    (`fd`, `gl.dist.pop()` distances) with a note at verbose >= 2.
+  - individuals are matched to `x` by name: colours are drawn whenever
+    every column of `D` is an individual of `x` (a subset of `x` works);
+    otherwise a warning at verbose >= 1 replaces the silent drop or the
+    "ColSideColors must be a character vector" error.
+  - `par(mar)` is restored after the legend; a `palette_discrete` vector
+    of the wrong length stops with a message; a missing dendextend stops
+    with the install message instead of returning -1.
+  - documentation: the function calls `utils.heatmap()` (not
+    `gplots::heatmap.2`), returns that list invisibly, `legendy` default
+    corrected, legend coordinates documented, unused gtools import removed.
+
+* `gl.sim.crosses()`: the offspring object now carries the parents'
+  `loc.all`, so a brood with no homozygous-alternate genotype (small broods,
+  few loci, monomorphic parents) is no longer rejected by the
+  content-vs-ploidy check in `utils.check.datatype()` as presence/absence
+  data.
+
+* Test suite: fixtures built by hand in the gl.sim.crosses, gl.fst.pop and
+  gl2gi tests now carry SNP metadata (`loc.all`) so they pass the
+  content-vs-ploidy check; six expectations that pinned since-fixed defects
+  (gl.compliance.check F5/F9, the history entry leaked into gl.read.dart,
+  gl.read.fasta and gl.read.vcf, gl.pcoa.plot F11, the gl.read.dart
+  plate_location header overrun) now assert the fixed behaviour.
+
+* `gl.test.heterozygosity()` (function review):
+  - METHODS CHANGE: the significance labels ("sig @0.05", "sig @0.01")
+    and the red lines on the histograms were taken from the alpha and
+    1 - alpha quantiles of the bootstrap distribution, which is a
+    two-sided test at 2 * alpha; they now use alpha/2 and 1 - alpha/2, so
+    a label at alpha agrees with the two-sided p value and the (1 - alpha)
+    confidence interval reported in the same row. Pairs whose p value lies
+    between alpha and 2 * alpha lose their "sig" label (2 of 28 pairs on
+    the 8 largest testset.gl populations at nreps = 1000).
+  - the function is restricted to SNP data (accept = "SNP"); SilicoDArT
+    objects now stop with the datatype error instead of returning
+    "heterozygosity" differences for presence/absence scores.
+  - fewer than two populations (including objects without population
+    assignments) stop with a clear message instead of "subscript out of
+    bounds" after the bootstrap has run; a genlight without
+    `loc.metrics.flags` no longer crashes on the monomorphs check.
+  - the result table prints only at verbose >= 3 and the alpha /
+    boot.method warnings only at verbose >= 2 (the returned value is
+    unchanged); when alpha1 > alpha2 the two levels are swapped so the
+    legend labels match the lines they describe.
+  - documentation: the table_<plot.file>.RDS file is documented, the
+    plot.colors default corrected.
+
+* `gl.map.interactive()` (function review):
+  - `matrix` accepts `dist` objects (what `gl.dist.pop()` and
+    `gl.dist.ind()` return) instead of crashing with "argument is of
+    length zero".
+  - BEHAVIOUR CHANGE: an individual-level matrix was reordered by row only
+    (rows in alphabetical individual order, columns and coordinates in
+    object order), so links joined the wrong individuals whenever the
+    individuals were not already sorted. Matrices are now aligned to the
+    object by row/column names when they match `popNames`/`indNames`, and
+    taken in object order otherwise (with a warning at verbose >= 2 when
+    names are present but do not match).
+  - BEHAVIOUR CHANGE: symmetric links are drawn only for pairs with a
+    non-missing value above 0 and never from a point to itself; the
+    previous filter never fired, so every pair including self-links was
+    drawn. Line width now follows the (standardised) value as documented,
+    in addition to colour.
+  - a single-population object placed its label with latitude and
+    longitude swapped when `latlon` columns were ordered lat,lon.
+  - an asymmetric matrix with `NA` cells crashed; missing pairs are now
+    skipped in that direction and drawn in grey in the other.
+  - `ind.circle.cols` with fewer colours than populations now errors
+    instead of silently drawing the remaining individuals in leaflet's
+    default colour; `latlon` stored as a matrix is accepted; missing
+    `leaflet`/`leaflet.minicharts`/`terra`/`scales` stop with an error
+    instead of returning -1; `gl.colors()` no longer prints at
+    `verbose = 0`.
 
 * `gl.report.heterozygosity()` (from Carlo Pacioni's PR #229, re-applied
   on the reviewed code):

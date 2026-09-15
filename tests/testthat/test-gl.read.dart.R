@@ -24,7 +24,9 @@ test_that("gl.read.dart returns a compliant dartR SNP object from the 2-row test
   expect_equal(nLoc(gl), 255)
   expect_true(all(ploidy(gl) == 2))
   expect_equal(nPop(gl), 30)
-  expect_length(gl@other$history, 3)
+  # [approved diff, PR #386] the internal gl.recalc.metrics call no longer
+  # adds a second entry of its own
+  expect_length(gl@other$history, 2)
 })
 
 test_that("@position tracks loc.metrics$SnpPosition (or is NULL post-#330)", {
@@ -64,12 +66,13 @@ test_that("ind.metrics carry metafile columns plus service/plate columns", {
   expect_true(all(c("id", "pop", "lat", "lon", "sex", "maturity",
                     "service", "plate_location") %in% names(gl@other$ind.metrics)))
   expect_equal(nrow(gl@other$ind.metrics), nInd(gl))
-  # CHARACTERIZES A DEFECT: with only 3 header rows in this file, the default
-  # service.row = 1 / plate.row = 3 read past the header block, so 'service'
-  # holds the plate-well row and plate_location is built from the header and
-  # first data row (e.g. "UC_1-AA0109150"). See report finding on bounds check.
+  # [approved diff, PR #363] with only 3 header rows in this file, the default
+  # service.row = 1 / plate.row = 3 used to read past the header block and
+  # build plate_location from the first data row ("UC_1-AA0109150"); the
+  # header guard now leaves plate_location NA. 'service' still holds the
+  # plate-well row because service.row = 1 is within the header.
   expect_equal(as.character(gl@other$ind.metrics$service[1]), "A5")
-  expect_equal(as.character(gl@other$ind.metrics$plate_location[1]), "UC_1-AA0109150")
+  expect_true(is.na(gl@other$ind.metrics$plate_location[1]))
 })
 
 test_that("verbose = 0 is silent: gl.compliance.check log no longer leaks", {

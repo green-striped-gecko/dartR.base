@@ -29,12 +29,19 @@ gl.map.interactive(
 \item{x}{A genlight object (including coordinates within the latlon slot) 
 [required].}
 
-\item{matrix}{A distance matrix between populations or individuals. The
-matrix is visualised as lines between individuals/populations. If matrix is
+\item{matrix}{A distance matrix between populations or individuals, either
+a square matrix or a \code{dist} object such as returned by
+\code{\link{gl.dist.pop}} or \code{\link{gl.dist.ind}}. The matrix is
+visualised as links between individuals/populations. If the matrix has row
+and column names matching the population or individual names they are used
+to align it to the object; otherwise rows and columns are assumed to follow
+the order of the populations/individuals in the object. If matrix is
 asymmetric two lines with arrows are plotted [default NULL].}
 
-\item{standard}{If a matrix is provided line width will be standardised to be
-between 1 to 10, if set to true, otherwise taken as given [default TRUE].}
+\item{standard}{If a matrix is provided, values are standardised to be
+between 1 and 10 if set to TRUE, otherwise taken as given. Symmetric links
+use the value for line colour and width; asymmetric links use it for arrow
+thickness [default TRUE].}
 
 \item{symmetric}{If a symmetric matrix is provided only one line is drawn
 based on the lower triangle of the matrix. If set to false arrows indicating
@@ -45,21 +52,22 @@ populations [default TRUE].}
 
 \item{pop.labels.cex}{Size of population labels [default 12].}
 
-\item{ind.circles}{Should individuals plotted as circles [default TRUE].}
+\item{ind.circles}{Should individuals be plotted as circles [default TRUE].}
 
-\item{ind.circle.cols}{Colors of circles. A color palette or a vectot with
+\item{ind.circle.cols}{Colors of circles. A color palette or a vector with
 as many colors as there are populations in the dataset [default rainbow].}
 
-\item{ind.circle.cex}{Size or circles in pixels [default 10].}
+\item{ind.circle.cex}{Size of circles in pixels [default 10].}
 
 \item{ind.circle.transparency}{Transparency of circles between 0=invisible 
-and 1=no transparency. Defaults to 0.8.}
+and 1=no transparency [default 0.8].}
 
-\item{palette.links}{Color palette for the links in case a matrix is provided
-[default NULL].}
+\item{palette.links}{Color palette for the symmetric links in case a matrix
+is provided. Ignored when \code{symmetric = FALSE}, where arrow colours
+encode the direction of the larger value [default NULL].}
 
-\item{legend.title}{Legend's title for the links in case a matrix is provided
-[default NULL].}
+\item{legend.title}{Legend's title for the symmetric links in case a matrix
+is provided [default NULL].}
 
 \item{provider}{Passed to leaflet [default "Esri.NatGeoWorldMap"].}
 
@@ -75,14 +83,17 @@ and 1=no transparency. Defaults to 0.8.}
 [default scales::viridis_pal(option = "D")(255)].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
+brief progress messages; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-plots a map
+A leaflet map (htmlwidget), displayed when printed.
 }
 \description{
-Creates an interactive map (based on latlon) from a genlight object
+Plots the individuals of a genlight object on an interactive leaflet map,
+using the coordinates stored in \code{x@other$latlon}, with optional
+population labels and optional links between populations or individuals
+drawn from a distance matrix.
 }
 \details{
 A wrapper around the \pkg{leaflet} package. For possible background 
@@ -100,6 +111,10 @@ or "plasma".
 
 A function that receives a single value between 0 and 1 and returns a color.
  Examples: colorRamp(c("#000000", "#FFFFFF"), interpolate = "spline").
+
+Symmetric links are drawn only for pairs whose value is above 0 and not
+missing; a pair with a missing value in an asymmetric matrix is skipped
+in that direction and drawn in grey in the other.
 }
 \examples{
 require("dartR.data")
@@ -121,6 +136,7 @@ Other graphics:
 \code{\link{gl.tree.nj}()}
 }
 \author{
-Bernd Gruber -- Post to \url{https://groups.google.com/d/forum/dartr}
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to 
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{graphics}
