@@ -99,7 +99,7 @@
 #' of a list of simulated generations. The object is returned visibly, so an
 #' unassigned call renders the plot.
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples

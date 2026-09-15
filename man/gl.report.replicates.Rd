@@ -137,7 +137,7 @@ Other matched report:
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched report}

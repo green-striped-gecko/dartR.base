@@ -17,7 +17,7 @@
 #' [default 2 or as specified using gl.set.verbosity].
 #' @return A genlight object with n loci
 #' @export
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' # SNP data

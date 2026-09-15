@@ -14,6 +14,8 @@
 #' @param quiet Logical; if `TRUE`, suppress non-critical messages.
 #'
 #' @return A `dartR` object with **`@gen` populated** and **`@fbm = NULL`**.
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \dontrun{
 #' d_gen <- gl.fbm2gen(d_fbm, chunk = 4096L)

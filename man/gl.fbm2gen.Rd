@@ -32,3 +32,7 @@ length(d_gen@gen)      # nInd
 nLoc(d_gen)            # number of loci (via genlight path)
 }
 }
+\author{
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
+}

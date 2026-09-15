@@ -55,7 +55,7 @@
 #'  (e.g \code{\link[HardyWeinberg]{HWPerm}} or
 #'  \code{\link[HardyWeinberg]{HWExactPrevious}}).
 #'  }
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)

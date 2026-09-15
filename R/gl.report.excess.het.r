@@ -41,7 +41,7 @@
 #' table for loci with significant heterozygote excess) and 'removed.loci'
 #' (a vector of the names of those loci), returned invisibly.
 
-#' @author Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz (Custodian: Ching Ching Lau) -- Post to
+#' @author Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz. Custodian: Ching Ching Lau -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @references

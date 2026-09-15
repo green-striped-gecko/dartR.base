@@ -55,7 +55,7 @@
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
 #'   and definitions.
 #'
-#' @author author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples

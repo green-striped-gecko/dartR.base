@@ -25,7 +25,7 @@
 #' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
 #' or 2 if no global is set].
 #' 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples

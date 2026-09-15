@@ -46,3 +46,7 @@ nInd(d_fbm); nLoc(d_fbm)   # dimensions via FBM
 head(as.matrix(d_fbm))     # decodes from FBM
 }
 }
+\author{
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
+}

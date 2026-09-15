@@ -34,7 +34,7 @@
 #' Ordering by chromosome and SNP position requires that \code{chromosome} and 
 #' \code{position} slots are set in the genlight object.
 #'  
-#'@author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#'@author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #'
 #'@examples 
 #'#sort by populations

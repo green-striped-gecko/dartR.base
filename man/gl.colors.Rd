@@ -59,7 +59,7 @@ Other graphics:
 \code{\link{gl.tree.nj}()}
 }
 \author{
-Custodian: Bernd Gruber -- Post to
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{graphics}
