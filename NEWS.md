@@ -9,6 +9,34 @@
   it sits in an adjacent well. Validated on a DArT plate with seven
   contaminated samples confirmed by species-diagnostic loci and a lab
   note: 7/7 flagged, 0 false positives, source well named in 5/7.
+* `gl.plot.heatmap()` (function review):
+  - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
+    the lower triangle only and set the diagonal to zero, so relatedness
+    matrices (dartR.captive `gl.relatedness()`, `gl.run.EMIBD9()`) lost
+    their self-values and asymmetric matrices lost one direction without
+    a message. A matrix is now drawn as supplied; a matrix with one
+    triangle entirely NA is mirrored from the other; a non-square matrix
+    or one whose row and column names differ stops with a message.
+    `dist` input is unchanged.
+  - `verbose = 0` is silent: the default `palette.divergent` no longer
+    prints the three `gl.colors()` lines (callers forwarding
+    `verbose = 0`, such as `gl.report.fstat()`, inherit the fix).
+  - the legend is built one row per population, so two populations
+    sharing a colour no longer swap swatches.
+  - an `fd` object with `x` supplied no longer stops with "arguments imply
+    differing number of rows"; `x` is ignored for population-level input
+    (`fd`, `gl.dist.pop()` distances) with a note at verbose >= 2.
+  - individuals are matched to `x` by name: colours are drawn whenever
+    every column of `D` is an individual of `x` (a subset of `x` works);
+    otherwise a warning at verbose >= 1 replaces the silent drop or the
+    "ColSideColors must be a character vector" error.
+  - `par(mar)` is restored after the legend; a `palette_discrete` vector
+    of the wrong length stops with a message; a missing dendextend stops
+    with the install message instead of returning -1.
+  - documentation: the function calls `utils.heatmap()` (not
+    `gplots::heatmap.2`), returns that list invisibly, `legendy` default
+    corrected, legend coordinates documented, unused gtools import removed.
+
 * `gl.sim.crosses()`: the offspring object now carries the parents'
   `loc.all`, so a brood with no homozygous-alternate genotype (small broods,
   few loci, monomorphic parents) is no longer rejected by the
