@@ -107,3 +107,67 @@ test_that("warnings gated at verbose 0", {
                                    plot.display = FALSE, verbose = 0))
   expect_length(o6, 0)
 })
+
+# ---- PR #229 (Carlo Pacioni) re-applied on the reviewed code ----------------
+
+test_that("uHe and FIS use Nei's per-locus sample-size correction", {
+  pdf(NULL); on.exit(dev.off())
+  r <- as.data.frame(gl.report.heterozygosity(testset.gl,
+                                              plot.display = FALSE,
+                                              verbose = 0))
+  p1 <- "EmmacBurdMist"
+  m <- as.matrix(testset.gl[as.character(pop(testset.gl)) == p1, ])
+  m <- m[, colSums(!is.na(m)) > 0, drop = FALSE]      # all-NA loci excluded
+  n_l <- colSums(!is.na(m))                           # genotyped per locus
+  q <- colMeans(m, na.rm = TRUE) / 2
+  He_l <- 2 * q * (1 - q)
+  uHe_l <- (2 * n_l / (2 * n_l - 1)) * He_l
+  Ho_l <- colMeans(m == 1, na.rm = TRUE)
+  row <- r[r$pop == p1, ]
+  expect_equal(row$uHe, mean(uHe_l), tolerance = 1e-5)
+  expect_equal(row$FIS, mean(1 - Ho_l / uHe_l, na.rm = TRUE),
+               tolerance = 1e-5)
+})
+
+test_that("adjusted SEs use scored loci + n.invariant as the sample size", {
+  pdf(NULL); on.exit(dev.off())
+  r <- as.data.frame(gl.report.heterozygosity(testset.gl, n.invariant = 100,
+                                              plot.display = FALSE,
+                                              verbose = 0))
+  expect_equal(r$Ho.adjSE, r$Ho.adjSD / sqrt(r$n.Loc + 100), tolerance = 1e-4)
+  expect_equal(r$He.adjSE, r$He.adjSD / sqrt(r$n.Loc + 100), tolerance = 1e-4)
+})
+
+test_that("the bootstrap statistic is the reported point estimate", {
+  pdf(NULL); on.exit(dev.off())
+  r <- as.data.frame(gl.report.heterozygosity(testset.gl,
+                                              plot.display = FALSE,
+                                              verbose = 0))
+  p1 <- "EmmacBurdMist"
+  m <- as.matrix(testset.gl[as.character(pop(testset.gl)) == p1, ])
+  stat <- pop.het(m, indices = seq_len(nrow(m)), n.invariant = 0,
+                  boot_method = "ind", aHet = FALSE)
+  row <- r[r$pop == p1, ]
+  expect_equal(unname(stat), c(row$Ho, row$He, row$uHe, row$FIS),
+               tolerance = 1e-5)
+})
+
+test_that("single-individual populations survive the plain and bootstrap paths", {
+  # baseline: 'x' must be an array of at least two dimensions (the 1-row
+  # matrix collapsed to a vector) in both paths; testset.gl has two such
+  # populations
+  pdf(NULL); on.exit(dev.off())
+  one <- names(which(table(pop(testset.gl)) == 1))[1]
+  x <- gl.keep.pop(testset.gl, pop.list = c(one, "EmmacBurdMist"),
+                   verbose = 0)
+  r <- gl.report.heterozygosity(x, plot.display = FALSE, verbose = 0)
+  expect_s3_class(r, "data.frame")
+  expect_equal(r$n.Ind[r$pop == one], 1)
+  set.seed(1)
+  suppressWarnings(
+    rb <- gl.report.heterozygosity(x, nboots = 30, CI.type = "perc",
+                                   plot.display = FALSE, verbose = 0))
+  expect_s3_class(rb, "data.frame")
+  expect_true(all(c("HoLCI", "HoHCI") %in% names(rb)))
+  expect_false(anyNA(rb[rb$pop == "EmmacBurdMist", c("HoLCI", "HoHCI")]))
+})

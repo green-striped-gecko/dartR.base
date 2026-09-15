@@ -1,5 +1,29 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.heterozygosity()` (from Carlo Pacioni's PR #229, re-applied
+  on the reviewed code):
+  - the point estimates and the bootstrap replicates are now computed by
+    the same helper (`pop.het_fun` in utils.het.report.r); previously two
+    near-duplicate code paths existed and had drifted apart, so
+    confidence intervals were bootstrapped around a slightly different
+    estimator than the reported value.
+  - METHODS CHANGE: unbiased expected heterozygosity (uHe), and FIS which
+    derives from it, now apply Nei's sample-size correction per locus
+    (2n/(2n-1) with n the individuals genotyped at that locus, as in
+    GenAlEx and hierfstat) instead of one mean n per population. Values
+    shift slightly wherever missingness varies across loci (on testset.gl
+    up to 0.001 in uHe and 0.02 in FIS); the bootstrap already used the
+    per-locus definition.
+  - the standard errors of adjusted heterozygosity (Ho.adjSE, He.adjSE)
+    were divided by the number of scored loci although the SD includes
+    the invariant sites; they now use scored loci + n.invariant, so were
+    previously too large by sqrt((n.Loc + n.invariant) / n.Loc).
+  - a population with a single individual crashed both the plain and the
+    bootstrap path ('x' must be an array of at least two dimensions):
+    fixed, and where boot.ci cannot produce an interval the limits are NA.
+  - the duplicate `std.error()` in utils.het.report.r was removed
+    (utils.stats.r keeps the one definition).
+
 * `gl.edit.recode.pop()`: `pop.recode` is now the read-only input recode
   table (loaded and applied when supplied, as documented and as the rest of
   the recode family use it) and `out.recode.file` is the output, written
