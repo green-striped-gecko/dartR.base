@@ -1,61 +1,70 @@
 #' @name gl.plot.snp.density
-#'
 #' @title Plot SNP density along chromosomes (heat-map)
+#' @family graphics
 #'
 #' @description
 #' Generates a tiled heat-map of single-nucleotide polymorphisms (SNPs)
 #' across chromosomes or scaffolds in a genlight object. SNPs are binned
 #' into fixed-width windows and coloured by SNP count, optionally
-#' annotating chromosomes with their length (Mb) and SNP number.
-#'
-#' @param x            A genlight object with chromosome information in
-#'                     @chromosome and SNP positions in @position
-#'                     [required].
-#' @param bin.size     Width (bp) of the genomic bins used to count SNPs
-#'                     [default 1 000 000].
-#' @param min.snps     Minimum number of SNPs a chromosome must possess to
-#'                     be plotted [default 50].
-#' @param min.length   Minimum chromosome length (bp) to include
-#'                     [default 1 000 000].
-#' @param color.palette A function returning a vector of colours to be
-#'                     passed to ggplot2; typically viridis::viridis
-#'                     [default viridis::viridis].
-#' @param chr.info     Logical; if TRUE append (N SNPs, L Mb) to
-#'                     chromosome labels [default TRUE].
-#' @param plot.title   Optional main title for the plot [default NULL].
-#' @param plot.theme   ggplot2 theme applied to the plot
-#'                     [default theme_dartR()].
-#' @param save2tmp     Logical; save the ggplot object to tempdir()
-#'                     for later retrieval with gl.print.reports()
-#'                     [default FALSE].
-#' @param verbose      Verbosity: 0 = silent; 1 = begin/end; 2 = progress;
-#'                     3 = progress + summary; 5 = full report
-#'                     [default 2 or as set by gl.set.verbosity()].
+#' annotating chromosomes with their SNP number and the position of their
+#' last SNP (Mb).
 #'
 #' @details
-#' Chromosomes are ordered from longest (bottom) to shortest (top) so that
-#' density patterns can be compared visually.  Bins containing no SNPs are
-#' rendered in the lowest colour of the palette.  The function does not
+#' Chromosome names are taken from \code{x@chromosome} and SNP positions
+#' from \code{x@position}. Packaged datasets ship with these slots empty;
+#' fill them from the locus metrics first, as in the example. Loci with a
+#' missing chromosome or a missing or zero position are ignored.
+#'
+#' A chromosome is plotted when it carries at least \code{min.snps}
+#' positioned SNPs and its last SNP lies at or beyond \code{min.length}
+#' bp; the "length" used here and in the labels is the position of the
+#' last SNP, not the assembly length. Chromosomes are ordered
+#' alphabetically, numeric-aware (\code{chr2} before \code{chr10}), with
+#' the first name at the top of the plot. Every bin from the start of the
+#' chromosome to its last SNP is drawn; bins containing no SNPs are
+#' rendered in the lowest colour of the palette. The function does not
 #' modify the input genlight object.
 #'
-#' @return A ggplot object (invisibly) displaying the SNP-density
-#'         heat-map.
+#' @param x A genlight object with chromosome names in \code{@chromosome}
+#' and SNP positions in \code{@position} [required].
+#' @param bin.size Width (bp) of the genomic bins used to count SNPs
+#' [default 1e6].
+#' @param min.snps Minimum number of positioned SNPs a chromosome must have
+#' to be plotted [default 50].
+#' @param min.length Minimum position (bp) of the last SNP for a chromosome
+#' to be plotted [default 1e6].
+#' @param color.palette A function returning a vector of colours, passed to
+#' ggplot2; typically viridis::viridis [default viridis::viridis].
+#' @param chr.info If TRUE, append (N SNPs, L Mb) to the chromosome labels
+#' [default TRUE].
+#' @param plot.title Main title for the plot [default NULL].
+#' @param plot.theme User specified theme [default theme_dartR()].
+#' @param plot.display Specify if plot is to be displayed in the graphics
+#' window [default TRUE].
+#' @param plot.file Filename (minus extension) for the RDS plot file
+#' [Required for plot save].
+#' @param plot.dir Directory to save the plot RDS file [default as specified
+#' by the global working directory or tempdir()].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' brief progress messages; 3, progress and results summary; 5, full report
+#' [default 2, unless specified using gl.set.verbosity].
 #'
-#' @author Custodian: Luis Mijangos -- Post to
+#' @return A ggplot object (invisibly) displaying the SNP-density
+#' heat-map.
+#'
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
+#'
 #' @export
 #' @examples
-#' 
-#'   t1 <- platypus.gl
-#'   t1$chromosome <- t1$other$loc.metrics$Chrom_Platypus_Chrom_NCBIv1
-#'   t1$position   <- t1$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
-#'   gl.plot.snp.density(t1,
-#'                       bin.size   = 5e6,
-#'                       min.snps   = 10,
-#'                       min.length = 2e6,
-#'                       plot.title = "Platypus SNP density")
-
+#' t1 <- platypus.gl
+#' t1$chromosome <- t1$other$loc.metrics$Chrom_Platypus_Chrom_NCBIv1
+#' t1$position   <- t1$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
+#' gl.plot.snp.density(t1,
+#'                     bin.size   = 5e6,
+#'                     min.snps   = 10,
+#'                     min.length = 2e6,
+#'                     plot.title = "Platypus SNP density")
 
 gl.plot.snp.density <- function(x,
                                 bin.size      = 1e6,
@@ -65,10 +74,12 @@ gl.plot.snp.density <- function(x,
                                 chr.info      = TRUE,
                                 plot.title    = NULL,
                                 plot.theme    = theme_dartR(),
-                                save2tmp      = FALSE,
+                                plot.display  = TRUE,
+                                plot.file     = NULL,
+                                plot.dir      = NULL,
                                 verbose       = NULL) {
   
-  pos <- n_snps <- chr_size <- bin_start <- chr_label <- bin_center <- NULL
+  pos <- n_snps <- chr_size <- bin_center <- chr_label <- NULL
   
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
@@ -78,7 +89,10 @@ gl.plot.snp.density <- function(x,
   utils.flag.start(func = funname, verbose = verbose)
   
   # CHECK DATATYPE
-  utils.check.datatype(x, accept = "SNP", verbose = verbose)
+  datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+  
+  # SET WORKING DIRECTORY
+  plot.dir <- gl.check.wd(plot.dir, verbose = 0)
   
   # DEPENDENCY CHECKS
   needed_pkgs <- c("ggplot2", "dplyr", "viridis")
@@ -94,11 +108,25 @@ gl.plot.snp.density <- function(x,
     stop(error("Parameter bin.size must be > 0 bp.\n"))
   }
   if (min.snps < 1) {
-    stop(error("Parameter min.snps must be > 1.\n"))
+    stop(error("Parameter min.snps must be >= 1.\n"))
   }
   if (min.length < 1) {
-    stop(error("Parameter min.length must be > 1 bp.\n"))
+    stop(error("Parameter min.length must be >= 1 bp.\n"))
   }
+  
+  n_chr <- length(x@chromosome)
+  n_pos <- length(x@position)
+  if (n_chr != nLoc(x) || n_pos != nLoc(x)) {
+    stop(error(
+      "x needs a chromosome name and a position for every locus; found",
+      n_chr, "chromosome entries and", n_pos, "position entries for",
+      nLoc(x), "loci. Fill the slots from the locus metrics first, e.g.",
+      "x$chromosome <- x$other$loc.metrics$<chromosome column>;",
+      "x$position <- x$other$loc.metrics$<position column>\n"
+    ))
+  }
+  
+  # DO THE JOB
   
   # Extract valid chromosome / position pairs
   df_info <- data.frame(
@@ -124,20 +152,38 @@ gl.plot.snp.density <- function(x,
   }
   
   # Summarise chromosomes & apply filters 
-  chr_stats <- df_info |>
+  chr_all <- df_info |>
     dplyr::group_by(chr) |>
     dplyr::summarise(chr_size = max(pos, na.rm = TRUE),
                      n_snps   = dplyr::n(),
-                     .groups  = "drop") |>
+                     .groups  = "drop")
+  
+  chr_stats <- chr_all |>
     dplyr::filter(n_snps   >= min.snps,
-                  chr_size >= min.length) |>
-    dplyr::arrange(dplyr::desc(chr_size))
+                  chr_size >= min.length)
+  
+  if (verbose >= 2) {
+    n_few <- sum(chr_all$n_snps < min.snps)
+    n_short <- sum(chr_all$n_snps >= min.snps & chr_all$chr_size < min.length)
+    cat(report(
+      "  Chromosomes with positioned SNPs:", nrow(chr_all), "; dropped",
+      n_few, "with fewer than", min.snps, "SNPs and", n_short,
+      "with the last SNP below",
+      format(min.length, scientific = FALSE, big.mark = ","),
+      "bp; retained", nrow(chr_stats), "\n"
+    ))
+  }
   
   if (nrow(chr_stats) == 0) {
     stop(error("No chromosomes meet the min.snps / min.length criteria.\n"))
   }
   
-  # Build y axis labels & factor ordering
+  # Order chromosomes alphabetically, numeric-aware; the first name is
+  # drawn at the top, so the factor levels run in reverse
+  chr_order <- rev(stringr::str_sort(chr_stats$chr, numeric = TRUE))
+  chr_stats <- chr_stats[match(chr_order, chr_stats$chr), ]
+  
+  # Build y axis labels
   chr_stats <- chr_stats |>
     dplyr::mutate(
       chr_label = if (chr.info) {
@@ -146,21 +192,39 @@ gl.plot.snp.density <- function(x,
         chr
       }
     )
-
-  # Bin SNPs
-  plot_dat <- df_info |>
-    dplyr::inner_join(chr_stats, by = "chr") |>
-    dplyr::mutate(
-      bin_start  = floor(pos / bin.size) * bin.size,
-      bin_center = bin_start + bin.size / 2
-    ) |>
-    as.data.frame() |>
-    plyr::count(vars = c("chr_label", "bin_center")) |>
-    plyr::rename(c("freq" = "n_snps"))
   
-  plot_dat$chr_label <- factor(plot_dat$chr_label,
-                               levels = sort(unique(plot_dat$chr_label),
-                                             decreasing = T))
+  # Bin SNPs; every bin up to the last SNP of each chromosome is kept, so
+  # empty bins are drawn in the lowest colour
+  counts <- df_info |>
+    dplyr::filter(chr %in% chr_stats$chr) |>
+    dplyr::mutate(bin_center = floor(pos / bin.size) * bin.size + bin.size / 2) |>
+    dplyr::count(chr, bin_center, name = "n_snps")
+  
+  grid <- do.call(rbind, lapply(seq_len(nrow(chr_stats)), function(i) {
+    last_center <- floor(chr_stats$chr_size[i] / bin.size) * bin.size + bin.size / 2
+    data.frame(chr = chr_stats$chr[i],
+               bin_center = seq(bin.size / 2, last_center, by = bin.size),
+               stringsAsFactors = FALSE)
+  }))
+  
+  plot_dat <- dplyr::left_join(grid, counts, by = c("chr", "bin_center"))
+  plot_dat$n_snps[is.na(plot_dat$n_snps)] <- 0L
+  plot_dat$chr_label <- factor(chr_stats$chr_label[match(plot_dat$chr, chr_stats$chr)],
+                               levels = chr_stats$chr_label)
+  plot_dat <- plot_dat[, c("chr_label", "bin_center", "n_snps")]
+  
+  if (verbose >= 3) {
+    n_bins <- as.vector(table(factor(plot_dat$chr_label, levels = chr_stats$chr_label)))
+    summary_tab <- data.frame(
+      chromosome = chr_stats$chr,
+      n_snps = chr_stats$n_snps,
+      last_snp_Mb = round(chr_stats$chr_size / 1e6, 1),
+      n_bins = n_bins,
+      stringsAsFactors = FALSE
+    )
+    cat(report("  Chromosomes plotted (top to bottom):\n"))
+    print(summary_tab[rev(seq_len(nrow(summary_tab))), ], row.names = FALSE)
+  }
   
   xmax <- max(plot_dat$bin_center) + bin.size / 2
   
@@ -191,18 +255,17 @@ gl.plot.snp.density <- function(x,
       axis.ticks.x = ggplot2::element_line()
     )
   
-  # DISPLAY OUTPUT
-  print(p1)
+  # PRINTING OUTPUTS
+  if (plot.display) {
+    print(p1)
+  }
   
-  # SAVE TO TEMPDIR (optional)
-  if (save2tmp) {
-    tmp_plot <- tempfile(pattern = paste0("dartR_plot_", funname, "_"),
-                         fileext = ".rds")
-    saveRDS(p1, file = tmp_plot)
-    if (verbose >= 2) {
-      cat(report("  Saved ggplot object to", tmp_plot, "\n"))
-      cat(report("  Retrieve with gl.print.reports()\n"))
-    }
+  # Optionally save the plot
+  if (!is.null(plot.file)) {
+    tmp <- utils.plot.save(p1,
+                           dir = plot.dir,
+                           file = plot.file,
+                           verbose = verbose)
   }
   
   # FLAG SCRIPT END

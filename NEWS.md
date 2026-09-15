@@ -1,5 +1,27 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.plot.snp.density()` (function review):
+  - PLOT CHANGE: bins containing no SNPs were absent from the plot data
+    and drawn as background, although the help promised the lowest
+    palette colour. Every bin from the start of a chromosome to its last
+    SNP is now drawn, so SNP deserts are coloured and the fill scale
+    starts at 0.
+  - PLOT CHANGE: chromosomes were ordered by a plain string sort (`chr10`
+    between `chr1` and `chr2`) while the help promised longest to
+    shortest; the order is now alphabetical and numeric-aware, first name
+    at the top, and documented as such.
+  - `plot.display`, `plot.file` and `plot.dir` (with `utils.plot.save()`)
+    replace `save2tmp`; a call passing `save2tmp` now stops with "unused
+    argument".
+  - an object whose `@chromosome`/`@position` slots are empty stops with a
+    message naming the slots to fill instead of "arguments imply differing
+    number of rows".
+  - verbose >= 2 reports how many chromosomes each filter dropped; verbose
+    >= 3 prints the per-chromosome table (SNPs, last SNP position, bins).
+  - the `min.snps`/`min.length` messages say ">= 1", matching the check.
+  - documentation: `@family graphics` added; "chromosome length" is
+    described as the position of the last SNP.
+
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness
