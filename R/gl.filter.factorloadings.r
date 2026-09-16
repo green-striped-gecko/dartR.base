@@ -61,7 +61,7 @@
 #'  If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
 #'  directory; otherwise to the tempdir(). 
 #'  
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples

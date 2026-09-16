@@ -71,5 +71,5 @@ ind.metafile="metafile.csv",mode="dosage")
 }
 }
 \author{
-Bernd Gruber, Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber, Ching Ching Lau. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }

@@ -81,7 +81,7 @@
 #' tests whether there is at least one test that is truly significant in the
 #' series of tests conducted (De Meeûs et al 2009).
 #' }
-#' @author Custodian: Carlo Pacioni -- Post to
+#' @author Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
 #'   \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \donttest{

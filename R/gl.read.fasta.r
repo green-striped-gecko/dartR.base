@@ -55,7 +55,7 @@
 #' line followed by the full sequence on a single line. Line-wrapped
 #' (multi-line) FASTA is not supported and is rejected with an error.
 #' 
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples

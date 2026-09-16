@@ -63,7 +63,7 @@
 #' @return A \code{genlight} object with redundant loci removed.
 #' @seealso \code{\link{gl.report.hamming}} to explore the distribution of
 #'   sequence divergence before choosing a threshold.
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @examples

@@ -50,7 +50,7 @@
 #' The function returns a dartR genlight object with the new population assignments  
 #' and the recalculated locus metadata. 
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 # Examples --------------

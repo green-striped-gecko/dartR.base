@@ -25,7 +25,7 @@
 #' the pairs that passed the original thresholds. For each retained pair the
 #' member with the higher missing-data rate is removed; ties remove the
 #' alphabetically later individual.
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \donttest{

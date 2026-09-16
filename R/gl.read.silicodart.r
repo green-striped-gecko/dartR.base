@@ -48,7 +48,7 @@
 #'  names, specimen metadata are combined into a genind object. Refer to the
 #'  documentation for \{adegenet\} for further details.
 
-#' @author Custodian: Bernd Gruber -- Post to
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
 #' @examples

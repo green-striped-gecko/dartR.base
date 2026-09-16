@@ -131,12 +131,13 @@ Other unmatched report:
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
+\code{\link{gl.report.contamination}()},
 \code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.polyploid_heterozygosity}()},
 \code{\link{gl.report.shannon}()}
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr}),
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr}),
  Contributors: William B. Sherwin, Alexander Sentinella
 }
 \concept{unmatched report}

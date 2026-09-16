@@ -38,7 +38,7 @@
 #' Please carefully check the data if "dosage" mode is used.
 #' @return A genlight object.
 #' @export
-#' @author Bernd Gruber, Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Bernd Gruber, Ching Ching Lau. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #' @examples
 #' \dontrun{
 #' # read in vcf and convert to format as DArT data

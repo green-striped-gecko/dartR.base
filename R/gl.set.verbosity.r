@@ -13,7 +13,7 @@
 #' 5, full report. An invalid value is coerced to 2 with a warning [default 2].
 #' @return The verbosity value actually set, returned invisibly.
 #' @export
-#' @author Custodian: Arthur Georges (Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' @examples
 #' gl.set.verbosity(value = 2)

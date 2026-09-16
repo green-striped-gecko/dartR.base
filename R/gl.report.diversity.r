@@ -86,7 +86,7 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#' @author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr}),
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr}),
 #'  Contributors: William B. Sherwin, Alexander Sentinella
 
 #' @examples
