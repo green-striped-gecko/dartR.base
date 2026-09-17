@@ -34,6 +34,11 @@ gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
   verbose <- gl.check.verbosity(verbose)
 
   stopifnot(inherits(x, "dartR"))
+
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname, verbose = verbose)
+
   ## Safe FBM accessor (tolerates missing slot)
   .fbm_or_null <- function(obj) tryCatch(methods::slot(obj, "fbm"), error = function(e) NULL)
 
@@ -41,6 +46,9 @@ gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
   if (is.null(fbm)) {
     if (!quiet && verbose >= 2) {
       message("gl.fbm2gen: no FBM found; returning input unchanged.")
+    }
+    if (verbose >= 1) {
+      cat(report("Completed:", funname, "\n"))
     }
     return(x)
   }
@@ -52,6 +60,12 @@ gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
   ## Update locus-wise metadata that may have been concatenated during blocks
   
   methods::validObject(x)
+
+  # FLAG SCRIPT END
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
   x
 }
 

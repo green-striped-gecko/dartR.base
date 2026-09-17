@@ -38,6 +38,10 @@ gl.print.history <- function(x = NULL,
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
 
+    # FLAG SCRIPT START
+    funname <- match.call()[[1]]
+    utils.flag.start(func = funname, verbose = verbose)
+
     if (is(x,"genlight"))
         if (is.null(history))
             hist2 <-
@@ -72,5 +76,10 @@ gl.print.history <- function(x = NULL,
         # tt$core$fg_params$fontfamily='mono' tt$core$fg_params$fontface='bold' plot(0, type='n', xlab='', ylab='', axes=F) grid.table(dd,
         # theme=tt)
     }
-    
+
+    # FLAG SCRIPT END
+    if (verbose >= 1) {
+        cat(report("Completed:", funname, "\n"))
+    }
+
 }

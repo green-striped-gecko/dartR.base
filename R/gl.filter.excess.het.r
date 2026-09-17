@@ -67,6 +67,10 @@ gl.filter.excess.het <- function(x,
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
 
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname, verbose = verbose)
+
   .Deprecated(
     new = "gl.filter.hwe",
     msg = paste(
@@ -100,6 +104,11 @@ gl.filter.excess.het <- function(x,
     x2 <- gl.recalc.metrics(x2, verbose = 0)
   }
   x2@other$history <- hold.history
+
+  # FLAG SCRIPT END
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
 
   return(invisible(x2))
 }
