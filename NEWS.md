@@ -1,5 +1,15 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.subsample.ind()`:
+  - BUG FIX: `mono.rm = TRUE` errored with "object 'x2' not found" and, had
+    it run, filtered the original object rather than the subsample; it now
+    removes monomorphic loci from the returned object.
+  - HISTORY: the call was not recorded in `@other$history` (default path), or
+    the history was overwritten by an internal `gl.join()` entry (`by.pop =
+    TRUE`). The returned object now carries the input's history followed by
+    this `gl.subsample.ind()` call, on every path (including
+    `error.check = FALSE`).
+
 * `gl.plot.snp.density()` (function review):
   - PLOT CHANGE: bins containing no SNPs were absent from the plot data
     and drawn as background, although the help promised the lowest

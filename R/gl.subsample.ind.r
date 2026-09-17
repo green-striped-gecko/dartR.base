@@ -175,20 +175,29 @@ gl.subsample.ind <- function(x,
     if(error.check==TRUE){
       # FILTER MONOMORPHS
       if(mono.rm==TRUE){
-        x <- gl.filter.monomorphs(x,verbose=verbose)
-        
-        # ADD TO HISTORY
-        nh <- length(x2@other$history)
-        x2@other$history[[nh + 1]] <- match.call()
+        xx <- gl.filter.monomorphs(xx,verbose=verbose)
       }
-      
+    }
+
+    # ADD TO HISTORY
+    # Record this call on the returned object (xx). Reset to the input's
+    # history first so the entries that gl.keep.pop / gl.join /
+    # gl.filter.monomorphs append internally (as verbose = 0 helpers) are
+    # dropped, leaving the input's provenance followed by this
+    # gl.subsample.ind() call. Done unconditionally so the subsample is
+    # recorded whether or not error.check / mono.rm are set.
+    xx@other$history <- x@other$history
+    nh <- length(xx@other$history)
+    xx@other$history[[nh + 1]] <- match.call()
+
+    if(error.check==TRUE){
       # FLAG SCRIPT END ---------------
-      
+
       if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
       }
     }
-  
+
   return(xx)
 }
     
