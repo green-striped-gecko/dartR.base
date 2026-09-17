@@ -64,6 +64,9 @@ gl.filter.excess.het <- function(x,
                                  recalc = FALSE,
                                  verbose = NULL) {
 
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+
   .Deprecated(
     new = "gl.filter.hwe",
     msg = paste(

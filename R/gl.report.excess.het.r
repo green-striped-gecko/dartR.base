@@ -71,6 +71,9 @@ gl.report.excess.het <- function(x,
                                  plot.dir = NULL,
                                  verbose = NULL) {
 
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+
   .Deprecated(
     new = "gl.report.hwe",
     msg = paste(
