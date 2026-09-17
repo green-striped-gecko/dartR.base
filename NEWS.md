@@ -9,6 +9,10 @@
     TRUE`). The returned object now carries the input's history followed by
     this `gl.subsample.ind()` call, on every path (including
     `error.check = FALSE`).
+  - FLAGS: removing individuals leaves the locus metrics (call rate, allele
+    frequencies, heterozygosities, ...) stale; the locus-metric flags are now
+    reset (`utils.reset.flags()`, as in `gl.drop.ind`) when
+    `error.check = TRUE`, so downstream recalculation knows to recompute them.
 
 * `gl.plot.snp.density()` (function review):
   - PLOT CHANGE: bins containing no SNPs were absent from the plot data

@@ -177,6 +177,14 @@ gl.subsample.ind <- function(x,
       if(mono.rm==TRUE){
         xx <- gl.filter.monomorphs(xx,verbose=verbose)
       }
+
+      # RESET FLAGS
+      # Individuals have been removed, so the locus metrics computed over the
+      # original sample (call rate, allele frequencies, heterozygosities, ...)
+      # no longer describe xx. Mark them as no longer current (matching
+      # gl.drop.ind) so downstream gl.recalc.metrics / compliance checks know to
+      # recompute them.
+      xx <- utils.reset.flags(xx, verbose = 0)
     }
 
     # ADD TO HISTORY
