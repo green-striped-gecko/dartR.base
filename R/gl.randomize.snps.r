@@ -135,19 +135,24 @@ gl.randomize.snps <- function(x,
     }
     
     # PRINTING OUTPUTS
-    
+    # p1 and p2 are built only inside the plot.display block above, so assemble,
+    # print and (optionally) save the combined plot only when plot.display =
+    # TRUE. Otherwise `p3 <- p1 / p2` errors with "object 'p1' not found" -- for
+    # plot.display = FALSE and for verbose = 0, which forces plot.display FALSE.
+    if (plot.display) {
       # using package patchwork
         p3 <- p1 / p2
-        if (plot.display) {print(p3)}
-    
+        print(p3)
+
         # Optionally save the plot ---------------------
-        
+
         if(!is.null(plot.file)){
           tmp <- utils.plot.save(p3,
                                  dir=plot.dir,
                                  file=plot.file,
                                  verbose=verbose)
         }
+    }
     
     # ADD TO HISTORY
     nh <- length(x@other$history)

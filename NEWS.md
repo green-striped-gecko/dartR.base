@@ -1,5 +1,12 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.randomize.snps()`:
+  - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
+    call, which forces `plot.display` to `FALSE` -- errored with "object 'p1'
+    not found", because the combined plot `p3 <- p1 / p2` was assembled outside
+    the `plot.display` guard while `p1`/`p2` are built only inside it. Plot
+    assembly, printing and saving are now all inside the `plot.display` block.
+
 * `gl.plot.snp.density()` (function review):
   - PLOT CHANGE: bins containing no SNPs were absent from the plot data
     and drawn as background, although the help promised the lowest
