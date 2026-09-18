@@ -77,3 +77,78 @@ test_that("bad parameters warn and coerce, or stop", {
   expect_error(capture.output(gl.report.contamination(x, plate = data.frame(id = 1), plot.display = FALSE, verbose = 0)))
   expect_error(capture.output(gl.report.contamination(testset.gs, plot.display = FALSE, verbose = 0)))
 })
+
+# Tier 3: depth pattern. A contaminant's alleles are a minority of the reads
+# and are called mainly at loci with enough depth; a hybrid's alleles sit at
+# 50 % and are called at any depth. No packaged dataset has both rdepth and
+# two populations with enough fixed differences, so build two populations of
+# 20 with 600 fixed differences and a lognormal depth, and give the first
+# animal of population A the B allele at the fixed loci, either with a
+# probability that rises with depth (contaminant) or at random (hybrid).
+depth.host <- function(prob.fun, seed = 1) {
+  set.seed(seed)
+  n.a <- 20; n.b <- 20; n.loc <- 2000; n.diag <- 600
+  p.a <- runif(n.loc, 0.05, 0.5); p.b <- runif(n.loc, 0.05, 0.5)
+  g.a <- matrix(rbinom(n.a * n.loc, 2, rep(p.a, each = n.a)), n.a, n.loc)
+  g.b <- matrix(rbinom(n.b * n.loc, 2, rep(p.b, each = n.b)), n.b, n.loc)
+  g.a[, 1:n.diag] <- 0; g.b[, 1:n.diag] <- 2
+  m <- rbind(g.a, g.b)
+  depth <- exp(rnorm(n.loc, log(15), 0.6))
+  hit <- which(runif(n.diag) < prob.fun(depth[1:n.diag]))
+  m[1, hit] <- 1
+  x <- new("genlight", m, ploidy = 2)
+  indNames(x) <- paste0("i", seq_len(n.a + n.b))
+  locNames(x) <- paste0("L", seq_len(n.loc))
+  pop(x) <- rep(c("A", "B"), c(n.a, n.b))
+  x@other$loc.metrics <- data.frame(rdepth = depth)
+  list(x = x, host = "i1")
+}
+
+test_that("foreign alleles that rise with locus depth are reported as a dose pattern", {
+  s <- depth.host(function(d) 0.6 * rank(d) / length(d))
+  capture.output(r <- gl.report.contamination(s$x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == s$host, ]
+  expect_true(h$flag %in% c("suspect", "adjacent"))
+  expect_equal(h$partner.pop, "B")
+  expect_gt(h$depth.ratio, 1.5)
+  expect_lt(h$depth.p, 0.01)
+  expect_equal(h$pattern, "dose")
+})
+
+test_that("foreign alleles independent of locus depth are reported as a flat pattern", {
+  s <- depth.host(function(d) rep(0.3, length(d)))
+  capture.output(r <- gl.report.contamination(s$x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == s$host, ]
+  expect_true(h$flag %in% c("suspect", "adjacent"))
+  expect_lt(h$depth.ratio, 1.25)
+  expect_equal(h$pattern, "flat")
+  # unflagged individuals carry no pattern
+  expect_true(all(is.na(r$ind$pattern[r$ind$flag == ""])))
+})
+
+test_that("the depth pattern is NA when the genlight has no read depth", {
+  x <- bandicoot.gl
+  expect_null(x@other$loc.metrics$rdepth)
+  out <- capture.output(r <- gl.report.contamination(x, plot.display = FALSE, verbose = 2))
+  expect_true(all(is.na(r$ind$pattern)))
+  expect_true(all(is.na(r$ind$depth.ratio)))
+  expect_true(any(grepl("rdepth", out)))
+})
+
+test_that("plate adjacency is keyed by service when the column exists", {
+  x <- platypus.gl
+  im <- x@other$ind.metrics
+  im$service <- NA; im$plate_location <- NA
+  im$service[1:4] <- c("S1", "S1", "S2", "S2")
+  im$plate_location[1:4] <- c("1-A1", "1-A2", "1-A1", "1-A2")
+  x@other$ind.metrics <- im
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE, verbose = 0))
+  # A1 and A2 are adjacent within each order; "1-A1" of S1 is not adjacent
+  # to "1-A2" of S2
+  expect_equal(nrow(r$pairs), 2)
+  expect_setequal(paste(r$pairs$id1, r$pairs$id2),
+                  c(paste(indNames(x)[1], indNames(x)[2]),
+                    paste(indNames(x)[3], indNames(x)[4])))
+})
