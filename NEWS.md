@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.randomize.snps()`:
+  - FLAGS: swapping the 0/2 homozygote coding of half the loci leaves the
+    per-locus allele-frequency metrics (`OneRatioRef`/`OneRatioSnp`,
+    `FreqHomRef`/`FreqHomSnp`, `PICRef`/`PICSnp`, `maf`, ...) out of step with
+    the recoded genotypes. The locus-metric flags are now reset
+    (`utils.reset.flags()`) so downstream recalculation knows to recompute
+    them. (Applied in both `gl.randomize.snps.r` and the duplicate
+    `gl.random.snp.r`, which define the same function.)
+
 * `gl.plot.snp.density()` (function review):
   - PLOT CHANGE: bins containing no SNPs were absent from the plot data
     and drawn as background, although the help promised the lowest
