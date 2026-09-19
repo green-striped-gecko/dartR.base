@@ -35,7 +35,8 @@
   foreign-allele rate is compared across quartiles of locus read depth
   (`rdepth`), because a minority contaminant is called mainly at deep loci
   while a hybrid's alleles are called at any depth; reported as
-  `depth.ratio`, `depth.p` and `pattern` (dose / flat / unclear). Plate
+  `foreign.rate`, `depth.ratio`, `depth.p` and `pattern` (dose / flat /
+  saturated / unclear). Plate
   positions from `plate_location` are keyed by `service` when present, so
   a report that bundles orders no longer collides plate numbers.
 * `gl.plot.heatmap()` (function review):

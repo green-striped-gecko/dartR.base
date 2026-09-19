@@ -93,7 +93,8 @@ such as width and height, when the ggplot is to be saved.}
 A list with three elements: \code{ind}, a data frame with one row
 per individual holding the tier 1 and tier 2 statistics (including
 \code{n.foreign}, the number of rare-allele loci, and \code{share}, the
-partner's sharing score), the tier 3 columns \code{depth.ratio},
+partner's sharing score), the tier 3 columns \code{foreign.rate},
+\code{depth.ratio},
 \code{depth.p} and \code{pattern}, and the flag;
 \code{pairs}, a data frame of plate-adjacent pairs with their kinship and
 residual kinship, or NULL when no plate positions are known; and
@@ -150,10 +151,16 @@ small fraction of the DNA, so its alleles are called mainly at loci with
 enough depth to catch a minority allele; a hybrid's alleles sit at 50
 percent and are called at any depth. The test uses the loci fixed for one
 allele in the individual's population (frequency below \code{rare.freq}
-among its other members) and for the other allele in its partner's
-population (frequency at least 1 - \code{rare.freq}), so that every locus
-could show the foreign allele; restricting to such loci matters because
-deep loci are the conserved ones and would otherwise dilute the rate.
+among its unflagged members) and for the other allele in its partner's
+population (frequency at least 1 - \code{rare.freq} among its unflagged
+members), so that every locus could show the foreign allele. Restricting
+to such loci matters because deep loci are the conserved ones and would
+otherwise dilute the rate; building the references from unflagged
+animals matters because a second contaminated animal in the host
+population would otherwise remove every locus at which it carries the
+donor allele. \code{foreign.rate} is the proportion of these loci at
+which the individual carries the foreign allele, the plain measure of
+how much of the other population it holds.
 These loci are split into quartiles of \code{rdepth}, the per-locus
 average read depth that \code{gl.read.dart()} stores in
 \code{@other$loc.metrics}, and the proportion of them at which the
@@ -161,14 +168,21 @@ individual carries the foreign allele is compared across quartiles.
 \code{depth.ratio} is that proportion in the deepest quartile over the
 shallowest (with a half count added to each), \code{depth.p} a
 chi-squared test for trend across the four quartiles, and \code{pattern}
-is "dose" when the ratio is at least \code{depth.ratio} with p below
-0.01 (a contaminant), "flat" when the ratio is below \code{depth.flat}
-(a true heterozygote: hybrid, admixed or mislabelled animal) and
-"unclear" between. The pattern is computed for flagged individuals whose
-partner is in another population, with at least 80 such loci and
-\code{min.share} foreign alleles among them, and is NA otherwise or when
-the genlight has no \code{rdepth}; contamination from the individual's
-own population cannot be tested this way.
+is "saturated" when the foreign allele is already called at more than
+half of the shallowest quartile (a heavy mixture or an F1 hybrid, which
+depth cannot separate), "dose" when the ratio is at least
+\code{depth.ratio} with p below 0.01 (a contaminant), "flat" when the
+ratio is below \code{depth.flat} (a true heterozygote: hybrid, admixed
+or mislabelled animal) and "unclear" between. The pattern is computed
+for flagged individuals whose partner is in another population, with at
+least 80 such loci and \code{min.share} foreign alleles among them, and
+is NA otherwise or when the genlight has no \code{rdepth}; contamination
+from the individual's own population, or from a population absent from
+the dataset, cannot be tested this way. Read the pattern only when host
+and partner are close enough for a hybrid to be plausible: across
+species the plate-average depth is a poor proxy for the host's own depth,
+and a "flat" call does not clear an animal whose foreign alleles are
+fixed-absent in its species.
 Locus average depth is a proxy for the individual's own read counts, so
 the pattern does not change the flag; the decisive test remains allele
 balance from per-individual read counts.

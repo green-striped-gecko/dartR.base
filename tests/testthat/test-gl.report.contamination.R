@@ -152,3 +152,31 @@ test_that("plate adjacency is keyed by service when the column exists", {
                   c(paste(indNames(x)[1], indNames(x)[2]),
                     paste(indNames(x)[3], indNames(x)[4])))
 })
+
+test_that("a second, heavily contaminated animal in the host population does not hide the dose pattern", {
+  # Give i2 of population A the B allele at 90 % of the fixed loci (a heavy
+  # contamination) before injecting the dose pattern into i1. Reference sets
+  # built from unflagged members keep the diagnostic loci; leave-one-out
+  # sets lose every locus at which i2 carries the B allele.
+  s <- depth.host(function(d) 0.6 * rank(d) / length(d))
+  m <- as.matrix(s$x)
+  m[2, sample(1:600, 540)] <- 1
+  x <- s$x
+  x@gen <- new("genlight", m, ploidy = 2)@gen
+  indNames(x) <- indNames(s$x); pop(x) <- pop(s$x)
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == s$host, ]
+  expect_equal(h$pattern, "dose")
+  expect_gt(h$foreign.rate, 0.2)
+  expect_lt(h$foreign.rate, 0.5)
+})
+
+test_that("a mixture too heavy for depth to limit the calls is reported as saturated", {
+  s <- depth.host(function(d) rep(0.9, length(d)))
+  capture.output(r <- gl.report.contamination(s$x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == s$host, ]
+  expect_gt(h$foreign.rate, 0.8)
+  expect_equal(h$pattern, "saturated")
+})
