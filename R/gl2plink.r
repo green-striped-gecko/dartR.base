@@ -283,6 +283,11 @@ gl2plink <- function(x,
                         prefix.in,
                         "--allow-no-sex",
                         "--allow-extra-chr",
+                        # PLINK 1.9 treats --a2-allele as a filtering operation
+                        # and refuses it in a basic --file conversion ("Rerun
+                        # your command with --make-bed"), so ask for the binary
+                        # fileset explicitly.
+                        "--make-bed",
                         # A2 allele in column 2, variant ID in column 1 (F4)
                         "--a2-allele",
                         allele.file,
