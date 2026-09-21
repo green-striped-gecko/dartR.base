@@ -47,6 +47,48 @@
 #' inside the assigned population, or of a mislabelled individual, not of
 #' contamination.
 #'
+#' Tier 3 asks whether a flagged individual's foreign alleles behave like a
+#' minority of its reads or like half of them. A contaminant contributes a
+#' small fraction of the DNA, so its alleles are called mainly at loci with
+#' enough depth to catch a minority allele; a hybrid's alleles sit at 50
+#' percent and are called at any depth. The test uses the loci fixed for one
+#' allele in the individual's population (frequency below \code{rare.freq}
+#' among its unflagged members) and for the other allele in its partner's
+#' population (frequency at least 1 - \code{rare.freq} among its unflagged
+#' members), so that every locus could show the foreign allele. Restricting
+#' to such loci matters because deep loci are the conserved ones and would
+#' otherwise dilute the rate; building the references from unflagged
+#' animals matters because a second contaminated animal in the host
+#' population would otherwise remove every locus at which it carries the
+#' donor allele. \code{foreign.rate} is the proportion of these loci at
+#' which the individual carries the foreign allele, the plain measure of
+#' how much of the other population it holds.
+#' These loci are split into quartiles of \code{rdepth}, the per-locus
+#' average read depth that \code{gl.read.dart()} stores in
+#' \code{@@other$loc.metrics}, and the proportion of them at which the
+#' individual carries the foreign allele is compared across quartiles.
+#' \code{depth.ratio} is that proportion in the deepest quartile over the
+#' shallowest (with a half count added to each), \code{depth.p} a
+#' chi-squared test for trend across the four quartiles, and \code{pattern}
+#' is "saturated" when the foreign allele is already called at more than
+#' half of the shallowest quartile (a heavy mixture or an F1 hybrid, which
+#' depth cannot separate), "dose" when the ratio is at least
+#' \code{depth.ratio} with p below 0.01 (a contaminant), "flat" when the
+#' ratio is below \code{depth.flat} (a true heterozygote: hybrid, admixed
+#' or mislabelled animal) and "unclear" between. The pattern is computed
+#' for flagged individuals whose partner is in another population, with at
+#' least 80 such loci and \code{min.share} foreign alleles among them, and
+#' is NA otherwise or when the genlight has no \code{rdepth}; contamination
+#' from the individual's own population, or from a population absent from
+#' the dataset, cannot be tested this way. Read the pattern only when host
+#' and partner are close enough for a hybrid to be plausible: across
+#' species the plate-average depth is a poor proxy for the host's own depth,
+#' and a "flat" call does not clear an animal whose foreign alleles are
+#' fixed-absent in its species.
+#' Locus average depth is a proxy for the individual's own read counts, so
+#' the pattern does not change the flag; the decisive test remains allele
+#' balance from per-individual read counts.
+#'
 #' Limits. The screen is a candidate list, not a verdict. Contamination
 #' from the same population as the host raises only heterozygosity and
 #' kinship, so a low rare-allele burden does not clear a suspect, and a
@@ -55,9 +97,7 @@
 #' Power falls as host and contaminant become genetically closer: a mixture
 #' between two populations of one species at a typical heterozygosity of
 #' 0.3 shifts heterozygosity by less than the natural spread of many
-#' populations. The decisive test in that case is allele balance from read
-#' counts, which this function does not use. Tier 2 can only name a source
-#' that is in the dataset.
+#' populations. Tier 2 can only name a source that is in the dataset.
 #'
 #' The function densifies the genotype matrix with \code{as.matrix()}.
 #'
@@ -82,9 +122,17 @@
 #' kinship alone [default 20].
 #' @param share.tol Sharing scores within this distance of the best are
 #' treated as ties and separated by residual kinship [default 0.05].
+#' @param depth.ratio Foreign-allele rate in the deepest quartile of loci
+#' over the shallowest at or above which, with trend p below 0.01, the
+#' pattern is "dose" [default 1.5].
+#' @param depth.flat The same ratio below which the pattern is "flat"
+#' [default 1.25].
 #' @param plate Data frame with columns id, plate and well (for example
 #' "C4") giving plate positions; overrides positions found in the individual
-#' metadata [default NULL].
+#' metadata. Without it, positions come from \code{plate_location} in
+#' \code{@@other$ind.metrics}, keyed by \code{service} when that column
+#' exists, because a report that bundles orders repeats plate numbers
+#' [default NULL].
 #' @param plot.display If TRUE, resultant plots are displayed in the plot
 #' window [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
@@ -105,7 +153,9 @@
 #' @return A list with three elements: \code{ind}, a data frame with one row
 #' per individual holding the tier 1 and tier 2 statistics (including
 #' \code{n.foreign}, the number of rare-allele loci, and \code{share}, the
-#' partner's sharing score) and the flag;
+#' partner's sharing score), the tier 3 columns \code{foreign.rate},
+#' \code{depth.ratio},
+#' \code{depth.p} and \code{pattern}, and the flag;
 #' \code{pairs}, a data frame of plate-adjacent pairs with their kinship and
 #' residual kinship, or NULL when no plate positions are known; and
 #' \code{kinship}, the matrix of residual kinship.
@@ -120,7 +170,7 @@
 #'
 #' @seealso \code{\link{gl.report.heterozygosity}},
 #' \code{\link{gl.filter.heterozygosity}}
-#' @importFrom stats mad median sd ave
+#' @importFrom stats mad median sd ave prop.trend.test
 #' @importFrom methods is
 #' @export
 
@@ -132,6 +182,8 @@ gl.report.contamination <- function(x,
                                     rare.min.excess = 0.005,
                                     min.share = 20,
                                     share.tol = 0.05,
+                                    depth.ratio = 1.5,
+                                    depth.flat = 1.25,
                                     plate = NULL,
                                     plot.display = TRUE,
                                     plot.theme = theme_dartR(),
@@ -199,6 +251,10 @@ gl.report.contamination <- function(x,
   }
   if (min.share < 1 || share.tol < 0 || share.tol > 1) {
     stop(error("  min.share must be at least 1 and share.tol in [0, 1]\n"))
+  }
+  if (depth.flat < 1 || depth.ratio < depth.flat) {
+    stop(error("  depth.flat must be at least 1 and depth.ratio at least ",
+               "depth.flat\n"))
   }
   if (!is.null(plate) && !all(c("id", "plate", "well") %in% names(plate))) {
     stop(error("  plate must have columns id, plate and well\n"))
@@ -328,6 +384,10 @@ gl.report.contamination <- function(x,
     } else if (all(c("plate", "well") %in% names(im))) {
       pos <- data.frame(plate = im$plate, well = im$well)
     }
+    # A report that bundles orders repeats plate numbers across orders
+    if (!is.null(pos) && "service" %in% names(im)) {
+      pos$plate <- paste(im$service, pos$plate, sep = "_")
+    }
   }
   adjacent <- rep(NA, n.ind)
   pairs <- NULL
@@ -363,6 +423,65 @@ gl.report.contamination <- function(x,
   flag <- ifelse(het.hit, "suspect", ifelse(rare.hit, "rare-only", ""))
   flag[flag == "suspect" & adjacent %in% TRUE] <- "adjacent"
 
+  # Tier 3: foreign-allele rate against locus depth, at loci fixed-different
+  # between the individual's population and its partner's population
+  depth <- x@other$loc.metrics$rdepth
+  d.ratio <- rep(NA_real_, n.ind)
+  d.p <- rep(NA_real_, n.ind)
+  f.rate <- rep(NA_real_, n.ind)
+  pattern <- rep(NA_character_, n.ind)
+  if (is.null(depth) || !any(is.finite(depth))) {
+    if (verbose >= 2) {
+      cat(warn("  No rdepth in loc.metrics; depth pattern not tested\n"))
+    }
+  } else {
+    if (verbose >= 2) {
+      cat(report("  Tier 3: foreign-allele rate against locus depth\n"))
+    }
+    pop.freq <- function(idx) {
+      n <- colSums(called[idx, , drop = FALSE])
+      list(p = colSums(gm[idx, , drop = FALSE], na.rm = TRUE) / (2 * n), n = n)
+    }
+    # Reference sets are the unflagged members of each population: a second
+    # contaminated animal in the host population would otherwise remove every
+    # locus at which it carries the donor allele
+    clean <- flag == ""
+    for (i in which(!clean)) {
+      j <- top.j[i]
+      if (pops[j] == pops[i]) next
+      own <- pop.freq(which(pops == pops[i] & clean))
+      don <- pop.freq(which(pops == pops[j] & clean))
+      g <- gm[i, ]
+      ok <- called[i, ] & own$n >= min.n & don$n >= min.n & is.finite(depth)
+      # inclusive on the donor side: an admixed or contaminated donor-population
+      # animal carrying one host allele must not remove the locus
+      alt.in <- ok & own$p < rare.freq & don$p >= 1 - rare.freq - 1e-9
+      ref.in <- ok & own$p > 1 - rare.freq & don$p <= rare.freq + 1e-9
+      cand <- which(alt.in | ref.in)
+      if (length(cand) < 80) next
+      foreign <- (alt.in & g >= 1)[cand] | (ref.in & g <= 1)[cand]
+      f.rate[i] <- mean(foreign)
+      if (sum(foreign) < min.share) next
+      # rank-based quartiles so that tied depths cannot collapse a bin
+      q <- ceiling(4 * rank(depth[cand], ties.method = "first") / length(cand))
+      f <- tabulate(q[foreign], 4)
+      n <- tabulate(q, 4)
+      d.ratio[i] <- ((f[4] + 0.5) / (n[4] + 1)) / ((f[1] + 0.5) / (n[1] + 1))
+      d.p[i] <- suppressWarnings(prop.trend.test(f, n)$p.value)
+      # when the foreign allele is already called at most shallow loci, depth
+      # no longer limits the calls and the ratio has no room to rise
+      pattern[i] <- if (f[1] / n[1] > 0.5) {
+        "saturated"
+      } else if (d.ratio[i] >= depth.ratio && d.p[i] < 0.01) {
+        "dose"
+      } else if (d.ratio[i] < depth.flat) {
+        "flat"
+      } else {
+        "unclear"
+      }
+    }
+  }
+
   ind <- data.frame(id = ids,
                     pop = pops,
                     well = if (is.null(pos)) NA else pos$well,
@@ -381,6 +500,10 @@ gl.report.contamination <- function(x,
                     kin.resid = round(top.resid, 4),
                     kin.z = round(top.z, 1),
                     adjacent = adjacent,
+                    foreign.rate = round(f.rate, 3),
+                    depth.ratio = round(d.ratio, 2),
+                    depth.p = signif(d.p, 2),
+                    pattern = pattern,
                     flag = flag,
                     stringsAsFactors = FALSE)
   ind <- ind[order(match(ind$flag, c("adjacent", "suspect", "rare-only", "")),
@@ -393,12 +516,16 @@ gl.report.contamination <- function(x,
   if (verbose >= 1) {
     cat(important("  Suspect individuals:", n.sus, "of", n.ind,
                   "(", sum(ind$flag == "adjacent"),
-                  "with an adjacent-well partner );",
+                  "with an adjacent-well partner,",
+                  sum(ind$pattern[ind$flag %in% c("suspect", "adjacent")]
+                      %in% "dose"), "with a dose pattern,",
+                  sum(ind$pattern[ind$flag %in% c("suspect", "adjacent")]
+                      %in% "flat"), "flat );",
                   "rare-only:", n.rare, "\n"))
     if (n.sus > 0) {
       show <- c("id", "pop", "well", "het", "het.excess", "rare.burden",
                 "rare.excess", "top.partner", "partner.well", "share",
-                "kin.z", "flag")
+                "kin.z", "foreign.rate", "depth.ratio", "pattern", "flag")
       print(ind[ind$flag %in% c("suspect", "adjacent"), show],
             row.names = FALSE)
     }

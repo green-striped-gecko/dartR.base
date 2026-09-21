@@ -58,6 +58,14 @@
   it sits in an adjacent well. Validated on a DArT plate with seven
   contaminated samples confirmed by species-diagnostic loci and a lab
   note: 7/7 flagged, 0 false positives, source well named in 5/7.
+  Tier 3 separates contaminants from hybrids: a flagged individual's
+  foreign-allele rate is compared across quartiles of locus read depth
+  (`rdepth`), because a minority contaminant is called mainly at deep loci
+  while a hybrid's alleles are called at any depth; reported as
+  `foreign.rate`, `depth.ratio`, `depth.p` and `pattern` (dose / flat /
+  saturated / unclear). Plate
+  positions from `plate_location` are keyed by `service` when present, so
+  a report that bundles orders no longer collides plate numbers.
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness
