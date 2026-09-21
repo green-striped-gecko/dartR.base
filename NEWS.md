@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.randomize.snps()`:
+  - FLAGS: swapping the 0/2 homozygote coding of half the loci leaves the
+    per-locus allele-frequency metrics (`OneRatioRef`/`OneRatioSnp`,
+    `FreqHomRef`/`FreqHomSnp`, `PICRef`/`PICSnp`, `maf`, ...) out of step with
+    the recoded genotypes. The locus-metric flags are now reset
+    (`utils.reset.flags()`) so downstream recalculation knows to recompute
+    them. (Applied in both `gl.randomize.snps.r` and the duplicate
+    `gl.random.snp.r`, which define the same function.)
 * `gl.subsample.ind()`:
   - BUG FIX: `mono.rm = TRUE` errored with "object 'x2' not found" and, had
     it run, filtered the original object rather than the subsample; it now
