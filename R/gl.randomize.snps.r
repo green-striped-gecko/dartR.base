@@ -154,6 +154,14 @@ gl.randomize.snps <- function(x,
         }
     }
     
+    # RESET FLAGS
+    # Half the loci had their 0/2 homozygote coding swapped, so the per-locus
+    # allele-frequency metrics (OneRatioRef/OneRatioSnp, FreqHomRef/FreqHomSnp,
+    # PICRef/PICSnp, maf, ...) no longer match the recoded genotypes. Mark them
+    # as no longer current so downstream gl.recalc.metrics / compliance checks
+    # know to recompute them.
+    x <- utils.reset.flags(x, verbose = 0)
+
     # ADD TO HISTORY
     nh <- length(x@other$history)
     x@other$history[[nh + 1]] <- match.call()

@@ -6,6 +6,26 @@
     not found", because the combined plot `p3 <- p1 / p2` was assembled outside
     the `plot.display` guard while `p1`/`p2` are built only inside it. Plot
     assembly, printing and saving are now all inside the `plot.display` block.
+  - FLAGS: swapping the 0/2 homozygote coding of half the loci leaves the
+    per-locus allele-frequency metrics (`OneRatioRef`/`OneRatioSnp`,
+    `FreqHomRef`/`FreqHomSnp`, `PICRef`/`PICSnp`, `maf`, ...) out of step with
+    the recoded genotypes. The locus-metric flags are now reset
+    (`utils.reset.flags()`) so downstream recalculation knows to recompute
+    them. (Applied in both `gl.randomize.snps.r` and the duplicate
+    `gl.random.snp.r`, which define the same function.)
+* `gl.subsample.ind()`:
+  - BUG FIX: `mono.rm = TRUE` errored with "object 'x2' not found" and, had
+    it run, filtered the original object rather than the subsample; it now
+    removes monomorphic loci from the returned object.
+  - HISTORY: the call was not recorded in `@other$history` (default path), or
+    the history was overwritten by an internal `gl.join()` entry (`by.pop =
+    TRUE`). The returned object now carries the input's history followed by
+    this `gl.subsample.ind()` call, on every path (including
+    `error.check = FALSE`).
+  - FLAGS: removing individuals leaves the locus metrics (call rate, allele
+    frequencies, heterozygosities, ...) stale; the locus-metric flags are now
+    reset (`utils.reset.flags()`, as in `gl.drop.ind`) when
+    `error.check = TRUE`, so downstream recalculation knows to recompute them.
 
 * `gl.plot.snp.density()` (function review):
   - PLOT CHANGE: bins containing no SNPs were absent from the plot data
