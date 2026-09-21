@@ -1,5 +1,32 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.randomize.snps()`:
+  - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
+    call, which forces `plot.display` to `FALSE` -- errored with "object 'p1'
+    not found", because the combined plot `p3 <- p1 / p2` was assembled outside
+    the `plot.display` guard while `p1`/`p2` are built only inside it. Plot
+    assembly, printing and saving are now all inside the `plot.display` block.
+  - FLAGS: swapping the 0/2 homozygote coding of half the loci leaves the
+    per-locus allele-frequency metrics (`OneRatioRef`/`OneRatioSnp`,
+    `FreqHomRef`/`FreqHomSnp`, `PICRef`/`PICSnp`, `maf`, ...) out of step with
+    the recoded genotypes. The locus-metric flags are now reset
+    (`utils.reset.flags()`) so downstream recalculation knows to recompute
+    them. (Applied in both `gl.randomize.snps.r` and the duplicate
+    `gl.random.snp.r`, which define the same function.)
+* `gl.subsample.ind()`:
+  - BUG FIX: `mono.rm = TRUE` errored with "object 'x2' not found" and, had
+    it run, filtered the original object rather than the subsample; it now
+    removes monomorphic loci from the returned object.
+  - HISTORY: the call was not recorded in `@other$history` (default path), or
+    the history was overwritten by an internal `gl.join()` entry (`by.pop =
+    TRUE`). The returned object now carries the input's history followed by
+    this `gl.subsample.ind()` call, on every path (including
+    `error.check = FALSE`).
+  - FLAGS: removing individuals leaves the locus metrics (call rate, allele
+    frequencies, heterozygosities, ...) stale; the locus-metric flags are now
+    reset (`utils.reset.flags()`, as in `gl.drop.ind`) when
+    `error.check = TRUE`, so downstream recalculation knows to recompute them.
+
 * `gl.plot.snp.density()` (function review):
   - PLOT CHANGE: bins containing no SNPs were absent from the plot data
     and drawn as background, although the help promised the lowest
@@ -31,6 +58,14 @@
   it sits in an adjacent well. Validated on a DArT plate with seven
   contaminated samples confirmed by species-diagnostic loci and a lab
   note: 7/7 flagged, 0 false positives, source well named in 5/7.
+  Tier 3 separates contaminants from hybrids: a flagged individual's
+  foreign-allele rate is compared across quartiles of locus read depth
+  (`rdepth`), because a minority contaminant is called mainly at deep loci
+  while a hybrid's alleles are called at any depth; reported as
+  `foreign.rate`, `depth.ratio`, `depth.p` and `pattern` (dose / flat /
+  saturated / unclear). Plate
+  positions from `plate_location` are keyed by `service` when present, so
+  a report that bundles orders no longer collides plate numbers.
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness

@@ -134,20 +134,33 @@ gl.randomize.snps <- function(x,
     }
     
     # PRINTING OUTPUTS
-    
+    # p1 and p2 are built only inside the plot.display block above, so assemble,
+    # print and (optionally) save the combined plot only when plot.display =
+    # TRUE. Otherwise `p3 <- p1 / p2` errors with "object 'p1' not found" -- for
+    # plot.display = FALSE and for verbose = 0, which forces plot.display FALSE.
+    if (plot.display) {
       # using package patchwork
         p3 <- p1 / p2
-        if (plot.display) {print(p3)}
-    
+        print(p3)
+
         # Optionally save the plot ---------------------
-        
+
         if(!is.null(plot.file)){
           tmp <- utils.plot.save(p3,
                                  dir=plot.dir,
                                  file=plot.file,
                                  verbose=verbose)
         }
+    }
     
+    # RESET FLAGS
+    # Half the loci had their 0/2 homozygote coding swapped, so the per-locus
+    # allele-frequency metrics (OneRatioRef/OneRatioSnp, FreqHomRef/FreqHomSnp,
+    # PICRef/PICSnp, maf, ...) no longer match the recoded genotypes. Mark them
+    # as no longer current so downstream gl.recalc.metrics / compliance checks
+    # know to recompute them.
+    x <- utils.reset.flags(x, verbose = 0)
+
     # ADD TO HISTORY
     nh <- length(x@other$history)
     x@other$history[[nh + 1]] <- match.call()
