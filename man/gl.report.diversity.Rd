@@ -131,7 +131,6 @@ Other unmatched report:
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
-\code{\link{gl.report.contamination}()},
 \code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.polyploid_heterozygosity}()},
 \code{\link{gl.report.shannon}()}

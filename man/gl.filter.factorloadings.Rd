@@ -105,6 +105,7 @@ gl2 <- gl.filter.factorloadings(pca=pca,x=testset.gl,threshold=0.2)
 Other matched filter: 
 \code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.contamination}()},
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.heterozygosity}()},

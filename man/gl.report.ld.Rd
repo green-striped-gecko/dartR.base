@@ -66,6 +66,7 @@ remove loci with all missing data.
 Other matched report: 
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.contamination}()},
 \code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.hamming}()},

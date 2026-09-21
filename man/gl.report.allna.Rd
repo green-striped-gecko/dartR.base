@@ -51,6 +51,7 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \seealso{
 Other matched report: 
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.contamination}()},
 \code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.hamming}()},
