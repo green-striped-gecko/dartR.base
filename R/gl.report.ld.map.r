@@ -69,7 +69,7 @@
 #' Boxplots of LD by population and
 #' a histogram showing LD frequency are presented.
 #'    
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
 #' @examples

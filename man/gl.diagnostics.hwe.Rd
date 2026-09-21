@@ -151,6 +151,6 @@ the plot?. Journal of heredity, 106(1), 1-19.
 \code{\link{gl.report.hwe}}
 }
 \author{
-Custodian: Carlo Pacioni -- Post to
+Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
   \url{https://groups.google.com/d/forum/dartr}
 }

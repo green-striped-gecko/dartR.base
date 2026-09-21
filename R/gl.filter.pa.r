@@ -22,7 +22,7 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 #' 
-#' @author Authors: Bernd Gruber & Ella Kelly (University of Melbourne);
+#' @author Author(s): Bernd Gruber, Ella Kelly (University of Melbourne).
 #' Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 

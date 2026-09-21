@@ -327,12 +327,13 @@ Other unmatched report:
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
+\code{\link{gl.report.contamination}()},
 \code{\link{gl.report.diversity}()},
 \code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.shannon}()}
 }
 \author{
-Custodian: Ching Ching Lau (Post to
+Author(s): Ching Ching Lau. Custodian: Ching Ching Lau (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{unmatched report}

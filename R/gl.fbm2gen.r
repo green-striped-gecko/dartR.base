@@ -11,9 +11,16 @@
 #'   the object is returned unchanged.
 #' @param chunk Integer, number of **loci per block** to read from FBM
 #'   (default `2048L`). Increase for speed if you have RAM to spare.
-#' @param quiet Logical; if `TRUE`, suppress non-critical messages.
+#' @param quiet Logical; if `TRUE`, suppress the non-critical
+#'   "no FBM found" message regardless of verbosity [default TRUE].
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'   progress log; 3, progress and results summary; 5, full report
+#'   [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#'   or 2 if no global is set].
 #'
 #' @return A `dartR` object with **`@gen` populated** and **`@fbm = NULL`**.
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \dontrun{
 #' d_gen <- gl.fbm2gen(d_fbm, chunk = 4096L)
@@ -22,14 +29,27 @@
 #' }
 #' @export
 
-gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE) {
+gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+
   stopifnot(inherits(x, "dartR"))
+
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname, verbose = verbose)
+
   ## Safe FBM accessor (tolerates missing slot)
   .fbm_or_null <- function(obj) tryCatch(methods::slot(obj, "fbm"), error = function(e) NULL)
-  
+
   fbm <- .fbm_or_null(x)
   if (is.null(fbm)) {
-    if (!quiet) message("gl.fbm2gen: no FBM found; returning input unchanged.")
+    if (!quiet && verbose >= 2) {
+      message("gl.fbm2gen: no FBM found; returning input unchanged.")
+    }
+    if (verbose >= 1) {
+      cat(report("Completed:", funname, "\n"))
+    }
     return(x)
   }
 
@@ -40,6 +60,12 @@ gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE) {
   ## Update locus-wise metadata that may have been concatenated during blocks
   
   methods::validObject(x)
+
+  # FLAG SCRIPT END
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
   x
 }
 

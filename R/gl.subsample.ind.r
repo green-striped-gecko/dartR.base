@@ -25,7 +25,7 @@
 #' 
 #' Set error.check = FALSE for speedy execution in simulations
 #' 
-#' @author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples 
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)

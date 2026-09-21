@@ -81,7 +81,7 @@
 #'\item ind.list.rep: A list of of each individual that has replicates in the 
 #'dataset, the name of the replicates and the percentage of the same genotype.
 #'  }
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' \donttest{

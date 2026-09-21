@@ -8,8 +8,12 @@
 #' used [c(1,3,4) uses the first, third and forth entry from x\@other$history].
 #' If no history is provided the complete history of x is used (recreating the
 #' identical object x) [optional].
-#' 
-#' @author Bernd Gruber (bugs? Post to
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (bugs? Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
@@ -29,7 +33,15 @@
 #' be changed.
 
 gl.print.history <- function(x = NULL,
-                             history = NULL) {
+                             history = NULL,
+                             verbose = NULL) {
+    # SET VERBOSITY
+    verbose <- gl.check.verbosity(verbose)
+
+    # FLAG SCRIPT START
+    funname <- match.call()[[1]]
+    utils.flag.start(func = funname, verbose = verbose)
+
     if (is(x,"genlight"))
         if (is.null(history))
             hist2 <-
@@ -55,12 +67,19 @@ gl.print.history <- function(x = NULL,
         dd$history <-sapply(lapply(dd$history, strwrap, width = 80),
                             paste,
                             collapse = "\n")
-        print(knitr::kable(dd, align = c("c", "l", "l")))
+        if (verbose >= 1) {
+            print(knitr::kable(dd, align = c("c", "l", "l")))
+        }
         
         # dd[nh+1,] <- c('->',as.character(substitute(x)) ) #set table theme tt <- ttheme_default() tt$rowhead$fg_params$x=0
         # tt$core$fg_params$fontsize=11 tt$core$fg_params$hjust=0 tt$core$fg_params$x=c(rep(0.5, nh),0.2, rep(0.01, nh+1))
         # tt$core$fg_params$fontfamily='mono' tt$core$fg_params$fontface='bold' plot(0, type='n', xlab='', ylab='', axes=F) grid.table(dd,
         # theme=tt)
     }
-    
+
+    # FLAG SCRIPT END
+    if (verbose >= 1) {
+        cat(report("Completed:", funname, "\n"))
+    }
+
 }

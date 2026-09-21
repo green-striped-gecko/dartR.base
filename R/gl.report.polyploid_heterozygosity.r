@@ -272,7 +272,7 @@
 #'     amount of processing time, therefore parallelisation in Windows machines
 #'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #'    
-#' @author Custodian: Ching Ching Lau (Post to
+#' @author Author(s): Ching Ching Lau. Custodian: Ching Ching Lau (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #'

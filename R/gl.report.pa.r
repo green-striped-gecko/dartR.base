@@ -104,7 +104,7 @@
 #' that have a width proportional to the importance of the flow (number of
 #' private alleles).
 #' 
-#' @author Custodian: Bernd Gruber -- Post to
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @references \itemize{

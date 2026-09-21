@@ -174,3 +174,4 @@ gl.plot.heatmap,dartR.base,graphics,luis,pr-open,406
 gl.blast,dartR.popgen,analysis,luis,pr-open,90
 gl.ld.haplotype,dartR.popgen,analysis,luis,pr-open,91
 gl.run.structure,dartR.popgen,analysis,luis,pr-open,92
+gl.plot.snp.density,dartR.base,graphics,luis,pr-open,407

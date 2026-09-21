@@ -4,7 +4,7 @@
 \alias{gl.print.history}
 \title{Prints history of a genlight object}
 \usage{
-gl.print.history(x = NULL, history = NULL)
+gl.print.history(x = NULL, history = NULL, verbose = NULL)
 }
 \arguments{
 \item{x}{A genlight object (with history) [optional].}
@@ -14,6 +14,11 @@ gl.print.history(x = NULL, history = NULL)
 used [c(1,3,4) uses the first, third and forth entry from x\@other$history].
 If no history is provided the complete history of x is used (recreating the
 identical object x) [optional].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 Prints a table with all history records. Currently the style cannot
@@ -44,7 +49,7 @@ Other environment:
 \code{\link{theme_dartR}()}
 }
 \author{
-Bernd Gruber (bugs? Post to
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (bugs? Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{environment}

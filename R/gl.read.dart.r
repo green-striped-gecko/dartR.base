@@ -50,7 +50,7 @@
 #'metrics supplied by DArT will no longer be correct and some loci may be
 #'monomorphic. To accommodate this, set mono.rm and recalc to TRUE.
 
-#'@author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#'@author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #'@examples
 #' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
