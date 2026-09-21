@@ -1,6 +1,11 @@
 # dartR.base 1.2.3 (development)
 
 * `gl.randomize.snps()`:
+  - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
+    call, which forces `plot.display` to `FALSE` -- errored with "object 'p1'
+    not found", because the combined plot `p3 <- p1 / p2` was assembled outside
+    the `plot.display` guard while `p1`/`p2` are built only inside it. Plot
+    assembly, printing and saving are now all inside the `plot.display` block.
   - FLAGS: swapping the 0/2 homozygote coding of half the loci leaves the
     per-locus allele-frequency metrics (`OneRatioRef`/`OneRatioSnp`,
     `FreqHomRef`/`FreqHomSnp`, `PICRef`/`PICSnp`, `maf`, ...) out of step with
