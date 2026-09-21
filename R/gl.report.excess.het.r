@@ -71,6 +71,13 @@ gl.report.excess.het <- function(x,
                                  plot.dir = NULL,
                                  verbose = NULL) {
 
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname, verbose = verbose)
+
   .Deprecated(
     new = "gl.report.hwe",
     msg = paste(
@@ -96,8 +103,15 @@ gl.report.excess.het <- function(x,
     verbose = verbose
   )
 
-  return(invisible(list(
+  out <- list(
     results.table = as.data.frame(df),
     removed.loci = unique(as.character(df$Locus))
-  )))
+  )
+
+  # FLAG SCRIPT END
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
+  return(invisible(out))
 }
