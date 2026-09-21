@@ -360,9 +360,13 @@ gl.read.vcf <- function(vcffile,
   # else x@fbm <- NULL
   if (verbose>2) {
     cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-  } 
-  
-  
+  }
+
+  # FLAG SCRIPT END
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
   return(x)
   
 }

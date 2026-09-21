@@ -5,10 +5,15 @@
 \title{Calculates the frequency of the reference and alternate allele for
 each locus}
 \usage{
-gl.alf(x)
+gl.alf(x, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object [required].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A data.frame with one row per locus, in locus order, and two
@@ -23,8 +28,10 @@ object.
 }
 \details{
 This is a lightweight accessor: it returns the per-locus frequencies
-directly (visibly), produces no console output and does not modify the
-input. The alternate allele frequency is the mean genotype score at the
+directly (visibly) and does not modify the input. Apart from the datatype
+check (which honours the resolved verbosity, so it is silent at
+verbose = 0), it produces no console output. The alternate allele
+frequency is the mean genotype score at the
 locus divided by 2, computed with na.rm = TRUE, and alf1 is its
 complement, so the two columns sum to 1 at every locus with at least one
 scored genotype. A locus with no scored genotypes returns NaN in both
