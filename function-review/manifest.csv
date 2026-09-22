@@ -1,178 +1,168 @@
 function,package,family,claimed_by,status,pr
-gl.tree.nj,dartR.base,analysis,arthur,pr-open,370
+gl.tree.nj,dartR.base,analysis,arthur,done,370
 gl.report.callrate,dartR.base,report,arthur,done,247
-gl.filter.allna,dartR.base,matched filter,arthur,pr-open,252
-gl.filter.monomorphs,dartR.base,matched filter,arthur,pr-open,251
-gl.report.allna,dartR.base,matched report,arthur,pr-open,250
-gl.report.monomorphs,dartR.base,matched report,arthur,pr-open,249
-gl.nhybrids,dartR.popgen,analysis,luis,pr-open,85
-function,package,family,claimed_by,status
-gl.drop.pop,dartR.base,data manipulation,arthur,done
-gl.drop.ind,dartR.base,data manipulation,arthur,pr-open
-gl.keep.ind,dartR.base,data manipulation,arthur,pr-open
-gl.keep.pop,dartR.base,data manipulation,arthur,pr-open
-gl.filter.overshoot,dartR.base,matched filter,arthur,pr-open,262
-gl.report.heterozygosity,dartR.base,matched report,arthur,pr-open,291
-gl.filter.heterozygosity,dartR.base,matched filter,arthur,pr-open,272
-gl.load,dartR.base,io,arthur,pr-open,289
-gl.filter.replicates,dartR.base,filter,arthur,pr-open,288
-gl.report.replicates,dartR.base,report,arthur,pr-open,287
-gl.report.hwe,dartR.base,matched report,arthur,pr-open,271
-gl.filter.hwe,dartR.base,matched filter,arthur,pr-open,271
-gl.reassign.pop,dartR.base,data manipulation,arthur,pr-open,282
-gl.reassign.ind,dartR.base,data manipulation,arthur,pr-open,281
-gl.define.pop,dartR.base,data manipulation,arthur,pr-open,279
-gl.merge.pop,dartR.base,data manipulation,arthur,pr-open,280
-gl.save,dartR.base,io,arthur,pr-open,290
-gl.report.allelerich,dartR.base,report,arthur,pr-open,286
-gl.join,dartR.base,io,arthur,pr-open,284
-gl.sort,dartR.base,data manipulation,arthur,pr-open,283
-gl.select.shapes,dartR.base,utility,arthur,pr-open,275
-gl.colors,dartR.base,utility,arthur,pr-open,276
-gl.select.colors,dartR.base,utility,arthur,pr-open,274
-gl.report.basics,dartR.base,report,arthur,pr-open,285
-gl.fixed.diff,dartR.base,analysis,arthur,pr-open,278
-gl.Ho,dartR.sim,utility,arthur,moved-to-dartR.sim,44
-gl.He,dartR.sim,utility,arthur,moved-to-dartR.sim,44
-gl.smearplot,dartR.base,graphics,arthur,pr-open,277
-gl.make.recode.pop,dartR.base,data manipulation,arthur,pr-open,270
-gl.make.recode.ind,dartR.base,data manipulation,arthur,pr-open,269
-gl.recode.ind,dartR.base,data manipulation,arthur,pr-open,267
-gl.recode.pop,dartR.base,data manipulation,arthur,pr-open,266
-gl.report.factorloadings,dartR.base,matched report,arthur,pr-open,265
-gl.filter.locmetric,dartR.base,matched filter,arthur,pr-open,264
-gl.report.locmetric,dartR.base,matched report,arthur,pr-open,263
-gl.report.overshoot,dartR.base,matched report,arthur,pr-open,261
-gl.filter.reproducibility,dartR.base,matched filter,arthur,pr-open,260
-gl.report.reproducibility,dartR.base,matched report,arthur,pr-open,259
-gl.filter.taglength,dartR.base,matched filter,arthur,pr-open,258
-gl.report.taglength,dartR.base,matched report,arthur,pr-open,257
-gl.filter.rdepth,dartR.base,matched filter,arthur,pr-open,256
-gl.report.rdepth,dartR.base,matched report,arthur,pr-open,255
-gl.filter.secondaries,dartR.base,matched filter,arthur,pr-open,254
-gl.report.secondaries,dartR.base,matched report,arthur,pr-open,253
-gl.rename.pop,dartR.base,data manipulation,arthur,pr-open,268
-gl.filter.callrate,dartR.base,matched filter,arthur,pr-open,248
-gl.keep.loc,dartR.base,data manipulation,arthur,pr-open
-gl.report.bases,dartR.base,matched report,arthur,pr-open
-function,package,family,claimed_by,status,pr
-gl.report.callrate,dartR.base,report,arthur,pr-open,247
-gl.nhybrids,dartR.popgen,analysis,luis,pr-open,85
+gl.filter.allna,dartR.base,matched filter,arthur,done,252
+gl.filter.monomorphs,dartR.base,matched filter,arthur,done,251
+gl.report.allna,dartR.base,matched report,arthur,done,250
+gl.report.monomorphs,dartR.base,matched report,arthur,done,249
+gl.nhybrids,dartR.popgen,analysis,luis,done,85
 gl.drop.pop,dartR.base,data manipulation,arthur,done,237
 gl.drop.ind,dartR.base,data manipulation,arthur,done,238
 gl.keep.ind,dartR.base,data manipulation,arthur,done,240
 gl.keep.pop,dartR.base,data manipulation,arthur,done,239
-gl.report.bases,dartR.base,matched report,arthur,pr-open,244
-gl.keep.loc,dartR.base,data manipulation,arthur,pr-open,245
-gl.drop.loc,dartR.base,data manipulation,arthur,pr-open,246
-gl.find.genes.for.loci,dartR.popgen,analysis,luis,pr-open,87
+gl.filter.overshoot,dartR.base,matched filter,arthur,done,262
+gl.report.heterozygosity,dartR.base,matched report,arthur,done,291
+gl.filter.heterozygosity,dartR.base,matched filter,arthur,done,272
+gl.load,dartR.base,io,arthur,done,289
+gl.filter.replicates,dartR.base,filter,arthur,done,288
+gl.report.replicates,dartR.base,report,arthur,done,287
+gl.report.hwe,dartR.base,matched report,arthur,done,271
+gl.filter.hwe,dartR.base,matched filter,arthur,done,271
+gl.reassign.pop,dartR.base,data manipulation,arthur,done,282
+gl.reassign.ind,dartR.base,data manipulation,arthur,done,281
+gl.define.pop,dartR.base,data manipulation,arthur,done,279
+gl.merge.pop,dartR.base,data manipulation,arthur,done,280
+gl.save,dartR.base,io,arthur,done,290
+gl.report.allelerich,dartR.base,report,arthur,done,286
+gl.join,dartR.base,io,arthur,done,284
+gl.sort,dartR.base,data manipulation,arthur,done,283
+gl.select.shapes,dartR.base,utility,arthur,done,275
+gl.colors,dartR.base,utility,arthur,done,276
+gl.select.colors,dartR.base,utility,arthur,done,274
+gl.report.basics,dartR.base,report,arthur,done,285
+gl.fixed.diff,dartR.base,analysis,arthur,done,278
+gl.Ho,dartR.sim,utility,arthur,moved-to-dartR.sim,44
+gl.He,dartR.sim,utility,arthur,moved-to-dartR.sim,44
+gl.smearplot,dartR.base,graphics,arthur,done,277
+gl.make.recode.pop,dartR.base,data manipulation,arthur,done,270
+gl.make.recode.ind,dartR.base,data manipulation,arthur,done,269
+gl.recode.ind,dartR.base,data manipulation,arthur,done,267
+gl.recode.pop,dartR.base,data manipulation,arthur,done,266
+gl.report.factorloadings,dartR.base,matched report,arthur,done,265
+gl.filter.locmetric,dartR.base,matched filter,arthur,done,264
+gl.report.locmetric,dartR.base,matched report,arthur,done,263
+gl.report.overshoot,dartR.base,matched report,arthur,done,261
+gl.filter.reproducibility,dartR.base,matched filter,arthur,done,260
+gl.report.reproducibility,dartR.base,matched report,arthur,done,259
+gl.filter.taglength,dartR.base,matched filter,arthur,done,258
+gl.report.taglength,dartR.base,matched report,arthur,done,257
+gl.filter.rdepth,dartR.base,matched filter,arthur,done,256
+gl.report.rdepth,dartR.base,matched report,arthur,done,255
+gl.filter.secondaries,dartR.base,matched filter,arthur,done,254
+gl.report.secondaries,dartR.base,matched report,arthur,done,253
+gl.rename.pop,dartR.base,data manipulation,arthur,done,268
+gl.filter.callrate,dartR.base,matched filter,arthur,done,248
+gl.keep.loc,dartR.base,data manipulation,arthur,done,245
+gl.report.bases,dartR.base,matched report,arthur,done,244
+gl.drop.loc,dartR.base,data manipulation,arthur,done,246
+gl.find.genes.for.loci,dartR.popgen,analysis,luis,done,87
 gl.propShared,dartR.spatial,analysis,arthur,moved-to-dartR.spatial,34
-gl.sim.genotypes,dartR.base,data manipulation,arthur,pr-open,389
-gl.sim.crosses,dartR.base,analysis,arthur,pr-open,388
-gl.sample,dartR.base,modify,arthur,pr-open,387
-gl.fst.pop,dartR.base,analysis,arthur,pr-open,385
-gl.report.fstat,dartR.base,report,arthur,pr-open,384
-gl.pcoa.plot,dartR.base,plot,claude,pr-open,381
-gl.alf,dartR.base,analysis,arthur,pr-open,382
-gl.report.shannon,dartR.base,report,claude,pr-open,379
-@position-redesign,dartR.base,design,arthur,pr-open,330
-gl.pcoa,dartR.base,analysis,arthur,pr-open,369
-gl.dist.phylo,dartR.base,analysis,claude,pr-open,377
-gl.allele.freq,dartR.base,analysis,claude,pr-open,374
-gl.read.silicodart,dartR.base,io,arthur,pr-open,365
-gl.compliance.check,dartR.base,modify,arthur,pr-open,367
-gl.read.dart,dartR.base,io,arthur,pr-open,356
-utils.vcfr2genlight.polyploid,dartR.base,io,arthur,pr-open,366
-utils.dart2genlight,dartR.base,io,arthur,pr-open,363
-gl.read.csv,dartR.base,io,arthur,pr-open,357
-gl.read.vcf,dartR.base,io,arthur,pr-open,364
-gl2related,dartR.base,io,arthur,pr-open,353
-gl2hiphop,dartR.base,io,arthur,pr-open,354
-gl2demerelate,dartR.base,io,arthur,pr-open,349
-gl2paup.svdquartets,dartR.base,io,arthur,pr-open,341
-gl2bpp,dartR.base,io,arthur,pr-open,347
+gl.sim.genotypes,dartR.base,data manipulation,arthur,done,389
+gl.sim.crosses,dartR.base,analysis,arthur,done,388
+gl.sample,dartR.base,modify,arthur,done,387
+gl.fst.pop,dartR.base,analysis,arthur,done,385
+gl.report.fstat,dartR.base,report,arthur,done,384
+gl.pcoa.plot,dartR.base,plot,claude,done,381
+gl.alf,dartR.base,analysis,arthur,done,382
+gl.report.shannon,dartR.base,report,claude,done,379
+@position-redesign,dartR.base,design,arthur,done,330
+gl.pcoa,dartR.base,analysis,arthur,done,369
+gl.dist.phylo,dartR.base,analysis,claude,done,377
+gl.allele.freq,dartR.base,analysis,claude,done,374
+gl.read.silicodart,dartR.base,io,arthur,done,365
+gl.compliance.check,dartR.base,modify,arthur,done,367
+gl.read.dart,dartR.base,io,arthur,done,356
+utils.vcfr2genlight.polyploid,dartR.base,io,arthur,done,366
+utils.dart2genlight,dartR.base,io,arthur,done,363
+gl.read.csv,dartR.base,io,arthur,done,357
+gl.read.vcf,dartR.base,io,arthur,done,364
+gl2related,dartR.base,io,arthur,done,353
+gl2hiphop,dartR.base,io,arthur,done,354
+gl2demerelate,dartR.base,io,arthur,done,349
+gl2paup.svdquartets,dartR.base,io,arthur,done,341
+gl2bpp,dartR.base,io,arthur,done,347
 gl.mahal.assign,dartR.base,governance,arthur,applied,
-gl2gds,dartR.base,io,arthur,pr-open,342
-gl2phylip,dartR.base,io,arthur,pr-open,346
-gl2paup.parsimony,dartR.base,io,arthur,pr-open,336
-gl2plink,dartR.base,io,arthur,pr-open,350
-gl2hapmap,dartR.base,io,arthur,pr-open,351
-gl2faststructure,dartR.base,io,arthur,pr-open,333
-gl2treemix,dartR.base,io,arthur,pr-open,343
-gl2gi,dartR.base,io,arthur,pr-open,338
-gl2genalex,dartR.base,io,arthur,pr-open,345
-gl2structure,dartR.base,io,arthur,pr-open,339
-gl2bayescan,dartR.base,io,arthur,pr-open,340
-gl2genepop,dartR.base,io,arthur,pr-open,348
-gl2snapper,dartR.base,io,arthur,pr-open,334
-gl2gapit,dartR.base,io,arthur,pr-open,337
-gi2gl,dartR.base,io,arthur,pr-open,344
-gl2geno,dartR.base,io,arthur,pr-open,332
-gl2bayesAss,dartR.base,io,arthur,pr-open,335
-gl2vcf,dartR.base,io,arthur,pr-open,352
-gl2fasta,dartR.base,io,arthur,pr-open,329
-utils.dartR.class.def,dartR.base,utility,arthur,pr-open,328
-utils.heatmap,dartR.base,utility,arthur,pr-open,327
-utils.plink.run,dartR.base,utility,arthur,pr-open,326
-utils.collapse.matrix,dartR.base,utility,arthur,pr-open,325
-utils.transpose,dartR.base,utility,arthur,pr-open,323
-utils.stats,dartR.base,utility,arthur,pr-open,322
-utils.plot.save,dartR.base,utility,arthur,pr-open,321
-utils.flag.start,dartR.base,utility,arthur,pr-open,320
-utils.jackknife,dartR.base,utility,arthur,pr-open,319
-utils.hamming,dartR.base,utility,arthur,pr-open,317
-utils.dist.binary,dartR.base,utility,arthur,pr-open,316
-utils.dist.ind.snp,dartR.base,utility,arthur,pr-open,315
-utils.n.var.invariant,dartR.base,utility,arthur,pr-open,314
-utils.allelic.richness,dartR.base,utility,arthur,pr-open,313
-utils.hwe,dartR.base,utility,arthur,pr-open,312
-utils.het.pop,dartR.base,utility,arthur,pr-open,311
-utils.is.fixed,dartR.base,utility,arthur,pr-open,310
-utils.basic.stats,dartR.base,utility,arthur,pr-open,309
-utils.reset.flags,dartR.base,utility,arthur,pr-open,308
-utils.recalc.avgpic,dartR.base,utility,arthur,pr-open,307
-utils.recalc.maf,dartR.base,utility,arthur,pr-open,306
-utils.recalc.freqhomref,dartR.base,utility,arthur,pr-open,304
-utils.hamming.blocks,dartR.base,utility,arthur,pr-open,318
-utils.impute,dartR.base,utility,arthur,pr-open,324
-utils.recalc.freqhomsnp,dartR.base,utility,arthur,pr-open,305
-utils.recalc.freqhets,dartR.base,utility,arthur,pr-open,303
-gl.filter.pa,dartR.base,matched filter,arthur,pr-open,300
-utils.check.datatype,dartR.base,utility,arthur,pr-open,296
-utils.check.datatype,dartR.base,analysis,arthur,pr-open,368
-gl.filter.maf,dartR.base,matched filter,arthur,pr-open,295
-utils.recalc.callrate,dartR.base,utility,arthur,pr-open,302
-gl.report.pa,dartR.base,matched report,arthur,pr-open,299
-gl.report.diversity,dartR.base,report,arthur,pr-open,301
-gl.report.maf,dartR.base,matched report,arthur,pr-open,294
-gl2eigenstrat,dartR.base,io,arthur,pr-open,355
+gl2gds,dartR.base,io,arthur,done,342
+gl2phylip,dartR.base,io,arthur,done,346
+gl2paup.parsimony,dartR.base,io,arthur,done,336
+gl2plink,dartR.base,io,arthur,done,350
+gl2hapmap,dartR.base,io,arthur,done,351
+gl2faststructure,dartR.base,io,arthur,done,333
+gl2treemix,dartR.base,io,arthur,done,343
+gl2gi,dartR.base,io,arthur,done,338
+gl2genalex,dartR.base,io,arthur,done,345
+gl2structure,dartR.base,io,arthur,done,339
+gl2bayescan,dartR.base,io,arthur,done,340
+gl2genepop,dartR.base,io,arthur,done,348
+gl2snapper,dartR.base,io,arthur,done,334
+gl2gapit,dartR.base,io,arthur,done,337
+gi2gl,dartR.base,io,arthur,done,344
+gl2geno,dartR.base,io,arthur,done,332
+gl2bayesAss,dartR.base,io,arthur,done,335
+gl2vcf,dartR.base,io,arthur,done,352
+gl2fasta,dartR.base,io,arthur,done,329
+utils.dartR.class.def,dartR.base,utility,arthur,done,328
+utils.heatmap,dartR.base,utility,arthur,done,327
+utils.plink.run,dartR.base,utility,arthur,done,326
+utils.collapse.matrix,dartR.base,utility,arthur,done,325
+utils.transpose,dartR.base,utility,arthur,done,323
+utils.stats,dartR.base,utility,arthur,done,322
+utils.plot.save,dartR.base,utility,arthur,done,321
+utils.flag.start,dartR.base,utility,arthur,done,320
+utils.jackknife,dartR.base,utility,arthur,done,319
+utils.hamming,dartR.base,utility,arthur,done,317
+utils.dist.binary,dartR.base,utility,arthur,done,316
+utils.dist.ind.snp,dartR.base,utility,arthur,done,315
+utils.n.var.invariant,dartR.base,utility,arthur,done,314
+utils.allelic.richness,dartR.base,utility,arthur,done,313
+utils.hwe,dartR.base,utility,arthur,done,312
+utils.het.pop,dartR.base,utility,arthur,done,311
+utils.is.fixed,dartR.base,utility,arthur,done,310
+utils.basic.stats,dartR.base,utility,arthur,done,309
+utils.reset.flags,dartR.base,utility,arthur,done,308
+utils.recalc.avgpic,dartR.base,utility,arthur,done,307
+utils.recalc.maf,dartR.base,utility,arthur,done,306
+utils.recalc.freqhomref,dartR.base,utility,arthur,done,304
+utils.hamming.blocks,dartR.base,utility,arthur,done,318
+utils.impute,dartR.base,utility,arthur,done,324
+utils.recalc.freqhomsnp,dartR.base,utility,arthur,done,305
+utils.recalc.freqhets,dartR.base,utility,arthur,done,303
+gl.filter.pa,dartR.base,matched filter,arthur,done,300
+utils.check.datatype,dartR.base,utility,arthur,done,296
+utils.check.datatype,dartR.base,analysis,arthur,done,368
+gl.filter.maf,dartR.base,matched filter,arthur,done,295
+utils.recalc.callrate,dartR.base,utility,arthur,done,302
+gl.report.pa,dartR.base,matched report,arthur,done,299
+gl.report.diversity,dartR.base,report,arthur,done,301
+gl.report.maf,dartR.base,matched report,arthur,done,294
+gl2eigenstrat,dartR.base,io,arthur,done,355
 gl.amova,dartR.popgen,analysis,arthur,moved-to-dartR.popgen,88
-utils.read.fasta,dartR.base,io,arthur,pr-open,362
-utils.read.dart,dartR.base,io,arthur,pr-open,360
-gl.read.fasta,dartR.base,io,arthur,pr-open,359
-utils.read.ped,dartR.base,io,arthur,pr-open,361
-gl.dist.pop,dartR.base,analysis,claude,pr-open,376
-gl.recalc.metrics,dartR.base,modify,arthur,pr-open,386
-gl.tree.fitch,dartR.base,analysis,claude,pr-open,371
-gl.set.verbosity,dartR.base,utility,arthur,pr-open,297
-gl.impute,dartR.base,data manipulation,claude,pr-open,373
-gl.dist.ind,dartR.base,analysis,claude,pr-open,375
-gl.read.PLINK,dartR.base,io,arthur,pr-open,358
-gl.report.ld.map,dartR.base,matched report,arthur,pr-open,390
-gl.filter.ld,dartR.base,matched filter,arthur,pr-open,391
-gl.report.ld,dartR.base,report,arthur,pr-open,392
-gl.filter.factorloadings,dartR.base,matched filter,arthur,pr-open,393
-gl.edit.recode.pop,dartR.base,data manipulation,arthur,pr-open,400
-gl.edit.recode.ind,dartR.base,data manipulation,arthur,pr-open,399
-gl.add.indmetrics,dartR.base,data manipulation,arthur,pr-open,398
-gl.write.csv,dartR.base,io,arthur,pr-open,397
-gl.set.wd,dartR.base,utility,arthur,pr-open,396
-gl.check.wd,dartR.base,utility,arthur,pr-open,395
+utils.read.fasta,dartR.base,io,arthur,done,362
+utils.read.dart,dartR.base,io,arthur,done,360
+gl.read.fasta,dartR.base,io,arthur,done,359
+utils.read.ped,dartR.base,io,arthur,done,361
+gl.dist.pop,dartR.base,analysis,claude,done,376
+gl.recalc.metrics,dartR.base,modify,arthur,done,386
+gl.tree.fitch,dartR.base,analysis,claude,done,371
+gl.set.verbosity,dartR.base,utility,arthur,done,297
+gl.impute,dartR.base,data manipulation,claude,done,373
+gl.dist.ind,dartR.base,analysis,claude,done,375
+gl.read.PLINK,dartR.base,io,arthur,done,358
+gl.report.ld.map,dartR.base,matched report,arthur,done,390
+gl.filter.ld,dartR.base,matched filter,arthur,done,391
+gl.report.ld,dartR.base,report,arthur,done,392
+gl.filter.factorloadings,dartR.base,matched filter,arthur,done,393
+gl.edit.recode.pop,dartR.base,data manipulation,arthur,done,400
+gl.edit.recode.ind,dartR.base,data manipulation,arthur,done,399
+gl.add.indmetrics,dartR.base,data manipulation,arthur,done,398
+gl.write.csv,dartR.base,io,arthur,done,397
+gl.set.wd,dartR.base,utility,arthur,done,396
+gl.check.wd,dartR.base,utility,arthur,done,395
 gl.map.interactive,dartR.base,graphics,luis,done,403
 gl.test.heterozygosity,dartR.base,analysis,luis,done,404
-gl.plot.heatmap,dartR.base,graphics,luis,pr-open,406
-gl.blast,dartR.popgen,analysis,luis,pr-open,90
-gl.ld.haplotype,dartR.popgen,analysis,luis,pr-open,91
-gl.run.structure,dartR.popgen,analysis,luis,pr-open,92
-gl.plot.snp.density,dartR.base,graphics,luis,pr-open,407
+gl.plot.heatmap,dartR.base,graphics,luis,done,406
+gl.blast,dartR.popgen,analysis,luis,done,90
+gl.ld.haplotype,dartR.popgen,analysis,luis,done,91
+gl.run.structure,dartR.popgen,analysis,luis,done,92
+gl.plot.snp.density,dartR.base,graphics,luis,done,407
 gl.LDNe,dartR.popgen,analysis,luis,pr-open,93
