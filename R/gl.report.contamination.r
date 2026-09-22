@@ -1,6 +1,6 @@
 #' @name gl.report.contamination
 #' @title Screens a genlight object for cross-contaminated samples
-#' @family unmatched report
+#' @family matched report
 #'
 #' @description
 #' Flags individuals whose genotypes carry DNA from another sample, using two
@@ -168,7 +168,8 @@
 #' out <- gl.report.contamination(testset.gl)
 #' head(out$ind)
 #'
-#' @seealso \code{\link{gl.report.heterozygosity}},
+#' @seealso \code{\link{gl.filter.contamination}},
+#' \code{\link{gl.report.heterozygosity}},
 #' \code{\link{gl.filter.heterozygosity}}
 #' @importFrom stats mad median sd ave prop.trend.test
 #' @importFrom methods is

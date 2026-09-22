@@ -83,6 +83,7 @@ lower=200, keep= 'within', verbose=3)
 Other matched filter: 
 \code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.contamination}()},
 \code{\link{gl.filter.excess.het}()},
 \code{\link{gl.filter.factorloadings}()},
 \code{\link{gl.filter.hamming}()},

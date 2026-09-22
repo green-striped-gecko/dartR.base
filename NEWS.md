@@ -66,6 +66,13 @@
   saturated / unclear). Plate
   positions from `plate_location` are keyed by `service` when present, so
   a report that bundles orders no longer collides plate numbers.
+* New function `gl.filter.contamination()`: the matched filter for
+  `gl.report.contamination()`. Runs the screen with the same parameters and
+  removes the individuals flagged in the classes named by `flag` (default
+  "suspect" and "adjacent"; "rare-only" can be added). The tier 3 depth
+  pattern is printed for each removed individual but does not change the
+  filter. `recalc` and `mono.rm` behave as in the other individual-level
+  filters; otherwise the composition-dependent locus-metric flags are reset.
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness

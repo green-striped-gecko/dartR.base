@@ -74,6 +74,7 @@ Molecular Ecology Resources.
 Other matched filter: 
 \code{\link{gl.filter.allna}()},
 \code{\link{gl.filter.callrate}()},
+\code{\link{gl.filter.contamination}()},
 \code{\link{gl.filter.factorloadings}()},
 \code{\link{gl.filter.hamming}()},
 \code{\link{gl.filter.heterozygosity}()},
