@@ -128,6 +128,40 @@
   - documentation: `@family graphics` added; "chromosome length" is
     described as the position of the last SNP.
 
+* `gl.diagnostics.hwe()` (function review):
+  - Much faster with `stdErr = TRUE`: the jackknife over loci is computed
+    directly from the per-locus statistics instead of re-running
+    `utils.basic.stats()` once per locus. bandicoot.gl (1000 loci): 41.5 s
+    to 1.1 s; 10,000 loci: about 2 s (previously about 70 min on one core).
+    `n.cores` is kept for compatibility and ignored.
+  - BUG FIX: the standard errors of Fis and Fst were too small by a factor
+    of (number of loci - 1), and were computed from leave-one-out values
+    rounded to 4 decimals (on bandicoot.gl, 1000 values collapsed to 15
+    distinct Fis and 3 distinct Fst values). They are now the standard
+    jackknife standard errors of unrounded values: SE Fis 4.43e-06 becomes
+    0.00432 on bandicoot.gl, and the Fis/Fst ratio 5.62 becomes 5.40.
+  - BUG FIX: the barplot's "0" bar counted non-significant tests while the
+    other bars and the null counted loci (4677 against 863 on
+    bandicoot.gl). All bars now count loci, and the null is the expected
+    count rather than one random draw.
+  - BUG FIX: Fisher's combined test used 2 x nLoc degrees of freedom and
+    `nExpected` used nLoc, although loci monomorphic or under-sampled in a
+    population are not tested there; both now use the tests run.
+  - The histogram's bins span [0, 1] and its line is the uniform
+    expectation (it was drawn at nrow / (bins - 1)).
+  - Nothing is printed at `verbose = 0`.
+  - Requires HardyWeinberg (now guarded with an error) and no longer
+    ggtern; a missing package errors instead of returning -1.
+* `gl.hwe.pop()` (function review):
+  - BUG FIX: an object without populations stopped with "Vector length
+    does no match number of individuals"; it is now tested as the single
+    population "pop1", as documented.
+  - A missing HardyWeinberg errors instead of returning -1.
+  - Documentation corrected (return value, `plot_colors` default, plot
+    type).
+* `utils.basic.stats()` gains `rounded = TRUE`; `rounded = FALSE` returns
+  unrounded statistics. Default output is unchanged.
+
 * New function `gl.report.contamination()`: screens a genlight object for
   cross-contaminated samples from genotypes, population labels and, when
   present, the plate wells stored by `gl.read.dart()`. Tier 1 flags
