@@ -200,6 +200,15 @@ F2). Not changed here.
 
 ## Machine block
 
+## Addendum (2026-09-23)
+
+- F8 follow-up (requested by Luis): the parser moved to the internal
+  `utils.structure.read`, used by both `gl.read.structure` and
+  `utils.structure.run`; `gl.run.structure` output identical before and
+  after (plain, usepopinfo, locprior). Commit df5d962, PR #100 (base
+  `review-gl.read.structure`).
+- Out-of-scope note on `gl.map.structure` fixed in commit 0215099, PR #99.
+
 ```json
 {
   "function": "gl.read.structure",

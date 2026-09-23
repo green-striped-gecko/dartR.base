@@ -223,6 +223,14 @@ rectangles if map size becomes a complaint.
 
 ## Machine block
 
+## Addendum (2026-09-23)
+
+Found during the gl.read.structure review: a q-matrix with `orig.pop` all NA
+stopped with "attempt to select less than one element in integerOneIndex",
+and partly NA added empty rows and leaflet warnings. Now: all NA is a clear
+error, partial NA individuals are dropped with a warning. Commit 0215099,
+PR #99. Requested by Luis.
+
 ```json
 {
   "function": "gl.map.structure",
