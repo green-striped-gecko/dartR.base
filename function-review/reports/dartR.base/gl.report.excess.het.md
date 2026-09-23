@@ -155,7 +155,7 @@ Notes (outside these files, not proposed here):
   this change; to raise with the hwe pair's custodian.
 - `devtools::document()` also rewrote unrelated Rd files (cross-link
   drift, PR #421); reverted.
-- PR: pending.
+- PR: #424.
 
 ```json
 {
@@ -174,7 +174,7 @@ Notes (outside these files, not proposed here):
     {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC7", "status": "approved", "change": 4}
   ],
   "coverage_skipped": ["DAT6: delegated to hwe pair", "numerical check: delegated to hwe pair", "forum/issues: no browser session"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 424
 }
 ```
