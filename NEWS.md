@@ -1,5 +1,14 @@
 # dartR.base 1.2.3 (development)
 
+* Verbosity leak through `gl.alf()`: since `gl.alf()` follows the global
+  verbosity (c581841), two internal calls that did not pass `verbose`
+  printed its datatype message at every level. `utils.recalc.maf()` (run by
+  `gl.recalc.metrics()` and `gl.compliance.check()`, and so by
+  `gl.read.PLINK()` and every reader) and `gl.report.heterozygosity()` now
+  call `gl.alf(verbose = 0)`. At `verbose = 0`, `gl.recalc.metrics()` and
+  `gl.compliance.check()` printed 3 lines and `gl.report.heterozygosity()`
+  90 lines; all now print nothing.
+
 * `gl.randomize.snps()`:
   - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
     call, which forces `plot.display` to `FALSE` -- errored with "object 'p1'
