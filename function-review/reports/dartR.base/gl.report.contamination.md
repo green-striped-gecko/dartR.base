@@ -194,7 +194,7 @@ Notes (not findings):
   `verbose = 3`.
 - `devtools::document()` also rewrote 14 unrelated Rd files (cross-link
   drift covered by PR #421); reverted, not part of this change.
-- PR: pending.
+- PR: #423.
 
 ```json
 {
@@ -215,7 +215,7 @@ Notes (not findings):
     {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 6}
   ],
   "coverage_skipped": ["Google Group/issues: functions unreleased", "kinship not recomputed independently", "peak memory at scale not measured"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 423
 }
 ```
