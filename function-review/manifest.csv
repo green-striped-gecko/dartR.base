@@ -199,7 +199,7 @@ gl.find.loci.in.genes,dartR.popgen,analysis,,pending,
 gl.ld.distance,dartR.popgen,analysis,,pending,
 gl.map.popcluster,dartR.popgen,analysis,,pending,
 gl.map.snmf,dartR.popgen,analysis,,pending,
-gl.map.structure,dartR.popgen,analysis,,pending,
+gl.map.structure,dartR.popgen,analysis,luis,pr-open,95
 gl.outflank,dartR.popgen,analysis,,pending,
 gl.plot.faststructure,dartR.popgen,graphics,,pending,
 gl.plot.popcluster,dartR.popgen,graphics,,pending,
