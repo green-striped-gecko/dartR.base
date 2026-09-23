@@ -173,14 +173,14 @@ gl.fbm2gen,dartR.base,analysis,,pending,
 gl.fdsim,dartR.base,analysis,,pending,
 gl.filter.contamination,dartR.base,filter,,pending,
 gl.filter.excess.het,dartR.base,filter,,pending,
-gl.filter.hamming,dartR.base,filter,luis,pr-open,417
+gl.filter.hamming,dartR.base,filter,luis,done,417
 gl.gen2fbm,dartR.base,analysis,,pending,
 gl.hwe.pop,dartR.base,analysis,,pending,
 gl.print.history,dartR.base,analysis,,pending,
 gl.randomize.snps,dartR.base,analysis,,pending,
 gl.report.contamination,dartR.base,report,,pending,
 gl.report.excess.het,dartR.base,report,,pending,
-gl.report.hamming,dartR.base,report,luis,pr-open,417
+gl.report.hamming,dartR.base,report,luis,done,417
 gl.report.polyploid_heterozygosity,dartR.base,report,,pending,
 gl.subsample.ind,dartR.base,data manipulation,,pending,
 gl.subsample.loc,dartR.base,data manipulation,,pending,
@@ -201,13 +201,13 @@ gl.map.popcluster,dartR.popgen,analysis,,pending,
 gl.map.snmf,dartR.popgen,analysis,luis,pr-open,102
 gl.map.structure,dartR.popgen,analysis,luis,done,95
 gl.outflank,dartR.popgen,analysis,,pending,
-gl.plot.faststructure,dartR.popgen,graphics,luis,pr-open,101
+gl.plot.faststructure,dartR.popgen,graphics,luis,done,101
 gl.plot.popcluster,dartR.popgen,graphics,,pending,
 gl.plot.snmf,dartR.popgen,graphics,luis,pr-open,102
 gl.plot.structure,dartR.popgen,graphics,luis,done,94
 gl.read.structure,dartR.popgen,io,luis,done,98
 gl.run.epos,dartR.popgen,analysis,,pending,
-gl.run.faststructure,dartR.popgen,analysis,luis,pr-open,101
+gl.run.faststructure,dartR.popgen,analysis,luis,done,101
 gl.run.popcluster,dartR.popgen,analysis,,pending,
 gl.run.snmf,dartR.popgen,analysis,luis,pr-open,102
 gl.run.stairway2,dartR.popgen,analysis,,pending,
@@ -236,7 +236,7 @@ gl.filter.parent.offspring,dartR.captive,filter,claude,done,103
 gl.grm,dartR.captive,analysis,claude,done,85
 gl.grm.network,dartR.captive,analysis,claude,done,97
 gl.kin,dartR.captive,analysis,,pending,
-gl.plot.network,dartR.captive,graphics,,pending,
+gl.plot.network,dartR.captive,graphics,claude,done,106
 gl.report.gd.projection,dartR.captive,report,,pending,
 gl.report.ind.add,dartR.captive,report,,pending,
 gl.report.ind.move,dartR.captive,report,,pending,
@@ -252,7 +252,7 @@ gl.report.repro.targets,dartR.captive,report,,pending,
 gl.run.EMIBD9,dartR.captive,analysis,claude,done,100
 gl.run.colony,dartR.captive,analysis,claude,done,99
 gl.select.pairs,dartR.captive,graphics,,pending,
-gl.sim.relatedness,dartR.captive,analysis,,pending,
+gl.sim.relatedness,dartR.captive,analysis,claude,done,105
 gl2colony,dartR.captive,io,claude,done,98
 utils.kin.check,dartR.captive,utility,,pending,
 utils.kin.dgd,dartR.captive,utility,,pending,
@@ -262,7 +262,7 @@ gl.filter.sexlinked,dartR.sexlinked,filter,,pending,
 gl.infer.sex,dartR.sexlinked,analysis,,pending,
 gl.keep.sexlinked,dartR.sexlinked,data manipulation,,pending,
 gl.report.sexlinked,dartR.sexlinked,report,,pending,
-gl.diagnostics.sim,dartR.sim,analysis,,pending,
+gl.diagnostics.sim,dartR.sim,analysis,luis,done,51
 gl.report.nall,dartR.sim,report,,pending,
 gl.sim.Neconst,dartR.sim,analysis,,pending,
 gl.sim.WF.run,dartR.sim,analysis,luis,done,48
@@ -276,4 +276,4 @@ gl.sim.offspring,dartR.sim,analysis,,pending,
 dartRverse_install,dartRverse,analysis,,pending,
 gl.download.binary,dartRverse,analysis,,pending,
 gl.sim.apply,dartR.sim,utility,,pending,
-utils.hamming.prepare,dartR.base,utility,luis,pr-open,417
+utils.hamming.prepare,dartR.base,utility,luis,done,417
