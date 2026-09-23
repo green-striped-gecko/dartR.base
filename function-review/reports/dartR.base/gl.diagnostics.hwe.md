@@ -237,7 +237,7 @@ kept for compatibility. Docs only.
   (unrelated cross-link drift from PR #421 reverted).
 - Tests: diagnostics 16 expectations, gl.hwe.pop 9, utils.basic.stats 8,
   all pass. The diagnostics run end to end at `verbose = 3`.
-- PR: pending.
+- PR: #425.
 
 ```json
 {
@@ -261,7 +261,7 @@ kept for compatibility. Docs only.
     {"id": "F9", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 9}
   ],
   "coverage_skipped": ["DAT6: no FBM path", "parallel path not timed", "forum/issues: no browser session"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 425
 }
 ```
