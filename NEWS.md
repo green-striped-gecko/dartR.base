@@ -1,5 +1,18 @@
 # dartR.base 1.2.3 (development)
 
+* `gl2plink()` with `bed.files = TRUE` (function-review addendum):
+  - BUG FIX: a failed PLINK run was reported as success. `system()` turned
+    PLINK's non-zero exit into an R warning, `gl2plink()` printed
+    "Completed" and no `.bed` file was written; callers (`gl2vcf()`,
+    `gl.report.ld.map()`, dartR.popgen `gl.ld.haplotype()` and
+    `gl.run.faststructure()`) then failed later on missing files. It now
+    stops with an error that quotes the end of PLINK's output. Calls that
+    used to finish with a warning now stop with an error.
+  - BUG FIX: paths were passed to PLINK unquoted, so an output folder or
+    PLINK path containing a space (e.g. `my data`) made PLINK reject the
+    command. All paths are now quoted.
+  - PLINK's log was printed with `message()` at every verbosity (48 lines at
+    `verbose = 0`); it is now shown only at `verbose >= 3`.
 * `gl.report.hamming()` and `gl.filter.hamming()` (function review, one
   matched set):
   - API CHANGE: `gl.report.hamming()` now returns, invisibly, the table of
