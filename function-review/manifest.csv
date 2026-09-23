@@ -194,17 +194,17 @@ utils.subsample.pop,dartR.base,utility,,pending,
 gl.TajimasD,dartR.popgen,analysis,,pending,
 gl.check.panel,dartR.popgen,analysis,,pending,
 gl.collapse,dartR.popgen,data manipulation,,pending,
-gl.evanno,dartR.popgen,analysis,luis,pr-open,96
+gl.evanno,dartR.popgen,analysis,luis,done,96
 gl.find.loci.in.genes,dartR.popgen,analysis,,pending,
 gl.ld.distance,dartR.popgen,analysis,,pending,
 gl.map.popcluster,dartR.popgen,analysis,,pending,
 gl.map.snmf,dartR.popgen,analysis,,pending,
-gl.map.structure,dartR.popgen,analysis,luis,pr-open,95
+gl.map.structure,dartR.popgen,analysis,luis,done,95
 gl.outflank,dartR.popgen,analysis,,pending,
 gl.plot.faststructure,dartR.popgen,graphics,,pending,
 gl.plot.popcluster,dartR.popgen,graphics,,pending,
 gl.plot.snmf,dartR.popgen,graphics,,pending,
-gl.plot.structure,dartR.popgen,graphics,luis,pr-open,94
+gl.plot.structure,dartR.popgen,graphics,luis,done,94
 gl.read.structure,dartR.popgen,io,,pending,
 gl.run.epos,dartR.popgen,analysis,,pending,
 gl.run.faststructure,dartR.popgen,analysis,,pending,
@@ -217,7 +217,7 @@ utils.get.allele.freq,dartR.popgen,utility,,pending,
 utils.outflank,dartR.popgen,utility,,pending,
 utils.outflank.MakeDiploidFSTMat,dartR.popgen,utility,,pending,
 utils.outflank.plotter,dartR.popgen,utility,,pending,
-utils.structure.evanno,dartR.popgen,utility,luis,pr-open,96
+utils.structure.evanno,dartR.popgen,utility,luis,done,96
 utils.structure.genind2gtypes,dartR.popgen,utility,,pending,
 utils.structure.run,dartR.popgen,utility,,pending,
 utils.read.ped,dartR.popgen,utility,,pending,
