@@ -1,5 +1,32 @@
 # dartR.base 1.2.3 (development)
 
+* `gl.report.hamming()` and `gl.filter.hamming()` (function review, one
+  matched set):
+  - API CHANGE: `gl.report.hamming()` now returns, invisibly, the table of
+    loci that `gl.filter.hamming()` would remove at each candidate threshold
+    (`Threshold`, `Removed`, `Percent.removed`, `Retained`,
+    `Percent.retained`). It previously returned `x` unchanged, and the table
+    was visible only as console text at `verbose >= 2`. Code of the form
+    `x <- gl.report.hamming(x)` now overwrites `x` with the table.
+  - BUG FIX: `threshold` greater than or equal to `min.length` made every
+    comparable pair a duplicate; `gl.filter.hamming(platypus.gl, threshold =
+    50)` removed 948 of 1000 loci without a warning. Both functions now stop
+    with an error.
+  - BUG FIX: a fractional `threshold` was truncated by the compiled engine
+    (`threshold = 2.9` ran as 2), and `NA` or a vector gave base-R errors.
+    `threshold` must now be one whole number, 0 or more.
+  - BUG FIX: `gl.filter.hamming()` did not check `rs` or `min.length`; a
+    negative `rs` or `min.length = 0` compared no loci and returned the data
+    unchanged, with a note only at `verbose >= 2`. Both functions now require
+    whole numbers (`rs >= 0`, `min.length >= 1`), and the filter warns at
+    `verbose >= 1` when fewer than two loci can be compared.
+  - Argument checks and sequence preparation now live in one internal
+    helper, `utils.hamming.prepare()`, so the report's counts cannot drift
+    from the filter's.
+  - DOCS: `gl.filter.hamming()` now states that it also removes secondaries
+    (several SNPs on one tag); 9 of the 11 loci it removes from
+    `platypus.gl` by default are secondaries.
+
 * `gl.randomize.snps()`:
   - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
     call, which forces `plot.display` to `FALSE` -- errored with "object 'p1'
