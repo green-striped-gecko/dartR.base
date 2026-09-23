@@ -12,7 +12,8 @@ gl.filter.hamming(x, threshold = 3, rs = 5, min.length = 50, verbose = NULL)
 
 \item{threshold}{Maximum allowed Hamming distance (number of
 mismatching bases) between two trimmed sequences for them to be treated as
-duplicates; an integer >= 0, where 0 removes exact duplicates only.
+duplicates; a whole number >= 0 and smaller than \code{min.length},
+where 0 removes exact duplicates only.
 Note that in earlier versions of this function the threshold
 was a proportion of the sequence length (default 0.2); it is now a count
 of bases, consistent with \code{gl.report.hamming} [default 3].}
@@ -60,6 +61,13 @@ to best call rate). When two loci are found to be within \code{threshold}
 mismatches, the one with more missing genotypes is dropped, so the retained
 locus of every duplicate pair is always the one with the better call rate.
 Once a locus is dropped it is not used to match others.
+
+Several SNPs called on the same tag (secondaries, sharing a
+\code{CloneID}) have identical or near-identical TrimmedSequences, so this
+filter also removes them, keeping the SNP with the better call rate. Run
+after \code{\link{gl.filter.secondaries}}, it removes only near-duplicates
+between different tags; run on its own, part of what it removes are
+secondaries.
 
 The function expects locus metrics to include \code{TrimmedSequence} in
 \code{x@other$loc.metrics}.

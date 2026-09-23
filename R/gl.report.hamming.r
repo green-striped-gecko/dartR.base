@@ -18,14 +18,15 @@
 #' the same worst-to-best call-rate ordering, as the filter itself — they are
 #' therefore exact, not an approximation from the distance distribution.
 
-#' @param x Name of the genlight object containing the SNP data [required].
+#' @param x Name of the genlight object containing the SNP or SilicoDArT
+#' data [required].
 #' @param rs Number of bases to skip from the start of the TrimmedSequence
 #' before extracting the comparison substring (i.e. restriction site length)
 #' [default 5].
 #' @param threshold Candidate maximum Hamming distance (number of mismatching
 #' bases) to highlight in the plots and summary, matching the
-#' \code{threshold} of \code{\link{gl.filter.hamming}}; an integer >= 0
-#' [default 3].
+#' \code{threshold} of \code{\link{gl.filter.hamming}}; a whole number >= 0
+#' and smaller than \code{min.length} [default 3].
 #' @param min.length Length of the substring used for Hamming comparisons.
 #' Longer sequences are truncated to it; only loci producing a substring of
 #' exactly this length are compared, others are ignored (and would be retained
@@ -45,7 +46,7 @@
 #' @param probar Deprecated and ignored; the compiled engine makes a progress
 #' bar unnecessary [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log; 3, progress and results summary; 5, full report
+#' brief progress messages; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 
 #' @details The function \code{\link{gl.filter.hamming}} removes one locus of
@@ -74,14 +75,19 @@
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
 
-#' @return Returns unaltered genlight object
+#' @return Invisibly, a data frame with one row per candidate threshold
+#' (0 to \code{max.threshold}) and columns \code{Threshold}, \code{Removed},
+#' \code{Percent.removed}, \code{Retained} and \code{Percent.retained}: the
+#' loci that \code{\link{gl.filter.hamming}} would remove at each threshold.
+#' Earlier versions returned the genlight object unchanged.
 #' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
 #' \donttest{
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-#' gl.report.hamming(testset.gl[,1:100])
+#' res <- gl.report.hamming(testset.gl[,1:100])
+#' res
 #' }
 
 #' @seealso \code{\link{gl.filter.hamming}}
@@ -106,6 +112,10 @@ gl.report.hamming <- function(x,
     # SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
 
+    # FLAG SCRIPT START
+    funname <- match.call()[[1]]
+    utils.flag.start(func = funname, verbose = verbose)
+
     # DEPRECATED ARGUMENTS
     if ((!is.null(tag.length) || !is.null(probar)) && verbose >= 2) {
       cat(warn(
@@ -128,12 +138,6 @@ gl.report.hamming <- function(x,
       }
     }
 
-    # FLAG SCRIPT START
-    funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
-                     build = "v.2023.3",
-                     verbose = verbose)
-
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
 
@@ -145,34 +149,16 @@ gl.report.hamming <- function(x,
       ))
     }
 
-    if (length(x@other$loc.metrics$TrimmedSequence) == 0) {
-        stop(error("Fatal Error: Data must include Trimmed Sequences\n"))
-    }
-
-    if (rs < 0 | rs > min.length) {
-        stop(
-            error(
-                "Fatal Error: Length of restriction enzyme recognition sequence
-                must be greater than zero, and less than the maximum length of a
-                sequence tag; usually it is less than 9\n"
-            )
-        )
-    }
-
     if (nLoc(x) == 1) {
         stop(error("Fatal Error: Data must include more than one locus\n"))
     }
 
-    if (threshold < 0) {
-      stop(error("Fatal Error: threshold must be a non-negative number of bases\n"))
-    }
-
-    if (threshold > 0 && threshold < 1) {
-      stop(error(
-        "Fatal Error: threshold is the maximum number of mismatching bases",
-        " (e.g. 3), not a proportion, consistent with gl.filter.hamming\n"
-      ))
-    }
+    # Argument checks and sequence preparation are shared with
+    # gl.filter.hamming, so that this report simulates the filter exactly
+    prep <- utils.hamming.prepare(x,
+                                  threshold = threshold,
+                                  rs = rs,
+                                  min.length = min.length)
 
     max.threshold <- max(max.threshold, threshold)
     max.threshold <- min(max.threshold, min.length - 1)
@@ -185,13 +171,9 @@ gl.report.hamming <- function(x,
     engine <- utils.hamming.engine()
 
     nL <- nLoc(x)
-    seqs <- toupper(as.character(x@other$loc.metrics$TrimmedSequence))
-    trimmed <- substr(seqs, rs + 1, min.length + rs)
-    raws <- lapply(trimmed, charToRaw)
-    lens <- lengths(raws)
-
-    idx <- which(lens == min.length)
-    n.short <- nL - length(idx)
+    raws <- prep$raws
+    idx <- prep$idx
+    n.short <- prep$n.short
     if (verbose >= 2 && n.short > 0) {
       cat(report(
         " ", n.short, "loci with a TrimmedSequence shorter than",
@@ -238,8 +220,7 @@ gl.report.hamming <- function(x,
 
     # Exact simulation of gl.filter.hamming across candidate thresholds:
     # same engine, same worst-to-best call-rate ordering as the filter.
-    na.counts <- glNA(x)
-    ord <- idx[order(na.counts[idx], decreasing = TRUE)]
+    ord <- prep$ord
 
     thresholds <- 0:max.threshold
     removed <- integer(length(thresholds))
@@ -309,21 +290,21 @@ gl.report.hamming <- function(x,
       plot.theme
 
     if (verbose >= 3) {
-      cat("    No. of loci =", nL, "\n")
-      cat("    No. of individuals =", nInd(x), "\n")
-      cat("    Loci compared =", n.comp, "\n")
-      cat("    Minimum Hamming distance:", min(d), "bases\n")
-      cat("    Maximum Hamming distance:", max(d), "bases\n")
-      cat(paste0(
+      cat(report("    No. of loci =", nL, "\n"))
+      cat(report("    No. of individuals =", nInd(x), "\n"))
+      cat(report("    Loci compared =", n.comp, "\n"))
+      cat(report("    Minimum Hamming distance:", min(d), "bases\n"))
+      cat(report("    Maximum Hamming distance:", max(d), "bases\n"))
+      cat(report(paste0(
           "    Mean Hamming distance ",
           round(mean(d), 2),
           " +/- ",
           round(sd(d), 3),
           " SD bases\n"
-      ))
+      )))
       if (sampled) {
-        cat("    (distance summaries from a random sample of",
-            format(nrow(pairs), big.mark = ","), "pairs)\n")
+        cat(report("    (distance summaries from a random sample of",
+            format(nrow(pairs), big.mark = ","), "pairs)\n"))
       }
       cat("\n")
     }
@@ -352,6 +333,6 @@ gl.report.hamming <- function(x,
     }
 
     # RETURN
-    invisible(x)
+    invisible(df)
 
 }
