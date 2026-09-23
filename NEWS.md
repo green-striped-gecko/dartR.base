@@ -1,5 +1,22 @@
 # dartR.base 1.2.3 (development)
 
+* `rbind()` on dartR objects (`rbind.dartR`, function review):
+  - BUG FIX: for in-memory (non-FBM) objects, genotypes were joined in each
+    object's own locus order and labelled with the first object's locus
+    names. When the order differed, genotypes landed at the wrong locus
+    (1722 of 4636 for five platypus.gl individuals) with no warning. Loci
+    are now matched by name.
+  - BUG FIX: metadata. The in-memory path returned an empty `@other`; the
+    FBM path kept the first object's `@other`, so 5 + 5 individuals had 5
+    `ind.metrics` rows. Both paths now keep `loc.metrics` from the first
+    object, stack `ind.metrics` (missing columns filled with NA) and
+    `latlon`, reset the locus-metric flags, and add a history entry.
+  - `rbind()` now stops when the objects code the alleles of a locus
+    differently (`loc.all`), when SNP and SilicoDArT objects are mixed, or
+    when an argument other than `NULL` is not a dartR/genlight object; all
+    three were combined or ignored silently. Use
+    `do.call(rbind, list_of_objects)` to combine a list.
+
 * `utils.plink.run()` (used by `gl.read.PLINK()`) and `gl2vcf()`: the same
   PLINK-call gaps fixed in `gl2plink()` (function-review addendum):
   - BUG FIX: a failed PLINK run was not detected. `utils.plink.run()`
