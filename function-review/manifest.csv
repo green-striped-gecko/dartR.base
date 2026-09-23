@@ -261,7 +261,7 @@ gl.drop.sexlinked,dartR.sexlinked,data manipulation,,pending,
 gl.filter.sexlinked,dartR.sexlinked,filter,,pending,
 gl.infer.sex,dartR.sexlinked,analysis,,pending,
 gl.keep.sexlinked,dartR.sexlinked,data manipulation,,pending,
-gl.report.sexlinked,dartR.sexlinked,report,,pending,
+gl.report.sexlinked,dartR.sexlinked,report,luis,pr-open,33
 gl.diagnostics.sim,dartR.sim,analysis,luis,done,51
 gl.report.nall,dartR.sim,report,,pending,
 gl.sim.Neconst,dartR.sim,analysis,,pending,
