@@ -213,3 +213,28 @@ test_that("end-to-end VCF via PLINK: coordinates, alleles, genotypes", {
   expect_false(any(c("gl_plink_temp.map", "gl_plink_temp.ped",
                      "e2e.log", "e2e.nosex") %in% list.files(td)))
 })
+
+test_that("a failing PLINK run stops with an error, not a warning", {
+  skip_on_os("windows")
+  skip_if_not_installed("dartR.data")
+  td <- tempfile(); dir.create(td)
+  f <- file.path(td, "plink")
+  writeLines(c("#!/bin/sh", "echo 'Error: simulated failure' >&2", "exit 2"),
+             f)
+  Sys.chmod(f, "755")
+  expect_error(
+    suppressMessages(gl2vcf(vcf_fixture(), plink.bin.path = td,
+                            outfile = "out", outpath = td, verbose = 0)),
+    "PLINK exited with status 2"
+  )
+})
+
+test_that("an outpath containing a space writes the VCF (real PLINK)", {
+  plink.dir <- Sys.getenv("PLINK19_DIR")
+  skip_if(plink.dir == "", "PLINK19_DIR not set")
+  skip_if_not_installed("dartR.data")
+  td <- file.path(tempfile(), "my out"); dir.create(td, recursive = TRUE)
+  suppressMessages(gl2vcf(vcf_fixture(), plink.bin.path = plink.dir,
+                          outfile = "out", outpath = td, verbose = 0))
+  expect_true(file.exists(file.path(td, "out.vcf")))
+})

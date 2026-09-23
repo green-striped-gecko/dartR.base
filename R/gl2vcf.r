@@ -252,42 +252,54 @@ gl2vcf <- function(x,
              extra.options = "") {
       system_verbose(
         paste(
-          plink.bin.path,
+          shQuote(plink.bin.path),
           "--file",
-          prefix.in,
+          shQuote(prefix.in),
           "--make-bed",
           if (autosome.only)
             "--autosome"
           else
             "",
           "--allow-no-sex",
-          paste("--a1-allele", file.path(tempdir(), 'mylist.txt'), "2", "1"),
+          paste("--a1-allele", shQuote(file.path(tempdir(), 'mylist.txt')),
+                "2", "1"),
           "--out",
-          prefix.bed_temp,
+          shQuote(prefix.bed_temp),
           extra.options
         )
       )
       system_verbose(
         paste(
-          plink.bin.path,
+          shQuote(plink.bin.path),
           "--bfile",
-          prefix.bed_temp,
+          shQuote(prefix.bed_temp),
           "--recode",
           "vcf",
           "--allow-no-sex",
-          paste("--a2-allele", file.path(tempdir(), 'mylist.txt'), "3", "1"),
+          paste("--a2-allele", shQuote(file.path(tempdir(), 'mylist.txt')),
+                "3", "1"),
           "--out",
-          prefix.out,
+          shQuote(prefix.out),
           extra.options
         )
       )
     }
 
   # PLINK's console log is progress information: keep it captured for
-  # error diagnosis but print it only at verbose >= 2 (PLINK's stderr
-  # stream is likewise suppressed below that level)
-  system_verbose <- function(...) {
-    plink.log <- system(..., intern = TRUE, ignore.stderr = (verbose < 2))
+  # error diagnosis but print it only at verbose >= 2. stderr is captured
+  # with the log (2>&1). A non-zero exit stops with PLINK's own message;
+  # system(intern = TRUE) alone only warns, and gl2vcf used to finish
+  # without writing the VCF.
+  system_verbose <- function(cmd) {
+    plink.log <- suppressWarnings(system(paste(cmd, "2>&1"), intern = TRUE))
+    status <- attr(plink.log, "status")
+    if (!is.null(status) && status != 0) {
+      stop(error(
+        "Fatal Error: PLINK exited with status", status,
+        "and the VCF was not written. Last lines of the PLINK output:\n",
+        paste(utils::tail(plink.log, 5), collapse = "\n"), "\n"
+      ))
+    }
     if (verbose >= 2) {
       message(
         paste0(

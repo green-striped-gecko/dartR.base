@@ -25,13 +25,15 @@ means}
 
 \item{out}{The root of the output file name}
 
-\item{syntax}{the flags to pass to plink call}
+\item{syntax}{the flags to pass to plink call; any file names in it must
+be quoted by the caller (e.g. with \code{shQuote()})}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report [default NULL].}
 }
 \value{
-A character vector with the command used for PLINK.
+A character vector with the command used for PLINK. Stops with
+  an error, quoting PLINK's output, when PLINK exits with an error.
 }
 \description{
 Runs PLINK from within R.

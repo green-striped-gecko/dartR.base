@@ -52,6 +52,44 @@ All findings approved via the approval boxes (2026-09-01).
 
 All findings applied (I11 command composition, I12 tidy). Suite: 2/2; the composed command is now well formed under the default path. PR #326.
 
+## Addendum (2026-09-23): exit status and quoting
+
+Follow-up to the `gl2plink` addendum (PR #418), which found that a failed
+PLINK run was reported as success and that unquoted paths broke on spaces.
+The same gaps were in `utils.plink.run` (and its caller `gl.read.PLINK`)
+and in `gl2vcf`. Requested by Luis ("fix the same gaps elsewhere"),
+2026-09-23. Reviewer: Claude (claude-opus-5-5), dartr-function-review
+v2.0.0. Reproduced on `origin/dev` at def8e82 with PLINK 1.9.
+
+**B1 [HIGH] failed PLINK run not detected (principle: fail loudly; FS5)**
+`utils.plink.run` ran `system()` and ignored the exit status: with a stub
+PLINK that exits with status 2 it returned normally, and `gl.read.PLINK`
+then stopped with "PLINK did not produce a .bed file. Check that PLINK is
+installed", hiding PLINK's reason. `gl2vcf` gave only an R warning and
+wrote no VCF. Applied: both stop with an error quoting the last lines of
+PLINK's output (stderr captured with `2>&1`); a command that cannot start
+(wrong `plink.path`) is reported the same way.
+
+**B2 [MEDIUM] unquoted paths (principle: platform-safe shell calls; DAT5)**
+`gl.read.PLINK` on `my data/my file.ped` failed ("--out only accepts 1
+parameter"); `gl2vcf` with `outpath` "my out" wrote no VCF. Applied:
+`shQuote()` on the executable and `--out` in `utils.plink.run`, on the
+`--file` name in `gl.read.PLINK`, and on every path in `gl2vcf`.
+
+Also: `utils.plink.run` prints PLINK's output only at `verbose >= 3`
+(stderr previously leaked at `verbose = 0`); outdated `build =` dropped.
+`gl2vcf` keeps its reviewed choice of showing the log at `verbose >= 2`.
+
+Evidence: all four reproductions pass after the change (stub failure errors
+in both functions; `gl.read.PLINK` reads `my file.ped`; `gl2vcf` writes the
+VCF under "my out"). Tests: test-utils.plink.run.R 8/8 (stub failure,
+spaces, verbose gating; the missing-executable baseline flipped from a
+returned command to an error), test-gl2vcf.R 49/49 (new stub-failure test;
+new real-PLINK space test gated on PLINK19_DIR), test-gl2plink.R 17/17.
+test-gl.read.PLINK.R 25/26: the one failure ("silent at verbose = 0 on the
+.bed path") fails identically on unmodified origin/dev and is not touched
+by this change.
+
 ```json
 {"function": "utils.plink.run", "package": "dartR.base", "family_mode": "analysis",
  "commit": "ddaed27", "skill_version": "2.0.0",
