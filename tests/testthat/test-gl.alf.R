@@ -84,9 +84,13 @@ test_that("gl.alf accepts a plain genlight not built by dartR", {
   expect_identical(rownames(r), paste0("L", 1:20))
 })
 
-test_that("gl.alf is silent and returns visibly", {
-  expect_silent(invisible(gl.alf(testset.gl[, 1:5])))
-  expect_length(capture.output(invisible(gl.alf(testset.gl[, 1:5]))), 0L)
+test_that("gl.alf is silent at verbose = 0 and returns visibly", {
+  # Since c581841 (PR #410) gl.alf honours the resolved verbosity, so it
+  # is silent at verbose = 0 rather than at every level
+  expect_silent(invisible(gl.alf(testset.gl[, 1:5], verbose = 0)))
+  expect_length(
+    capture.output(invisible(gl.alf(testset.gl[, 1:5], verbose = 0))), 0L
+  )
   expect_true(withVisible(gl.alf(testset.gl[, 1:2]))$visible)
 })
 

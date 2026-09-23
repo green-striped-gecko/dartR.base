@@ -171,3 +171,9 @@ test_that("single-individual populations survive the plain and bootstrap paths",
   expect_true(all(c("HoLCI", "HoHCI") %in% names(rb)))
   expect_false(anyNA(rb[rb$pop == "EmmacBurdMist", c("HoLCI", "HoHCI")]))
 })
+
+test_that("gl.report.heterozygosity is silent at verbose = 0", {
+  # one gl.alf() message per population leaked before (90 lines)
+  expect_length(capture.output(
+    invisible(gl.report.heterozygosity(testset.gl, verbose = 0))), 0L)
+})
