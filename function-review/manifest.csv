@@ -204,7 +204,7 @@ gl.outflank,dartR.popgen,analysis,,pending,
 gl.plot.faststructure,dartR.popgen,graphics,,pending,
 gl.plot.popcluster,dartR.popgen,graphics,,pending,
 gl.plot.snmf,dartR.popgen,graphics,,pending,
-gl.plot.structure,dartR.popgen,graphics,,pending,
+gl.plot.structure,dartR.popgen,graphics,luis,pr-open,94
 gl.read.structure,dartR.popgen,io,,pending,
 gl.run.epos,dartR.popgen,analysis,,pending,
 gl.run.faststructure,dartR.popgen,analysis,,pending,
