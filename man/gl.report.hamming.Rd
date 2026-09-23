@@ -22,7 +22,8 @@ gl.report.hamming(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data [required].}
+\item{x}{Name of the genlight object containing the SNP or SilicoDArT
+data [required].}
 
 \item{rs}{Number of bases to skip from the start of the TrimmedSequence
 before extracting the comparison substring (i.e. restriction site length)
@@ -30,8 +31,8 @@ before extracting the comparison substring (i.e. restriction site length)
 
 \item{threshold}{Candidate maximum Hamming distance (number of mismatching
 bases) to highlight in the plots and summary, matching the
-\code{threshold} of \code{\link{gl.filter.hamming}}; an integer >= 0
-[default 3].}
+\code{threshold} of \code{\link{gl.filter.hamming}}; a whole number >= 0
+and smaller than \code{min.length} [default 3].}
 
 \item{min.length}{Length of the substring used for Hamming comparisons.
 Longer sequences are truncated to it; only loci producing a substring of
@@ -61,11 +62,15 @@ counts over \code{min.length} bases, not proportions [default NULL].}
 bar unnecessary [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
+brief progress messages; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-Returns unaltered genlight object
+Invisibly, a data frame with one row per candidate threshold
+(0 to \code{max.threshold}) and columns \code{Threshold}, \code{Removed},
+\code{Percent.removed}, \code{Retained} and \code{Percent.retained}: the
+loci that \code{\link{gl.filter.hamming}} would remove at each threshold.
+Earlier versions returned the genlight object unchanged.
 }
 \description{
 Hamming distance is calculated as the number of base
@@ -113,7 +118,8 @@ Examples of other themes that can be used can be consulted in \itemize{
 \examples{
 \donttest{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-gl.report.hamming(testset.gl[,1:100])
+res <- gl.report.hamming(testset.gl[,1:100])
+res
 }
 }
 \seealso{

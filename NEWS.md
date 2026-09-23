@@ -14,6 +14,45 @@
     name with a space. All paths are now quoted.
   - `utils.plink.run()` shows PLINK's output only at `verbose >= 3`
     (stderr no longer leaks at `verbose = 0`).
+* `gl2plink()` with `bed.files = TRUE` (function-review addendum):
+  - BUG FIX: a failed PLINK run was reported as success. `system()` turned
+    PLINK's non-zero exit into an R warning, `gl2plink()` printed
+    "Completed" and no `.bed` file was written; callers (`gl2vcf()`,
+    `gl.report.ld.map()`, dartR.popgen `gl.ld.haplotype()` and
+    `gl.run.faststructure()`) then failed later on missing files. It now
+    stops with an error that quotes the end of PLINK's output. Calls that
+    used to finish with a warning now stop with an error.
+  - BUG FIX: paths were passed to PLINK unquoted, so an output folder or
+    PLINK path containing a space (e.g. `my data`) made PLINK reject the
+    command. All paths are now quoted.
+  - PLINK's log was printed with `message()` at every verbosity (48 lines at
+    `verbose = 0`); it is now shown only at `verbose >= 3`.
+* `gl.report.hamming()` and `gl.filter.hamming()` (function review, one
+  matched set):
+  - API CHANGE: `gl.report.hamming()` now returns, invisibly, the table of
+    loci that `gl.filter.hamming()` would remove at each candidate threshold
+    (`Threshold`, `Removed`, `Percent.removed`, `Retained`,
+    `Percent.retained`). It previously returned `x` unchanged, and the table
+    was visible only as console text at `verbose >= 2`. Code of the form
+    `x <- gl.report.hamming(x)` now overwrites `x` with the table.
+  - BUG FIX: `threshold` greater than or equal to `min.length` made every
+    comparable pair a duplicate; `gl.filter.hamming(platypus.gl, threshold =
+    50)` removed 948 of 1000 loci without a warning. Both functions now stop
+    with an error.
+  - BUG FIX: a fractional `threshold` was truncated by the compiled engine
+    (`threshold = 2.9` ran as 2), and `NA` or a vector gave base-R errors.
+    `threshold` must now be one whole number, 0 or more.
+  - BUG FIX: `gl.filter.hamming()` did not check `rs` or `min.length`; a
+    negative `rs` or `min.length = 0` compared no loci and returned the data
+    unchanged, with a note only at `verbose >= 2`. Both functions now require
+    whole numbers (`rs >= 0`, `min.length >= 1`), and the filter warns at
+    `verbose >= 1` when fewer than two loci can be compared.
+  - Argument checks and sequence preparation now live in one internal
+    helper, `utils.hamming.prepare()`, so the report's counts cannot drift
+    from the filter's.
+  - DOCS: `gl.filter.hamming()` now states that it also removes secondaries
+    (several SNPs on one tag); 9 of the 11 loci it removes from
+    `platypus.gl` by default are secondaries.
 
 * `gl.randomize.snps()`:
   - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`

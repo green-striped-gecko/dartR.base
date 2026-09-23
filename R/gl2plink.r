@@ -276,11 +276,13 @@ gl2plink <- function(x,
                      prefix.out = prefix.out_temp,
                      extra.options = "") {
                 bedfile.out <- paste0(prefix.out, ".bed")
+                # Every path is quoted: an unquoted path containing a space
+                # split into several arguments and PLINK rejected the call
                 system_verbose(
                     paste(
-                        plink.path,
+                        shQuote(plink.path),
                         "--file",
-                        prefix.in,
+                        shQuote(prefix.in),
                         "--allow-no-sex",
                         "--allow-extra-chr",
                         # PLINK 1.9 treats --a2-allele as a filtering operation
@@ -290,11 +292,11 @@ gl2plink <- function(x,
                         "--make-bed",
                         # A2 allele in column 2, variant ID in column 1 (F4)
                         "--a2-allele",
-                        allele.file,
+                        shQuote(allele.file),
                         "2",
                         "1",
                         "--out",
-                        prefix.out,
+                        shQuote(prefix.out),
                         extra.options
                     )
                 )
@@ -302,15 +304,34 @@ gl2plink <- function(x,
             }
         
         
-        system_verbose <-function(...) {
-            report <-system(..., intern = T)
-            message(
-                paste0(
-                    "\n\n----------Output of function start:\n\n",
-                    paste(report, collapse = "\n"),
-                    "\n\n----------Output of function finished...\n\n"
-                )
+        # Runs PLINK, shows its log at verbose >= 3, and stops when PLINK
+        # exits with an error. system(intern = TRUE) turns a non-zero exit
+        # into an R warning only, so a failed run used to be reported as
+        # success with no .bed file written.
+        system_verbose <- function(cmd) {
+            # 2>&1: PLINK writes some errors to stderr, which intern = TRUE
+            # does not capture
+            plink.out <- suppressWarnings(
+                system(paste(cmd, "2>&1"), intern = TRUE)
             )
+            status <- attr(plink.out, "status")
+            if (verbose >= 3) {
+                cat(report(
+                    "\n  ---------- PLINK output start\n",
+                    paste(plink.out, collapse = "\n"),
+                    "\n  ---------- PLINK output end\n\n"
+                ))
+            }
+            if (!is.null(status) && status != 0) {
+                stop(error(
+                    "Fatal Error: PLINK exited with status", status,
+                    "and the .bed file was not written. Last lines of the",
+                    "PLINK output:\n",
+                    paste(utils::tail(plink.out, 5), collapse = "\n"),
+                    "\n"
+                ))
+            }
+            invisible(plink.out)
         }
         
         make_plink(plink.path = paste0(plink.bin.path, "/plink"))

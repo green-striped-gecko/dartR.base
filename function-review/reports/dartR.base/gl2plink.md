@@ -64,6 +64,66 @@ Proposed change: state the two-file default and the bed-mode requirement explici
 - `chr.format = "numeric"` with non-numeric chromosome names: SKIPPED — not exercised; the coercion path would produce NA chromosomes silently, worth covering in Phase C tests if change 1 is approved
 - FBM path (DAT6): SKIPPED — no FBM fixture; converter densifies via `as.matrix` by design
 
+## Addendum (2026-09-23): the PLINK call (`bed.files = TRUE`)
+
+The original review skipped the PLINK invocation (no binary). Reported by
+the dartR.popgen session while reviewing `gl.run.faststructure` (dartR.popgen
+PR #101); reproduced on `dev_luis` at 6084a8d with PLINK 1.9
+(`~/programs/plink`), `testset.gl` restricted to three populations.
+Reviewer: Claude (claude-opus-5-5), dartr-function-review v2.0.0.
+
+**A1 [HIGH, confidence: high] — failed PLINK run reported as success (principle: fail loudly; FS5)**
+`R/gl2plink.r:305-313` — `system(..., intern = TRUE)` turns a non-zero
+PLINK exit into an R warning only; `gl2plink` then prints "Completed" and
+returns. Failure scenario: a PLINK error (simulated with a stub that exits
+with status 2) leaves only `.ped`/`.map`/`_a2_alleles.txt`, no `.bed`.
+Callers (`gl2vcf`, `gl.report.ld.map`, dartR.popgen `gl.ld.haplotype` and
+`gl.run.faststructure`) then fail later with errors about missing files.
+The missing `--make-bed` defect (c5501be) went unnoticed this way.
+Proposed change: check `attr(out, "status")` and stop with `error()`,
+quoting the last lines of PLINK's output.
+
+**A2 [MEDIUM, confidence: high] — unquoted paths (principle: platform-safe shell calls; DAT5)**
+`R/gl2plink.r:279-296` — `plink.bin.path`, the input/output prefixes and
+the allele file are pasted into the shell command unquoted. Failure
+scenario: `outpath = file.path(tempdir(), "my data")` makes PLINK stop with
+"--out only accepts 1 parameter"; no `.bed` is written, and with A1 the
+run still reports success. Paths with spaces are common on Windows
+(`C:/Users/First Last/...`) and macOS.
+Proposed change: wrap every path in `shQuote()`.
+
+**A3 [MEDIUM, confidence: high] — PLINK log printed at every verbosity (VRB1, VRB2)**
+`R/gl2plink.r:305-313` — the whole PLINK log is sent with `message()`
+regardless of `verbose`: 48 lines at `verbose = 0`. dartR.popgen
+`gl.run.faststructure` wraps the call in `suppressMessages()` to stay
+silent. The local variable `report` also shadows the `report()` message
+helper inside `system_verbose`.
+Proposed change: print the log with `cat(report(...))` only at
+`verbose >= 3`; rename the local variable.
+
+Out of scope, noted: `utils.plink.run` (used by `gl.read.PLINK`) also
+ignores PLINK's exit status and does not quote paths.
+
+Proposed changes (addendum):
+
+- A. Stop with an error when PLINK exits non-zero (A1). **Consequence: calls
+  that now finish with an R warning and no `.bed` file stop with an error,
+  in `gl2plink` and in every function that calls it.**
+- B. Quote all paths in the PLINK command (A2).
+- C. Print PLINK's log only at `verbose >= 3`, through `report()` (A3).
+
+Approval (addendum), 2026-09-23, Luis: A approved (consequence stated in
+the approval question: failing runs now stop with an error, including in
+callers); B approved; C approved.
+
+Outcome (addendum): A, B, C applied. Stub-PLINK tests added to
+`tests/testthat/test-gl2plink.R` (failing run errors; paths with spaces
+reach PLINK as single arguments; log shown only at `verbose >= 3`);
+file passes 23/23. Checked with the real PLINK 1.9: `verbose = 0` prints
+nothing and writes the `.bed`; an `outpath` containing a space writes the
+`.bed`; `verbose = 3` shows the log; `gl2vcf()` still writes its VCF.
+Stub tests skip on Windows (shell-script stub). Full R CMD check left to CI.
+
 ## Approval (Phase B)
 
 All findings at every severity approved by Arthur Georges, 2026-09-05, via

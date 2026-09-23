@@ -30,6 +30,13 @@
 #' locus of every duplicate pair is always the one with the better call rate.
 #' Once a locus is dropped it is not used to match others.
 #'
+#' Several SNPs called on the same tag (secondaries, sharing a
+#' \code{CloneID}) have identical or near-identical TrimmedSequences, so this
+#' filter also removes them, keeping the SNP with the better call rate. Run
+#' after \code{\link{gl.filter.secondaries}}, it removes only near-duplicates
+#' between different tags; run on its own, part of what it removes are
+#' secondaries.
+#'
 #' The function expects locus metrics to include \code{TrimmedSequence} in
 #' \code{x@other$loc.metrics}.
 #'
@@ -45,7 +52,8 @@
 #'   [required].
 #' @param threshold Maximum allowed Hamming distance (number of
 #'   mismatching bases) between two trimmed sequences for them to be treated as
-#'   duplicates; an integer >= 0, where 0 removes exact duplicates only.
+#'   duplicates; a whole number >= 0 and smaller than \code{min.length},
+#'   where 0 removes exact duplicates only.
 #'   Note that in earlier versions of this function the threshold
 #'   was a proportion of the sequence length (default 0.2); it is now a count
 #'   of bases, consistent with \code{gl.report.hamming} [default 3].
@@ -85,9 +93,7 @@ gl.filter.hamming <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
-                   # build = "v.2023.3",
-                   verbose = verbose)
+  utils.flag.start(func = funname, verbose = verbose)
 
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
@@ -100,21 +106,12 @@ gl.filter.hamming <- function(x,
     ))
   }
 
-  if (length(x@other$loc.metrics$TrimmedSequence) == 0) {
-    stop(error("Fatal Error: Data must include Trimmed Sequences\n"))
-  }
-
-  if (threshold < 0) {
-    stop(error("Fatal Error: threshold must be a non-negative number of bases\n"))
-  }
-
-  if (threshold > 0 && threshold < 1) {
-    stop(error(
-      "Fatal Error: threshold is the maximum number of mismatching bases",
-      " (e.g. 3), not a proportion. Earlier versions of this function took",
-      " a proportion (default 0.2)\n"
-    ))
-  }
+  # Argument checks and sequence preparation are shared with
+  # gl.report.hamming, so that the report simulates this filter exactly
+  prep <- utils.hamming.prepare(x,
+                                threshold = threshold,
+                                rs = rs,
+                                min.length = min.length)
 
   # DO THE JOB
 
@@ -124,69 +121,65 @@ gl.filter.hamming <- function(x,
   # (utils.hamming.engine compiles once per session and caches)
   filter_hamming_blocks_cpp <- utils.hamming.engine()$dedup
 
-
-    seqs <- toupper(as.character(x@other$loc.metrics$TrimmedSequence))
-    trimmed <- substr(seqs, rs + 1 , min.length + rs)
-    raws <- lapply(trimmed, charToRaw)
-    lens <- lengths(raws)
-
-    idx <- which(lens == min.length)
-    n.short <- n0 - length(idx)
-    if (verbose >= 2 && n.short > 0) {
-      cat(report(
-        " ", n.short, "loci with a TrimmedSequence shorter than",
-        min.length + rs, "bases were not compared and are retained\n"
-      ))
-    }
-
-    # Order comparable loci from worst to best call rate. The C++ engine keeps
-    # the later of two duplicates, so the better locus always survives and
-    # remains available to match further duplicates.
-    na.counts <- glNA(x)
-    ord <- idx[order(na.counts[idx], decreasing = TRUE)]
-
-    res <- filter_hamming_blocks_cpp(raws[ord], k = threshold,
-                                     max_candidates_cap = 5000)
-
-    if (res$capped && verbose >= 1) {
+  if (length(prep$idx) < 2) {
+    if (verbose >= 1) {
       cat(warn(
-        "  Warning: more than 5000 candidate matches for at least one locus;",
-        " some duplicates may have been missed\n"
+        "  Warning: fewer than two loci have a TrimmedSequence of at least",
+        min.length + rs, "bases; nothing was compared and no loci were",
+        "removed\n"
       ))
     }
+  } else if (verbose >= 2 && prep$n.short > 0) {
+    cat(report(
+      " ", prep$n.short, "loci with a TrimmedSequence shorter than",
+      min.length + rs, "bases were not compared and are retained\n"
+    ))
+  }
 
-    drop.idx <- ord[!res$keep]
+  # Comparable loci are ordered from worst to best call rate. The C++ engine
+  # keeps the later of two duplicates, so the better locus always survives
+  # and remains available to match further duplicates.
+  ord <- prep$ord
+  res <- filter_hamming_blocks_cpp(prep$raws[ord], k = threshold,
+                                   max_candidates_cap = 5000)
 
-    if (length(drop.idx) > 0) {
-      keep.idx <- setdiff(seq_len(n0), drop.idx)
-      x2 <- x[, keep.idx]
-      x2@other$loc.metrics <- x@other$loc.metrics[keep.idx, , drop = FALSE]
-    } else {
-      x2 <- x
-    }
+  if (res$capped && verbose >= 1) {
+    cat(warn(
+      "  Warning: more than 5000 candidate matches for at least one locus;",
+      " some duplicates may have been missed\n"
+    ))
+  }
 
-    # REPORT A SUMMARY
-    if (verbose >= 3) {
-      cat("\n  Summary of filtered dataset\n")
-      cat(paste("    Initial No. of loci:", n0, "\n"))
-      cat(paste("    Loci deleted", (n0 - nLoc(x2)), "\n"))
-      cat(paste("    Final No. of loci:", nLoc(x2), "\n"))
-      cat(paste("    No. of individuals:", nInd(x2), "\n"))
-      cat(paste("    No. of populations: ", length(levels(factor(
-        pop(x2)
-      ))), "\n"))
-    }
+  drop.idx <- ord[!res$keep]
 
-    # ADD TO HISTORY
-    nh <- length(x2@other$history)
-    x2@other$history[[nh + 1]] <- match.call()
+  if (length(drop.idx) > 0) {
+    keep.idx <- setdiff(seq_len(n0), drop.idx)
+    x2 <- x[, keep.idx]
+    x2@other$loc.metrics <- x@other$loc.metrics[keep.idx, , drop = FALSE]
+  } else {
+    x2 <- x
+  }
 
-    # FLAG SCRIPT END
-    if (verbose > 0) {
-      cat(report("Completed:", funname, "\n"))
-    }
+  # REPORT A SUMMARY
+  if (verbose >= 3) {
+    cat(report("\n  Summary of filtered dataset\n"))
+    cat(report("    Initial No. of loci:", n0, "\n"))
+    cat(report("    Loci deleted:", n0 - nLoc(x2), "\n"))
+    cat(report("    Final No. of loci:", nLoc(x2), "\n"))
+    cat(report("    No. of individuals:", nInd(x2), "\n"))
+    cat(report("    No. of populations:", nlevels(factor(pop(x2))), "\n"))
+  }
 
-    # RETURN
+  # ADD TO HISTORY
+  nh <- length(x2@other$history)
+  x2@other$history[[nh + 1]] <- match.call()
 
-    return(x2)
+  # FLAG SCRIPT END
+  if (verbose > 0) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
+  # RETURN
+
+  return(x2)
 }
