@@ -43,6 +43,7 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
 \code{\link{gl.drop.loc}} to drop rather than keep specified loci
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},

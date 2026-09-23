@@ -49,6 +49,7 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
 individuals
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},

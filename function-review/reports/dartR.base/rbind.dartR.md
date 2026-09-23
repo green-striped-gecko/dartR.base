@@ -148,7 +148,7 @@ test-gl.impute.R 74/75 — the failure (a `verbose = 0` silence check) fails
 identically on unmodified origin/dev and is the `gl.alf` leak fixed by
 PR #420. `devtools::document()` run. Full R CMD check left to CI.
 
-PR: (pending)
+PR: #422
 
 ```json
 {
@@ -167,7 +167,7 @@ PR: (pending)
     {"id": "F5", "severity": "LOW", "confidence": "high", "rule": "API2", "status": "approved", "change": 5}
   ],
   "coverage_skipped": ["Google Group: no browser session"],
-  "status": "applied",
-  "pr": null
+  "status": "pr-open",
+  "pr": 422
 }
 ```
