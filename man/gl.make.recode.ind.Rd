@@ -57,6 +57,7 @@ result <- gl.make.recode.ind(testset.gl, out.recode.file ='Emmac_recode_ind.csv'
 \code{\link{gl.recode.ind}}
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
