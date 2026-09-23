@@ -205,7 +205,7 @@ test-utils.hamming.blocks.R pass. `devtools::document()` run; both
 functions run end to end at `verbose = 3`; examples run with
 `run_donttest = TRUE`. Full R CMD check: not run locally (left to CI).
 
-PR: (pending)
+PR: #417
 
 ```json
 {
@@ -227,7 +227,7 @@ PR: (pending)
     {"id": "F8", "severity": "INFO", "confidence": "high", "rule": "none", "status": "approved", "change": 8}
   ],
   "coverage_skipped": ["DAT6: FBM path not exercised", "candidate cap not reached by reference data", "Google Group: no browser session"],
-  "status": "applied",
-  "pr": null
+  "status": "pr-open",
+  "pr": 417
 }
 ```
