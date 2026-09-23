@@ -67,6 +67,7 @@ nLoc(sim2) == nLoc(testset.gl)
 \code{\link{gl.sim.crosses}}, \code{\link{gl.filter.allna}}
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},

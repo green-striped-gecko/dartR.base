@@ -58,6 +58,7 @@ result <- gl.make.recode.pop(testset.gl,out.recode.file='test.csv',outpath=tempd
 \code{\link{gl.recode.pop}}
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
