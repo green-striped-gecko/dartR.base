@@ -70,3 +70,59 @@ test_that("SilicoDArT input is rejected at the datatype gate", {
       outpath = tempdir(), verbose = 0)),
       "expecting SNP")
 })
+
+# bed.files = TRUE, exercised with a stub PLINK (shell script), so the
+# tests run without the real binary. Addendum findings A1-A3.
+make_stub <- function(dir, body) {
+  dir.create(dir, showWarnings = FALSE)
+  f <- file.path(dir, "plink")
+  writeLines(c("#!/bin/sh", body), f)
+  Sys.chmod(f, "755")
+  dir
+}
+
+test_that("a failing PLINK run stops with an error (A1)", {
+  skip_on_os("windows")
+  td <- tempfile(); dir.create(td)
+  stub <- make_stub(file.path(td, "bin"),
+                    c("echo 'Error: simulated failure' >&2", "exit 2"))
+  expect_error(
+    gl2plink(make_platy(), bed.files = TRUE, outpath = td,
+             plink.bin.path = stub, verbose = 0),
+    "PLINK exited with status 2"
+  )
+})
+
+test_that("paths with spaces reach PLINK as single arguments (A2)", {
+  skip_on_os("windows")
+  td <- file.path(tempfile(), "my data"); dir.create(td, recursive = TRUE)
+  # The stub writes one argument per line, then succeeds
+  stub <- make_stub(file.path(td, "my bin"),
+                    c(paste0("for a in \"$@\"; do echo \"$a\"; done > '",
+                             file.path(td, "args.txt"), "'"), "exit 0"))
+  gl2plink(make_platy(), bed.files = TRUE, outpath = td,
+           plink.bin.path = stub, verbose = 0)
+  args <- readLines(file.path(td, "args.txt"))
+  expect_equal(args[which(args == "--out") + 1], file.path(td, "gl_plink"))
+  expect_equal(args[which(args == "--file") + 1], file.path(td, "gl_plink"))
+})
+
+test_that("PLINK output is shown only at verbose >= 3 (A3)", {
+  skip_on_os("windows")
+  td <- tempfile(); dir.create(td)
+  stub <- make_stub(file.path(td, "bin"),
+                    c("echo 'PLINK stub log line'", "exit 0"))
+  run <- function(v) {
+    out <- capture.output(
+      msg <- capture.output(
+        gl2plink(make_platy(), bed.files = TRUE, outpath = td,
+                 plink.bin.path = stub, verbose = v),
+        type = "message"
+      )
+    )
+    c(out, msg)
+  }
+  expect_length(run(0), 0L)
+  expect_false(any(grepl("PLINK stub log line", run(2))))
+  expect_true(any(grepl("PLINK stub log line", run(3))))
+})
