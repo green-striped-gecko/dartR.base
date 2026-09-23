@@ -128,6 +128,18 @@
   - documentation: `@family graphics` added; "chromosome length" is
     described as the position of the last SNP.
 
+* `gl.report.excess.het()` and `gl.filter.excess.het()` (deprecated
+  wrappers; function review):
+  - The deprecation message now gives a call that reproduces the wrapper's
+    result: it adds `min.hobs = 0.5` and the `cc.val`/`cc_val` matching
+    `Yates`. The previous advice removed 282 loci from LBP where the
+    wrapper removes 6.
+  - `gl.filter.excess.het()` records its own call in the history. The
+    entry was the inner `gl.filter.hwe()` call, which referred to the
+    wrapper's local `Yates` and could not be replayed.
+  - `gl.report.excess.het()` warns when the ignored `plot.theme`,
+    `plot.colors`, `plot.file` or `plot.dir` are supplied.
+
 * New function `gl.report.contamination()`: screens a genlight object for
   cross-contaminated samples from genotypes, population labels and, when
   present, the plate wells stored by `gl.read.dart()`. Tier 1 flags
