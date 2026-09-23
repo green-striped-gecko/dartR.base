@@ -201,13 +201,13 @@ gl.map.popcluster,dartR.popgen,analysis,,pending,
 gl.map.snmf,dartR.popgen,analysis,,pending,
 gl.map.structure,dartR.popgen,analysis,luis,done,95
 gl.outflank,dartR.popgen,analysis,,pending,
-gl.plot.faststructure,dartR.popgen,graphics,luis,awaiting-approval,
+gl.plot.faststructure,dartR.popgen,graphics,luis,pr-open,101
 gl.plot.popcluster,dartR.popgen,graphics,,pending,
 gl.plot.snmf,dartR.popgen,graphics,,pending,
 gl.plot.structure,dartR.popgen,graphics,luis,done,94
 gl.read.structure,dartR.popgen,io,luis,done,98
 gl.run.epos,dartR.popgen,analysis,,pending,
-gl.run.faststructure,dartR.popgen,analysis,luis,awaiting-approval,
+gl.run.faststructure,dartR.popgen,analysis,luis,pr-open,101
 gl.run.popcluster,dartR.popgen,analysis,,pending,
 gl.run.snmf,dartR.popgen,analysis,,pending,
 gl.run.stairway2,dartR.popgen,analysis,,pending,
