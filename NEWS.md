@@ -1,5 +1,20 @@
 # dartR.base 1.2.3 (development)
 
+* `utils.plink.run()` (used by `gl.read.PLINK()`) and `gl2vcf()`: the same
+  PLINK-call gaps fixed in `gl2plink()` (function-review addendum):
+  - BUG FIX: a failed PLINK run was not detected. `utils.plink.run()`
+    returned normally, and `gl.read.PLINK()` later stopped with a
+    misleading "Check that PLINK is installed"; `gl2vcf()` finished with an
+    R warning and no VCF. Both now stop with an error that quotes PLINK's
+    own message (stderr included). A `plink.path` that cannot be run is
+    reported the same way.
+  - BUG FIX: paths were passed to PLINK unquoted. `gl.read.PLINK()` on a
+    file named `my file.ped` and `gl2vcf()` with an `outpath` containing a
+    space both failed; so would a temporary directory under a Windows user
+    name with a space. All paths are now quoted.
+  - `utils.plink.run()` shows PLINK's output only at `verbose >= 3`
+    (stderr no longer leaks at `verbose = 0`).
+
 * `gl.randomize.snps()`:
   - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
     call, which forces `plot.display` to `FALSE` -- errored with "object 'p1'
