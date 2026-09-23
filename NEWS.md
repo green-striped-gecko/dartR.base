@@ -1,5 +1,13 @@
 # dartR.base 1.2.3 (development)
 
+* Verbosity leak through `gl.alf()`: since `gl.alf()` follows the global
+  verbosity (c581841), two internal calls that did not pass `verbose`
+  printed its datatype message at every level. `utils.recalc.maf()` (run by
+  `gl.recalc.metrics()` and `gl.compliance.check()`, and so by
+  `gl.read.PLINK()` and every reader) and `gl.report.heterozygosity()` now
+  call `gl.alf(verbose = 0)`. At `verbose = 0`, `gl.recalc.metrics()` and
+  `gl.compliance.check()` printed 3 lines and `gl.report.heterozygosity()`
+  90 lines; all now print nothing.
 * `utils.plink.run()` (used by `gl.read.PLINK()`) and `gl2vcf()`: the same
   PLINK-call gaps fixed in `gl2plink()` (function-review addendum):
   - BUG FIX: a failed PLINK run was not detected. `utils.plink.run()`
