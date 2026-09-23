@@ -194,6 +194,11 @@ across the `utils.*` exports, not here.
 - Real STRUCTURE run: `delta.k` Inf at K = 2, 3 → NA with a warning.
 - `test-gl.run.structure.R` with the STRUCTURE binary: 51 expectations pass.
 - `R CMD check`: unrelated failure in `test-gl.ld.haplotype.R`; no new NOTE.
+- Addendum (requested by Luis after PR #96): `gl.run.structure` called the
+  helper without `verbose`, so the new warnings never reached its users.
+  Fixed in commit 601ef54, PR #97 (base `review-gl.evanno`, to be retargeted
+  to `dev` after #96 merges). Test with the STRUCTURE binary: warning at
+  `verbose = 1`, silent at `verbose = 0`; 53 expectations pass.
 
 ## Machine block
 

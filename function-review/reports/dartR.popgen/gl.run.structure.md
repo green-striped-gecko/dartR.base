@@ -323,6 +323,12 @@ changes, in `R/gl.run.structure.r`, `R/utils.structure.run.r` and
 - PR: green-striped-gecko/dartR.popgen#92, branch `review-gl.run.structure`
   (cut from `origin/dev`), commit 81edbea.
 
+## Addendum (2026-09-23)
+
+Follow-up from the gl.evanno review (#96): the Evanno panel now passes
+`verbose` to `utils.structure.evanno`, so its delta K warnings are shown at
+`verbose >= 1`. Commit 601ef54, PR #97. Requested by Luis.
+
 ```json
 {
   "function": "gl.run.structure",
