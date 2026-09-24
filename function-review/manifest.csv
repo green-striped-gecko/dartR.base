@@ -259,7 +259,7 @@ utils.kin.dgd,dartR.captive,utility,,pending,
 utils.kin.dominant,dartR.captive,utility,,pending,
 gl.drop.sexlinked,dartR.sexlinked,data manipulation,,pending,
 gl.filter.sexlinked,dartR.sexlinked,filter,luis,pr-open,35
-gl.infer.sex,dartR.sexlinked,analysis,,pending,
+gl.infer.sex,dartR.sexlinked,analysis,luis,pr-open,36
 gl.keep.sexlinked,dartR.sexlinked,data manipulation,luis,pr-open,34
 gl.report.sexlinked,dartR.sexlinked,report,luis,pr-open,33
 gl.diagnostics.sim,dartR.sim,analysis,luis,done,51
