@@ -166,7 +166,7 @@ gl.ld.haplotype,dartR.popgen,analysis,luis,done,91
 gl.run.structure,dartR.popgen,analysis,luis,done,92
 gl.plot.snp.density,dartR.base,graphics,luis,done,407
 gl.LDNe,dartR.popgen,analysis,luis,done,93
-gl.check.verbosity,dartR.base,analysis,,pending,
+gl.check.verbosity,dartR.base,analysis,luis,pr-open,430
 gl.diagnostics.hwe,dartR.base,analysis,luis,done,425
 gl.document,dartR.base,analysis,,pending,
 gl.fbm2gen,dartR.base,analysis,luis,done,427
