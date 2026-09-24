@@ -1,4 +1,4 @@
-# dartR.base 1.2.4 (development)
+# dartR.base 1.2.6 (development)
 
 * `utils.check.datatype()`: a ploidy-2 object whose genotypes are all 0 or
   1 and that has no SNP metadata is now treated as SNP data, with a
