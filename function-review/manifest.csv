@@ -166,11 +166,11 @@ gl.ld.haplotype,dartR.popgen,analysis,luis,done,91
 gl.run.structure,dartR.popgen,analysis,luis,done,92
 gl.plot.snp.density,dartR.base,graphics,luis,done,407
 gl.LDNe,dartR.popgen,analysis,luis,done,93
-gl.check.verbosity,dartR.base,analysis,luis,pr-open,430
+gl.check.verbosity,dartR.base,analysis,luis,done,430
 gl.diagnostics.hwe,dartR.base,analysis,luis,done,425
 gl.document,dartR.base,analysis,luis,removed,431
 gl.fbm2gen,dartR.base,analysis,luis,done,427
-gl.fdsim,dartR.base,analysis,luis,pr-open,432
+gl.fdsim,dartR.base,analysis,luis,done,432
 gl.filter.contamination,dartR.base,filter,luis,done,423
 gl.filter.excess.het,dartR.base,filter,luis,done,424
 gl.filter.hamming,dartR.base,filter,luis,done,417
@@ -193,7 +193,7 @@ utils.pa.Chao,dartR.base,utility,,pending,
 utils.subsample.pop,dartR.base,utility,,pending,
 gl.TajimasD,dartR.popgen,analysis,luis,done,108
 gl.check.panel,dartR.popgen,analysis,luis,done,113
-gl.collapse,dartR.popgen,data manipulation,luis,pr-open,114
+gl.collapse,dartR.popgen,data manipulation,luis,done,114
 gl.evanno,dartR.popgen,analysis,luis,done,96
 gl.find.loci.in.genes,dartR.popgen,analysis,luis,done,109
 gl.ld.distance,dartR.popgen,analysis,luis,done,112
@@ -217,9 +217,11 @@ utils.get.allele.freq,dartR.popgen,utility,luis,done,108
 utils.outflank,dartR.popgen,utility,luis,done,111
 utils.outflank.MakeDiploidFSTMat,dartR.popgen,utility,luis,done,111
 utils.outflank.plotter,dartR.popgen,utility,luis,done,111
+utils.collapse.groups,dartR.popgen,utility,luis,done,114
 utils.structure.evanno,dartR.popgen,utility,luis,done,96
 utils.structure.genind2gtypes,dartR.popgen,utility,luis,done,92
 utils.structure.run,dartR.popgen,utility,luis,done,92
+utils.structure.read,dartR.popgen,utility,luis,done,98
 utils.read.ped,dartR.popgen,utility,luis,done,91
 gl.costdistances,dartR.spatial,analysis,luis,done,38
 gl.genleastcost,dartR.spatial,analysis,luis,done,41

@@ -215,7 +215,7 @@ copy; no `dartR.*` sibling calls it.
     {"id": "F7", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 7}
   ],
   "coverage_skipped": ["NA distances not reproduced on real data", "forum and GitHub issues not searched"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 114
 }
 ```
