@@ -4,18 +4,35 @@
 \alias{gl.subsample.loc}
 \title{Subsample loci from a genlight object}
 \usage{
-gl.subsample.loc(x, n, replace = TRUE, error.check = TRUE, verbose = NULL)
+gl.subsample.loc(
+  x,
+  n,
+  replace = TRUE,
+  error.check = TRUE,
+  method = "random",
+  mono.rm = FALSE,
+  verbose = NULL
+)
 }
 \arguments{
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{n}{Number of loci to include in the subsample [default NULL]}
+\item{n}{Number of loci to include in the subsample [required].}
 
-\item{replace}{If TRUE, sampling is with replacement [default TRUE]}
+\item{replace}{If TRUE, sampling is with replacement; ignored when
+\code{method = "pic"} [default TRUE]}
 
-\item{error.check}{If TRUE, will undertake error checks on input parameters 
+\item{error.check}{If TRUE, will undertake error checks on input parameters
 [default TRUE]}
+
+\item{method}{Method: "random", in which case the loci are sampled at
+random; or "pic", in which case the top n loci ranked on information
+content are chosen. Information content is AvgPIC for SNP data and PIC for
+presence/absence (SilicoDArT) data, recalculated first if the stored
+values are out of date [default "random"].}
+
+\item{mono.rm}{Delete monomorphic loci before sampling [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -25,18 +42,20 @@ progress log; 3, progress and results summary; 5, full report
 Returns the subsampled genlight object
 }
 \description{
-A function to subsample loci at random in a genlight object
-with and without replacement.
+A function to subsample loci in a genlight object, at random (with or
+without replacement) or by information content.
 }
 \details{
-Retain a subset of loci at random, with or without replacement.
-Parameter n must be less than or equal to nLoc(x).
+Retain a subset of loci at random, with or without replacement,
+or the n most informative loci. Parameter n must be less than or equal to
+nLoc(x) (after monomorphic loci are removed, if \code{mono.rm = TRUE}).
 
-#' Set error.check = FALSE for speedy execution in simulations
+Set error.check = FALSE for speedy execution in simulations
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 gl2 <- gl.subsample.loc(testset.gl, n=50, replace=TRUE, verbose=3)
+gl3 <- gl.subsample.loc(testset.gl, n=50, method="pic", verbose=3)
 }
 \seealso{
 Other data manipulation: 
@@ -62,10 +81,11 @@ Other data manipulation:
 \code{\link{gl.sample}()},
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
-\code{\link{gl.subsample.ind}()}
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
-Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to 
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber, Luis Mijangos. Custodian: Bernd Gruber
+(Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{data manipulation}
