@@ -295,7 +295,7 @@ roxygen headers); no `dartR.*` sibling calls them.
     {"id": "F12", "severity": "INFO", "confidence": "high", "rule": "DOC5", "status": "no_change", "change": null}
   ],
   "coverage_skipped": ["forum and GitHub issues not searched", "DAT6: no FBM fixture"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 113
 }
 ```
