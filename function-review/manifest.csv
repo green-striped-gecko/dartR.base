@@ -256,10 +256,13 @@ gl.run.colony,dartR.captive,analysis,claude,done,99
 gl.select.pairs,dartR.captive,graphics,luis,done,128
 gl.sim.relatedness,dartR.captive,analysis,claude,done,105
 gl2colony,dartR.captive,io,claude,done,98
-utils.kin.check,dartR.captive,utility,luis,pr-open,134
-utils.kin.dgd,dartR.captive,utility,luis,pr-open,134
-utils.kin.dominant,dartR.captive,utility,luis,pr-open,134
+utils.kin.check,dartR.captive,utility,luis,done,134
+utils.kin.dgd,dartR.captive,utility,luis,done,134
+utils.kin.dominant,dartR.captive,utility,luis,done,134
 gl.relatedness,dartR.captive,analysis,luis,done,129
+utils.colony.parental.ids,dartR.captive,utility,claude,done,98
+utils.colony.genotypes,dartR.captive,utility,claude,done,98
+utils.kin.as.kinship,dartR.captive,utility,luis,done,110
 gl.drop.sexlinked,dartR.sexlinked,data manipulation,luis,done,41
 gl.filter.sexlinked,dartR.sexlinked,filter,luis,done,35
 gl.infer.sex,dartR.sexlinked,analysis,luis,done,36
@@ -279,4 +282,6 @@ gl.sim.offspring,dartR.sim,analysis,luis,done,53
 dartRverse_install,dartRverse,analysis,luis,done,43
 gl.download.binary,dartRverse,analysis,luis,done,41
 gl.sim.apply,dartR.sim,utility,luis,done,61
+utils.wf.ref.values,dartR.sim,utility,luis,done,47
+utils.wf.cpp,dartR.sim,utility,luis,done,48
 utils.hamming.prepare,dartR.base,utility,luis,done,417
