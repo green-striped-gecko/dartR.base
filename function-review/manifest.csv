@@ -218,9 +218,9 @@ utils.outflank,dartR.popgen,utility,luis,pr-open,111
 utils.outflank.MakeDiploidFSTMat,dartR.popgen,utility,luis,pr-open,111
 utils.outflank.plotter,dartR.popgen,utility,luis,pr-open,111
 utils.structure.evanno,dartR.popgen,utility,luis,done,96
-utils.structure.genind2gtypes,dartR.popgen,utility,,pending,
-utils.structure.run,dartR.popgen,utility,,pending,
-utils.read.ped,dartR.popgen,utility,,pending,
+utils.structure.genind2gtypes,dartR.popgen,utility,luis,done,92
+utils.structure.run,dartR.popgen,utility,luis,done,92
+utils.read.ped,dartR.popgen,utility,luis,done,91
 gl.costdistances,dartR.spatial,analysis,luis,done,38
 gl.genleastcost,dartR.spatial,analysis,luis,done,41
 gl.grm2,dartR.spatial,analysis,luis,done,43
