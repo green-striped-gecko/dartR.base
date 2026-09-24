@@ -92,7 +92,8 @@ false positives) if they arise from true allele frequencies of less than
 be small (e.g. delta = 0.02).
 NOTE: The above test will only be calculated if tloc=0, that is, for analyses
 of absolute fixed differences. The test applies in comparisons of allopatric
- populations only. For sympatric populations, use gl.pval.sympatry().
+ populations only. For sympatric populations, use gl.fdsim() with
+sympatric = TRUE.
 An absolute fixed difference is as defined above. However, one might wish to
 score fixed differences at some lower level of allele frequency difference,
 say where percent allele frequencies are 95,5 and 5,95 rather than 100:0 and
@@ -110,6 +111,9 @@ fd <- gl.fixed.diff(testset.gl, tloc=0, test=TRUE, delta=0.02, reps=100, verbose
 }
 \seealso{
 \code{\link{utils.is.fixed}}
+
+Other fixed difference analysis: 
+\code{\link{gl.fdsim}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

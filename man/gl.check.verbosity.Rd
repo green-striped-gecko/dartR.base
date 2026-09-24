@@ -2,23 +2,39 @@
 % Please edit documentation in R/gl.check.verbosity.r
 \name{gl.check.verbosity}
 \alias{gl.check.verbosity}
-\title{Checks the current global verbosity}
+\title{Returns the verbosity level a function should use}
 \usage{
 gl.check.verbosity(x = NULL)
 }
 \arguments{
-\item{x}{User requested level of verbosity [default NULL].}
+\item{x}{User requested level of verbosity, a single number from 0 to 5,
+or NULL to use the global default [default NULL].}
 }
 \value{
-The verbosity, in variable verbose
+The verbosity level to use, a single number from 0 to 5.
 }
 \description{
-The verbosity can be set in one of two ways -- (a) explicitly by the user by
-passing a value using the parameter verbose in a function, or (b) by setting
-the verbosity globally as part of the r environment (gl.set.verbosity).
+Resolves the verbosity level for a dartR function. Most dartR functions
+call it first, as \code{verbose <- gl.check.verbosity(verbose)}.
+}
+\details{
+The verbosity comes from one of three sources, in this order of
+precedence:
+\enumerate{
+  \item the value passed by the user in the function's \code{verbose}
+  argument;
+  \item the global default set with \code{\link{gl.set.verbosity}},
+  stored as the R option \code{dartR_verbose};
+  \item the value 2, when neither of the above is set.
+}
+A valid value is a single number from 0 to 5. Any other value (out of
+range, non-numeric, \code{NA}, or a vector of length other than one),
+whether passed as \code{x} or found in the global option, prints a
+warning and is replaced by 2.
 }
 \examples{
 gl.check.verbosity()
+gl.check.verbosity(3)
 
 }
 \seealso{
@@ -31,6 +47,7 @@ Other environment:
 \code{\link{theme_dartR}()}
 }
 \author{
-Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to
+\url{https://groups.google.com/d/forum/dartr})
 }
 \concept{environment}
