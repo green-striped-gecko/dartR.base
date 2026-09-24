@@ -1,5 +1,9 @@
 # dartR.base 1.2.4 (development)
 
+* `theme_dartR()` (function review): facet strip labels now scale with
+  `base_size` (still 14 pt at the default of 11), and the theme is
+  returned visibly. Plots at the default size are unchanged.
+
 * `gl.report.heterozygosity()`: BUG FIX: `polyLoc` no longer counts
   loci with no data in a population, and `monoLoc` no longer subtracts
   them. On testset.gl every population changes by its number of all-NA
