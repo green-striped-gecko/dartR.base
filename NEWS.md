@@ -1,4 +1,4 @@
-# dartR.base 1.2.3 (development)
+# dartR.base 1.2.4 (development)
 
 * `rbind()` on dartR objects (`rbind.dartR`, function review):
   - BUG FIX: for in-memory (non-FBM) objects, genotypes were joined in each
