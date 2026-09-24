@@ -212,7 +212,7 @@ gl.run.popcluster,dartR.popgen,analysis,luis,pr-open,103
 gl.run.snmf,dartR.popgen,analysis,luis,pr-open,102
 gl.run.stairway2,dartR.popgen,analysis,luis,done,104
 gl.select.panel,dartR.popgen,graphics,,pending,
-gl.sfs,dartR.popgen,analysis,,pending,
+gl.sfs,dartR.popgen,analysis,luis,pr-open,106
 utils.get.allele.freq,dartR.popgen,utility,,pending,
 utils.outflank,dartR.popgen,utility,,pending,
 utils.outflank.MakeDiploidFSTMat,dartR.popgen,utility,,pending,

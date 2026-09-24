@@ -296,6 +296,22 @@ baseline is tagged with its approved change.
   Callers: dartR Shiny only; it does not read `" low75"` or the list length.
 - PR: #104
 
+## Addendum (2026-09-24, found while applying the gl.sfs review)
+
+**A1 [MEDIUM, confidence: high] — default `L` counts loci that `gl.sfs` no longer uses (DOC5)**
+`R/gl.run.stairway2.r` — `L = nLoc(x) * 69`. After gl.sfs PR #106,
+`gl.sfs` excludes loci with missing calls, so the SFS sums over fewer
+loci than `L` assumes.
+Failure scenario: platypus.gl SEVERN_ABOVE (1,000 loci, 237 with missing
+calls): the SFS uses 763 loci, `L` is 69,000 instead of 52,647.
+Change: when the SFS is computed from `x`, the default `L` counts only the
+loci without missing calls; a user-supplied `sfs` keeps `nLoc(x) * 69`.
+**Consequence: results change for data with missing calls when `L` is
+left at its default.**
+Approved by Luis; PR #107 (stacked on #106). Evidence: test
+"default L counts only the loci used in the sfs [addendum A1]"
+(blueprint `L: 52647`; user `sfs` gives `L: 69000`).
+
 ## Machine block
 
 ```json
