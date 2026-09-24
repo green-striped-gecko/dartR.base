@@ -74,13 +74,15 @@ gl.compliance.check <- function(x,
     if(is(x,"genlight")){
       
       if (!is(x, "dartR")) {
-        class(x) <- "dartR"  
         if (verbose>2) {
           cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
           cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
                  please use function dartR2gl\n"))
         }
       }
+      # Also repairs dartR objects that lack the fbm slot (made with
+      # class<- or saved by older versions)
+      x <- .as_dartR(x)
     }
     
     # if slot loc.all is empty

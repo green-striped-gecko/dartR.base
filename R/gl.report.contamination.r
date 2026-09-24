@@ -223,7 +223,7 @@ gl.report.contamination <- function(x,
                "this function needs SNP data\n"))
   }
   if (!is(x, "dartR")) {
-    class(x) <- "dartR"
+    x <- .as_dartR(x)
     if (verbose > 2) {
       cat(warn("  Warning: Standard adegenet genlight object encountered. ",
                "Converted to compatible dartR genlight object\n"))

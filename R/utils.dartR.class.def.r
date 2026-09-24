@@ -23,6 +23,28 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 
 .has_fbm <- function(x) !is.null(.fbm_or_null(x))
 
+## Returns a valid dartR object. A plain genlight is coerced with as(), which
+## adds the fbm slot. `class(x) <- "dartR"` only relabels the object, so the
+## result lacks @fbm and fails validObject(); objects made that way (or saved
+## before the slot existed) are rebuilt slot by slot. A valid dartR object is
+## returned unchanged.
+.as_dartR <- function(x) {
+  if (!methods::is(x, "dartR")) {
+    return(methods::as(x, "dartR"))
+  }
+  if (!methods::.hasSlot(x, "fbm")) {
+    y <- methods::new("dartR")
+    for (s in setdiff(methods::slotNames("dartR"), "fbm")) {
+      if (methods::.hasSlot(x, s)) {
+        methods::slot(y, s, check = FALSE) <- methods::slot(x, s)
+      }
+    }
+    y@fbm <- NULL
+    return(y)
+  }
+  x
+}
+
 fbm_or_gen <- function(x) {
   # early guard: must be an S4 object
   
@@ -477,7 +499,6 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' @param quiet suppress warnings. default: TRUE
 #' @examples
 #' t1 <- platypus.gl
-#' class(t1) <- "dartR"
 #' t2 <- cbind(t1[,1:10],t1[,11:20])
 #' @return A dartR object
 #' @export
@@ -705,7 +726,6 @@ cbind.dartR <- function(...,
 #' @param quiet suppress warnings. default: TRUE
 #' @examples
 #' t1 <- platypus.gl
-#' class(t1) <- "dartR"
 #' t2 <- rbind(t1[1:5,],t1[6:10,])
 #' # a list of objects
 #' t3 <- do.call(rbind, list(t1[1:5,], t1[6:10,], t1[11:15,]))
