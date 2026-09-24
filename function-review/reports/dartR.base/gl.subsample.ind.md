@@ -204,7 +204,7 @@ calls unchanged.**
 - Tests: ind 14, loc 16, loci 12 expectations, all pass.
 - `devtools::document()` also rewrote unrelated Rd files (cross-link
   drift, PR #421); reverted.
-- PR: pending.
+- PR: #426.
 
 ```json
 {
@@ -227,7 +227,7 @@ calls unchanged.**
     {"id": "F8", "severity": "INFO", "confidence": "high", "rule": "design", "status": "approved", "change": 8}
   ],
   "coverage_skipped": ["sampling distribution not tested", "forum/issues: no browser session"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 426
 }
 ```
