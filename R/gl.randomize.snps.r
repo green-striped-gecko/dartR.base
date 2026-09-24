@@ -1,21 +1,27 @@
 #' @name gl.randomize.snps
-#' @title Randomly changes the allocation of 0's and 2's in a genlight object
+#' @title Randomly swaps the homozygote coding (0 and 2) in half of the loci
 #' @description
-#' This function samples randomly half of the SNPs and re-codes, in the sampled
-#' SNP's, 0's by 2's.
+#' This function samples half of the loci at random and, in the sampled loci,
+#' swaps the coding of the two homozygotes: 0 becomes 2 and 2 becomes 0.
+#' Heterozygotes (1) and missing values are unchanged. The allele labels of the
+#' sampled loci are reversed to match, so the object still describes the same
+#' genotypes; only which allele is counted changes.
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param plot.display If TRUE, resultant plots are displayed in the plot window
 #' [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
-#' @param plot.colors List of two color names for the borders and fill of the
-#'  plots [default c("#2171B5","#6BAED6")].
-#' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
-#' @param plot.dir Directory to save the plot RDS files [default as specified 
-#' by the global working directory or tempdir()]
+#' @param plot.colors Vector of four color names passed to
+#' \code{\link{gl.smearplot}} for homozygote reference, heterozygote,
+#' homozygote alternative and missing data
+#' [default c("#0000FF","#00FFFF","#FF0000","#e0e0e0")].
+#' @param plot.file Name for the RDS binary file to save (base name only,
+#' exclude extension) [default NULL]
+#' @param plot.dir Directory in which to save the plot file [default as
+#' specified by the global working directory or tempdir()]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log ; 3, progress and results summary; 5, full report [default NULL,
+#' progress log; 3, progress and results summary; 5, full report [default NULL,
 #' unless specified using gl.set.verbosity].
 
 #' @details
@@ -24,13 +30,17 @@
 #' homozygous for the alternative allele are coded with a '2'. This causes some
 #' distortions in visuals from time to time.
 
+#' Only SNP data are accepted. FBM-backed objects are recoded in a copy of
+#' their backing file, so the input object is not modified.
+
 #' If plot.display = TRUE, two smear plots (pre-randomisation and
 #' post-randomisation) are presented using a random subset of individuals (10)
-#' and loci (100) to provide an overview of the changes.
+#' and loci (100) to provide an overview of the changes. The combined plot is
+#' saved only when plot.file is specified.
 
-#' Resultant ggplots are saved to the session's temporary directory.
-
-#' @return Returns a genlight object with half of the loci re-coded.
+#' @return Returns a genlight object with half of the loci re-coded and their
+#' allele labels (loc.all) reversed. Locus metric flags are reset, as the
+#' allele-frequency metrics no longer match the recoded genotypes.
 #' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #' @examples
@@ -50,51 +60,71 @@ gl.randomize.snps <- function(x,
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   if(verbose==0){plot.display <- FALSE}
-  
+
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir,verbose=0)
-  
+
   # SET COLOURS
   if(is.null(plot.colors)){
     plot.colors <- c("#0000FF","#00FFFF","#FF0000","#e0e0e0")
   } else {
     if(length(plot.colors) > 4){
-      if(verbose >= 2){cat(warn("  More than 2 colors specified, only the first 4 are used\n"))}
+      if(verbose >= 2){cat(warn("  More than 4 colors specified, only the first 4 are used\n"))}
       plot.colors <- plot.colors[1:4]
     }
   }
-  
+
   # FLAG SCRIPT START
     funname <- match.call()[[1]]
     utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
-    
+
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
+    # Presence/absence data have no second homozygote; swapping would write
+    # invalid 2 codes into a ploidy-1 object
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
     # DO THE JOB
-    
-    hold <- x
-    
-    snp_matrix_temp <- as.matrix(x)
-    snp_matrix_temp_0 <- snp_matrix_temp == 0
-    snp_matrix_temp_2 <- snp_matrix_temp == 2
-    
-    snp_matrix_temp[snp_matrix_temp_0 == TRUE] <- 2
-    snp_matrix_temp[snp_matrix_temp_2 == TRUE] <- 0
-    
-    random_snps <- sample(1:nLoc(x), nLoc(x) / 2)
-    
-    snp_matrix <- as.matrix(x)
-    snp_matrix[, random_snps] <- snp_matrix_temp[, random_snps]
-    
-    x@gen <-
-        lapply(1:nrow(snp_matrix), function(i)
-            new("SNPbin", as.integer(snp_matrix[i, ])))
-    
-    random_snps <- random_snps[order(random_snps)]
-    
+
+    # Keep the unrecoded object only for the before/after plot
+    if (plot.display) {
+      hold <- x
+    }
+
+    random_snps <- sort(sample(seq_len(nLoc(x)), floor(nLoc(x) / 2)))
+
+    # 2 - g swaps the homozygotes (0 <-> 2) and leaves heterozygotes (1) and
+    # NA unchanged
+    fbm <- .fbm_or_null(x)
+    if (is.null(fbm)) {
+      snp_matrix <- as.matrix(x)
+      snp_matrix[, random_snps] <- 2 - snp_matrix[, random_snps]
+      x@gen <- matrix2gen(snp_matrix)
+    } else {
+      # FBM storage is shared by reference: writing into x@fbm would also
+      # recode the caller's object, so the recoding goes into a copy. Genotype
+      # reads come from the FBM, not @gen, so @gen is left as it is. NA is
+      # stored as code 3 (CODE_012 mapping, as in gl.gen2fbm). Columns are
+      # recoded in blocks to avoid densifying the whole matrix.
+      x@fbm <- bigstatsr::big_copy(fbm, backingfile = tempfile("geno_"))
+      blocks <- split(random_snps, ceiling(seq_along(random_snps) / 1000))
+      for (cols in blocks) {
+        block <- 2 - x@fbm[, cols, drop = FALSE]
+        block[is.na(block)] <- 3
+        x@fbm[, cols] <- block
+      }
+    }
+
+    # Swapping the homozygote codes switches which allele is counted, so the
+    # allele labels are reversed to keep describing the same genotypes
+    if (length(x@loc.all) == nLoc(x)) {
+      x@loc.all[random_snps] <-
+        vapply(strsplit(x@loc.all[random_snps], "/", fixed = TRUE),
+               function(alleles) paste(rev(alleles), collapse = "/"),
+               character(1))
+    }
+
     if (verbose == 5) {
         cat(report(paste(
             "The loci that were changed are:",
@@ -102,7 +132,7 @@ gl.randomize.snps <- function(x,
             "\n"
         )))
     }
-    
+
     if (plot.display) {
         # subsetting objects to provide an overview of the changes
         if (nInd(x) > 10) {
@@ -118,22 +148,24 @@ gl.randomize.snps <- function(x,
             x_plot <- x_plot[, loc_to_plot]
             hold_plot <- hold_plot[, loc_to_plot]
         }
-        
+
         # plot before randomisation
         p1 <-
-            gl.smearplot(hold_plot, legend = "none", verbose = 0)
+            gl.smearplot(hold_plot, legend = "none", plot.theme = plot.theme,
+                         plot.colors = plot.colors, verbose = 0)
         p1 <-
             p1 + ggtitle("Pre-randomisation") + theme(
                 axis.title.x = element_blank(),
                 axis.text.x = element_blank(),
                 axis.ticks.x = element_blank()
             )
-        
+
         # plot after randomisation
-        p2 <- gl.smearplot(x_plot, verbose = 0)
+        p2 <- gl.smearplot(x_plot, plot.theme = plot.theme,
+                           plot.colors = plot.colors, verbose = 0)
         p2 <- p2 + ggtitle("Post-randomisation")
     }
-    
+
     # PRINTING OUTPUTS
     # p1 and p2 are built only inside the plot.display block above, so assemble,
     # print and (optionally) save the combined plot only when plot.display =
@@ -153,7 +185,7 @@ gl.randomize.snps <- function(x,
                                  verbose=verbose)
         }
     }
-    
+
     # RESET FLAGS
     # Half the loci had their 0/2 homozygote coding swapped, so the per-locus
     # allele-frequency metrics (OneRatioRef/OneRatioSnp, FreqHomRef/FreqHomSnp,
@@ -165,13 +197,13 @@ gl.randomize.snps <- function(x,
     # ADD TO HISTORY
     nh <- length(x@other$history)
     x@other$history[[nh + 1]] <- match.call()
-    
+
     # FLAG SCRIPT END
     if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
     }
-    
+
     # RETURN
     invisible(x)
-    
+
 }
