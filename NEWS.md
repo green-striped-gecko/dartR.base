@@ -1,5 +1,18 @@
 # dartR.base 1.2.4 (development)
 
+* `gl.check.verbosity()` (function review), the helper most functions call
+  first to resolve `verbose`:
+  - A `verbose` value that is `NA`, empty or longer than one (for example a
+    computed `mean(v)` over a vector with an `NA`) now prints a warning and
+    runs at verbosity 2. Before, the calling function stopped with
+    "missing value where TRUE/FALSE needed" or a similar R-internal error.
+  - An invalid global `dartR_verbose` option set directly with `options()`
+    (for example `"loud"` or `9`) now prints a warning and is replaced by 2.
+    Before, it was used as is.
+  - The warning prints on one line and names the value received.
+  - The help page states which value wins: the `verbose` argument, then the
+    global setting from `gl.set.verbosity()`, then 2.
+
 * Objects converted to `dartR` are now valid S4 objects. `class(x) <- "dartR"`
   (used in 21 functions, including `gl.compliance.check()` and `gl.load()`)
   only relabelled a genlight, leaving out the `@fbm` slot, so the result
