@@ -141,6 +141,19 @@ plot.file with plot.display = FALSE crashed on the unbuilt plot (the
 p3-not-found class). Below-HIGH; fixed with an existence guard and a
 gated (verbose >= 1) warning that nothing was saved.
 
+## Follow-up (2026-09-24): all-NA loci counted as polymorphic
+
+Found as addendum A2 in the `gl.report.polyploid_heterozygosity` review (PR #435), which shares this code.
+
+**FU1 [MEDIUM, confidence: high] — `polyLoc`/`monoLoc` miscount all-NA loci (spec)**
+`R/gl.report.heterozygosity.r` locus-count loop — `gl.alf()` returns `alf1 = NaN` for loci with no data in a population, so `which()` leaves them out of `loc.list`. They stayed in the object after `gl.drop.loc()` and were counted as polymorphic, and the monomorphic count then subtracted them again. testset.gl EmmacBrisWive: 21 polymorphic / 224 monomorphic / 10 all-NA reported; the independent count is 11 / 234 / 10.
+Change: count monomorphic loci as `length(loc.list)` and polymorphic loci as the remainder after monomorphic and all-NA loci; the `gl.drop.loc()` call, used only for counting, is removed.
+**Consequence: `polyLoc` and `monoLoc` change in every population with all-NA loci; other columns unchanged.**
+
+Approved by Luis (2026-09-24), with the A2 decision on PR #435.
+
+Evidence: new test "all-NA loci are not counted as polymorphic" matches an independent count in all 30 testset.gl populations and checks `polyLoc + monoLoc + all_NALoc = nLoc`; against the `origin/dev` version, all other columns are identical and each population's shift equals its all-NA count. Tests: this file 37/37, `gl.test.heterozygosity` 38/38, `gl.filter.heterozygosity` 19/19.
+
 ## Outcome
 
 All six findings applied, plus the addendum. Characterization suite:
