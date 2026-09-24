@@ -47,3 +47,28 @@ test_that("no bogus loc.metrics$monomorphs column is invented", {
   o <- capture.output(r <- utils.reset.flags(sub, verbose = 0))
   expect_false("monomorphs" %in% names(r@other$loc.metrics))  # [approved diff R3]
 })
+
+test_that("objects without locus metrics get clean metadata", {
+  # [approved fix, dartR.sim report] baseline: loc.metrics gained an all-NA
+  # column named "array(NA, nLoc(x))" and loc.metrics.flags one named
+  # "array(NA, 1)".
+  set.seed(1)
+  g <- methods::new("dartR", gen = matrix(sample(0:2, 50, TRUE), 5),
+                    ploidy = 2)
+  r <- utils.reset.flags(g, verbose = 0)
+  expect_false(any(grepl("^array\\(", names(r@other$loc.metrics))))
+  expect_false(any(grepl("^array\\(", names(r@other$loc.metrics.flags))))
+  expect_equal(nrow(r@other$loc.metrics), nLoc(g))
+  expect_equal(nrow(r@other$loc.metrics.flags), 1)
+  expect_false(r@other$loc.metrics.flags$CallRate)
+  # locus names, when present, become AlleleID
+  locNames(g) <- paste0("L", 1:nLoc(g))
+  r <- utils.reset.flags(g, verbose = 0)
+  expect_equal(r@other$loc.metrics$AlleleID, paste0("L", 1:nLoc(g)))
+  # SilicoDArT objects too
+  s <- methods::new("dartR", gen = matrix(sample(0:1, 50, TRUE), 5),
+                    ploidy = 1)
+  r <- utils.reset.flags(s, verbose = 0)
+  expect_false(any(grepl("^array\\(", names(r@other$loc.metrics))))
+  expect_equal(nrow(r@other$loc.metrics), nLoc(s))
+})

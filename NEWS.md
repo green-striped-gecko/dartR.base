@@ -1,5 +1,12 @@
 # dartR.base 1.2.4 (development)
 
+* `utils.reset.flags()` (and so `gl.compliance.check()`) no longer adds an
+  all-NA column named `array(NA, nLoc(x))` to `loc.metrics`, or one named
+  `array(NA, 1)` to `loc.metrics.flags`, when an object has no locus
+  metrics. `loc.metrics` now starts with `AlleleID` from the locus names
+  (or no columns when there are none). Reported from the dartR.sim review,
+  where simulated objects carried the junk column.
+
 * `gl.report.polyploid_heterozygosity()` (function review):
   - BUG FIX: statistics are now correct for polyploid (dosage) data. He
     was computed from genotype codes 0, 1 and 2 only, and Ho counted
