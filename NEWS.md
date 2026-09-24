@@ -9,6 +9,19 @@
   (`gl.sim.Neconst(ninds = 3, nlocs = 1)`, synthetic parents in
   `gl.sim.offspring`).
 
+* `utils.reset.flags()` (and so `gl.compliance.check()`) no longer adds an
+  all-NA column named `array(NA, nLoc(x))` to `loc.metrics`, or one named
+  `array(NA, 1)` to `loc.metrics.flags`, when an object has no locus
+  metrics. `loc.metrics` now starts with `AlleleID` from the locus names
+  (or no columns when there are none). Reported from the dartR.sim review,
+  where simulated objects carried the junk column.
+
+* `gl.report.heterozygosity()`: BUG FIX: `polyLoc` no longer counts
+  loci with no data in a population, and `monoLoc` no longer subtracts
+  them. On testset.gl every population changes by its number of all-NA
+  loci (EmmacBrisWive: 21/224 to 11/234, 10 all-NA loci); `polyLoc +
+  monoLoc + all_NALoc` now equals the number of loci. Other columns are
+  unchanged.
 * `gl.report.polyploid_heterozygosity()` (function review):
   - BUG FIX: statistics are now correct for polyploid (dosage) data. He
     was computed from genotype codes 0, 1 and 2 only, and Ho counted

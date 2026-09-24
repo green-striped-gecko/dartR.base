@@ -470,24 +470,18 @@ gl.report.heterozygosity <- function(x,
     
     for (y in 1:length(sgl)) {
       y_temp <- sgl[[y]]
-      hold <- y_temp
       mono_tmp <- gl.alf(y_temp, verbose = 0)
+      # Loci with no data in the population have alf1 NaN, so which() leaves
+      # them out of loc.list: loc.list holds the monomorphic loci only, and
+      # the all-NA loci are counted separately, not as polymorphic
       loc.list <- rownames(mono_tmp[which(mono_tmp$alf1 == 1 |
                                             mono_tmp$alf1 == 0), ])
       loc.list_NA <- which(colSums(is.na(as.matrix(y_temp)))==nInd(y_temp))
-      # rownames(mono_tmp[which(is.na(mono_tmp$alf1)), ])
-      
-      # Remove NAs from list of monomorphic loci and loci with all NAs
-      # loc.list <- loc.list[!is.na(loc.list)]
-      
-      # remove monomorphic loci and loci with all NAs
-      if (length(loc.list) > 0) {
-        y_temp <- gl.drop.loc(y_temp, loc.list = loc.list, verbose = 0)
-      }
-      
-      poly_loc <-  c(poly_loc, nLoc(y_temp))
-      mono_loc <- c(mono_loc, (nLoc(hold) - nLoc(y_temp) - length(loc.list_NA)))
+
+      mono_loc <- c(mono_loc, length(loc.list))
       all_na_loc <- c(all_na_loc, length(loc.list_NA))
+      poly_loc <- c(poly_loc,
+                    nLoc(y_temp) - length(loc.list) - length(loc.list_NA))
     }
     
     
