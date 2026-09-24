@@ -50,3 +50,12 @@ test_that("a single-individual population fails with a message", {
   # message empty.
   expect_true(grepl("individual", e))  # [approved diff K2]
 })
+
+test_that("rounded = FALSE returns the same statistics unrounded", {
+  x <- bandicoot.gl
+  r <- utils.basic.stats(x)
+  u <- utils.basic.stats(x, rounded = FALSE)
+  expect_equal(round(as.matrix(u$perloc), 4), as.matrix(r$perloc))
+  expect_equal(round(u$overall, 4), r$overall)
+  expect_false(isTRUE(all.equal(u$overall, r$overall, tolerance = 0)))
+})

@@ -141,6 +141,69 @@
   - Errors use the dartR idiom; an object with both `@fbm` and `@gen`
     populated is reported as invalid.
   - Help pages gain titles, a family and runnable examples.
+* `gl.subsample.ind()`, `gl.subsample.loc()` and `gl.subsample.loci()`
+  (function review):
+  - BUG FIX: `gl.subsample.ind(by.pop = TRUE)` upsampled populations
+    smaller than `n` one full copy too many (platypus.gl, `n = 70`:
+    93/87/70 individuals instead of 70/70/70).
+  - BUG FIX: `gl.subsample.ind(by.pop = FALSE)` compared `n` with the
+    number of loci and set it to that number: `n = 300` with replacement
+    returned 255 individuals from testset.gl. With replacement it now
+    returns `n`; without, it caps at `nInd(x)`.
+  - BUG FIX: `gl.subsample.ind()` with its documented default `n = NULL`
+    stopped with "argument is of length zero"; the default now applies.
+  - `gl.subsample.loc()` gains `method = "pic"` (the n loci with the
+    highest information content) and `mono.rm`, from
+    `gl.subsample.loci()`, which is deprecated and now calls it. The
+    defaults leave existing calls unchanged.
+  - `method = "pic"` recalculates AvgPIC/PIC when the stored values are
+    out of date (after individuals are removed), instead of ranking on
+    stale values; `method` is case-insensitive and an unknown value stops.
+  - `gl.subsample.loc()` without `n` stops with a message naming `n`.
+* `gl.diagnostics.hwe()` (function review):
+  - Much faster with `stdErr = TRUE`: the jackknife over loci is computed
+    directly from the per-locus statistics instead of re-running
+    `utils.basic.stats()` once per locus. bandicoot.gl (1000 loci): 41.5 s
+    to 1.1 s; 10,000 loci: about 2 s (previously about 70 min on one core).
+    `n.cores` is kept for compatibility and ignored.
+  - BUG FIX: the standard errors of Fis and Fst were too small by a factor
+    of (number of loci - 1), and were computed from leave-one-out values
+    rounded to 4 decimals (on bandicoot.gl, 1000 values collapsed to 15
+    distinct Fis and 3 distinct Fst values). They are now the standard
+    jackknife standard errors of unrounded values: SE Fis 4.43e-06 becomes
+    0.00432 on bandicoot.gl, and the Fis/Fst ratio 5.62 becomes 5.40.
+  - BUG FIX: the barplot's "0" bar counted non-significant tests while the
+    other bars and the null counted loci (4677 against 863 on
+    bandicoot.gl). All bars now count loci, and the null is the expected
+    count rather than one random draw.
+  - BUG FIX: Fisher's combined test used 2 x nLoc degrees of freedom and
+    `nExpected` used nLoc, although loci monomorphic or under-sampled in a
+    population are not tested there; both now use the tests run.
+  - The histogram's bins span [0, 1] and its line is the uniform
+    expectation (it was drawn at nrow / (bins - 1)).
+  - Nothing is printed at `verbose = 0`.
+  - Requires HardyWeinberg (now guarded with an error) and no longer
+    ggtern; a missing package errors instead of returning -1.
+* `gl.hwe.pop()` (function review):
+  - BUG FIX: an object without populations stopped with "Vector length
+    does no match number of individuals"; it is now tested as the single
+    population "pop1", as documented.
+  - A missing HardyWeinberg errors instead of returning -1.
+  - Documentation corrected (return value, `plot_colors` default, plot
+    type).
+* `utils.basic.stats()` gains `rounded = TRUE`; `rounded = FALSE` returns
+  unrounded statistics. Default output is unchanged.
+* `gl.report.excess.het()` and `gl.filter.excess.het()` (deprecated
+  wrappers; function review):
+  - The deprecation message now gives a call that reproduces the wrapper's
+    result: it adds `min.hobs = 0.5` and the `cc.val`/`cc_val` matching
+    `Yates`. The previous advice removed 282 loci from LBP where the
+    wrapper removes 6.
+  - `gl.filter.excess.het()` records its own call in the history. The
+    entry was the inner `gl.filter.hwe()` call, which referred to the
+    wrapper's local `Yates` and could not be replayed.
+  - `gl.report.excess.het()` warns when the ignored `plot.theme`,
+    `plot.colors`, `plot.file` or `plot.dir` are supplied.
 
 * New function `gl.report.contamination()`: screens a genlight object for
   cross-contaminated samples from genotypes, population labels and, when
@@ -166,6 +229,23 @@
   pattern is printed for each removed individual but does not change the
   filter. `recalc` and `mono.rm` behave as in the other individual-level
   filters; otherwise the composition-dependent locus-metric flags are reset.
+* `gl.report.contamination()` and `gl.filter.contamination()` (function
+  review):
+  - `rare.freq` outside (0, 0.5) and `min.n` below 2 now stop with an error.
+    They were silently replaced by 0.02 and 2, with the warning shown only
+    at `verbose >= 2` and never through the filter.
+  - Every numeric parameter is checked to be a single finite number; `NA`
+    or a vector gave a base-R error that did not name the parameter.
+  - Plate wells are read in either case ("c4" = "C4"), and `plate_location`
+    is split at the last "-", so plate names containing "-" no longer lose
+    their wells. Such data now yields adjacent pairs where it yielded none.
+    A warning names the case where positions exist but no well parses.
+  - Adjacent pairs are found by neighbour-well lookup instead of testing
+    every pair: identical output, 8.5 s to 2.4 s on 1500 individuals.
+  - `gl.filter.contamination()` warns when populations with one individual
+    were not screened, and when `flag` includes "adjacent" but the data
+    carry no plate positions.
+
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness

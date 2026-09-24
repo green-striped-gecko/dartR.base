@@ -9,6 +9,8 @@
 #'  END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 #' 
 #' @param x A genlight object containing the SNP genotypes [required].
+#' @param rounded If TRUE, results are rounded to 4 decimals; FALSE returns
+#' them unrounded [default TRUE].
 #' 
 #' @details
 #'  This is a re-implementation of \code{hierfstat::basic.stats} specifically
@@ -31,7 +33,7 @@
 #' @export
 #' @return A list with the statistics for each population
 
-utils.basic.stats <- function(x) {
+utils.basic.stats <- function(x, rounded = TRUE) {
   
   n.ind <- table(pop(x))
   
@@ -187,6 +189,17 @@ utils.basic.stats <- function(x) {
   overall["Fstp"] <- overall["Dstp"] / overall["Htp"]
   overall["Gst_H"] <- overall["Fstp"] / overall["Gst_max"]
   
+  # Callers that derive further statistics (e.g. the jackknife in
+  # gl.diagnostics.hwe) need the unrounded values. The rounded branch is
+  # kept verbatim: with one population, as.data.frame() names the column
+  # after the expression ("round(Fis, 4)") and callers rely on that name
+  if (!rounded) {
+    return(list("Ho" = as.data.frame(Ho),
+                "Hs" = as.data.frame(Hs),
+                "Fis" = as.data.frame(Fis),
+                perloc = as.data.frame(res),
+                overall = overall))
+  }
   all.res <- list("Ho" = as.data.frame(round(Ho, 4)), 
                   "Hs" = as.data.frame(round(Hs, 4)), 
                   "Fis" = as.data.frame(round(Fis, 4)), 

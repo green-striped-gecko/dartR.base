@@ -29,10 +29,11 @@ gl.filter.contamination(
 "adjacent" and "rare-only" [default c("suspect", "adjacent")].}
 
 \item{rare.freq}{Allele frequency in the rest of the population below
-which an allele counts as rare [default 0.02].}
+which an allele counts as rare; must lie in (0, 0.5) [default 0.02].}
 
 \item{min.n}{Minimum number of other individuals in the population called
-at a locus for that locus to enter the rare-allele burden [default 5].}
+at a locus for that locus to enter the rare-allele burden; at least 2
+[default 5].}
 
 \item{z.flag}{Robust z-score above which a statistic is an outlier
 [default 3].}

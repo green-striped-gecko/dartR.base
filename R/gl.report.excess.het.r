@@ -1,11 +1,12 @@
 #' @name gl.report.excess.het
 #' @title Report loci with excess of heterozygosity [deprecated]
-#' @family unmatched report
+#' @family matched report
 
 #' @description
 #' \strong{Deprecated.} Use
-#' \code{gl.report.hwe(direction = 'excess', method_sig = 'ChiSquare',
-#' multi_comp = TRUE, multi_comp_method = 'fdr')} instead — see
+#' \code{gl.report.hwe(direction = 'excess', min.hobs = 0.5,
+#' method_sig = 'ChiSquare', multi_comp = TRUE, multi_comp_method = 'fdr',
+#' cc_val = 0)} instead (\code{cc_val = 0.5} for \code{Yates = TRUE}); see
 #' \code{\link{gl.report.hwe}}.
 #'
 #' This wrapper reproduces the workflow of Robledo-Ruiz et al. (2023) for
@@ -23,7 +24,7 @@
 #' test is performed by HardyWeinberg::HWChisq (p-values can differ
 #' marginally from the original hand-rolled test). The parameters
 #' plot.theme, plot.colors, plot.file and plot.dir are accepted for backward
-#' compatibility but ignored.
+#' compatibility but ignored; a warning names any that are supplied.
 
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param Yates Boolean for Yates's continuity correction. [default FALSE]
@@ -41,7 +42,8 @@
 #' table for loci with significant heterozygote excess) and 'removed.loci'
 #' (a vector of the names of those loci), returned invisibly.
 
-#' @author Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz. Custodian: Ching Ching Lau -- Post to
+#' @author Author(s): Jesus Castrejon-Figueroa, Diana A Robledo-Ruiz.
+#' Custodian: Ching Ching Lau -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @references
@@ -78,15 +80,26 @@ gl.report.excess.het <- function(x,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname, verbose = verbose)
 
+  # The advice must reproduce this call's result: min.hobs = 0.5 is part of
+  # the published workflow, and cc_val defaults to 0.5 in gl.report.hwe
+  cc <- ifelse(Yates, 0.5, 0)
   .Deprecated(
     new = "gl.report.hwe",
-    msg = paste(
-      "gl.report.excess.het() is deprecated and will be removed in a",
-      "future release.\nUse gl.report.hwe(direction = 'excess',",
-      "method_sig = 'ChiSquare', multi_comp = TRUE,",
-      "multi_comp_method = 'fdr') instead."
+    msg = paste0(
+      "gl.report.excess.het() is deprecated and will be removed in a ",
+      "future release.\nUse gl.report.hwe(direction = 'excess', ",
+      "min.hobs = 0.5, method_sig = 'ChiSquare', multi_comp = TRUE, ",
+      "multi_comp_method = 'fdr', cc_val = ", cc, ") instead."
     )
   )
+
+  ignored <- c("plot.theme", "plot.colors", "plot.file", "plot.dir")[
+    !vapply(list(plot.theme, plot.colors, plot.file, plot.dir), is.null,
+            logical(1))]
+  if (length(ignored) > 0 && verbose >= 1) {
+    cat(warn("  Warning: ignored, retained only for backward compatibility:",
+             paste(ignored, collapse = ", "), "\n"))
+  }
 
   df <- gl.report.hwe(
     x,
@@ -95,7 +108,7 @@ gl.report.excess.het <- function(x,
     multi_comp = TRUE,
     multi_comp_method = "fdr",
     alpha_val = 0.05,
-    cc_val = ifelse(Yates, 0.5, 0),
+    cc_val = cc,
     direction = "excess",
     min.hobs = 0.5,
     sig_only = TRUE,

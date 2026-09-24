@@ -46,9 +46,10 @@
 #' @param flag Classes of individual to remove, any of "suspect",
 #' "adjacent" and "rare-only" [default c("suspect", "adjacent")].
 #' @param rare.freq Allele frequency in the rest of the population below
-#' which an allele counts as rare [default 0.02].
+#' which an allele counts as rare; must lie in (0, 0.5) [default 0.02].
 #' @param min.n Minimum number of other individuals in the population called
-#' at a locus for that locus to enter the rare-allele burden [default 5].
+#' at a locus for that locus to enter the rare-allele burden; at least 2
+#' [default 5].
 #' @param z.flag Robust z-score above which a statistic is an outlier
 #' [default 3].
 #' @param min.excess Absolute amount by which heterozygosity must also exceed
@@ -143,6 +144,24 @@ gl.filter.contamination <- function(x,
                                     verbose = 0)
   ind <- screen$ind
   drop <- ind[ind$flag %in% flag, , drop = FALSE]
+
+  # The screen ran silently, so repeat the caveats that limit what can be
+  # removed
+  small <- names(which(table(pop(x)) < 2))
+  if (length(small) > 0 && verbose >= 2) {
+    cat(warn("  Warning: populations with a single individual are not",
+             "screened and none of their members is removed:",
+             paste(small, collapse = ", "), "\n"))
+  }
+  # Without plate positions no individual can be "adjacent"; this empties
+  # the result when "adjacent" is the only class requested
+  if ("adjacent" %in% flag && all(is.na(ind$adjacent))) {
+    lvl <- if ("suspect" %in% flag) 2 else 1
+    if (verbose >= lvl) {
+      cat(warn("  Warning: no plate positions found, so no individual can",
+               "be flagged \"adjacent\"\n"))
+    }
+  }
   keep <- !(indNames(x) %in% drop$id)
 
   if (verbose >= 2) {

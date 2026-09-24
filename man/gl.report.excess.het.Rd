@@ -42,8 +42,9 @@ table for loci with significant heterozygote excess) and 'removed.loci'
 }
 \description{
 \strong{Deprecated.} Use
-\code{gl.report.hwe(direction = 'excess', method_sig = 'ChiSquare',
-multi_comp = TRUE, multi_comp_method = 'fdr')} instead — see
+\code{gl.report.hwe(direction = 'excess', min.hobs = 0.5,
+method_sig = 'ChiSquare', multi_comp = TRUE, multi_comp_method = 'fdr',
+cc_val = 0)} instead (\code{cc_val = 0.5} for \code{Yates = TRUE}); see
 \code{\link{gl.report.hwe}}.
 
 This wrapper reproduces the workflow of Robledo-Ruiz et al. (2023) for
@@ -61,7 +62,7 @@ rather than the original before/after scatter plots, and the chi-square
 test is performed by HardyWeinberg::HWChisq (p-values can differ
 marginally from the original hand-rolled test). The parameters
 plot.theme, plot.colors, plot.file and plot.dir are accepted for backward
-compatibility but ignored.
+compatibility but ignored; a warning names any that are supplied.
 }
 \examples{
 \donttest{
@@ -81,16 +82,30 @@ Molecular Ecology Resources.
 \seealso{
 \code{\link{gl.report.hwe}}, \code{\link{gl.filter.hwe}}
 
-Other unmatched report: 
-\code{\link{gl.allele.freq}()},
-\code{\link{gl.report.allelerich}()},
-\code{\link{gl.report.basics}()},
-\code{\link{gl.report.diversity}()},
-\code{\link{gl.report.polyploid_heterozygosity}()},
-\code{\link{gl.report.shannon}()}
+Other matched report: 
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.contamination}()},
+\code{\link{gl.report.factorloadings}()},
+\code{\link{gl.report.fstat}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.ld}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
-Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz. Custodian: Ching Ching Lau -- Post to
+Author(s): Jesus Castrejon-Figueroa, Diana A Robledo-Ruiz.
+Custodian: Ching Ching Lau -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{unmatched report}
+\concept{matched report}
