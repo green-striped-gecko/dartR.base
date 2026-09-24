@@ -281,7 +281,7 @@ own copy. No `dartR.*` sibling calls these functions.
     {"id": "F10", "severity": "INFO", "confidence": "high", "rule": "principle: parity with OutFLANK", "status": "no_change", "change": null}
   ],
   "coverage_skipped": ["DAT6: no FBM fixture", "GitHub issues not searched", "plot visual check"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 111
 }
 ```

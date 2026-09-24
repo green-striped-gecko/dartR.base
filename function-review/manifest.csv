@@ -196,11 +196,11 @@ gl.check.panel,dartR.popgen,analysis,,pending,
 gl.collapse,dartR.popgen,data manipulation,,pending,
 gl.evanno,dartR.popgen,analysis,luis,done,96
 gl.find.loci.in.genes,dartR.popgen,analysis,luis,done,109
-gl.ld.distance,dartR.popgen,analysis,,pending,
+gl.ld.distance,dartR.popgen,analysis,luis,pr-open,112
 gl.map.popcluster,dartR.popgen,analysis,luis,done,103
 gl.map.snmf,dartR.popgen,analysis,luis,done,102
 gl.map.structure,dartR.popgen,analysis,luis,done,95
-gl.outflank,dartR.popgen,analysis,luis,pr-open,111
+gl.outflank,dartR.popgen,analysis,luis,done,111
 gl.plot.faststructure,dartR.popgen,graphics,luis,done,101
 gl.plot.popcluster,dartR.popgen,graphics,luis,done,103
 gl.plot.snmf,dartR.popgen,graphics,luis,done,102
@@ -214,9 +214,9 @@ gl.run.stairway2,dartR.popgen,analysis,luis,done,104
 gl.select.panel,dartR.popgen,graphics,,pending,
 gl.sfs,dartR.popgen,analysis,luis,done,106
 utils.get.allele.freq,dartR.popgen,utility,luis,done,108
-utils.outflank,dartR.popgen,utility,luis,pr-open,111
-utils.outflank.MakeDiploidFSTMat,dartR.popgen,utility,luis,pr-open,111
-utils.outflank.plotter,dartR.popgen,utility,luis,pr-open,111
+utils.outflank,dartR.popgen,utility,luis,done,111
+utils.outflank.MakeDiploidFSTMat,dartR.popgen,utility,luis,done,111
+utils.outflank.plotter,dartR.popgen,utility,luis,done,111
 utils.structure.evanno,dartR.popgen,utility,luis,done,96
 utils.structure.genind2gtypes,dartR.popgen,utility,luis,done,92
 utils.structure.run,dartR.popgen,utility,luis,done,92
