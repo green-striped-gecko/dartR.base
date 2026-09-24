@@ -573,6 +573,8 @@ gl.report.contamination <- function(x,
   }
 
   # PLOTS
+  # column used inside aes(); declared to pass R CMD check
+  id <- NULL
   ind$class <- ifelse(ind$flag %in% c("suspect", "adjacent"),
                       "suspect", "other")
   lab <- ind[ind$class == "suspect", ]

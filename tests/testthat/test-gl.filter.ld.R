@@ -46,7 +46,9 @@ test_that("gl.filter.ld default pop.limit is half the populations in the report"
   f2 <- gl.filter.ld(tt, ld.report = rt, threshold = 0.2, pop.limit = 2,
                      verbose = 0)
   expect_equal(nLoc(fdef), nLoc(f2))
-  expect_equal(nLoc(fdef), 79)
+  # 80 since the utils.read.ped fix (ae74955, via gl.report.ld.map's
+  # PLINK round trip); 79 was pinned on the pre-fix genotypes
+  expect_equal(nLoc(fdef), 80)
 })
 
 test_that("gl.filter.ld drops the partner of an already-dropped locus", {

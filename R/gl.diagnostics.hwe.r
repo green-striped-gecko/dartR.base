@@ -162,7 +162,7 @@ gl.diagnostics.hwe <- function(x,
   # DO THE JOB
   # Set NULL to variables to pass CRAN checks
   Prob<-Sig<-N<-Locus<-Population<-Freq<-Data<-dumpop<-Deficiency<-Fis<-
-    Excess<-pvalue<-ChiSquare<-Fst<-gen <-He <-value<- variable <-fst_obs<-NULL
+    Excess<-pvalue<-ChiSquare<-Fst<-gen <-He <-value<- variable <-fst_obs<-k<-NULL
   
   #remove populations with only one individual
   drop_pop <- names(which(table(pop(x)) <2))
