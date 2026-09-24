@@ -2,22 +2,37 @@
 % Please edit documentation in R/utils.dartR.class.def.r
 \name{glSum}
 \alias{glSum}
-\title{glSum for dartR objects}
+\title{Sum of the second allele per locus, for dartR and genlight objects}
 \usage{
 glSum(x, alleleAsUnit = TRUE, useC = FALSE)
 }
 \arguments{
-\item{x}{a dartR object}
+\item{x}{Name of the dartR or genlight object [required].}
 
-\item{alleleAsUnit}{logical; if TRUE, the mean is calculated per allele,
-if FALSE, per individual}
+\item{alleleAsUnit}{If TRUE, the sum counts alleles; if FALSE, each
+genotype is first divided by the individual's ploidy, so the sum counts
+individuals [default TRUE].}
 
 \item{useC}{Passed through to adegenet::glSum for non-FBM objects
-[default FALSE]}
+[default FALSE].}
 }
 \value{
-A numeric vector of sum of second allele per locus
+A named numeric vector with one value per locus; integer for
+alleleAsUnit = TRUE. Loci with no data give 0.
 }
 \description{
-glSum is necessary as adegenet is using it internally and we need one for fbm projects
+Returns, for each locus, the number of copies of the second
+(alternative) allele summed over individuals, ignoring missing data. It
+replaces \code{adegenet::glSum} so that FBM-backed dartR objects (see
+\code{\link{gl.gen2fbm}}) are handled; other objects are passed to
+\code{adegenet::glSum} and give identical results.
+}
+\examples{
+head(glSum(testset.gl))
+fbm.gl <- gl.gen2fbm(testset.gl, verbose = 0)
+identical(glSum(fbm.gl), glSum(testset.gl))
+}
+\author{
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }

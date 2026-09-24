@@ -1,5 +1,12 @@
 # dartR.base 1.2.4 (development)
 
+* `glMean()` and `glSum()` (function review): FBM-backed objects are
+  summarised in one column-wise pass (`bigstatsr::big_counts()`) instead
+  of reading the file one individual at a time. On 1000 individuals x
+  20000 loci, `glMean()` went from 0.56 s to 0.04 s and `glSum()` from
+  0.31 s to 0.04 s; results are identical. Dense objects are unchanged.
+  Help pages rewritten, with examples.
+
 * `gl.report.polyploid_heterozygosity()` (function review):
   - BUG FIX: statistics are now correct for polyploid (dosage) data. He
     was computed from genotype codes 0, 1 and 2 only, and Ho counted
