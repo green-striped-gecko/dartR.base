@@ -1,5 +1,15 @@
 # dartR.base 1.2.4 (development)
 
+* Objects converted to `dartR` are now valid S4 objects. `class(x) <- "dartR"`
+  (used in 21 functions, including `gl.compliance.check()` and `gl.load()`)
+  only relabelled a genlight, leaving out the `@fbm` slot, so the result
+  failed `validObject()`. The packaged dartR.data datasets have the same
+  gap, because they were saved before the slot existed. A new internal
+  helper, `.as_dartR()`, coerces a plain genlight with `as()` and rebuilds
+  relabelled or old objects slot by slot; `gl.compliance.check()` and
+  `gl.load()` repair such objects on entry. Genotypes and metadata are
+  unchanged.
+
 * `rbind()` on dartR objects (`rbind.dartR`, function review):
   - BUG FIX: for in-memory (non-FBM) objects, genotypes were joined in each
     object's own locus order and labelled with the first object's locus

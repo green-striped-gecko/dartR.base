@@ -47,7 +47,6 @@ SilicoDArT (ploidy 1) data. To combine a list of objects, use
 }
 \examples{
 t1 <- platypus.gl
-class(t1) <- "dartR"
 t2 <- rbind(t1[1:5,],t1[6:10,])
 # a list of objects
 t3 <- do.call(rbind, list(t1[1:5,], t1[6:10,], t1[11:15,]))

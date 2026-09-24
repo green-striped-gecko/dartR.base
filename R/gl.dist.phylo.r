@@ -211,7 +211,7 @@ gl.dist.phylo <- function(x,
   }
 
   if (!is(x, "dartR")) {
-    class(x) <- "dartR"
+    x <- .as_dartR(x)
     if (verbose > 2) {
       cat(
         warn(

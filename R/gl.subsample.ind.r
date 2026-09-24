@@ -59,7 +59,7 @@ gl.subsample.ind <- function(x,
     datatype <- utils.check.datatype(x, verbose=verbose)
     
     if (!is(x, "dartR")) {
-      class(x) <- "dartR"  
+      x <- .as_dartR(x)
       if (verbose>2) {
         cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
         cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
