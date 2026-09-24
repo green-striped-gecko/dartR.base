@@ -176,12 +176,12 @@ gl.filter.excess.het,dartR.base,filter,luis,done,424
 gl.filter.hamming,dartR.base,filter,luis,done,417
 gl.gen2fbm,dartR.base,analysis,luis,done,427
 gl.hwe.pop,dartR.base,analysis,luis,done,425
-gl.print.history,dartR.base,analysis,,pending,
-gl.randomize.snps,dartR.base,analysis,,pending,
+gl.print.history,dartR.base,analysis,luis,pr-open,434
+gl.randomize.snps,dartR.base,analysis,luis,pr-open,433
 gl.report.contamination,dartR.base,report,luis,done,423
 gl.report.excess.het,dartR.base,report,luis,done,424
 gl.report.hamming,dartR.base,report,luis,done,417
-gl.report.polyploid_heterozygosity,dartR.base,report,,pending,
+gl.report.polyploid_heterozygosity,dartR.base,report,luis,in-review,
 gl.subsample.ind,dartR.base,data manipulation,luis,done,426
 gl.subsample.loc,dartR.base,data manipulation,luis,done,426
 gl.subsample.loci,dartR.base,data manipulation,luis,done,426
