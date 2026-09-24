@@ -322,7 +322,7 @@ baseline is tagged with its approved change.
     {"id": "F12", "severity": "INFO", "confidence": "medium", "rule": "DOC5", "status": "approved", "change": 9}
   ],
   "coverage_skipped": ["Windows paths: no Windows machine", "Linux: not run", "DAT6: no FBM fixture", "Google Group / issues not searched"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 104
 }
 ```

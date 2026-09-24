@@ -206,11 +206,11 @@ gl.plot.popcluster,dartR.popgen,graphics,luis,pr-open,103
 gl.plot.snmf,dartR.popgen,graphics,luis,pr-open,102
 gl.plot.structure,dartR.popgen,graphics,luis,done,94
 gl.read.structure,dartR.popgen,io,luis,done,98
-gl.run.epos,dartR.popgen,analysis,,pending,
+gl.run.epos,dartR.popgen,analysis,luis,pr-open,105
 gl.run.faststructure,dartR.popgen,analysis,luis,done,101
 gl.run.popcluster,dartR.popgen,analysis,luis,pr-open,103
 gl.run.snmf,dartR.popgen,analysis,luis,pr-open,102
-gl.run.stairway2,dartR.popgen,analysis,luis,pr-open,104
+gl.run.stairway2,dartR.popgen,analysis,luis,done,104
 gl.select.panel,dartR.popgen,graphics,,pending,
 gl.sfs,dartR.popgen,analysis,,pending,
 utils.get.allele.freq,dartR.popgen,utility,,pending,
