@@ -1,5 +1,21 @@
 # dartR.base 1.2.4 (development)
 
+* `gl.randomize.snps()` (function review):
+  - BUG FIX: the allele labels (`loc.all`) of the recoded loci are now
+    reversed (`G/A` becomes `A/G`). Before, swapping the 0 and 2 codes
+    left the labels unchanged, so homozygotes read as the other allele in
+    exports such as `gl2vcf()`. Genotype codes for a given seed are
+    unchanged.
+  - BUG FIX: FBM-backed objects are now recoded. Before, the recoding went
+    to `@gen` while genotypes are read from the FBM, so the result came
+    back unchanged. The recoding is written to a copy of the FBM; the
+    input object is not modified.
+  - SilicoDArT objects now stop with an error. Before, they gained invalid
+    `2` codes in a ploidy-1 object.
+  - `plot.theme` and `plot.colors` are now passed to the smear plots.
+  - Removed the duplicate, unused copy of the function in
+    `R/gl.random.snp.r`.
+
 * `gl.fdsim()` (function review), which also supplies the
   `gl.fixed.diff(test = TRUE)` p-values:
   - BUG FIX: p-values were too small. The function simulated the expected
