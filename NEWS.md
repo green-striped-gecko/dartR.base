@@ -128,6 +128,19 @@
   - documentation: `@family graphics` added; "chromosome length" is
     described as the position of the last SNP.
 
+* `gl.gen2fbm()` and `gl.fbm2gen()` (function review):
+  - `gl.fbm2gen()` converts in blocks of `chunk` individuals (default 256)
+    instead of decoding the whole FBM into a dense matrix; `chunk` was
+    documented as loci per block but was never used. Output is identical;
+    peak memory for 2000 x 20000 genotypes falls from +429 Mb to +191 Mb
+    (4000 x 20000: +884 Mb to +334 Mb). `gl.save()` benefits, because it
+    converts FBM objects before saving.
+  - Both functions accept a plain adegenet genlight: `gl.gen2fbm()`
+    converts it to dartR (it stopped with "'fbm' is not a slot"), and
+    `gl.fbm2gen()` returns it unchanged (it failed a `stopifnot()`).
+  - Errors use the dartR idiom; an object with both `@fbm` and `@gen`
+    populated is reported as invalid.
+  - Help pages gain titles, a family and runnable examples.
 * `gl.subsample.ind()`, `gl.subsample.loc()` and `gl.subsample.loci()`
   (function review):
   - BUG FIX: `gl.subsample.ind(by.pop = TRUE)` upsampled populations

@@ -1,16 +1,20 @@
-#' Convert an FBM-backed dartR to a GEN-backed dartR (streamed with big_apply)
+#' @name gl.fbm2gen
+#' @title Converts a file-backed (FBM) genlight object to a gen-backed one
+#' @family data manipulation
 #'
 #' @description
-#' `gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot into
-#' a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. The operation is
-#' **column-chunked** via `bigstatsr::big_apply`: each block is decoded from FBM,
-#' turned into a small `genlight`, and concatenated using `cbind.dartR` (SNPbin
-#' path). At the end, `@fbm` is set to `NULL` and `@gen` holds the SNPbin list.
+#' `gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot
+#' into a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. The
+#' conversion runs in blocks of individuals: each block is decoded from the
+#' FBM and turned into SNPbin objects, so the full genotype matrix is never
+#' decoded at once. At the end, `@fbm` is set to `NULL` and `@gen` holds the
+#' SNPbin list.
 #'
-#' @param x A `dartR` object with `@fbm` populated. If `@fbm` is `NULL`,
-#'   the object is returned unchanged.
-#' @param chunk Integer, number of **loci per block** to read from FBM
-#'   (default `2048L`). Increase for speed if you have RAM to spare.
+#' @param x A `dartR` or `genlight` object. If it holds no FBM, it is returned
+#'   unchanged.
+#' @param chunk Integer, number of **individuals per block** decoded from the
+#'   FBM at a time; a block holds `chunk` x nLoc(x) values in memory
+#'   (default `256L`). Increase for speed if you have RAM to spare.
 #' @param quiet Logical; if `TRUE`, suppress the non-critical
 #'   "no FBM found" message regardless of verbosity [default TRUE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -22,30 +26,26 @@
 #' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
-#' \dontrun{
-#' d_gen <- gl.fbm2gen(d_fbm, chunk = 4096L)
-#' length(d_gen@gen)      # nInd
-#' nLoc(d_gen)            # number of loci (via genlight path)
-#' }
+#' x <- gl.gen2fbm(testset.gl)
+#' y <- gl.fbm2gen(x)
+#' length(y@gen)      # one SNPbin per individual
+#' identical(as.matrix(y), as.matrix(testset.gl))
+#' @seealso \code{\link{gl.gen2fbm}}
 #' @export
 
-gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
+gl.fbm2gen <- function(x, chunk = 256L, quiet = TRUE, verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
-
-  stopifnot(inherits(x, "dartR"))
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
   utils.flag.start(func = funname, verbose = verbose)
 
-  ## Safe FBM accessor (tolerates missing slot)
-  .fbm_or_null <- function(obj) tryCatch(methods::slot(obj, "fbm"), error = function(e) NULL)
-
+  # A plain genlight cannot hold an FBM: nothing to convert
   fbm <- .fbm_or_null(x)
   if (is.null(fbm)) {
     if (!quiet && verbose >= 2) {
-      message("gl.fbm2gen: no FBM found; returning input unchanged.")
+      cat(report("  No FBM found; returning input unchanged\n"))
     }
     if (verbose >= 1) {
       cat(report("Completed:", funname, "\n"))
@@ -53,12 +53,22 @@ gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
     return(x)
   }
 
-  dummy <- new("genlight", gen=x@fbm[])
-    
-  x@gen <- dummy@gen
+  # DO THE JOB
+  # Decode blocks of individuals so that the full matrix is never held in
+  # memory; each row of the FBM becomes one SNPbin
+  n <- nrow(fbm)
+  chunk <- max(1L, as.integer(chunk))
+  gen <- vector("list", n)
+  for (s in seq(1L, n, by = chunk)) {
+    rows <- s:min(n, s + chunk - 1L)
+    blk <- fbm[rows, , drop = FALSE]
+    gen[rows] <- methods::new("genlight", gen = blk,
+                              ploidy = x@ploidy[rows])@gen
+  }
+
+  x@gen <- gen
   x@fbm <- NULL
-  ## Update locus-wise metadata that may have been concatenated during blocks
-  
+
   methods::validObject(x)
 
   # FLAG SCRIPT END
@@ -68,4 +78,3 @@ gl.fbm2gen <- function(x, chunk = 2048L, quiet = TRUE, verbose = NULL) {
 
   x
 }
-
