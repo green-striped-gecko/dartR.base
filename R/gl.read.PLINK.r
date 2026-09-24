@@ -154,7 +154,7 @@ gl.read.PLINK <- function(filename,
             out = basename(filename),
             syntax = paste(
               "--file",
-              basename(filename),
+              shQuote(basename(filename)),
               "--make-bed",
               plink.flags
             ),

@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.subsample.loci.r
 \name{gl.subsample.loci}
 \alias{gl.subsample.loci}
-\title{Subsamples n loci from a genlight object and return it as a genlight object}
+\title{Subsamples n loci from a genlight object [deprecated]}
 \usage{
 gl.subsample.loci(x, n, method = "random", mono.rm = FALSE, verbose = NULL)
 }
@@ -14,8 +14,9 @@ gl.subsample.loci(x, n, method = "random", mono.rm = FALSE, verbose = NULL)
 
 \item{method}{Method: 'random', in which case the loci are sampled at random;
 or 'pic', in which case the top n loci ranked on information content are
-chosen. Information content is stored in AvgPIC in the case of SNP data and in
- PIC in the the case of presence/absence (SilicoDArT) data [default 'random'].}
+chosen. Information content is AvgPIC in the case of SNP data and PIC in
+the case of presence/absence (SilicoDArT) data, recalculated first if the
+stored values are out of date [default 'random'].}
 
 \item{mono.rm}{Delete monomorphic loci before sampling [default FALSE].}
 
@@ -27,18 +28,53 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object with n loci
 }
 \description{
-This is a support script, to subsample a genlight \{adegenet\} object based
- on loci. Two methods are used to subsample, random and based on information
- content.
+\strong{Deprecated.} Use \code{gl.subsample.loc(x, n, replace = FALSE,
+method = method, mono.rm = mono.rm)} instead; see
+\code{\link{gl.subsample.loc}}.
+
+Subsamples a genlight object on loci, at random or on information
+content, by calling \code{gl.subsample.loc}. It will be removed in a
+future release.
 }
 \examples{
+\donttest{
 # SNP data
-if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-  gl2 <- gl.subsample.loci(testset.gl, n=200, method='pic')
+gl2 <- gl.subsample.loci(testset.gl, n=200, method='pic')
 # Tag P/A data
-  gl2 <- gl.subsample.loci(testset.gl, n=100, method='random')
+gl2 <- gl.subsample.loci(testset.gs, n=100, method='random')
+}
+}
+\seealso{
+\code{\link{gl.subsample.loc}}
+
+Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sim.genotypes}()},
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()}
 }
 \author{
 Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}

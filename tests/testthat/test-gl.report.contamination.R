@@ -68,10 +68,18 @@ test_that("plate adjacency is read from a supplied plate table", {
   expect_true(all(nchar(r$pairs$well1) >= 2))
 })
 
-test_that("bad parameters warn and coerce, or stop", {
+test_that("bad parameters stop", {
   x <- testset.gl
-  out <- capture.output(r <- gl.report.contamination(x, rare.freq = 0.9, plot.display = FALSE, verbose = 2))
-  expect_true(any(grepl("rare.freq must lie", out)))
+  expect_error(capture.output(gl.report.contamination(x, rare.freq = 0.9, plot.display = FALSE, verbose = 0)),
+               "rare.freq must lie")
+  expect_error(capture.output(gl.report.contamination(x, min.n = 1, plot.display = FALSE, verbose = 0)),
+               "min.n must be at least 2")
+  expect_error(capture.output(gl.report.contamination(x, rare.freq = NA, plot.display = FALSE, verbose = 0)),
+               "rare.freq must be a single finite number")
+  expect_error(capture.output(gl.report.contamination(x, z.flag = c(3, 4), plot.display = FALSE, verbose = 0)),
+               "z.flag must be a single finite number")
+  expect_error(capture.output(gl.report.contamination(x, min.share = "20", plot.display = FALSE, verbose = 0)),
+               "min.share must be a single finite number")
   expect_error(capture.output(gl.report.contamination(x, z.flag = 0, plot.display = FALSE, verbose = 0)))
   expect_error(capture.output(gl.report.contamination(x, min.excess = -1, plot.display = FALSE, verbose = 0)))
   expect_error(capture.output(gl.report.contamination(x, plate = data.frame(id = 1), plot.display = FALSE, verbose = 0)))
@@ -179,4 +187,76 @@ test_that("a mixture too heavy for depth to limit the calls is reported as satur
   h <- r$ind[r$ind$id == s$host, ]
   expect_gt(h$foreign.rate, 0.8)
   expect_equal(h$pattern, "saturated")
+})
+
+# Characterization baseline (function-review, 2026-09-24): outputs of the
+# reviewed state on packaged data. Detects change; does not assert
+# correctness.
+test_that("baseline: flags and summary statistics on packaged data", {
+  base <- list(
+    testset.gl = list(id = c("AA019157", "AA011737"),
+                      flag = c("suspect", "rare-only"),
+                      het = 4.1433, rare = 0.4616, kin = 126.7559, nf = 97),
+    platypus.gl = list(id = "SUS21", flag = "rare-only",
+                       het = 10.1192, rare = 0.2994, kin = 11.7857, nf = 277),
+    bandicoot.gl = list(id = c("bc82", "bc16", "bc38", "bc39", "bc43",
+                               "bc74", "bc21"),
+                        flag = rep("suspect", 7),
+                        het = 30.9664, rare = 0.2872, kin = 3.2913, nf = 284))
+  for (nm in names(base)) {
+    b <- base[[nm]]
+    capture.output(r <- gl.report.contamination(get(nm), plot.display = FALSE,
+                                                verbose = 0))
+    fl <- r$ind$flag != ""
+    expect_equal(r$ind$id[fl], b$id, label = nm)
+    expect_equal(r$ind$flag[fl], b$flag, label = nm)
+    expect_equal(sum(r$ind$het, na.rm = TRUE), b$het, tolerance = 1e-4)
+    expect_equal(sum(r$ind$rare.burden, na.rm = TRUE), b$rare,
+                 tolerance = 1e-4)
+    expect_equal(sum(r$kinship, na.rm = TRUE), b$kin, tolerance = 1e-4)
+    expect_equal(sum(r$ind$n.foreign), b$nf)
+  }
+})
+
+test_that("adjacent pairs match an all-pairs search", {
+  x <- testset.gl
+  ids <- indNames(x)
+  n <- length(ids)
+  # two plates, and two individuals sharing a well, to exercise the lookup
+  wells <- paste0(LETTERS[(0:(n - 1)) %% 8 + 1], ((0:(n - 1)) %/% 8) %% 12 + 1)
+  plate <- data.frame(id = ids, plate = (0:(n - 1)) %/% 96, well = wells)
+  plate$well[2] <- plate$well[1]
+  capture.output(r <- gl.report.contamination(x, plate = plate, plot.display = FALSE, verbose = 0))
+  rw <- match(substr(plate$well, 1, 1), LETTERS)
+  cl <- as.integer(substring(plate$well, 2))
+  pr <- which(upper.tri(matrix(0, n, n)), arr.ind = TRUE)
+  adj <- plate$plate[pr[, 1]] == plate$plate[pr[, 2]] &
+    abs(rw[pr[, 1]] - rw[pr[, 2]]) + abs(cl[pr[, 1]] - cl[pr[, 2]]) == 1
+  expect_setequal(paste(r$pairs$id1, r$pairs$id2),
+                  paste(ids[pr[adj, 1]], ids[pr[adj, 2]]))
+})
+
+test_that("lower-case wells and dashed plate names are parsed", {
+  x <- testset.gl
+  ids <- indNames(x)
+  wells <- paste0(rep(LETTERS[1:8], length.out = length(ids)),
+                  rep(1:12, each = 8, length.out = length(ids)))
+  capture.output(up <- gl.report.contamination(x, plate = data.frame(id = ids, plate = "1", well = wells),
+                                               plot.display = FALSE, verbose = 0))
+  capture.output(lo <- gl.report.contamination(x, plate = data.frame(id = ids, plate = "1", well = tolower(wells)),
+                                               plot.display = FALSE, verbose = 0))
+  expect_equal(lo$pairs, up$pairs)
+  x2 <- x
+  x2@other$ind.metrics$plate_location <- paste0("PL-1-", wells)
+  capture.output(d <- gl.report.contamination(x2, plot.display = FALSE, verbose = 0))
+  expect_equal(d$pairs, up$pairs)
+  expect_equal(d$ind$well[match(ids, d$ind$id)], wells)
+})
+
+test_that("plate wells that do not parse are reported", {
+  x <- testset.gl
+  plate <- data.frame(id = indNames(x), plate = "1", well = "well")
+  out <- capture.output(r <- gl.report.contamination(x, plate = plate, plot.display = FALSE, verbose = 2))
+  expect_true(any(grepl("no plate well parses", out)))
+  expect_null(r$pairs)
 })

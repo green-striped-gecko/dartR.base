@@ -33,7 +33,7 @@
 #' edge). Positions are taken from
 #' \code{plate} if supplied, otherwise from the \code{plate_location} column
 #' of \code{@@other$ind.metrics} written by \code{gl.read.dart()} (for
-#' example "1-C2"), otherwise from \code{plate} and \code{well} columns.
+#' example "1-C2"; the well is the part after the last "-"), otherwise from \code{plate} and \code{well} columns.
 #'
 #' Flags. An individual is a "suspect" when its heterozygosity has z-score
 #' above \code{z.flag} and exceeds the population median by more than
@@ -106,9 +106,10 @@
 #'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param rare.freq Allele frequency in the rest of the population below
-#' which an allele counts as rare [default 0.02].
+#' which an allele counts as rare; must lie in (0, 0.5) [default 0.02].
 #' @param min.n Minimum number of other individuals in the population called
-#' at a locus for that locus to enter the rare-allele burden [default 5].
+#' at a locus for that locus to enter the rare-allele burden; at least 2
+#' [default 5].
 #' @param z.flag Robust z-score above which a statistic is an outlier
 #' [default 3].
 #' @param min.excess Absolute amount by which heterozygosity must also exceed
@@ -128,15 +129,15 @@
 #' @param depth.flat The same ratio below which the pattern is "flat"
 #' [default 1.25].
 #' @param plate Data frame with columns id, plate and well (for example
-#' "C4") giving plate positions; overrides positions found in the individual
+#' "C4", in either case) giving plate positions; overrides positions found in the individual
 #' metadata. Without it, positions come from \code{plate_location} in
 #' \code{@@other$ind.metrics}, keyed by \code{service} when that column
 #' exists, because a report that bundles orders repeats plate numbers
 #' [default NULL].
 #' @param plot.display If TRUE, resultant plots are displayed in the plot
 #' window [default TRUE].
-#' @param plot.theme Theme for the plot. See Details for options
-#' [default theme_dartR()].
+#' @param plot.theme A ggplot2 theme for the plot, for example
+#' \code{theme_dartR()} [default theme_dartR()].
 #' @param plot.colors List of two color names, the first for suspect
 #' individuals and the second for the rest [default c("#2171B5","#6BAED6")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified
@@ -222,7 +223,7 @@ gl.report.contamination <- function(x,
                "this function needs SNP data\n"))
   }
   if (!is(x, "dartR")) {
-    class(x) <- "dartR"
+    x <- .as_dartR(x)
     if (verbose > 2) {
       cat(warn("  Warning: Standard adegenet genlight object encountered. ",
                "Converted to compatible dartR genlight object\n"))
@@ -234,17 +235,21 @@ gl.report.contamination <- function(x,
     stop(error("  Populations must be assigned before screening; ",
                "see gl.define.pop() or gl.reassign.pop()\n"))
   }
-  if (rare.freq <= 0 || rare.freq >= 0.5) {
-    if (verbose >= 2) {
-      cat(warn("  Warning: rare.freq must lie in (0, 0.5), set to 0.02\n"))
+  num.par <- list(rare.freq = rare.freq, min.n = min.n, z.flag = z.flag,
+                  min.excess = min.excess, rare.min.excess = rare.min.excess,
+                  min.share = min.share, share.tol = share.tol,
+                  depth.ratio = depth.ratio, depth.flat = depth.flat)
+  for (nm in names(num.par)) {
+    v <- num.par[[nm]]
+    if (!is.numeric(v) || length(v) != 1 || !is.finite(v)) {
+      stop(error(paste0("  ", nm, " must be a single finite number\n")))
     }
-    rare.freq <- 0.02
+  }
+  if (rare.freq <= 0 || rare.freq >= 0.5) {
+    stop(error("  rare.freq must lie in (0, 0.5)\n"))
   }
   if (min.n < 2) {
-    if (verbose >= 2) {
-      cat(warn("  Warning: min.n must be at least 2, set to 2\n"))
-    }
-    min.n <- 2
+    stop(error("  min.n must be at least 2\n"))
   }
   if (z.flag <= 0 || min.excess < 0 || rare.min.excess < 0) {
     stop(error("  z.flag must be positive and the excess margins ",
@@ -379,9 +384,12 @@ gl.report.contamination <- function(x,
   } else if (!is.null(x@other$ind.metrics)) {
     im <- x@other$ind.metrics
     if ("plate_location" %in% names(im)) {
-      pw <- strsplit(as.character(im$plate_location), "-")
-      pos <- data.frame(plate = vapply(pw, `[`, "", 1),
-                        well = vapply(pw, `[`, "", 2))
+      # gl.read.dart() writes "<plate>-<well>"; split at the last "-" because
+      # plate names may themselves contain "-"
+      pl <- as.character(im$plate_location)
+      dash <- grepl("-", pl)
+      pos <- data.frame(plate = ifelse(dash, sub("-[^-]*$", "", pl), pl),
+                        well = ifelse(dash, sub("^.*-", "", pl), NA))
     } else if (all(c("plate", "well") %in% names(im))) {
       pos <- data.frame(plate = im$plate, well = im$well)
     }
@@ -392,18 +400,33 @@ gl.report.contamination <- function(x,
   }
   adjacent <- rep(NA, n.ind)
   pairs <- NULL
-  if (!is.null(pos) && any(!is.na(pos$well))) {
+  w.ok <- FALSE
+  if (!is.null(pos)) {
+    pos$well <- toupper(trimws(as.character(pos$well)))
     w.row <- match(substr(pos$well, 1, 1), LETTERS)
     w.col <- suppressWarnings(as.integer(substring(pos$well, 2)))
+    w.ok <- !is.na(w.row) & !is.na(w.col)
+  }
+  if (any(w.ok)) {
     is.adj <- function(i, j) {
-      !is.na(w.row[i]) && !is.na(w.row[j]) &&
+      w.ok[i] && w.ok[j] &&
         identical(pos$plate[i], pos$plate[j]) &&
         (abs(w.row[i] - w.row[j]) + abs(w.col[i] - w.col[j])) == 1
     }
     adjacent <- vapply(seq_len(n.ind), function(i) is.adj(i, top.j[i]),
                        logical(1))
-    pr <- which(upper.tri(resid), arr.ind = TRUE)
-    pr <- pr[apply(pr, 1, function(q) is.adj(q[1], q[2])), , drop = FALSE]
+    # Adjacent pairs by direct lookup of the well below and the well to the
+    # right of each individual, so each pair is found once without testing
+    # all n(n - 1) / 2 pairs
+    at <- split(which(w.ok), paste(pos$plate, w.row, w.col)[w.ok])
+    nb <- lapply(which(w.ok), function(i) {
+      c(at[[paste(pos$plate[i], w.row[i] + 1, w.col[i])]],
+        at[[paste(pos$plate[i], w.row[i], w.col[i] + 1)]])
+    })
+    j <- unlist(nb, use.names = FALSE)
+    i <- rep(which(w.ok), lengths(nb))
+    pr <- cbind(pmin(i, j), pmax(i, j))
+    pr <- pr[order(pr[, 2], pr[, 1]), , drop = FALSE]
     if (nrow(pr) > 0) {
       pairs <- data.frame(id1 = ids[pr[, 1]], id2 = ids[pr[, 2]],
                           well1 = pos$well[pr[, 1]], well2 = pos$well[pr[, 2]],
@@ -415,7 +438,12 @@ gl.report.contamination <- function(x,
       rownames(pairs) <- NULL
     }
   } else if (verbose >= 2) {
-    cat(warn("  No plate positions found; adjacency not tested\n"))
+    if (!is.null(pos) && any(!is.na(pos$well) & pos$well != "")) {
+      cat(warn("  Warning: no plate well parses as a row letter and a",
+               "column number (for example \"C4\"); adjacency not tested\n"))
+    } else {
+      cat(warn("  No plate positions found; adjacency not tested\n"))
+    }
   }
 
   # Flags: heterozygosity is the required signal

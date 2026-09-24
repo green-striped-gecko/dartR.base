@@ -288,7 +288,7 @@ gl.sim.crosses <- function(fathers,
       ploidy = rep(2, nrow(offmat))
     )
   if (!is(gl2, "dartR")) {
-    class(gl2) <- "dartR"
+    gl2 <- .as_dartR(gl2)
   }
 
   # Assign sex. Both levels are declared so that a cohort that happens to be

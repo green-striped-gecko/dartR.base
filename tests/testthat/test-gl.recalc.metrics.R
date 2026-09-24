@@ -393,3 +393,12 @@ test_that("[approved F6] verbose = 1 prints this function's banners only", {
   expect_equal(sum(grepl("monomorphic", o2)), 1)
   expect_true(any(grepl("Locus metrics recalculated", o2)))
 })
+
+test_that("gl.recalc.metrics and gl.compliance.check are silent at verbose = 0", {
+  # utils.recalc.maf called gl.alf() without verbose, which printed its
+  # datatype message at the global level
+  expect_length(capture.output(
+    invisible(gl.recalc.metrics(testset.gl, verbose = 0))), 0L)
+  expect_length(capture.output(
+    invisible(gl.compliance.check(testset.gl, verbose = 0))), 0L)
+})

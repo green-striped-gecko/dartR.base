@@ -6,10 +6,13 @@
 and FIS per locus, per population and various population differentiation 
 measures}
 \usage{
-utils.basic.stats(x)
+utils.basic.stats(x, rounded = TRUE)
 }
 \arguments{
 \item{x}{A genlight object containing the SNP genotypes [required].}
+
+\item{rounded}{If TRUE, results are rounded to 4 decimals; FALSE returns
+them unrounded [default TRUE].}
 }
 \value{
 A list with the statistics for each population

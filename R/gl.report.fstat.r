@@ -450,8 +450,7 @@ gl.report.fstat <- function(x,
   }
 
   #converting to dartR object
-  class(x) <- "dartR"
-  
+  x <- .as_dartR(x)
   # BOOTSTRAP STATISTIC [approved F1, F2] ----------
   # The unit of resampling is the locus, because that is the unit the four
   # statistics are averaged over. boot::boot draws its indices from the rows

@@ -33,6 +33,5 @@ gl.compliance.check.
 }
 \examples{
 t1 <- platypus.gl
-class(t1) <- "dartR"
 t2 <- cbind(t1[,1:10],t1[,11:20])
 }

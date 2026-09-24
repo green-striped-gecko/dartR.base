@@ -23,6 +23,28 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 
 .has_fbm <- function(x) !is.null(.fbm_or_null(x))
 
+## Returns a valid dartR object. A plain genlight is coerced with as(), which
+## adds the fbm slot. `class(x) <- "dartR"` only relabels the object, so the
+## result lacks @fbm and fails validObject(); objects made that way (or saved
+## before the slot existed) are rebuilt slot by slot. A valid dartR object is
+## returned unchanged.
+.as_dartR <- function(x) {
+  if (!methods::is(x, "dartR")) {
+    return(methods::as(x, "dartR"))
+  }
+  if (!methods::.hasSlot(x, "fbm")) {
+    y <- methods::new("dartR")
+    for (s in setdiff(methods::slotNames("dartR"), "fbm")) {
+      if (methods::.hasSlot(x, s)) {
+        methods::slot(y, s, check = FALSE) <- methods::slot(x, s)
+      }
+    }
+    y@fbm <- NULL
+    return(y)
+  }
+  x
+}
+
 fbm_or_gen <- function(x) {
   # early guard: must be an S4 object
   
@@ -477,7 +499,6 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' @param quiet suppress warnings. default: TRUE
 #' @examples
 #' t1 <- platypus.gl
-#' class(t1) <- "dartR"
 #' t2 <- cbind(t1[,1:10],t1[,11:20])
 #' @return A dartR object
 #' @export
@@ -681,18 +702,33 @@ cbind.dartR <- function(...,
 ##################################################################
 #' @name rbind.dartR
 #' @title rbind for dartR objects
-#' @description rbind is a bit lazy and does not take care for the metadata (so data in the
-#' other slot is lost). You can get most of the loci metadata back using
-#' gl.compliance.check.
-#' @param ... list of dartR objects
+#' @description Combines the individuals of two or more dartR objects that
+#' hold the same loci. Loci are matched by name, so the objects may list them
+#' in different orders; the result follows the locus order of the first
+#' object.
+#'
+#' Metadata are carried over: locus metrics come from the first object;
+#' individual metrics are stacked (a column missing from an object is filled
+#' with NA), and so are coordinates in \code{latlon} when every object has
+#' them; the locus-metric flags are reset to FALSE, because metrics such as
+#' call rate and allele frequencies no longer describe the combined set of
+#' individuals (use \code{gl.recalc.metrics} to recompute them); the call is
+#' added to the history of the first object.
+#'
+#' The function stops when the objects hold different loci, code the alleles
+#' of a locus differently (\code{loc.all}), or mix SNP (ploidy 2) and
+#' SilicoDArT (ploidy 1) data. To combine a list of objects, use
+#' \code{do.call(rbind, list_of_objects)}.
+#' @param ... dartR objects to combine [required]
 #' @param backingfile prefix for the backing file of the resulting FBM
 #' @param code code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input
 #' @param chunk number of columns to process in a block when copying from FBMs
 #' @param quiet suppress warnings. default: TRUE
 #' @examples
 #' t1 <- platypus.gl
-#' class(t1) <- "dartR"
 #' t2 <- rbind(t1[1:5,],t1[6:10,])
+#' # a list of objects
+#' t3 <- do.call(rbind, list(t1[1:5,], t1[6:10,], t1[11:15,]))
 #' @return A dartR object
 #' @export
 rbind.dartR <- function(...,
@@ -701,9 +737,19 @@ rbind.dartR <- function(...,
                         chunk         = 2048L,       # columns per block
                         quiet         = TRUE) {
   dots <- list(...)
-  objs <- dots[sapply(dots, function(x) inherits(x, "genlight"))]
-  if (length(objs) == 1L && is.list(objs[[1L]])) objs <- objs[[1L]]
-  if (!length(objs)) stop("No dartR/genlight objects supplied to rbind().")
+  # NULL is allowed so that a result can be built up from NULL in a loop
+  # (gl.impute does this); anything else must be a genlight object
+  dots <- dots[!vapply(dots, is.null, logical(1))]
+  not.gl <- !vapply(dots, function(o) inherits(o, "genlight"), logical(1))
+  if (any(not.gl)) {
+    stop(error(
+      "Fatal Error: rbind() on dartR objects accepts only dartR/genlight",
+      "objects (or NULL). To combine a list of objects use",
+      "do.call(rbind, list_of_objects)\n"
+    ))
+  }
+  objs <- dots
+  if (!length(objs)) stop(error("Fatal Error: no dartR/genlight objects supplied to rbind()\n"))
   
   ## Drop empties
   objs <- objs[sapply(objs, nLoc) > 0 & sapply(objs, nInd) > 0]
@@ -737,6 +783,35 @@ rbind.dartR <- function(...,
     }
   }
   
+  ## SNP (ploidy 2) and SilicoDArT (ploidy 1) data cannot share an object:
+  ## a SilicoDArT presence score of 1 would read as an SNP heterozygote
+  ploidies <- unique(unlist(lapply(objs, ploidy), use.names = FALSE))
+  if (length(ploidies) > 1L) {
+    stop(error(
+      "Fatal Error: the objects mix ploidy levels (", paste(ploidies, collapse = ", "),
+      "); SNP and SilicoDArT data cannot be combined\n"
+    ))
+  }
+
+  ## Every object must code the alleles of each locus as the first object
+  ## does; otherwise the same genotype score means different alleles in
+  ## different rows
+  ref_all <- alleles(objs[[1L]])
+  if (!is.null(ref_all) && length(objs) > 1L) {
+    for (k in 2:length(objs)) {
+      all.k <- alleles(objs[[k]])
+      if (is.null(all.k)) next
+      n.diff <- sum(all.k[colmap[[k]]] != ref_all, na.rm = TRUE)
+      if (n.diff > 0L) {
+        stop(error(
+          "Fatal Error: object", k, "codes the alleles (loc.all) of", n.diff,
+          "loci differently from the first object; recode them before",
+          "combining\n"
+        ))
+      }
+    }
+  }
+
   ## Concatenate per-individual metadata
   ind_names_in <- unlist(lapply(objs, indNames), use.names = FALSE)
   ind_names    <- make.unique(ind_names_in, "__ind")
@@ -763,12 +838,7 @@ rbind.dartR <- function(...,
   alleles_out  <- alleles(objs[[1L]])
   chrom_out    <- chr(objs[[1L]])
   pos_out      <- position(objs[[1L]])
-  loc_metrics  <- objs[[1L]]@other$loc.metrics
-  other_out    <- objs[[1L]]@other
-  if (!is.null(loc_metrics) && nrow(loc_metrics) == length(loc_names)) {
-    rownames(loc_metrics) <- loc_names
-    other_out$loc.metrics <- loc_metrics
-  }
+  other_out    <- .rbind_other(objs, ind_names)
   
   ## Any FBM present?
   has_fbm_vec <- vapply(objs, function(o) !is.null(.fbm_or_null(o)), logical(1))
@@ -855,7 +925,7 @@ rbind.dartR <- function(...,
     )
     if (!.has_fbm(out)) out@fbm <- NULL
     methods::validObject(out)
-    return(out)
+    return(.rbind_finish(out, length(objs)))
   }
   
   ## ---------------- No FBM: SNPbin-based fallback (original logic) ----------------
@@ -863,6 +933,15 @@ rbind.dartR <- function(...,
   if (length(unique(sapply(myList, nLoc))) != 1L)
     stop("objects have different numbers of SNPs")
   
+  # Put every object in the first object's locus order before joining the
+  # genotype lists; joining them as stored misplaced genotypes whenever
+  # the locus order differed
+  for (k in seq_along(myList)) {
+    if (!identical(colmap[[k]], seq_len(p.ref))) {
+      myList[[k]] <- myList[[k]][, colmap[[k]]]
+    }
+  }
+
   dots <- list()
   dots$Class <- "dartR"
   dots$gen <- Reduce(c, lapply(myList, function(e) e@gen))
@@ -875,11 +954,66 @@ rbind.dartR <- function(...,
   out@chromosome <- chr(myList[[1L]])
   out@position   <- position(myList[[1L]])
   ploidy(out)    <- ploidy_out
+  out@other      <- other_out
   if (!.has_fbm(out)) out@fbm <- NULL
   methods::validObject(out)
-  out
+  .rbind_finish(out, length(objs))
 }
 # end of rbind.dartR
+
+## @other for rbind.dartR: loc.metrics from the first object, per-individual
+## tables stacked, everything else from the first object
+.rbind_other <- function(objs, ind_names) {
+  oth <- objs[[1L]]@other
+  lm <- oth$loc.metrics
+  if (!is.null(lm) && nrow(lm) == nLoc(objs[[1L]])) {
+    rownames(lm) <- locNames(objs[[1L]])
+    oth$loc.metrics <- lm
+  }
+
+  # ind.metrics: union of columns, NA where an object lacks a column
+  im <- lapply(objs, function(o) o@other$ind.metrics)
+  if (any(!vapply(im, is.null, logical(1)))) {
+    cols <- unique(unlist(lapply(im, names)))
+    im <- lapply(seq_along(objs), function(k) {
+      d <- im[[k]]
+      d <- if (is.null(d)) data.frame(row.names = seq_len(nInd(objs[[k]])))
+           else as.data.frame(d)
+      for (cc in setdiff(cols, names(d))) d[[cc]] <- NA
+      d[, cols, drop = FALSE]
+    })
+    im <- do.call(rbind, im)
+    rownames(im) <- NULL
+    if ("id" %in% names(im)) im$id <- ind_names
+    oth$ind.metrics <- im
+  }
+
+  # latlon is per individual: keep it only when every object has it
+  ll <- lapply(objs, function(o) o@other$latlon)
+  if (all(vapply(seq_along(objs), function(k)
+    !is.null(ll[[k]]) && NROW(ll[[k]]) == nInd(objs[[k]]), logical(1)))) {
+    ll <- do.call(rbind, lapply(ll, as.data.frame))
+    rownames(ll) <- ind_names
+    oth$latlon <- ll
+  } else {
+    oth$latlon <- NULL
+  }
+  oth
+}
+
+## Reset the locus-metric flags (the set of individuals changed) and record
+## the call. A compact call is stored: match.call() under do.call() embeds
+## the whole objects in the history.
+.rbind_finish <- function(out, n.objects) {
+  if (!is.null(out@other$loc.metrics.flags)) {
+    out <- utils.reset.flags(out, set = FALSE, verbose = 0)
+  }
+  nh <- length(out@other$history)
+  out@other$history[[nh + 1]] <- str2lang(
+    sprintf("rbind.dartR(n.objects = %d)", n.objects)
+  )
+  out
+}
 ###############################################################
 
 #now set methods to use FBM when present.

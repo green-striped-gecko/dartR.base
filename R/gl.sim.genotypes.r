@@ -181,7 +181,7 @@ gl.sim.genotypes <- function(x,
     ploidy = rep(2, n.ind * n.pop)
   )
   if (!is(gl, "dartR")) {
-    class(gl) <- "dartR"
+    gl <- .as_dartR(gl)
   }
 
   # Populate the metadata. Assigning into @other$ind.metrics before it exists

@@ -4,9 +4,10 @@
 
 #' @description
 #' \strong{Deprecated.} Use
-#' \code{gl.filter.hwe(direction = 'excess', test.type = 'ChiSquare',
-#' mult.comp.adj = TRUE, mult.comp.adj.method = 'fdr')} instead — see
-#' \code{\link{gl.filter.hwe}}.
+#' \code{gl.filter.hwe(direction = 'excess', min.hobs = 0.5,
+#' test.type = 'ChiSquare', mult.comp.adj = TRUE,
+#' mult.comp.adj.method = 'fdr', cc.val = 0)} instead (\code{cc.val = 0.5}
+#' for \code{Yates = TRUE}); see \code{\link{gl.filter.hwe}}.
 #'
 #' This wrapper reproduces the workflow of Robledo-Ruiz et al. (2023) for
 #' removing loci with a significant excess of heterozygotes (candidate
@@ -37,8 +38,9 @@
 #' @return The genlight object with excessively-heterozygous loci removed,
 #' returned invisibly.
 
-#' @author Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz (Custodian: Ching Ching Lau) -- Post
-#' to \url{https://groups.google.com/d/forum/dartr}
+#' @author Author(s): Jesus Castrejon-Figueroa, Diana A Robledo-Ruiz.
+#' Custodian: Ching Ching Lau -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 
 #' @references
 #' \itemize{
@@ -71,13 +73,16 @@ gl.filter.excess.het <- function(x,
   funname <- match.call()[[1]]
   utils.flag.start(func = funname, verbose = verbose)
 
+  # The advice must reproduce this call's result: min.hobs = 0.5 is part of
+  # the published workflow, and cc.val defaults to 0.5 in gl.filter.hwe
+  cc <- ifelse(Yates, 0.5, 0)
   .Deprecated(
     new = "gl.filter.hwe",
-    msg = paste(
-      "gl.filter.excess.het() is deprecated and will be removed in a",
-      "future release.\nUse gl.filter.hwe(direction = 'excess',",
-      "test.type = 'ChiSquare', mult.comp.adj = TRUE,",
-      "mult.comp.adj.method = 'fdr') instead."
+    msg = paste0(
+      "gl.filter.excess.het() is deprecated and will be removed in a ",
+      "future release.\nUse gl.filter.hwe(direction = 'excess', ",
+      "min.hobs = 0.5, test.type = 'ChiSquare', mult.comp.adj = TRUE, ",
+      "mult.comp.adj.method = 'fdr', cc.val = ", cc, ") instead."
     )
   )
 
@@ -89,14 +94,17 @@ gl.filter.excess.het <- function(x,
     mult.comp.adj = TRUE,
     mult.comp.adj.method = "fdr",
     alpha = 0.05,
-    cc.val = ifelse(Yates, 0.5, 0),
+    cc.val = cc,
     direction = "excess",
     min.hobs = 0.5,
     verbose = verbose
   )
 
-  # Retain the original wrapper's optional post-processing
+  # Retain the original wrapper's optional post-processing. The history
+  # records this call rather than the inner gl.filter.hwe() call, whose
+  # arguments refer to variables local to this function
   hold.history <- x2@other$history
+  hold.history[[length(hold.history)]] <- match.call()
   if (mono.rm) {
     x2 <- gl.filter.monomorphs(x2, verbose = 0)
   }

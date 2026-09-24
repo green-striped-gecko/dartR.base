@@ -59,6 +59,7 @@ and the recalculated locus metadata.
 \code{\link{gl.recode.pop}} for recoding populations
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},

@@ -1,4 +1,93 @@
-# dartR.base 1.2.3 (development)
+# dartR.base 1.2.4 (development)
+
+* Objects converted to `dartR` are now valid S4 objects. `class(x) <- "dartR"`
+  (used in 21 functions, including `gl.compliance.check()` and `gl.load()`)
+  only relabelled a genlight, leaving out the `@fbm` slot, so the result
+  failed `validObject()`. The packaged dartR.data datasets have the same
+  gap, because they were saved before the slot existed. A new internal
+  helper, `.as_dartR()`, coerces a plain genlight with `as()` and rebuilds
+  relabelled or old objects slot by slot; `gl.compliance.check()` and
+  `gl.load()` repair such objects on entry. Genotypes and metadata are
+  unchanged.
+
+* `rbind()` on dartR objects (`rbind.dartR`, function review):
+  - BUG FIX: for in-memory (non-FBM) objects, genotypes were joined in each
+    object's own locus order and labelled with the first object's locus
+    names. When the order differed, genotypes landed at the wrong locus
+    (1722 of 4636 for five platypus.gl individuals) with no warning. Loci
+    are now matched by name.
+  - BUG FIX: metadata. The in-memory path returned an empty `@other`; the
+    FBM path kept the first object's `@other`, so 5 + 5 individuals had 5
+    `ind.metrics` rows. Both paths now keep `loc.metrics` from the first
+    object, stack `ind.metrics` (missing columns filled with NA) and
+    `latlon`, reset the locus-metric flags, and add a history entry.
+  - `rbind()` now stops when the objects code the alleles of a locus
+    differently (`loc.all`), when SNP and SilicoDArT objects are mixed, or
+    when an argument other than `NULL` is not a dartR/genlight object; all
+    three were combined or ignored silently. Use
+    `do.call(rbind, list_of_objects)` to combine a list.
+
+* Verbosity leak through `gl.alf()`: since `gl.alf()` follows the global
+  verbosity (c581841), two internal calls that did not pass `verbose`
+  printed its datatype message at every level. `utils.recalc.maf()` (run by
+  `gl.recalc.metrics()` and `gl.compliance.check()`, and so by
+  `gl.read.PLINK()` and every reader) and `gl.report.heterozygosity()` now
+  call `gl.alf(verbose = 0)`. At `verbose = 0`, `gl.recalc.metrics()` and
+  `gl.compliance.check()` printed 3 lines and `gl.report.heterozygosity()`
+  90 lines; all now print nothing.
+* `utils.plink.run()` (used by `gl.read.PLINK()`) and `gl2vcf()`: the same
+  PLINK-call gaps fixed in `gl2plink()` (function-review addendum):
+  - BUG FIX: a failed PLINK run was not detected. `utils.plink.run()`
+    returned normally, and `gl.read.PLINK()` later stopped with a
+    misleading "Check that PLINK is installed"; `gl2vcf()` finished with an
+    R warning and no VCF. Both now stop with an error that quotes PLINK's
+    own message (stderr included). A `plink.path` that cannot be run is
+    reported the same way.
+  - BUG FIX: paths were passed to PLINK unquoted. `gl.read.PLINK()` on a
+    file named `my file.ped` and `gl2vcf()` with an `outpath` containing a
+    space both failed; so would a temporary directory under a Windows user
+    name with a space. All paths are now quoted.
+  - `utils.plink.run()` shows PLINK's output only at `verbose >= 3`
+    (stderr no longer leaks at `verbose = 0`).
+* `gl2plink()` with `bed.files = TRUE` (function-review addendum):
+  - BUG FIX: a failed PLINK run was reported as success. `system()` turned
+    PLINK's non-zero exit into an R warning, `gl2plink()` printed
+    "Completed" and no `.bed` file was written; callers (`gl2vcf()`,
+    `gl.report.ld.map()`, dartR.popgen `gl.ld.haplotype()` and
+    `gl.run.faststructure()`) then failed later on missing files. It now
+    stops with an error that quotes the end of PLINK's output. Calls that
+    used to finish with a warning now stop with an error.
+  - BUG FIX: paths were passed to PLINK unquoted, so an output folder or
+    PLINK path containing a space (e.g. `my data`) made PLINK reject the
+    command. All paths are now quoted.
+  - PLINK's log was printed with `message()` at every verbosity (48 lines at
+    `verbose = 0`); it is now shown only at `verbose >= 3`.
+* `gl.report.hamming()` and `gl.filter.hamming()` (function review, one
+  matched set):
+  - API CHANGE: `gl.report.hamming()` now returns, invisibly, the table of
+    loci that `gl.filter.hamming()` would remove at each candidate threshold
+    (`Threshold`, `Removed`, `Percent.removed`, `Retained`,
+    `Percent.retained`). It previously returned `x` unchanged, and the table
+    was visible only as console text at `verbose >= 2`. Code of the form
+    `x <- gl.report.hamming(x)` now overwrites `x` with the table.
+  - BUG FIX: `threshold` greater than or equal to `min.length` made every
+    comparable pair a duplicate; `gl.filter.hamming(platypus.gl, threshold =
+    50)` removed 948 of 1000 loci without a warning. Both functions now stop
+    with an error.
+  - BUG FIX: a fractional `threshold` was truncated by the compiled engine
+    (`threshold = 2.9` ran as 2), and `NA` or a vector gave base-R errors.
+    `threshold` must now be one whole number, 0 or more.
+  - BUG FIX: `gl.filter.hamming()` did not check `rs` or `min.length`; a
+    negative `rs` or `min.length = 0` compared no loci and returned the data
+    unchanged, with a note only at `verbose >= 2`. Both functions now require
+    whole numbers (`rs >= 0`, `min.length >= 1`), and the filter warns at
+    `verbose >= 1` when fewer than two loci can be compared.
+  - Argument checks and sequence preparation now live in one internal
+    helper, `utils.hamming.prepare()`, so the report's counts cannot drift
+    from the filter's.
+  - DOCS: `gl.filter.hamming()` now states that it also removes secondaries
+    (several SNPs on one tag); 9 of the 11 loci it removes from
+    `platypus.gl` by default are secondaries.
 
 * `gl.randomize.snps()`:
   - BUG FIX: a call with `plot.display = FALSE` -- including any `verbose = 0`
@@ -49,6 +138,83 @@
   - documentation: `@family graphics` added; "chromosome length" is
     described as the position of the last SNP.
 
+* `gl.gen2fbm()` and `gl.fbm2gen()` (function review):
+  - `gl.fbm2gen()` converts in blocks of `chunk` individuals (default 256)
+    instead of decoding the whole FBM into a dense matrix; `chunk` was
+    documented as loci per block but was never used. Output is identical;
+    peak memory for 2000 x 20000 genotypes falls from +429 Mb to +191 Mb
+    (4000 x 20000: +884 Mb to +334 Mb). `gl.save()` benefits, because it
+    converts FBM objects before saving.
+  - Both functions accept a plain adegenet genlight: `gl.gen2fbm()`
+    converts it to dartR (it stopped with "'fbm' is not a slot"), and
+    `gl.fbm2gen()` returns it unchanged (it failed a `stopifnot()`).
+  - Errors use the dartR idiom; an object with both `@fbm` and `@gen`
+    populated is reported as invalid.
+  - Help pages gain titles, a family and runnable examples.
+* `gl.subsample.ind()`, `gl.subsample.loc()` and `gl.subsample.loci()`
+  (function review):
+  - BUG FIX: `gl.subsample.ind(by.pop = TRUE)` upsampled populations
+    smaller than `n` one full copy too many (platypus.gl, `n = 70`:
+    93/87/70 individuals instead of 70/70/70).
+  - BUG FIX: `gl.subsample.ind(by.pop = FALSE)` compared `n` with the
+    number of loci and set it to that number: `n = 300` with replacement
+    returned 255 individuals from testset.gl. With replacement it now
+    returns `n`; without, it caps at `nInd(x)`.
+  - BUG FIX: `gl.subsample.ind()` with its documented default `n = NULL`
+    stopped with "argument is of length zero"; the default now applies.
+  - `gl.subsample.loc()` gains `method = "pic"` (the n loci with the
+    highest information content) and `mono.rm`, from
+    `gl.subsample.loci()`, which is deprecated and now calls it. The
+    defaults leave existing calls unchanged.
+  - `method = "pic"` recalculates AvgPIC/PIC when the stored values are
+    out of date (after individuals are removed), instead of ranking on
+    stale values; `method` is case-insensitive and an unknown value stops.
+  - `gl.subsample.loc()` without `n` stops with a message naming `n`.
+* `gl.diagnostics.hwe()` (function review):
+  - Much faster with `stdErr = TRUE`: the jackknife over loci is computed
+    directly from the per-locus statistics instead of re-running
+    `utils.basic.stats()` once per locus. bandicoot.gl (1000 loci): 41.5 s
+    to 1.1 s; 10,000 loci: about 2 s (previously about 70 min on one core).
+    `n.cores` is kept for compatibility and ignored.
+  - BUG FIX: the standard errors of Fis and Fst were too small by a factor
+    of (number of loci - 1), and were computed from leave-one-out values
+    rounded to 4 decimals (on bandicoot.gl, 1000 values collapsed to 15
+    distinct Fis and 3 distinct Fst values). They are now the standard
+    jackknife standard errors of unrounded values: SE Fis 4.43e-06 becomes
+    0.00432 on bandicoot.gl, and the Fis/Fst ratio 5.62 becomes 5.40.
+  - BUG FIX: the barplot's "0" bar counted non-significant tests while the
+    other bars and the null counted loci (4677 against 863 on
+    bandicoot.gl). All bars now count loci, and the null is the expected
+    count rather than one random draw.
+  - BUG FIX: Fisher's combined test used 2 x nLoc degrees of freedom and
+    `nExpected` used nLoc, although loci monomorphic or under-sampled in a
+    population are not tested there; both now use the tests run.
+  - The histogram's bins span [0, 1] and its line is the uniform
+    expectation (it was drawn at nrow / (bins - 1)).
+  - Nothing is printed at `verbose = 0`.
+  - Requires HardyWeinberg (now guarded with an error) and no longer
+    ggtern; a missing package errors instead of returning -1.
+* `gl.hwe.pop()` (function review):
+  - BUG FIX: an object without populations stopped with "Vector length
+    does no match number of individuals"; it is now tested as the single
+    population "pop1", as documented.
+  - A missing HardyWeinberg errors instead of returning -1.
+  - Documentation corrected (return value, `plot_colors` default, plot
+    type).
+* `utils.basic.stats()` gains `rounded = TRUE`; `rounded = FALSE` returns
+  unrounded statistics. Default output is unchanged.
+* `gl.report.excess.het()` and `gl.filter.excess.het()` (deprecated
+  wrappers; function review):
+  - The deprecation message now gives a call that reproduces the wrapper's
+    result: it adds `min.hobs = 0.5` and the `cc.val`/`cc_val` matching
+    `Yates`. The previous advice removed 282 loci from LBP where the
+    wrapper removes 6.
+  - `gl.filter.excess.het()` records its own call in the history. The
+    entry was the inner `gl.filter.hwe()` call, which referred to the
+    wrapper's local `Yates` and could not be replayed.
+  - `gl.report.excess.het()` warns when the ignored `plot.theme`,
+    `plot.colors`, `plot.file` or `plot.dir` are supplied.
+
 * New function `gl.report.contamination()`: screens a genlight object for
   cross-contaminated samples from genotypes, population labels and, when
   present, the plate wells stored by `gl.read.dart()`. Tier 1 flags
@@ -73,6 +239,23 @@
   pattern is printed for each removed individual but does not change the
   filter. `recalc` and `mono.rm` behave as in the other individual-level
   filters; otherwise the composition-dependent locus-metric flags are reset.
+* `gl.report.contamination()` and `gl.filter.contamination()` (function
+  review):
+  - `rare.freq` outside (0, 0.5) and `min.n` below 2 now stop with an error.
+    They were silently replaced by 0.02 and 2, with the warning shown only
+    at `verbose >= 2` and never through the filter.
+  - Every numeric parameter is checked to be a single finite number; `NA`
+    or a vector gave a base-R error that did not name the parameter.
+  - Plate wells are read in either case ("c4" = "C4"), and `plate_location`
+    is split at the last "-", so plate names containing "-" no longer lose
+    their wells. Such data now yields adjacent pairs where it yielded none.
+    A warning names the case where positions exist but no well parses.
+  - Adjacent pairs are found by neighbour-well lookup instead of testing
+    every pair: identical output, 8.5 s to 2.4 s on 1500 individuals.
+  - `gl.filter.contamination()` warns when populations with one individual
+    were not screened, and when `flag` includes "adjacent" but the data
+    carry no plate positions.
+
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness

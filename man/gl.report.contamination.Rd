@@ -29,10 +29,11 @@ gl.report.contamination(
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{rare.freq}{Allele frequency in the rest of the population below
-which an allele counts as rare [default 0.02].}
+which an allele counts as rare; must lie in (0, 0.5) [default 0.02].}
 
 \item{min.n}{Minimum number of other individuals in the population called
-at a locus for that locus to enter the rare-allele burden [default 5].}
+at a locus for that locus to enter the rare-allele burden; at least 2
+[default 5].}
 
 \item{z.flag}{Robust z-score above which a statistic is an outlier
 [default 3].}
@@ -60,7 +61,7 @@ pattern is "dose" [default 1.5].}
 [default 1.25].}
 
 \item{plate}{Data frame with columns id, plate and well (for example
-"C4") giving plate positions; overrides positions found in the individual
+"C4", in either case) giving plate positions; overrides positions found in the individual
 metadata. Without it, positions come from \code{plate_location} in
 \code{@other$ind.metrics}, keyed by \code{service} when that column
 exists, because a report that bundles orders repeats plate numbers
@@ -69,8 +70,8 @@ exists, because a report that bundles orders repeats plate numbers
 \item{plot.display}{If TRUE, resultant plots are displayed in the plot
 window [default TRUE].}
 
-\item{plot.theme}{Theme for the plot. See Details for options
-[default theme_dartR()].}
+\item{plot.theme}{A ggplot2 theme for the plot, for example
+\code{theme_dartR()} [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names, the first for suspect
 individuals and the second for the rest [default c("#2171B5","#6BAED6")].}
@@ -131,7 +132,7 @@ the partner is tested for plate adjacency (same plate, wells sharing an
 edge). Positions are taken from
 \code{plate} if supplied, otherwise from the \code{plate_location} column
 of \code{@other$ind.metrics} written by \code{gl.read.dart()} (for
-example "1-C2"), otherwise from \code{plate} and \code{well} columns.
+example "1-C2"; the well is the part after the last "-"), otherwise from \code{plate} and \code{well} columns.
 
 Flags. An individual is a "suspect" when its heterozygosity has z-score
 above \code{z.flag} and exceeds the population median by more than

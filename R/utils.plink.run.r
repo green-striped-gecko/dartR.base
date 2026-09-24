@@ -9,10 +9,12 @@
 #'   the PATH then there is no need for this. This is what the option "path"
 #'   means
 #' @param out The root of the output file name
-#' @param syntax the flags to pass to plink call
+#' @param syntax the flags to pass to plink call; any file names in it must
+#'   be quoted by the caller (e.g. with \code{shQuote()})
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report [default NULL].
-#' @return A character vector with the command used for PLINK.
+#' @return A character vector with the command used for PLINK. Stops with
+#'   an error, quoting PLINK's output, when PLINK exits with an error.
 #' @details
 #' PLINK needs to be installed on the 
 #'   machine and syntax used need to be appropriate for the version installed.
@@ -37,9 +39,7 @@ utils.plink.run <- function(dir.in,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
-                   build = "Jody",
-                   verbose = verbose)
+  utils.flag.start(func = funname, verbose = verbose)
   
   # DO THE JOB
   old.wd <- getwd()
@@ -56,11 +56,31 @@ utils.plink.run <- function(dir.in,
   } else {
     exe <- file.path(plink.path, plink.cmd)
   }
-  cmd <- paste(exe, syntax, paste0("--out ", out))
-  # Suppress the child process's console chatter below verbose 3; it
-  # bypasses sink() and would print even at verbose = 0 (gl.read.PLINK
-  # review, F5)
-  system(cmd, ignore.stdout = verbose < 3)
+  # The executable and output name are quoted, so paths containing spaces
+  # reach PLINK as single arguments; paths inside syntax must be quoted by
+  # the caller
+  cmd <- paste(shQuote(exe), syntax, "--out", shQuote(out))
+  # Capture PLINK's output, stderr included (2>&1), and print it only at
+  # verbose >= 3; it bypasses sink() and would print even at verbose = 0
+  # (gl.read.PLINK review, F5). A non-zero exit stops with PLINK's own
+  # message rather than letting the caller fail later on a missing file.
+  # system() itself errors when the command cannot be started at all
+  # (e.g. a wrong plink.path); report that the same way
+  plink.out <- tryCatch(
+    suppressWarnings(system(paste(cmd, "2>&1"), intern = TRUE)),
+    error = function(e) structure(conditionMessage(e), status = 127L)
+  )
+  status <- attr(plink.out, "status")
+  if (verbose >= 3) {
+    cat(report(paste(plink.out, collapse = "\n"), "\n"))
+  }
+  if (!is.null(status) && status != 0) {
+    stop(error(
+      "Fatal Error: PLINK exited with status", status, "running\n", cmd,
+      "\nLast lines of the PLINK output:\n",
+      paste(utils::tail(plink.out, 5), collapse = "\n"), "\n"
+    ))
+  }
   
   # FLAG SCRIPT END
   

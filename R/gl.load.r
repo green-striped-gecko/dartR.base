@@ -60,13 +60,15 @@ gl.load <- function(file,
     # CHECK DATATYPE
 
     if (!is(x, "dartR")) {
-      class(x) <- "dartR"
       if (verbose>=2) {
         cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
         cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR,
                  please use function dartR2gl\n"))
       }
     }
+    # Also repairs dartR objects saved without the fbm slot (made with
+    # class<- or by older versions)
+    x <- .as_dartR(x)
 
     datatype <- utils.check.datatype(x, verbose = verbose)
     if (verbose >= 2) {

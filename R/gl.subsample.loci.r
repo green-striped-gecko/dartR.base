@@ -1,16 +1,24 @@
-#' Subsamples n loci from a genlight object and return it as a genlight object
+#' @name gl.subsample.loci
+#' @title Subsamples n loci from a genlight object [deprecated]
+#' @family data manipulation
 #'
-#' This is a support script, to subsample a genlight \{adegenet\} object based
-#'  on loci. Two methods are used to subsample, random and based on information
-#'  content.
+#' @description
+#' \strong{Deprecated.} Use \code{gl.subsample.loc(x, n, replace = FALSE,
+#' method = method, mono.rm = mono.rm)} instead; see
+#' \code{\link{gl.subsample.loc}}.
+#'
+#' Subsamples a genlight object on loci, at random or on information
+#' content, by calling \code{gl.subsample.loc}. It will be removed in a
+#' future release.
 #'
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #'  (SilicoDArT) data [required].
 #' @param n Number of loci to include in the subsample [required].
 #' @param method Method: 'random', in which case the loci are sampled at random;
 #' or 'pic', in which case the top n loci ranked on information content are
-#' chosen. Information content is stored in AvgPIC in the case of SNP data and in
-#'  PIC in the the case of presence/absence (SilicoDArT) data [default 'random'].
+#' chosen. Information content is AvgPIC in the case of SNP data and PIC in
+#' the case of presence/absence (SilicoDArT) data, recalculated first if the
+#' stored values are out of date [default 'random'].
 #' @param mono.rm Delete monomorphic loci before sampling [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -19,132 +27,63 @@
 #' @export
 #' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' @seealso \code{\link{gl.subsample.loc}}
 #' @examples
+#' \donttest{
 #' # SNP data
-#' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-#'   gl2 <- gl.subsample.loci(testset.gl, n=200, method='pic')
+#' gl2 <- gl.subsample.loci(testset.gl, n=200, method='pic')
 #' # Tag P/A data
-#'   gl2 <- gl.subsample.loci(testset.gl, n=100, method='random')
+#' gl2 <- gl.subsample.loci(testset.gs, n=100, method='random')
+#' }
 
 gl.subsample.loci <- function(x,
                               n,
                               method = "random",
                               mono.rm = FALSE,
                               verbose = NULL) {
-    # SET VERBOSITY
-    verbose <- gl.check.verbosity(verbose)
-    
-    # FLAG SCRIPT START
-    funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
-                     build = "v2023.3",
-                     verbose = verbose)
-    
-    # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
-    # FUNCTION SPECIFIC ERROR CHECKING
-    
-    if (mono.rm) {
-        if (x@other$loc.metrics.flags$monomorphs == FALSE) {
-            if (verbose >= 2) {
-                cat(report("  Deleting monomorphic loci\n"))
-            }
-            x <- gl.filter.monomorphs(x, verbose = 0)
-        } else {
-            if (verbose >= 2) {
-                cat(report("  Zero monomorphic loci, none deleted\n"))
-            }
-        }
-    }
-    
-    # Check monomorphs have been removed
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
-        if (verbose >= 2) {
-            cat(
-                warn(
-                    "  Warning: Dataset contains monomorphic loci which will be included in the",
-                    funname,
-                    "selections\n"
-                )
-            )
-        }
-    }
-    
-    if (!method == "pic" & !method == "random") {
-        if (verbose >= 1) {
-            cat(
-                warn(
-                    "  Warning: parameter method must be set to 'pic' or 'random', set to random\n"
-                )
-            )
-        }
-        method <- "random"
-    }
-    
-    if (n <= 0 | n > nLoc(x)) {
-        stop(
-            error(
-                "Fatal Error: subsample size must be a postive integer >= 1 or <=",
-                nLoc(x),
-                "\n"
-            )
-        )
-    }
-    
-    # DO THE JOB
-    
-    if (datatype == "SilicoDArT") {
-        pic <- x@other$loc.metrics$PIC
-    }
-    if (datatype == "SNP") {
-        pic <- x@other$loc.metrics$AvgPIC
-    }
-    
-    if (method == "random") {
-        if (verbose >= 2) {
-            cat(report(
-                "  Subsampling at random",
-                n,
-                "loci from",
-                class(x),
-                "object",
-                "\n"
-            ))
-        }
-        randsel <- sample(1:nLoc(x), n, replace = FALSE)
-        
-          x.new <- x[, randsel]
-          x.new@other$loc.metrics <- x@other$loc.metrics[randsel, ]
-        
-        if (verbose >= 3) {
-            cat(report("  No. of loci retained =", ncol(x.new), "\n"))
-        }
-        
-    } else if (method == "PIC" | method == "pic") {
-        x <- x[, order(-pic)]
-        
-        x.new <- x[, 1:n]
-        x.new@other$loc.metrics <- x@other$loc.metrics[1:n, ]
-    
-        if (verbose >= 3) {
-            cat(report("  No. of loci retained =", ncol(x.new), "\n"))
-        }
-        
-    } else {
-        stop(error("Fatal Error: method must be 'random' or 'pic'\n"))
-    }
-    
-    # ADD TO HISTORY
-    nh <- length(x.new@other$history)
-    x.new@other$history[[nh + 1]] <- match.call()
-    
-    # FLAG SCRIPT END
-    
-    if (verbose >= 1) {
-        cat(report("Completed:", funname, "\n"))
-    }
-    
-    return(x.new)
-    
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+
+  # FLAG SCRIPT START
+  funname <- match.call()[[1]]
+  utils.flag.start(func = funname, verbose = verbose)
+
+  .Deprecated(
+    new = "gl.subsample.loc",
+    msg = paste0(
+      "gl.subsample.loci() is deprecated and will be removed in a future ",
+      "release.\nUse gl.subsample.loc(x, n, replace = FALSE, method = '",
+      tolower(method), "', mono.rm = ", mono.rm, ") instead."
+    )
+  )
+
+  # Unlike gl.subsample.loc, which caps n, this function has always stopped
+  # on an out-of-range n; keep that behaviour
+  n.avail <- if (mono.rm) {
+    nLoc(gl.filter.monomorphs(x, verbose = 0))
+  } else {
+    nLoc(x)
+  }
+  if (missing(n) || n <= 0 || n > n.avail) {
+    stop(error("  Fatal Error: subsample size must be a positive integer",
+               ">= 1 and <=", n.avail, "\n"))
+  }
+
+  x.new <- gl.subsample.loc(x,
+                            n = n,
+                            replace = FALSE,
+                            method = method,
+                            mono.rm = mono.rm,
+                            verbose = 0)
+
+  # Record this call rather than the inner gl.subsample.loc() call
+  nh <- length(x.new@other$history)
+  x.new@other$history[[nh]] <- match.call()
+
+  # FLAG SCRIPT END
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
+  return(x.new)
 }

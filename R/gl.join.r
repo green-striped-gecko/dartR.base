@@ -102,7 +102,7 @@ gl.join <- function(x1,
   datatype2 <- utils.check.datatype(x2, verbose = 0)
   
   if (!is(x1, "dartR")) {
-    class(x1) <- "dartR"
+    x1 <- .as_dartR(x1)
     if (verbose > 2) {
       cat(
         warn(
@@ -118,7 +118,7 @@ gl.join <- function(x1,
     }
   }
   if (!is(x2, "dartR")) {
-    class(x2) <- "dartR"
+    x2 <- .as_dartR(x2)
     if (verbose > 2) {
       cat(
         warn(
