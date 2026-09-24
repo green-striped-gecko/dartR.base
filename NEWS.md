@@ -1,5 +1,12 @@
 # dartR.base 1.2.4 (development)
 
+* `gl.report.heterozygosity()`: BUG FIX: `polyLoc` no longer counts
+  loci with no data in a population, and `monoLoc` no longer subtracts
+  them. On testset.gl every population changes by its number of all-NA
+  loci (EmmacBrisWive: 21/224 to 11/234, 10 all-NA loci); `polyLoc +
+  monoLoc + all_NALoc` now equals the number of loci. Other columns are
+  unchanged.
+
 * `gl.print.history()` (function review):
   - Prints each entry as its number followed by the call, with long calls
     wrapped and indented. The `knitr` table it used needed `knitr`, which

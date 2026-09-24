@@ -177,3 +177,24 @@ test_that("gl.report.heterozygosity is silent at verbose = 0", {
   expect_length(capture.output(
     invisible(gl.report.heterozygosity(testset.gl, verbose = 0))), 0L)
 })
+
+test_that("all-NA loci are not counted as polymorphic", {
+  # before: EmmacBrisWive reported polyLoc 21 / monoLoc 224 with 10 all-NA
+  # loci; the independent count is 11 / 234
+  r <- gl.report.heterozygosity(testset.gl, verbose = 0)
+  sg <- seppop(testset.gl)
+  counts <- t(sapply(sg, function(y) {
+    m <- as.matrix(y)
+    scored <- colSums(!is.na(m)) > 0
+    q <- colMeans(m, na.rm = TRUE) / 2
+    c(poly = sum(scored & q > 0 & q < 1),
+      mono = sum(scored & (q == 0 | q == 1)),
+      all_na = sum(!scored))
+  }))
+  expect_equal(r$polyLoc, unname(counts[, "poly"]))
+  expect_equal(r$monoLoc, unname(counts[, "mono"]))
+  expect_equal(r$all_NALoc, unname(counts[, "all_na"]))
+  expect_equal(r$polyLoc[r$pop == "EmmacBrisWive"], 11)
+  expect_equal(r$polyLoc + r$monoLoc + r$all_NALoc,
+               rep(nLoc(testset.gl), nPop(testset.gl)))
+})
