@@ -192,11 +192,11 @@ utils.hamming.engine,dartR.base,utility,arthur,done,318
 utils.pa.Chao,dartR.base,utility,,pending,
 utils.subsample.pop,dartR.base,utility,,pending,
 gl.TajimasD,dartR.popgen,analysis,luis,done,108
-gl.check.panel,dartR.popgen,analysis,luis,awaiting-approval,
+gl.check.panel,dartR.popgen,analysis,luis,pr-open,113
 gl.collapse,dartR.popgen,data manipulation,,pending,
 gl.evanno,dartR.popgen,analysis,luis,done,96
 gl.find.loci.in.genes,dartR.popgen,analysis,luis,done,109
-gl.ld.distance,dartR.popgen,analysis,luis,pr-open,112
+gl.ld.distance,dartR.popgen,analysis,luis,done,112
 gl.map.popcluster,dartR.popgen,analysis,luis,done,103
 gl.map.snmf,dartR.popgen,analysis,luis,done,102
 gl.map.structure,dartR.popgen,analysis,luis,done,95
@@ -211,7 +211,7 @@ gl.run.faststructure,dartR.popgen,analysis,luis,done,101
 gl.run.popcluster,dartR.popgen,analysis,luis,done,103
 gl.run.snmf,dartR.popgen,analysis,luis,done,102
 gl.run.stairway2,dartR.popgen,analysis,luis,done,104
-gl.select.panel,dartR.popgen,graphics,luis,awaiting-approval,
+gl.select.panel,dartR.popgen,graphics,luis,pr-open,113
 gl.sfs,dartR.popgen,analysis,luis,done,106
 utils.get.allele.freq,dartR.popgen,utility,luis,done,108
 utils.outflank,dartR.popgen,utility,luis,done,111

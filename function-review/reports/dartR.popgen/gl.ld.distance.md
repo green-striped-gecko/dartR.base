@@ -204,7 +204,7 @@ header); no `dartR.*` sibling calls the function.
     {"id": "F6", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 6}
   ],
   "coverage_skipped": ["plot visual check", "GitHub issues not searched", "non-R.squared ld.stat not run"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 112
 }
 ```
