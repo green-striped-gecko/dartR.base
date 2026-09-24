@@ -254,7 +254,7 @@ the roxygen header; it needs regenerating after change 7.
     {"id": "F9", "severity": "INFO", "confidence": "high", "rule": "DOC5", "status": "no_change", "change": null}
   ],
   "coverage_skipped": ["forum/issue search: not run in this session", "DAT6: genotypes not read"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 109
 }
 ```
