@@ -20,21 +20,21 @@ gl.hwe.pop(
 
 \item{alpha_val}{Level of significance for testing [default 0.05].}
 
-\item{plot.out}{If TRUE, returns a plot object compatible with ggplot,
-otherwise returns a dataframe [default TRUE].}
+\item{plot.out}{If TRUE, the plot is drawn and returned in the list;
+otherwise the plot element is NULL [default TRUE].}
 
 \item{plot_theme}{User specified theme [default theme_dartR()].}
 
-\item{plot_colors}{Vector with two color names for the borders and fill
-[default gl.colors(2)].
- [default gl.colors("dis")].}
+\item{plot_colors}{Vector with two color names, for non-significant and
+significant tests [default c("gray90", "deeppink")].}
 
 \item{HWformat}{Switch if data should be returned in HWformat (counts of
 Genotypes to be used in package \code{HardyWeinberg})}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 The function returns a list with up to three components:
@@ -64,16 +64,15 @@ This functions performs a HWE test for every population (rows) and loci
 an HWE-test for a particular loci and population was below the specified
 threshold (alpha_val, default=0.05). The thinking behind this approach is
 that loci that are not in HWE in several populations have most likely to be
-treated (e.g. filtered if loci under selection are of interest). If plot=TRUE
- a barplot on the loci and the sum of deviation over all population is
- returned. Loci that deviate in the majority of populations can be identified
-  via colSums on the resulting matrix.
+treated (e.g. filtered if loci under selection are of interest). If
+ plot.out = TRUE a raster plot of significant tests over loci (columns)
+ and populations (rows) is drawn and returned. Loci that deviate in the
+ majority of populations can be identified via colSums on the resulting
+ matrix.
 Plot themes can be obtained from \itemize{
  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
  }
-Resultant ggplots and the tabulation are saved to the session's temporary
-directory.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
