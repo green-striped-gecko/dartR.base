@@ -1,5 +1,14 @@
 # dartR.base 1.2.4 (development)
 
+* `utils.check.datatype()`: a ploidy-2 object whose genotypes are all 0 or
+  1 and that has no SNP metadata is now treated as SNP data, with a
+  warning from `verbose = 1`, instead of stopping. Such data are
+  ambiguous: small simulated samples and hand-built objects can lack the
+  homozygous-alternate class. The stop also blocked `gl.compliance.check()`
+  from adding the missing `loc.all`. Reported from the dartR.sim review
+  (`gl.sim.Neconst(ninds = 3, nlocs = 1)`, synthetic parents in
+  `gl.sim.offspring`).
+
 * `utils.reset.flags()` (and so `gl.compliance.check()`) no longer adds an
   all-NA column named `array(NA, nLoc(x))` to `loc.metrics`, or one named
   `array(NA, 1)` to `loc.metrics.flags`, when an object has no locus
