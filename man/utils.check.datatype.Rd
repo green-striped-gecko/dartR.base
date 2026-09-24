@@ -47,11 +47,12 @@ A genlight object is classified from its ploidy slot alone (uniformly 1,
 are not consulted, with one exception: an object of uniform ploidy 2
 whose non-missing genotypes are all 0 or 1, and which carries no SNP
 metadata (an empty loc.all slot and no SNP or SnpPosition locus
-metrics), is rejected as presence/absence (SilicoDArT) content
-mislabelled as SNP, since it would otherwise pass into dosage-based
-(0/1/2) arithmetic. A clean SNP subset that merely lacks the
-homozygous-alternate class is not affected: its loc.all slot vouches
-for the label. Content-level validation beyond that check is the job
+metrics), is treated as SNP data with a warning (verbose >= 1) that it
+may be presence/absence (SilicoDArT) content mislabelled as SNP. Such an
+object is ambiguous: a small simulated sample or a hand-built object can
+lack the homozygous-alternate class. A clean SNP subset that merely
+lacks the homozygous-alternate class and keeps its loc.all slot raises
+no warning. Content-level validation beyond that check is the job
 of \code{gl.compliance.check}.
 Note also that this function checks to see if there are individuals or loci
 scored as all missing (NA) and if so, issues the user with a warning

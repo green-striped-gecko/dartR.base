@@ -1,5 +1,14 @@
 # dartR.base 1.2.4 (development)
 
+* `utils.check.datatype()`: a ploidy-2 object whose genotypes are all 0 or
+  1 and that has no SNP metadata is now treated as SNP data, with a
+  warning from `verbose = 1`, instead of stopping. Such data are
+  ambiguous: small simulated samples and hand-built objects can lack the
+  homozygous-alternate class. The stop also blocked `gl.compliance.check()`
+  from adding the missing `loc.all`. Reported from the dartR.sim review
+  (`gl.sim.Neconst(ninds = 3, nlocs = 1)`, synthetic parents in
+  `gl.sim.offspring`).
+
 * `gl.report.polyploid_heterozygosity()` (function review):
   - BUG FIX: statistics are now correct for polyploid (dosage) data. He
     was computed from genotype codes 0, 1 and 2 only, and Ho counted
