@@ -1,5 +1,12 @@
 # dartR.base 1.2.6 (development)
 
+* `glMean()` and `glSum()` (function review): FBM-backed objects are
+  summarised in one column-wise pass (`bigstatsr::big_counts()`) instead
+  of reading the file one individual at a time. On 1000 individuals x
+  20000 loci, `glMean()` went from 0.56 s to 0.04 s and `glSum()` from
+  0.31 s to 0.04 s; results are identical. Dense objects are unchanged.
+  Help pages rewritten, with examples.
+
 * `utils.check.datatype()`: a ploidy-2 object whose genotypes are all 0 or
   1 and that has no SNP metadata is now treated as SNP data, with a
   warning from `verbose = 1`, instead of stopping. Such data are
