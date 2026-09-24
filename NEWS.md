@@ -1,5 +1,27 @@
 # dartR.base 1.2.4 (development)
 
+* `gl.fdsim()` (function review), which also supplies the
+  `gl.fixed.diff(test = TRUE)` p-values:
+  - BUG FIX: p-values were too small. The function simulated the expected
+    number of false positives and fitted a normal curve to its spread,
+    leaving out the chance variation in the count itself. Each replicate
+    now draws the count, and the p-value is the share of replicates that
+    reach the observed count, `(sum(count >= obs) + 1) / (reps + 1)`. On
+    `testset.gl`, 4 observed fixed differences went from p = 0.022 to
+    p = 0.15; on `platypus.gl`, 1 went from p = 4.6e-20 to p = 0.04.
+    `sdexpected` is now the standard deviation of the simulated count.
+  - BUG FIX: `sympatric = TRUE` read allele frequencies from the wrong
+    rows (the two populations interleaved), using half the loci. Both
+    populations are now sampled from their pooled allele frequency, each
+    with its own sample size.
+  - BUG FIX: for SilicoDArT data the sample size is now the number of
+    individuals, not twice that number.
+  - `poppair`, `reps` (a whole number of at least 2) and `obs` are checked
+    before any work. `reps = 1` and a repeated population label now stop
+    with an error.
+  - Draws are vectorised across loci (about 27 times faster); results for
+    a given seed differ from earlier versions.
+
 * `gl.document()` removed. It generated a roxygen2 template file for a
   function, a development tool rather than an analysis function, and no
   function in dartR.base or its sibling packages called it.
