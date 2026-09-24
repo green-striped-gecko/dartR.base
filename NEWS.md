@@ -1,4 +1,4 @@
-# dartR.base 1.2.4 (development)
+# dartR.base 1.2.6 (development)
 
 * `gl.report.polyploid_heterozygosity()` (function review):
   - BUG FIX: statistics are now correct for polyploid (dosage) data. He
