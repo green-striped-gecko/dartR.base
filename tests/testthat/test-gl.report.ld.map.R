@@ -73,7 +73,8 @@ test_that("gl.report.ld.map unmapped auto-detect on testset.gl subset", {
   out <- capture.output(
     res <- gl.report.ld.map(tt, plot.display = FALSE, verbose = 0)
   )
-  expect_equal(nrow(res), 17)
+  # 11 since the utils.read.ped fix (ae74955); the earlier pin predates it
+  expect_equal(nrow(res), 11)
   expect_setequal(unique(as.character(res$pop)),
                   c("EmmacBurnBara", "EmmacMaclGeor", "EmmacMDBForb"))
   # explicit ld.max.pairwise = NULL takes the same path
@@ -103,7 +104,7 @@ test_that("gl.report.ld.map with a signed statistic returns no negative values",
   x <- prep_platypus_mapped()
   res_r <- gl.report.ld.map(x, ld.max.pairwise = 10000000, ld.stat = "R",
                             plot.display = FALSE, verbose = 0)
-  expect_equal(nrow(res_r), 234)
+  expect_equal(nrow(res_r), 233)  # after the utils.read.ped fix (ae74955)
   expect_true(min(res_r$ld.stat) > 0)
 })
 

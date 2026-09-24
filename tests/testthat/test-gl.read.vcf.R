@@ -221,10 +221,11 @@ test_that("gl.read.vcf reads a gzipped vcf", {
   expect_equal(c(nInd(x), nLoc(x)), c(3L, 3L))
 })
 
-test_that("gl.read.vcf never prints its own FLAG SCRIPT END (current gap)", {
+test_that("gl.read.vcf prints its own FLAG SCRIPT END", {
   skip_if_not_installed("vcfR")
   d <- vcf_tmpdir()
   f <- write_vcf(d, "basic.vcf", basic_records, info_hdr = info2)
   out <- capture.output(invisible(suppressWarnings(gl.read.vcf(f, verbose = 2))))
-  expect_false(any(grepl("Completed: gl.read.vcf", out)))
+  # the gap pinned here earlier (no "Completed:" line) has been fixed
+  expect_true(any(grepl("Completed: gl.read.vcf", out)))
 })
