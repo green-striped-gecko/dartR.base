@@ -15,65 +15,84 @@ gl.fdsim(
 )
 }
 \arguments{
-\item{x}{Name of the genlight containing the SNP genotypes [required].}
+\item{x}{Name of the genlight object containing the SNP or SilicoDArT
+genotypes [required].}
 
-\item{poppair}{Labels of two populations for comparison in the form
-c(popA,popB) [required].}
+\item{poppair}{Labels of two different populations for comparison, in the
+form c(popA, popB) [required].}
 
-\item{obs}{Observed number of fixed differences between the two populations
-[default NULL].}
+\item{obs}{Observed number of fixed differences between the two
+populations. If NULL, it is calculated with gl.fixed.diff [default NULL].}
 
-\item{sympatric}{If TRUE, the two populations are sympatric, if FALSE then
+\item{sympatric}{If TRUE, the two populations are sympatric; if FALSE,
 allopatric [default FALSE].}
 
-\item{reps}{Number of replications to undertake in the simulation
-[default 1000].}
+\item{reps}{Number of replicates in the simulation, a whole number of at
+least 2 [default 1000].}
 
-\item{delta}{The threshold value for the minor allele frequency to regard the
-difference between two populations to be fixed [default 0.02].}
+\item{delta}{The threshold value for the minor allele frequency to regard
+the difference between two populations as fixed [default 0.02].}
 
-\item{verbose}{Verbosity: 0, silent, fatal errors only; 1, flag function
-begin and end; 2, progress log; 3, progress and results summary; 5, full
-report [default 2 or as specified using gl.set.verbosity].}
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-A list containing the following square matrices
-        [[1]] observed fixed differences;
-        [[2]] mean expected number of false positives for each comparison;
-        [[3]] standard deviation of the no. of false positives for each
-        comparison;
-        [[4]] probability the observed fixed differences arose by chance for
-        each comparison.
+A named list of four numbers:
+\itemize{
+  \item observed -- the observed count of fixed differences;
+  \item mnexpected -- the mean simulated count of false positives;
+  \item sdexpected -- the standard deviation of the simulated count of
+  false positives;
+  \item prob -- the probability that false positives alone reach the
+  observed count.
+}
 }
 \description{
-This function takes two populations and generates allele frequency profiles
-for them. It then samples an allele frequency for each, at random, and
-estimates a sampling distribution for those two allele frequencies. Drawing
-two samples from those sampling distributions, it calculates whether or not
-they represent a fixed difference. This is applied to all loci, and the
-number of fixed differences so generated are counted, as an expectation. The
-script distinguished between true fixed differences (with a tolerance of
-delta), and false positives. The simulation is repeated a given number of
-times (default=1000) to provide an expectation of the number of false
-positives, given the observed allele frequency profiles and the sample sizes.
- The probability of the observed count of fixed differences is greater than
-the expected number of false positives is calculated.
+Estimates how many fixed differences between two populations would arise
+from sampling error alone, given the observed allele frequencies and
+sample sizes, and the probability that false positives alone reach the
+observed count of fixed differences.
+}
+\details{
+Loci that are missing in either population are dropped, as are loci
+that already show a true fixed difference: minor allele frequency below
+\code{delta} in one population and above \code{1 - delta} in the other.
+Each remaining locus can produce a false positive.
+
+In each of \code{reps} replicates, a true allele frequency is drawn for
+each population and locus by binomial sampling around the observed
+frequency. From it, the probability that samples of the observed size
+show a fixed difference is computed, and a false positive is drawn with
+that probability. The count of false positives across loci is recorded.
+
+For allopatric populations (\code{sympatric = FALSE}) each population is
+sampled from its own observed frequencies. For sympatric populations
+(\code{sympatric = TRUE}) both are sampled from the pooled frequency,
+weighted by sample size, each with its own sample size: the null
+hypothesis that both samples come from one gene pool.
+
+Sample sizes are counted in alleles (twice the number of individuals)
+for SNP data, and in individuals for SilicoDArT data.
+
+The p-value is the share of replicates whose count reaches the observed
+count, \code{(sum(count >= obs) + 1) / (reps + 1)}, so the smallest
+reportable value is \code{1 / (reps + 1)}.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
-fd <- gl.fdsim(testset.gl[,1:100],poppair=c('EmsubRopeMata','EmmacBurnBara'),
-sympatric=TRUE,verbose=3)
+fd <- gl.fdsim(testset.gl[, 1:100],
+  poppair = c("EmsubRopeMata", "EmmacBurnBara"),
+  reps = 100, verbose = 3
+)
 
 }
 \seealso{
-Other distance: 
-\code{\link{gl.dist.ind}()},
-\code{\link{gl.dist.pop}()},
-\code{\link{gl.fst.pop}()},
-\code{\link{utils.dist.ind.snp}()}
+Other fixed difference analysis: 
+\code{\link{gl.fixed.diff}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
  \url{https://groups.google.com/d/forum/dartr})
 }
-\concept{distance}
+\concept{fixed difference analysis}

@@ -92,7 +92,6 @@ D <- gl.dist.ind(testset.gl[1:20,1:100], method='euclidean',scale=TRUE)
 \seealso{
 Other distance: 
 \code{\link{gl.dist.pop}()},
-\code{\link{gl.fdsim}()},
 \code{\link{gl.fst.pop}()},
 \code{\link{utils.dist.ind.snp}()}
 }

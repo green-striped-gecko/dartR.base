@@ -111,7 +111,6 @@ Cockerham theta returned here.
 Other distance: 
 \code{\link{gl.dist.ind}()},
 \code{\link{gl.dist.pop}()},
-\code{\link{gl.fdsim}()},
 \code{\link{utils.dist.ind.snp}()}
 }
 \author{

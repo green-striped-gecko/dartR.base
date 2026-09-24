@@ -54,7 +54,8 @@
 
 #' NOTE: The above test will only be calculated if tloc=0, that is, for analyses
 #' of absolute fixed differences. The test applies in comparisons of allopatric
-#'  populations only. For sympatric populations, use gl.pval.sympatry().
+#'  populations only. For sympatric populations, use gl.fdsim() with
+#' sympatric = TRUE.
 
 #' An absolute fixed difference is as defined above. However, one might wish to
 #' score fixed differences at some lower level of allele frequency difference,
