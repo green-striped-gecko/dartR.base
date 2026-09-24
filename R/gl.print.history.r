@@ -1,36 +1,45 @@
 #' @name gl.print.history
-#' @title Prints history of a genlight object
+#' @title Prints the history of a genlight object
 #' @family environment
-
-#' @param x A genlight object (with history) [optional].
-#' @param history Either a link to a history slot
-#' (gl\@other$history), or a vector indicating which part of the history of x is
-#' used [c(1,3,4) uses the first, third and forth entry from x\@other$history].
-#' If no history is provided the complete history of x is used (recreating the
-#' identical object x) [optional].
+#'
+#' @description
+#' Prints the calls stored in the history of a genlight object
+#' (\code{x@other$history}), one numbered entry per call, and returns them
+#' as a table.
+#'
+#' @details
+#' dartR functions that modify a genlight object add the call that produced
+#' it to \code{x@other$history}. This function lists those calls in order.
+#' Each entry keeps its position in the history, also when only some entries
+#' are selected with \code{history}. Calls longer than 80 characters are
+#' wrapped, with continuation lines indented by two spaces.
+#'
+#' To re-run the calls in a history, use \code{gl.play.history}.
+#'
+#' @param x A genlight object with a history. Not needed when
+#' \code{history} is a history list [default NULL].
+#' @param history Either a history list (such as \code{gl@other$history}),
+#' or the numbers of the entries of \code{x@other$history} to print
+#' (c(1, 3, 4) prints the first, third and fourth entries). If NULL, the
+#' whole history of \code{x} is printed [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
-#' or 2 if no global is set].
+#' [default 2, unless specified using gl.set.verbosity].
 #'
-#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (bugs? Post to
+#' @return A data frame, returned invisibly, with one row per history entry:
+#' \code{nr}, the position of the entry in the history, and \code{history},
+#' the call as text. The table is printed at verbose 1 or higher.
+#'
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
-#' 
+#'
 #' @examples
-#' \donttest{
-#' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
-#' metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
-#' gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=FALSE)
-#' if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
-#' gl2 <- gl.filter.callrate(gl, method='loc', threshold=0.9)
-#' gl3 <- gl.filter.callrate(gl2, method='ind', threshold=0.95)
+#' gl2 <- gl.filter.callrate(testset.gl, method = "loc", threshold = 0.9)
+#' gl3 <- gl.filter.callrate(gl2, method = "ind", threshold = 0.95)
 #' gl.print.history(gl3)
-#' }
-#' 
-#' @importFrom gridExtra grid.table ttheme_default
+#' gl.print.history(gl3, history = c(1, 3))
+#'
 #' @export
-#' @return Prints a table with all history records. Currently the style cannot
-#' be changed.
 
 gl.print.history <- function(x = NULL,
                              history = NULL,
@@ -42,39 +51,59 @@ gl.print.history <- function(x = NULL,
     funname <- match.call()[[1]]
     utils.flag.start(func = funname, verbose = verbose)
 
-    if (is(x,"genlight"))
-        if (is.null(history))
-            hist2 <-
-                x@other$history
-    else
-        hist2 <- x@other$history[history]
-    
-    if (is.null(x) & is.list(history))
+    # SCRIPT SPECIFIC CHECKS
+    if (is.list(history)) {
+        # A history list stands on its own; x is not needed
         hist2 <- history
-    
-    
-    nh <- length(hist2)
-    if (nh == 0) {
-        warning(warn(
-            "You did not specify a history correctly. Check your genlight object."
-        ))
-    }  else {
-        # for (i in 1:length(hist2)) { hist2[[i]]$x <- 'gl' }
-        
-        dd <- data.frame(nr = 1:nh, history = as.character(hist2))
-        
-        # max width
-        dd$history <-sapply(lapply(dd$history, strwrap, width = 80),
-                            paste,
-                            collapse = "\n")
-        if (verbose >= 1) {
-            print(knitr::kable(dd, align = c("c", "l", "l")))
+        idx <- seq_along(hist2)
+    } else {
+        if (!is(x, "genlight")) {
+            stop(error(
+                "  Fatal Error: provide a genlight object as x, or a history",
+                "list as history\n"
+            ))
         }
-        
-        # dd[nh+1,] <- c('->',as.character(substitute(x)) ) #set table theme tt <- ttheme_default() tt$rowhead$fg_params$x=0
-        # tt$core$fg_params$fontsize=11 tt$core$fg_params$hjust=0 tt$core$fg_params$x=c(rep(0.5, nh),0.2, rep(0.01, nh+1))
-        # tt$core$fg_params$fontfamily='mono' tt$core$fg_params$fontface='bold' plot(0, type='n', xlab='', ylab='', axes=F) grid.table(dd,
-        # theme=tt)
+        full <- x@other$history
+        if (is.null(history)) {
+            idx <- seq_along(full)
+        } else {
+            if (!is.numeric(history) || anyNA(history) ||
+                any(history != round(history)) || any(history < 1) ||
+                any(history > length(full))) {
+                stop(error(
+                    "  Fatal Error: history must be entry numbers from 1 to",
+                    length(full), "\n"
+                ))
+            }
+            idx <- history
+        }
+        hist2 <- full[idx]
+    }
+
+    # DO THE JOB
+
+    # One line of text per entry
+    calls <- vapply(hist2, function(h) {
+        txt <- if (is.character(h)) h else deparse(h, width.cutoff = 500L)
+        gsub("\\s+", " ", paste(txt, collapse = " "))
+    }, character(1))
+    dd <- data.frame(nr = idx, history = unname(calls),
+                     stringsAsFactors = FALSE)
+
+    if (nrow(dd) == 0) {
+        if (verbose >= 2) {
+            cat(warn("  Warning: no history entries found\n"))
+        }
+    } else if (verbose >= 1) {
+        # Number, then the call; wrapped lines indented by two spaces
+        w <- nchar(max(dd$nr))
+        pad <- strrep(" ", w + 1)
+        for (i in seq_len(nrow(dd))) {
+            lines <- strwrap(dd$history[i], width = 80 - w - 1, exdent = 2)
+            lead <- c(paste0(formatC(dd$nr[i], width = w), " "),
+                      rep(pad, length(lines) - 1))
+            cat(paste0(lead, lines, "\n"), sep = "")
+        }
     }
 
     # FLAG SCRIPT END
@@ -82,4 +111,5 @@ gl.print.history <- function(x = NULL,
         cat(report("Completed:", funname, "\n"))
     }
 
+    invisible(dd)
 }

@@ -1,5 +1,19 @@
 # dartR.base 1.2.4 (development)
 
+* `gl.print.history()` (function review):
+  - Prints each entry as its number followed by the call, with long calls
+    wrapped and indented. The `knitr` table it used needed `knitr`, which
+    is only suggested, and wrapped calls spilled outside the table.
+  - Entries selected with `history` keep their position in the history;
+    an entry number beyond the history now stops with an error instead of
+    printing a "NULL" row.
+  - Returns the history as an invisible data frame (`nr`, `history`) at
+    every verbosity. It returned `NULL` before.
+  - A missing or non-genlight `x` now stops with a clear message, and a
+    history list is accepted alongside `x`.
+  - `gridExtra` is no longer imported: its only use was commented-out
+    code in this function.
+
 * `gl.randomize.snps()` (function review):
   - BUG FIX: the allele labels (`loc.all`) of the recoded loci are now
     reversed (`G/A` becomes `A/G`). Before, swapping the 0 and 2 codes

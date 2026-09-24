@@ -2,41 +2,47 @@
 % Please edit documentation in R/gl.print.history.r
 \name{gl.print.history}
 \alias{gl.print.history}
-\title{Prints history of a genlight object}
+\title{Prints the history of a genlight object}
 \usage{
 gl.print.history(x = NULL, history = NULL, verbose = NULL)
 }
 \arguments{
-\item{x}{A genlight object (with history) [optional].}
+\item{x}{A genlight object with a history. Not needed when
+\code{history} is a history list [default NULL].}
 
-\item{history}{Either a link to a history slot
-(gl\@other$history), or a vector indicating which part of the history of x is
-used [c(1,3,4) uses the first, third and forth entry from x\@other$history].
-If no history is provided the complete history of x is used (recreating the
-identical object x) [optional].}
+\item{history}{Either a history list (such as \code{gl@other$history}),
+or the numbers of the entries of \code{x@other$history} to print
+(c(1, 3, 4) prints the first, third and fourth entries). If NULL, the
+whole history of \code{x} is printed [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default NULL, adopting the global verbosity set by gl.set.verbosity(),
-or 2 if no global is set].}
+[default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-Prints a table with all history records. Currently the style cannot
-be changed.
+A data frame, returned invisibly, with one row per history entry:
+\code{nr}, the position of the entry in the history, and \code{history},
+the call as text. The table is printed at verbose 1 or higher.
 }
 \description{
-Prints history of a genlight object
+Prints the calls stored in the history of a genlight object
+(\code{x@other$history}), one numbered entry per call, and returns them
+as a table.
+}
+\details{
+dartR functions that modify a genlight object add the call that produced
+it to \code{x@other$history}. This function lists those calls in order.
+Each entry keeps its position in the history, also when only some entries
+are selected with \code{history}. Calls longer than 80 characters are
+wrapped, with continuation lines indented by two spaces.
+
+To re-run the calls in a history, use \code{gl.play.history}.
 }
 \examples{
-\donttest{
-dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
-metadata <- system.file('extdata','testset_metadata.csv', package='dartR.data')
-gl <- gl.read.dart(dartfile, ind.metafile = metadata, probar=FALSE)
-if (isTRUE(getOption("dartR_fbm"))) gl <- gl.gen2fbm(gl)
-gl2 <- gl.filter.callrate(gl, method='loc', threshold=0.9)
-gl3 <- gl.filter.callrate(gl2, method='ind', threshold=0.95)
+gl2 <- gl.filter.callrate(testset.gl, method = "loc", threshold = 0.9)
+gl3 <- gl.filter.callrate(gl2, method = "ind", threshold = 0.95)
 gl.print.history(gl3)
-}
+gl.print.history(gl3, history = c(1, 3))
 
 }
 \seealso{
@@ -49,7 +55,7 @@ Other environment:
 \code{\link{theme_dartR}()}
 }
 \author{
-Author(s): Bernd Gruber. Custodian: Bernd Gruber (bugs? Post to
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{environment}
