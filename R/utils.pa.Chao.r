@@ -5,7 +5,10 @@
 # The estimate is based on the pair only: for each locus carrying a
 # private allele, the number of copies of that allele observed in the
 # pooled sample of the two populations is counted directly, and f1/f2
-# are the numbers of private alleles observed exactly once/twice.
+# are the numbers of private alleles observed exactly once/twice. The
+# sample size n in the (n - 1) / n factor is the number of allele copies
+# sampled in the pooled pair (twice the mean number of genotyped
+# individuals at the private loci), not the number of private alleles.
 # SNP data only (the caller reports NA for SilicoDArT).
 
 utils.pa.Chao <- function(pop1_m, pop2_m) {
@@ -19,10 +22,13 @@ utils.pa.Chao <- function(pop1_m, pop2_m) {
     # loci where the host population carries an allele absent in the other
     alt.private <- which(other_alf == 0 & host_alf != 0)
     ref.private <- which(other_alf == 1 & host_alf != 1)
-    n <- length(alt.private) + length(ref.private)
-    if (n == 0) {
+    if (length(alt.private) + length(ref.private) == 0) {
       return(0)
     }
+    # sample size: allele copies sampled in the pooled pair, averaged over
+    # the private loci (loci differ in missing data)
+    n <- mean(2 * colSums(!is.na(pooled[, c(alt.private, ref.private),
+                                        drop = FALSE])))
     # copies of the private allele observed in the pooled pair sample
     alt.count <- colSums(pooled[, alt.private, drop = FALSE], na.rm = TRUE)
     ref.nonNA <- colSums(!is.na(pooled[, ref.private, drop = FALSE]))

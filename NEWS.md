@@ -1,5 +1,12 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.report.pa()` Chao1/Chao2 (`utils.pa.Chao()`, function review): the
+  small-sample factor `(n - 1) / n` of the Chao1 estimator now uses the
+  number of allele copies sampled in the pair for `n`, not the number of
+  private alleles. Estimates for pairs with few private alleles were too
+  small (two private singletons gave 0 instead of 1); on `platypus.gl`
+  values change by at most 1.
+
 * `glMean()` and `glSum()` (function review): FBM-backed objects are
   summarised in one column-wise pass (`bigstatsr::big_counts()`) instead
   of reading the file one individual at a time. On 1000 individuals x
