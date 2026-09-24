@@ -128,6 +128,26 @@
   - documentation: `@family graphics` added; "chromosome length" is
     described as the position of the last SNP.
 
+* `gl.subsample.ind()`, `gl.subsample.loc()` and `gl.subsample.loci()`
+  (function review):
+  - BUG FIX: `gl.subsample.ind(by.pop = TRUE)` upsampled populations
+    smaller than `n` one full copy too many (platypus.gl, `n = 70`:
+    93/87/70 individuals instead of 70/70/70).
+  - BUG FIX: `gl.subsample.ind(by.pop = FALSE)` compared `n` with the
+    number of loci and set it to that number: `n = 300` with replacement
+    returned 255 individuals from testset.gl. With replacement it now
+    returns `n`; without, it caps at `nInd(x)`.
+  - BUG FIX: `gl.subsample.ind()` with its documented default `n = NULL`
+    stopped with "argument is of length zero"; the default now applies.
+  - `gl.subsample.loc()` gains `method = "pic"` (the n loci with the
+    highest information content) and `mono.rm`, from
+    `gl.subsample.loci()`, which is deprecated and now calls it. The
+    defaults leave existing calls unchanged.
+  - `method = "pic"` recalculates AvgPIC/PIC when the stored values are
+    out of date (after individuals are removed), instead of ranking on
+    stale values; `method` is case-insensitive and an unknown value stops.
+  - `gl.subsample.loc()` without `n` stops with a message naming `n`.
+
 * New function `gl.report.contamination()`: screens a genlight object for
   cross-contaminated samples from genotypes, population labels and, when
   present, the plate wells stored by `gl.read.dart()`. Tier 1 flags

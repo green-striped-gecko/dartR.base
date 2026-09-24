@@ -18,7 +18,8 @@ gl.subsample.ind(
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{n}{Number of individuals to include in the subsample [default NULL]}
+\item{n}{Number of individuals to include in the subsample; if NULL, the
+size of the smallest population (by.pop = TRUE) or nInd(x) [default NULL]}
 
 \item{replace}{If TRUE, sampling is with replacement [default TRUE]}
 
@@ -78,7 +79,8 @@ Other data manipulation:
 \code{\link{gl.sample}()},
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
 Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
