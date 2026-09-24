@@ -33,9 +33,10 @@ returned invisibly.
 }
 \description{
 \strong{Deprecated.} Use
-\code{gl.filter.hwe(direction = 'excess', test.type = 'ChiSquare',
-mult.comp.adj = TRUE, mult.comp.adj.method = 'fdr')} instead — see
-\code{\link{gl.filter.hwe}}.
+\code{gl.filter.hwe(direction = 'excess', min.hobs = 0.5,
+test.type = 'ChiSquare', mult.comp.adj = TRUE,
+mult.comp.adj.method = 'fdr', cc.val = 0)} instead (\code{cc.val = 0.5}
+for \code{Yates = TRUE}); see \code{\link{gl.filter.hwe}}.
 
 This wrapper reproduces the workflow of Robledo-Ruiz et al. (2023) for
 removing loci with a significant excess of heterozygotes (candidate
@@ -92,7 +93,8 @@ Other matched filter:
 \code{\link{gl.filter.taglength}()}
 }
 \author{
-Author(s): Jesús Castrejón-Figueroa, Diana A Robledo-Ruiz (Custodian: Ching Ching Lau) -- Post
-to \url{https://groups.google.com/d/forum/dartr}
+Author(s): Jesus Castrejon-Figueroa, Diana A Robledo-Ruiz.
+Custodian: Ching Ching Lau -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched filter}
