@@ -122,6 +122,16 @@ ind.count <- function(x) {
   return(nind)
 }
 
+# Observed heterozygosity in random subsamples of individuals, by population
+# (Schmidt et al. 2021); used by the heterozygosity reports when
+# subsample.pop = TRUE.
+# x: genlight/dartR object with populations. n.limit: populations with
+# fewer individuals are skipped. subsamples: subsample sizes; each
+# population uses only the sizes it can supply (at most its number of
+# individuals).
+# Returns a data.table with one row per population and subsample size:
+# res.mean (mean Ho over 10 replicate subsamples), res_SE (standard error
+# across those replicates), pop and subsample.
 utils.subsample.pop <- function(x,
                                 n.limit,
                                 subsamples = c(10, 5, 4, 3, 2)){
@@ -140,25 +150,39 @@ utils.subsample.pop <- function(x,
     return(data.table::data.table())
   }
 
-  pops.list <- mapply(function(pop.tmp, k){
-    lapply(subsamples, function(y){
+  # Sampling is without replacement, so a population can only supply
+  # subsamples up to its own size (reachable when n.limit is below the
+  # largest subsample size); populations that can supply none are skipped
+  sizes <- lapply(x.pops, function(m) subsamples[subsamples <= nrow(m)])
+  keep <- lengths(sizes) > 0
+  x.pops <- x.pops[keep]
+  x.k <- x.k[keep]
+  sizes <- sizes[keep]
+  if (length(x.pops) == 0) {
+    return(data.table::data.table())
+  }
+
+  pops.list <- mapply(function(pop.tmp, k, sz){
+    lapply(sz, function(y){
       het_rep(mat = pop.tmp ,samples = y , reps = 10, ploidy = k)
     })
-  }, x.pops, x.k, SIMPLIFY = FALSE)
+  }, x.pops, x.k, sizes, SIMPLIFY = FALSE)
   pops.list <- lapply(pops.list,data.table::rbindlist)
   pops.list <- lapply(seq_along(pops.list),function(z){
     ptmp <- pops.list[[z]]
     ptmp$pop <- names(pops.list)[z]
-    ptmp$subsample <- subsamples
+    ptmp$subsample <- sizes[[z]]
     return(ptmp)
   })
 
   return(data.table::rbindlist(pops.list))
 }
 
-# ploidy: one value per row of mat, or a single value. For ploidy other
-# than 2, Ho is the gametic heterozygosity d(k - d) / choose(k, 2), as in
-# pop.het_fun.
+# Mean and standard error of Ho over `reps` random subsamples of `samples`
+# rows (individuals) of the genotype matrix `mat`, drawn without
+# replacement. ploidy: one value per row of mat, or a single value. For
+# ploidy other than 2, Ho is the gametic heterozygosity d(k - d) /
+# choose(k, 2), as in pop.het_fun.
 het_rep <- function(mat,samples,reps, ploidy = 2){
   k_all <- rep_len(ploidy, nrow(mat))
   res_tmp <-
@@ -167,7 +191,7 @@ het_rep <- function(mat,samples,reps, ploidy = 2){
                      size = samples,
                      replace = FALSE)
       if (all(ploidy == 2)) {
-        het <- mat[rows, ] == 1
+        het <- mat[rows, , drop = FALSE] == 1
       } else {
         sub <- mat[rows, , drop = FALSE]
         k <- k_all[rows]

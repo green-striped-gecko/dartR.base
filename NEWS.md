@@ -1,5 +1,12 @@
 # dartR.base 1.2.4 (development)
 
+* `subsample.pop = TRUE` in `gl.report.heterozygosity()` and
+  `gl.report.polyploid_heterozygosity()` (review of the internal
+  `utils.subsample.pop()`): `n.limit` below 10 no longer stops with
+  "cannot take a sample larger than the population". Each population is
+  subsampled only at the sizes it can supply. Results for `n.limit >= 10`
+  are unchanged. Single-locus objects no longer error.
+
 * `utils.check.datatype()`: a ploidy-2 object whose genotypes are all 0 or
   1 and that has no SNP metadata is now treated as SNP data, with a
   warning from `verbose = 1`, instead of stopping. Such data are
