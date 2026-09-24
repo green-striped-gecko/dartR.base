@@ -1,5 +1,9 @@
 # dartR.base 1.2.4 (development)
 
+* `gl.document()` removed. It generated a roxygen2 template file for a
+  function, a development tool rather than an analysis function, and no
+  function in dartR.base or its sibling packages called it.
+
 * `gl.check.verbosity()` (function review), the helper most functions call
   first to resolve `verbose`:
   - A `verbose` value that is `NA`, empty or longer than one (for example a
