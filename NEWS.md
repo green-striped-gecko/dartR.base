@@ -6,6 +6,31 @@
   loci (EmmacBrisWive: 21/224 to 11/234, 10 all-NA loci); `polyLoc +
   monoLoc + all_NALoc` now equals the number of loci. Other columns are
   unchanged.
+* `gl.report.polyploid_heterozygosity()` (function review):
+  - BUG FIX: statistics are now correct for polyploid (dosage) data. He
+    was computed from genotype codes 0, 1 and 2 only, and Ho counted
+    heterozygous individuals rather than the documented gametic
+    heterozygosity, d(k - d) / choose(k, 2). On a simulated autotetraploid,
+    Ho went from 0.645 to 0.357 and He from 0.723 to 0.356, matching an
+    independent calculation. uHe now uses each locus's number of sampled
+    allele copies. For diploid data Ho and He are unchanged, and uHe and
+    FIS now equal `gl.report.heterozygosity()`.
+  - BUG FIX: `method = "ind"` now reports gametic heterozygosity and
+    counts dosage k as the alternative homozygote; diploid output is
+    unchanged.
+  - BUG FIX: bootstrap confidence intervals resample loci. Before,
+    individuals were resampled and loci treated as individuals, so the
+    intervals did not contain their own estimates.
+  - BUG FIX: `polyLoc` no longer counts loci with no data in a population,
+    and `monoLoc` no longer subtracts them. testset.gl population
+    EmmacBrisWive went from 21/224 to 11/234 (10 all-NA loci).
+  - BUG FIX: `subsample.pop` Ho is gametic for polyploids.
+  - `method = "ind"` at `verbose = 0`, `plot.file` with
+    `plot.display = FALSE`, `subsample.pop` with small populations or
+    `method = "ind"`, and constant bootstrap replicates no longer error.
+  - Warnings are silent at `verbose = 0`. With `subsample.pop = TRUE` the
+    result is a named list (`subsample`, `results`).
+  - The documentation has a runnable tetraploid example.
 
 * `gl.print.history()` (function review):
   - Prints each entry as its number followed by the call, with long calls
