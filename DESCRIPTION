@@ -39,6 +39,7 @@ biocViews:
 Imports: ape,crayon,data.table,foreach,methods,patchwork,plyr,
          reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,
          bigstatsr, bigsnpr, snpStats
+Remotes: green-striped-gecko/dartR.data@dev
 Suggests: 
     boot,
     devtools,

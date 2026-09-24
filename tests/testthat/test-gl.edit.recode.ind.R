@@ -1,7 +1,9 @@
 # Characterization tests for gl.edit.recode.ind
 # Baseline snapshotted before review (review-gl.edit.recode.ind).
-# The interactive edit() step no-ops under a non-interactive session, so these
-# tests exercise the surrounding logic (which runs regardless of edits).
+# The interactive edit() step is mocked (in the dartR.base namespace, which
+# imports utils::edit) to return its input unchanged, as in
+# test-gl.edit.recode.pop.R. Unmocked, edit() opens the system editor
+# (vi on CI runners), which fails under R CMD check.
 # Assertions marked [approved diff] were flipped in Phase C to reflect approved
 # behaviour changes.
 
@@ -10,8 +12,10 @@ make_sub <- function(n = 20) {
   s@other$loc.metrics <- testset.gl@other$loc.metrics
   s
 }
+edit_noop <- function(name = NULL, ...) name
 
 test_that("gl.edit.recode.ind writes the recode file to outpath", {
+  local_mocked_bindings(edit = edit_noop, .package = "dartR.base")
   # [approved diff F4] the file now goes to outfilespec (outpath), not getwd()
   td <- tempdir()
   sub <- make_sub()
@@ -29,6 +33,7 @@ test_that("gl.edit.recode.ind writes the recode file to outpath", {
 })
 
 test_that("gl.edit.recode.ind resets metric flags regardless of verbosity (recalc = FALSE)", {
+  local_mocked_bindings(edit = edit_noop, .package = "dartR.base")
   # [approved diff F1] utils.reset.flags now runs whenever recalc = FALSE,
   # so the flag state no longer depends on verbose
   sub <- make_sub()
@@ -41,6 +46,7 @@ test_that("gl.edit.recode.ind resets metric flags regardless of verbosity (recal
 })
 
 test_that("gl.edit.recode.ind tolerates a missing monomorphs flag", {
+  local_mocked_bindings(edit = edit_noop, .package = "dartR.base")
   # [approved diff F2] no longer crashes on a NULL flag
   sub <- make_sub()
   sub@other$loc.metrics.flags$monomorphs <- NULL
@@ -56,6 +62,7 @@ test_that("gl.edit.recode.ind default arguments are recalc = FALSE, mono.rm = FA
 })
 
 test_that("gl.edit.recode.ind appends a history entry and returns a genlight", {
+  local_mocked_bindings(edit = edit_noop, .package = "dartR.base")
   sub <- make_sub()
   h0 <- length(sub@other$history)
   out <- capture.output(r <- gl.edit.recode.ind(sub, verbose = 0))
