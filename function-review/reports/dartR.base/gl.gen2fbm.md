@@ -158,7 +158,7 @@ Notes (outside these files, not proposed here):
   utils.read.fasta 32 expectations. The new file has 37 expectations.
 - `devtools::document()` also rewrote unrelated Rd files (cross-link
   drift, PR #421); reverted.
-- PR: pending.
+- PR: #427.
 
 ```json
 {
@@ -177,7 +177,7 @@ Notes (outside these files, not proposed here):
     {"id": "F4", "severity": "LOW", "confidence": "high", "rule": "DOC1", "status": "approved", "change": 4}
   ],
   "coverage_skipped": ["gl.save FBM round trip not run separately", "forum/issues: no browser session"],
-  "status": "awaiting-approval",
-  "pr": null
+  "status": "pr-open",
+  "pr": 427
 }
 ```
