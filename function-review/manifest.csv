@@ -176,21 +176,21 @@ gl.filter.excess.het,dartR.base,filter,luis,done,424
 gl.filter.hamming,dartR.base,filter,luis,done,417
 gl.gen2fbm,dartR.base,analysis,luis,done,427
 gl.hwe.pop,dartR.base,analysis,luis,done,425
-gl.print.history,dartR.base,analysis,luis,pr-open,434
-gl.randomize.snps,dartR.base,analysis,luis,pr-open,433
+gl.print.history,dartR.base,analysis,luis,done,434
+gl.randomize.snps,dartR.base,analysis,luis,done,433
 gl.report.contamination,dartR.base,report,luis,done,423
 gl.report.excess.het,dartR.base,report,luis,done,424
 gl.report.hamming,dartR.base,report,luis,done,417
-gl.report.polyploid_heterozygosity,dartR.base,report,luis,in-review,
+gl.report.polyploid_heterozygosity,dartR.base,report,luis,done,435
 gl.subsample.ind,dartR.base,data manipulation,luis,done,426
 gl.subsample.loc,dartR.base,data manipulation,luis,done,426
 gl.subsample.loci,dartR.base,data manipulation,luis,done,426
-glMean,dartR.base,analysis,,pending,
-glSum,dartR.base,analysis,,pending,
-theme_dartR,dartR.base,graphics,,pending,
+glMean,dartR.base,analysis,luis,done,440
+glSum,dartR.base,analysis,luis,done,440
+theme_dartR,dartR.base,graphics,luis,done,441
 utils.hamming.engine,dartR.base,utility,arthur,done,318
-utils.pa.Chao,dartR.base,utility,,pending,
-utils.subsample.pop,dartR.base,utility,,pending,
+utils.pa.Chao,dartR.base,utility,luis,done,443
+utils.subsample.pop,dartR.base,utility,luis,done,442
 gl.TajimasD,dartR.popgen,analysis,luis,done,108
 gl.check.panel,dartR.popgen,analysis,luis,done,113
 gl.collapse,dartR.popgen,data manipulation,luis,done,114
@@ -239,27 +239,28 @@ gl.grm,dartR.captive,analysis,claude,done,85
 gl.grm.network,dartR.captive,analysis,claude,done,97
 gl.kin,dartR.captive,analysis,luis,done,108
 gl.plot.network,dartR.captive,graphics,claude,done,106
-gl.report.gd.projection,dartR.captive,report,,pending,
-gl.report.ind.add,dartR.captive,report,,pending,
-gl.report.ind.move,dartR.captive,report,,pending,
-gl.report.ind.remove,dartR.captive,report,,pending,
-gl.report.kin.classes,dartR.captive,report,,pending,
-gl.report.kin.confidence,dartR.captive,report,,pending,
-gl.report.kin.groups,dartR.captive,report,,pending,
-gl.report.kin.sets,dartR.captive,report,,pending,
+gl.report.gd.projection,dartR.captive,report,luis,done,124
+gl.report.ind.add,dartR.captive,report,luis,done,120
+gl.report.ind.move,dartR.captive,report,luis,done,122
+gl.report.ind.remove,dartR.captive,report,luis,done,123
+gl.report.kin.classes,dartR.captive,report,luis,done,114
+gl.report.kin.confidence,dartR.captive,report,luis,done,115
+gl.report.kin.groups,dartR.captive,report,luis,done,119
+gl.report.kin.sets,dartR.captive,report,luis,done,125
 gl.report.kinship,dartR.captive,report,luis,done,112
-gl.report.mate.suitability,dartR.captive,report,,pending,
+gl.report.mate.suitability,dartR.captive,report,luis,done,126
 gl.report.parent.offspring,dartR.captive,report,claude,done,102
-gl.report.repro.targets,dartR.captive,report,,pending,
+gl.report.repro.targets,dartR.captive,report,luis,done,127
 gl.run.EMIBD9,dartR.captive,analysis,claude,done,100
 gl.run.colony,dartR.captive,analysis,claude,done,99
-gl.select.pairs,dartR.captive,graphics,,pending,
+gl.select.pairs,dartR.captive,graphics,luis,done,128
 gl.sim.relatedness,dartR.captive,analysis,claude,done,105
 gl2colony,dartR.captive,io,claude,done,98
 utils.kin.check,dartR.captive,utility,,pending,
 utils.kin.dgd,dartR.captive,utility,,pending,
 utils.kin.dominant,dartR.captive,utility,,pending,
-gl.drop.sexlinked,dartR.sexlinked,data manipulation,,pending,
+gl.relatedness,dartR.captive,analysis,luis,done,129
+gl.drop.sexlinked,dartR.sexlinked,data manipulation,luis,in-review,
 gl.filter.sexlinked,dartR.sexlinked,filter,luis,done,35
 gl.infer.sex,dartR.sexlinked,analysis,luis,done,36
 gl.keep.sexlinked,dartR.sexlinked,data manipulation,luis,done,34
@@ -277,5 +278,5 @@ gl.sim.mutate,dartR.sim,analysis,luis,done,56
 gl.sim.offspring,dartR.sim,analysis,luis,done,53
 dartRverse_install,dartRverse,analysis,luis,done,43
 gl.download.binary,dartRverse,analysis,luis,done,41
-gl.sim.apply,dartR.sim,utility,,pending,
+gl.sim.apply,dartR.sim,utility,luis,done,61
 utils.hamming.prepare,dartR.base,utility,luis,done,417
