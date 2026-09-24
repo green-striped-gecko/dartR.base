@@ -71,3 +71,31 @@ test_that("presence/absence data and bad screen parameters stop", {
   expect_error(capture.output(gl.filter.contamination(testset.gl, plate = data.frame(id = 1),
                                                        verbose = 0)))
 })
+
+# Characterization baseline (function-review, 2026-09-24)
+test_that("baseline: individuals retained on packaged data", {
+  for (b in list(list("testset.gl", 249, 255), list("platypus.gl", 81, 1000),
+                 list("bandicoot.gl", 89, 1000))) {
+    capture.output(y <- gl.filter.contamination(get(b[[1]]), verbose = 0))
+    expect_equal(c(nInd(y), nLoc(y)), c(b[[2]], b[[3]]), label = b[[1]])
+  }
+})
+
+test_that("the filter repeats the screen's caveats", {
+  x <- testset.gl
+  # no plate positions: a warning at verbose 1 when only "adjacent" is asked
+  out <- capture.output(gl.filter.contamination(x, flag = "adjacent", verbose = 1))
+  expect_true(any(grepl("no plate positions found", out)))
+  # with "suspect" too, the result is not empty by construction: verbose 2
+  out <- capture.output(gl.filter.contamination(x, verbose = 1))
+  expect_false(any(grepl("no plate positions found", out)))
+  out <- capture.output(gl.filter.contamination(x, verbose = 2))
+  expect_true(any(grepl("no plate positions found", out)))
+  # singleton populations are named
+  y <- bandicoot.gl[c(1:20, 90), ]
+  out <- capture.output(gl.filter.contamination(y, verbose = 2))
+  expect_true(any(grepl("single individual", out)))
+  # invalid rare.freq now stops through the filter too
+  expect_error(capture.output(gl.filter.contamination(x, rare.freq = 0.9, verbose = 0)),
+               "rare.freq must lie")
+})

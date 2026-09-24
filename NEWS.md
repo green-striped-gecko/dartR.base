@@ -161,6 +161,17 @@
     type).
 * `utils.basic.stats()` gains `rounded = TRUE`; `rounded = FALSE` returns
   unrounded statistics. Default output is unchanged.
+* `gl.report.excess.het()` and `gl.filter.excess.het()` (deprecated
+  wrappers; function review):
+  - The deprecation message now gives a call that reproduces the wrapper's
+    result: it adds `min.hobs = 0.5` and the `cc.val`/`cc_val` matching
+    `Yates`. The previous advice removed 282 loci from LBP where the
+    wrapper removes 6.
+  - `gl.filter.excess.het()` records its own call in the history. The
+    entry was the inner `gl.filter.hwe()` call, which referred to the
+    wrapper's local `Yates` and could not be replayed.
+  - `gl.report.excess.het()` warns when the ignored `plot.theme`,
+    `plot.colors`, `plot.file` or `plot.dir` are supplied.
 
 * New function `gl.report.contamination()`: screens a genlight object for
   cross-contaminated samples from genotypes, population labels and, when
@@ -186,6 +197,23 @@
   pattern is printed for each removed individual but does not change the
   filter. `recalc` and `mono.rm` behave as in the other individual-level
   filters; otherwise the composition-dependent locus-metric flags are reset.
+* `gl.report.contamination()` and `gl.filter.contamination()` (function
+  review):
+  - `rare.freq` outside (0, 0.5) and `min.n` below 2 now stop with an error.
+    They were silently replaced by 0.02 and 2, with the warning shown only
+    at `verbose >= 2` and never through the filter.
+  - Every numeric parameter is checked to be a single finite number; `NA`
+    or a vector gave a base-R error that did not name the parameter.
+  - Plate wells are read in either case ("c4" = "C4"), and `plate_location`
+    is split at the last "-", so plate names containing "-" no longer lose
+    their wells. Such data now yields adjacent pairs where it yielded none.
+    A warning names the case where positions exist but no well parses.
+  - Adjacent pairs are found by neighbour-well lookup instead of testing
+    every pair: identical output, 8.5 s to 2.4 s on 1500 individuals.
+  - `gl.filter.contamination()` warns when populations with one individual
+    were not screened, and when `flag` includes "adjacent" but the data
+    carry no plate positions.
+
 * `gl.plot.heatmap()` (function review):
   - BEHAVIOUR CHANGE: a `matrix` was coerced with `as.dist()`, which kept
     the lower triangle only and set the diagonal to zero, so relatedness
