@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.gen2fbm.r
 \name{gl.gen2fbm}
 \alias{gl.gen2fbm}
-\title{Convert a gen-backed object to FBM-backed (streamed with big_apply)}
+\title{Converts a gen-backed genlight object to a file-backed (FBM) one}
 \usage{
 gl.gen2fbm(
   x,
@@ -14,7 +14,8 @@ gl.gen2fbm(
 }
 \arguments{
 \item{x}{A **`dartR`** (preferred) or **`genlight`** object that currently
-has genotype data only in `@gen` (i.e., no FBM yet).}
+has genotype data only in `@gen` (i.e., no FBM yet). A plain `genlight`
+is converted to `dartR` first. Only SNP data are supported.}
 
 \item{code}{A `bigsnpr` code mapping for `FBM.code256`. Defaults to
 `bigsnpr::CODE_012` (0/1/2 with `NA` support).}
@@ -25,10 +26,13 @@ has genotype data only in `@gen` (i.e., no FBM yet).}
 (default `2048L`). Increase for faster IO if you have RAM to spare.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report}
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A **`dartR`** object with `@fbm` populated and `@gen` emptied.
+A **`dartR`** object with `@fbm` populated and `@gen` emptied. An
+object that is already FBM-backed is returned unchanged.
 }
 \description{
 `gl.gen2fbm()` converts a `dartR`/`genlight` object that stores genotypes
@@ -38,15 +42,42 @@ The copy is done **by column blocks** via `bigstatsr::big_apply`, so the
 full genotype matrix is never materialized in memory.
 }
 \examples{
-\dontrun{
-library(adegenet); library(bigstatsr); library(bigsnpr)
-# say 'gl' is a genlight or dartR without FBM
-d_fbm <- gl.gen2fbm(gl, code = bigsnpr::CODE_012, chunk = 4096L)
-nInd(d_fbm); nLoc(d_fbm)   # dimensions via FBM
-head(as.matrix(d_fbm))     # decodes from FBM
+x <- gl.gen2fbm(testset.gl)
+nInd(x); nLoc(x)            # dimensions via FBM
+as.matrix(x)[1:5, 1:5]      # decodes from FBM
 }
+\seealso{
+\code{\link{gl.fbm2gen}}
+
+Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sim.genotypes}()},
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()}
 }
 \author{
 Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}

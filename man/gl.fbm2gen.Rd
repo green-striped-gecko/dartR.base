@@ -2,16 +2,17 @@
 % Please edit documentation in R/gl.fbm2gen.r
 \name{gl.fbm2gen}
 \alias{gl.fbm2gen}
-\title{Convert an FBM-backed dartR to a GEN-backed dartR (streamed with big_apply)}
+\title{Converts a file-backed (FBM) genlight object to a gen-backed one}
 \usage{
-gl.fbm2gen(x, chunk = 2048L, quiet = TRUE, verbose = NULL)
+gl.fbm2gen(x, chunk = 256L, quiet = TRUE, verbose = NULL)
 }
 \arguments{
-\item{x}{A `dartR` object with `@fbm` populated. If `@fbm` is `NULL`,
-the object is returned unchanged.}
+\item{x}{A `dartR` or `genlight` object. If it holds no FBM, it is returned
+unchanged.}
 
-\item{chunk}{Integer, number of **loci per block** to read from FBM
-(default `2048L`). Increase for speed if you have RAM to spare.}
+\item{chunk}{Integer, number of **individuals per block** decoded from the
+FBM at a time; a block holds `chunk` x nLoc(x) values in memory
+(default `256L`). Increase for speed if you have RAM to spare.}
 
 \item{quiet}{Logical; if `TRUE`, suppress the non-critical
 "no FBM found" message regardless of verbosity [default TRUE].}
@@ -25,20 +26,51 @@ or 2 if no global is set].}
 A `dartR` object with **`@gen` populated** and **`@fbm = NULL`**.
 }
 \description{
-`gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot into
-a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. The operation is
-**column-chunked** via `bigstatsr::big_apply`: each block is decoded from FBM,
-turned into a small `genlight`, and concatenated using `cbind.dartR` (SNPbin
-path). At the end, `@fbm` is set to `NULL` and `@gen` holds the SNPbin list.
+`gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot
+into a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. The
+conversion runs in blocks of individuals: each block is decoded from the
+FBM and turned into SNPbin objects, so the full genotype matrix is never
+decoded at once. At the end, `@fbm` is set to `NULL` and `@gen` holds the
+SNPbin list.
 }
 \examples{
-\dontrun{
-d_gen <- gl.fbm2gen(d_fbm, chunk = 4096L)
-length(d_gen@gen)      # nInd
-nLoc(d_gen)            # number of loci (via genlight path)
+x <- gl.gen2fbm(testset.gl)
+y <- gl.fbm2gen(x)
+length(y@gen)      # one SNPbin per individual
+identical(as.matrix(y), as.matrix(testset.gl))
 }
+\seealso{
+\code{\link{gl.gen2fbm}}
+
+Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.gen2fbm}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sim.genotypes}()},
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()}
 }
 \author{
 Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{data manipulation}
