@@ -244,7 +244,7 @@ change; reference values are independent counts from the genotype matrix.
     {"id": "F8", "severity": "LOW", "confidence": "high", "rule": "DOC5", "status": "approved", "change": 8}
   ],
   "coverage_skipped": ["3+ populations not run", "DAT6: no FBM fixture", "fastsimcoal2 file format not checked", "Google Group / issues not searched"],
-  "status": "pr-open",
+  "status": "done",
   "pr": 106
 }
 ```
