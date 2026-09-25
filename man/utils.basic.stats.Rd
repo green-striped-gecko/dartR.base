@@ -9,7 +9,8 @@ measures}
 utils.basic.stats(x, rounded = TRUE)
 }
 \arguments{
-\item{x}{A genlight object containing the SNP genotypes [required].}
+\item{x}{A genlight object containing the SNP genotypes [required].
+SilicoDArT (presence/absence) data are rejected with an error.}
 
 \item{rounded}{If TRUE, results are rounded to 4 decimals; FALSE returns
 them unrounded [default TRUE].}
