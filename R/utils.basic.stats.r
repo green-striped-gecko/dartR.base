@@ -9,6 +9,7 @@
 #'  END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 #' 
 #' @param x A genlight object containing the SNP genotypes [required].
+#' SilicoDArT (presence/absence) data are rejected with an error.
 #' @param rounded If TRUE, results are rounded to 4 decimals; FALSE returns
 #' them unrounded [default TRUE].
 #' 
@@ -34,6 +35,14 @@
 #' @return A list with the statistics for each population
 
 utils.basic.stats <- function(x, rounded = TRUE) {
+  
+  # Ho, He and Fis need diploid genotypes; on presence/absence data a
+  # presence would be counted as a heterozygote. A direct ploidy check is
+  # used instead of utils.check.datatype() because gl.report.fstat() calls
+  # this function once per bootstrap replicate.
+  if (all(ploidy(x) == 1)) {
+    stop(error(" Cannot calculate heterozygosity, Fis or differentiation statistics from fragment presence/absence (SilicoDArT) data\n"))
+  }
   
   n.ind <- table(pop(x))
   

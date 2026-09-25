@@ -48,6 +48,8 @@
 #'  \item Sorensen Distance [method = "Sorensen"] (identical by formula to
 #'  Bray-Curtis for binary data)
 #'  }
+#' Jaccard, Bray-Curtis and Sorensen are defined for presence/absence data
+#' only; requesting them for SNP data stops with an error.
 
 #' Refer to the documentation of functions in
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
@@ -150,6 +152,19 @@ gl.dist.ind <- function(x,
         )
       }
     }
+  }
+
+  # Jaccard, Bray-Curtis and Sorensen are defined for presence/absence
+  # data only; without this check SNP data fell through every SNP branch
+  # and failed with "object 'dd' not found"
+  if (datatype == "SNP" &&
+      method %in% c("jaccard", "bray-curtis", "sorensen")) {
+    stop(error(
+      "Fatal Error: method '", method, "' applies to SilicoDArT ",
+      "(presence/absence) data only. For SNP data use one of ",
+      "'Euclidean', 'Simple', 'Absolute', 'Manhattan' or 'Czekanowski'\n",
+      sep = ""
+    ))
   }
 
   type <- tolower(type)
