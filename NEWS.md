@@ -1,5 +1,8 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.smearplot()` DOCS: missing genotypes are labelled NA in the legend;
+  the description said they had no legend entry.
+
 * `gl.report.pa()` Chao1/Chao2 (`utils.pa.Chao()`, function review): the
   small-sample factor `(n - 1) / n` of the Chao1 estimator now uses the
   number of allele copies sampled in the pair for `n`, not the number of
