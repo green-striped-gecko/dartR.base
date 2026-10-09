@@ -50,6 +50,10 @@
 #' window [default TRUE].
 #' @param plot.theme Theme for the plot. See Details for options
 #' [default theme_dartR()].
+#' @param plot.colors Colours for the bars of each diversity order: either a
+#' palette function that takes the number of colours, or a vector with one
+#' colour per order (order colours, for q = 0 to order - 1)
+#' [default gl.colors("dis", verbose = 0)].
 #' @param plot.dir Directory to save the plot RDS files [default as specified
 #' by the global working directory or tempdir()].
 #' @param plot.file Name for the RDS binary file to save (base name only,
@@ -86,6 +90,7 @@
 gl.report.shannon <- function(x,
                                 plot.display = TRUE,
                                 plot.theme = theme_dartR(),
+                                plot.colors = gl.colors("dis", verbose = 0),
                                 plot.dir = NULL,
                                 plot.file = NULL,
                                 level = "alpha",
@@ -121,6 +126,16 @@ gl.report.shannon <- function(x,
       order < 1 || order != round(order)) {
     stop(error(
       "  Fatal Error: order must be a positive whole number; the profile spans orders q = 0 to order - 1\n"
+    ))
+  }
+  # One colour per diversity order (q = 0 to order - 1)
+  if (is.function(plot.colors)) {
+    plot.colors <- plot.colors(order)
+  }
+  if (length(plot.colors) < order) {
+    stop(error(
+      "  Fatal Error: plot.colors must supply at least", order,
+      "colours, one per diversity order (q = 0 to order - 1)\n"
     ))
   }
 
@@ -282,6 +297,7 @@ gl.report.shannon <- function(x,
                     axis.ticks.y = element_blank(),
                     legend.position = "none"
                   ) + facet_grid(~Ord) +
+    scale_fill_manual(values = plot.colors) +
     labs(fill = "Order", y=paste0(level, " diversity")) +
     ggtitle(paste0(level, " diversity per ", unit, " for different orders"))
 

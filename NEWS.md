@@ -1,5 +1,12 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.report.shannon()`: new `plot.colors` argument (default
+  `gl.colors("dis", verbose = 0)`) sets the bar colour of each diversity
+  order. It takes a palette function, called with `order`, or a vector of
+  at least `order` colours; a shorter vector stops with an error. The default gives the same
+  colours as before (ggplot's default hue palette), so existing plots are
+  unchanged. Requested so the dartR GUI can apply its colour palette.
+
 * `gl.report.pa()` Chao1/Chao2 (`utils.pa.Chao()`, function review): the
   small-sample factor `(n - 1) / n` of the Chao1 estimator now uses the
   number of allele copies sampled in the pair for `n`, not the number of

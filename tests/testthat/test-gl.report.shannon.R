@@ -238,3 +238,46 @@ test_that("SilicoDArT data are rejected (accept = 'SNP')", {
   expect_error(quiet_shannon(testset.gs),
                "found SilicoDArT expecting SNP")
 })
+
+# plot.colors: the bars are filled by diversity order (q0 ... q(order - 1)),
+# so the palette needs `order` colours. The plot is not returned, so it is
+# read back from the RDS written by plot.file.
+shannon_plot <- function(...) {
+  f <- basename(tempfile("shannon_plot_"))
+  suppressMessages(invisible(capture.output(
+    gl.report.shannon(..., plot.display = FALSE, plot.dir = tempdir(),
+                      plot.file = f, verbose = 0)
+  )))
+  p <- readRDS(file.path(tempdir(), paste0(f, ".RDS")))
+  ld <- ggplot2::ggplot_build(p)$data[[1]]
+  # one facet panel per order, in order; one fill per panel
+  unname(vapply(split(as.character(ld$fill), ld$PANEL), unique, ""))
+}
+
+test_that("default plot.colors keeps ggplot's default hue palette", {
+  for (n in 1:8) {
+    expect_identical(gl.colors("dis", verbose = 0)(n), scales::hue_pal()(n))
+  }
+  g <- make_twopop()
+  expect_identical(shannon_plot(g), scales::hue_pal()(5))
+  expect_identical(shannon_plot(g, order = 3), scales::hue_pal()(3))
+})
+
+test_that("plot.colors accepts a palette function or a colour vector", {
+  g <- make_twopop()
+  expect_identical(shannon_plot(g, order = 4, plot.colors = grDevices::rainbow),
+                   grDevices::rainbow(4))
+  cols <- c("#000000", "#FF0000", "#00FF00")
+  expect_identical(shannon_plot(g, order = 3, plot.colors = cols), cols)
+  expect_identical(shannon_plot(g, level = "beta", order = 2,
+                                plot.colors = cols), cols[1:2])
+})
+
+test_that("plot.colors with fewer colours than orders fails fast", {
+  g <- make_twopop()
+  expect_error(quiet_shannon(g, order = 5, plot.colors = c("red", "blue")),
+               "plot.colors must supply at least 5 colours")
+  expect_error(quiet_shannon(g, order = 3,
+                             plot.colors = function(n) "red"),
+               "plot.colors must supply at least 3 colours")
+})
