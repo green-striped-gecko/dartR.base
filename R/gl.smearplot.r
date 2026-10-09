@@ -10,7 +10,7 @@
 #' if so, it is best to use ind.labels = FALSE.
 #'
 #' Works with both SNP data and P/A data (SilicoDArT). Missing data are
-#' shown in the NA color (the fourth plot color) without a legend entry.
+#' shown in the NA color (the fourth plot color) and labelled NA in the legend.
 
 #' @param x Name of the genlight object [required].
 #' @param ind.labels If TRUE, individual IDs are shown [default FALSE].
