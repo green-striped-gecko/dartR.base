@@ -95,3 +95,30 @@ test_that("FBM path: nfactors and eig length", {
   expect_length(pf$eig, 273)
   expect_equal(round(pf$eig[1:3], 6), c(2.259724, 2.184270, 1.652706))
 })
+
+test_that("FBM path: fewer loci than individuals", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  # big_SVD() was asked for nInd - 1 = 273 components from a 50-locus matrix
+  # and stopped with "'k' must satisfy 0 < k < nrow(A)"; it can return at
+  # most min(nInd, nLoc) - 1. 50 polymorphic loci, so mono.rm keeps all 50.
+  poly <- gl.filter.monomorphs(testset2.gl, verbose = 0)
+  x <- gl.keep.loc(poly, loc.list = locNames(poly)[1:50], verbose = 0)
+  pf <- gl.pcoa(gl.gen2fbm(x), nfactors = 5, plot.out = FALSE, verbose = 0)
+  expect_equal(dim(pf$scores), c(274, 5))
+  expect_length(pf$eig, 49)
+  expect_true(all(is.finite(pf$scores)))
+})
+
+test_that("FBM path: a NaN trailing component does not make every score NaN", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  # big_SVD() returns the rank-deficient trailing component of testset.gl as
+  # NaN in d, u and v. Only d was zeroed, and NaN * 0 is NaN, so
+  # u %*% diag(d) turned all 250 x 5 scores into NaN.
+  pf <- gl.pcoa(gl.gen2fbm(testset.gl), nfactors = 5, plot.out = FALSE,
+                verbose = 0)
+  expect_true(all(is.finite(pf$scores)))
+  expect_true(all(is.finite(pf$loadings)))
+  expect_true(all(is.finite(pf$eig)))
+})

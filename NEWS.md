@@ -1,5 +1,16 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.pcoa()` on file-backed (FBM) objects: datasets with fewer loci than
+  individuals, after monomorphic loci are removed, no longer stop with
+  "'k' must satisfy 0 < k < nrow(A)". `bigstatsr::big_SVD()` was asked for
+  `nInd - 1` axes, but it can return at most `min(nInd, nLoc) - 1`; on
+  `possums.gl` (300 individuals, 200 loci) and `testset.gl` the PCA failed.
+  Once it runs, a rank-deficient trailing axis that `big_SVD()` returns as
+  NaN no longer makes every score NaN: its eigenvalue was set to 0 but its
+  score and loading columns stayed NaN, and NaN * 0 is NaN. On possums the
+  variance explained by axes 1-3 matches the in-memory result to two
+  decimals; only the smallest eigenvalue is not computed.
+
 * `gl.report.pa()` Chao1/Chao2 (`utils.pa.Chao()`, function review): the
   small-sample factor `(n - 1) / n` of the Chao1 estimator now uses the
   number of allele copies sampled in the pair for `n`, not the number of
