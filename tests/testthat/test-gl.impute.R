@@ -396,3 +396,26 @@ test_that("an FBM-backed input keeps its missing data", {
     expect_lt(sum(is.na(as.matrix(res))), sum(is.na(before)), label = m)
   }
 })
+
+test_that("beagle keeps the individuals' names (real PLINK and beagle)", {
+  # gl2vcf goes through PLINK, which writes each sample as <FID>_<IID>, so
+  # the VCF read back from beagle named every individual <pop>_<name>.
+  plink.dir <- Sys.getenv("PLINK19_DIR")
+  beagle.dir <- Sys.getenv("BEAGLE_DIR")
+  skip_if(plink.dir == "" || beagle.dir == "",
+          "PLINK19_DIR or BEAGLE_DIR not set")
+  skip_if(Sys.which("java") == "", "java not available")
+  pdf(NULL); on.exit(dev.off())
+  gl <- gl.compliance.check(testset.gl[1:30, 1:200], verbose = 0)
+  for (fb in c(FALSE, TRUE)) {
+    x <- if (fb) suppressWarnings(gl.gen2fbm(gl, verbose = 0)) else gl
+    res <- suppressWarnings(gl.impute(x, method = "beagle",
+                                      plink.bin.path = plink.dir,
+                                      beagle.bin.path = beagle.dir,
+                                      verbose = 0))
+    expect_identical(indNames(res), indNames(x))
+    expect_identical(as.character(pop(res)), as.character(pop(x)))
+    expect_identical(locNames(res), locNames(x))
+    expect_equal(sum(is.na(as.matrix(res))), 0)
+  }
+})
