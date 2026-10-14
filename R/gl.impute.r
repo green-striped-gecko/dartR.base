@@ -212,6 +212,12 @@ gl.impute <-  function(x,
       obj@gen <- matrix2gen(geno_matrix, parallel = parallel)
     } else {
       geno_matrix[is.na(geno_matrix)] <- 3
+      # FBM storage is shared by reference, and the neighbour and random
+      # methods start from x3 <- x: writing into that backing file would
+      # also impute the caller's object. The genotypes go into a copy.
+      if (identical(obj@fbm$backingfile, fbm$backingfile)) {
+        obj@fbm <- bigstatsr::big_copy(obj@fbm, backingfile = tempfile("geno_"))
+      }
       obj@fbm[] <- geno_matrix
     }
     return(obj)
