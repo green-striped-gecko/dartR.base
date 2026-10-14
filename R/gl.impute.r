@@ -569,6 +569,10 @@ gl.impute <-  function(x,
                         verbose = 0)
 
     }
+    # gl2vcf goes through PLINK, which writes each sample as <FID>_<IID>, so
+    # every individual came back named <pop>_<name>. PLINK and beagle keep
+    # the samples in order, so the input's names are restored by position.
+    indNames(x3) <- indNames(x)
 
   }
 
