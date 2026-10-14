@@ -377,3 +377,22 @@ test_that("FBM-backed run is identical to the dense run, residual NAs preserved"
   expect_identical(is.na(mff), is.na(mfd))
   expect_equal(unname(mff), unname(mfd), ignore_attr = TRUE)
 })
+
+test_that("an FBM-backed input keeps its missing data", {
+  # FBM storage is shared by reference. The neighbour and random methods
+  # start from x3 <- x, so writing the imputed genotypes into x3@fbm also
+  # rewrote the caller's object: after the run, the input had no missing
+  # data left, and the dartR GUI reported the same missing-data percentage
+  # before and after imputation.
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  gl <- gl.compliance.check(testset.gl[1:40, 1:80], verbose = 0)
+  for (m in c("neighbour", "random", "frequency", "HW")) {
+    fb <- suppressWarnings(gl.gen2fbm(gl, verbose = 0))
+    before <- as.matrix(fb)
+    expect_gt(sum(is.na(before)), 0)
+    res <- suppressWarnings(gl.impute(fb, method = m, verbose = 0))
+    expect_identical(as.matrix(fb), before, label = m)
+    expect_lt(sum(is.na(as.matrix(res))), sum(is.na(before)), label = m)
+  }
+})
