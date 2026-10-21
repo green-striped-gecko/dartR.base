@@ -106,7 +106,9 @@
 #' that holds a suspect: wells are filled by population, and a suspect's well
 #' is ringed in the colour of its partner's population, solid with an arrow
 #' from the partner when the partner sits in an adjacent well and dashed
-#' otherwise, and labelled with its \code{foreign.rate} as a percentage.
+#' otherwise, and labelled with its \code{foreign.rate} as a percentage and
+#' its \code{pattern}, so that a hybrid next to its partner is not read as a
+#' contaminant.
 #'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param rare.freq Allele frequency in the rest of the population below
@@ -641,7 +643,9 @@ gl.report.contamination <- function(x,
                                        ifelse(is.na(f.rate[sus]), "",
                                               paste0("\n",
                                                      round(100 * f.rate[sus]),
-                                                     "%"))))
+                                                     "%")),
+                                       ifelse(is.na(pattern[sus]), "",
+                                              paste0("\n", pattern[sus]))))
     # arrows run from the partner's well and end at the suspect's tile edge
     a <- sus[adjacent[sus] %in% TRUE]
     x0 <- w.col[top.j[a]]
@@ -699,7 +703,10 @@ gl.report.contamination <- function(x,
                       "population; solid with an arrow when the partner is ",
                       "in an adjacent well.\nPercentage: loci fixed-different",
                       " between the two populations at which the suspect ",
-                      "carries the partner's allele.")) +
+                      "carries the partner's allele.\nPattern: foreign ",
+                      "alleles against locus depth; dose = contaminant; ",
+                      "flat = hybrid, where the populations can interbreed; ",
+                      "saturated = either.")) +
       plot.theme +
       ggplot2::theme(panel.grid = ggplot2::element_blank())
     if (plot.display) print(p2)

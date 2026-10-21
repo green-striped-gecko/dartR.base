@@ -210,7 +210,9 @@ labelled. When plate positions are known, a second plot maps each plate
 that holds a suspect: wells are filled by population, and a suspect's well
 is ringed in the colour of its partner's population, solid with an arrow
 from the partner when the partner sits in an adjacent well and dashed
-otherwise, and labelled with its \code{foreign.rate} as a percentage.
+otherwise, and labelled with its \code{foreign.rate} as a percentage and
+its \code{pattern}, so that a hybrid next to its partner is not read as a
+contaminant.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)

@@ -4,7 +4,9 @@
   plot maps each plate that holds a suspect. Wells are filled by population;
   a suspect's well is ringed in the colour of its partner's population,
   solid with an arrow from the partner when the partner is in an adjacent
-  well and dashed otherwise, and labelled with its `foreign.rate`. Suspects
+  well and dashed otherwise, and labelled with its `foreign.rate` and tier 3
+  `pattern`, so that a hybrid beside its partner does not read as a
+  contaminant (SVM00095 and SVM00097 on DLit22-7330 show "flat"). Suspects
   that name each other get two arrows side by side. The map is saved as
   `<plot.file>_plate`; the new `plot.colors.pop` argument (default
   `gl.colors("dis", verbose = 0)`) sets the population colours. On the

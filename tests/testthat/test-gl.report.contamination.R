@@ -316,6 +316,9 @@ test_that("the plate map rings a flagged well and draws an arrow from an adjacen
   expect_true(any(grepl(m$h$id, lab)))
   expect_true(any(grepl(paste0(round(100 * m$h$foreign.rate), "%"), lab,
                         fixed = TRUE)))
+  # and with its tier 3 pattern, so a hybrid does not read as a contaminant
+  expect_equal(m$h$pattern, "dose")
+  expect_true(any(grepl("dose", lab, fixed = TRUE)))
 })
 
 test_that("the plate map draws a dashed ring and no arrow when the partner is not adjacent", {
