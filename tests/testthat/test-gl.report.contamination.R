@@ -260,3 +260,125 @@ test_that("plate wells that do not parse are reported", {
   expect_true(any(grepl("no plate well parses", out)))
   expect_null(r$pairs)
 })
+
+# Plate map. Put the dose-pattern host on plate 1 with the rest of population
+# A, its partner in the next well (or on plate 2 with the rest of population
+# B), and read back the map saved beside the scatter plot.
+plate.map <- function(adjacent = TRUE) {
+  s <- depth.host(function(d) 0.6 * rank(d) / length(d))
+  capture.output(r0 <- gl.report.contamination(s$x, plot.display = FALSE,
+                                               verbose = 0))
+  partner <- r0$ind$top.partner[r0$ind$id == s$host]
+  ids <- indNames(s$x)
+  on1 <- c(s$host, if (adjacent) partner,
+           setdiff(ids[pop(s$x) == "A"], s$host))
+  on2 <- setdiff(ids, on1)
+  # column-major wells, so the second individual of a plate sits in B1
+  wells <- function(n) {
+    paste0(LETTERS[(seq_len(n) - 1) %% 8 + 1], (seq_len(n) - 1) %/% 8 + 1)
+  }
+  plate <- data.frame(id = c(on1, on2),
+                      plate = rep(c("1", "2"), c(length(on1), length(on2))),
+                      well = c(wells(length(on1)), wells(length(on2))))
+  f <- paste0("contamination_map_", as.integer(adjacent))
+  capture.output(r <- gl.report.contamination(s$x, plate = plate,
+                                              plot.display = FALSE,
+                                              plot.dir = tempdir(),
+                                              plot.file = f, verbose = 0))
+  c(list(h = r$ind[r$ind$id == s$host, ], partner = partner), read.map(f))
+}
+
+# The saved map and the computed data of its rings, arrows and labels
+read.map <- function(f) {
+  map <- readRDS(file.path(tempdir(), paste0(f, "_plate.RDS")))
+  geoms <- vapply(map$layers, function(l) class(l$geom)[1], "")
+  ld <- lapply(seq_along(geoms), function(i) ggplot2::layer_data(map, i))
+  rings <- Filter(function(d) all(is.na(d$fill)), ld[geoms == "GeomTile"])
+  list(map = map,
+       arrows = if (any(geoms == "GeomSegment")) ld[[which(geoms == "GeomSegment")]],
+       rings = rings[[1]], labels = ld[[which(geoms == "GeomText")]])
+}
+
+test_that("the plate map rings a flagged well and draws an arrow from an adjacent partner", {
+  m <- plate.map(adjacent = TRUE)
+  expect_equal(m$h$flag, "adjacent")
+  # only the plate holding a flagged individual is drawn
+  expect_equal(as.character(ggplot2::ggplot_build(m$map)$layout$layout$plate),
+               "1")
+  expect_equal(m$rings$linetype, "solid")
+  # one arrow, from the partner's well B1 towards the host's well A1; row A
+  # is drawn at the top
+  expect_equal(nrow(m$arrows), 1)
+  expect_equal(c(m$arrows$x, m$arrows$xend), c(1, 1))
+  expect_lt(m$arrows$y, m$arrows$yend)
+  # the well is labelled with the host and its foreign-allele percentage
+  lab <- m$labels$label
+  expect_true(any(grepl(m$h$id, lab)))
+  expect_true(any(grepl(paste0(round(100 * m$h$foreign.rate), "%"), lab,
+                        fixed = TRUE)))
+  # and with its tier 3 pattern, so a hybrid does not read as a contaminant
+  expect_equal(m$h$pattern, "dose")
+  expect_true(any(grepl("dose", lab, fixed = TRUE)))
+})
+
+test_that("the plate map draws a dashed ring and no arrow when the partner is not adjacent", {
+  m <- plate.map(adjacent = FALSE)
+  expect_equal(m$h$flag, "suspect")
+  expect_false(m$h$adjacent)
+  expect_equal(m$rings$linetype, "dashed")
+  expect_true(is.null(m$arrows) || nrow(m$arrows) == 0)
+})
+
+test_that("reciprocal partners in adjacent wells get two arrows side by side", {
+  # i1 (A) carries B alleles and i21 (B) carries A alleles at disjoint fixed
+  # loci, so each names the other as its partner
+  s <- depth.host(function(d) rep(0, length(d)))
+  m <- as.matrix(s$x)
+  m[1, 1:180] <- 1
+  m[21, 181:360] <- 1
+  x <- s$x
+  x@gen <- new("genlight", m, ploidy = 2)@gen
+  indNames(x) <- indNames(s$x); pop(x) <- pop(s$x)
+  ids <- indNames(x)
+  plate <- data.frame(id = c("i1", "i21", setdiff(ids, c("i1", "i21"))),
+                      plate = "1",
+                      well = paste0(LETTERS[(0:39) %% 8 + 1], (0:39) %/% 8 + 1))
+  f <- "contamination_map_reciprocal"
+  capture.output(r <- gl.report.contamination(x, plate = plate,
+                                              plot.display = FALSE,
+                                              plot.dir = tempdir(),
+                                              plot.file = f, verbose = 0))
+  expect_equal(r$ind$top.partner[match(c("i1", "i21"), r$ind$id)],
+               c("i21", "i1"))
+  a <- read.map(f)$arrows
+  expect_equal(nrow(a), 2)
+  # both arrows run along the A1-B1 edge; they must not share a line
+  expect_gt(abs(a$x[1] - a$x[2]), 0.1)
+})
+
+test_that("the ring takes the colour of the partner's population", {
+  m <- plate.map(adjacent = TRUE)
+  # the first layer fills one tile per well of the map data by population
+  bg <- ggplot2::layer_data(m$map, 1)
+  expect_true(m$partner %in% m$map$data$id)
+  fill.b <- unique(bg$fill[m$map$data$pop %in% "B"])
+  expect_length(fill.b, 1)
+  expect_equal(m$rings$colour, fill.b)
+})
+
+test_that("no plate map is saved without plate positions", {
+  f <- "contamination_map_none"
+  capture.output(gl.report.contamination(testset.gl, plot.display = FALSE,
+                                         plot.dir = tempdir(), plot.file = f,
+                                         verbose = 0))
+  expect_true(file.exists(file.path(tempdir(), paste0(f, ".RDS"))))
+  expect_false(file.exists(file.path(tempdir(), paste0(f, "_plate.RDS"))))
+})
+
+test_that("plot.colors.pop needs a palette or one colour per population", {
+  s <- depth.host(function(d) rep(0.3, length(d)))
+  expect_error(capture.output(gl.report.contamination(s$x, plot.colors.pop = "red",
+                                                      plot.display = FALSE,
+                                                      verbose = 0)),
+               "plot.colors.pop")
+})

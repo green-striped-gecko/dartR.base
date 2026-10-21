@@ -102,7 +102,13 @@
 #' The function densifies the genotype matrix with \code{as.matrix()}.
 #'
 #' The plot shows heterozygosity against rare-allele burden with suspects
-#' labelled.
+#' labelled. When plate positions are known, a second plot maps each plate
+#' that holds a suspect: wells are filled by population, and a suspect's well
+#' is ringed in the colour of its partner's population, solid with an arrow
+#' from the partner when the partner sits in an adjacent well and dashed
+#' otherwise, and labelled with its \code{foreign.rate} as a percentage and
+#' its \code{pattern}, so that a hybrid next to its partner is not read as a
+#' contaminant.
 #'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param rare.freq Allele frequency in the rest of the population below
@@ -140,10 +146,13 @@
 #' \code{theme_dartR()} [default theme_dartR()].
 #' @param plot.colors List of two color names, the first for suspect
 #' individuals and the second for the rest [default c("#2171B5","#6BAED6")].
+#' @param plot.colors.pop A color palette for the plate map, or a vector with
+#' as many colors as there are populations [default gl.colors("dis")].
 #' @param plot.dir Directory to save the plot RDS files [default as specified
 #' by the global working directory or tempdir()].
 #' @param plot.file Name for the RDS binary file to save (base name only,
-#' exclude extension) [default NULL].
+#' exclude extension); the plate map is saved beside it with "_plate"
+#' appended [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
@@ -190,6 +199,8 @@ gl.report.contamination <- function(x,
                                     plot.display = TRUE,
                                     plot.theme = theme_dartR(),
                                     plot.colors = NULL,
+                                    plot.colors.pop = gl.colors("dis",
+                                                                verbose = 0),
                                     plot.dir = NULL,
                                     plot.file = NULL,
                                     verbose = NULL,
@@ -235,6 +246,16 @@ gl.report.contamination <- function(x,
     stop(error("  Populations must be assigned before screening; ",
                "see gl.define.pop() or gl.reassign.pop()\n"))
   }
+  pop.levels <- levels(pop(x))
+  if (is.function(plot.colors.pop)) {
+    plot.colors.pop <- plot.colors.pop(length(pop.levels))
+  }
+  if (length(plot.colors.pop) < length(pop.levels)) {
+    stop(error("  plot.colors.pop must be a palette or hold one color per ",
+               "population\n"))
+  }
+  plot.colors.pop <- stats::setNames(plot.colors.pop[seq_along(pop.levels)],
+                                     pop.levels)
   num.par <- list(rare.freq = rare.freq, min.n = min.n, z.flag = z.flag,
                   min.excess = min.excess, rare.min.excess = rare.min.excess,
                   min.share = min.share, share.tol = share.tol,
@@ -597,6 +618,104 @@ gl.report.contamination <- function(x,
                            verbose = verbose)
   }
   ind$class <- NULL
+
+  # Plate map of the plates that hold a suspect, row A at the top
+  wy <- xend <- yend <- partner.pop <- linetype <- label <- NULL
+  sus <- which(flag %in% c("suspect", "adjacent") & w.ok)
+  if (length(sus) > 0) {
+    shown <- unique(pos$plate[sus])
+    n.row <- max(8, w.row[w.ok])
+    n.col <- max(12, w.col[w.ok])
+    on <- which(w.ok & pos$plate %in% shown)
+    grid <- expand.grid(row = seq_len(n.row), col = seq_len(n.col),
+                        plate = shown, stringsAsFactors = FALSE)
+    grid <- merge(grid, data.frame(plate = pos$plate[on], row = w.row[on],
+                                   col = w.col[on], id = ids[on],
+                                   pop = pops[on]),
+                  all.x = TRUE)
+    grid$wy <- n.row + 1 - grid$row
+    rings <- data.frame(plate = pos$plate[sus], col = w.col[sus],
+                        wy = n.row + 1 - w.row[sus],
+                        partner.pop = pops[top.j[sus]],
+                        linetype = ifelse(adjacent[sus] %in% TRUE, "solid",
+                                          "dashed"),
+                        label = paste0(ids[sus],
+                                       ifelse(is.na(f.rate[sus]), "",
+                                              paste0("\n",
+                                                     round(100 * f.rate[sus]),
+                                                     "%")),
+                                       ifelse(is.na(pattern[sus]), "",
+                                              paste0("\n", pattern[sus]))))
+    # arrows run from the partner's well and end at the suspect's tile edge
+    a <- sus[adjacent[sus] %in% TRUE]
+    x0 <- w.col[top.j[a]]
+    y0 <- n.row + 1 - w.row[top.j[a]]
+    x1 <- w.col[a]
+    y1 <- n.row + 1 - w.row[a]
+    # two suspects that name each other would draw both arrows on one line;
+    # shift each to the right of its direction of travel
+    recip <- top.j[top.j[a]] == a & top.j[a] %in% a
+    sx <- ifelse(recip, 0.15 * (y1 - y0), 0)
+    sy <- ifelse(recip, -0.15 * (x1 - x0), 0)
+    arrows <- data.frame(plate = pos$plate[a], partner.pop = pops[top.j[a]],
+                         col = x0 + 0.25 * (x1 - x0) + sx,
+                         wy = y0 + 0.25 * (y1 - y0) + sy,
+                         xend = x1 - 0.5 * (x1 - x0) + sx,
+                         yend = y1 - 0.5 * (y1 - y0) + sy)
+    present <- intersect(pop.levels, c(grid$pop, rings$partner.pop))
+    p2 <- ggplot2::ggplot(grid, ggplot2::aes(x = col, y = wy)) +
+      ggplot2::geom_tile(ggplot2::aes(fill = pop), colour = "white",
+                         linewidth = 0.8, alpha = 0.4) +
+      ggplot2::geom_tile(data = rings,
+                         ggplot2::aes(colour = partner.pop,
+                                      linetype = linetype),
+                         fill = NA, linewidth = 1.2, width = 0.92,
+                         height = 0.92) +
+      ggplot2::geom_text(data = rings, ggplot2::aes(label = label),
+                         size = 2.2, lineheight = 0.9)
+    if (nrow(arrows) > 0) {
+      p2 <- p2 +
+        ggplot2::geom_segment(data = arrows,
+                              ggplot2::aes(xend = xend, yend = yend,
+                                           colour = partner.pop),
+                              linewidth = 0.8,
+                              arrow = ggplot2::arrow(
+                                length = ggplot2::unit(0.12, "cm"),
+                                type = "closed"))
+    }
+    p2 <- p2 +
+      ggplot2::scale_fill_manual(values = plot.colors.pop, breaks = present,
+                                 na.value = "grey94", name = "Population") +
+      ggplot2::scale_colour_manual(values = plot.colors.pop, guide = "none") +
+      ggplot2::scale_linetype_identity() +
+      ggplot2::scale_x_continuous(breaks = seq_len(n.col), position = "top",
+                                  expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(breaks = seq_len(n.row),
+                                  labels = rev(LETTERS[seq_len(n.row)]),
+                                  expand = c(0, 0)) +
+      ggplot2::facet_wrap(~plate, ncol = min(2, length(shown)),
+                          labeller = ggplot2::labeller(
+                            plate = function(v) paste("Plate", v))) +
+      ggplot2::coord_equal() +
+      ggplot2::labs(x = NULL, y = NULL, title = "Contamination plate map",
+                    caption = paste0(
+                      "Ring: suspect, in the colour of its partner's ",
+                      "population; solid with an arrow when the partner is ",
+                      "in an adjacent well.\nPercentage: loci fixed-different",
+                      " between the two populations at which the suspect ",
+                      "carries the partner's allele.\nPattern: foreign ",
+                      "alleles against locus depth; dose = contaminant; ",
+                      "flat = hybrid, where the populations can interbreed; ",
+                      "saturated = either.")) +
+      plot.theme +
+      ggplot2::theme(panel.grid = ggplot2::element_blank())
+    if (plot.display) print(p2)
+    if (!is.null(plot.file)) {
+      tmp <- utils.plot.save(p2, dir = plot.dir,
+                             file = paste0(plot.file, "_plate"),
+                             verbose = verbose)
+    }
+  }
 
   # FLAG SCRIPT END
   if (verbose >= 1) {
