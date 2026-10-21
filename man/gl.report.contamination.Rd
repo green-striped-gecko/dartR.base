@@ -19,6 +19,7 @@ gl.report.contamination(
   plot.display = TRUE,
   plot.theme = theme_dartR(),
   plot.colors = NULL,
+  plot.colors.pop = gl.colors("dis", verbose = 0),
   plot.dir = NULL,
   plot.file = NULL,
   verbose = NULL,
@@ -76,11 +77,15 @@ window [default TRUE].}
 \item{plot.colors}{List of two color names, the first for suspect
 individuals and the second for the rest [default c("#2171B5","#6BAED6")].}
 
+\item{plot.colors.pop}{A color palette for the plate map, or a vector with
+as many colors as there are populations [default gl.colors("dis")].}
+
 \item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()].}
 
 \item{plot.file}{Name for the RDS binary file to save (base name only,
-exclude extension) [default NULL].}
+exclude extension); the plate map is saved beside it with "_plate"
+appended [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -201,7 +206,11 @@ populations. Tier 2 can only name a source that is in the dataset.
 The function densifies the genotype matrix with \code{as.matrix()}.
 
 The plot shows heterozygosity against rare-allele burden with suspects
-labelled.
+labelled. When plate positions are known, a second plot maps each plate
+that holds a suspect: wells are filled by population, and a suspect's well
+is ringed in the colour of its partner's population, solid with an arrow
+from the partner when the partner sits in an adjacent well and dashed
+otherwise, and labelled with its \code{foreign.rate} as a percentage.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -217,6 +226,7 @@ head(out$ind)
 Other matched report: 
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.hamming}()},
