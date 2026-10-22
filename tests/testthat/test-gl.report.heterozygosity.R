@@ -198,3 +198,42 @@ test_that("all-NA loci are not counted as polymorphic", {
   expect_equal(r$polyLoc + r$monoLoc + r$all_NALoc,
                rep(nLoc(testset.gl), nPop(testset.gl)))
 })
+
+test_that("population colours follow population names in every plot", {
+  # before: colours were named by order of first appearance among
+  # individuals (overwriting the names given), and the n.invariant > 0
+  # plots assigned them by row position; platypus.gl lists TENTERFIELD
+  # first although it is the last level
+  pdf(NULL); on.exit(dev.off())
+  fills <- function(n.inv, cols, sub = FALSE) {
+    d <- tempfile("het_cols"); dir.create(d)
+    invisible(capture.output(gl.report.heterozygosity(
+      platypus.gl, plot.colors.pop = cols, n.invariant = n.inv,
+      subsample.pop = sub, plot.file = "het", plot.dir = d, verbose = 1)))
+    p <- readRDS(file.path(d, "het.RDS"))
+    panels <- if (inherits(p, "patchwork")) list(p[[1]], p[[2]]) else list(p)
+    lapply(panels, function(pp) {
+      b <- ggplot2::ggplot_build(pp)
+      dat <- b$data[[1]]
+      if ("pop" %in% names(b$layout$layout)) {
+        pop <- as.character(b$layout$layout$pop[match(dat$PANEL,
+                                                      b$layout$layout$PANEL)])
+      } else {
+        pop <- b$layout$panel_params[[1]]$x$get_limits()[dat$x]
+      }
+      tapply(dat$fill, pop, unique, simplify = FALSE)
+    })
+  }
+  named <- c(SEVERN_BELOW = "blue", TENTERFIELD = "green",
+             SEVERN_ABOVE = "red")
+  expected <- named[sort(names(named))]
+  # named colours keep their names; an unnamed palette is assigned in the
+  # order of levels(pop(x)), which here gives the same mapping
+  for (cols in list(named, c("red", "blue", "green"))) {
+    for (n.inv in c(0, 1000)) {
+      for (f in fills(n.inv, cols)) expect_equal(unlist(f), expected)
+    }
+  }
+  # the subsample panels colour each population like the main plot
+  for (f in fills(0, named, sub = TRUE)) expect_equal(unlist(f), expected)
+})
