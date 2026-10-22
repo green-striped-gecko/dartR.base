@@ -698,13 +698,23 @@ gl.report.heterozygosity <- function(x,
       if (!is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop
       }
-      colors_pops <- setNames(colors_pops, pop_order)
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  plot.colors.pop must be a palette or hold one color per",
+                   "population\n"))
+      }
+      # key colours by population name: names given by the user are kept when
+      # they cover every population, otherwise colours follow levels(pop(x));
+      # pop_order only sets the order of the bars
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
       
       if (n.invariant == 0) {
         
         pop_list_plot <- df
         pop_list_plot$pop <- as.factor(pop_list_plot$pop)
-        pop_list_plot$color <- colors_pops
+        pop_list_plot$color <- colors_pops[as.character(pop_list_plot$pop)]
         
         pop_list_plot_stat <- pop_list_plot[,c("Ho", "uHe", "FIS", "n.Ind",  "pop",  "color")]
         pop_list_plot_stat <- reshape2::melt(pop_list_plot_stat, id = c("pop", "color", "n.Ind"))
@@ -848,7 +858,7 @@ gl.report.heterozygosity <- function(x,
       } else {
 
         df.ordered <- df
-        df.ordered$color <- colors_pops
+        df.ordered$color <- colors_pops[as.character(df.ordered$pop)]
         df.ordered <- df.ordered[order(df.ordered$Ho.adj), ]
         df.ordered$pop <- factor(df.ordered$pop, levels = df.ordered$pop)
         p1 <-
@@ -859,7 +869,7 @@ gl.report.heterozygosity <- function(x,
           )) + geom_bar(position = "dodge",
                         stat = "identity",
                         color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
+          scale_fill_manual(values = colors_pops) +
           scale_x_discrete(labels = paste(df.ordered$pop,
                                           round(df.ordered$n.Ind, 0),
                                           sep = " | ")) + plot.theme + theme(
@@ -881,7 +891,7 @@ gl.report.heterozygosity <- function(x,
           )) + geom_bar(position = "dodge",
                         stat = "identity",
                         color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
+          scale_fill_manual(values = colors_pops) +
           scale_x_discrete(labels = paste(df.ordered$pop,
                                           round(df.ordered$n.Ind, 0),
                                           sep = " | ")) + plot.theme + theme(

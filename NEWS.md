@@ -1,5 +1,14 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.report.heterozygosity()`: BUG FIX: `plot.colors.pop` colours now go
+  to the right populations. Before, colours were assigned in the order in
+  which populations first appear among the individuals, and names given
+  to the colours were overwritten; with `n.invariant > 0` they were
+  assigned by row position. Named colours that cover every population are
+  now matched by name; otherwise colour i goes to `levels(pop(x))[i]`. The
+  order of the bars is unchanged. Fewer colours than populations now stops
+  with an error instead of a `names` error from `setNames()`.
+
 * `gl.report.contamination()`: when plate positions are known, a second
   plot maps each plate that holds a suspect. Wells are filled by population;
   a suspect's well is ringed in the colour of its partner's population,

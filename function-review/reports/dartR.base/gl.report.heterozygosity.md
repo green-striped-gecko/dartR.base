@@ -154,6 +154,21 @@ Approved by Luis (2026-09-24), with the A2 decision on PR #435.
 
 Evidence: new test "all-NA loci are not counted as polymorphic" matches an independent count in all 30 testset.gl populations and checks `polyLoc + monoLoc + all_NALoc = nLoc`; against the `origin/dev` version, all other columns are identical and each population's shift equals its all-NA count. Tests: this file 37/37, `gl.test.heterozygosity` 38/38, `gl.filter.heterozygosity` 19/19.
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Reported from the YFT analysis session (dartR.base 1.2.6, `method = "pop"`).
+
+**FU2 [MEDIUM, confidence: high] — `plot.colors.pop` mapped by position, not by population (spec)**
+`R/gl.report.heterozygosity.r` plot block — `setNames(colors_pops, pop_order)` named the colours by order of first appearance among individuals, overwriting any names the user gave, while `df` rows follow `levels(pop(x))`. The `n.invariant > 0` plots then used `df.ordered$color`, assigned by row position. possums.gl A/B/C with C listed first: named `c(A = "red", B = "blue", C = "green")` gave A blue, B green, C red; with `n.invariant = 1000`, named colours in the order C, A, B were applied by position (A green, B red, C blue).
+Change: build one vector named by `popNames(x)` (user names kept when they cover every population, otherwise colour i goes to level i) and index it by population name in both plot paths; the `n.invariant > 0` scales use the named vector. Fewer colours than populations stops with an error. `pop_order` still sets the bar order.
+**Consequence: bar colours change whenever the first population to appear is not the first level, or colours are named; statistics and bar order unchanged.**
+
+Requested by Luis via the YFT session (2026-10-22).
+
+Evidence: new test "population colours follow population names in every plot" (platypus.gl, which lists TENTERFIELD first) checks named and unnamed colours with `n.invariant = 0` and `1000`, plus the subsample panels; 8 assertions fail on `origin/dev` and pass after the change. The reporter's possums.gl repro gives A red, B blue, C green in every case. Tests: this file 45/45, `gl.report.polyploid_heterozygosity` 37/37, `gl.test.heterozygosity` 38/38, `gl.filter.heterozygosity` 19/19, `utils.het.pop` 2/2.
+
+Not fixed here: `gl.report.polyploid_heterozygosity()` has the same `setNames(colors_pops, pop_order)` line.
+
 ## Outcome
 
 All six findings applied, plus the addendum. Characterization suite:
