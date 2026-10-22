@@ -579,6 +579,16 @@ gl.report.allelerich <- function(x,
   if (!is(plot.colors.pop, "function")) {
     colors_pops <- plot.colors.pop
   }
+  if (length(colors_pops) < nPop(x)) {
+    stop(error("  plot.colors.pop must be a palette or hold one color per",
+               "population\n"))
+  }
+  # key colours by population name: names given by the user are kept when
+  # they cover every population, otherwise colours follow levels(pop(x))
+  if (!all(popNames(x) %in% names(colors_pops))) {
+    colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+  }
+  colors_pops <- colors_pops[popNames(x)]
     
   p2 <-
     ggplot(result[[2]], aes(

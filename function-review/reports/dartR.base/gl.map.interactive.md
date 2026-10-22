@@ -287,6 +287,18 @@ block after the raster step.
 | 9 | approved | Luis | |
 | 10 | approved | Luis | |
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [LOW, confidence: high] — named `ind.circle.cols` ignored (spec)**
+`cols[as.numeric(pop(x))]` indexed the colours by level position, so a named vector in another order coloured the circles by position.
+Change: name the colours by population (user names kept when they cover every population) and index by `as.character(pop(x))`.
+
+Evidence: new test "individual circles take colours by population name": 1 check fails on `origin/dev`, passes after; this file 59/59.
+
 ## Outcome
 
 Applied on branch `review-gl.map.interactive` (from origin/dev be7cb2e);

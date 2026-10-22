@@ -1,5 +1,31 @@
 # dartR.base 1.2.6 (development)
 
+* Population colours: BUG FIX in seven more functions (audit after the
+  `gl.report.heterozygosity()` fix). In each, named colours that cover
+  every population are now matched by name; otherwise colour i goes to
+  `levels(pop(x))[i]`. Bar, axis and panel order are unchanged.
+  - `gl.report.polyploid_heterozygosity()`: colours were assigned in order
+    of first appearance among individuals, names were overwritten, and the
+    `n.invariant > 0` plots assigned them by row position (the same code
+    as `gl.report.heterozygosity()` before the fix above).
+  - `gl.report.heterozygosity()` and `gl.report.polyploid_heterozygosity()`:
+    the `subsample.pop` panels are coloured by population when the levels
+    are not in alphabetical order.
+  - `gl.report.pa()`: the Sankey colour scale now has an explicit domain,
+    so colours no longer depend on the order in which d3 draws the nodes.
+    In one2rest, a population's source and target share its colour and
+    "Rest" is grey unless a colour is named "Rest" or the palette gives
+    one more colour than populations. A palette function no longer
+    crashes the pairwise plot.
+  - `gl.report.allelerich()` and `gl.report.ld.map()`: unnamed colours were
+    assigned in alphabetical order of population, not level order.
+  - `gl.plot.heatmap()`, `gl.report.contamination()` and
+    `gl.map.interactive()`: names given to the colours were overwritten or
+    ignored.
+  Fewer colours than populations now stops with an error in
+  `gl.report.polyploid_heterozygosity()`, `gl.report.allelerich()`,
+  `gl.report.ld.map()` and `gl.report.pa()`.
+
 * `gl.report.heterozygosity()`: BUG FIX: `plot.colors.pop` colours now go
   to the right populations. Before, colours were assigned in the order in
   which populations first appear among the individuals, and names given

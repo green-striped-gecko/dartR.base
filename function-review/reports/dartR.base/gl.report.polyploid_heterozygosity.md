@@ -123,6 +123,18 @@ Original lines 485-505 — loci with no data in a population are counted in `pol
 Proposed change: keep the corrected count here and raise the sibling separately.
 **Consequence: `polyLoc` and `monoLoc` change wherever a population has all-NA loci; the polyploid function then differs from the diploid function in these two columns until the sibling is fixed.**
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [MEDIUM, confidence: high] — `plot.colors.pop` mapped by position, not by population (spec)**
+Same code as `gl.report.heterozygosity` before #455: `setNames(colors_pops, pop_order)` named the colours by order of first appearance, overwriting user names; the `n.invariant > 0` plots assigned them by row position, and the subsample panels drew a constant fill vector in panel order. Unnamed colours with `n.invariant = 0` gave SB blue, T red, SA green (expected SB red, T blue, SA green).
+Change: the #455 block (one vector named by `popNames(x)`, user names kept when they cover every population, indexed by name in every path; fewer colours than populations stops), plus `fill = pop` in the subsample plot. Bar order unchanged.
+
+Evidence: new test "population colours follow population names in every plot": 8 of 10 checks fail on `origin/dev` (the two that pass are unnamed colours with `n.invariant > 0`); all pass after; this file 47/47.
+
 ## Outcome
 
 - Changes 1-7 and addenda A1, A2 applied on branch `review-gl.report.polyploid_heterozygosity` (from `origin/dev`). The function body is rebuilt on the reviewed `gl.report.heterozygosity` code; `pop.het_fun`, `pop.het`, `het_rep` and `utils.subsample.pop` in `R/utils.het.report.r` gain a `ploidy` argument whose default (2) runs the unchanged diploid code.

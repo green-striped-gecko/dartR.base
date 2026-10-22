@@ -254,8 +254,13 @@ gl.report.contamination <- function(x,
     stop(error("  plot.colors.pop must be a palette or hold one color per ",
                "population\n"))
   }
-  plot.colors.pop <- stats::setNames(plot.colors.pop[seq_along(pop.levels)],
-                                     pop.levels)
+  # names given by the user are kept when they cover every population,
+  # otherwise colours follow the levels
+  if (!all(pop.levels %in% names(plot.colors.pop))) {
+    plot.colors.pop <- stats::setNames(plot.colors.pop[seq_along(pop.levels)],
+                                       pop.levels)
+  }
+  plot.colors.pop <- plot.colors.pop[pop.levels]
   num.par <- list(rare.freq = rare.freq, min.n = min.n, z.flag = z.flag,
                   min.excess = min.excess, rare.min.excess = rare.min.excess,
                   min.share = min.share, share.tol = share.tol,

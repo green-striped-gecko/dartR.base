@@ -250,6 +250,18 @@ proposed, recorded for the API pass.
 | 9 | approved | Luis |  |
 | 10 | approved | Luis | addendum, accepted with the pre-push OK |
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [LOW, confidence: high] — named `palette_discrete` renamed by position (spec)**
+`names(pop_colors) <- popNames(x)` overwrote the names given, so a named palette in another order coloured the side bars and legend by position.
+Change: keep the user's names when they cover every population, otherwise name by `popNames(x)`; subset to `popNames(x)`.
+
+Evidence: new test "named palette_discrete keeps its names": 2 checks fail on `origin/dev`, pass after; this file and `utils.heatmap` pass in full.
+
 ## Outcome
 
 Branch `review-gl.plot.heatmap` from origin/dev f9ee087 (an open PR, #402,

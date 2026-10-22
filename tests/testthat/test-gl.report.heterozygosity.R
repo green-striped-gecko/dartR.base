@@ -237,3 +237,25 @@ test_that("population colours follow population names in every plot", {
   # the subsample panels colour each population like the main plot
   for (f in fills(0, named, sub = TRUE)) expect_equal(unlist(f), expected)
 })
+
+test_that("population colours are right when levels are not alphabetical", {
+  # before: the subsample panels took the colours as a constant vector in
+  # row order (levels) while ggplot draws them in panel order (alphabetical)
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    for (args in list(c(0, FALSE), c(1000, FALSE), c(0, TRUE))) {
+      d <- tempfile("het_cols"); dir.create(d)
+      invisible(capture.output(gl.report.heterozygosity(
+        x, plot.colors.pop = cs[[1]], n.invariant = args[1],
+        subsample.pop = as.logical(args[2]), plot.file = "p", plot.dir = d,
+        verbose = 1)))
+      for (p in pop_colours_plots(d)) {
+        expect_equal(pop_colours_of(p, pops), cs[[2]][pops])
+      }
+    }
+  }
+})

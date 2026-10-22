@@ -264,7 +264,7 @@ test_that("plate wells that do not parse are reported", {
 # Plate map. Put the dose-pattern host on plate 1 with the rest of population
 # A, its partner in the next well (or on plate 2 with the rest of population
 # B), and read back the map saved beside the scatter plot.
-plate.map <- function(adjacent = TRUE) {
+plate.map <- function(adjacent = TRUE, cols = gl.colors("dis", verbose = 0)) {
   s <- depth.host(function(d) 0.6 * rank(d) / length(d))
   capture.output(r0 <- gl.report.contamination(s$x, plot.display = FALSE,
                                                verbose = 0))
@@ -282,6 +282,7 @@ plate.map <- function(adjacent = TRUE) {
                       well = c(wells(length(on1)), wells(length(on2))))
   f <- paste0("contamination_map_", as.integer(adjacent))
   capture.output(r <- gl.report.contamination(s$x, plate = plate,
+                                              plot.colors.pop = cols,
                                               plot.display = FALSE,
                                               plot.dir = tempdir(),
                                               plot.file = f, verbose = 0))
@@ -381,4 +382,14 @@ test_that("plot.colors.pop needs a palette or one colour per population", {
                                                       plot.display = FALSE,
                                                       verbose = 0)),
                "plot.colors.pop")
+})
+
+test_that("named plot.colors.pop keeps its names on the plate map", {
+  # before: setNames(..., levels(pop(x))) overwrote the names given, so
+  # c(B = "red", A = "blue") filled population A red
+  m <- plate.map(adjacent = TRUE, cols = c(B = "red", A = "blue"))
+  bg <- ggplot2::layer_data(m$map, 1)
+  expect_equal(unique(bg$fill[m$map$data$pop %in% "A"]), "blue")
+  expect_equal(unique(bg$fill[m$map$data$pop %in% "B"]), "red")
+  expect_equal(m$rings$colour, "red")
 })
