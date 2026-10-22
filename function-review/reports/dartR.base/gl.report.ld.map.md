@@ -167,6 +167,18 @@ output across the local dartR.* clones is `dartR.popgen::gl.ld.distance`
 (takes the report data frame). The approved set leaves the returned data
 frame unchanged (change 1 rejected), so no caller is affected. All clear.
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [LOW, confidence: high] — unnamed boxplot colours in alphabetical order (spec)**
+`color = pop` is a character column, so unnamed `boxplot.colors` went to the populations in alphabetical order, not `levels(pop(x))`. Populations skipped by `ind.limit` would also have shifted them.
+Change: name `boxplot.colors` by population (user names kept when they cover every population) before `scale_color_manual()`; fewer colours than populations stops.
+
+Evidence: new test "gl.report.ld.map boxplot colours follow population names": 1 check fails on `origin/dev`, passes after; this file 32/32.
+
 ## Outcome
 
 Changes 2-7 applied on branch review-gl.report.ld.map (commit a43ee15), PR

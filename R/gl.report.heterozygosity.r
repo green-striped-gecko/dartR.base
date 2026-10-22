@@ -825,14 +825,14 @@ gl.report.heterozygosity <- function(x,
           
           res_sub_plot_2 <- reshape2::melt(res_sub_plot, id = c("pop", "color", "subsample","res_SE"))
           
-          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value))+
+          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value,fill=pop))+
             
             geom_bar(stat = "identity", 
                      color = "black", 
-                     fill = res_sub_plot_2$color,
                      position = position_dodge())+ 
             facet_wrap(~variable, nrow=1) +
             facet_wrap(~pop)+
+            scale_fill_manual(values = colors_pops) +
             geom_errorbar(aes(ymin = value, 
                               ymax = value + res_SE), 
                           width=0.5)+

@@ -351,6 +351,18 @@ gl.report.ld.map <- function(x,
       boxplot.colors <- boxplot.colors(length(levels(pop(x))))
     }
 
+    if (length(boxplot.colors) < nPop(x)) {
+      stop(error("  boxplot.colors must be a palette or hold one color per",
+                 "population\n"))
+    }
+    # key colours by population name: names given by the user are kept when
+    # they cover every population, otherwise colours follow levels(pop(x))
+    if (!all(popNames(x) %in% names(boxplot.colors))) {
+      boxplot.colors <- setNames(boxplot.colors[seq_len(nPop(x))],
+                                 popNames(x))
+    }
+    boxplot.colors <- boxplot.colors[popNames(x)]
+
     # get title for plots
     title1 <- "SNP data - Pairwise LD"
     

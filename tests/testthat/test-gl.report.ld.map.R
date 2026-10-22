@@ -136,3 +136,21 @@ test_that("gl.report.ld.map rejects SilicoDArT", {
     "SilicoDArT"
   )
 })
+
+test_that("gl.report.ld.map boxplot colours follow population names", {
+  # before: unnamed colours were passed by position to a character pop
+  # column, which ggplot sorts alphabetically, not by levels(pop(x))
+  x <- prep_platypus_mapped()
+  pops <- popNames(pop_colours_gl())
+  pop(x) <- factor(as.character(pop(x)), levels = pops)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    d <- tempfile("ldmap_cols"); dir.create(d)
+    res <- gl.report.ld.map(x, ld.max.pairwise = 10000000,
+                            boxplot.colors = cs[[1]], plot.display = FALSE,
+                            plot.file = "p", plot.dir = d, verbose = 0)
+    p1 <- pop_colours_plots(d)[[1]]
+    expect_equal(pop_colours_of(p1, pops, aes = "colour"), cs[[2]][pops])
+  }
+})

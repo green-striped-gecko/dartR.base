@@ -169,6 +169,16 @@ Evidence: new test "population colours follow population names in every plot" (p
 
 Not fixed here: `gl.report.polyploid_heterozygosity()` has the same `setNames(colors_pops, pop_order)` line.
 
+## Follow-up (2026-10-22): subsample panels with non-alphabetical levels
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+**FU3 [MEDIUM, confidence: high] — subsample panels coloured in panel order (spec)**
+The #455 fix keyed the colours by name, but the subsample panels passed them as a constant `fill` vector in row order (levels), while ggplot draws the rows in facet order (alphabetical). With non-alphabetical levels the panels were coloured SEVERN_BELOW green, TENTERFIELD red, SEVERN_ABOVE blue for named colours that should give blue, green, red.
+Change: map `fill = pop` with `scale_fill_manual(values = colors_pops)` in the subsample plot. Panel order unchanged.
+
+Evidence: new test "population colours are right when levels are not alphabetical": 2 checks fail on `origin/dev`, all pass after; this file 55/55.
+
 ## Outcome
 
 All six findings applied, plus the addendum. Characterization suite:

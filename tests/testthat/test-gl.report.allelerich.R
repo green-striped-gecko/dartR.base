@@ -74,3 +74,22 @@ test_that("bootstrap path adds CI columns", {
   # BASELINE: the user's error.bar = "SD" is silently overridden to CI.
   expect_false("SD" %in% cn)
 })
+
+test_that("population colours follow population names", {
+  # before: unnamed colours were passed by position to a character pop
+  # column, which ggplot sorts alphabetically, not by levels(pop(x))
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    d <- tempfile("ar_cols"); dir.create(d)
+    invisible(capture.output(gl.report.allelerich(
+      x, plot.colors.pop = cs[[1]], plot.file = "p", plot.dir = d,
+      verbose = 1)))
+    for (p in pop_colours_plots(d)) {
+      expect_equal(pop_colours_of(p, pops), cs[[2]][pops])
+    }
+  }
+})

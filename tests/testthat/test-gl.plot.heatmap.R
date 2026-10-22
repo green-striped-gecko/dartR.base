@@ -235,3 +235,28 @@ test_that("verbose = 2 prints start, datatype and end lines", {
   expect_equal(out[length(out)], "Completed: gl.plot.heatmap ")
   expect_length(out, 3)
 })
+
+test_that("named palette_discrete keeps its names", {
+  # before: names(pop_colors) <- popNames(x) overwrote the names given, so a
+  # named palette in another order was applied by position
+  pal <- setNames(c("red", "orange", "blue", "green", "black", "purple",
+                    "grey"), rev(popNames(gl12)))
+  seen <- NULL
+  local_mocked_bindings(
+    legend = function(x, y, legend, fill, ...) {
+      seen <<- list(text = legend, fill = fill)
+      invisible(NULL)
+    },
+    .package = "dartR.base")
+  side <- NULL
+  local_mocked_bindings(
+    utils.heatmap = function(x, ColSideColors = NULL, ...) {
+      side <<- ColSideColors
+      list(carpet = x)
+    },
+    .package = "dartR.base")
+  r <- quiet_plot(D12, x = gl12, palette_discrete = pal)
+  expect_equal(seen$text, popNames(gl12))
+  expect_equal(seen$fill, unname(pal[popNames(gl12)]))
+  expect_equal(side, unname(pal[as.character(pop(gl12))]))
+})

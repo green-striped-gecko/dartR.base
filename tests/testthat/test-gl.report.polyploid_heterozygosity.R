@@ -150,3 +150,26 @@ test_that("input untouched, subsample return shape", {
   expect_named(r, c("subsample", "results"))
   expect_s3_class(r$results, "data.frame")
 })
+
+test_that("population colours follow population names in every plot", {
+  # before: colours were named by order of first appearance among
+  # individuals (overwriting the names given), and the n.invariant > 0
+  # plots assigned them by row position
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    for (args in list(c(0, FALSE), c(1000, FALSE), c(0, TRUE))) {
+      d <- tempfile("polyhet_cols"); dir.create(d)
+      invisible(capture.output(gl.report.polyploid_heterozygosity(
+        x, plot.colors.pop = cs[[1]], n.invariant = args[1],
+        subsample.pop = as.logical(args[2]), plot.file = "p", plot.dir = d,
+        verbose = 1)))
+      for (p in pop_colours_plots(d)) {
+        expect_equal(pop_colours_of(p, pops), cs[[2]][pops])
+      }
+    }
+  }
+})
