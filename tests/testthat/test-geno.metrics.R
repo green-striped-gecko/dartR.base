@@ -8,18 +8,20 @@
 add_gm <- function(x) {
   ref <- outer(seq_len(nInd(x)) * 10000L, seq_len(nLoc(x)), "+")
   storage.mode(ref) <- "integer"
-  dimnames(ref) <- list(indNames(x), locNames(x))
   x@other$geno.metrics <- list(ref.count = ref, alt.count = -ref)
   x
 }
 
-expect_aligned <- function(y, full) {
+# The matrices are kept by position, so the expected values are looked up
+# by name in a labelled copy of the full matrices; ind gives the source
+# individual of each row when the function renamed them
+expect_aligned <- function(y, full, ind = indNames(y)) {
   gm <- y@other$geno.metrics
   expect_false(is.null(gm))
   for (nm in names(full@other$geno.metrics)) {
-    expect_identical(
-      gm[[nm]],
-      full@other$geno.metrics[[nm]][indNames(y), locNames(y), drop = FALSE])
+    m <- full@other$geno.metrics[[nm]]
+    dimnames(m) <- list(indNames(full), locNames(full))
+    expect_identical(gm[[nm]], unname(m[ind, locNames(y), drop = FALSE]))
   }
 }
 
@@ -135,4 +137,33 @@ test_that("keep, drop, filter and subsample functions keep geno.metrics aligned"
   for (nm in names(ys)) {
     expect_aligned(ys[[nm]], x)
   }
+})
+
+test_that("renaming individuals or loci cannot misalign geno.metrics", {
+  x <- make_gm()
+  gm <- x@other$geno.metrics
+  # swapping two names: rows stay with their genotypes, by position
+  y <- x
+  indNames(y)[1:2] <- indNames(x)[2:1]
+  locNames(y)[1:2] <- locNames(x)[2:1]
+  z <- y[c(1, 3), 1:3]
+  expect_identical(z@other$geno.metrics$ref.count, gm$ref.count[c(1, 3), 1:3])
+  expect_null(dimnames(z@other$geno.metrics$ref.count))
+  # binding does not add names either
+  expect_null(dimnames(rbind(x[1:8, ], x[9:20, ])@other$geno.metrics$ref.count))
+  expect_null(dimnames(cbind(x[, 1:15], x[, 16:40])@other$geno.metrics$ref.count))
+})
+
+test_that("gl.sample repeats the geno.metrics rows of individuals drawn twice", {
+  x <- make_gm()
+  set.seed(3)
+  # more draws than individuals: rows are repeated outside "["
+  capture.output(y <- gl.sample(x, nsample = 30, replace = TRUE, onepop = TRUE,
+                                verbose = 0))
+  expect_equal(nInd(y), 30)
+  expect_aligned(y, x, ind = sub("^[0-9]+_", "", indNames(y)))
+  set.seed(3)
+  capture.output(y <- gl.sample(x, nsample = 10, replace = TRUE, onepop = TRUE,
+                                verbose = 0))
+  expect_aligned(y, x, ind = sub("^[0-9]+_", "", indNames(y)))
 })

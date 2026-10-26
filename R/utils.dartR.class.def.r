@@ -24,7 +24,9 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 .has_fbm <- function(x) !is.null(.fbm_or_null(x))
 
 ## @other$geno.metrics holds per-genotype matrices (individuals x loci, e.g.
-## the read counts kept by gl.read.vcf); they follow both indices
+## the read counts kept by gl.read.vcf); they follow both indices. They are
+## kept by position only, without dimnames, because individuals and loci are
+## renamed in many places that would leave dimnames stale.
 .gm_subset <- function(gm, ii, jj) {
   lapply(gm, function(m) m[ii, jj, drop = FALSE])
 }
@@ -33,7 +35,7 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 ## object's columns put in the first object's locus order by colmap) or by
 ## cbind (along = 2). They are dropped when not every object holds the same
 ## matrices, as the result would mix aligned and missing counts.
-.gm_bind <- function(objs, along, dn, colmap = NULL) {
+.gm_bind <- function(objs, along, colmap = NULL) {
   gms <- lapply(objs, function(o) o@other$geno.metrics)
   if (all(vapply(gms, is.null, logical(1)))) return(NULL)
   nms <- names(gms[[1L]])
@@ -49,9 +51,7 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
       if (!is.null(colmap)) m <- m[, colmap[[k]], drop = FALSE]
       m
     })
-    m <- if (along == 1L) do.call(rbind, ms) else do.call(cbind, ms)
-    dimnames(m) <- dn
-    m
+    if (along == 1L) do.call(rbind, ms) else do.call(cbind, ms)
   })
   names(out) <- nms
   out
@@ -687,7 +687,7 @@ cbind.dartR <- function(...,
         warning("loc.metrics columns differ; not merging.")
       }
     }
-    out@other$geno.metrics <- .gm_bind(objs, 2L, list(ind_names, loc_names))
+    out@other$geno.metrics <- .gm_bind(objs, 2L)
 
     return(out)
   }
@@ -742,8 +742,7 @@ cbind.dartR <- function(...,
       }
     }
   }
-  out@other$geno.metrics <- .gm_bind(myList, 2L,
-                                     list(indNames(out), locNames(out)))
+  out@other$geno.metrics <- .gm_bind(myList, 2L)
 
   out
 } # end cbind.dartR
@@ -888,8 +887,7 @@ rbind.dartR <- function(...,
   chrom_out    <- chr(objs[[1L]])
   pos_out      <- position(objs[[1L]])
   other_out    <- .rbind_other(objs, ind_names)
-  other_out$geno.metrics <- .gm_bind(objs, 1L, list(ind_names, loc_names),
-                                     colmap)
+  other_out$geno.metrics <- .gm_bind(objs, 1L, colmap)
   
   ## Any FBM present?
   has_fbm_vec <- vapply(objs, function(o) !is.null(.fbm_or_null(o)), logical(1))

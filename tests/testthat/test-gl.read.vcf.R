@@ -275,17 +275,19 @@ test_that("gl.read.vcf read.counts = TRUE keeps REF and ALT read counts from AD"
 
   gm <- x@other$geno.metrics
   expect_named(gm, c("ref.count", "alt.count"))
-  dn <- list(indNames(x), locNames(x))
   expected_ref <- matrix(c(10L, 12L, 0L,
                            0L, 15L, 3L,
                            NA, NA, NA,
-                           4L, 9L, 0L), nrow = 3, dimnames = dn)
+                           4L, 9L, 0L), nrow = 3)
   expected_alt <- matrix(c(0L, 8L, 6L,
                            0L, 15L, 2L,
                            NA, NA, NA,
-                           3L, 0L, 7L), nrow = 3, dimnames = dn)
+                           3L, 0L, 7L), nrow = 3)
   expect_identical(gm$ref.count, expected_ref)
   expect_identical(gm$alt.count, expected_alt)
+  # kept by position: row i is indNames(x)[i], column j locNames(x)[j]
+  expect_null(dimnames(gm$ref.count))
+  expect_equal(dim(gm$ref.count), c(nInd(x), nLoc(x)))
 })
 
 test_that("gl.read.vcf read.counts falls back to BSDP mapped through REF and ALT", {

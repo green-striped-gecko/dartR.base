@@ -52,7 +52,9 @@
 #' They are read from FORMAT AD or, for genotypes without AD, from FORMAT
 #' BSDP (read counts of the bases A, C, G and T) at the REF and ALT bases.
 #' Counts are stored as the vcf reports them, also for uncalled genotypes.
-#' The matrices follow the genotypes when individuals or loci are subset,
+#' The matrices have no row or column names: row i belongs to
+#' \code{indNames(x)[i]} and column j to \code{locNames(x)[j]}, so renaming
+#' individuals or loci cannot leave stale names on them. The matrices follow the genotypes when individuals or loci are subset,
 #' sorted or combined, and are swapped by \code{\link{gl.randomize.snps}};
 #' \code{\link{gl.compliance.check}} removes them if their dimensions no
 #' longer match the object.
@@ -225,8 +227,6 @@ gl.read.vcf <- function(vcffile,
         cat(warn("  Warning: the vcf has no AD or BSDP field, so no read counts were stored.\n"))
       }
     } else {
-      dimnames(depth$ref.count) <- dimnames(depth$alt.count) <-
-        list(indNames(x), locNames(x))
       x@other$geno.metrics <- list(ref.count = depth$ref.count,
                                    alt.count = depth$alt.count)
       if (verbose >= 2) {
