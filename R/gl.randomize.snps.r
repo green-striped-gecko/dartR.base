@@ -39,7 +39,9 @@
 #' saved only when plot.file is specified.
 
 #' @return Returns a genlight object with half of the loci re-coded and their
-#' allele labels (loc.all) reversed. Locus metric flags are reset, as the
+#' allele labels (loc.all) reversed; read counts in other$geno.metrics (see
+#' \code{\link{gl.read.vcf}}) are swapped with them. Locus metric flags are
+#' reset, as the
 #' allele-frequency metrics no longer match the recoded genotypes.
 #' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
@@ -123,6 +125,12 @@ gl.randomize.snps <- function(x,
         vapply(strsplit(x@loc.all[random_snps], "/", fixed = TRUE),
                function(alleles) paste(rev(alleles), collapse = "/"),
                character(1))
+    }
+    # ... and the read counts of the two alleles swap with them
+    gm <- x@other$geno.metrics
+    if (!is.null(gm$ref.count) && !is.null(gm$alt.count)) {
+      x@other$geno.metrics$ref.count[, random_snps] <- gm$alt.count[, random_snps]
+      x@other$geno.metrics$alt.count[, random_snps] <- gm$ref.count[, random_snps]
     }
 
     if (verbose == 5) {

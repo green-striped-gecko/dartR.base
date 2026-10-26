@@ -229,3 +229,115 @@ test_that("gl.read.vcf prints its own FLAG SCRIPT END", {
   # the gap pinned here earlier (no "Completed:" line) has been fixed
   expect_true(any(grepl("Completed: gl.read.vcf", out)))
 })
+
+fmt_hdr <- c(
+  "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Read depth\">",
+  "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Allelic depths\">",
+  "##FORMAT=<ID=BSDP,Number=4,Type=Integer,Description=\"Base calls A,C,G,T\">")
+
+ad_records <- c(
+  "chr1\t100\trs1\tA\tG\t50\tPASS\t.\tGT:DP:AD\t0/0:10:10,0\t0/1:20:12,8\t1/1:6:0,6",
+  "chr1\t200\trs2\tC\tG,T\t60\tPASS\t.\tGT:DP:AD\t1/2:9:0,4,5\t0/1:8:4,4,0\t0/2:7:3,0,4",
+  "chr1\t300\trs3\tC\tT\t70\tPASS\t.\tGT:DP:AD\t./.:0:0,0\t0/1:30:15,15\t0/.:5:3,2",
+  "chr2\t150\trs4\tG\tA\t80\tPASS\t.\tGT:DP:AD\t./.:.:.\t./.:.:.\t./.:.:.",
+  "chr2\t250\trs5\tT\tC\t90\tPASS\t.\tGT:AD\t0/1:4,3\t0/0:9,0\t1/1:0,7")
+
+test_that("gl.read.vcf stores rdepth as the mean FORMAT DP over called genotypes", {
+  skip_if_not_installed("vcfR")
+  d <- vcf_tmpdir()
+  f <- write_vcf(d, "ad.vcf", ad_records, info_hdr = fmt_hdr)
+
+  capture.output(x <- suppressWarnings(gl.read.vcf(f, verbose = 0)))
+
+  # rs2 (multi-allelic) is dropped; rs3 averages only S2, because S1 is
+  # missing and S3 half-missing; rs4 has no called genotypes and rs5 no DP
+  expect_equal(locNames(x), c("rs1", "rs3", "rs4", "rs5"))
+  expect_equal(x@other$loc.metrics$rdepth, c(12, 30, NA, NA))
+  # read counts are kept only on request
+  expect_null(x@other$geno.metrics)
+})
+
+test_that("gl.read.vcf adds no rdepth when the vcf has no FORMAT DP", {
+  skip_if_not_installed("vcfR")
+  d <- vcf_tmpdir()
+  f <- write_vcf(d, "basic.vcf", basic_records, info_hdr = info2)
+  capture.output(x <- suppressWarnings(gl.read.vcf(f, verbose = 0)))
+  expect_false("rdepth" %in% names(x@other$loc.metrics))
+})
+
+test_that("gl.read.vcf read.counts = TRUE keeps REF and ALT read counts from AD", {
+  skip_if_not_installed("vcfR")
+  d <- vcf_tmpdir()
+  f <- write_vcf(d, "ad.vcf", ad_records, info_hdr = fmt_hdr)
+
+  capture.output(x <- suppressWarnings(
+    gl.read.vcf(f, read.counts = TRUE, verbose = 0)))
+
+  gm <- x@other$geno.metrics
+  expect_named(gm, c("ref.count", "alt.count"))
+  expected_ref <- matrix(c(10L, 12L, 0L,
+                           0L, 15L, 3L,
+                           NA, NA, NA,
+                           4L, 9L, 0L), nrow = 3)
+  expected_alt <- matrix(c(0L, 8L, 6L,
+                           0L, 15L, 2L,
+                           NA, NA, NA,
+                           3L, 0L, 7L), nrow = 3)
+  expect_identical(gm$ref.count, expected_ref)
+  expect_identical(gm$alt.count, expected_alt)
+  # kept by position: row i is indNames(x)[i], column j locNames(x)[j]
+  expect_null(dimnames(gm$ref.count))
+  expect_equal(dim(gm$ref.count), c(nInd(x), nLoc(x)))
+})
+
+test_that("gl.read.vcf read.counts falls back to BSDP mapped through REF and ALT", {
+  skip_if_not_installed("vcfR")
+  d <- vcf_tmpdir()
+  recs <- c(
+    # BSDP is ordered A,C,G,T: REF A is element 1, ALT G element 3
+    "chr1\t100\trs1\tA\tG\t50\tPASS\t.\tGT:DP:BSDP\t0/0:10:10,0,0,0\t0/1:20:11,1,8,0\t1/1:6:0,0,6,0",
+    "chr1\t200\trs2\tT\tC\t60\tPASS\t.\tGT:DP:BSDP\t0/1:9:0,4,0,5\t1/1:3:0,3,0,0\t./.:0:0,0,0,0",
+    # an indel cannot be read from per-base counts
+    "chr1\t300\trs3\tA\tAT\t70\tPASS\t.\tGT:DP:BSDP\t0/1:8:8,0,0,0\t0/0:5:5,0,0,0\t1/1:4:4,0,0,0",
+    # AD is preferred over BSDP when a record has both
+    "chr2\t150\trs4\tG\tA\t80\tPASS\t.\tGT:DP:AD:BSDP\t0/1:9:5,4:1,0,1,0\t0/0:6:6,0:0,0,1,0\t0/0:5:5,0:0,0,1,0")
+  f <- write_vcf(d, "bsdp.vcf", recs, info_hdr = fmt_hdr)
+
+  capture.output(x <- suppressWarnings(
+    gl.read.vcf(f, read.counts = TRUE, verbose = 0)))
+
+  gm <- x@other$geno.metrics
+  expect_equal(unname(gm$ref.count), matrix(c(10L, 11L, 0L,
+                                              5L, 0L, 0L,
+                                              NA, NA, NA,
+                                              5L, 6L, 5L), nrow = 3))
+  expect_equal(unname(gm$alt.count), matrix(c(0L, 8L, 6L,
+                                              4L, 3L, 0L,
+                                              NA, NA, NA,
+                                              4L, 0L, 0L), nrow = 3))
+  expect_true(is.integer(gm$ref.count) && is.integer(gm$alt.count))
+})
+
+test_that("gl.read.vcf read.counts warns and stores nothing without AD or BSDP", {
+  skip_if_not_installed("vcfR")
+  d <- vcf_tmpdir()
+  f <- write_vcf(d, "basic.vcf", basic_records, info_hdr = info2)
+  out <- capture.output(x <- suppressWarnings(
+    gl.read.vcf(f, read.counts = TRUE, verbose = 1)))
+  expect_null(x@other$geno.metrics)
+  expect_true(any(grepl("no AD or BSDP", out)))
+})
+
+test_that("gl.read.vcf read.counts gives the same counts when read in chunks", {
+  skip_if_not_installed("vcfR")
+  d <- vcf_tmpdir()
+  f <- write_vcf(d, "ad.vcf", ad_records, info_hdr = fmt_hdr)
+  capture.output(x1 <- suppressWarnings(
+    gl.read.vcf(f, read.counts = TRUE, verbose = 0)))
+  vcf <- vcfR::read.vcfR(f, verbose = FALSE)
+  x2 <- utils.vcf.depth(vcf, loci = which(vcfR::is.biallelic(vcf)),
+                        read.counts = TRUE, chunk = 2)
+  expect_identical(x2$ref.count, unname(x1@other$geno.metrics$ref.count))
+  expect_identical(x2$alt.count, unname(x1@other$geno.metrics$alt.count))
+  expect_equal(x2$rdepth, x1@other$loc.metrics$rdepth)
+})
