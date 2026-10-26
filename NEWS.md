@@ -1,5 +1,22 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.report.contamination()`: NEW FEATURE, tier 4, read balance. With the
+  read counts kept by `gl.read.vcf(read.counts = TRUE)`, each sample's rate
+  of heterozygous calls whose minority allele has less than `balance.cut`
+  of the reads (per 1,000 genotypes with at least `min.reads` reads) is
+  scored as a robust z across all samples; outliers are flagged "mixed".
+  This catches a mixture of two animals from the same population, which
+  tiers 1 to 3 miss. For a mixed sample the report names the major genome
+  (`main.source`), the animal that contributed the rest (`second.source`,
+  with the runner-up that is not its replicate) and the share of the DNA
+  it contributed (`mix.fraction`). "mixed" replaces "suspect", "rare-only"
+  or no flag, but not "adjacent". `gl.filter.contamination()` accepts
+  "mixed", removes it by default (`flag = c("suspect", "adjacent",
+  "mixed")`) and passes `min.reads`, `balance.cut` and `min.calls` to the
+  report, and the report counts "mixed" among its suspects, so that the
+  filter removes the samples the report counts. Without read counts both
+  functions behave as before.
+
 * `gl.read.vcf()`: NEW FEATURE, read depth from the vcf. When the vcf holds
   FORMAT DP, the mean depth of each locus over its called genotypes is
   stored in `other$loc.metrics$rdepth`, so `gl.report.rdepth()`,

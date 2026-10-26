@@ -393,3 +393,115 @@ test_that("named plot.colors.pop keeps its names on the plate map", {
   expect_equal(unique(bg$fill[m$map$data$pop %in% "B"]), "red")
   expect_equal(m$rings$colour, "red")
 })
+
+# Read counts for a cohort in which "mix" is 80% the DNA of i2 and 20% that of
+# i3 (all three in population A), "mix_R" a second library of the same DNA
+# and "i3_R" a second library of i3. Genotypes are called from the reads.
+reads.cohort <- function(seed = 1, drop = character(0)) {
+  set.seed(seed)
+  n.loc <- 3000
+  p.a <- runif(n.loc, 0.05, 0.5); p.b <- runif(n.loc, 0.05, 0.5)
+  true <- rbind(matrix(rbinom(25 * n.loc, 2, rep(p.a, each = 25)), 25),
+                matrix(rbinom(15 * n.loc, 2, rep(p.b, each = 15)), 15))
+  rownames(true) <- paste0("i", 1:40)
+  # alt-allele fraction of the DNA in each library
+  q <- true / 2
+  q <- rbind(q, mix = 0.8 * q["i2", ] + 0.2 * q["i3", ])
+  q <- rbind(q, mix_R = q["mix", ], i3_R = q["i3", ])
+  n <- nrow(q)
+  depth <- matrix(rpois(n * n.loc, 40), n)
+  # allelic imbalance between libraries, and sequencing error at homozygotes
+  qq <- ifelse(q > 0 & q < 1, rbeta(length(q), 30 * q, 30 * (1 - q)),
+               pmin(pmax(q, 0.005), 0.995))
+  alt <- matrix(rbinom(length(q), depth, qq), n)
+  frac <- alt / depth
+  g <- ifelse(frac < 0.1, 0, ifelse(frac > 0.9, 2, 1))
+  g[depth < 3] <- NA
+  keep <- !rownames(q) %in% drop
+  x <- new("genlight", g[keep, ], ploidy = 2)
+  indNames(x) <- rownames(q)[keep]
+  locNames(x) <- paste0("L", seq_len(n.loc))
+  pop(x) <- ifelse(rownames(q)[keep] %in% paste0("i", 26:40), "B", "A")
+  x <- gl.compliance.check(x, verbose = 0)
+  x@other$geno.metrics <- list(ref.count = (depth - alt)[keep, , drop = FALSE],
+                               alt.count = alt[keep, , drop = FALSE])
+  storage.mode(x@other$geno.metrics$ref.count) <- "integer"
+  storage.mode(x@other$geno.metrics$alt.count) <- "integer"
+  x
+}
+
+test_that("read balance flags a mixed sample and traces both of its sources", {
+  x <- reads.cohort()
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  ind <- r$ind
+  # both libraries of the mixed DNA, and nothing else
+  expect_setequal(ind$id[ind$flag == "mixed"], c("mix", "mix_R"))
+  h <- ind[ind$id == "mix", ]
+  expect_gt(h$skew.z, 3)
+  expect_gt(h$read.calls, 1000)
+  # the major genome, not the other library of the same DNA
+  expect_equal(h$main.source, "i2")
+  expect_gt(h$main.kin, 0.2)
+  expect_lt(h$extra.share, 0.35)
+  # the minor genome; its own replicate is not counted as the runner-up
+  expect_true(h$second.source %in% c("i3", "i3_R"))
+  expect_false(h$second.next %in% c("i3", "i3_R"))
+  expect_gt(h$second.gap, 0.15)
+  # 20% of the DNA came from i3
+  expect_gt(h$mix.fraction, 0.12)
+  expect_lt(h$mix.fraction, 0.3)
+  # the sources themselves read as balanced
+  expect_true(all(ind$skew.z[ind$id %in% c("i2", "i3", "i3_R")] < 3))
+  expect_true(all(is.na(ind$main.source[ind$flag != "mixed"])))
+})
+
+test_that("read balance does not trace sources when the major genome is absent", {
+  # without i2 the most related individual is not the sample's major genome,
+  # so the extra sites hold the sample's own heterozygotes
+  x <- reads.cohort(drop = c("i2", "mix_R"))
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == "mix", ]
+  expect_equal(h$flag, "mixed")
+  expect_gte(h$extra.share, 0.35)
+  expect_true(is.na(h$second.source) && is.na(h$mix.fraction))
+})
+
+test_that("read balance skips individuals with few deep genotypes", {
+  x <- reads.cohort()
+  # leave mix with 500 genotypes of 20 or more reads
+  i <- match("mix", indNames(x))
+  low <- seq_len(nLoc(x)) > 500
+  x@other$geno.metrics$ref.count[i, low] <- 5L
+  x@other$geno.metrics$alt.count[i, low] <- 5L
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == "mix", ]
+  expect_lte(h$read.calls, 500)
+  expect_true(is.na(h$skew.z))
+  expect_false(h$flag == "mixed")
+})
+
+test_that("without read counts the read-balance columns are NA", {
+  x <- reads.cohort()
+  x@other$geno.metrics <- NULL
+  out <- capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                                     verbose = 2))
+  expect_true(any(grepl("read.counts = TRUE", out)))
+  expect_true(all(is.na(r$ind$skew.z)))
+  expect_false(any(r$ind$flag == "mixed"))
+  expect_true(all(c("read.calls", "skew.rate", "skew.z", "main.source",
+                    "main.kin", "n.extra", "extra.share", "second.source",
+                    "second.share", "second.next", "second.gap",
+                    "mix.fraction") %in% names(r$ind)))
+})
+
+test_that("gl.filter.contamination removes mixed samples by default", {
+  x <- reads.cohort()
+  capture.output(y <- gl.filter.contamination(x, verbose = 0))
+  expect_false(any(c("mix", "mix_R") %in% indNames(y)))
+  capture.output(y2 <- gl.filter.contamination(x, flag = "suspect",
+                                               verbose = 0))
+  expect_true(all(c("mix", "mix_R") %in% indNames(y2)))
+})
