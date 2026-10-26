@@ -5,7 +5,11 @@
 #' @description
 #' Flags individuals whose genotypes carry DNA from another sample, using two
 #' tiers of evidence that need only the genotypes, the population labels and,
-#' when available, the plate wells stored by \code{gl.read.dart()}.
+#' when available, the plate wells stored by \code{gl.read.dart()}. When the
+#' genlight also holds the reads of each allele (from
+#' \code{gl.read.vcf(read.counts = TRUE)}), a further tier tests the read
+#' balance of each sample's heterozygous calls and names the two animals
+#' whose DNA a mixed sample holds.
 #'
 #' @details
 #' Tier 1 scores each individual against the other members of its own
@@ -45,7 +49,9 @@
 #' "rare-only" (z-score above \code{z.flag} and excess above
 #' \code{rare.min.excess}): this is the signature of population structure
 #' inside the assigned population, or of a mislabelled individual, not of
-#' contamination.
+#' contamination. An individual whose read balance marks it as a mixture
+#' (tier 4) is "mixed", which replaces "suspect", "rare-only" or no flag but
+#' not "adjacent", where the plate position already explains the cause.
 #'
 #' Tier 3 asks whether a flagged individual's foreign alleles behave like a
 #' minority of its reads or like half of them. A contaminant contributes a
@@ -87,7 +93,55 @@
 #' fixed-absent in its species.
 #' Locus average depth is a proxy for the individual's own read counts, so
 #' the pattern does not change the flag; the decisive test remains allele
-#' balance from per-individual read counts.
+#' balance from per-individual read counts (tier 4).
+#'
+#' Tier 4 uses the reads of each allele at each genotype, which
+#' \code{gl.read.vcf(read.counts = TRUE)} stores in
+#' \code{@@other$geno.metrics}; without them its columns are NA. In a clean
+#' sample the reads of a heterozygote split near 50:50. DNA from a second
+#' animal adds heterozygous calls whose minority allele is carried by few
+#' reads, and it does so even when both animals come from the same
+#' population, where tiers 1 to 3 have little power. For each individual, the
+#' genotypes called with at least \code{min.reads} reads are counted
+#' (\code{read.calls}); \code{skew.rate} is the number of heterozygous calls
+#' among them whose minority allele has less than \code{balance.cut} of the
+#' reads, per 1,000 such genotypes. The rate is used rather than the share of
+#' heterozygous calls that are skewed, because the share is inflated in
+#' samples with few heterozygous calls, where genotyping errors make up much
+#' of them. \code{skew.z} is a robust z-score across all individuals with at
+#' least \code{min.calls} such genotypes, not within populations, because
+#' read balance does not depend on population; individuals with fewer are not
+#' screened, so a contaminated sample of low depth can be missed. The z-score
+#' is relative to the cohort: when many samples are mixed (for example a
+#' whole plate), the median and MAD rise and sensitivity falls. An individual
+#' with \code{skew.z} above \code{z.flag} is "mixed".
+#'
+#' For a mixed individual the function then looks for the two sources of its
+#' DNA. \code{main.source} is the individual, other than mixed ones, with the
+#' largest residual kinship to it. \code{main.kin} gives their kinship: a
+#' duplicate is near 0.5, a mixed sample's extra heterozygous calls lower it
+#' (0.39 for a sample with about 16 percent foreign DNA), and a first-degree
+#' relative is near 0.25. Mixed individuals are excluded
+#' so that a second library of the same DNA is not named. The extra sites are
+#' those at which the individual is heterozygous and \code{main.source}
+#' homozygous, both with at least \code{min.reads} reads; \code{n.extra}
+#' counts them, and \code{extra.share} is the median share of the
+#' individual's reads carried there by the allele \code{main.source} lacks.
+#' The source columns below need \code{min.share} extra sites, and they are
+#' left NA when \code{extra.share} is 0.35 or more: \code{main.source} is
+#' then not the major genome of the sample (for example a relative, when that
+#' genome is not in the dataset), and the extra sites hold the sample's own
+#' heterozygotes. \code{second.source} is the individual, other than the
+#' sample, \code{main.source} and mixed individuals, that carries the extra
+#' allele at the largest share of the extra sites (\code{second.share});
+#' \code{second.next} is the best runner-up that is not a replicate of
+#' \code{second.source} (identical genotypes at 90 percent or more of the
+#' loci called in both), and \code{second.gap} the difference between their
+#' shares. \code{mix.fraction}, the share of the sample's DNA that came from
+#' \code{second.source}, is the median read share of the extra allele at the
+#' extra sites where \code{second.source} is homozygous for it (at least 20
+#' sites). It reads a little high for small fractions, because only reads
+#' that produced a heterozygous call are counted.
 #'
 #' Limits. The screen is a candidate list, not a verdict. Contamination
 #' from the same population as the host raises only heterozygosity and
@@ -134,6 +188,13 @@
 #' pattern is "dose" [default 1.5].
 #' @param depth.flat The same ratio below which the pattern is "flat"
 #' [default 1.25].
+#' @param min.reads Minimum number of reads (REF plus ALT) for a genotype to
+#' enter the read-balance test [default 20].
+#' @param balance.cut Share of the reads below which the minority allele of a
+#' heterozygous call marks it as skewed; must lie in (0, 0.5] [default 0.25].
+#' @param min.calls Minimum number of genotypes with at least
+#' \code{min.reads} reads for an individual to be screened by read balance
+#' [default 1000].
 #' @param plate Data frame with columns id, plate and well (for example
 #' "C4", in either case) giving plate positions; overrides positions found in the individual
 #' metadata. Without it, positions come from \code{plate_location} in
@@ -165,7 +226,11 @@
 #' \code{n.foreign}, the number of rare-allele loci, and \code{share}, the
 #' partner's sharing score), the tier 3 columns \code{foreign.rate},
 #' \code{depth.ratio},
-#' \code{depth.p} and \code{pattern}, and the flag;
+#' \code{depth.p} and \code{pattern}, the tier 4 columns \code{read.calls},
+#' \code{skew.rate}, \code{skew.z}, \code{main.source}, \code{main.kin},
+#' \code{n.extra}, \code{extra.share}, \code{second.source},
+#' \code{second.share}, \code{second.next}, \code{second.gap} and
+#' \code{mix.fraction}, and the flag;
 #' \code{pairs}, a data frame of plate-adjacent pairs with their kinship and
 #' residual kinship, or NULL when no plate positions are known; and
 #' \code{kinship}, the matrix of residual kinship.
@@ -195,6 +260,9 @@ gl.report.contamination <- function(x,
                                     share.tol = 0.05,
                                     depth.ratio = 1.5,
                                     depth.flat = 1.25,
+                                    min.reads = 20,
+                                    balance.cut = 0.25,
+                                    min.calls = 1000,
                                     plate = NULL,
                                     plot.display = TRUE,
                                     plot.theme = theme_dartR(),
@@ -264,7 +332,9 @@ gl.report.contamination <- function(x,
   num.par <- list(rare.freq = rare.freq, min.n = min.n, z.flag = z.flag,
                   min.excess = min.excess, rare.min.excess = rare.min.excess,
                   min.share = min.share, share.tol = share.tol,
-                  depth.ratio = depth.ratio, depth.flat = depth.flat)
+                  depth.ratio = depth.ratio, depth.flat = depth.flat,
+                  min.reads = min.reads, balance.cut = balance.cut,
+                  min.calls = min.calls)
   for (nm in names(num.par)) {
     v <- num.par[[nm]]
     if (!is.numeric(v) || length(v) != 1 || !is.finite(v)) {
@@ -283,6 +353,11 @@ gl.report.contamination <- function(x,
   }
   if (min.share < 1 || share.tol < 0 || share.tol > 1) {
     stop(error("  min.share must be at least 1 and share.tol in [0, 1]\n"))
+  }
+  if (min.reads < 1 || min.calls < 1 || balance.cut <= 0 ||
+      balance.cut > 0.5) {
+    stop(error("  min.reads and min.calls must be at least 1 and ",
+               "balance.cut in (0, 0.5]\n"))
   }
   if (depth.flat < 1 || depth.ratio < depth.flat) {
     stop(error("  depth.flat must be at least 1 and depth.ratio at least ",
@@ -537,6 +612,94 @@ gl.report.contamination <- function(x,
     }
   }
 
+  # Tier 4: read balance at heterozygous calls, from the reads of each allele
+  # that gl.read.vcf(read.counts = TRUE) stores
+  rc <- x@other$geno.metrics
+  read.calls <- rep(NA_integer_, n.ind)
+  skew.rate <- rep(NA_real_, n.ind)
+  skew.z <- rep(NA_real_, n.ind)
+  main.j <- second.j <- next.j <- rep(NA_integer_, n.ind)
+  main.kin <- extra.share <- second.share <- second.gap <- mix.fraction <-
+    rep(NA_real_, n.ind)
+  n.extra <- rep(NA_integer_, n.ind)
+  mixed <- rep(FALSE, n.ind)
+  has.reads <- !is.null(rc$ref.count) && !is.null(rc$alt.count) &&
+    identical(dim(rc$ref.count), dim(gm)) &&
+    identical(dim(rc$alt.count), dim(gm))
+  if (!has.reads) {
+    if (verbose >= 2) {
+      cat(warn("  No read counts in other$geno.metrics; read balance not",
+               "tested (read the vcf with gl.read.vcf(read.counts = TRUE))\n"))
+    }
+  } else {
+    if (verbose >= 2) {
+      cat(report("  Tier 4: read balance at heterozygous calls\n"))
+    }
+    n.reads <- rc$ref.count + rc$alt.count
+    deep <- called & !is.na(n.reads) & n.reads >= min.reads
+    het.deep <- deep & gm == 1
+    minor <- pmin(rc$ref.count, rc$alt.count) / n.reads
+    skewed <- het.deep & minor < balance.cut
+    read.calls <- as.integer(rowSums(deep))
+    skew.rate <- ifelse(read.calls > 0,
+                        1000 * rowSums(skewed) / read.calls, NA)
+    # across all individuals: read balance does not depend on population
+    screened <- read.calls >= min.calls
+    if (any(screened)) {
+      skew.z[screened] <- robust.z(skew.rate[screened])
+    }
+    mixed <- (skew.z > z.flag) %in% TRUE
+
+    for (i in which(mixed)) {
+      # Major genome: the most related individual that is not itself mixed,
+      # so that a second library of the same DNA is not named
+      cand <- setdiff(which(!mixed), i)
+      if (length(cand) == 0) next
+      m <- cand[which.max(resid[i, cand])]
+      main.j[i] <- m
+      main.kin[i] <- kin[i, m]
+      # Extra sites: the sample is heterozygous where the major genome is
+      # homozygous, so one allele came from the other DNA
+      ex <- which(het.deep[i, ] & deep[m, ] & gm[m, ] != 1)
+      n.extra[i] <- length(ex)
+      if (length(ex) < min.share) next
+      lack.alt <- gm[m, ex] == 0
+      fr <- ifelse(lack.alt, rc$alt.count[i, ex], rc$ref.count[i, ex]) /
+        n.reads[i, ex]
+      extra.share[i] <- median(fr)
+      # a share near one half means the extra sites hold the sample's own
+      # heterozygotes: main.source is not its major genome
+      if (extra.share[i] >= 0.35) next
+      # copies of the extra allele in every individual
+      dos <- gm[, ex, drop = FALSE]
+      dos[, !lack.alt] <- 2 - dos[, !lack.alt]
+      carry <- rowMeans(dos >= 1, na.rm = TRUE)
+      carry[c(i, m, which(mixed))] <- NA
+      if (all(is.na(carry))) next
+      s <- which.max(carry)
+      second.j[i] <- s
+      second.share[i] <- carry[s]
+      # runner-up: the best candidate that is not a replicate of the source
+      for (k in order(carry, decreasing = TRUE, na.last = NA)) {
+        if (k == s) next
+        both <- called[k, ] & called[s, ]
+        same <- if (any(both)) mean(gm[k, both] == gm[s, both]) else 0
+        if (same < 0.9) {
+          next.j[i] <- k
+          second.gap[i] <- carry[s] - carry[k]
+          break
+        }
+      }
+      # where the second source is homozygous for the extra allele, its
+      # reads in the sample measure its share of the DNA
+      hom <- which(dos[s, ] == 2)
+      if (length(hom) >= 20) {
+        mix.fraction[i] <- median(fr[hom])
+      }
+    }
+  }
+  flag[mixed & flag != "adjacent"] <- "mixed"
+
   ind <- data.frame(id = ids,
                     pop = pops,
                     well = if (is.null(pos)) NA else pos$well,
@@ -559,30 +722,56 @@ gl.report.contamination <- function(x,
                     depth.ratio = round(d.ratio, 2),
                     depth.p = signif(d.p, 2),
                     pattern = pattern,
+                    read.calls = read.calls,
+                    skew.rate = round(skew.rate, 1),
+                    skew.z = round(skew.z, 1),
+                    main.source = ids[main.j],
+                    main.kin = round(main.kin, 4),
+                    n.extra = n.extra,
+                    extra.share = round(extra.share, 3),
+                    second.source = ids[second.j],
+                    second.share = round(second.share, 3),
+                    second.next = ids[next.j],
+                    second.gap = round(second.gap, 3),
+                    mix.fraction = round(mix.fraction, 3),
                     flag = flag,
                     stringsAsFactors = FALSE)
-  ind <- ind[order(match(ind$flag, c("adjacent", "suspect", "rare-only", "")),
+  ind <- ind[order(match(ind$flag, c("adjacent", "mixed", "suspect",
+                                     "rare-only", "")),
                    -ind$het.excess), ]
   rownames(ind) <- NULL
 
   # Report
-  n.sus <- sum(ind$flag %in% c("suspect", "adjacent"))
+  # the classes gl.filter.contamination removes by default
+  sus.cls <- c("suspect", "adjacent", "mixed")
+  n.sus <- sum(ind$flag %in% sus.cls)
   n.rare <- sum(ind$flag == "rare-only")
   if (verbose >= 1) {
     cat(important("  Suspect individuals:", n.sus, "of", n.ind,
                   "(", sum(ind$flag == "adjacent"),
                   "with an adjacent-well partner,",
-                  sum(ind$pattern[ind$flag %in% c("suspect", "adjacent")]
-                      %in% "dose"), "with a dose pattern,",
-                  sum(ind$pattern[ind$flag %in% c("suspect", "adjacent")]
-                      %in% "flat"), "flat );",
-                  "rare-only:", n.rare, "\n"))
-    if (n.sus > 0) {
+                  sum(ind$flag == "mixed"), "mixed by read balance,",
+                  sum(ind$pattern[ind$flag %in% sus.cls] %in% "dose"),
+                  "with a dose pattern,",
+                  sum(ind$pattern[ind$flag %in% sus.cls] %in% "flat"),
+                  "flat );", "rare-only:", n.rare, "\n"))
+    if (has.reads) {
+      cat(important("  Mixed individuals (read balance):", sum(mixed),
+                    "of", sum(!is.na(skew.z)), "screened\n"))
+    }
+    if (any(ind$flag %in% c("suspect", "adjacent"))) {
       show <- c("id", "pop", "well", "het", "het.excess", "rare.burden",
                 "rare.excess", "top.partner", "partner.well", "share",
                 "kin.z", "foreign.rate", "depth.ratio", "pattern", "flag")
       print(ind[ind$flag %in% c("suspect", "adjacent"), show],
             row.names = FALSE)
+    }
+    if (any(mixed)) {
+      show <- c("id", "pop", "read.calls", "skew.rate", "skew.z",
+                "main.source", "main.kin", "extra.share", "second.source",
+                "second.share", "second.next", "second.gap", "mix.fraction",
+                "flag")
+      print(ind[ind$id %in% ids[mixed], show], row.names = FALSE)
     }
   }
   if (verbose >= 3) {
@@ -601,7 +790,7 @@ gl.report.contamination <- function(x,
   # PLOTS
   # column used inside aes(); declared to pass R CMD check
   id <- NULL
-  ind$class <- ifelse(ind$flag %in% c("suspect", "adjacent"),
+  ind$class <- ifelse(ind$flag %in% c("suspect", "adjacent", "mixed"),
                       "suspect", "other")
   lab <- ind[ind$class == "suspect", ]
   p1 <- ggplot2::ggplot(ind, ggplot2::aes(x = het, y = rare.burden,
@@ -626,7 +815,7 @@ gl.report.contamination <- function(x,
 
   # Plate map of the plates that hold a suspect, row A at the top
   wy <- xend <- yend <- partner.pop <- linetype <- label <- NULL
-  sus <- which(flag %in% c("suspect", "adjacent") & w.ok)
+  sus <- which(flag %in% c("suspect", "adjacent", "mixed") & w.ok)
   if (length(sus) > 0) {
     shown <- unique(pos$plate[sus])
     n.row <- max(8, w.row[w.ok])

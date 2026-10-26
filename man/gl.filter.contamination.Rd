@@ -6,7 +6,7 @@
 \usage{
 gl.filter.contamination(
   x,
-  flag = c("suspect", "adjacent"),
+  flag = c("suspect", "adjacent", "mixed"),
   rare.freq = 0.02,
   min.n = 5,
   z.flag = 3,
@@ -16,6 +16,9 @@ gl.filter.contamination(
   share.tol = 0.05,
   depth.ratio = 1.5,
   depth.flat = 1.25,
+  min.reads = 20,
+  balance.cut = 0.25,
+  min.calls = 1000,
   plate = NULL,
   recalc = FALSE,
   mono.rm = FALSE,
@@ -26,7 +29,8 @@ gl.filter.contamination(
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
 \item{flag}{Classes of individual to remove, any of "suspect",
-"adjacent" and "rare-only" [default c("suspect", "adjacent")].}
+"adjacent", "mixed" and "rare-only" [default c("suspect", "adjacent",
+"mixed")].}
 
 \item{rare.freq}{Allele frequency in the rest of the population below
 which an allele counts as rare; must lie in (0, 0.5) [default 0.02].}
@@ -57,6 +61,16 @@ over the shallowest, at or above which the depth pattern is "dose"
 
 \item{depth.flat}{The same ratio below which the pattern is "flat"
 [default 1.25].}
+
+\item{min.reads}{Minimum number of reads (REF plus ALT) for a genotype to
+enter the read-balance test [default 20].}
+
+\item{balance.cut}{Share of the reads below which the minority allele of a
+heterozygous call marks it as skewed; must lie in (0, 0.5] [default 0.25].}
+
+\item{min.calls}{Minimum number of genotypes with at least
+\code{min.reads} reads for an individual to be screened by read balance
+[default 1000].}
 
 \item{plate}{Data frame with columns id, plate and well giving the plate
 position of each individual; when NULL, positions are taken from
@@ -90,11 +104,15 @@ more than \code{min.excess}; a suspect whose strongest residual-kinship
 partner sits in an adjacent plate well is "adjacent"; an individual whose
 rare-allele burden is elevated but whose heterozygosity is normal is
 "rare-only", which points to population structure or mislabelling rather
-than contamination.
+than contamination; an individual whose read balance marks it as a
+mixture of two animals is "mixed" (this needs the read counts kept by
+\code{gl.read.vcf(read.counts = TRUE)}).
 
-\code{flag} names the classes to remove. The default removes "suspect"
-and "adjacent", the two classes with the heterozygosity signal that
-contamination always produces. Add "rare-only" to also remove individuals
+\code{flag} names the classes to remove. The default removes "suspect",
+"adjacent" and "mixed": the two classes with the heterozygosity signal
+that contamination always produces, and the class with direct read
+evidence of a mixture, which also covers contamination from the same
+population. Add "rare-only" to also remove individuals
 that carry an excess of alleles rare in their assigned population, or set
 \code{flag = "adjacent"} to remove only the suspects with plate evidence.
 

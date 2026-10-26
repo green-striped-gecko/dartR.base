@@ -99,3 +99,46 @@ test_that("the filter repeats the screen's caveats", {
   expect_error(capture.output(gl.filter.contamination(x, rare.freq = 0.9, verbose = 0)),
                "rare.freq must lie")
 })
+
+test_that("by default the filter removes exactly the suspects the report counts, mixed samples included", {
+  # reads.cohort() lives in test-gl.report.contamination.R; a mixed sample
+  # (80% one animal, 20% another of the same population) is built here
+  set.seed(2)
+  n.loc <- 3000
+  p <- runif(n.loc, 0.05, 0.5)
+  true <- matrix(rbinom(30 * n.loc, 2, rep(p, each = 30)), 30)
+  q <- rbind(true / 2, 0.8 * true[2, ] / 2 + 0.2 * true[3, ] / 2)
+  depth <- matrix(rpois(length(q), 40), nrow(q))
+  qq <- ifelse(q > 0 & q < 1, rbeta(length(q), 30 * q, 30 * (1 - q)),
+               pmin(pmax(q, 0.005), 0.995))
+  alt <- matrix(rbinom(length(q), depth, qq), nrow(q))
+  frac <- alt / depth
+  g <- ifelse(frac < 0.1, 0, ifelse(frac > 0.9, 2, 1))
+  x <- new("genlight", g, ploidy = 2)
+  indNames(x) <- c(paste0("i", 1:30), "mix")
+  pop(x) <- rep("A", 31)
+  x <- gl.compliance.check(x, verbose = 0)
+  x@other$geno.metrics <- list(ref.count = depth - alt, alt.count = alt)
+
+  for (mc in c(1000, 5000)) {
+    # min.calls = 5000 exceeds the loci, so nobody is screened by read
+    # balance: the filter must pass it on to agree with the report
+    out <- capture.output(r <- gl.report.contamination(x, min.calls = mc,
+                                                       plot.display = FALSE,
+                                                       verbose = 1))
+    flagged <- r$ind$id[r$ind$flag %in% c("suspect", "adjacent", "mixed")]
+    expect_true("mix" %in% flagged)
+    expect_true(any(grepl(paste("Suspect individuals:", length(flagged)),
+                          out)))
+    capture.output(y <- gl.filter.contamination(x, min.calls = mc,
+                                                verbose = 0))
+    expect_setequal(setdiff(indNames(x), indNames(y)), flagged)
+    # removing only the mixed class shows that the read-balance arguments
+    # reach the screen: mix is mixed only when it is screened
+    mixed <- r$ind$id[r$ind$flag == "mixed"]
+    expect_equal(mixed, if (mc == 1000) "mix" else character(0))
+    capture.output(y <- gl.filter.contamination(x, flag = "mixed",
+                                                min.calls = mc, verbose = 0))
+    expect_setequal(setdiff(indNames(x), indNames(y)), mixed)
+  }
+})

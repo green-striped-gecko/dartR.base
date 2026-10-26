@@ -15,6 +15,9 @@ gl.report.contamination(
   share.tol = 0.05,
   depth.ratio = 1.5,
   depth.flat = 1.25,
+  min.reads = 20,
+  balance.cut = 0.25,
+  min.calls = 1000,
   plate = NULL,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
@@ -61,6 +64,16 @@ pattern is "dose" [default 1.5].}
 \item{depth.flat}{The same ratio below which the pattern is "flat"
 [default 1.25].}
 
+\item{min.reads}{Minimum number of reads (REF plus ALT) for a genotype to
+enter the read-balance test [default 20].}
+
+\item{balance.cut}{Share of the reads below which the minority allele of a
+heterozygous call marks it as skewed; must lie in (0, 0.5] [default 0.25].}
+
+\item{min.calls}{Minimum number of genotypes with at least
+\code{min.reads} reads for an individual to be screened by read balance
+[default 1000].}
+
 \item{plate}{Data frame with columns id, plate and well (for example
 "C4", in either case) giving plate positions; overrides positions found in the individual
 metadata. Without it, positions come from \code{plate_location} in
@@ -101,7 +114,11 @@ per individual holding the tier 1 and tier 2 statistics (including
 \code{n.foreign}, the number of rare-allele loci, and \code{share}, the
 partner's sharing score), the tier 3 columns \code{foreign.rate},
 \code{depth.ratio},
-\code{depth.p} and \code{pattern}, and the flag;
+\code{depth.p} and \code{pattern}, the tier 4 columns \code{read.calls},
+\code{skew.rate}, \code{skew.z}, \code{main.source}, \code{main.kin},
+\code{n.extra}, \code{extra.share}, \code{second.source},
+\code{second.share}, \code{second.next}, \code{second.gap} and
+\code{mix.fraction}, and the flag;
 \code{pairs}, a data frame of plate-adjacent pairs with their kinship and
 residual kinship, or NULL when no plate positions are known; and
 \code{kinship}, the matrix of residual kinship.
@@ -109,7 +126,11 @@ residual kinship, or NULL when no plate positions are known; and
 \description{
 Flags individuals whose genotypes carry DNA from another sample, using two
 tiers of evidence that need only the genotypes, the population labels and,
-when available, the plate wells stored by \code{gl.read.dart()}.
+when available, the plate wells stored by \code{gl.read.dart()}. When the
+genlight also holds the reads of each allele (from
+\code{gl.read.vcf(read.counts = TRUE)}), a further tier tests the read
+balance of each sample's heterozygous calls and names the two animals
+whose DNA a mixed sample holds.
 }
 \details{
 Tier 1 scores each individual against the other members of its own
@@ -149,7 +170,9 @@ by the same criteria but whose heterozygosity is normal is reported as
 "rare-only" (z-score above \code{z.flag} and excess above
 \code{rare.min.excess}): this is the signature of population structure
 inside the assigned population, or of a mislabelled individual, not of
-contamination.
+contamination. An individual whose read balance marks it as a mixture
+(tier 4) is "mixed", which replaces "suspect", "rare-only" or no flag but
+not "adjacent", where the plate position already explains the cause.
 
 Tier 3 asks whether a flagged individual's foreign alleles behave like a
 minority of its reads or like half of them. A contaminant contributes a
@@ -191,7 +214,55 @@ and a "flat" call does not clear an animal whose foreign alleles are
 fixed-absent in its species.
 Locus average depth is a proxy for the individual's own read counts, so
 the pattern does not change the flag; the decisive test remains allele
-balance from per-individual read counts.
+balance from per-individual read counts (tier 4).
+
+Tier 4 uses the reads of each allele at each genotype, which
+\code{gl.read.vcf(read.counts = TRUE)} stores in
+\code{@other$geno.metrics}; without them its columns are NA. In a clean
+sample the reads of a heterozygote split near 50:50. DNA from a second
+animal adds heterozygous calls whose minority allele is carried by few
+reads, and it does so even when both animals come from the same
+population, where tiers 1 to 3 have little power. For each individual, the
+genotypes called with at least \code{min.reads} reads are counted
+(\code{read.calls}); \code{skew.rate} is the number of heterozygous calls
+among them whose minority allele has less than \code{balance.cut} of the
+reads, per 1,000 such genotypes. The rate is used rather than the share of
+heterozygous calls that are skewed, because the share is inflated in
+samples with few heterozygous calls, where genotyping errors make up much
+of them. \code{skew.z} is a robust z-score across all individuals with at
+least \code{min.calls} such genotypes, not within populations, because
+read balance does not depend on population; individuals with fewer are not
+screened, so a contaminated sample of low depth can be missed. The z-score
+is relative to the cohort: when many samples are mixed (for example a
+whole plate), the median and MAD rise and sensitivity falls. An individual
+with \code{skew.z} above \code{z.flag} is "mixed".
+
+For a mixed individual the function then looks for the two sources of its
+DNA. \code{main.source} is the individual, other than mixed ones, with the
+largest residual kinship to it. \code{main.kin} gives their kinship: a
+duplicate is near 0.5, a mixed sample's extra heterozygous calls lower it
+(0.39 for a sample with about 16 percent foreign DNA), and a first-degree
+relative is near 0.25. Mixed individuals are excluded
+so that a second library of the same DNA is not named. The extra sites are
+those at which the individual is heterozygous and \code{main.source}
+homozygous, both with at least \code{min.reads} reads; \code{n.extra}
+counts them, and \code{extra.share} is the median share of the
+individual's reads carried there by the allele \code{main.source} lacks.
+The source columns below need \code{min.share} extra sites, and they are
+left NA when \code{extra.share} is 0.35 or more: \code{main.source} is
+then not the major genome of the sample (for example a relative, when that
+genome is not in the dataset), and the extra sites hold the sample's own
+heterozygotes. \code{second.source} is the individual, other than the
+sample, \code{main.source} and mixed individuals, that carries the extra
+allele at the largest share of the extra sites (\code{second.share});
+\code{second.next} is the best runner-up that is not a replicate of
+\code{second.source} (identical genotypes at 90 percent or more of the
+loci called in both), and \code{second.gap} the difference between their
+shares. \code{mix.fraction}, the share of the sample's DNA that came from
+\code{second.source}, is the median read share of the extra allele at the
+extra sites where \code{second.source} is homozygous for it (at least 20
+sites). It reads a little high for small fractions, because only reads
+that produced a heterozygous call are counted.
 
 Limits. The screen is a candidate list, not a verdict. Contamination
 from the same population as the host raises only heterozygosity and
