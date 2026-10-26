@@ -162,11 +162,14 @@ The top panel plots every pair by KING-robust kinship and heterozygote
 share, with dashed lines at \code{king_threshold}, at 0.177 and at
 \code{het_threshold}; flagged pairs are labelled when there are 30 or
 fewer and package ggrepel is installed. The kinship axis is cut at -1,
-and a caption gives the number of pairs below it. Duplicates sit to the right (from
-likelihoods) or at the top (from calls with dropout). The bottom panel is
-a histogram of the kinship of the pairs above 0, with the bounds of the
-classes: a gap between the first-degree band and the duplicates means
-the duplicate calls are clear-cut.
+and a caption gives the number of pairs below it. Duplicates sit to the
+right (from likelihoods) or at the top (from calls with dropout). The
+bottom panel is a histogram of the statistic that separates duplicates:
+the kinship of the pairs above 0, with the bounds of the classes, or,
+from called genotypes, the heterozygote share of the pairs above 0.4,
+with lines at 0.5 (parent and offspring), 0.625 (the largest expected
+for full siblings) and \code{het_threshold}. A gap between the relatives
+and the duplicates means the duplicate calls are clear-cut.
 }
 \examples{
 \donttest{

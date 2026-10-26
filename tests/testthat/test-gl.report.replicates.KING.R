@@ -413,3 +413,18 @@ test_that("the plot is returned and printed only when asked", {
   expect_lt(file.info(tf)$size, file.info(t0)$size + 500)
   expect_s3_class(res0$plot, "patchwork")
 })
+
+test_that("the histogram shows het_share from calls and KING otherwise", {
+  skip_if_not_installed("Rcpp")
+  skip_if_not_installed("RcppParallel")
+  pdf(NULL)
+  on.exit(dev.off())
+  x <- make_dropout()
+  ca <- quiet(gl.report.replicates.KING(x, verbose = 0))
+  hs <- ca$table.all$het_share
+  expect_equal(sort(ca$plot[[2]]$data$value), sort(hs[!is.na(hs) & hs > 0.4]))
+  y <- read_king_vcf()
+  pl <- quiet(gl.report.replicates.KING(y, loc_threshold = 50, verbose = 0))
+  k <- pl$table.all$KING
+  expect_equal(sort(pl$plot[[2]]$data$value), sort(k[!is.na(k) & k > 0]))
+})

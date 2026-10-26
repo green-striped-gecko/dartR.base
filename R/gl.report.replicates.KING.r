@@ -113,11 +113,14 @@
 #' share, with dashed lines at \code{king_threshold}, at 0.177 and at
 #' \code{het_threshold}; flagged pairs are labelled when there are 30 or
 #' fewer and package ggrepel is installed. The kinship axis is cut at -1,
-#' and a caption gives the number of pairs below it. Duplicates sit to the right (from
-#' likelihoods) or at the top (from calls with dropout). The bottom panel is
-#' a histogram of the kinship of the pairs above 0, with the bounds of the
-#' classes: a gap between the first-degree band and the duplicates means
-#' the duplicate calls are clear-cut.
+#' and a caption gives the number of pairs below it. Duplicates sit to the
+#' right (from likelihoods) or at the top (from calls with dropout). The
+#' bottom panel is a histogram of the statistic that separates duplicates:
+#' the kinship of the pairs above 0, with the bounds of the classes, or,
+#' from called genotypes, the heterozygote share of the pairs above 0.4,
+#' with lines at 0.5 (parent and offspring), 0.625 (the largest expected
+#' for full siblings) and \code{het_threshold}. A gap between the relatives
+#' and the duplicates means the duplicate calls are clear-cut.
 #'
 #' @return A list, returned invisibly, with:
 #' \itemize{
@@ -341,7 +344,7 @@ gl.report.replicates.KING <- function(x,
   # PLOT
   p <- NULL
   if (plot.out) {
-    p <- .king_plot(tab, king_threshold, het_threshold, plot_theme,
+    p <- .king_plot(tab, input, king_threshold, het_threshold, plot_theme,
                     plot_colors, bins)
     if (verbose >= 1) {
       suppressWarnings(print(p))
@@ -637,11 +640,12 @@ gl.report.replicates.KING <- function(x,
   }
 }
 
-## Scatter of KING against the heterozygote share over the histogram of
-## KING above 0
-.king_plot <- function(tab, king_threshold, het_threshold, plot_theme,
+## Scatter of KING against the heterozygote share over a histogram of the
+## statistic that separates duplicates: KING above 0, or from called
+## genotypes, where dropout lowers KING, the heterozygote share above 0.4
+.king_plot <- function(tab, input, king_threshold, het_threshold, plot_theme,
                        plot_colors, bins) {
-  KING <- het_share <- status <- label <- NULL
+  KING <- het_share <- status <- label <- value <- NULL
   d <- as.data.frame(tab[!is.na(tab$KING) & !is.na(tab$het_share), ])
   d$status <- factor(ifelse(d$flagged, "duplicate", "other"),
                      levels = c("duplicate", "other"))
@@ -668,21 +672,36 @@ gl.report.replicates.KING <- function(x,
   if (nrow(fl) > 0 && nrow(fl) <= 30 &&
       requireNamespace("ggrepel", quietly = TRUE)) {
     fl$label <- paste(fl$ind1, fl$ind2, sep = " / ")
-    p1 <- p1 + ggrepel::geom_text_repel(data = fl, aes(label = label),
-                                        size = 3, show.legend = FALSE,
-                                        max.overlaps = Inf)
+    # flagged pairs sit in the top right corner, so their labels go to the
+    # empty area to their left, on a white background that keeps them
+    # legible over the dashed lines
+    p1 <- p1 + ggrepel::geom_label_repel(
+      data = fl, aes(label = label), size = 3, show.legend = FALSE,
+      fill = "#FFFFFFD9", label.size = NA, box.padding = 0.3,
+      min.segment.length = 0, nudge_x = -0.3 * (max(d$KING) - low),
+      ylim = c(min(fl$het_share, het_threshold) - 0.2, NA), force = 2,
+      max.time = 2, max.overlaps = Inf, seed = 1)
   }
-  h <- d[d$KING > 0, ]
-  cuts <- c(0.0884, 0.177, king_threshold)
-  p2 <- ggplot(h, aes(KING)) +
+  if (input == "calls") {
+    h <- data.frame(value = d$het_share[d$het_share > 0.4])
+    cuts <- c(0.5, 0.625, het_threshold)
+    band <- c("parent-offspring", "full siblings (max)", "duplicate")
+    xlab <- "Heterozygote share (pairs above 0.4)"
+  } else {
+    h <- data.frame(value = d$KING[d$KING > 0])
+    cuts <- c(0.0884, 0.177, king_threshold)
+    band <- c("2nd degree", "1st degree", "duplicate")
+    xlab <- "KING-robust kinship (pairs above 0)"
+  }
+  p2 <- ggplot(h, aes(value)) +
     (if (nrow(h) > 0) {
       geom_histogram(bins = bins, colour = plot_colors[1],
                      fill = plot_colors[2])
     }) +
     geom_vline(xintercept = cuts, linetype = "dashed") +
     annotate("text", x = cuts, y = Inf, vjust = 1.5, hjust = -0.05, size = 3,
-             label = c("2nd degree", "1st degree", "duplicate")) +
-    labs(x = "KING-robust kinship (pairs above 0)", y = "Count") +
+             label = band) +
+    labs(x = xlab, y = "Count") +
     plot_theme
   p1 / p2
 }
