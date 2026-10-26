@@ -82,9 +82,10 @@
 #' heterozygote share exceeds \code{het_threshold}. The heterozygote share
 #' guards against heterozygote dropout, which turns heterozygotes into
 #' homozygotes and rarely the reverse: conditioning on the heterozygous calls
-#' of the poorer sample cancels its dropout. It is expected to be about 1 for
-#' duplicates, 0.5 for parent and offspring, at most 0.625 for full siblings,
-#' and 2pq for unrelated pairs. From called genotypes, KING-robust kinship
+#' of the poorer sample cancels its dropout. In an outbred population it is
+#' expected to be about 1 for duplicates, 0.5 for parent and offspring, at
+#' most 0.625 for full siblings and 2pq for unrelated pairs; inbreeding and
+#' population structure can raise these values. From called genotypes, KING-robust kinship
 #' underestimates duplicates in which a sample has heterozygote dropout; the
 #' heterozygote share corrects for dropout in the poorer sample of a pair,
 #' but not when both samples are poor, so use genotype likelihoods where
@@ -132,7 +133,7 @@
 #' the kinship of the pairs above 0, with the bounds of the classes, or,
 #' from called genotypes, the heterozygote share of the pairs above 0.4,
 #' with lines at 0.5 (parent and offspring), 0.625 (the largest expected
-#' for full siblings) and \code{het_threshold}. A gap between the relatives
+#' for full siblings in an outbred population) and \code{het_threshold}. A gap between the relatives
 #' and the duplicates means the duplicate calls are clear-cut.
 #'
 #' @return A list, returned invisibly, with:
@@ -725,7 +726,7 @@ gl.report.replicates.KING <- function(x,
   if (input == "calls") {
     h <- data.frame(value = d$het_share[d$het_share > 0.4])
     cuts <- c(0.5, 0.625, het_threshold)
-    band <- c("parent-offspring", "full siblings (max)", "duplicate")
+    band <- c("parent-offspring", "full siblings (outbred max)", "duplicate")
     xlab <- "Heterozygote share (pairs above 0.4)"
   } else {
     h <- data.frame(value = d$KING[d$KING > 0])
