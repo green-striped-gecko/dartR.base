@@ -9,14 +9,16 @@
   likelihoods or read counts kept by `gl.read.vcf()` (the expected
   genotype combinations of each pair by EM, as in NgsRelate, in C++ with
   RcppParallel) or from called genotypes; a pair is a duplicate when its
-  kinship exceeds `king_threshold` or its heterozygote share exceeds
-  `het_threshold`. Flagged pairs are grouped, one sample per group is kept
+  kinship exceeds `king_threshold` or, from called genotypes only, its
+  heterozygote share exceeds `het_threshold`. Flagged pairs are grouped, one sample per group is kept
   (the one with the fewest missing genotypes) and pairs linked only
   through another sample, as through a mixed sample, are listed with a
   warning. The report keeps the elements of `gl.report.replicates()` and
   adds every pair with its kinship class, and a plot of kinship against
   the heterozygote share; the filter removes exactly the samples the
-  report lists, or re-applies other thresholds to the report's pairs.
+  report lists, or re-applies other thresholds to the report's pairs. Run
+  `gl.filter.contamination()` first: keeping the sample with the fewest
+  missing genotypes favours a contaminated sample.
 
 * `gl.read.vcf()`: NEW FEATURE, genotype likelihoods. The new argument
   `likelihoods = TRUE` keeps the phred-scaled likelihoods of 0/0, 0/1 and

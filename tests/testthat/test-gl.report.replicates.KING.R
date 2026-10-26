@@ -428,3 +428,39 @@ test_that("the histogram shows het_share from calls and KING otherwise", {
   k <- pl$table.all$KING
   expect_equal(sort(pl$plot[[2]]$data$value), sort(k[!is.na(k) & k > 0]))
 })
+
+test_that("het_threshold flags pairs only with called genotypes", {
+  skip_if_not_installed("Rcpp")
+  skip_if_not_installed("RcppParallel")
+  x <- read_king_vcf()
+  # the duplicates have a heterozygote share near 1 with every input
+  for (inp in c("likelihoods", "counts")) {
+    out <- capture.output(res <- suppressWarnings(gl.report.replicates.KING(
+      x, input = inp, king_threshold = 2, loc_threshold = 50,
+      plot.out = FALSE, verbose = 2)))
+    expect_gt(pair_row(res$table.all, "S1", "S7")$het_share, 0.8)
+    expect_false(any(res$table.all$flagged))
+    expect_false(res$parameters$het_threshold_used)
+    expect_true(any(grepl("used only with called genotypes", out)))
+  }
+  res <- quiet(gl.report.replicates.KING(x, input = "calls", king_threshold = 2,
+                                         loc_threshold = 50, plot.out = FALSE,
+                                         verbose = 0))
+  expect_true(pair_row(res$table.all, "S1", "S7")$flagged)
+  expect_true(res$parameters$het_threshold_used)
+})
+
+test_that("the het_threshold line is drawn only when the threshold is used", {
+  skip_if_not_installed("Rcpp")
+  skip_if_not_installed("RcppParallel")
+  has_hline <- function(p) {
+    any(vapply(p[[1]]$layers, function(l) inherits(l$geom, "GeomHline"),
+               logical(1)))
+  }
+  x <- read_king_vcf()
+  pl <- quiet(gl.report.replicates.KING(x, loc_threshold = 50, verbose = 0))
+  ca <- quiet(gl.report.replicates.KING(x, input = "calls", loc_threshold = 50,
+                                        verbose = 0))
+  expect_false(has_hline(pl$plot))
+  expect_true(has_hline(ca$plot))
+})

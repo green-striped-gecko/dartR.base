@@ -25,8 +25,8 @@
 #' their pair to be assessed [default 100].
 #' @param king_threshold KING-robust kinship above which a pair is a
 #' duplicate [default 0.354].
-#' @param het_threshold Heterozygote share above which a pair is a duplicate
-#' [default 0.80].
+#' @param het_threshold Heterozygote share above which a pair is a duplicate;
+#' used only with called genotypes (see details) [default 0.80].
 #' @param plot.out If TRUE, the plot is produced and returned; it is also
 #' printed unless verbose is 0 [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
@@ -78,16 +78,29 @@
 #' \strong{Duplicates}
 #'
 #' A pair is flagged as a duplicate when its KING-robust kinship exceeds
-#' \code{king_threshold} or its heterozygote share exceeds
-#' \code{het_threshold}. The heterozygote share guards against heterozygote
-#' dropout, which turns heterozygotes into homozygotes and rarely the
-#' reverse: conditioning on the heterozygous calls of the poorer sample
-#' cancels its dropout. It is expected to be about 1 for duplicates, 0.5 for
-#' parent and offspring, at most 0.625 for full siblings, and 2pq for
-#' unrelated pairs. From called genotypes, KING-robust kinship underestimates
-#' duplicates in which a sample has heterozygote dropout; the heterozygote
-#' share corrects for dropout in the poorer sample of a pair, but not when
-#' both samples are poor, so use genotype likelihoods where possible.
+#' \code{king_threshold}. From called genotypes it is also flagged when its
+#' heterozygote share exceeds \code{het_threshold}. The heterozygote share
+#' guards against heterozygote dropout, which turns heterozygotes into
+#' homozygotes and rarely the reverse: conditioning on the heterozygous calls
+#' of the poorer sample cancels its dropout. It is expected to be about 1 for
+#' duplicates, 0.5 for parent and offspring, at most 0.625 for full siblings,
+#' and 2pq for unrelated pairs. From called genotypes, KING-robust kinship
+#' underestimates duplicates in which a sample has heterozygote dropout; the
+#' heterozygote share corrects for dropout in the poorer sample of a pair,
+#' but not when both samples are poor, so use genotype likelihoods where
+#' possible. With genotype likelihoods or read counts the heterozygote share
+#' is reported but does not flag pairs, as the EM already accounts for
+#' missed heterozygotes. In a ddRAD study of collared peccaries (102
+#' duplicate pairs by KING from likelihoods), the heterozygote share raised
+#' the duplicates found from called genotypes from 88 to 94, added none from
+#' likelihoods, and from read counts added a pair of relatives at 0.802.
+#'
+#' Run \code{\link{gl.report.contamination}} (and remove contaminated
+#' samples with \code{\link{gl.filter.contamination}}) before this
+#' function. The rule below keeps the sample with the fewest missing
+#' genotypes, which favours a contaminated sample, as mixed DNA gives more
+#' calls: in the peccary study the pair CP47-CP57 keeps CP57, a mixture of
+#' about 4/5 CP47 and 1/5 CP46.
 #'
 #' Flagged pairs are linked into groups (connected components). In each
 #' group the sample with the lowest proportion of missing genotypes is kept
@@ -110,8 +123,8 @@
 #' \strong{Plot}
 #'
 #' The top panel plots every pair by KING-robust kinship and heterozygote
-#' share, with dashed lines at \code{king_threshold}, at 0.177 and at
-#' \code{het_threshold}; flagged pairs are labelled when there are 30 or
+#' share, with dashed lines at \code{king_threshold}, at 0.177 and, when it
+#' is used, at \code{het_threshold}; flagged pairs are labelled when there are 30 or
 #' fewer and package ggrepel is installed. The kinship axis is cut at -1,
 #' and a caption gives the number of pairs below it. Duplicates sit to the
 #' right (from likelihoods) or at the top (from calls with dropout). The
@@ -135,8 +148,9 @@
 #' (shared loci), KING, R0, R1, het_share, class and flagged.
 #' \item ind.miss: the proportion of missing genotypes of each sample.
 #' \item input: the data used, "likelihoods", "counts" or "calls".
-#' \item parameters: the thresholds used and n.sites, the number of loci
-#' that passed \code{maf}.
+#' \item parameters: the thresholds; het_threshold_used, TRUE when
+#' \code{het_threshold} flagged pairs (called genotypes only); and n.sites,
+#' the number of loci that passed \code{maf}.
 #' \item plot: the plot (a patchwork of two ggplots), or NULL when
 #' \code{plot.out = FALSE}.
 #' }
@@ -257,6 +271,19 @@ gl.report.replicates.KING <- function(x,
     cat(warn("  Warning: from called genotypes, KING-robust kinship underestimates duplicates in which a sample has missed heterozygotes (heterozygote dropout). The heterozygote share corrects for dropout in the poorer sample of a pair, but not when both samples are poor. Genotype likelihoods (gl.read.vcf(likelihoods = TRUE)) avoid this.\n"))
   }
 
+  # The heterozygote share flags pairs only from called genotypes; the EM
+  # of the other inputs already accounts for missed heterozygotes
+  use.het <- input == "calls"
+  if (verbose >= 2) {
+    if (use.het) {
+      cat(report("  Flagging pairs with KING above", king_threshold,
+                 "or a heterozygote share above", het_threshold, "\n"))
+    } else {
+      cat(report("  Flagging pairs with KING above", king_threshold,
+                 "(het_threshold is used only with called genotypes)\n"))
+    }
+  }
+
   # DO THE JOB
   G <- as.matrix(x)
   ind.miss <- rowMeans(is.na(G))
@@ -316,7 +343,7 @@ gl.report.replicates.KING <- function(x,
                     nloc = as.numeric(nloc))
   tab <- cbind(tab, st)
   tab[, flagged := .king_flag(tab, king_threshold, het_threshold,
-                              loc_threshold)]
+                              loc_threshold, use.het)]
   tab[, class := .king_class(KING, flagged)]
   setcolorder(tab, c("ind1", "ind2", "nloc", "KING", "R0", "R1", "het_share",
                      "class", "flagged"))
@@ -344,8 +371,8 @@ gl.report.replicates.KING <- function(x,
   # PLOT
   p <- NULL
   if (plot.out) {
-    p <- .king_plot(tab, input, king_threshold, het_threshold, plot_theme,
-                    plot_colors, bins)
+    p <- .king_plot(tab, input, king_threshold, het_threshold, use.het,
+                    plot_theme, plot_colors, bins)
     if (verbose >= 1) {
       suppressWarnings(print(p))
     }
@@ -357,9 +384,13 @@ gl.report.replicates.KING <- function(x,
     by.king <- (tab$KING > king_threshold) %in% TRUE
     cat("  Pairs compared:", nrow(tab), "\n")
     cat("  Pairs sharing at least", loc_threshold, "loci:", sum(assessed), "\n")
-    cat("  Pairs flagged as duplicates:", nrow(rep.tab), "(",
-        sum(by.king), "by KING,", sum(tab$flagged & !by.king),
-        "by the heterozygote share only )\n")
+    if (use.het) {
+      cat("  Pairs flagged as duplicates:", nrow(rep.tab), "(",
+          sum(by.king), "by KING,", sum(tab$flagged & !by.king),
+          "by the heterozygote share only )\n")
+    } else {
+      cat("  Pairs flagged as duplicates:", nrow(rep.tab), "\n")
+    }
     cat("  Groups of duplicates:", length(unique(rep.tab$group)), "\n")
     cat(report("  Samples suggested for removal:", length(grp$drop), "\n"))
     if (nrow(rep.tab) > 0) {
@@ -384,6 +415,7 @@ gl.report.replicates.KING <- function(x,
                       loc_threshold = loc_threshold,
                       king_threshold = king_threshold,
                       het_threshold = het_threshold,
+                      het_threshold_used = use.het,
                       n.sites = length(use)),
     plot = p
   ))
@@ -565,11 +597,16 @@ gl.report.replicates.KING <- function(x,
              het_share = E / pmin(B + E + H, D + E + F))
 }
 
-## Pairs flagged as duplicates: enough shared loci and KING or the
-## heterozygote share above its threshold
-.king_flag <- function(tab, king_threshold, het_threshold, loc_threshold) {
-  (tab$nloc >= loc_threshold &
-     (tab$KING > king_threshold | tab$het_share > het_threshold)) %in% TRUE
+## Pairs flagged as duplicates: enough shared loci and KING above its
+## threshold or, when use.het is TRUE (called genotypes), the heterozygote
+## share above its threshold
+.king_flag <- function(tab, king_threshold, het_threshold, loc_threshold,
+                       use.het) {
+  above <- tab$KING > king_threshold
+  if (use.het) {
+    above <- above | tab$het_share > het_threshold
+  }
+  (tab$nloc >= loc_threshold & above) %in% TRUE
 }
 
 ## KING class of each pair (Manichaikul et al. 2010); flagged pairs are
@@ -643,8 +680,8 @@ gl.report.replicates.KING <- function(x,
 ## Scatter of KING against the heterozygote share over a histogram of the
 ## statistic that separates duplicates: KING above 0, or from called
 ## genotypes, where dropout lowers KING, the heterozygote share above 0.4
-.king_plot <- function(tab, input, king_threshold, het_threshold, plot_theme,
-                       plot_colors, bins) {
+.king_plot <- function(tab, input, king_threshold, het_threshold, use.het,
+                       plot_theme, plot_colors, bins) {
   KING <- het_share <- status <- label <- value <- NULL
   d <- as.data.frame(tab[!is.na(tab$KING) & !is.na(tab$het_share), ])
   d$status <- factor(ifelse(d$flagged, "duplicate", "other"),
@@ -657,7 +694,9 @@ gl.report.replicates.KING <- function(x,
   p1 <- ggplot(d, aes(KING, het_share, colour = status, size = status)) +
     geom_point(alpha = 0.7) +
     geom_vline(xintercept = c(0.177, king_threshold), linetype = "dashed") +
-    geom_hline(yintercept = het_threshold, linetype = "dashed") +
+    (if (use.het) {
+      geom_hline(yintercept = het_threshold, linetype = "dashed")
+    }) +
     scale_colour_manual(values = c(duplicate = plot_colors[1],
                                    other = plot_colors[2]), drop = FALSE) +
     scale_size_manual(values = c(duplicate = 2.5, other = 1), drop = FALSE) +
@@ -679,7 +718,8 @@ gl.report.replicates.KING <- function(x,
       data = fl, aes(label = label), size = 3, show.legend = FALSE,
       fill = "#FFFFFFD9", label.size = NA, box.padding = 0.3,
       min.segment.length = 0, nudge_x = -0.3 * (max(d$KING) - low),
-      ylim = c(min(fl$het_share, het_threshold) - 0.2, NA), force = 2,
+      ylim = c(min(fl$het_share, if (use.het) het_threshold) - 0.2, NA),
+      force = 2,
       max.time = 2, max.overlaps = Inf, seed = 1)
   }
   if (input == "calls") {

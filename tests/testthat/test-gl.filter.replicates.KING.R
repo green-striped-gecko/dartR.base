@@ -72,3 +72,20 @@ test_that("the filter rejects a report from gl.report.replicates", {
   expect_error(quiet(gl.filter.replicates.KING(x, old, verbose = 0)),
                "gl.report.replicates.KING")
 })
+
+test_that("the filter uses het_threshold only for a report from called genotypes", {
+  skip_if_not_installed("vcfR")
+  skip_if_not_installed("Rcpp")
+  skip_if_not_installed("RcppParallel")
+  x <- make_dups()
+  ca <- quiet(gl.report.replicates.KING(x, plot.out = FALSE, verbose = 0))
+  # from calls the heterozygote share alone still removes duplicates
+  y <- quiet(gl.filter.replicates.KING(x, ca, king_threshold = 2, verbose = 0))
+  expect_lt(nInd(y), nInd(x))
+  # a report from likelihoods flags by KING alone
+  pl <- ca
+  pl$input <- "likelihoods"
+  y2 <- quiet(gl.filter.replicates.KING(x, pl, king_threshold = 2,
+                                        het_threshold = 0.5, verbose = 0))
+  expect_identical(indNames(y2), indNames(x))
+})

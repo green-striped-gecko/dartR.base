@@ -39,8 +39,8 @@ their pair to be assessed [default 100].}
 \item{king_threshold}{KING-robust kinship above which a pair is a
 duplicate [default 0.354].}
 
-\item{het_threshold}{Heterozygote share above which a pair is a duplicate
-[default 0.80].}
+\item{het_threshold}{Heterozygote share above which a pair is a duplicate;
+used only with called genotypes (see details) [default 0.80].}
 
 \item{plot.out}{If TRUE, the plot is produced and returned; it is also
 printed unless verbose is 0 [default TRUE].}
@@ -71,8 +71,9 @@ is flagged, ind_to_drop lists exactly ind.list.drop.
 (shared loci), KING, R0, R1, het_share, class and flagged.
 \item ind.miss: the proportion of missing genotypes of each sample.
 \item input: the data used, "likelihoods", "counts" or "calls".
-\item parameters: the thresholds used and n.sites, the number of loci
-that passed \code{maf}.
+\item parameters: the thresholds; het_threshold_used, TRUE when
+\code{het_threshold} flagged pairs (called genotypes only); and n.sites,
+the number of loci that passed \code{maf}.
 \item plot: the plot (a patchwork of two ggplots), or NULL when
 \code{plot.out = FALSE}.
 }
@@ -127,16 +128,29 @@ flagged.
 \strong{Duplicates}
 
 A pair is flagged as a duplicate when its KING-robust kinship exceeds
-\code{king_threshold} or its heterozygote share exceeds
-\code{het_threshold}. The heterozygote share guards against heterozygote
-dropout, which turns heterozygotes into homozygotes and rarely the
-reverse: conditioning on the heterozygous calls of the poorer sample
-cancels its dropout. It is expected to be about 1 for duplicates, 0.5 for
-parent and offspring, at most 0.625 for full siblings, and 2pq for
-unrelated pairs. From called genotypes, KING-robust kinship underestimates
-duplicates in which a sample has heterozygote dropout; the heterozygote
-share corrects for dropout in the poorer sample of a pair, but not when
-both samples are poor, so use genotype likelihoods where possible.
+\code{king_threshold}. From called genotypes it is also flagged when its
+heterozygote share exceeds \code{het_threshold}. The heterozygote share
+guards against heterozygote dropout, which turns heterozygotes into
+homozygotes and rarely the reverse: conditioning on the heterozygous calls
+of the poorer sample cancels its dropout. It is expected to be about 1 for
+duplicates, 0.5 for parent and offspring, at most 0.625 for full siblings,
+and 2pq for unrelated pairs. From called genotypes, KING-robust kinship
+underestimates duplicates in which a sample has heterozygote dropout; the
+heterozygote share corrects for dropout in the poorer sample of a pair,
+but not when both samples are poor, so use genotype likelihoods where
+possible. With genotype likelihoods or read counts the heterozygote share
+is reported but does not flag pairs, as the EM already accounts for
+missed heterozygotes. In a ddRAD study of collared peccaries (102
+duplicate pairs by KING from likelihoods), the heterozygote share raised
+the duplicates found from called genotypes from 88 to 94, added none from
+likelihoods, and from read counts added a pair of relatives at 0.802.
+
+Run \code{\link{gl.report.contamination}} (and remove contaminated
+samples with \code{\link{gl.filter.contamination}}) before this
+function. The rule below keeps the sample with the fewest missing
+genotypes, which favours a contaminated sample, as mixed DNA gives more
+calls: in the peccary study the pair CP47-CP57 keeps CP57, a mixture of
+about 4/5 CP47 and 1/5 CP46.
 
 Flagged pairs are linked into groups (connected components). In each
 group the sample with the lowest proportion of missing genotypes is kept
@@ -159,8 +173,8 @@ a single population: between divergent lineages it is strongly negative
 \strong{Plot}
 
 The top panel plots every pair by KING-robust kinship and heterozygote
-share, with dashed lines at \code{king_threshold}, at 0.177 and at
-\code{het_threshold}; flagged pairs are labelled when there are 30 or
+share, with dashed lines at \code{king_threshold}, at 0.177 and, when it
+is used, at \code{het_threshold}; flagged pairs are labelled when there are 30 or
 fewer and package ggrepel is installed. The kinship axis is cut at -1,
 and a caption gives the number of pairs below it. Duplicates sit to the
 right (from likelihoods) or at the top (from calls with dropout). The

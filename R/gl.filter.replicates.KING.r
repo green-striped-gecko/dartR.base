@@ -12,7 +12,8 @@
 #' [required].
 #' @param king_threshold KING-robust kinship above which a pair is a
 #' duplicate [default 0.354].
-#' @param het_threshold Heterozygote share above which a pair is a duplicate
+#' @param het_threshold Heterozygote share above which a pair is a duplicate;
+#' used only when the report was computed from called genotypes
 #' [default 0.80].
 #' @param loc_threshold Minimum number of loci two samples must share for
 #' their pair to be assessed [default 100].
@@ -27,8 +28,9 @@
 #' The pairs are flagged again from \code{replicates.report$table.all} with
 #' the thresholds given here: a pair is a duplicate when it shares at least
 #' \code{loc_threshold} loci and its KING-robust kinship exceeds
-#' \code{king_threshold} or its heterozygote share exceeds
-#' \code{het_threshold}. Because table.all holds every pair, the thresholds
+#' \code{king_threshold} or, when the report was computed from called
+#' genotypes (\code{replicates.report$input}), its heterozygote share exceeds
+#' \code{het_threshold}, as in the report. Because table.all holds every pair, the thresholds
 #' can be loosened as well as tightened, except \code{loc_threshold}: pairs
 #' below the report's \code{loc_threshold} have no statistics. Flagged pairs
 #' are linked into groups and, in each group, the sample with the lowest
@@ -36,6 +38,12 @@
 #' kept (ties keep the name that sorts first) and the others are removed.
 #' With the report's thresholds the filter removes exactly
 #' \code{replicates.report$ind.list.drop}.
+#'
+#' Run \code{\link{gl.filter.contamination}} before this function. Keeping
+#' the sample with the fewest missing genotypes favours a contaminated
+#' sample, as mixed DNA gives more calls: in a ddRAD study of collared
+#' peccaries the pair CP47-CP57 keeps CP57, a mixture of about 4/5 CP47 and
+#' 1/5 CP46.
 #'
 #' Pairs inside a group that are not flagged themselves are listed with a
 #' warning: such a group can link two animals through a sample that is a
@@ -80,8 +88,9 @@ gl.filter.replicates.KING <- function(x,
 
   # FUNCTION SPECIFIC ERROR CHECKING
   if (!is.list(replicates.report) ||
-      !all(c("table.all", "ind.miss") %in% names(replicates.report)) ||
-      !is.data.frame(replicates.report$table.all)) {
+      !all(c("table.all", "ind.miss", "input") %in% names(replicates.report)) ||
+      !is.data.frame(replicates.report$table.all) ||
+      !isTRUE(replicates.report$input %in% c("likelihoods", "counts", "calls"))) {
     stop(error("  replicates.report must be the list returned by gl.report.replicates.KING\n"))
   }
   number <- function(v) is.numeric(v) && length(v) == 1 && !is.na(v)
@@ -95,9 +104,23 @@ gl.filter.replicates.KING <- function(x,
              rep.loc, "loci, so they cannot be flagged\n"))
   }
 
+  # The heterozygote share flags pairs only from called genotypes, as in
+  # the report
+  use.het <- replicates.report$input == "calls"
+  if (verbose >= 2) {
+    if (use.het) {
+      cat(report("  Flagging pairs with KING above", king_threshold,
+                 "or a heterozygote share above", het_threshold, "\n"))
+    } else {
+      cat(report("  Flagging pairs with KING above", king_threshold,
+                 "(het_threshold is used only with called genotypes)\n"))
+    }
+  }
+
   # DO THE JOB
   tab <- replicates.report$table.all
-  flagged <- .king_flag(tab, king_threshold, het_threshold, loc_threshold)
+  flagged <- .king_flag(tab, king_threshold, het_threshold, loc_threshold,
+                        use.het)
   grp <- .king_groups(tab$ind1, tab$ind2, flagged, replicates.report$ind.miss)
   .king_chain_warn(tab, grp, verbose)
 

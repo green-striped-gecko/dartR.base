@@ -24,7 +24,8 @@ gl.filter.replicates.KING(
 \item{king_threshold}{KING-robust kinship above which a pair is a
 duplicate [default 0.354].}
 
-\item{het_threshold}{Heterozygote share above which a pair is a duplicate
+\item{het_threshold}{Heterozygote share above which a pair is a duplicate;
+used only when the report was computed from called genotypes
 [default 0.80].}
 
 \item{loc_threshold}{Minimum number of loci two samples must share for
@@ -52,8 +53,9 @@ of duplicates.
 The pairs are flagged again from \code{replicates.report$table.all} with
 the thresholds given here: a pair is a duplicate when it shares at least
 \code{loc_threshold} loci and its KING-robust kinship exceeds
-\code{king_threshold} or its heterozygote share exceeds
-\code{het_threshold}. Because table.all holds every pair, the thresholds
+\code{king_threshold} or, when the report was computed from called
+genotypes (\code{replicates.report$input}), its heterozygote share exceeds
+\code{het_threshold}, as in the report. Because table.all holds every pair, the thresholds
 can be loosened as well as tightened, except \code{loc_threshold}: pairs
 below the report's \code{loc_threshold} have no statistics. Flagged pairs
 are linked into groups and, in each group, the sample with the lowest
@@ -61,6 +63,12 @@ proportion of missing genotypes (\code{replicates.report$ind.miss}) is
 kept (ties keep the name that sorts first) and the others are removed.
 With the report's thresholds the filter removes exactly
 \code{replicates.report$ind.list.drop}.
+
+Run \code{\link{gl.filter.contamination}} before this function. Keeping
+the sample with the fewest missing genotypes favours a contaminated
+sample, as mixed DNA gives more calls: in a ddRAD study of collared
+peccaries the pair CP47-CP57 keeps CP57, a mixture of about 4/5 CP47 and
+1/5 CP46.
 
 Pairs inside a group that are not flagged themselves are listed with a
 warning: such a group can link two animals through a sample that is a
