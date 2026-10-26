@@ -23,6 +23,40 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 
 .has_fbm <- function(x) !is.null(.fbm_or_null(x))
 
+## @other$geno.metrics holds per-genotype matrices (individuals x loci, e.g.
+## the read counts kept by gl.read.vcf); they follow both indices
+.gm_subset <- function(gm, ii, jj) {
+  lapply(gm, function(m) m[ii, jj, drop = FALSE])
+}
+
+## Binds the geno.metrics of objects joined by rbind (along = 1, with each
+## object's columns put in the first object's locus order by colmap) or by
+## cbind (along = 2). They are dropped when not every object holds the same
+## matrices, as the result would mix aligned and missing counts.
+.gm_bind <- function(objs, along, dn, colmap = NULL) {
+  gms <- lapply(objs, function(o) o@other$geno.metrics)
+  if (all(vapply(gms, is.null, logical(1)))) return(NULL)
+  nms <- names(gms[[1L]])
+  if (any(vapply(gms, function(g) is.null(g) || !identical(names(g), nms),
+                 logical(1)))) {
+    warning("Not every object holds the same other$geno.metrics; they are ",
+            "dropped from the result.")
+    return(NULL)
+  }
+  out <- lapply(nms, function(nm) {
+    ms <- lapply(seq_along(gms), function(k) {
+      m <- gms[[k]][[nm]]
+      if (!is.null(colmap)) m <- m[, colmap[[k]], drop = FALSE]
+      m
+    })
+    m <- if (along == 1L) do.call(rbind, ms) else do.call(cbind, ms)
+    dimnames(m) <- dn
+    m
+  })
+  names(out) <- nms
+  out
+}
+
 ## Returns a valid dartR object. A plain genlight is coerced with as(), which
 ## adds the fbm slot. `class(x) <- "dartR"` only relabels the object, so the
 ## result lacks @fbm and fails validObject(); objects made that way (or saved
@@ -313,7 +347,8 @@ setMethod ("show", "dartR", function(object) {
 #' @param ... other parameters
 #' @param pop list of populations to be kept
 #' @param treatOther elements in other (and ind.metrics & loci.metrics) as 
-#' indexed as well. default: TRUE
+#' indexed as well. default: TRUE. The matrices in other$geno.metrics
+#' (individuals x loci) are always subset by individuals and loci.
 #' @param quiet warnings are suppressed. default: TRUE
 #' @param drop reduced to a vector if a single individual/loci is selected. 
 #' default: FALSE [should never set to TRUE]
@@ -402,7 +437,9 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
                 counter <- 0L
                 f1 <- function(obj) {
                   counter <<- counter + 1L
-                  if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
+                  if (identical(namesOther[counter], "geno.metrics")) {
+                    obj
+                  } else if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
                     obj[ii, , drop = FALSE]
                   } else if (length(obj) == ori.n) {
                     obj <- obj[ii]
@@ -420,7 +457,12 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
               if (!is.null(x@other$loc.metrics)) {
                 x@other$loc.metrics <- x@other$loc.metrics[jj, , drop = FALSE]
               }
-              
+
+              ## Per-genotype matrices follow individuals and loci
+              if (!is.null(x@other$geno.metrics)) {
+                x@other$geno.metrics <- .gm_subset(x@other$geno.metrics, ii, jj)
+              }
+
               ## Ensure XOR: keep @gen empty
               x@gen <- vector("list", 0L)
               
@@ -457,7 +499,9 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             if (treatOther && !(is.logical(i) && all(i))) {
               f2 <- function(obj, n = ori.n) {
                 counter <<- counter + 1L
-                if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
+                if (identical(namesOther[counter], "geno.metrics")) {
+                  obj
+                } else if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
                   obj[ii, , drop = FALSE]
                 } else if (length(obj) == ori.n) {
                   obj <- obj[ii]
@@ -481,6 +525,8 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             
             if (!is.null(x@other$loc.metrics))
               x@other$loc.metrics <- x@other$loc.metrics[jj, , drop = FALSE]
+            if (!is.null(x@other$geno.metrics))
+              x@other$geno.metrics <- .gm_subset(x@other$geno.metrics, ii, jj)
             if (!.has_fbm(x)) x@fbm <- NULL
             
             x
@@ -641,7 +687,8 @@ cbind.dartR <- function(...,
         warning("loc.metrics columns differ; not merging.")
       }
     }
-    
+    out@other$geno.metrics <- .gm_bind(objs, 2L, list(ind_names, loc_names))
+
     return(out)
   }
   
@@ -695,7 +742,9 @@ cbind.dartR <- function(...,
       }
     }
   }
-  
+  out@other$geno.metrics <- .gm_bind(myList, 2L,
+                                     list(indNames(out), locNames(out)))
+
   out
 } # end cbind.dartR
 ###############################################################
@@ -839,6 +888,8 @@ rbind.dartR <- function(...,
   chrom_out    <- chr(objs[[1L]])
   pos_out      <- position(objs[[1L]])
   other_out    <- .rbind_other(objs, ind_names)
+  other_out$geno.metrics <- .gm_bind(objs, 1L, list(ind_names, loc_names),
+                                     colmap)
   
   ## Any FBM present?
   has_fbm_vec <- vapply(objs, function(o) !is.null(.fbm_or_null(o)), logical(1))

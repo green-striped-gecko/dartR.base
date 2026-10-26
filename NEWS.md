@@ -1,5 +1,17 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.read.vcf()`: NEW FEATURE, read depth from the vcf. When the vcf holds
+  FORMAT DP, the mean depth of each locus over its called genotypes is
+  stored in `other$loc.metrics$rdepth`, so `gl.report.rdepth()`,
+  `gl.filter.rdepth()` and the depth tier of `gl.report.contamination()`
+  work on vcf data. The new argument `read.counts = TRUE` also keeps the REF
+  and ALT read counts of every genotype (from FORMAT AD, or from BSDP at the
+  REF and ALT bases) as two integer matrices, individuals x loci, in
+  `other$geno.metrics`. Subsetting (`[`), `rbind()`, `cbind()` and
+  `gl.randomize.snps()` keep the matrices aligned with the genotypes;
+  `gl.compliance.check()` removes them if their dimensions no longer match
+  the object.
+
 * Population colours: BUG FIX in seven more functions (audit after the
   `gl.report.heterozygosity()` fix). In each, named colours that cover
   every population are now matched by name; otherwise colour i goes to

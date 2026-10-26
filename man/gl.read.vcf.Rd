@@ -9,6 +9,7 @@ gl.read.vcf(
   ind.metafile = NULL,
   mode = "genotype",
   fbm = FALSE,
+  read.counts = FALSE,
   verbose = NULL
 )
 }
@@ -23,6 +24,10 @@ dosage: sites will be codes as copy number of alternate allele [default genotype
 
 \item{fbm}{Logical, if TRUE the dartR object will contain a file-backed matrix. 
 this is important for large data sets that do not fit into RAM.}
+
+\item{read.counts}{Logical, if TRUE the reference and alternative read
+counts of each genotype are stored in the dartR object (see details). They
+take much more memory than the genotypes [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -59,6 +64,23 @@ allele, uniform across individuals.
 Note also that this function checks to see if there are input of mode, missing input of mode
 will issue the user with an error.
 Please carefully check the data if "dosage" mode is used.
+
+When the vcf holds FORMAT DP, the mean read depth of each locus over its
+called genotypes is stored in \code{x@other$loc.metrics$rdepth}, where
+\code{\link{gl.report.rdepth}} and \code{\link{gl.filter.rdepth}} find it.
+Missing and half-missing calls (e.g. ./., 0/.) are not counted; some
+callers report a depth of 0 for them.
+
+With \code{read.counts = TRUE}, \code{x@other$geno.metrics} holds two
+integer matrices of individuals x loci: \code{ref.count} and
+\code{alt.count}, the reads of the REF and ALT allele of each genotype.
+They are read from FORMAT AD or, for genotypes without AD, from FORMAT
+BSDP (read counts of the bases A, C, G and T) at the REF and ALT bases.
+Counts are stored as the vcf reports them, also for uncalled genotypes.
+The matrices follow the genotypes when individuals or loci are subset,
+sorted or combined, and are swapped by \code{\link{gl.randomize.snps}};
+\code{\link{gl.compliance.check}} removes them if their dimensions no
+longer match the object.
 }
 \examples{
 \dontrun{
