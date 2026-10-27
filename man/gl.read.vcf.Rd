@@ -10,6 +10,7 @@ gl.read.vcf(
   mode = "genotype",
   fbm = FALSE,
   read.counts = FALSE,
+  likelihoods = FALSE,
   verbose = NULL
 )
 }
@@ -28,6 +29,11 @@ this is important for large data sets that do not fit into RAM.}
 \item{read.counts}{Logical, if TRUE the reference and alternative read
 counts of each genotype are stored in the dartR object (see details). They
 take much more memory than the genotypes [default FALSE].}
+
+\item{likelihoods}{Logical, if TRUE the likelihoods of the three genotypes
+(FORMAT PL, or GL) of each genotype call are stored in the dartR object
+(see details). Only in "genotype" mode. They take 12 bytes per genotype,
+about 190 MB for 171 individuals and 93,000 loci [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -77,12 +83,28 @@ integer matrices of individuals x loci: \code{ref.count} and
 They are read from FORMAT AD or, for genotypes without AD, from FORMAT
 BSDP (read counts of the bases A, C, G and T) at the REF and ALT bases.
 Counts are stored as the vcf reports them, also for uncalled genotypes.
-The matrices have no row or column names: row i belongs to
-\code{indNames(x)[i]} and column j to \code{locNames(x)[j]}, so renaming
-individuals or loci cannot leave stale names on them. The matrices follow the genotypes when individuals or loci are subset,
-sorted or combined, and are swapped by \code{\link{gl.randomize.snps}};
-\code{\link{gl.compliance.check}} removes them if their dimensions no
-longer match the object.
+
+With \code{likelihoods = TRUE}, \code{x@other$geno.metrics} also holds
+\code{pl.ref}, \code{pl.het} and \code{pl.alt}: the phred-scaled
+likelihoods of 0/0, 0/1 and 1/1 for each genotype, as integer matrices of
+individuals x loci. They are read from FORMAT PL or, for genotypes without
+PL, from FORMAT GL as round(-10 * GL). Each genotype's likelihoods are
+shifted so that the most likely genotype has 0, as some callers write PL
+whose lowest value is above 0; likelihoods are defined only up to a
+constant, so nothing is lost. A likelihood of 0 (GL of -inf) is stored as
+the largest integer. Genotypes whose likelihoods are missing, do not
+number three (haploid or polyploid calls) or are all equal (e.g.
+./.:0,0,0) get NA; uncalled genotypes with informative likelihoods keep
+them. Likelihoods are not stored in "dosage" mode.
+
+The matrices in \code{x@other$geno.metrics} have no row or column names:
+row i belongs to \code{indNames(x)[i]} and column j to
+\code{locNames(x)[j]}, so renaming individuals or loci cannot leave stale
+names on them. The matrices follow the genotypes when individuals or loci
+are subset, sorted or combined, and \code{\link{gl.randomize.snps}} swaps
+the REF and ALT read counts and the 0/0 and 1/1 likelihoods of the loci it
+recodes; \code{\link{gl.compliance.check}} removes them if their
+dimensions no longer match the object.
 }
 \examples{
 \dontrun{

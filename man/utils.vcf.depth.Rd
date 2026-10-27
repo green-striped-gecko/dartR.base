@@ -2,13 +2,14 @@
 % Please edit documentation in R/utils.vcf.depth.r
 \name{utils.vcf.depth}
 \alias{utils.vcf.depth}
-\title{Utility function to read locus depth and allele read counts from a
-vcfR object}
+\title{Utility function to read locus depth, allele read counts and
+genotype likelihoods from a vcfR object}
 \usage{
 utils.vcf.depth(
   vcf,
   loci = seq_len(nrow(vcf@fix)),
   read.counts = FALSE,
+  likelihoods = FALSE,
   chunk = 10000L
 )
 }
@@ -21,13 +22,19 @@ in the genlight object [default all records].}
 \item{read.counts}{If TRUE, the reference and alternative read counts of
 each genotype are also returned [default FALSE].}
 
+\item{likelihoods}{If TRUE, the likelihoods of the three diploid genotypes
+of each genotype call are also returned [default FALSE].}
+
 \item{chunk}{Number of records processed at a time, which bounds the
 memory used [default 10000].}
 }
 \value{
 A list with rdepth (one value per locus, NULL when the vcf has no
-DP) and, when read.counts is TRUE, ref.count and alt.count (integer
-matrices, individuals x loci, NULL when the vcf has neither AD nor BSDP).
+DP); when read.counts is TRUE, ref.count and alt.count (integer matrices,
+individuals x loci, NULL when the vcf has neither AD nor BSDP); and when
+likelihoods is TRUE, pl.ref, pl.het and pl.alt (the phred-scaled
+likelihoods of 0/0, 0/1 and 1/1, integer matrices of individuals x loci,
+NULL when the vcf has neither PL nor GL).
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
@@ -44,10 +51,17 @@ genotype has no AD, they come from FORMAT BSDP (read counts of the bases A,
 C, G and T, as written by some callers) taken at the REF and ALT bases;
 records whose REF or ALT is not a single base get NA. Counts are stored as
 reported, also for uncalled genotypes.
+
+Likelihoods come from FORMAT PL or, for genotypes without PL, from FORMAT
+GL as round(-10 * GL). They are phred-scaled and shifted so that the most
+likely genotype has 0; a likelihood of 0 (-inf in GL) becomes the largest
+integer. A genotype whose likelihoods are missing, do not number three or
+are all equal (e.g. ./.:0,0,0) gets NA; uncalled genotypes with
+informative likelihoods keep them.
 }
 \examples{
 \dontrun{
-depth <- utils.vcf.depth(vcf, read.counts = TRUE)
+depth <- utils.vcf.depth(vcf, read.counts = TRUE, likelihoods = TRUE)
 }
 }
 \seealso{

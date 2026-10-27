@@ -1,5 +1,18 @@
 # dartR.base 1.2.6 (development)
 
+* `gl.read.vcf()`: NEW FEATURE, genotype likelihoods. The new argument
+  `likelihoods = TRUE` keeps the phred-scaled likelihoods of 0/0, 0/1 and
+  1/1 for every genotype (from FORMAT PL, or from GL as round(-10 * GL))
+  as three integer matrices, individuals x loci, in `other$geno.metrics`
+  (`pl.ref`, `pl.het`, `pl.alt`), for methods that estimate relatedness or
+  allele frequencies from likelihoods rather than from called genotypes.
+  Each genotype's likelihoods are shifted so that the most likely genotype
+  has 0, because some callers write PL whose lowest value is above 0.
+  Genotypes with missing, flat (e.g. ./.:0,0,0) or non-diploid likelihoods
+  get NA; uncalled genotypes with informative likelihoods keep them. Only
+  in "genotype" mode. `gl.randomize.snps()` swaps `pl.ref` and `pl.alt` at
+  the loci it recodes.
+
 * `gl.report.contamination()`: NEW FEATURE, tier 4, read balance. With the
   read counts kept by `gl.read.vcf(read.counts = TRUE)`, each sample's rate
   of heterozygous calls whose minority allele has less than `balance.cut`

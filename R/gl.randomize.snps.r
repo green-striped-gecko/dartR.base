@@ -39,7 +39,8 @@
 #' saved only when plot.file is specified.
 
 #' @return Returns a genlight object with half of the loci re-coded and their
-#' allele labels (loc.all) reversed; read counts in other$geno.metrics (see
+#' allele labels (loc.all) reversed; the REF and ALT read counts and the
+#' 0/0 and 1/1 likelihoods in other$geno.metrics (see
 #' \code{\link{gl.read.vcf}}) are swapped with them. Locus metric flags are
 #' reset, as the
 #' allele-frequency metrics no longer match the recoded genotypes.
@@ -126,11 +127,14 @@ gl.randomize.snps <- function(x,
                function(alleles) paste(rev(alleles), collapse = "/"),
                character(1))
     }
-    # ... and the read counts of the two alleles swap with them
+    # ... and the read counts of the two alleles and the likelihoods of the
+    # two homozygotes swap with them
     gm <- x@other$geno.metrics
-    if (!is.null(gm$ref.count) && !is.null(gm$alt.count)) {
-      x@other$geno.metrics$ref.count[, random_snps] <- gm$alt.count[, random_snps]
-      x@other$geno.metrics$alt.count[, random_snps] <- gm$ref.count[, random_snps]
+    for (pair in list(c("ref.count", "alt.count"), c("pl.ref", "pl.alt"))) {
+      if (!is.null(gm[[pair[1]]]) && !is.null(gm[[pair[2]]])) {
+        x@other$geno.metrics[[pair[1]]][, random_snps] <- gm[[pair[2]]][, random_snps]
+        x@other$geno.metrics[[pair[2]]][, random_snps] <- gm[[pair[1]]][, random_snps]
+      }
     }
 
     if (verbose == 5) {

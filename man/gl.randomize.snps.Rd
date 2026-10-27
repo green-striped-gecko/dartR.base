@@ -40,7 +40,8 @@ unless specified using gl.set.verbosity].}
 }
 \value{
 Returns a genlight object with half of the loci re-coded and their
-allele labels (loc.all) reversed; read counts in other$geno.metrics (see
+allele labels (loc.all) reversed; the REF and ALT read counts and the
+0/0 and 1/1 likelihoods in other$geno.metrics (see
 \code{\link{gl.read.vcf}}) are swapped with them. Locus metric flags are
 reset, as the
 allele-frequency metrics no longer match the recoded genotypes.

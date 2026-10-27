@@ -1,14 +1,17 @@
 # Per-genotype matrices in @other$geno.metrics (individuals x loci, e.g. the
-# read counts kept by gl.read.vcf(read.counts = TRUE)) must stay aligned
-# with the genotypes whenever individuals or loci are removed, reordered or
-# combined.
+# read counts and likelihoods kept by gl.read.vcf(read.counts = TRUE,
+# likelihoods = TRUE)) must stay aligned with the genotypes whenever
+# individuals or loci are removed, reordered or combined.
 
 # Each cell codes its own individual and locus, so any misalignment changes
 # the values, not only the dimensions
 add_gm <- function(x) {
   ref <- outer(seq_len(nInd(x)) * 10000L, seq_len(nLoc(x)), "+")
   storage.mode(ref) <- "integer"
-  x@other$geno.metrics <- list(ref.count = ref, alt.count = -ref)
+  x@other$geno.metrics <- list(ref.count = ref, alt.count = -ref,
+                               pl.ref = ref + 1000000L,
+                               pl.het = ref + 2000000L,
+                               pl.alt = ref + 3000000L)
   x
 }
 
@@ -94,7 +97,7 @@ test_that("gl.compliance.check drops geno.metrics that no longer fit the object"
   expect_identical(y@other$geno.metrics, x@other$geno.metrics)
 })
 
-test_that("gl.randomize.snps swaps the read counts of the loci it recodes", {
+test_that("gl.randomize.snps swaps the read counts and likelihoods of the loci it recodes", {
   x <- make_gm()
   set.seed(7)
   y <- gl.randomize.snps(x, plot.display = FALSE, verbose = 0)
@@ -105,6 +108,11 @@ test_that("gl.randomize.snps swaps the read counts of the loci it recodes", {
   expect_identical(gy$ref.count[, swapped], gx$alt.count[, swapped])
   expect_identical(gy$alt.count[, swapped], gx$ref.count[, swapped])
   expect_identical(gy$ref.count[, !swapped], gx$ref.count[, !swapped])
+  # the homozygote likelihoods swap; the heterozygote's stays
+  expect_identical(gy$pl.ref[, swapped], gx$pl.alt[, swapped])
+  expect_identical(gy$pl.alt[, swapped], gx$pl.ref[, swapped])
+  expect_identical(gy$pl.ref[, !swapped], gx$pl.ref[, !swapped])
+  expect_identical(gy$pl.het, gx$pl.het)
 })
 
 test_that("keep, drop, filter and subsample functions keep geno.metrics aligned", {
