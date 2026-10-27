@@ -313,6 +313,7 @@ Other matched report:
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
 \code{\link{gl.report.replicates}()},
+\code{\link{gl.report.replicates.KING}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
