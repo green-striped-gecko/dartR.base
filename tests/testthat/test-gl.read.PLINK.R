@@ -272,3 +272,18 @@ test_that("gl.read.PLINK .ped route follows PLINK allele orientation on ties and
     dimnames = list(c("i1", "i2", "i3", "i4"), paste0("s", 1:5)))
   expect_equal(as.matrix(gl), expected_tie)
 })
+
+test_that("gl.read.PLINK .ped route reads PLINK chromosome 0 (unmapped) as NA, like the .bed route", {
+  skip_if_not_installed("snpStats")
+  d <- plink_tmpdir()
+  base <- write_ped_fixture(d)
+  # overwrite the .map with unmapped loci (chromosome 0, as gl2plink writes)
+  writeLines(c("0 snp1 0 100", "0 snp2 0 200", "0 snp3 0 150", "0 snp4 0 300"),
+             paste0(base, ".map"))
+
+  gl <- gl.read.PLINK(base, plink.path = d, verbose = 0)
+
+  expect_true(all(is.na(gl@chromosome)))
+  expect_true(all(is.na(gl@other$loc.metrics$chromosome)))
+  expect_equal(as.integer(gl@position), c(100L, 200L, 150L, 300L))
+})
