@@ -34,7 +34,11 @@ file. PLINK 1.x instead makes the minor allele A1 and the major allele
 A2, and on a tie the first-encountered allele becomes A2. Alleles are
 switched here per locus to match that rule, so the genotype dosage
 (count of allele.2) is the same as that obtained from a .bed fileset
-written by \code{plink --make-bed} from the same .ped.
+written by \code{plink --make-bed} from the same .ped. Loci are kept in
+file order, whereas \code{plink --make-bed} sorts them by chromosome
+and position, so the two can differ in locus order. PLINK's chromosome
+code 0 (unmapped) is returned as NA, as \code{snpStats::read.plink}
+does for a .bim.
 }
 \author{
 Custodian: Luis Mijangos (Post to
