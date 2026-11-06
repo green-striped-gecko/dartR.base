@@ -172,3 +172,103 @@ test_that("gl.read.PLINK is silent at verbose = 0 on the .bed path", {
   out <- capture.output(gl <- gl.read.PLINK(base, verbose = 0))
   expect_length(out, 0)
 })
+
+# ---------------------------------------------------------------------------
+# .ped route: read in R via snpStats::read.pedfile, no PLINK executable needed.
+# The .ped below is the text equivalent of the binary fixture above (same
+# truth table), so both routes must give identical genotypes and metadata.
+
+write_ped_fixture <- function(dir, with.map = TRUE) {
+  base <- file.path(dir, "toyped")
+  writeLines(c(
+    "FAM1 ind1 0 0 1 1 A A G G C C T T",
+    "FAM1 ind2 0 0 2 1 A G G G C A 0 0",
+    "FAM2 ind3 0 0 1 2 G G G T C A T T",
+    "FAM2 ind4 0 0 2 2 A A T T C A T C"), paste0(base, ".ped"))
+  if (with.map) {
+    writeLines(c(
+      "1 snp1 0 100",
+      "1 snp2 0 200",
+      "2 snp3 0 150",
+      "2 snp4 0 300"), paste0(base, ".map"))
+  }
+  base
+}
+
+test_that("gl.read.PLINK reads .ped + .map without PLINK and matches the .bed route", {
+  skip_if_not_installed("snpStats")
+  d <- plink_tmpdir()
+  base <- write_ped_fixture(d)
+
+  # plink.path points at an empty dir so the test cannot silently fall back
+  # to a PLINK executable on this machine
+  gl <- gl.read.PLINK(base, plink.path = d, verbose = 0)
+
+  expect_equal(indNames(gl), c("ind1", "ind2", "ind3", "ind4"))
+  expect_equal(locNames(gl), c("snp1", "snp2", "snp3", "snp4"))
+  expect_equal(as.matrix(gl), expected_geno)
+  expect_equal(as.integer(gl@position), c(100L, 200L, 150L, 300L))
+  expect_equal(as.character(gl@chromosome), c("1", "1", "2", "2"))
+  expect_equal(as.character(gl@other$ind.metrics$Family),
+               c("FAM1", "FAM1", "FAM2", "FAM2"))
+  expect_equal(as.numeric(gl@other$ind.metrics$Sex), c(1, 2, 1, 2))
+  expect_equal(as.character(gl@other$loc.metrics$AlleleID),
+               c("snp1", "snp2", "snp3", "snp4"))
+  expect_equal(as.character(gl@other$loc.metrics$allele.1),
+               c("G", "T", "A", "C"))
+  expect_equal(as.character(gl@other$loc.metrics$allele.2),
+               c("A", "G", "C", "T"))
+  expect_equal(nrow(gl@other$ind.metrics), 4L)
+  expect_true(all(c("Call.rate", "Heterozygosity") %in%
+                    names(gl@other$ind.metrics)))
+})
+
+test_that("gl.read.PLINK reads a lone .ped (no .map) with generated locus names", {
+  skip_if_not_installed("snpStats")
+  d <- plink_tmpdir()
+  base <- write_ped_fixture(d, with.map = FALSE)
+
+  gl <- gl.read.PLINK(base, plink.path = d, verbose = 0)
+
+  expect_equal(nLoc(gl), 4L)
+  expect_equal(indNames(gl), c("ind1", "ind2", "ind3", "ind4"))
+  expect_equal(unname(as.matrix(gl)), unname(expected_geno))
+  expect_equal(locNames(gl), paste0("locus.", 1:4))
+  expect_equal(as.character(gl@other$loc.metrics$AlleleID),
+               paste0("locus.", 1:4))
+  expect_true(all(is.na(gl@position)))
+  expect_true(all(is.na(gl@chromosome)))
+})
+
+test_that("gl.read.PLINK .ped route follows PLINK allele orientation on ties and monomorphic loci", {
+  skip_if_not_installed("snpStats")
+  d <- plink_tmpdir()
+  base <- file.path(d, "tie")
+  # s1, s2, s4: tied allele counts; s3: clear minor allele T;
+  # s5: monomorphic C. PLINK 1.9 --make-bed on this fileset gives
+  # A1/A2 = G/A, A/C, T/G, C/T, 0/C (verified with v1.90b7.2).
+  writeLines(c(
+    "F1 i1 0 0 1 1 A G C C T T 0 0 C C",
+    "F1 i2 0 0 2 1 G A A C G G T C C C",
+    "F2 i3 0 0 1 2 A A C A G G T T C C",
+    "F2 i4 0 0 2 2 G G A A G T C C C C"), paste0(base, ".ped"))
+  writeLines(c("1 s1 0 100", "1 s2 0 200", "2 s3 0 300", "2 s4 0 400",
+               "2 s5 0 500"), paste0(base, ".map"))
+
+  # s5 triggers the compliance check's monomorphic-locus warning
+  expect_warning(gl <- gl.read.PLINK(base, plink.path = d, verbose = 0),
+                 "monomorphic")
+
+  expect_equal(as.character(gl@other$loc.metrics$allele.2),
+               c("A", "C", "G", "T", "C"))
+  expect_equal(as.character(gl@other$loc.metrics$allele.1)[1:4],
+               c("G", "A", "T", "C"))
+  expected_tie <- matrix(
+    c(1, 2, 0, NA, 2,
+      1, 1, 2,  1, 2,
+      2, 1, 2,  2, 2,
+      0, 0, 1,  0, 2),
+    nrow = 4, byrow = TRUE,
+    dimnames = list(c("i1", "i2", "i3", "i4"), paste0("s", 1:5)))
+  expect_equal(as.matrix(gl), expected_tie)
+})

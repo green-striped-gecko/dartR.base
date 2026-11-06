@@ -4,11 +4,14 @@
 #' @description This function imports PLINK data into a genlight object and
 #' append available metadata.
 #'
-#' @details This function handles .ped or .bed file (with the associate files -
-#' e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be
-#' installed and it is used to convert the .ped into a .bed, which is then
-#'  converted into a genlight. The conversion is run in a temporary
-#' directory, so no files are written into the input directory.
+#' @details This function handles either a binary fileset (.bed with its
+#' .bim and .fam) or a text fileset (.ped, optionally with its .map). Both
+#' are read in R; no PLINK executable is needed. Without a .map, loci are
+#' named locus.1, locus.2, ... and chromosome and position are set to NA.
+#' The only case that still calls PLINK is when \code{plink.flags} is given:
+#' the .ped/.map are then converted with \code{plink --make-bed} and those
+#' flags in a temporary directory, so no files are written into the input
+#' directory.
 #'
 #' Genotypes are coded as the count of \code{allele.2} (column 6 of the
 #' .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
@@ -39,7 +42,9 @@
 #' is useful for very large datasets that do not fit into RAM. Note that
 #' using fbm objects requires the package bigsnpr to be installed. To back
 #' convert use \code{gl.fbm2gen()} [default FALSE].
-#' @param plink.flags additional possible parameters passed on to plink
+#' @param plink.flags additional parameters passed on to PLINK when a .ped
+#' is converted with \code{plink --make-bed}. Giving any flags forces the
+#' conversion through PLINK (which must be installed) and requires a .map
 #' [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
@@ -126,56 +131,65 @@ gl.read.PLINK <- function(filename,
   if (length(plink.fn) > 1) {
     # If there is more than one .bed
     stop(error("Found more than one .bed file and don't know which one to use\n"))
+  }
+  if (length(plink.fn) == 1) {
+    # Binary fileset: .bed with its .bim and .fam
+    snpMatrix <- snpStats::read.plink(bed = sub(x = plink.fn, pattern =
+                                                  ".bed$", ""))
   } else {
-    if (length(plink.fn) == 0) {
-      # If there is no .bed
-      plink.fn <- plink.fns[grep(".ped$", plink.fns)] # look for .ped
-      if (length(plink.fn) == 0 |
-          length(plink.fn) > 1) {
-        # If there is no or >1 .ped
-        stop(
-          error(
-            "Found no .bed files and",
-            length(plink.fn),
-            ".ped file(s). This function needs either one .bed or .ped file\n"
-          )
+    # No .bed: look for a text fileset (.ped, optionally with a .map)
+    plink.fn <- plink.fns[grep(".ped$", plink.fns)]
+    if (length(plink.fn) != 1) {
+      stop(
+        error(
+          "Found no .bed files and",
+          length(plink.fn),
+          ".ped file(s). This function needs either one .bed or .ped file\n"
         )
-      } else {
-        # This should mean that there is one .ped
-        if (length(plink.fn) == 1) {
-          # But it is checked here for safety
-          # Copy the fileset to the temporary directory so the conversion
-          # does not write into the user's data directory (F5)
-          file.copy(plink.fns, dir.out, overwrite = TRUE)
-          utils.plink.run(
-            dir.in = dir.out,
-            plink.cmd = plink.cmd,
-            plink.path = plink.path,
-            out = basename(filename),
-            syntax = paste(
-              "--file",
-              shQuote(basename(filename)),
-              "--make-bed",
-              plink.flags
-            ),
-            verbose = verbose
-          )
-          plink.fn <- file.path(dir.out, paste0(basename(filename), ".bed"))
-          if (!file.exists(plink.fn)) {
-            stop(error("PLINK did not produce a .bed file. Check that PLINK",
-                       "is installed and the input files are valid\n"))
-          }
-        } else {
-          # If we got it wrong stop the FUN
-          stop(error("Couldn't find any .bed or .ped file\n"))
-        }
-        
-      } # Close if there is 1 .ped
-    } # close if there is no .bed
-  } # Close the else L85 from here onwards there should be only 1 .bed in plink.fn
-  
-  snpMatrix <- snpStats::read.plink(bed = sub(x = plink.fn, pattern =
-                                                ".bed$", ""))
+      )
+    }
+    map.fn <- plink.fns[grep(".map$", plink.fns)]
+    if (length(map.fn) > 1) {
+      stop(error("Found more than one .map file and don't know which one to use\n"))
+    }
+    if (is.null(plink.flags)) {
+      # Read the .ped in R; no PLINK executable and no .map needed
+      if (length(map.fn) == 0 && verbose >= 2) {
+        cat(warn("  Warning: no .map file found, loci are named locus.1, locus.2, ... and chromosome and position are set to NA\n"))
+      }
+      snpMatrix <- utils.ped2plink(ped = plink.fn,
+                                  map = if (length(map.fn) == 1) map.fn else NULL)
+    } else {
+      # plink.flags were given, so the conversion has to go through PLINK.
+      # Copy the fileset to the temporary directory so the conversion does
+      # not write into the user's data directory (F5)
+      if (length(map.fn) == 0) {
+        stop(error("A .map file is required when plink.flags are used, because the conversion is done by PLINK\n"))
+      }
+      file.copy(plink.fns, dir.out, overwrite = TRUE)
+      utils.plink.run(
+        dir.in = dir.out,
+        plink.cmd = plink.cmd,
+        plink.path = plink.path,
+        out = basename(filename),
+        syntax = paste(
+          "--file",
+          shQuote(basename(filename)),
+          "--make-bed",
+          plink.flags
+        ),
+        verbose = verbose
+      )
+      plink.fn <- file.path(dir.out, paste0(basename(filename), ".bed"))
+      if (!file.exists(plink.fn)) {
+        stop(error("PLINK did not produce a .bed file. Check that PLINK",
+                   "is installed and the input files are valid\n"))
+      }
+      snpMatrix <- snpStats::read.plink(bed = sub(x = plink.fn, pattern =
+                                                    ".bed$", ""))
+    }
+  }
+
   gen <- snpMatrix[[1]]
   fam <- snpMatrix[[2]]
   map <- snpMatrix[[3]]
