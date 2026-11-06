@@ -38,7 +38,9 @@ is useful for very large datasets that do not fit into RAM. Note that
 using fbm objects requires the package bigsnpr to be installed. To back
 convert use \code{gl.fbm2gen()} [default FALSE].}
 
-\item{plink.flags}{additional possible parameters passed on to plink
+\item{plink.flags}{additional parameters passed on to PLINK when a .ped
+is converted with \code{plink --make-bed}. Giving any flags forces the
+conversion through PLINK (which must be installed) and requires a .map
 [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -54,11 +56,14 @@ This function imports PLINK data into a genlight object and
 append available metadata.
 }
 \details{
-This function handles .ped or .bed file (with the associate files -
-e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be
-installed and it is used to convert the .ped into a .bed, which is then
- converted into a genlight. The conversion is run in a temporary
-directory, so no files are written into the input directory.
+This function handles either a binary fileset (.bed with its
+.bim and .fam) or a text fileset (.ped, optionally with its .map). Both
+are read in R; no PLINK executable is needed. Without a .map, loci are
+named locus.1, locus.2, ... and chromosome and position are set to NA.
+The only case that still calls PLINK is when \code{plink.flags} is given:
+the .ped/.map are then converted with \code{plink --make-bed} and those
+flags in a temporary directory, so no files are written into the input
+directory.
 
 Genotypes are coded as the count of \code{allele.2} (column 6 of the
 .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
