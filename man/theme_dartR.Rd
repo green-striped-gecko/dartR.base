@@ -12,16 +12,17 @@ theme_dartR(
 )
 }
 \arguments{
-\item{base_size}{base font size, given in pts.}
+\item{base_size}{Base font size, in points; all text sizes scale with it
+[default 11].}
 
-\item{base_family}{base font family}
+\item{base_family}{Base font family [default ""].}
 
-\item{base_line_size}{base size for line elements}
+\item{base_line_size}{Base size for line elements [default base_size / 22].}
 
-\item{base_rect_size}{base size for rect elements}
+\item{base_rect_size}{Base size for rect elements [default base_size / 22].}
 }
 \value{
-a the standard dartR theme to be used in ggplots
+A complete ggplot2 theme, to be added to a ggplot.
 }
 \description{
 This is the theme used as default for dartR plots.
@@ -40,5 +41,9 @@ Other environment:
 \code{\link{gl.recalc.metrics}()},
 \code{\link{gl.set.verbosity}()},
 \code{\link{gl.set.wd}()}
+}
+\author{
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{environment}

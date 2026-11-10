@@ -118,8 +118,22 @@ test_that("classification is ploidy-driven, with a content consistency check", {
   m_pa <- matrix(c(0L, 1L, 1L, 0L, 0L, 1L, 1L, 0L), nrow = 2)
   g_pa <- methods::new("genlight", gen = m_pa)
   adegenet::ploidy(g_pa) <- rep(2L, 2)
-  expect_error(utils.check.datatype(g_pa, accept = "SNP", verbose = 0),
-               "ploidy slot and genotype content disagree")
+  # [approved diff, dartR.sim report] the stop also rejected valid SNP
+  # data (small simulated samples, hand-built parents) and blocked
+  # gl.compliance.check from adding loc.all. Now: treated as SNP, with a
+  # warning from verbose 1; silent at verbose 0.
+  expect_silent(dt <- utils.check.datatype(g_pa, accept = "SNP", verbose = 0))
+  expect_equal(dt, "SNP")
+  o <- capture.output(utils.check.datatype(g_pa, accept = "SNP", verbose = 1))
+  expect_true(any(grepl("Treating it as SNP data", o)))
+  # gl.compliance.check now repairs such an object: loc.all is added, so
+  # later checks see SNP metadata and stay quiet
+  h <- methods::new("genlight", gen = matrix(c(0, 1, 1, 0, 1, 0), 3),
+                    ploidy = 2)
+  invisible(capture.output(hc <- gl.compliance.check(h, verbose = 0)))
+  expect_length(hc@loc.all, nLoc(h))
+  o <- capture.output(utils.check.datatype(hc, verbose = 1))
+  expect_false(any(grepl("Treating it as SNP data", o)))
   # [approved F7] the protected clean case: a testset2.gl subset with no
   # homozygous-alternate scores passes -- its loc.all slot vouches for
   # the SNP label

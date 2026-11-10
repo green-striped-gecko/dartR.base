@@ -232,7 +232,12 @@ gl.plot.heatmap <- function(D,
     } else {
       pop_colors <- palette_discrete
     }
-    names(pop_colors) <- as.character(popNames(x))
+    # names given by the user are kept when they cover every population,
+    # otherwise colours follow levels(pop(x))
+    if (!all(popNames(x) %in% names(pop_colors))) {
+      names(pop_colors) <- as.character(popNames(x))
+    }
+    pop_colors <- pop_colors[popNames(x)]
     
     idx <- match(colnames(m), indNames(x))
     if (length(idx) == ncol(m) && !anyNA(idx)) {

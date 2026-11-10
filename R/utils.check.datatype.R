@@ -31,11 +31,12 @@
 #' are not consulted, with one exception: an object of uniform ploidy 2
 #' whose non-missing genotypes are all 0 or 1, and which carries no SNP
 #' metadata (an empty loc.all slot and no SNP or SnpPosition locus
-#' metrics), is rejected as presence/absence (SilicoDArT) content
-#' mislabelled as SNP, since it would otherwise pass into dosage-based
-#' (0/1/2) arithmetic. A clean SNP subset that merely lacks the
-#' homozygous-alternate class is not affected: its loc.all slot vouches
-#' for the label. Content-level validation beyond that check is the job
+#' metrics), is treated as SNP data with a warning (verbose >= 1) that it
+#' may be presence/absence (SilicoDArT) content mislabelled as SNP. Such an
+#' object is ambiguous: a small simulated sample or a hand-built object can
+#' lack the homozygous-alternate class. A clean SNP subset that merely
+#' lacks the homozygous-alternate class and keeps its loc.all slot raises
+#' no warning. Content-level validation beyond that check is the job
 #' of \code{gl.compliance.check}.
 
 #' Note also that this function checks to see if there are individuals or loci
@@ -86,10 +87,10 @@ utils.check.datatype <- function(x,
             }
             datatype <- "SNP"
             # Content-vs-ploidy consistency: an object whose non-missing
-            # genotypes are all 0 or 1 is presence/absence (SilicoDArT)
-            # content mislabelled with ploidy 2 -- left unchecked it
-            # passes accept = 'SNP' gates into dosage-based (0/1/2)
-            # arithmetic. The scan exits at the first genotype of 2, so
+            # genotypes are all 0 or 1 may be presence/absence (SilicoDArT)
+            # content mislabelled with ploidy 2, which would pass
+            # accept = 'SNP' gates into dosage-based (0/1/2) arithmetic,
+            # so the user is warned. The scan exits at the first genotype of 2, so
             # clean SNP data pay for a single individual (or a single
             # column block when FBM-backed); an object with no non-NA
             # genotypes at all is left to the all-NA warnings below.
@@ -142,12 +143,15 @@ utils.check.datatype <- function(x,
                     snp.evidence <- any(c("SNP", "SnpPosition") %in%
                                             names(x@other$loc.metrics))
                 }
-                if (!snp.evidence) {
-                    stop(
-                        error(
-                            "Fatal Error: object has ploidy 2 (SNP) but all non-missing genotypes are scored 0 or 1 and no SNP metadata (loc.all, SNP or SnpPosition locus metrics) is present; ploidy slot and genotype content disagree. If the data are Tag P/A (SilicoDArT), reassign ploidy with ploidy(gl) <- rep(1, nInd(gl)) or re-read the data\n"
-                        )
-                    )
+                if (!snp.evidence && verbose >= 1) {
+                    # Ambiguous, not proof of SilicoDArT: a small simulated
+                    # sample or a hand-built object can lack the
+                    # homozygous-alternate class. Trust the ploidy slot and
+                    # say so; a stop here also blocked gl.compliance.check,
+                    # which adds the missing loc.all
+                    cat(warn(
+                        "  Warning: object has ploidy 2 (SNP) but all non-missing genotypes are scored 0 or 1 and no SNP metadata (loc.all, SNP or SnpPosition locus metrics) is present. Treating it as SNP data. If the data are Tag P/A (SilicoDArT), reassign ploidy with ploidy(gl) <- rep(1, nInd(gl)) or re-read the data\n"
+                    ))
                 }
             }
         } else {

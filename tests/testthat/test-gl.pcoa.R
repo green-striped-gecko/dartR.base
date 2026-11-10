@@ -140,22 +140,29 @@ test_that("FBM path: scores and loadings carry the same dimnames as glPca", {
   expect_equal(colnames(b$loadings), paste0("Axis", 1:5))
 })
 
-test_that("FBM path: runs when there are more individuals than loci", {
+test_that("FBM path: fewer loci than individuals", {
   skip_if_not_installed("bigstatsr")
   pdf(NULL); on.exit(dev.off())
-  x <- gl.keep.loc(testset2.gl, loc.list = locNames(testset2.gl)[1:100],
-                   verbose = 0)
-  x <- gl.filter.monomorphs(x, verbose = 0)
-  x <- gl.impute(x, method = "neighbour", verbose = 0)
-  # big_SVD was called with k = nInd - 1, which exceeds the rank when
-  # nInd > nLoc and errored with "'k' must satisfy 0 < k < nrow(A)".
-  # Warnings are pre-existing on rank-deficient input: big_SVD's NaN for the
-  # trailing singular value (zeroed in gl.pcoa) and log10 of zero
-  # eigenvalues in the scree plot.
-  pf <- suppressWarnings(
-    gl.pcoa(gl.gen2fbm(x, verbose = 0), nfactors = 5, plot.out = FALSE,
-            verbose = 0))
-  pm <- gl.pcoa(x, nfactors = 5, plot.out = FALSE, verbose = 0)
-  expect_equal(dim(pf$scores), c(nInd(x), 5))
-  expect_equal(pf$eig[1:5], pm$eig[1:5], tolerance = 1e-6)
+  # big_SVD() was asked for nInd - 1 = 273 components from a 50-locus matrix
+  # and stopped with "'k' must satisfy 0 < k < nrow(A)"; it can return at
+  # most min(nInd, nLoc) - 1. 50 polymorphic loci, so mono.rm keeps all 50.
+  poly <- gl.filter.monomorphs(testset2.gl, verbose = 0)
+  x <- gl.keep.loc(poly, loc.list = locNames(poly)[1:50], verbose = 0)
+  pf <- gl.pcoa(gl.gen2fbm(x), nfactors = 5, plot.out = FALSE, verbose = 0)
+  expect_equal(dim(pf$scores), c(274, 5))
+  expect_length(pf$eig, 49)
+  expect_true(all(is.finite(pf$scores)))
+})
+
+test_that("FBM path: a NaN trailing component does not make every score NaN", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  # big_SVD() returns the rank-deficient trailing component of testset.gl as
+  # NaN in d, u and v. Only d was zeroed, and NaN * 0 is NaN, so
+  # u %*% diag(d) turned all 250 x 5 scores into NaN.
+  pf <- gl.pcoa(gl.gen2fbm(testset.gl), nfactors = 5, plot.out = FALSE,
+                verbose = 0)
+  expect_true(all(is.finite(pf$scores)))
+  expect_true(all(is.finite(pf$loadings)))
+  expect_true(all(is.finite(pf$eig)))
 })

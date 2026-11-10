@@ -1,4 +1,238 @@
-# dartR.base 1.2.4 (development)
+# dartR.base 1.2.6 (development)
+
+* `gl.report.replicates.KING()` and `gl.filter.replicates.KING()`: NEW
+  FUNCTIONS, duplicate samples by KING-robust kinship (Manichaikul et al.
+  2010; Waples et al. 2019) and the heterozygote share. They find
+  duplicates in which one sample is poor, which the identity screen of
+  `gl.report.replicates()` misses because missed heterozygotes lower the
+  share of identical genotypes. The kinship is computed from the genotype
+  likelihoods or read counts kept by `gl.read.vcf()` (the expected
+  genotype combinations of each pair by EM, as in NgsRelate, in C++ with
+  RcppParallel) or from called genotypes; a pair is a duplicate when its
+  kinship exceeds `king_threshold` or, from called genotypes only, its
+  heterozygote share exceeds `het_threshold`. Flagged pairs are grouped, one sample per group is kept
+  (the one with the fewest missing genotypes) and pairs linked only
+  through another sample, as through a mixed sample, are listed with a
+  warning. The report keeps the elements of `gl.report.replicates()` and
+  adds every pair with its kinship class, and a plot of kinship against
+  the heterozygote share; the filter removes exactly the samples the
+  report lists, or re-applies other thresholds to the report's pairs. Run
+  `gl.filter.contamination()` first: keeping the sample with the fewest
+  missing genotypes favours a contaminated sample.
+
+* `gl.read.vcf()`: NEW FEATURE, genotype likelihoods. The new argument
+  `likelihoods = TRUE` keeps the phred-scaled likelihoods of 0/0, 0/1 and
+  1/1 for every genotype (from FORMAT PL, or from GL as round(-10 * GL))
+  as three integer matrices, individuals x loci, in `other$geno.metrics`
+  (`pl.ref`, `pl.het`, `pl.alt`), for methods that estimate relatedness or
+  allele frequencies from likelihoods rather than from called genotypes.
+  Each genotype's likelihoods are shifted so that the most likely genotype
+  has 0, because some callers write PL whose lowest value is above 0.
+  Genotypes with missing, flat (e.g. ./.:0,0,0) or non-diploid likelihoods
+  get NA; uncalled genotypes with informative likelihoods keep them. Only
+  in "genotype" mode. `gl.randomize.snps()` swaps `pl.ref` and `pl.alt` at
+  the loci it recodes.
+
+* `gl.report.contamination()`: NEW FEATURE, tier 4, read balance. With the
+  read counts kept by `gl.read.vcf(read.counts = TRUE)`, each sample's rate
+  of heterozygous calls whose minority allele has less than `balance.cut`
+  of the reads (per 1,000 genotypes with at least `min.reads` reads) is
+  scored as a robust z across all samples; outliers are flagged "mixed".
+  This catches a mixture of two animals from the same population, which
+  tiers 1 to 3 miss. For a mixed sample the report names the major genome
+  (`main.source`), the animal that contributed the rest (`second.source`,
+  with the runner-up that is not its replicate) and the share of the DNA
+  it contributed (`mix.fraction`). "mixed" replaces "suspect", "rare-only"
+  or no flag, but not "adjacent". `gl.filter.contamination()` accepts
+  "mixed", removes it by default (`flag = c("suspect", "adjacent",
+  "mixed")`) and passes `min.reads`, `balance.cut` and `min.calls` to the
+  report, and the report counts "mixed" among its suspects, so that the
+  filter removes the samples the report counts. Without read counts both
+  functions behave as before.
+
+* `gl.read.vcf()`: NEW FEATURE, read depth from the vcf. When the vcf holds
+  FORMAT DP, the mean depth of each locus over its called genotypes is
+  stored in `other$loc.metrics$rdepth`, so `gl.report.rdepth()`,
+  `gl.filter.rdepth()` and the depth tier of `gl.report.contamination()`
+  work on vcf data. The new argument `read.counts = TRUE` also keeps the REF
+  and ALT read counts of every genotype (from FORMAT AD, or from BSDP at the
+  REF and ALT bases) as two integer matrices, individuals x loci, in
+  `other$geno.metrics`. Subsetting (`[`), `rbind()`, `cbind()` and
+  `gl.randomize.snps()` keep the matrices aligned with the genotypes;
+  `gl.compliance.check()` removes them if their dimensions no longer match
+  the object.
+
+* Population colours: BUG FIX in seven more functions (audit after the
+  `gl.report.heterozygosity()` fix). In each, named colours that cover
+  every population are now matched by name; otherwise colour i goes to
+  `levels(pop(x))[i]`. Bar, axis and panel order are unchanged.
+  - `gl.report.polyploid_heterozygosity()`: colours were assigned in order
+    of first appearance among individuals, names were overwritten, and the
+    `n.invariant > 0` plots assigned them by row position (the same code
+    as `gl.report.heterozygosity()` before the fix above).
+  - `gl.report.heterozygosity()` and `gl.report.polyploid_heterozygosity()`:
+    the `subsample.pop` panels are coloured by population when the levels
+    are not in alphabetical order.
+  - `gl.report.pa()`: the Sankey colour scale now has an explicit domain,
+    so colours no longer depend on the order in which d3 draws the nodes.
+    In one2rest, a population's source and target share its colour and
+    "Rest" is grey unless a colour is named "Rest" or the palette gives
+    one more colour than populations. A palette function no longer
+    crashes the pairwise plot.
+  - `gl.report.allelerich()` and `gl.report.ld.map()`: unnamed colours were
+    assigned in alphabetical order of population, not level order.
+  - `gl.plot.heatmap()`, `gl.report.contamination()` and
+    `gl.map.interactive()`: names given to the colours were overwritten or
+    ignored.
+  Fewer colours than populations now stops with an error in
+  `gl.report.polyploid_heterozygosity()`, `gl.report.allelerich()`,
+  `gl.report.ld.map()` and `gl.report.pa()`.
+
+* `gl.report.heterozygosity()`: BUG FIX: `plot.colors.pop` colours now go
+  to the right populations. Before, colours were assigned in the order in
+  which populations first appear among the individuals, and names given
+  to the colours were overwritten; with `n.invariant > 0` they were
+  assigned by row position. Named colours that cover every population are
+  now matched by name; otherwise colour i goes to `levels(pop(x))[i]`. The
+  order of the bars is unchanged. Fewer colours than populations now stops
+  with an error instead of a `names` error from `setNames()`.
+
+* `gl.report.contamination()`: when plate positions are known, a second
+  plot maps each plate that holds a suspect. Wells are filled by population;
+  a suspect's well is ringed in the colour of its partner's population,
+  solid with an arrow from the partner when the partner is in an adjacent
+  well and dashed otherwise, and labelled with its `foreign.rate` and tier 3
+  `pattern`, so that a hybrid beside its partner does not read as a
+  contaminant (SVM00095 and SVM00097 on DLit22-7330 show "flat"). Suspects
+  that name each other get two arrows side by side. The map is saved as
+  `<plot.file>_plate`; the new `plot.colors.pop` argument (default
+  `gl.colors("dis", verbose = 0)`) sets the population colours. On the
+  Sminthopsis plate DSps22-7499 it reproduces the hand-drawn map of the
+  seven proven contaminations, except that two of them get dashed rings
+  because tier 2 names a non-adjacent partner of the right species. The
+  returned list is unchanged.
+
+* `gl.report.shannon()`: new `plot.colors` argument (default
+  `gl.colors("dis", verbose = 0)`) sets the bar colour of each diversity
+  order. It takes a palette function, called with `order`, or a vector of
+  at least `order` colours; a shorter vector stops with an error. The default gives the same
+  colours as before (ggplot's default hue palette), so existing plots are
+  unchanged. Requested so the dartR GUI can apply its colour palette.
+* `gl.pcoa()` on file-backed (FBM) objects: datasets with fewer loci than
+  individuals, after monomorphic loci are removed, no longer stop with
+  "'k' must satisfy 0 < k < nrow(A)". `bigstatsr::big_SVD()` was asked for
+  `nInd - 1` axes, but it can return at most `min(nInd, nLoc) - 1`; on
+  `possums.gl` (300 individuals, 200 loci) and `testset.gl` the PCA failed.
+  Once it runs, a rank-deficient trailing axis that `big_SVD()` returns as
+  NaN no longer makes every score NaN: its eigenvalue was set to 0 but its
+  score and loading columns stayed NaN, and NaN * 0 is NaN. On possums the
+  variance explained by axes 1-3 matches the in-memory result to two
+  decimals; only the smallest eigenvalue is not computed.
+* `gl.smearplot()` DOCS: missing genotypes are labelled NA in the legend;
+  the description said they had no legend entry.
+
+* `gl.report.pa()` Chao1/Chao2 (`utils.pa.Chao()`, function review): the
+  small-sample factor `(n - 1) / n` of the Chao1 estimator now uses the
+  number of allele copies sampled in the pair for `n`, not the number of
+  private alleles. Estimates for pairs with few private alleles were too
+  small (two private singletons gave 0 instead of 1); on `platypus.gl`
+  values change by at most 1.
+
+* `glMean()` and `glSum()` (function review): FBM-backed objects are
+  summarised in one column-wise pass (`bigstatsr::big_counts()`) instead
+  of reading the file one individual at a time. On 1000 individuals x
+  20000 loci, `glMean()` went from 0.56 s to 0.04 s and `glSum()` from
+  0.31 s to 0.04 s; results are identical. Dense objects are unchanged.
+  Help pages rewritten, with examples.
+
+* `subsample.pop = TRUE` in `gl.report.heterozygosity()` and
+  `gl.report.polyploid_heterozygosity()` (review of the internal
+  `utils.subsample.pop()`): `n.limit` below 10 no longer stops with
+  "cannot take a sample larger than the population". Each population is
+  subsampled only at the sizes it can supply. Results for `n.limit >= 10`
+  are unchanged. Single-locus objects no longer error.
+
+* `utils.check.datatype()`: a ploidy-2 object whose genotypes are all 0 or
+  1 and that has no SNP metadata is now treated as SNP data, with a
+  warning from `verbose = 1`, instead of stopping. Such data are
+  ambiguous: small simulated samples and hand-built objects can lack the
+  homozygous-alternate class. The stop also blocked `gl.compliance.check()`
+  from adding the missing `loc.all`. Reported from the dartR.sim review
+  (`gl.sim.Neconst(ninds = 3, nlocs = 1)`, synthetic parents in
+  `gl.sim.offspring`).
+
+* `utils.reset.flags()` (and so `gl.compliance.check()`) no longer adds an
+  all-NA column named `array(NA, nLoc(x))` to `loc.metrics`, or one named
+  `array(NA, 1)` to `loc.metrics.flags`, when an object has no locus
+  metrics. `loc.metrics` now starts with `AlleleID` from the locus names
+  (or no columns when there are none). Reported from the dartR.sim review,
+  where simulated objects carried the junk column.
+
+* `theme_dartR()` (function review): facet strip labels now scale with
+  `base_size` (still 14 pt at the default of 11), and the theme is
+  returned visibly. Plots at the default size are unchanged.
+
+* `gl.report.heterozygosity()`: BUG FIX: `polyLoc` no longer counts
+  loci with no data in a population, and `monoLoc` no longer subtracts
+  them. On testset.gl every population changes by its number of all-NA
+  loci (EmmacBrisWive: 21/224 to 11/234, 10 all-NA loci); `polyLoc +
+  monoLoc + all_NALoc` now equals the number of loci. Other columns are
+  unchanged.
+* `gl.report.polyploid_heterozygosity()` (function review):
+  - BUG FIX: statistics are now correct for polyploid (dosage) data. He
+    was computed from genotype codes 0, 1 and 2 only, and Ho counted
+    heterozygous individuals rather than the documented gametic
+    heterozygosity, d(k - d) / choose(k, 2). On a simulated autotetraploid,
+    Ho went from 0.645 to 0.357 and He from 0.723 to 0.356, matching an
+    independent calculation. uHe now uses each locus's number of sampled
+    allele copies. For diploid data Ho and He are unchanged, and uHe and
+    FIS now equal `gl.report.heterozygosity()`.
+  - BUG FIX: `method = "ind"` now reports gametic heterozygosity and
+    counts dosage k as the alternative homozygote; diploid output is
+    unchanged.
+  - BUG FIX: bootstrap confidence intervals resample loci. Before,
+    individuals were resampled and loci treated as individuals, so the
+    intervals did not contain their own estimates.
+  - BUG FIX: `polyLoc` no longer counts loci with no data in a population,
+    and `monoLoc` no longer subtracts them. testset.gl population
+    EmmacBrisWive went from 21/224 to 11/234 (10 all-NA loci).
+  - BUG FIX: `subsample.pop` Ho is gametic for polyploids.
+  - `method = "ind"` at `verbose = 0`, `plot.file` with
+    `plot.display = FALSE`, `subsample.pop` with small populations or
+    `method = "ind"`, and constant bootstrap replicates no longer error.
+  - Warnings are silent at `verbose = 0`. With `subsample.pop = TRUE` the
+    result is a named list (`subsample`, `results`).
+  - The documentation has a runnable tetraploid example.
+
+* `gl.print.history()` (function review):
+  - Prints each entry as its number followed by the call, with long calls
+    wrapped and indented. The `knitr` table it used needed `knitr`, which
+    is only suggested, and wrapped calls spilled outside the table.
+  - Entries selected with `history` keep their position in the history;
+    an entry number beyond the history now stops with an error instead of
+    printing a "NULL" row.
+  - Returns the history as an invisible data frame (`nr`, `history`) at
+    every verbosity. It returned `NULL` before.
+  - A missing or non-genlight `x` now stops with a clear message, and a
+    history list is accepted alongside `x`.
+  - `gridExtra` is no longer imported: its only use was commented-out
+    code in this function.
+
+* `gl.randomize.snps()` (function review):
+  - BUG FIX: the allele labels (`loc.all`) of the recoded loci are now
+    reversed (`G/A` becomes `A/G`). Before, swapping the 0 and 2 codes
+    left the labels unchanged, so homozygotes read as the other allele in
+    exports such as `gl2vcf()`. Genotype codes for a given seed are
+    unchanged.
+  - BUG FIX: FBM-backed objects are now recoded. Before, the recoding went
+    to `@gen` while genotypes are read from the FBM, so the result came
+    back unchanged. The recoding is written to a copy of the FBM; the
+    input object is not modified.
+  - SilicoDArT objects now stop with an error. Before, they gained invalid
+    `2` codes in a ploidy-1 object.
+  - `plot.theme` and `plot.colors` are now passed to the smear plots.
+  - Removed the duplicate, unused copy of the function in
+    `R/gl.random.snp.r`.
 
 * `gl.fdsim()` (function review), which also supplies the
   `gl.fixed.diff(test = TRUE)` p-values:

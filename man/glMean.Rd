@@ -2,19 +2,36 @@
 % Please edit documentation in R/utils.dartR.class.def.r
 \name{glMean}
 \alias{glMean}
-\title{glMean for dartR objects}
+\title{Frequency of the second allele per locus, for dartR and genlight
+objects}
 \usage{
 glMean(x, alleleAsUnit = TRUE)
 }
 \arguments{
-\item{x}{a dartR object}
+\item{x}{Name of the dartR or genlight object [required].}
 
-\item{alleleAsUnit}{logical; if TRUE, the mean is calculated per allele,
-if FALSE, per individual}
+\item{alleleAsUnit}{If TRUE, the mean is taken over allele copies; if
+FALSE, over individuals, each genotype divided by the individual's ploidy
+[default TRUE].}
 }
 \value{
-A numeric vector of means per locus
+A named numeric vector with one value per locus. Loci with no
+data give NaN.
 }
 \description{
-glMean is necessary as adegenet is using it internally and we need one for fbm projects
+Returns, for each locus, the mean of the second
+(alternative) allele, ignoring missing data: with alleleAsUnit = TRUE,
+its frequency among the scored allele copies. It replaces
+\code{adegenet::glMean} so that FBM-backed dartR objects (see
+\code{\link{gl.gen2fbm}}) are handled; other objects are passed to
+\code{adegenet::glMean} and give identical results.
+}
+\examples{
+head(glMean(testset.gl))
+fbm.gl <- gl.gen2fbm(testset.gl, verbose = 0)
+all.equal(glMean(fbm.gl), glMean(testset.gl))
+}
+\author{
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }

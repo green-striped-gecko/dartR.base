@@ -218,3 +218,17 @@ test_that("input validation", {
   expect_error(gl.map.interactive(platypus.gl, matrix = matrix(0, 4, 4),
                                   verbose = 0), "does neither match")
 })
+
+test_that("individual circles take colours by population name", {
+  # before: cols[as.numeric(pop(x))] ignored the names given, so a named
+  # vector in another order was applied by level position
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    m <- gl.map.interactive(x, ind.circle.cols = cs[[1]], verbose = 0)
+    col <- call_args(m, "addCircles")[[6]]$color
+    expect_equal(col, unname(cs[[2]][as.character(pop(x))]))
+  }
+})

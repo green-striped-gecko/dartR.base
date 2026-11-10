@@ -73,3 +73,48 @@ test_that("SilicoDArT report runs", {
   expect_equal(nrow(r), choose(nPop(testset.gs), 2))
   expect_true(is.na(r$Chao1[1]))
 })
+
+# colour d3.scaleOrdinal gives each key: with a domain, key i takes range i;
+# without one, keys take the range in the order d3 first meets them, which
+# depends on drawing order, so no key has a fixed colour
+d3_colours <- function(scale, keys) {
+  part <- function(what) {
+    m <- regmatches(scale, regexpr(paste0("\\.", what, "\\(\\[[^]]*\\]\\)"),
+                                   scale))
+    if (!length(m)) return(NULL)
+    strsplit(gsub(paste0("^\\.", what, "\\(\\[\"|\"\\]\\)$"), "", m),
+             "\",\"", fixed = TRUE)[[1]]
+  }
+  dom <- part("domain")
+  rng <- part("range")
+  if (is.null(dom)) return(setNames(rep(NA_character_, length(keys)), keys))
+  setNames(rng[(match(keys, dom) - 1) %% length(rng) + 1], keys)
+}
+
+test_that("sankey colours follow population names", {
+  # before: the d3 colour scale had no domain, so colours went to
+  # populations in the order d3 drew them, and the names given were dropped
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    capture.output(r <- gl.report.pa(x, palette.discrete = cs[[1]],
+                                     plot.display = TRUE, verbose = 0))
+    expect_equal(d3_colours(r$plot$x$options$colourScale, pops),
+                 cs[[2]][pops])
+    capture.output(r <- gl.report.pa(x, method = "one2rest",
+                                     palette.discrete = cs[[1]],
+                                     plot.display = TRUE, verbose = 0))
+    sc <- r$plot$x$options$colourScale
+    hex <- unname(grDevices::rgb(t(grDevices::col2rgb(cs[[2]][pops])),
+                                 maxColorValue = 255))
+    expect_equal(unname(toupper(d3_colours(sc, paste(pops, "source")))),
+                 hex)
+    expect_equal(unname(toupper(d3_colours(sc, paste(pops, "target")))),
+                 hex)
+    # "Rest" gets a colour of its own
+    expect_false(toupper(d3_colours(sc, "Rest")) %in% hex)
+  }
+})

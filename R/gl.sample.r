@@ -238,8 +238,14 @@ gl.sample <- function(x,
         # that are not indexed by individual are named rather than inferred from
         # their shape, so a coincidence of dimensions cannot scramble them.
         n.drawn <- length(drawn)
-        not.ind <- c("loc.metrics", "loc.metrics.flags", "history", "verbose")
+        not.ind <- c("loc.metrics", "loc.metrics.flags", "history", "verbose",
+                     "geno.metrics")
         expand <- !(names(xx@other) %in% not.ind)
+        # per-genotype matrices (read counts) repeat their rows as well
+        if (!is.null(xx@other$geno.metrics)) {
+            xx@other$geno.metrics <- .gm_subset(xx@other$geno.metrics, pos,
+                                                seq_len(nLoc(xx)))
+        }
         xx@other[expand] <- lapply(xx@other[expand], function(obj) {
             if (!is.null(dim(obj)) && nrow(obj) == n.drawn) {
                 obj[pos, , drop = FALSE]

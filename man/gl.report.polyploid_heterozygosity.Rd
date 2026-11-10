@@ -3,7 +3,8 @@
 \name{gl.report.polyploid_heterozygosity}
 \alias{gl.report.polyploid_heterozygosity}
 \title{Reports observed, expected and unbiased heterozygosities and FIS
-(inbreeding coefficient) by population or by individual from SNP data}
+(inbreeding coefficient) by population or by individual from polyploid
+(dosage) SNP data}
 \usage{
 gl.report.polyploid_heterozygosity(
   x,
@@ -26,7 +27,9 @@ gl.report.polyploid_heterozygosity(
 )
 }
 \arguments{
-\item{x}{Name of the genlight object containing the SNP data that converted to dosage mode [required].}
+\item{x}{Name of the genlight object containing SNP data coded as dosages
+(0 to k copies of the alternative allele, where k is the ploidy), for
+example read with \code{gl.read.vcf(mode = "dosage")} [required].}
 
 \item{method}{Calculate heterozygosity by population (method='pop') or by
 individual (method='ind') [default 'pop'].}
@@ -78,19 +81,31 @@ progress log; 3, progress and results summary; 5, full report
 [default NULL, unless specified using gl.set.verbosity].}
 }
 \value{
-A dataframe containing population labels, heterozygosities, FIS,
-their standard deviations and sample sizes.
+For method = 'pop', a dataframe containing population labels,
+heterozygosities, FIS, their standard deviations, standard errors,
+confidence intervals (if nboots > 0) and sample sizes. For method = 'ind',
+a dataframe with, per individual, Ho, the proportions of homozygous
+reference and alternative loci, and the number of loci scored. With
+subsample.pop = TRUE (method = 'pop'), a named list:
+\code{subsample}, the subsampling results, and \code{results}, the
+dataframe above.
 }
 \description{
-Calculates the observed, expected and unbiased expected (i.e.
-corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
-for each population or the observed heterozygosity for each individual in a
-genlight object.
+Calculates the observed (gametic), expected and unbiased
+expected (i.e. corrected for sample size) heterozygosities and FIS
+(inbreeding coefficient) for each population, or the observed
+heterozygosity for each individual, in a genlight object coded as allele
+dosages. For diploid data the results equal those of
+\code{\link{gl.report.heterozygosity}}.
 }
 \details{
-Observed heterozygosity for a population takes the proportion of
-heterozygous loci for each individual and averages it over all individuals in
-that population. The calculations take into account missing values.
+Observed heterozygosity is the gametic heterozygosity: for an individual
+of ploidy k carrying d copies of the alternative allele, the probability
+that two allele copies drawn without replacement differ,
+d(k - d) / choose(k, 2) (Moody et al. 1993). For diploids this is 1 for a
+heterozygote and 0 for a homozygote. Observed heterozygosity for a
+population averages it over the individuals scored at each locus and then
+over loci. The calculations take into account missing values.
 
 Expected heterozygosity for a population takes the expected proportion of
 heterozygotes, that is, expected under Hardy-Weinberg equilibrium, for each
@@ -106,19 +121,21 @@ heterozygosities are less affected because their calculations are based on
 allele frequencies while observed heterozygosities are strongly susceptible 
 to sampling effects when the sample size is small.  
 
-Observed heterozygosity for individuals is calculated as the proportion of
-heterozygous gametes that could be produced by that individual.
+Observed heterozygosity for individuals is the gametic heterozygosity
+averaged over the loci scored for that individual. The output also gives
+the proportions of loci homozygous for the reference allele (dosage 0) and
+for the alternative allele (dosage k).
 
 Finally, the loci that are invariant across all individuals in the dataset
 (that is, across populations), is typically unknown. This can render
 estimates of heterozygosity analysis specific, and so it is not valid to
 compare such estimates across species or even across different analyses 
-(see Schimdt et al 2021). This is a similar problem faced by microsatellites. 
+(see Schmidt et al 2021). This is a similar problem faced by microsatellites. 
 If you have an estimate of the
 number of invariant sequence tags (loci) in your data, such as provided by
 \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 parameter to standardize your estimates of heterozygosity. This is called
-autosomal heterozygosities by Schimddt et al (2021).
+autosomal heterozygosities by Schmidt et al (2021).
 
 \strong{NOTE}: It is important to realise that estimation of adjusted (autosomal)
 heterozygosity requires that secondaries not to be removed.
@@ -127,20 +144,22 @@ Heterozygosities and FIS (inbreeding coefficient) are calculated by locus
 within each population using the following equations, and then averaged across 
 all loci:
 \itemize{
-\item Observed heterozygosity (Ho) = number of heterozygous gametes / all combinations of gametes,
-where n_Ind is the number of individuals without missing data for that locus.
+\item Observed heterozygosity (Ho) = mean over individuals of
+d(k - d) / choose(k, 2), where d is the dosage and k the ploidy.
 \item Observed heterozygosity adjusted (Ho.adj) <- Ho * n_Loc /
  (n_Loc + n.invariant),
 where n_Loc is the number of loci that do not have all missing data  and
 n.invariant is an estimate of the number of invariant loci to adjust
 heterozygosity.
 \item Expected heterozygosity (He) = 1 - (p^2 + q^2),
-where p is the frequency of the reference allele and q is the frequency of
-the alternative allele.
+where q, the frequency of the alternative allele, is the sum of dosages
+divided by the number of sampled allele copies (the sum of ploidies of the
+individuals scored at that locus), and p = 1 - q.
 \item Expected heterozygosity adjusted (He.adj) = He * n_Loc /
 (n_Loc + n.invariant)
-\item Unbiased expected heterozygosity (uHe) = He * (2 * n_Ind /
-(2 * n_Ind - 1))
+\item Unbiased expected heterozygosity (uHe) = He * N / (N - 1), where N
+is the number of sampled allele copies at that locus (2 * n_Ind for
+diploids)
 \item Inbreeding coefficient (FIS) = 1 - Ho / uHe
 }
 \strong{ Function's output }
@@ -163,7 +182,8 @@ If a plot.file is given, the ggplot arising from this function is saved as an
 name must be specified for the plot to be saved.
 
 If a plot directory (plot.dir) is specified, the ggplot binary is saved to 
-that directory; otherwise to the tempdir(). 
+that directory; otherwise to the tempdir(). Nothing is saved when
+plot.display = FALSE (or verbose = 0), as no plot is built.
  
  Examples of other themes that can be used can be consulted in: 
  \itemize{
@@ -173,7 +193,8 @@ that directory; otherwise to the tempdir().
  
  \strong{Subsampling populations}
  
-To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
+Subsampling applies to method = 'pop' only; it is ignored, with a warning,
+for method = 'ind'. To test the effect of five population sample sizes (n = 10, 5, 4, 3, 2) on 
 observed heterozygosity estimates, the function subsamples individuals,
  without replacement. The subsampling is repeated 10 times for each sample
   size n. This approach is an implementation of Schmidt et al (2021). 
@@ -228,9 +249,6 @@ observed heterozygosity estimates, the function subsamples individuals,
   - To see how well a sample mean might estimate a population mean, consider 
   the standard error.
   
-  analyze and present their data, depending on their research questions and 
-  the nature of the data.
-  
  \strong{Confidence Intervals}
 
 The uncertainty of a parameter, in this case the mean of the statistic, can
@@ -239,8 +257,8 @@ value with a specified probability (i.e. confidence level; the parameter
 "conf" in this function).
 
 In this function, CI are obtained using Bootstrap which is an inference
-method that samples with replacement the data (i.e. loci) and calculates the
- statistics every time.
+method that samples loci with replacement and calculates the statistics
+ every time.
 
  This function uses the function \link[boot]{boot} (package boot) to perform
  the bootstrap replicates and the function \link[boot]{boot.ci}
@@ -314,10 +332,29 @@ bootstrap confidence interval or removing or transforming the outliers or
     amount of processing time, therefore parallelisation in Windows machines
    is only quicker than not using parallelisation when nboots > 1000-2000.
 }
+\examples{
+# simulated autotetraploid: 20 individuals in two populations, 50 loci,
+# dosages 0-4 copies of the alternative allele
+set.seed(1)
+q <- runif(50, 0.1, 0.9)
+dos <- sapply(q, function(qq) rbinom(20, 4, qq))
+rownames(dos) <- paste0("ind", 1:20)
+colnames(dos) <- paste0("loc", 1:50)
+tetra <- new("genlight", dos, ploidy = rep(4, 20))
+pop(tetra) <- rep(c("A", "B"), each = 10)
+tetra <- gl.compliance.check(tetra, verbose = 0)
+res <- gl.report.polyploid_heterozygosity(tetra)
+res_ind <- gl.report.polyploid_heterozygosity(tetra, method = "ind")
+}
 \references{
 \itemize{
 \item Moody, M. E., Mueller, L. D., & Soltis, D. E. (1993). 
 Genetic variation and random drift in autotetraploid populations. Genetics, 134(2), 649-657.
+\item Nei, M. (1978). Estimation of average heterozygosity and genetic
+distance from a small number of individuals. Genetics, 89(3), 583-590.
+\item Schmidt, T. L., Jasper, M., Weeks, A. R., & Hoffmann, A. A. (2021).
+Unbiased population heterozygosity estimates from genome-wide sequence
+data. Methods in Ecology and Evolution, 12(10), 1888-1898.
   }
 }
 \seealso{
@@ -328,7 +365,6 @@ Other unmatched report:
 \code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.basics}()},
 \code{\link{gl.report.diversity}()},
-\code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.shannon}()}
 }
 \author{

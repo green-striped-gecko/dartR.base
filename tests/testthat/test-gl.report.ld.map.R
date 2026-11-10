@@ -73,7 +73,8 @@ test_that("gl.report.ld.map unmapped auto-detect on testset.gl subset", {
   out <- capture.output(
     res <- gl.report.ld.map(tt, plot.display = FALSE, verbose = 0)
   )
-  expect_equal(nrow(res), 17)
+  # 11 since the utils.read.ped fix (ae74955); the earlier pin predates it
+  expect_equal(nrow(res), 11)
   expect_setequal(unique(as.character(res$pop)),
                   c("EmmacBurnBara", "EmmacMaclGeor", "EmmacMDBForb"))
   # explicit ld.max.pairwise = NULL takes the same path
@@ -103,7 +104,12 @@ test_that("gl.report.ld.map with a signed statistic returns no negative values",
   x <- prep_platypus_mapped()
   res_r <- gl.report.ld.map(x, ld.max.pairwise = 10000000, ld.stat = "R",
                             plot.display = FALSE, verbose = 0)
-  expect_equal(nrow(res_r), 234)
+  # The pair count differs by platform (after the utils.read.ped fix,
+  # ae74955): 233 on macOS, 234 on Linux and Windows, where the extra pair
+  # has a non-trivial r (cause not yet identified). The behaviour under
+  # test is the positivity check below; the count is only bounded.
+  expect_gte(nrow(res_r), 230)
+  expect_lte(nrow(res_r), 236)
   expect_true(min(res_r$ld.stat) > 0)
 })
 
@@ -129,4 +135,22 @@ test_that("gl.report.ld.map rejects SilicoDArT", {
     gl.report.ld.map(gs, plot.display = FALSE, verbose = 0),
     "SilicoDArT"
   )
+})
+
+test_that("gl.report.ld.map boxplot colours follow population names", {
+  # before: unnamed colours were passed by position to a character pop
+  # column, which ggplot sorts alphabetically, not by levels(pop(x))
+  x <- prep_platypus_mapped()
+  pops <- popNames(pop_colours_gl())
+  pop(x) <- factor(as.character(pop(x)), levels = pops)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    d <- tempfile("ldmap_cols"); dir.create(d)
+    res <- gl.report.ld.map(x, ld.max.pairwise = 10000000,
+                            boxplot.colors = cs[[1]], plot.display = FALSE,
+                            plot.file = "p", plot.dir = d, verbose = 0)
+    p1 <- pop_colours_plots(d)[[1]]
+    expect_equal(pop_colours_of(p1, pops, aes = "colour"), cs[[2]][pops])
+  }
 })

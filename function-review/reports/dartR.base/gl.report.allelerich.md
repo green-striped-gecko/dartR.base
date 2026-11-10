@@ -113,6 +113,18 @@ All 14 pass on the pre-fix code.
 
 All five findings approved via the approval boxes (2026-08-31).
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [LOW, confidence: high] — unnamed colours in alphabetical order (spec)**
+`fill = pop` is a character column, which ggplot sorts alphabetically, so unnamed colours went to the populations in alphabetical order, not `levels(pop(x))` (SA red, SB blue, T green; expected SB red, T blue, SA green). Named colours were right.
+Change: name the colours by population (user names kept when they cover every population) before `scale_fill_manual()`; fewer colours than populations stops. Bar order unchanged.
+
+Evidence: new test "population colours follow population names": 1 check fails on `origin/dev`, passes after; this file 16/16.
+
 ## Outcome
 
 All five findings applied. Characterization suite: 14/14 pass; flipped

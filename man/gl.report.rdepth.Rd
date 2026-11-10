@@ -73,6 +73,7 @@ Other matched report:
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
 \code{\link{gl.report.contamination}()},
+\code{\link{gl.report.excess.het}()},
 \code{\link{gl.report.factorloadings}()},
 \code{\link{gl.report.fstat}()},
 \code{\link{gl.report.hamming}()},
@@ -85,6 +86,7 @@ Other matched report:
 \code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.replicates}()},
+\code{\link{gl.report.replicates.KING}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}

@@ -23,6 +23,40 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 
 .has_fbm <- function(x) !is.null(.fbm_or_null(x))
 
+## @other$geno.metrics holds per-genotype matrices (individuals x loci, e.g.
+## the read counts kept by gl.read.vcf); they follow both indices. They are
+## kept by position only, without dimnames, because individuals and loci are
+## renamed in many places that would leave dimnames stale.
+.gm_subset <- function(gm, ii, jj) {
+  lapply(gm, function(m) m[ii, jj, drop = FALSE])
+}
+
+## Binds the geno.metrics of objects joined by rbind (along = 1, with each
+## object's columns put in the first object's locus order by colmap) or by
+## cbind (along = 2). They are dropped when not every object holds the same
+## matrices, as the result would mix aligned and missing counts.
+.gm_bind <- function(objs, along, colmap = NULL) {
+  gms <- lapply(objs, function(o) o@other$geno.metrics)
+  if (all(vapply(gms, is.null, logical(1)))) return(NULL)
+  nms <- names(gms[[1L]])
+  if (any(vapply(gms, function(g) is.null(g) || !identical(names(g), nms),
+                 logical(1)))) {
+    warning("Not every object holds the same other$geno.metrics; they are ",
+            "dropped from the result.")
+    return(NULL)
+  }
+  out <- lapply(nms, function(nm) {
+    ms <- lapply(seq_along(gms), function(k) {
+      m <- gms[[k]][[nm]]
+      if (!is.null(colmap)) m <- m[, colmap[[k]], drop = FALSE]
+      m
+    })
+    if (along == 1L) do.call(rbind, ms) else do.call(cbind, ms)
+  })
+  names(out) <- nms
+  out
+}
+
 ## Returns a valid dartR object. A plain genlight is coerced with as(), which
 ## adds the fbm slot. `class(x) <- "dartR"` only relabels the object, so the
 ## result lacks @fbm and fails validObject(); objects made that way (or saved
@@ -313,7 +347,8 @@ setMethod ("show", "dartR", function(object) {
 #' @param ... other parameters
 #' @param pop list of populations to be kept
 #' @param treatOther elements in other (and ind.metrics & loci.metrics) as 
-#' indexed as well. default: TRUE
+#' indexed as well. default: TRUE. The matrices in other$geno.metrics
+#' (individuals x loci) are always subset by individuals and loci.
 #' @param quiet warnings are suppressed. default: TRUE
 #' @param drop reduced to a vector if a single individual/loci is selected. 
 #' default: FALSE [should never set to TRUE]
@@ -402,7 +437,9 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
                 counter <- 0L
                 f1 <- function(obj) {
                   counter <<- counter + 1L
-                  if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
+                  if (identical(namesOther[counter], "geno.metrics")) {
+                    obj
+                  } else if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
                     obj[ii, , drop = FALSE]
                   } else if (length(obj) == ori.n) {
                     obj <- obj[ii]
@@ -420,7 +457,12 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
               if (!is.null(x@other$loc.metrics)) {
                 x@other$loc.metrics <- x@other$loc.metrics[jj, , drop = FALSE]
               }
-              
+
+              ## Per-genotype matrices follow individuals and loci
+              if (!is.null(x@other$geno.metrics)) {
+                x@other$geno.metrics <- .gm_subset(x@other$geno.metrics, ii, jj)
+              }
+
               ## Ensure XOR: keep @gen empty
               x@gen <- vector("list", 0L)
               
@@ -457,7 +499,9 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             if (treatOther && !(is.logical(i) && all(i))) {
               f2 <- function(obj, n = ori.n) {
                 counter <<- counter + 1L
-                if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
+                if (identical(namesOther[counter], "geno.metrics")) {
+                  obj
+                } else if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
                   obj[ii, , drop = FALSE]
                 } else if (length(obj) == ori.n) {
                   obj <- obj[ii]
@@ -481,6 +525,8 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             
             if (!is.null(x@other$loc.metrics))
               x@other$loc.metrics <- x@other$loc.metrics[jj, , drop = FALSE]
+            if (!is.null(x@other$geno.metrics))
+              x@other$geno.metrics <- .gm_subset(x@other$geno.metrics, ii, jj)
             if (!.has_fbm(x)) x@fbm <- NULL
             
             x
@@ -641,7 +687,8 @@ cbind.dartR <- function(...,
         warning("loc.metrics columns differ; not merging.")
       }
     }
-    
+    out@other$geno.metrics <- .gm_bind(objs, 2L)
+
     return(out)
   }
   
@@ -695,7 +742,8 @@ cbind.dartR <- function(...,
       }
     }
   }
-  
+  out@other$geno.metrics <- .gm_bind(myList, 2L)
+
   out
 } # end cbind.dartR
 ###############################################################
@@ -839,6 +887,7 @@ rbind.dartR <- function(...,
   chrom_out    <- chr(objs[[1L]])
   pos_out      <- position(objs[[1L]])
   other_out    <- .rbind_other(objs, ind_names)
+  other_out$geno.metrics <- .gm_bind(objs, 1L, colmap)
   
   ## Any FBM present?
   has_fbm_vec <- vapply(objs, function(o) !is.null(.fbm_or_null(o)), logical(1))
@@ -1068,15 +1117,39 @@ methods::setAs("dartR", "matrix", function(from) {
 
 
 
+## Per-locus allele sum and number of scored individuals of an FBM-backed
+## object, from one column-wise pass over the file (big_counts tallies each
+## genotype code per locus; the FBM is stored column by column, so reading
+## it row by row is much slower).
+.fbm_locus_counts <- function(x) {
+  cnt <- bigstatsr::big_counts(x@fbm)
+  vals <- as.numeric(rownames(cnt))
+  scored <- !is.na(vals)
+  list(sum = colSums(cnt[scored, , drop = FALSE] * vals[scored]),
+       n = colSums(cnt[scored, , drop = FALSE]))
+}
+
 #' @name glSum
-#' @title glSum for dartR objects
-#' @description glSum is necessary as adegenet is using it internally and we need one for fbm projects
-#' @param x a dartR object 
-#' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
-#' if FALSE, per individual
+#' @title Sum of the second allele per locus, for dartR and genlight objects
+#' @description Returns, for each locus, the number of copies of the second
+#' (alternative) allele summed over individuals, ignoring missing data. It
+#' replaces \code{adegenet::glSum} so that FBM-backed dartR objects (see
+#' \code{\link{gl.gen2fbm}}) are handled; other objects are passed to
+#' \code{adegenet::glSum} and give identical results.
+#' @param x Name of the dartR or genlight object [required].
+#' @param alleleAsUnit If TRUE, the sum counts alleles; if FALSE, each
+#' genotype is first divided by the individual's ploidy, so the sum counts
+#' individuals [default TRUE].
 #' @param useC Passed through to adegenet::glSum for non-FBM objects
-#' [default FALSE]
-#' @return A numeric vector of sum of second allele per locus
+#' [default FALSE].
+#' @return A named numeric vector with one value per locus; integer for
+#' alleleAsUnit = TRUE. Loci with no data give 0.
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#' @examples
+#' head(glSum(testset.gl))
+#' fbm.gl <- gl.gen2fbm(testset.gl, verbose = 0)
+#' identical(glSum(fbm.gl), glSum(testset.gl))
 #' @export
 glSum <- function(x, alleleAsUnit = TRUE, useC=FALSE) {
   fbm <- .has_fbm(x)
@@ -1090,17 +1163,14 @@ glSum <- function(x, alleleAsUnit = TRUE, useC=FALSE) {
 
 ## ---- FBM-aware glSum for dartR ----
 
-  
+  myPloidy <- ploidy(x)
   if (alleleAsUnit) {
-    res <- integer(nLoc(x))
-    for (e in 1:nInd(x)) {
-      temp <- as.integer(x@fbm[e,])
-      temp[is.na(temp)] <- 0L
-      res <- res + temp
-    }
-  }  else {
+    res <- as.integer(.fbm_locus_counts(x)$sum)
+  } else if (length(unique(myPloidy)) == 1) {
+    res <- .fbm_locus_counts(x)$sum / myPloidy[1]
+  } else {
+    # mixed ploidy: divide each individual's genotypes by its own ploidy
     res <- numeric(nLoc(x))
-    myPloidy <- ploidy(x)
     for (i in 1:nInd(x)) {
       temp <- as.integer(x@fbm[i,])/myPloidy[i]
       temp[is.na(temp)] <- 0
@@ -1141,12 +1211,26 @@ setMethod("glNA", signature(x = "dartR"), function(x, alleleAsUnit = TRUE)  {
 #}
 #setMethod("glMean", signature(x = "dartR"),  function(x, alleleAsUnit = TRUE) {
 #' @name glMean
-#' @title glMean for dartR objects
-#' @description glMean is necessary as adegenet is using it internally and we need one for fbm projects
-#' @param x a dartR object 
-#' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
-#' if FALSE, per individual
-#' @return A numeric vector of means per locus
+#' @title Frequency of the second allele per locus, for dartR and genlight
+#' objects
+#' @description Returns, for each locus, the mean of the second
+#' (alternative) allele, ignoring missing data: with alleleAsUnit = TRUE,
+#' its frequency among the scored allele copies. It replaces
+#' \code{adegenet::glMean} so that FBM-backed dartR objects (see
+#' \code{\link{gl.gen2fbm}}) are handled; other objects are passed to
+#' \code{adegenet::glMean} and give identical results.
+#' @param x Name of the dartR or genlight object [required].
+#' @param alleleAsUnit If TRUE, the mean is taken over allele copies; if
+#' FALSE, over individuals, each genotype divided by the individual's ploidy
+#' [default TRUE].
+#' @return A named numeric vector with one value per locus. Loci with no
+#' data give NaN.
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#' @examples
+#' head(glMean(testset.gl))
+#' fbm.gl <- gl.gen2fbm(testset.gl, verbose = 0)
+#' all.equal(glMean(fbm.gl), glMean(testset.gl))
 #' @export
 glMean <- function(x, alleleAsUnit = TRUE) {
   fbm <- .has_fbm(x)
@@ -1157,9 +1241,14 @@ glMean <- function(x, alleleAsUnit = TRUE) {
     }
     
   
-  if (alleleAsUnit) {
-    
-    N <- sum(ploidy(x)) - glNA(x, alleleAsUnit = TRUE)
+  myPloidy <- ploidy(x)
+  if (length(unique(myPloidy)) == 1) {
+    # one pass gives both the allele sum and the scored individuals; with a
+    # single ploidy k, both units give sum / (k * n)
+    cnt <- .fbm_locus_counts(x)
+    res <- cnt$sum / (myPloidy[1] * cnt$n)
+  } else if (alleleAsUnit) {
+    N <- sum(myPloidy) - glNA(x, alleleAsUnit = TRUE)
     res <- glSum(x, alleleAsUnit = TRUE)/N
   } else {
     N <- nInd(x) - glNA(x, alleleAsUnit = FALSE)

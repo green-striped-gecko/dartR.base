@@ -148,3 +148,15 @@ test_that("an all-missing individual yields NA distances with a warning", {
                 verbose = 1)))
   expect_true(any(grepl("distances are NA", o1)))
 })
+
+test_that("presence/absence methods on SNP data stop with a clear message", {
+  # Before the check these fell through every SNP branch and failed with
+  # "object 'dd' not found".
+  x <- testset.gl[1:8, 1:60]
+  for (m in c("Jaccard", "Bray-Curtis", "Sorensen")) {
+    expect_error(
+      gl.dist.ind(x, method = m, plot.display = FALSE, verbose = 0),
+      "SilicoDArT \\(presence/absence\\) data only"
+    )
+  }
+})

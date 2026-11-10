@@ -256,6 +256,23 @@ gl.compliance.check <- function(x,
             )
         )
     }
+
+    # Per-genotype matrices (e.g. read counts from gl.read.vcf) must have one
+    # row per individual and one column per locus; a function that rebuilt
+    # the object outside the subsetting method leaves them misaligned, so
+    # they are removed rather than kept with the wrong genotypes
+    gm <- x@other$geno.metrics
+    if (!is.null(gm) &&
+        !all(vapply(gm, function(m) {
+            length(dim(m)) == 2 && all(dim(m) == c(nInd(x), nLoc(x)))
+        }, logical(1)))) {
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: the matrices in other$geno.metrics do not match the number of individuals and loci; they have been removed.\n"
+            ))
+        }
+        x@other$geno.metrics <- NULL
+    }
     
     # check that individual names are unique, and if not, add underscore and
     # letters

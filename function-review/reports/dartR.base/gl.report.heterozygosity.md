@@ -141,6 +141,44 @@ plot.file with plot.display = FALSE crashed on the unbuilt plot (the
 p3-not-found class). Below-HIGH; fixed with an existence guard and a
 gated (verbose >= 1) warning that nothing was saved.
 
+## Follow-up (2026-09-24): all-NA loci counted as polymorphic
+
+Found as addendum A2 in the `gl.report.polyploid_heterozygosity` review (PR #435), which shares this code.
+
+**FU1 [MEDIUM, confidence: high] — `polyLoc`/`monoLoc` miscount all-NA loci (spec)**
+`R/gl.report.heterozygosity.r` locus-count loop — `gl.alf()` returns `alf1 = NaN` for loci with no data in a population, so `which()` leaves them out of `loc.list`. They stayed in the object after `gl.drop.loc()` and were counted as polymorphic, and the monomorphic count then subtracted them again. testset.gl EmmacBrisWive: 21 polymorphic / 224 monomorphic / 10 all-NA reported; the independent count is 11 / 234 / 10.
+Change: count monomorphic loci as `length(loc.list)` and polymorphic loci as the remainder after monomorphic and all-NA loci; the `gl.drop.loc()` call, used only for counting, is removed.
+**Consequence: `polyLoc` and `monoLoc` change in every population with all-NA loci; other columns unchanged.**
+
+Approved by Luis (2026-09-24), with the A2 decision on PR #435.
+
+Evidence: new test "all-NA loci are not counted as polymorphic" matches an independent count in all 30 testset.gl populations and checks `polyLoc + monoLoc + all_NALoc = nLoc`; against the `origin/dev` version, all other columns are identical and each population's shift equals its all-NA count. Tests: this file 37/37, `gl.test.heterozygosity` 38/38, `gl.filter.heterozygosity` 19/19.
+
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Reported from the YFT analysis session (dartR.base 1.2.6, `method = "pop"`).
+
+**FU2 [MEDIUM, confidence: high] — `plot.colors.pop` mapped by position, not by population (spec)**
+`R/gl.report.heterozygosity.r` plot block — `setNames(colors_pops, pop_order)` named the colours by order of first appearance among individuals, overwriting any names the user gave, while `df` rows follow `levels(pop(x))`. The `n.invariant > 0` plots then used `df.ordered$color`, assigned by row position. possums.gl A/B/C with C listed first: named `c(A = "red", B = "blue", C = "green")` gave A blue, B green, C red; with `n.invariant = 1000`, named colours in the order C, A, B were applied by position (A green, B red, C blue).
+Change: build one vector named by `popNames(x)` (user names kept when they cover every population, otherwise colour i goes to level i) and index it by population name in both plot paths; the `n.invariant > 0` scales use the named vector. Fewer colours than populations stops with an error. `pop_order` still sets the bar order.
+**Consequence: bar colours change whenever the first population to appear is not the first level, or colours are named; statistics and bar order unchanged.**
+
+Requested by Luis via the YFT session (2026-10-22).
+
+Evidence: new test "population colours follow population names in every plot" (platypus.gl, which lists TENTERFIELD first) checks named and unnamed colours with `n.invariant = 0` and `1000`, plus the subsample panels; 8 assertions fail on `origin/dev` and pass after the change. The reporter's possums.gl repro gives A red, B blue, C green in every case. Tests: this file 45/45, `gl.report.polyploid_heterozygosity` 37/37, `gl.test.heterozygosity` 38/38, `gl.filter.heterozygosity` 19/19, `utils.het.pop` 2/2.
+
+Not fixed here: `gl.report.polyploid_heterozygosity()` has the same `setNames(colors_pops, pop_order)` line.
+
+## Follow-up (2026-10-22): subsample panels with non-alphabetical levels
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+**FU3 [MEDIUM, confidence: high] — subsample panels coloured in panel order (spec)**
+The #455 fix keyed the colours by name, but the subsample panels passed them as a constant `fill` vector in row order (levels), while ggplot draws the rows in facet order (alphabetical). With non-alphabetical levels the panels were coloured SEVERN_BELOW green, TENTERFIELD red, SEVERN_ABOVE blue for named colours that should give blue, green, red.
+Change: map `fill = pop` with `scale_fill_manual(values = colors_pops)` in the subsample plot. Panel order unchanged.
+
+Evidence: new test "population colours are right when levels are not alphabetical": 2 checks fail on `origin/dev`, all pass after; this file 55/55.
+
 ## Outcome
 
 All six findings applied, plus the addendum. Characterization suite:

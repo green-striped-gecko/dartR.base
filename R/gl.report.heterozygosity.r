@@ -470,24 +470,18 @@ gl.report.heterozygosity <- function(x,
     
     for (y in 1:length(sgl)) {
       y_temp <- sgl[[y]]
-      hold <- y_temp
       mono_tmp <- gl.alf(y_temp, verbose = 0)
+      # Loci with no data in the population have alf1 NaN, so which() leaves
+      # them out of loc.list: loc.list holds the monomorphic loci only, and
+      # the all-NA loci are counted separately, not as polymorphic
       loc.list <- rownames(mono_tmp[which(mono_tmp$alf1 == 1 |
                                             mono_tmp$alf1 == 0), ])
       loc.list_NA <- which(colSums(is.na(as.matrix(y_temp)))==nInd(y_temp))
-      # rownames(mono_tmp[which(is.na(mono_tmp$alf1)), ])
-      
-      # Remove NAs from list of monomorphic loci and loci with all NAs
-      # loc.list <- loc.list[!is.na(loc.list)]
-      
-      # remove monomorphic loci and loci with all NAs
-      if (length(loc.list) > 0) {
-        y_temp <- gl.drop.loc(y_temp, loc.list = loc.list, verbose = 0)
-      }
-      
-      poly_loc <-  c(poly_loc, nLoc(y_temp))
-      mono_loc <- c(mono_loc, (nLoc(hold) - nLoc(y_temp) - length(loc.list_NA)))
+
+      mono_loc <- c(mono_loc, length(loc.list))
       all_na_loc <- c(all_na_loc, length(loc.list_NA))
+      poly_loc <- c(poly_loc,
+                    nLoc(y_temp) - length(loc.list) - length(loc.list_NA))
     }
     
     
@@ -704,13 +698,23 @@ gl.report.heterozygosity <- function(x,
       if (!is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop
       }
-      colors_pops <- setNames(colors_pops, pop_order)
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  plot.colors.pop must be a palette or hold one color per",
+                   "population\n"))
+      }
+      # key colours by population name: names given by the user are kept when
+      # they cover every population, otherwise colours follow levels(pop(x));
+      # pop_order only sets the order of the bars
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
       
       if (n.invariant == 0) {
         
         pop_list_plot <- df
         pop_list_plot$pop <- as.factor(pop_list_plot$pop)
-        pop_list_plot$color <- colors_pops
+        pop_list_plot$color <- colors_pops[as.character(pop_list_plot$pop)]
         
         pop_list_plot_stat <- pop_list_plot[,c("Ho", "uHe", "FIS", "n.Ind",  "pop",  "color")]
         pop_list_plot_stat <- reshape2::melt(pop_list_plot_stat, id = c("pop", "color", "n.Ind"))
@@ -821,14 +825,14 @@ gl.report.heterozygosity <- function(x,
           
           res_sub_plot_2 <- reshape2::melt(res_sub_plot, id = c("pop", "color", "subsample","res_SE"))
           
-          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value))+
+          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value,fill=pop))+
             
             geom_bar(stat = "identity", 
                      color = "black", 
-                     fill = res_sub_plot_2$color,
                      position = position_dodge())+ 
             facet_wrap(~variable, nrow=1) +
             facet_wrap(~pop)+
+            scale_fill_manual(values = colors_pops) +
             geom_errorbar(aes(ymin = value, 
                               ymax = value + res_SE), 
                           width=0.5)+
@@ -854,7 +858,7 @@ gl.report.heterozygosity <- function(x,
       } else {
 
         df.ordered <- df
-        df.ordered$color <- colors_pops
+        df.ordered$color <- colors_pops[as.character(df.ordered$pop)]
         df.ordered <- df.ordered[order(df.ordered$Ho.adj), ]
         df.ordered$pop <- factor(df.ordered$pop, levels = df.ordered$pop)
         p1 <-
@@ -865,7 +869,7 @@ gl.report.heterozygosity <- function(x,
           )) + geom_bar(position = "dodge",
                         stat = "identity",
                         color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
+          scale_fill_manual(values = colors_pops) +
           scale_x_discrete(labels = paste(df.ordered$pop,
                                           round(df.ordered$n.Ind, 0),
                                           sep = " | ")) + plot.theme + theme(
@@ -887,7 +891,7 @@ gl.report.heterozygosity <- function(x,
           )) + geom_bar(position = "dodge",
                         stat = "identity",
                         color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
+          scale_fill_manual(values = colors_pops) +
           scale_x_discrete(labels = paste(df.ordered$pop,
                                           round(df.ordered$n.Ind, 0),
                                           sep = " | ")) + plot.theme + theme(

@@ -29,7 +29,7 @@ indep_bins <- function(x, bin.size, min.snps, min.length) {
 }
 
 test_that("platypus: returns a ggplot invisibly, binned counts match an independent computation", {
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   v <- withVisible(gl.plot.snp.density(t1, bin.size = 5e6, min.snps = 10,
                                        min.length = 2e6, verbose = 0))
   expect_false(v$visible)
@@ -102,7 +102,7 @@ test_that("bins with no SNPs are present with a count of zero", {
 test_that("verbose = 0 is silent; verbose 2 reports filters; verbose 3 prints the table", {
   r <- quiet_plot(t1, bin.size = 5e6, min.snps = 10, min.length = 2e6)
   expect_length(r$out, 0)
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   o2 <- capture.output(invisible(gl.plot.snp.density(t1, bin.size = 5e6,
     min.snps = 10, min.length = 2e6, verbose = 2)))
   expect_true(any(grepl("Retained 921 SNPs after initial filtering", o2)))
@@ -128,19 +128,19 @@ test_that("input object is not modified", {
 test_that("an object without chromosome information stops with a clear message", {
   # [approved diff, change 3] baseline: "arguments imply differing number
   # of rows: 0, 255" from data.frame().
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   expect_error(capture.output(gl.plot.snp.density(testset.gl, verbose = 0)),
                "chromosome name and a position for every locus")  # [approved diff, change 3]
 })
 
 test_that("SilicoDArT is rejected by the datatype check", {
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   expect_error(capture.output(gl.plot.snp.density(testset.gs, verbose = 0)),
                "SilicoDArT")
 })
 
 test_that("argument checks: bin.size, min.snps, min.length", {
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   expect_error(capture.output(gl.plot.snp.density(t1, bin.size = 0, verbose = 0)),
                "bin.size must be > 0")
   # [approved diff, change 5] baseline: the messages said "> 1" for a < 1 check
@@ -166,17 +166,20 @@ test_that("plot.display controls printing; plot.file saves an RDS; save2tmp is g
   expect_true(all(c("plot.display", "plot.file", "plot.dir") %in% f))  # [approved diff, change 6]
   expect_false("save2tmp" %in% f)                                      # [approved diff, change 6]
   td <- tempfile("snpdens"); dir.create(td)
-  png(file.path(td, "p%03d.png")); 
-  capture.output(invisible(gl.plot.snp.density(t1, bin.size = 5e6, min.snps = 10,
-    min.length = 2e6, plot.display = FALSE, verbose = 0)))
-  dev.off()
-  expect_length(list.files(td, pattern = "png$"), 0)
-  png(file.path(td, "q%03d.png"))
-  capture.output(invisible(gl.plot.snp.density(t1, bin.size = 5e6, min.snps = 10,
-    min.length = 2e6, plot.display = TRUE, verbose = 0)))
-  dev.off()
-  expect_length(list.files(td, pattern = "^q.*png$"), 1)
-  pdf(NULL); on.exit(dev.off())
+  # whether anything was drawn, read from the device display list; counting
+  # png files does not work on Windows, where png() writes a file on
+  # dev.off() even when no page was drawn
+  drawn <- function(display) {
+    pdf(NULL)
+    dev.control("enable")
+    on.exit(dev.off(), add = TRUE)
+    capture.output(invisible(gl.plot.snp.density(t1, bin.size = 5e6,
+      min.snps = 10, min.length = 2e6, plot.display = display, verbose = 0)))
+    length(recordPlot()[[1]]) > 0
+  }
+  expect_false(drawn(FALSE))
+  expect_true(drawn(TRUE))
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   capture.output(invisible(gl.plot.snp.density(t1, bin.size = 5e6, min.snps = 10,
     min.length = 2e6, plot.display = FALSE, plot.file = "dens", plot.dir = td,
     verbose = 0)))

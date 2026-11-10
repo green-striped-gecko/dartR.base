@@ -178,7 +178,12 @@ individuals nor the number of populations."
             nPop(x), "populations."
         ))
     }
-    ic <- cols[as.numeric(pop(x))]
+    # names given by the user are kept when they cover every population,
+    # otherwise colours follow levels(pop(x))
+    if (!all(popNames(x) %in% names(cols))) {
+        cols <- setNames(cols[seq_len(nPop(x))], popNames(x))
+    }
+    ic <- unname(cols[as.character(pop(x))])
     
     # DO THE JOB
     

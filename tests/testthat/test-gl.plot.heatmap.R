@@ -15,7 +15,7 @@ quiet_plot <- function(...) {
 }
 
 test_that("dist input: returns the utils.heatmap list invisibly", {
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   v <- withVisible(suppressWarnings(gl.plot.heatmap(D12, verbose = 0)))
   expect_false(v$visible)
   res <- v$value
@@ -86,7 +86,7 @@ test_that("matrix input is plotted as supplied", {
 test_that("non-square or name-mismatched matrix stops", {
   # [approved diff, change 1] baseline: as.dist() warned "non-square
   # matrix" and the function carried on with a truncated object.
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   m <- matrix(runif(20), 4, 5, dimnames = list(letters[1:4], letters[1:5]))
   expect_error(capture.output(gl.plot.heatmap(m, verbose = 0)),
                "square matrix")                          # [approved diff, change 1]
@@ -105,7 +105,7 @@ test_that("fd input plots; x is ignored for fd", {
   # as.matrix() on the fd list and stopped with "differing number of rows".
   r2 <- quiet_plot(fd, x = gl12)
   expect_type(r2$res, "list")                           # [approved diff, change 4]
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   out <- capture.output(invisible(gl.plot.heatmap(fd, x = gl12, verbose = 2)))
   expect_true(any(grepl("population-level matrix; x is ignored", out)))
 })
@@ -143,7 +143,7 @@ test_that("legend labels and swatches pair, one row per population", {
 })
 
 test_that("legend accepts a keyword position", {
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   expect_error(capture.output(gl.plot.heatmap(D12, x = gl12,
                                               legendx = "topleft",
                                               verbose = 0)), NA)
@@ -152,7 +152,7 @@ test_that("legend accepts a keyword position", {
 test_that("par(mar) is restored after the legend", {
   # [approved diff, change 6] baseline: par(mar = c(1, 1, 1, 1)) before
   # legend() was never restored.
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   before <- par("mar")
   capture.output(invisible(gl.plot.heatmap(D12, x = gl12, verbose = 0)))
   expect_equal(par("mar"), before)                      # [approved diff, change 6]
@@ -187,7 +187,7 @@ test_that("x whose individuals do not match D: warning, no colours", {
   m <- as.matrix(D12)
   dimnames(m) <- list(paste0("s", 1:12), paste0("s", 1:12))
   seen <- NULL
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   out <- capture.output(res <- gl.plot.heatmap(m, x = gl12, verbose = 1))
   expect_type(res, "list")                              # [approved diff, change 5]
   expect_true(any(grepl("12 of 12 columns of D are not individuals of x", out)))
@@ -200,7 +200,7 @@ test_that("x whose individuals do not match D: warning, no colours", {
 test_that("palette_discrete of the wrong length stops with a message", {
   # [approved diff, change 7] baseline: failed on names<- with "'names'
   # attribute [7] must be the same length as the vector [2]".
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   expect_error(
     capture.output(gl.plot.heatmap(D12, x = gl12,
                                    palette_discrete = c("red", "blue"),
@@ -221,17 +221,42 @@ test_that("population-level dist with x: x ignored, plot still drawn", {
   expect_type(r$res, "list")
   expect_equal(dim(r$res$carpet), c(nPop(testset.gl), nPop(testset.gl)))
   expect_null(side)
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   out <- capture.output(invisible(gl.plot.heatmap(Dp, x = testset.gl, verbose = 2)))
   expect_true(any(grepl("population-level matrix; x is ignored", out)))
   expect_false(any(grepl("Warning", out)))
 })
 
 test_that("verbose = 2 prints start, datatype and end lines", {
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   out <- capture.output(invisible(gl.plot.heatmap(D12, verbose = 2)))
   expect_equal(out[1], "Starting gl.plot.heatmap ")
   expect_equal(out[2], "  Processing a distance matrix")
   expect_equal(out[length(out)], "Completed: gl.plot.heatmap ")
   expect_length(out, 3)
+})
+
+test_that("named palette_discrete keeps its names", {
+  # before: names(pop_colors) <- popNames(x) overwrote the names given, so a
+  # named palette in another order was applied by position
+  pal <- setNames(c("red", "orange", "blue", "green", "black", "purple",
+                    "grey"), rev(popNames(gl12)))
+  seen <- NULL
+  local_mocked_bindings(
+    legend = function(x, y, legend, fill, ...) {
+      seen <<- list(text = legend, fill = fill)
+      invisible(NULL)
+    },
+    .package = "dartR.base")
+  side <- NULL
+  local_mocked_bindings(
+    utils.heatmap = function(x, ColSideColors = NULL, ...) {
+      side <<- ColSideColors
+      list(carpet = x)
+    },
+    .package = "dartR.base")
+  r <- quiet_plot(D12, x = gl12, palette_discrete = pal)
+  expect_equal(seen$text, popNames(gl12))
+  expect_equal(seen$fill, unname(pal[popNames(gl12)]))
+  expect_equal(side, unname(pal[as.character(pop(gl12))]))
 })

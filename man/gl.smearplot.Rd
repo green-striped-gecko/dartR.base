@@ -78,7 +78,7 @@ The plot may become cluttered if there are too many individuals;
 if so, it is best to use ind.labels = FALSE.
 
 Works with both SNP data and P/A data (SilicoDArT). Missing data are
-shown in the NA color (the fourth plot color) without a legend entry.
+shown in the NA color (the fourth plot color) and labelled NA in the legend.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)

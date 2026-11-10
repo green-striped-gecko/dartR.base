@@ -260,3 +260,248 @@ test_that("plate wells that do not parse are reported", {
   expect_true(any(grepl("no plate well parses", out)))
   expect_null(r$pairs)
 })
+
+# Plate map. Put the dose-pattern host on plate 1 with the rest of population
+# A, its partner in the next well (or on plate 2 with the rest of population
+# B), and read back the map saved beside the scatter plot.
+plate.map <- function(adjacent = TRUE, cols = gl.colors("dis", verbose = 0)) {
+  s <- depth.host(function(d) 0.6 * rank(d) / length(d))
+  capture.output(r0 <- gl.report.contamination(s$x, plot.display = FALSE,
+                                               verbose = 0))
+  partner <- r0$ind$top.partner[r0$ind$id == s$host]
+  ids <- indNames(s$x)
+  on1 <- c(s$host, if (adjacent) partner,
+           setdiff(ids[pop(s$x) == "A"], s$host))
+  on2 <- setdiff(ids, on1)
+  # column-major wells, so the second individual of a plate sits in B1
+  wells <- function(n) {
+    paste0(LETTERS[(seq_len(n) - 1) %% 8 + 1], (seq_len(n) - 1) %/% 8 + 1)
+  }
+  plate <- data.frame(id = c(on1, on2),
+                      plate = rep(c("1", "2"), c(length(on1), length(on2))),
+                      well = c(wells(length(on1)), wells(length(on2))))
+  f <- paste0("contamination_map_", as.integer(adjacent))
+  capture.output(r <- gl.report.contamination(s$x, plate = plate,
+                                              plot.colors.pop = cols,
+                                              plot.display = FALSE,
+                                              plot.dir = tempdir(),
+                                              plot.file = f, verbose = 0))
+  c(list(h = r$ind[r$ind$id == s$host, ], partner = partner), read.map(f))
+}
+
+# The saved map and the computed data of its rings, arrows and labels
+read.map <- function(f) {
+  map <- readRDS(file.path(tempdir(), paste0(f, "_plate.RDS")))
+  geoms <- vapply(map$layers, function(l) class(l$geom)[1], "")
+  ld <- lapply(seq_along(geoms), function(i) ggplot2::layer_data(map, i))
+  rings <- Filter(function(d) all(is.na(d$fill)), ld[geoms == "GeomTile"])
+  list(map = map,
+       arrows = if (any(geoms == "GeomSegment")) ld[[which(geoms == "GeomSegment")]],
+       rings = rings[[1]], labels = ld[[which(geoms == "GeomText")]])
+}
+
+test_that("the plate map rings a flagged well and draws an arrow from an adjacent partner", {
+  m <- plate.map(adjacent = TRUE)
+  expect_equal(m$h$flag, "adjacent")
+  # only the plate holding a flagged individual is drawn
+  expect_equal(as.character(ggplot2::ggplot_build(m$map)$layout$layout$plate),
+               "1")
+  expect_equal(m$rings$linetype, "solid")
+  # one arrow, from the partner's well B1 towards the host's well A1; row A
+  # is drawn at the top
+  expect_equal(nrow(m$arrows), 1)
+  expect_equal(c(m$arrows$x, m$arrows$xend), c(1, 1))
+  expect_lt(m$arrows$y, m$arrows$yend)
+  # the well is labelled with the host and its foreign-allele percentage
+  lab <- m$labels$label
+  expect_true(any(grepl(m$h$id, lab)))
+  expect_true(any(grepl(paste0(round(100 * m$h$foreign.rate), "%"), lab,
+                        fixed = TRUE)))
+  # and with its tier 3 pattern, so a hybrid does not read as a contaminant
+  expect_equal(m$h$pattern, "dose")
+  expect_true(any(grepl("dose", lab, fixed = TRUE)))
+})
+
+test_that("the plate map draws a dashed ring and no arrow when the partner is not adjacent", {
+  m <- plate.map(adjacent = FALSE)
+  expect_equal(m$h$flag, "suspect")
+  expect_false(m$h$adjacent)
+  expect_equal(m$rings$linetype, "dashed")
+  expect_true(is.null(m$arrows) || nrow(m$arrows) == 0)
+})
+
+test_that("reciprocal partners in adjacent wells get two arrows side by side", {
+  # i1 (A) carries B alleles and i21 (B) carries A alleles at disjoint fixed
+  # loci, so each names the other as its partner
+  s <- depth.host(function(d) rep(0, length(d)))
+  m <- as.matrix(s$x)
+  m[1, 1:180] <- 1
+  m[21, 181:360] <- 1
+  x <- s$x
+  x@gen <- new("genlight", m, ploidy = 2)@gen
+  indNames(x) <- indNames(s$x); pop(x) <- pop(s$x)
+  ids <- indNames(x)
+  plate <- data.frame(id = c("i1", "i21", setdiff(ids, c("i1", "i21"))),
+                      plate = "1",
+                      well = paste0(LETTERS[(0:39) %% 8 + 1], (0:39) %/% 8 + 1))
+  f <- "contamination_map_reciprocal"
+  capture.output(r <- gl.report.contamination(x, plate = plate,
+                                              plot.display = FALSE,
+                                              plot.dir = tempdir(),
+                                              plot.file = f, verbose = 0))
+  expect_equal(r$ind$top.partner[match(c("i1", "i21"), r$ind$id)],
+               c("i21", "i1"))
+  a <- read.map(f)$arrows
+  expect_equal(nrow(a), 2)
+  # both arrows run along the A1-B1 edge; they must not share a line
+  expect_gt(abs(a$x[1] - a$x[2]), 0.1)
+})
+
+test_that("the ring takes the colour of the partner's population", {
+  m <- plate.map(adjacent = TRUE)
+  # the first layer fills one tile per well of the map data by population
+  bg <- ggplot2::layer_data(m$map, 1)
+  expect_true(m$partner %in% m$map$data$id)
+  fill.b <- unique(bg$fill[m$map$data$pop %in% "B"])
+  expect_length(fill.b, 1)
+  expect_equal(m$rings$colour, fill.b)
+})
+
+test_that("no plate map is saved without plate positions", {
+  f <- "contamination_map_none"
+  capture.output(gl.report.contamination(testset.gl, plot.display = FALSE,
+                                         plot.dir = tempdir(), plot.file = f,
+                                         verbose = 0))
+  expect_true(file.exists(file.path(tempdir(), paste0(f, ".RDS"))))
+  expect_false(file.exists(file.path(tempdir(), paste0(f, "_plate.RDS"))))
+})
+
+test_that("plot.colors.pop needs a palette or one colour per population", {
+  s <- depth.host(function(d) rep(0.3, length(d)))
+  expect_error(capture.output(gl.report.contamination(s$x, plot.colors.pop = "red",
+                                                      plot.display = FALSE,
+                                                      verbose = 0)),
+               "plot.colors.pop")
+})
+
+test_that("named plot.colors.pop keeps its names on the plate map", {
+  # before: setNames(..., levels(pop(x))) overwrote the names given, so
+  # c(B = "red", A = "blue") filled population A red
+  m <- plate.map(adjacent = TRUE, cols = c(B = "red", A = "blue"))
+  bg <- ggplot2::layer_data(m$map, 1)
+  expect_equal(unique(bg$fill[m$map$data$pop %in% "A"]), "blue")
+  expect_equal(unique(bg$fill[m$map$data$pop %in% "B"]), "red")
+  expect_equal(m$rings$colour, "red")
+})
+
+# Read counts for a cohort in which "mix" is 80% the DNA of i2 and 20% that of
+# i3 (all three in population A), "mix_R" a second library of the same DNA
+# and "i3_R" a second library of i3. Genotypes are called from the reads.
+reads.cohort <- function(seed = 1, drop = character(0)) {
+  set.seed(seed)
+  n.loc <- 3000
+  p.a <- runif(n.loc, 0.05, 0.5); p.b <- runif(n.loc, 0.05, 0.5)
+  true <- rbind(matrix(rbinom(25 * n.loc, 2, rep(p.a, each = 25)), 25),
+                matrix(rbinom(15 * n.loc, 2, rep(p.b, each = 15)), 15))
+  rownames(true) <- paste0("i", 1:40)
+  # alt-allele fraction of the DNA in each library
+  q <- true / 2
+  q <- rbind(q, mix = 0.8 * q["i2", ] + 0.2 * q["i3", ])
+  q <- rbind(q, mix_R = q["mix", ], i3_R = q["i3", ])
+  n <- nrow(q)
+  depth <- matrix(rpois(n * n.loc, 40), n)
+  # allelic imbalance between libraries, and sequencing error at homozygotes
+  qq <- ifelse(q > 0 & q < 1, rbeta(length(q), 30 * q, 30 * (1 - q)),
+               pmin(pmax(q, 0.005), 0.995))
+  alt <- matrix(rbinom(length(q), depth, qq), n)
+  frac <- alt / depth
+  g <- ifelse(frac < 0.1, 0, ifelse(frac > 0.9, 2, 1))
+  g[depth < 3] <- NA
+  keep <- !rownames(q) %in% drop
+  x <- new("genlight", g[keep, ], ploidy = 2)
+  indNames(x) <- rownames(q)[keep]
+  locNames(x) <- paste0("L", seq_len(n.loc))
+  pop(x) <- ifelse(rownames(q)[keep] %in% paste0("i", 26:40), "B", "A")
+  x <- gl.compliance.check(x, verbose = 0)
+  x@other$geno.metrics <- list(ref.count = (depth - alt)[keep, , drop = FALSE],
+                               alt.count = alt[keep, , drop = FALSE])
+  storage.mode(x@other$geno.metrics$ref.count) <- "integer"
+  storage.mode(x@other$geno.metrics$alt.count) <- "integer"
+  x
+}
+
+test_that("read balance flags a mixed sample and traces both of its sources", {
+  x <- reads.cohort()
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  ind <- r$ind
+  # both libraries of the mixed DNA, and nothing else
+  expect_setequal(ind$id[ind$flag == "mixed"], c("mix", "mix_R"))
+  h <- ind[ind$id == "mix", ]
+  expect_gt(h$skew.z, 3)
+  expect_gt(h$read.calls, 1000)
+  # the major genome, not the other library of the same DNA
+  expect_equal(h$main.source, "i2")
+  expect_gt(h$main.kin, 0.2)
+  expect_lt(h$extra.share, 0.35)
+  # the minor genome; its own replicate is not counted as the runner-up
+  expect_true(h$second.source %in% c("i3", "i3_R"))
+  expect_false(h$second.next %in% c("i3", "i3_R"))
+  expect_gt(h$second.gap, 0.15)
+  # 20% of the DNA came from i3
+  expect_gt(h$mix.fraction, 0.12)
+  expect_lt(h$mix.fraction, 0.3)
+  # the sources themselves read as balanced
+  expect_true(all(ind$skew.z[ind$id %in% c("i2", "i3", "i3_R")] < 3))
+  expect_true(all(is.na(ind$main.source[ind$flag != "mixed"])))
+})
+
+test_that("read balance does not trace sources when the major genome is absent", {
+  # without i2 the most related individual is not the sample's major genome,
+  # so the extra sites hold the sample's own heterozygotes
+  x <- reads.cohort(drop = c("i2", "mix_R"))
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == "mix", ]
+  expect_equal(h$flag, "mixed")
+  expect_gte(h$extra.share, 0.35)
+  expect_true(is.na(h$second.source) && is.na(h$mix.fraction))
+})
+
+test_that("read balance skips individuals with few deep genotypes", {
+  x <- reads.cohort()
+  # leave mix with 500 genotypes of 20 or more reads
+  i <- match("mix", indNames(x))
+  low <- seq_len(nLoc(x)) > 500
+  x@other$geno.metrics$ref.count[i, low] <- 5L
+  x@other$geno.metrics$alt.count[i, low] <- 5L
+  capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                              verbose = 0))
+  h <- r$ind[r$ind$id == "mix", ]
+  expect_lte(h$read.calls, 500)
+  expect_true(is.na(h$skew.z))
+  expect_false(h$flag == "mixed")
+})
+
+test_that("without read counts the read-balance columns are NA", {
+  x <- reads.cohort()
+  x@other$geno.metrics <- NULL
+  out <- capture.output(r <- gl.report.contamination(x, plot.display = FALSE,
+                                                     verbose = 2))
+  expect_true(any(grepl("read.counts = TRUE", out)))
+  expect_true(all(is.na(r$ind$skew.z)))
+  expect_false(any(r$ind$flag == "mixed"))
+  expect_true(all(c("read.calls", "skew.rate", "skew.z", "main.source",
+                    "main.kin", "n.extra", "extra.share", "second.source",
+                    "second.share", "second.next", "second.gap",
+                    "mix.fraction") %in% names(r$ind)))
+})
+
+test_that("gl.filter.contamination removes mixed samples by default", {
+  x <- reads.cohort()
+  capture.output(y <- gl.filter.contamination(x, verbose = 0))
+  expect_false(any(c("mix", "mix_R") %in% indNames(y)))
+  capture.output(y2 <- gl.filter.contamination(x, flag = "suspect",
+                                               verbose = 0))
+  expect_true(all(c("mix", "mix_R") %in% indNames(y2)))
+})

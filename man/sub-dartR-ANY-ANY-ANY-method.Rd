@@ -18,7 +18,8 @@
 \item{pop}{list of populations to be kept}
 
 \item{treatOther}{elements in other (and ind.metrics & loci.metrics) as 
-indexed as well. default: TRUE}
+indexed as well. default: TRUE. The matrices in other$geno.metrics
+(individuals x loci) are always subset by individuals and loci.}
 
 \item{quiet}{warnings are suppressed. default: TRUE}
 

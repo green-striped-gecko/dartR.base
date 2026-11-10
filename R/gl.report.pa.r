@@ -371,13 +371,32 @@ gl.report.pa <- function(x,
       
       if (is.null(palette.discrete)){
          colors_pops <- gl.select.colors(x, verbose=0)
+      } else if (is(palette.discrete, "function")) {
+        colors_pops <- palette.discrete(nPop(x))
       } else {
         colors_pops <- palette.discrete
       }
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  palette.discrete must be a palette or hold one color",
+                   "per population\n"))
+      }
+      # names given by the user are kept when they cover every population,
+      # otherwise colours follow levels(pop(x))
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
+      # nodes and links are coloured by population name; an explicit domain
+      # gives each name its colour whatever the order in which d3 draws them
+      # (target names have dots replaced by spaces)
+      scale_keys <- c(popNames(x), gsub("\\.", " ", popNames(x)))
+      scale_cols <- c(colors_pops, colors_pops)[!duplicated(scale_keys)]
+      scale_keys <- scale_keys[!duplicated(scale_keys)]
       
-      colors_pops <- paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
-      
-      colorScal <- paste("d3.scaleOrdinal().range([", colors_pops, "])")
+      colorScal <- paste0("d3.scaleOrdinal().domain([\"",
+                          paste0(scale_keys, collapse = "\",\""),
+                          "\"]).range([\"",
+                          paste0(scale_cols, collapse = "\",\""), "\"])")
       # color links
       data_long$color <-  gsub("src_", "", data_long$source)
 
@@ -511,7 +530,7 @@ gl.report.pa <- function(x,
         colors_pops <- palette.discrete
         # if colors are not in RGB format
         if (grepl("#", colors_pops[1]) == FALSE) {
-          colors_pops <- RGB_colors(colors_pops)
+          colors_pops <- setNames(RGB_colors(colors_pops), names(colors_pops))
         }
       }
       
@@ -553,11 +572,35 @@ gl.report.pa <- function(x,
       colnames(nodes) <- c("name")
       nodes$name <- c(data_long_1$source, "Rest", data_long_2$target)
       
-      colors_pops <-
-        paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  palette.discrete must be a palette or hold one color",
+                   "per population\n"))
+      }
+      # "Rest" takes a colour named "Rest", or the one after the populations'
+      # (a palette function gives nPop + 1), otherwise grey
+      rest_col <- "#BEBEBE"
+      if ("Rest" %in% names(colors_pops)) {
+        rest_col <- colors_pops[["Rest"]]
+      } else if (!all(popNames(x) %in% names(colors_pops)) &&
+                 length(colors_pops) > nPop(x)) {
+        rest_col <- colors_pops[[nPop(x) + 1]]
+      }
+      # names given by the user are kept when they cover every population,
+      # otherwise colours follow levels(pop(x))
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
+      # an explicit domain gives each node and link its population's colour
+      # whatever the order in which d3 draws them
+      scale_keys <- c(paste(popNames(x), "source"), "Rest",
+                      paste(popNames(x), "target"))
+      scale_cols <- c(colors_pops, rest_col, colors_pops)
       
-      colorScal <-
-        paste("d3.scaleOrdinal().range([", colors_pops, "])")
+      colorScal <- paste0("d3.scaleOrdinal().domain([\"",
+                          paste0(scale_keys, collapse = "\",\""),
+                          "\"]).range([\"",
+                          paste0(scale_cols, collapse = "\",\""), "\"])")
       # color links
       data_long$color <-
         gsub("src_", "", data_long$source)

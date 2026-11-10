@@ -67,7 +67,8 @@ Other utilities:
 \code{\link{utils.recalc.freqhomsnp}()},
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
-\code{\link{utils.transpose}()}
+\code{\link{utils.transpose}()},
+\code{\link{utils.vcf.depth}()}
 }
 \author{
 Custodian: Ching Ching Lau -- Post to

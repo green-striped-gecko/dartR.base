@@ -9,6 +9,7 @@ gl.report.shannon(
   x,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
+  plot.colors = gl.colors("dis", verbose = 0),
   plot.dir = NULL,
   plot.file = NULL,
   level = "alpha",
@@ -24,6 +25,11 @@ window [default TRUE].}
 
 \item{plot.theme}{Theme for the plot. See Details for options
 [default theme_dartR()].}
+
+\item{plot.colors}{Colours for the bars of each diversity order: either a
+palette function that takes the number of colours, or a vector with one
+colour per order (order colours, for q = 0 to order - 1)
+[default gl.colors("dis", verbose = 0)].}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()].}

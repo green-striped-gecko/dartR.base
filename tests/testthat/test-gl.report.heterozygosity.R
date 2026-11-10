@@ -177,3 +177,85 @@ test_that("gl.report.heterozygosity is silent at verbose = 0", {
   expect_length(capture.output(
     invisible(gl.report.heterozygosity(testset.gl, verbose = 0))), 0L)
 })
+
+test_that("all-NA loci are not counted as polymorphic", {
+  # before: EmmacBrisWive reported polyLoc 21 / monoLoc 224 with 10 all-NA
+  # loci; the independent count is 11 / 234
+  r <- gl.report.heterozygosity(testset.gl, verbose = 0)
+  sg <- seppop(testset.gl)
+  counts <- t(sapply(sg, function(y) {
+    m <- as.matrix(y)
+    scored <- colSums(!is.na(m)) > 0
+    q <- colMeans(m, na.rm = TRUE) / 2
+    c(poly = sum(scored & q > 0 & q < 1),
+      mono = sum(scored & (q == 0 | q == 1)),
+      all_na = sum(!scored))
+  }))
+  expect_equal(r$polyLoc, unname(counts[, "poly"]))
+  expect_equal(r$monoLoc, unname(counts[, "mono"]))
+  expect_equal(r$all_NALoc, unname(counts[, "all_na"]))
+  expect_equal(r$polyLoc[r$pop == "EmmacBrisWive"], 11)
+  expect_equal(r$polyLoc + r$monoLoc + r$all_NALoc,
+               rep(nLoc(testset.gl), nPop(testset.gl)))
+})
+
+test_that("population colours follow population names in every plot", {
+  # before: colours were named by order of first appearance among
+  # individuals (overwriting the names given), and the n.invariant > 0
+  # plots assigned them by row position; platypus.gl lists TENTERFIELD
+  # first although it is the last level
+  pdf(NULL); on.exit(dev.off())
+  fills <- function(n.inv, cols, sub = FALSE) {
+    d <- tempfile("het_cols"); dir.create(d)
+    invisible(capture.output(gl.report.heterozygosity(
+      platypus.gl, plot.colors.pop = cols, n.invariant = n.inv,
+      subsample.pop = sub, plot.file = "het", plot.dir = d, verbose = 1)))
+    p <- readRDS(file.path(d, "het.RDS"))
+    panels <- if (inherits(p, "patchwork")) list(p[[1]], p[[2]]) else list(p)
+    lapply(panels, function(pp) {
+      b <- ggplot2::ggplot_build(pp)
+      dat <- b$data[[1]]
+      if ("pop" %in% names(b$layout$layout)) {
+        pop <- as.character(b$layout$layout$pop[match(dat$PANEL,
+                                                      b$layout$layout$PANEL)])
+      } else {
+        pop <- b$layout$panel_params[[1]]$x$get_limits()[dat$x]
+      }
+      tapply(dat$fill, pop, unique, simplify = FALSE)
+    })
+  }
+  named <- c(SEVERN_BELOW = "blue", TENTERFIELD = "green",
+             SEVERN_ABOVE = "red")
+  expected <- named[sort(names(named))]
+  # named colours keep their names; an unnamed palette is assigned in the
+  # order of levels(pop(x)), which here gives the same mapping
+  for (cols in list(named, c("red", "blue", "green"))) {
+    for (n.inv in c(0, 1000)) {
+      for (f in fills(n.inv, cols)) expect_equal(unlist(f), expected)
+    }
+  }
+  # the subsample panels colour each population like the main plot
+  for (f in fills(0, named, sub = TRUE)) expect_equal(unlist(f), expected)
+})
+
+test_that("population colours are right when levels are not alphabetical", {
+  # before: the subsample panels took the colours as a constant vector in
+  # row order (levels) while ggplot draws them in panel order (alphabetical)
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    for (args in list(c(0, FALSE), c(1000, FALSE), c(0, TRUE))) {
+      d <- tempfile("het_cols"); dir.create(d)
+      invisible(capture.output(gl.report.heterozygosity(
+        x, plot.colors.pop = cs[[1]], n.invariant = args[1],
+        subsample.pop = as.logical(args[2]), plot.file = "p", plot.dir = d,
+        verbose = 1)))
+      for (p in pop_colours_plots(d)) {
+        expect_equal(pop_colours_of(p, pops), cs[[2]][pops])
+      }
+    }
+  }
+})

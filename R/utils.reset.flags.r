@@ -86,13 +86,20 @@ utils.reset.flags <- function(x,
             ))
         }
         
-        # Check if the x@other$loc.metrics slot exists, if not, create as a dataframe
+        # Check if the x@other$loc.metrics slot exists, if not, create as a
+        # dataframe with one row per locus; as.data.frame(array(NA, n))
+        # would add an all-NA column named "array(NA, nLoc(x))"
         if (is.null(x@other$loc.metrics)) {
-            x@other$loc.metrics <- as.data.frame(array(NA, nLoc(x)))
+            if (!is.null(locNames(x))) {
+                x@other$loc.metrics <- data.frame(AlleleID = locNames(x))
+            } else {
+                x@other$loc.metrics <- data.frame(row.names = seq_len(nLoc(x)))
+            }
         }
-        # Check if the x@other$loc.metrics.flags slot exists, if not, create as a dataframe
+        # Check if the x@other$loc.metrics.flags slot exists, if not, create
+        # as a one-row dataframe with no columns; each flag is added below
         if (is.null(x@other$loc.metrics.flags)) {
-            x@other$loc.metrics.flags <- as.data.frame(array(NA, 1))
+            x@other$loc.metrics.flags <- data.frame(row.names = 1)
         }
         
         # loc.metric should be a dataframe
@@ -289,13 +296,20 @@ utils.reset.flags <- function(x,
             )
         }
         
-        # Check if the x@other$loc.metrics slot exists, if not, create as a dataframe
+        # Check if the x@other$loc.metrics slot exists, if not, create as a
+        # dataframe with one row per locus; as.data.frame(array(NA, n))
+        # would add an all-NA column named "array(NA, nLoc(x))"
         if (is.null(x@other$loc.metrics)) {
-            x@other$loc.metrics <- as.data.frame(array(NA, nLoc(x)))
+            if (!is.null(locNames(x))) {
+                x@other$loc.metrics <- data.frame(AlleleID = locNames(x))
+            } else {
+                x@other$loc.metrics <- data.frame(row.names = seq_len(nLoc(x)))
+            }
         }
-        # Check if the x@other$loc.metrics.flags slot exists, if not, create as a dataframe
+        # Check if the x@other$loc.metrics.flags slot exists, if not, create
+        # as a one-row dataframe with no columns; each flag is added below
         if (is.null(x@other$loc.metrics.flags)) {
-            x@other$loc.metrics.flags <- as.data.frame(array(NA, 1))
+            x@other$loc.metrics.flags <- data.frame(row.names = 1)
         }
         
         # AvgPIC

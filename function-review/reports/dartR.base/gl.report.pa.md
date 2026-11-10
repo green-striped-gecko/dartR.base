@@ -122,6 +122,19 @@ SilicoDArT report runs with Chao NA. All 12 pass pre-fix.
 
 All findings approved via the approval boxes (2026-09-01).
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [MEDIUM, confidence: high] — Sankey colours follow drawing order (spec)**
+Both Sankey plots built `d3.scaleOrdinal().range([...])` with no domain, so d3 gave colours to node and link names in the order it first met them, and the names given in `palette.discrete` were dropped by `paste()`. In one2rest a population's source and target nodes could get different colours, and with the default palette (nPop colours) "Rest" reused the first colour. A palette function crashed the pairwise plot.
+Change: give the scale an explicit `.domain()` in level order from a vector named by population (user names kept when they cover every population; a palette function is called with nPop). One2rest maps "<pop> source" and "<pop> target" to the population's colour and "Rest" to a colour named "Rest", the colour after the populations' (a palette gives nPop + 1), or grey (#BEBEBE). Fewer colours than populations stops.
+**Consequence: one2rest default plot changes: source and target of a population now share its colour and Rest is grey.**
+
+Evidence: new test "sankey colours follow population names" resolves the scale as d3 does: 6 checks fail on `origin/dev`, all pass after; this file 21/21.
+
 ## Outcome
 
 All findings applied. Suite: 13/13 pass; flips map to F1 (silent at

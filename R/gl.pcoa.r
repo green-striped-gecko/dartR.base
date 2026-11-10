@@ -791,14 +791,20 @@ gl.pcoa <- function(x,
         #make sure you impute (by frequency of pops (or whatever )
         if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "neighbour", verbose = verbose)
         #run PCA on imputed data using big_SVD
-        # k must stay below the rank of the centred matrix, which is bounded
-        # by both dimensions; nInd - 1 alone errored when nInd > nLoc
+        # big_SVD() returns at most min(nInd, nLoc) - 1 components and stops
+        # ("'k' must satisfy 0 < k < nrow(A)") when asked for more, so k cannot
+        # be nInd - 1 when there are fewer loci than individuals.
          dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = min(nInd(x), nLoc(x)) - 1)
-        # big_SVD(k = nInd-1) can return NaN for the trailing rank-deficient singular
+        # big_SVD can return NaN for the trailing rank-deficient singular
         # value (centering leaves a null-space dimension; the internal sqrt of a
         # tiny-negative Gram eigenvalue is NaN). Zero them so the eigenvalues stay
         # finite and the any(eig.raw < 0) checks below are not evaluated on NA.
-         dummy$d[is.nan(dummy$d)] <- 0
+        # Its u and v columns are NaN too and must be zeroed as well: NaN * 0 is
+        # NaN, so u %*% diag(d) would otherwise make every score NaN.
+         nan.d <- is.nan(dummy$d)
+         dummy$d[nan.d] <- 0
+         dummy$u[, nan.d] <- 0
+         dummy$v[, nan.d] <- 0
         # construct glPca object. glPca works on counts / ploidy, so with the
         # centred count matrix X = U D V', X/2 = U (D/2) V': scores = U D/2,
         # eig = (D/2)^2 / nInd, and the loadings are V itself (unit norm per

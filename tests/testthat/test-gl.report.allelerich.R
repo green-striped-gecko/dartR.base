@@ -18,10 +18,11 @@ test_that("richness values match an independent recomputation", {
   fn <- res[["Allelic Richness per population"]]
   means <- fn$mean_corrected_richness
   names(means) <- fn$pop
-  expect_equal(round(means[["EmmacBrisWive"]], 5), 1.01042)
-  expect_equal(round(means[["EmmacBurdMist"]], 5), 1.00538)
-  expect_equal(round(means[["EmmacClarJack"]], 5), 1.00658)
-  expect_equal(round(means[["EmmacRussEube"]], 5), 1.01947)
+  # pinned on dartR.data >= 1.2.6 testset.gl
+  expect_equal(round(means[["EmmacBrisWive"]], 5), 1.01484)
+  expect_equal(round(means[["EmmacBurdMist"]], 5), 1.00990)
+  expect_equal(round(means[["EmmacClarJack"]], 5), 1.01150)
+  expect_equal(round(means[["EmmacRussEube"]], 5), 1.02391)
   expect_equal(fn$popsize, c(10, 10, 5, 10))
   expect_true("SD" %in% colnames(fn))          # default error.bar
 })
@@ -72,4 +73,23 @@ test_that("bootstrap path adds CI columns", {
   expect_true(all(c("LCI", "HCI") %in% cn))
   # BASELINE: the user's error.bar = "SD" is silently overridden to CI.
   expect_false("SD" %in% cn)
+})
+
+test_that("population colours follow population names", {
+  # before: unnamed colours were passed by position to a character pop
+  # column, which ggplot sorts alphabetically, not by levels(pop(x))
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    d <- tempfile("ar_cols"); dir.create(d)
+    invisible(capture.output(gl.report.allelerich(
+      x, plot.colors.pop = cs[[1]], plot.file = "p", plot.dir = d,
+      verbose = 1)))
+    for (p in pop_colours_plots(d)) {
+      expect_equal(pop_colours_of(p, pops), cs[[2]][pops])
+    }
+  }
 })

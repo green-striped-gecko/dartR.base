@@ -8,6 +8,13 @@
 #' dosage: sites will be codes as copy number of alternate allele [default genotype]
 #' @param fbm Logical, if TRUE the dartR object will contain a file-backed matrix. 
 #' this is important for large data sets that do not fit into RAM.
+#' @param read.counts Logical, if TRUE the reference and alternative read
+#' counts of each genotype are stored in the dartR object (see details). They
+#' take much more memory than the genotypes [default FALSE].
+#' @param likelihoods Logical, if TRUE the likelihoods of the three genotypes
+#' (FORMAT PL, or GL) of each genotype call are stored in the dartR object
+#' (see details). Only in "genotype" mode. They take 12 bytes per genotype,
+#' about 190 MB for 171 individuals and 93,000 loci [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
@@ -36,6 +43,41 @@
 #' Note also that this function checks to see if there are input of mode, missing input of mode
 #' will issue the user with an error.
 #' Please carefully check the data if "dosage" mode is used.
+#'
+#' When the vcf holds FORMAT DP, the mean read depth of each locus over its
+#' called genotypes is stored in \code{x@other$loc.metrics$rdepth}, where
+#' \code{\link{gl.report.rdepth}} and \code{\link{gl.filter.rdepth}} find it.
+#' Missing and half-missing calls (e.g. ./., 0/.) are not counted; some
+#' callers report a depth of 0 for them.
+#'
+#' With \code{read.counts = TRUE}, \code{x@other$geno.metrics} holds two
+#' integer matrices of individuals x loci: \code{ref.count} and
+#' \code{alt.count}, the reads of the REF and ALT allele of each genotype.
+#' They are read from FORMAT AD or, for genotypes without AD, from FORMAT
+#' BSDP (read counts of the bases A, C, G and T) at the REF and ALT bases.
+#' Counts are stored as the vcf reports them, also for uncalled genotypes.
+#'
+#' With \code{likelihoods = TRUE}, \code{x@other$geno.metrics} also holds
+#' \code{pl.ref}, \code{pl.het} and \code{pl.alt}: the phred-scaled
+#' likelihoods of 0/0, 0/1 and 1/1 for each genotype, as integer matrices of
+#' individuals x loci. They are read from FORMAT PL or, for genotypes without
+#' PL, from FORMAT GL as round(-10 * GL). Each genotype's likelihoods are
+#' shifted so that the most likely genotype has 0, as some callers write PL
+#' whose lowest value is above 0; likelihoods are defined only up to a
+#' constant, so nothing is lost. A likelihood of 0 (GL of -inf) is stored as
+#' the largest integer. Genotypes whose likelihoods are missing, do not
+#' number three (haploid or polyploid calls) or are all equal (e.g.
+#' ./.:0,0,0) get NA; uncalled genotypes with informative likelihoods keep
+#' them. Likelihoods are not stored in "dosage" mode.
+#'
+#' The matrices in \code{x@other$geno.metrics} have no row or column names:
+#' row i belongs to \code{indNames(x)[i]} and column j to
+#' \code{locNames(x)[j]}, so renaming individuals or loci cannot leave stale
+#' names on them. The matrices follow the genotypes when individuals or loci
+#' are subset, sorted or combined, and \code{\link{gl.randomize.snps}} swaps
+#' the REF and ALT read counts and the 0/0 and 1/1 likelihoods of the loci it
+#' recodes; \code{\link{gl.compliance.check}} removes them if their
+#' dimensions no longer match the object.
 #' @return A genlight object.
 #' @export
 #' @author Author(s): Bernd Gruber, Ching Ching Lau. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
@@ -53,6 +95,8 @@ gl.read.vcf <- function(vcffile,
                         ind.metafile = NULL,
                         mode="genotype",
                         fbm=FALSE,
+                        read.counts = FALSE,
+                        likelihoods = FALSE,
                         verbose = NULL) {
 
   # SET VERBOSITY
@@ -102,6 +146,21 @@ gl.read.vcf <- function(vcffile,
 
   x <- utils.vcfr2genlight.polyploid(x=vcf, mode2=mode)
   
+  # PL holds one likelihood per copy number of the ALT allele, so only
+  # the three diploid genotypes of genotype mode are kept
+  if (likelihoods && mode != "genotype") {
+    if (verbose >= 1) {
+      cat(warn("  Warning: genotype likelihoods are stored only in 'genotype' mode, so none were stored.\n"))
+    }
+    likelihoods <- FALSE
+  }
+
+  # Depth, read counts and likelihoods are read from the same biallelic
+  # records that became the loci, so they line up with the genotypes
+  depth <- utils.vcf.depth(vcf, loci = which(vcfR::is.biallelic(vcf)),
+                           read.counts = read.counts,
+                           likelihoods = likelihoods)
+
   # adding SNP information from VCF
   info_tmp_1 <- vcf@fix[,6:7]
   info_tmp_2 <- vcfR::getINFO(vcf)
@@ -187,6 +246,40 @@ gl.read.vcf <- function(vcffile,
   x$other$loc.metrics <- cbind(x$other$loc.metrics,info)
   x$other$loc.metrics$QUAL <- as.numeric(x$other$loc.metrics$QUAL)
   
+  if (!is.null(depth$rdepth)) {
+    x$other$loc.metrics$rdepth <- depth$rdepth
+    if (verbose >= 2) {
+      cat(report("  Added rdepth (mean FORMAT DP over called genotypes) to the other$loc.metrics slot.\n"))
+    }
+  }
+  if (read.counts) {
+    if (is.null(depth$ref.count)) {
+      if (verbose >= 1) {
+        cat(warn("  Warning: the vcf has no AD or BSDP field, so no read counts were stored.\n"))
+      }
+    } else {
+      x@other$geno.metrics <- list(ref.count = depth$ref.count,
+                                   alt.count = depth$alt.count)
+      if (verbose >= 2) {
+        cat(report("  Added REF and ALT read counts (ref.count, alt.count) to the other$geno.metrics slot.\n"))
+      }
+    }
+  }
+  if (likelihoods) {
+    if (is.null(depth$pl.ref)) {
+      if (verbose >= 1) {
+        cat(warn("  Warning: the vcf has no PL or GL field, so no genotype likelihoods were stored.\n"))
+      }
+    } else {
+      x@other$geno.metrics <- c(x@other$geno.metrics,
+                                depth[c("pl.ref", "pl.het", "pl.alt")])
+      if (verbose >= 2) {
+        cat(report("  Added genotype likelihoods (pl.ref, pl.het, pl.alt) to the other$geno.metrics slot.\n"))
+      }
+    }
+  }
+  rm(depth)
+
   # additional metadata and long lat to the data file are stored in other
   
   if (!is.null(ind.metafile)) {

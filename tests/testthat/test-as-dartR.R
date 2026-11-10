@@ -36,8 +36,9 @@ test_that("a relabelled object without the fbm slot is rebuilt", {
 })
 
 test_that("packaged datasets are rebuilt; a valid dartR object is returned unchanged", {
-  # dartR.data objects were saved before the fbm slot existed
-  expect_false(methods::.hasSlot(platypus.gl, "fbm"))
+  # dartR.data < 1.2.6 objects were saved before the fbm slot existed;
+  # 1.2.6 carries it. Either way .as_dartR returns a valid object with
+  # the genlight slots unchanged.
   x <- .as_dartR(platypus.gl)
   expect_true(validObject(x))
   for (s in slotNames("genlight")) {

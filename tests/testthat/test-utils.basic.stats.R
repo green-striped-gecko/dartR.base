@@ -59,3 +59,11 @@ test_that("rounded = FALSE returns the same statistics unrounded", {
   expect_equal(round(u$overall, 4), r$overall)
   expect_false(isTRUE(all.equal(u$overall, r$overall, tolerance = 0)))
 })
+
+test_that("SilicoDArT data stop with a presence/absence message", {
+  # Before the check, a presence was counted as a heterozygote and
+  # testset.gs returned Ho 0.344 and Fis -0.834 without complaint.
+  x <- dartR.data::testset.gs[1:20, 1:50]
+  pop(x) <- factor(rep(c("A", "B"), each = 10))
+  expect_error(utils.basic.stats(x), "presence/absence")
+})

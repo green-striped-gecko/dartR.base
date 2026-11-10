@@ -166,6 +166,12 @@ test_that("parallel path works: n.cores = NULL resolves, Windows falls back", {
   # on Windows the read falls back to serial (gated warning at
   # verbose >= 2) instead of erroring
   serial <- urf(clean, parallel = FALSE, n.cores = NULL, verbose = 0)
+  # n.cores = NULL resolves to every core; R CMD check caps child
+  # processes at 2 (_R_CHECK_LIMIT_CORES_), so lift the cap for this call
+  old.limit <- Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = NA)
+  Sys.setenv("_R_CHECK_LIMIT_CORES_" = "false")
+  on.exit(if (is.na(old.limit)) Sys.unsetenv("_R_CHECK_LIMIT_CORES_")
+          else Sys.setenv("_R_CHECK_LIMIT_CORES_" = old.limit), add = TRUE)
   p1 <- urf(clean, parallel = TRUE, n.cores = NULL, verbose = 0)
   expect_equal(as.matrix(p1), as.matrix(serial))
   p2 <- urf(clean, parallel = TRUE, n.cores = 2, verbose = 0)

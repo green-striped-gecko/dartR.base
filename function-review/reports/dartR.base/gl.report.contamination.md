@@ -171,6 +171,18 @@ Notes (not findings):
 | 5 | approved | Luis | |
 | 6 | approved | Luis | |
 
+## Follow-up (2026-10-22): population colours on the wrong populations
+
+Found in the population-colour audit (`function-review/audits/2026-10-22-population-colours.md`), after the same bug was fixed in `gl.report.heterozygosity` (PR #455). Fix approved by Luis (2026-10-22).
+
+Test object: platypus.gl with levels SEVERN_BELOW, TENTERFIELD, SEVERN_ABOVE, so first-appearance, level and alphabetical order all differ (`tests/testthat/helper-pop-colours.R`).
+
+**FU1 [LOW, confidence: high] — named `plot.colors.pop` renamed by position (spec)**
+`setNames(plot.colors.pop[seq_along(pop.levels)], pop.levels)` overwrote the names given, so `c(B = "red", A = "blue")` filled population A red on the plate map.
+Change: rename only when the user's names do not cover every level; subset to the levels.
+
+Evidence: new test "named plot.colors.pop keeps its names on the plate map" (the `plate.map()` helper gains a `cols` argument): 3 checks fail on `origin/dev`, pass after; this file 100/100, `gl.filter.contamination` 32/32.
+
 ## Outcome
 
 - Change 1 (F2): `rare.freq`/`min.n` stop. Test "bad parameters stop"
