@@ -805,9 +805,18 @@ gl.pcoa <- function(x,
          dummy$d[nan.d] <- 0
          dummy$u[, nan.d] <- 0
          dummy$v[, nan.d] <- 0
-        # construct glPca object
-         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
+        # construct glPca object. glPca works on counts / ploidy, so with the
+        # centred count matrix X = U D V', X/2 = U (D/2) V': scores = U D/2,
+        # eig = (D/2)^2 / nInd, and the loadings are V itself (unit norm per
+        # axis, as glPca returns them; they were previously multiplied by 2).
+         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v)
          class(pca) <- "glPca"
+        # dimnames as glPca sets them, so gl.report.factorloadings and
+        # downstream code find locus and individual names on the FBM path
+         rownames(pca$scores) <- indNames(x)
+         colnames(pca$scores) <- paste0("PC", seq_len(ncol(pca$scores)))
+         rownames(pca$loadings) <- paste(locNames(x), alleles(x), sep = ".")
+         colnames(pca$loadings) <- paste0("Axis", seq_len(ncol(pca$loadings)))
         # Truncate scores and loadings to nfactors, matching
         # glPca(nf = nfactors) on the in-memory path; $eig stays full length
         # because the pc.select criteria below need all eigenvalues
