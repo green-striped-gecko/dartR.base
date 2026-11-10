@@ -791,15 +791,26 @@ gl.pcoa <- function(x,
         #make sure you impute (by frequency of pops (or whatever )
         if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "neighbour", verbose = verbose)
         #run PCA on imputed data using big_SVD
-         dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = nInd(x)-1)
+        # k must stay below the rank of the centred matrix, which is bounded
+        # by both dimensions; nInd - 1 alone errored when nInd > nLoc
+         dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = min(nInd(x), nLoc(x)) - 1)
         # big_SVD(k = nInd-1) can return NaN for the trailing rank-deficient singular
         # value (centering leaves a null-space dimension; the internal sqrt of a
         # tiny-negative Gram eigenvalue is NaN). Zero them so the eigenvalues stay
         # finite and the any(eig.raw < 0) checks below are not evaluated on NA.
          dummy$d[is.nan(dummy$d)] <- 0
-        # construct glPca object
-         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
+        # construct glPca object. glPca works on counts / ploidy, so with the
+        # centred count matrix X = U D V', X/2 = U (D/2) V': scores = U D/2,
+        # eig = (D/2)^2 / nInd, and the loadings are V itself (unit norm per
+        # axis, as glPca returns them; they were previously multiplied by 2).
+         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v)
          class(pca) <- "glPca"
+        # dimnames as glPca sets them, so gl.report.factorloadings and
+        # downstream code find locus and individual names on the FBM path
+         rownames(pca$scores) <- indNames(x)
+         colnames(pca$scores) <- paste0("PC", seq_len(ncol(pca$scores)))
+         rownames(pca$loadings) <- paste(locNames(x), alleles(x), sep = ".")
+         colnames(pca$loadings) <- paste0("Axis", seq_len(ncol(pca$loadings)))
         # Truncate scores and loadings to nfactors, matching
         # glPca(nf = nfactors) on the in-memory path; $eig stays full length
         # because the pc.select criteria below need all eigenvalues

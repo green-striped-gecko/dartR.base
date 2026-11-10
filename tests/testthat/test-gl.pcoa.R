@@ -95,3 +95,67 @@ test_that("FBM path: nfactors and eig length", {
   expect_length(pf$eig, 273)
   expect_equal(round(pf$eig[1:3], 6), c(2.259724, 2.184270, 1.652706))
 })
+
+# ---------------------------------------------------------------------------
+# FBM path vs glPca path. Reported by the dartr_shiny session (2026-11-10):
+# on FBM objects loadings came back twice as large as glPca's unit-norm
+# loadings, and scores/loadings had no dimnames, so gl.report.factorloadings
+# lost locus names and gl.filter.factorloadings filtered differently at the
+# same threshold. Data are imputed first so missingness plays no part.
+
+fbm_pcoa_pair <- function(x, nfactors = 5) {
+  pdf(NULL); on.exit(dev.off())
+  x <- gl.filter.monomorphs(x, verbose = 0)
+  x <- gl.impute(x, method = "neighbour", verbose = 0)
+  a <- gl.pcoa(x, nfactors = nfactors, plot.out = FALSE, verbose = 0)
+  b <- gl.pcoa(gl.gen2fbm(x, verbose = 0), nfactors = nfactors,
+               plot.out = FALSE, verbose = 0)
+  list(x = x, mem = a, fbm = b)
+}
+
+test_that("FBM path: loadings have unit norm like glPca, scores and eig agree", {
+  skip_if_not_installed("bigstatsr")
+  r <- fbm_pcoa_pair(platypus.gl)
+  a <- r$mem; b <- r$fbm
+
+  expect_equal(b$eig[1:5], a$eig[1:5], tolerance = 1e-6)
+  for (k in 1:5) {
+    expect_equal(unname(abs(b$scores[, k])), unname(abs(a$scores[, k])),
+                 tolerance = 1e-6)
+    expect_equal(unname(abs(b$loadings[, k])), unname(abs(a$loadings[, k])),
+                 tolerance = 1e-6)
+  }
+  expect_equal(unname(sqrt(colSums(b$loadings^2))), rep(1, 5),
+               tolerance = 1e-6)
+})
+
+test_that("FBM path: scores and loadings carry the same dimnames as glPca", {
+  skip_if_not_installed("bigstatsr")
+  r <- fbm_pcoa_pair(platypus.gl)
+  a <- r$mem; b <- r$fbm
+
+  expect_equal(rownames(b$scores), indNames(r$x))
+  expect_equal(colnames(b$scores), paste0("PC", 1:5))
+  expect_equal(rownames(b$loadings), rownames(a$loadings))
+  expect_equal(colnames(b$loadings), paste0("Axis", 1:5))
+})
+
+test_that("FBM path: runs when there are more individuals than loci", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  x <- gl.keep.loc(testset2.gl, loc.list = locNames(testset2.gl)[1:100],
+                   verbose = 0)
+  x <- gl.filter.monomorphs(x, verbose = 0)
+  x <- gl.impute(x, method = "neighbour", verbose = 0)
+  # big_SVD was called with k = nInd - 1, which exceeds the rank when
+  # nInd > nLoc and errored with "'k' must satisfy 0 < k < nrow(A)".
+  # Warnings are pre-existing on rank-deficient input: big_SVD's NaN for the
+  # trailing singular value (zeroed in gl.pcoa) and log10 of zero
+  # eigenvalues in the scree plot.
+  pf <- suppressWarnings(
+    gl.pcoa(gl.gen2fbm(x, verbose = 0), nfactors = 5, plot.out = FALSE,
+            verbose = 0))
+  pm <- gl.pcoa(x, nfactors = 5, plot.out = FALSE, verbose = 0)
+  expect_equal(dim(pf$scores), c(nInd(x), 5))
+  expect_equal(pf$eig[1:5], pm$eig[1:5], tolerance = 1e-6)
+})
