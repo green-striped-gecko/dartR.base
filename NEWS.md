@@ -128,6 +128,27 @@
   score and loading columns stayed NaN, and NaN * 0 is NaN. On possums the
   variance explained by axes 1-3 matches the in-memory result to two
   decimals; only the smallest eigenvalue is not computed.
+* `gl.pcoa()` on file-backed (FBM) objects, METHODS CHANGE: results change
+  when the data have missing values. Missing values are now replaced by the
+  mean of their locus, which is what `glPca` does for in-memory objects, in
+  place of `gl.impute(method = "neighbour")`. The same data gave different
+  ordinations in the two storage modes: on `platypus.gl` the first
+  eigenvalue was 3.40 file-backed against 2.82 in memory, and on
+  `testset2.gl` 2.26 against 1.38. On both datasets the first 50
+  eigenvalues now agree to within 0.03% (the imputed mean is stored rounded
+  to two decimals, which also moves eigenvalues a million times smaller
+  than the first); data without missing values give the same result as
+  before. To ordinate genotypes imputed in another way, run `gl.impute()`
+  first. The PCA is also computed from the backing file in blocks: the
+  matrix is no longer read into memory with `as.matrix()` to test for
+  missing values, the imputation no longer builds a distance matrix between
+  individuals, and loadings are computed for `nfactors` axes, not for all
+  of them. On 1000 individuals x 50000 loci with 5% missing, 281 s and
+  3.2 GB of memory became 18 s and 1.1 GB; on 400 x 20000, 17 s and 755 MB
+  became 1.7 s and 314 MB. Nearly all of the memory still used is taken by
+  `gl.filter.allna()` and `gl.filter.monomorphs()`, which `gl.pcoa()` runs
+  first and which read the whole matrix. The object passed in and its
+  backing file are not modified.
 * `gl.smearplot()` DOCS: missing genotypes are labelled NA in the legend;
   the description said they had no legend entry.
 
