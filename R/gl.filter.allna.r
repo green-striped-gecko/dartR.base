@@ -64,8 +64,19 @@ gl.filter.allna <- function(x,
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, accept = c("genlight", "SNP", "SilicoDArT"), verbose = verbose)
   
+  # FUNCTIONS
+
+  # Number of scored (non-missing) genotypes per locus of an FBM, or per
+  # individual with byrow = TRUE, counted from the backing file in blocks;
+  # ind.row restricts the count to those individuals
+  n.scored.fbm <- function(fbm, ind.row = bigstatsr::rows_along(fbm),
+                           byrow = FALSE) {
+    cnt <- bigstatsr::big_counts(fbm, ind.row = ind.row, byrow = byrow)
+    colSums(cnt[!is.na(rownames(cnt)), , drop = FALSE])
+  }
+
   # DO THE JOB
-  
+
   if (verbose >= 2) {
     if (by.pop==FALSE){
       cat(
@@ -90,13 +101,22 @@ gl.filter.allna <- function(x,
     na.counter <- 0
     nL <- nLoc(x)
     loc.list <- array(NA,nL)
-    matrix_tmp <- as.matrix(x)
     l.names <- locNames(x)
-    for (i in 1:nL) {
-      row_tmp <- matrix_tmp[, i]
-      if (all(is.na(row_tmp))) {
-        loc.list[i] <- l.names[i]
-        na.counter <- na.counter + 1
+    if (.has_fbm(x)) {
+      # File-backed (FBM) object: the scored genotypes of each locus are
+      # counted from the backing file in blocks, so the genotype matrix is
+      # not read into memory with as.matrix(x)
+      all.na <- n.scored.fbm(x@fbm) == 0
+      loc.list[all.na] <- l.names[all.na]
+      na.counter <- sum(all.na)
+    } else {
+      matrix_tmp <- as.matrix(x)
+      for (i in 1:nL) {
+        row_tmp <- matrix_tmp[, i]
+        if (all(is.na(row_tmp))) {
+          loc.list[i] <- l.names[i]
+          na.counter <- na.counter + 1
+        }
       }
     }
     if (na.counter == 0) {
@@ -131,17 +151,24 @@ gl.filter.allna <- function(x,
     nI <- nInd(x2)
     # loc.list <- vector("list", nL)
     ind.list <- array(NA, nI)
-    matrix_tmp <- as.matrix(x2)
     # l.names <- locNames(x2)
     I.names <- indNames(x2)
-    # for (i in 1:nL) {
-    for (i in 1:nI) {
-      # row_tmp <- matrix_tmp[, i]
-      row_tmp <- matrix_tmp[i,]
-      if (all(is.na(row_tmp))) {
-        # loc.list[i] <- l.names[i]
-        ind.list[i] <- I.names[i]
-        na.counter <- na.counter + 1
+    if (.has_fbm(x2)) {
+      # as above, counted by individual
+      all.na <- n.scored.fbm(x2@fbm, byrow = TRUE) == 0
+      ind.list[all.na] <- I.names[all.na]
+      na.counter <- sum(all.na)
+    } else {
+      matrix_tmp <- as.matrix(x2)
+      # for (i in 1:nL) {
+      for (i in 1:nI) {
+        # row_tmp <- matrix_tmp[, i]
+        row_tmp <- matrix_tmp[i,]
+        if (all(is.na(row_tmp))) {
+          # loc.list[i] <- l.names[i]
+          ind.list[i] <- I.names[i]
+          na.counter <- na.counter + 1
+        }
       }
     }
     if (na.counter == 0) {
@@ -174,8 +201,21 @@ gl.filter.allna <- function(x,
     total <- 0
     loc.list <- NULL
     for (i in 1:nPop(x2)){
-      tmpop <- as.matrix(gl.keep.pop(x2,popNames(x2)[i],verbose=0))
-      tmpsums <- apply(tmpop,2,function(x){all(is.na(x))})
+      # File-backed (FBM) object: count the scored genotypes of each locus
+      # over the rows of this population, read from the backing file in
+      # blocks. gl.keep.pop() would write a copy of the population to disk
+      # and as.matrix() would then read that copy into memory.
+      pop.rows <- if (.has_fbm(x2)) {
+        which(pop(x2) == popNames(x2)[i])
+      } else {
+        integer(0)
+      }
+      if (length(pop.rows) > 0) {
+        tmpsums <- n.scored.fbm(x2@fbm, ind.row = pop.rows) == 0
+      } else {
+        tmpop <- as.matrix(gl.keep.pop(x2,popNames(x2)[i],verbose=0))
+        tmpsums <- apply(tmpop,2,function(x){all(is.na(x))})
+      }
       # tmpsums <-  colSums(tmpop)
       tmp.list <- locNames(x2)[tmpsums==TRUE]
       # tmp.list <- locNames(x)[is.na(tmpsums)]

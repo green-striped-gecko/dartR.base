@@ -145,10 +145,20 @@
   individuals, and loadings are computed for `nfactors` axes, not for all
   of them. On 1000 individuals x 50000 loci with 5% missing, 281 s and
   3.2 GB of memory became 18 s and 1.1 GB; on 400 x 20000, 17 s and 755 MB
-  became 1.7 s and 314 MB. Nearly all of the memory still used is taken by
+  became 1.7 s and 314 MB. Nearly all of the memory still used was taken by
   `gl.filter.allna()` and `gl.filter.monomorphs()`, which `gl.pcoa()` runs
-  first and which read the whole matrix. The object passed in and its
-  backing file are not modified.
+  first and which read the whole matrix; see the next two entries. The
+  object passed in and its backing file are not modified.
+* `gl.filter.allna()` on file-backed (FBM) objects: loci and individuals
+  with no scored genotype are found from genotype counts read from the
+  backing file in blocks (`bigstatsr::big_counts()`), in place of reading
+  the whole matrix into memory with `as.matrix()`. With `by.pop = TRUE` the
+  counts are taken over the rows of each population; a copy of each
+  population was written to disk and then read into memory. On 1000
+  individuals x 50000 loci, 1.9 s and 963 MB of memory became 0.5 s and
+  204 MB (`by.pop = TRUE`, four populations: 2.1 s and 500 MB became 0.2 s
+  and 129 MB). The object returned, its history and the messages are
+  identical to before; in-memory objects take the same code as before.
 * `gl.smearplot()` DOCS: missing genotypes are labelled NA in the legend;
   the description said they had no legend entry.
 
