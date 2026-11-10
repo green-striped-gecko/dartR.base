@@ -93,7 +93,12 @@ test_that("FBM path: nfactors and eig length", {
   expect_equal(dim(pf$scores), c(274, 5))
   expect_equal(dim(pf$loadings), c(611, 5))
   expect_length(pf$eig, 273)
-  expect_equal(round(pf$eig[1:3], 6), c(2.259724, 2.184270, 1.652706))
+  # [approved 2026-11-10] missing values on the FBM path are replaced by the
+  # locus mean, as glPca does, in place of gl.impute(method = "neighbour").
+  # The eigenvalues were c(2.259724, 2.184270, 1.652706) with neighbour
+  # imputation; they now equal the glPca values of the first test, up to the
+  # two-decimal rounding of the stored mean.
+  expect_equal(pf$eig[1:3], c(1.382214, 1.344892, 1.114741), tolerance = 1e-3)
 })
 
 # ---------------------------------------------------------------------------
@@ -165,4 +170,86 @@ test_that("FBM path: a NaN trailing component does not make every score NaN", {
   expect_true(all(is.finite(pf$scores)))
   expect_true(all(is.finite(pf$loadings)))
   expect_true(all(is.finite(pf$eig)))
+})
+
+# ---------------------------------------------------------------------------
+# FBM path with missing data (2026-11-10). The FBM path imputed with
+# gl.impute(method = "neighbour") before the PCA while glPca replaces a
+# missing value by the locus mean, so the same data gave different
+# ordinations in the two storage modes (first eigenvalue of platypus.gl 3.40
+# against 2.82). It also read the whole matrix with as.matrix(x) to test for
+# missing values. The PCA is now computed from the backing file in blocks,
+# with locus-mean imputation in a temporary copy.
+
+test_that("FBM path: missing data give the same ordination as glPca", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  expect_gt(sum(is.na(as.matrix(platypus.gl))), 0)
+  a <- gl.pcoa(platypus.gl, nfactors = 3, plot.out = FALSE, verbose = 0)
+  b <- gl.pcoa(gl.gen2fbm(platypus.gl, verbose = 0), nfactors = 3,
+               plot.out = FALSE, verbose = 0)
+  # tolerance: the imputed mean is stored rounded to two decimals
+  expect_equal(b$eig[1:10], a$eig[1:10], tolerance = 1e-3)
+  for (k in 1:3) {
+    expect_equal(unname(abs(b$scores[, k])), unname(abs(a$scores[, k])),
+                 tolerance = 5e-3)
+    expect_equal(unname(abs(b$loadings[, k])), unname(abs(a$loadings[, k])),
+                 tolerance = 5e-3)
+  }
+  expect_equal(dimnames(b$scores), dimnames(a$scores))
+  expect_equal(rownames(b$loadings), rownames(a$loadings))
+  expect_equal(unname(sqrt(colSums(b$loadings^2))), rep(1, 3),
+               tolerance = 1e-6)
+})
+
+test_that("FBM path: missing data, fewer loci than individuals", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  # the nLoc x nLoc branch; glPca keeps one eigenvalue more (50 against 49)
+  poly <- gl.filter.monomorphs(testset2.gl, verbose = 0)
+  x <- gl.keep.loc(poly, loc.list = locNames(poly)[1:50], verbose = 0)
+  expect_gt(sum(is.na(as.matrix(x))), 0)
+  a <- gl.pcoa(x, nfactors = 3, plot.out = FALSE, verbose = 0)
+  b <- gl.pcoa(gl.gen2fbm(x, verbose = 0), nfactors = 3, plot.out = FALSE,
+               verbose = 0)
+  expect_equal(b$eig[1:10], a$eig[1:10], tolerance = 1e-3)
+  for (k in 1:3) {
+    expect_equal(unname(abs(b$scores[, k])), unname(abs(a$scores[, k])),
+                 tolerance = 5e-3)
+  }
+  expect_equal(dim(b$loadings), c(50, 3))
+  expect_true(all(is.finite(b$loadings)))
+})
+
+test_that("FBM path: the object passed in and its backing file are unchanged", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  # snp_fastImputeSimple() writes the imputed codes into the file it is
+  # given, so the PCA must impute a copy
+  fb <- gl.gen2fbm(platypus.gl, verbose = 0)
+  bk <- fb@fbm$backingfile
+  md5.before <- unname(tools::md5sum(bk))
+  na.before <- sum(is.na(as.matrix(fb)))
+  tmp.before <- list.files(tempdir(), pattern = "^gl_pcoa_")
+  out <- capture.output(
+    p <- gl.pcoa(fb, plot.out = FALSE, verbose = 2))
+  expect_true(any(grepl("Missing values replaced by the mean", out)))
+  expect_equal(unname(tools::md5sum(bk)), md5.before)
+  expect_equal(sum(is.na(as.matrix(fb))), na.before)
+  # the temporary imputed copy is removed
+  expect_setequal(list.files(tempdir(), pattern = "^gl_pcoa_"), tmp.before)
+})
+
+test_that("FBM path: no imputation message or copy without missing data", {
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off())
+  x <- gl.filter.callrate(platypus.gl, threshold = 1, plot.display = FALSE,
+                          verbose = 0)
+  expect_equal(sum(is.na(as.matrix(x))), 0)
+  a <- gl.pcoa(x, nfactors = 3, plot.out = FALSE, verbose = 0)
+  out <- capture.output(
+    b <- gl.pcoa(gl.gen2fbm(x, verbose = 0), nfactors = 3, plot.out = FALSE,
+                 verbose = 2))
+  expect_false(any(grepl("Missing values replaced", out)))
+  expect_equal(b$eig[1:10], a$eig[1:10], tolerance = 1e-6)
 })
