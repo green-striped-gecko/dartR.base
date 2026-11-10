@@ -159,6 +159,15 @@
   204 MB (`by.pop = TRUE`, four populations: 2.1 s and 500 MB became 0.2 s
   and 129 MB). The object returned, its history and the messages are
   identical to before; in-memory objects take the same code as before.
+* `gl.filter.monomorphs()` on file-backed (FBM) objects: monomorphic and
+  all-missing loci are found from genotype counts read from the backing
+  file in blocks (`bigstatsr::big_counts()`), in place of reading the whole
+  matrix into memory with `as.matrix()`. On 1000 individuals x 50000 loci,
+  1.1 s and 617 MB of memory became 0.3 s and 146 MB. The object returned,
+  its history and the messages are identical to before; in-memory objects
+  take the same code as before. With this and the `gl.filter.allna()`
+  change, `gl.pcoa()` on that object, which runs both filters first, went
+  from 18 s and 1.1 GB to 16 s and 0.6 GB, with the same scores.
 * `gl.smearplot()` DOCS: missing genotypes are labelled NA in the legend;
   the description said they had no legend entry.
 
