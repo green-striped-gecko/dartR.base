@@ -1,5 +1,12 @@
 # dartR.base 1.2.6 (development)
 
+* `as.matrix()` and `as(x, "matrix")` of an FBM-backed dartR object now
+  return the same matrix as for the gen-backed object: integer storage
+  (FBM.code256 decodes to double) and the same dimnames (`as(x, "matrix")`
+  dropped them, and an object without names got empty dimnames), so
+  `identical(as.matrix(x), as.matrix(gl.gen2fbm(x)))` is TRUE. Codes with
+  fractional values (e.g. `bigsnpr::CODE_DOSAGE`) still return doubles.
+
 * `gl.report.replicates.KING()` and `gl.filter.replicates.KING()`: NEW
   FUNCTIONS, duplicate samples by KING-robust kinship (Manichaikul et al.
   2010; Waples et al. 2019) and the heterozygote share. They find
