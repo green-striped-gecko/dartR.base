@@ -1092,19 +1092,34 @@ if (!methods::isGeneric("as.matrix")) {
   methods::setGeneric("as.matrix", useAsDefault = base::as.matrix)
 }
 
+## Decoded genotype matrix of an FBM-backed object, the same as for a
+## gen-backed one: individuals x loci with indNames/locNames as dimnames, and
+## integer storage when the code maps to whole numbers (e.g. CODE_012, where
+## the raw code 3 decodes to NA). FBM.code256 decodes to double, so without
+## this the two flavours give equal values but not identical matrices. A code
+## with fractional values (e.g. dosages) is returned as double.
+.fbm_as_matrix <- function(x) {
+  fbm <- x@fbm
+  dummy <- fbm[, , drop = FALSE]
+  code <- fbm$code256
+  if (all(code[!is.na(code)] %% 1 == 0)) {
+    storage.mode(dummy) <- "integer"
+  }
+  dn <- list(indNames(x), locNames(x))
+  dimnames(dummy) <- if (all(vapply(dn, is.null, logical(1)))) NULL else dn
+  dummy
+}
+
 setMethod("as.matrix", "dartR", function(x, ...) {
-  fbm <- .fbm_or_null(x)
-  if (is.null(fbm)) methods::as(methods::as(x, "genlight"), "matrix") else {
-    
-    dummy <- x@fbm[, drop=FALSE]
-    colnames(dummy)<- locNames(x)
-    rownames(dummy)<- indNames(x)
-    return(dummy) 
-    }
+  if (is.null(.fbm_or_null(x))) {
+    methods::as(methods::as(x, "genlight"), "matrix")
+  } else {
+    .fbm_as_matrix(x)
+  }
 })
 # 3) Also register an explicit coercion (used by some internals)
 methods::setAs("dartR", "matrix", function(from) {
-  if (!is.null(.fbm_or_null(from))) return(from@fbm[])
+  if (!is.null(.fbm_or_null(from))) return(.fbm_as_matrix(from))
   methods::as(methods::as(from, "genlight"), "matrix")
 })
 
