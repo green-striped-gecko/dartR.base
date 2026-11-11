@@ -206,7 +206,7 @@ gl.plot.popcluster,dartR.popgen,graphics,luis,done,103
 gl.plot.snmf,dartR.popgen,graphics,luis,done,102
 gl.plot.structure,dartR.popgen,graphics,luis,done,94
 gl.read.structure,dartR.popgen,io,luis,done,98
-gl.run.epos,dartR.popgen,analysis,luis,done,105
+gl.run.epos,dartR.popgen,analysis,luis,pr-open,135
 gl.run.faststructure,dartR.popgen,analysis,luis,done,101
 gl.run.popcluster,dartR.popgen,analysis,luis,done,103
 gl.run.snmf,dartR.popgen,analysis,luis,done,102
