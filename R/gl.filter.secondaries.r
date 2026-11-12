@@ -50,7 +50,7 @@ gl.filter.secondaries <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
 
@@ -124,7 +124,7 @@ gl.filter.secondaries <- function(x,
 
     # ADD TO HISTORY
     nh <- length(x3@other$history)
-    x3@other$history[[nh + 1]] <- match.call()
+    x3@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
 

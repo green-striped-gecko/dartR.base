@@ -1,4 +1,32 @@
-# dartR.base 1.2.6 (development)
+# dartR.base 1.2.7 (development)
+
+* History: BUG FIX, a function called through `do.call(fun, list(x = gl,
+  ...))` stored the whole input object (with its own history) in
+  `@other$history`, so objects and saved files grew with every such step
+  (4 chained steps on `testset.gl`: 29.8 MB in memory instead of 0.7 MB).
+  The calls are now compacted by the new internal
+  `utils.history.call()`: names, expressions and small values are kept,
+  other values are replaced by a label such as
+  `` `<dartR: 250 ind x 255 loc>` ``, and a function in the call head by its
+  name.
+* `utils.flag.start()`: BUG FIX, functions called through `do.call(fun,
+  ...)` stopped with "cannot coerce type 'closure' to vector of type
+  'character'" at `verbose >= 1`, and functions called as `pkg::fun`
+  printed "Completed: :: dartR.base gl.x". `utils.flag.start()` returns a
+  printable function name, which the functions now use for the closing
+  message.
+
+* `gl.load()`: BUG FIX, objects of class dartR saved by the legacy dartR
+  package no longer make R load and attach the legacy package (which masked
+  about 150 dartR.base functions for the rest of the session, or failed when
+  it was not installed). They are converted to dartR.base objects. An FBM
+  object saved with `saveRDS()` whose backing file no longer exists now
+  stops with a clear error pointing to `gl.save()`. `fbm = TRUE` no longer
+  prints the `gl.gen2fbm()` messages at `verbose = 0`.
+* `gl.save()`: no longer prints the `gl.fbm2gen()` messages at
+  `verbose = 0` when saving an FBM object. The documentation now says that
+  FBM objects are saved as gen-backed copies and that only the object, not
+  the workspace, is saved.
 
 * `as.matrix()` and `as(x, "matrix")` of an FBM-backed dartR object now
   return the same matrix as for the gen-backed object: integer storage

@@ -84,7 +84,7 @@ gl.recalc.metrics <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      verbose = verbose)
 
     # CHECK DATATYPE
@@ -264,7 +264,7 @@ gl.recalc.metrics <- function(x,
     }
     if (!internal.call) {
         nh <- length(x@other$history)
-        x@other$history[[nh + 1]] <- match.call()
+        x@other$history[[nh + 1]] <- utils.history.call(match.call())
     }
 
     # FLAG SCRIPT END

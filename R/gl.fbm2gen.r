@@ -39,7 +39,7 @@ gl.fbm2gen <- function(x, chunk = 256L, quiet = TRUE, verbose = NULL) {
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
 
   # A plain genlight cannot hold an FBM: nothing to convert
   fbm <- .fbm_or_null(x)

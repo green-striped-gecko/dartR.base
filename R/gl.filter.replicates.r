@@ -55,7 +55,7 @@ gl.filter.replicates <- function(x,
   funname  <- match.call()[[1]]
   
   # Flag the start of this function call (internal helper)
-  utils.flag.start(func = funname, build = "Jody", verbose = verbose)
+  funname <- utils.flag.start(func = funname, build = "Jody", verbose = verbose)
 
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
@@ -122,7 +122,7 @@ gl.filter.replicates <- function(x,
   # ADD TO HISTORY (a single entry for this call)
   xx@other$history <- hold.history
   nh <- length(xx@other$history)
-  xx@other$history[[nh + 1]] <- match.call()
+  xx@other$history[[nh + 1]] <- utils.history.call(match.call())
 
   # Final verbose message if requested
   if (verbose >= 1) cat(report("Completed:", funname, "\n"))

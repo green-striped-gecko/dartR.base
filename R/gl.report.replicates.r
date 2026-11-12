@@ -111,7 +111,7 @@ gl.report.replicates <- function(x,
   funname  <- match.call()[[1]]
   
   # Flag the start of this function call (internal helper)
-  utils.flag.start(func = funname, build = "Jody", verbose = verbose)
+  funname <- utils.flag.start(func = funname, build = "Jody", verbose = verbose)
 
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)

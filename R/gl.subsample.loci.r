@@ -46,7 +46,7 @@ gl.subsample.loci <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
 
   .Deprecated(
     new = "gl.subsample.loc",
@@ -78,7 +78,7 @@ gl.subsample.loci <- function(x,
 
   # Record this call rather than the inner gl.subsample.loc() call
   nh <- length(x.new@other$history)
-  x.new@other$history[[nh]] <- match.call()
+  x.new@other$history[[nh]] <- utils.history.call(match.call())
 
   # FLAG SCRIPT END
   if (verbose >= 1) {

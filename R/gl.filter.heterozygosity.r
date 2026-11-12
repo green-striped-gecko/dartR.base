@@ -52,7 +52,7 @@ gl.filter.heterozygosity <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
 
@@ -231,7 +231,7 @@ gl.filter.heterozygosity <- function(x,
     # ADD ACTION TO HISTORY
 
     nh <- length(x.kept@other$history)
-    x.kept@other$history[[nh + 1]] <- match.call()
+    x.kept@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
 

@@ -23,6 +23,12 @@ The input object, returned invisibly
 This is a wrapper for saveRDS().
 The script saves the object in compressed binary form to the nominated
 file and returns the input gl object unchanged.
+
+Only the object is saved, not the workspace. A file-backed (FBM) object is
+saved as a gen-backed copy (genotypes in @gen): an FBM holds only a
+reference to its backing file, which is usually temporary, and the
+gen-backed copy is also smaller. The input object stays file-backed. Use
+gl.load(file, fbm = TRUE) to load it back as a file-backed object.
 }
 \examples{
 gl.save(testset.gl,file.path(tempdir(),'testset.rds'))

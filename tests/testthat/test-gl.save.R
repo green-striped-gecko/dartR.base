@@ -31,3 +31,30 @@ test_that("bad path errors", {
     gl.save(testset.gl, "Z:/no/such/dir/x.rds", verbose = 0))),
     "does not exist")
 })
+
+test_that("FBM objects are saved as gen-backed copies and round-trip", {
+  skip_if_not_installed("bigstatsr")
+  xf <- gl.gen2fbm(testset.gl, verbose = 0)
+  bk <- xf@fbm$backingfile
+  f5 <- file.path(tempdir(), "test-save-fbm.rds")
+  on.exit(unlink(f5), add = TRUE)
+  o <- capture.output(ret <- gl.save(xf, f5, verbose = 0))
+  expect_length(o, 0)
+  # input untouched: still FBM-backed, same backing file
+  expect_identical(ret, xf)
+  expect_identical(ret@fbm$backingfile, bk)
+  # the file holds genotypes (not a reference to the backing file)
+  s <- readRDS(f5)
+  expect_null(s@fbm)
+  expect_length(s@gen, nInd(xf))
+  # same size as saving the gen-backed object
+  f6 <- file.path(tempdir(), "test-save-gen.rds")
+  on.exit(unlink(f6), add = TRUE)
+  invisible(capture.output(gl.save(testset.gl, f6, verbose = 0)))
+  expect_equal(file.size(f5), file.size(f6))
+  # round trip in both flavours
+  expect_identical(as.matrix(gl.load(f5, verbose = 0)), as.matrix(xf))
+  yf <- gl.load(f5, fbm = TRUE, verbose = 0)
+  expect_false(is.null(yf@fbm))
+  expect_identical(as.matrix(yf), as.matrix(xf))
+})

@@ -132,7 +132,7 @@ gl.impute <-  function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
 
@@ -635,7 +635,7 @@ gl.impute <-  function(x,
   # ADD TO HISTORY
   x3@other$history <- x@other$history
   nh <- length(x3@other$history)
-  x3@other$history[[nh + 1]] <- match.call()
+  x3@other$history[[nh + 1]] <- utils.history.call(match.call())
 
   # FLAG SCRIPT END
 

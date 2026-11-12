@@ -52,7 +52,7 @@ utils.n.var.invariant <- function(x,
     # FLAG SCRIPT START
     
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "Jody",
                      verbose = verbose)  # I'm not quite sure what the build here should be
     
@@ -104,7 +104,7 @@ utils.n.var.invariant <- function(x,
     
     # ADD TO HISTORY
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
     
     # FLAG SCRIPT END
     

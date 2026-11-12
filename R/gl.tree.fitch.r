@@ -152,7 +152,7 @@ gl.tree.fitch <- function(D,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v2023.3",
                    verbose = verbose)
 

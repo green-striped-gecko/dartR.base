@@ -43,7 +43,7 @@ gl.filter.monomorphs <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2024.1",
                      verbose = verbose)
     
@@ -132,7 +132,7 @@ gl.filter.monomorphs <- function(x,
     # gl.drop.loc entry appended by the delegation above
     x@other$history <- hold@other$history
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
     if (verbose >= 1) {

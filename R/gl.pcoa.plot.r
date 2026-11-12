@@ -179,7 +179,7 @@ gl.pcoa.plot <- function(glPca,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "2024_v1",
                      verbose = verbose)
 

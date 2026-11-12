@@ -39,7 +39,7 @@ utils.plink.run <- function(dir.in,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
   
   # DO THE JOB
   old.wd <- getwd()

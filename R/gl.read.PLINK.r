@@ -86,7 +86,7 @@ gl.read.PLINK <- function(filename,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
@@ -350,7 +350,7 @@ gl.read.PLINK <- function(filename,
   
   # ADD TO HISTORY (add the first entry)
   gl@other$history <- list()
-  gl@other$history[[1]] <- match.call()
+  gl@other$history[[1]] <- utils.history.call(match.call())
   
   # FLAG SCRIPT END
   

@@ -79,7 +79,7 @@ gl.randomize.snps <- function(x,
 
   # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
 
@@ -208,7 +208,7 @@ gl.randomize.snps <- function(x,
 
     # ADD TO HISTORY
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
     if (verbose >= 1) {

@@ -87,7 +87,7 @@ gl.read.dart <- function(filename,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
 
@@ -304,7 +304,7 @@ gl.read.dart <- function(filename,
     
     # Create the history repository --------------------
     if (is.null(glout@other$history)) {
-        glout@other$history <- list(match.call())
+        glout@other$history <- list(utils.history.call(match.call()))
     }
     
     glout <- gl.compliance.check(glout, verbose = verbose)

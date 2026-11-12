@@ -78,7 +78,7 @@ gl.report.excess.het <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
 
   # The advice must reproduce this call's result: min.hobs = 0.5 is part of
   # the published workflow, and cc_val defaults to 0.5 in gl.report.hwe

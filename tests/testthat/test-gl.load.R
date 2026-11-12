@@ -50,3 +50,45 @@ test_that("missing and non-genlight files", {
                "genlight")
   unlink(f2)
 })
+
+test_that("dartR objects saved by another package (legacy dartR) load without loading it", {
+  # An object of class "dartR" defined by another package, without the fbm
+  # slot, as saved by the legacy dartR; the package it points to is not
+  # installed, so any class lookup through it would fail
+  x <- methods::as(testset.gl[1:10, 1:20], "genlight")
+  attr(x, "class") <- structure("dartR", package = "dartRlegacyNotInstalled")
+  expect_false(methods::.hasSlot(x, "fbm"))
+  f3 <- file.path(tempdir(), "test-legacy-dartR.rds")
+  saveRDS(x, f3)
+  on.exit(unlink(f3), add = TRUE)
+
+  o <- capture.output(y <- gl.load(f3, verbose = 0))
+  expect_length(o, 0)
+  expect_false("dartRlegacyNotInstalled" %in% loadedNamespaces())
+  expect_identical(attr(class(y), "package"), "dartR.base")
+  expect_true(methods::.hasSlot(y, "fbm"))
+  expect_true(methods::validObject(y))
+  expect_identical(unname(as.matrix(y)),
+                   unname(as.matrix(testset.gl[1:10, 1:20])))
+  expect_identical(y@other$ind.metrics, testset.gl[1:10, 1:20]@other$ind.metrics)
+  expect_true(any(grepl("another package",
+                        capture.output(gl.load(f3, verbose = 2)))))
+  # and to FBM on request, silently
+  o <- capture.output(z <- gl.load(f3, fbm = TRUE, verbose = 0))
+  expect_length(o, 0)
+  expect_false(is.null(z@fbm))
+})
+
+test_that("an FBM object saved with saveRDS whose backing file is gone errors clearly", {
+  skip_if_not_installed("bigstatsr")
+  x <- gl.gen2fbm(testset.gl[1:5, 1:10], verbose = 0)
+  f4 <- file.path(tempdir(), "test-raw-fbm.rds")
+  saveRDS(x, f4)
+  on.exit(unlink(f4), add = TRUE)
+  # while the backing file exists it loads
+  expect_identical(as.matrix(gl.load(f4, verbose = 0)), as.matrix(x))
+  bk <- x@fbm$backingfile
+  rm(x); invisible(gc())
+  unlink(bk)
+  expect_error(capture.output(gl.load(f4, verbose = 0)), "gl.save")
+})

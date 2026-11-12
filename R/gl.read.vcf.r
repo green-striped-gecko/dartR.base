@@ -104,7 +104,7 @@ gl.read.vcf <- function(vcffile,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
@@ -436,7 +436,7 @@ gl.read.vcf <- function(vcffile,
   }
   
   # add history
-  x@other$history <- list(match.call())
+  x@other$history <- list(utils.history.call(match.call()))
   x <- gl.recalc.metrics(x, verbose = verbose)
   
   if (verbose > 2) {

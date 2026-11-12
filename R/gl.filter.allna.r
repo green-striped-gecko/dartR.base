@@ -57,7 +57,7 @@ gl.filter.allna <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
   
@@ -220,7 +220,7 @@ gl.filter.allna <- function(x,
   # ADD TO HISTORY
   if(nLoc(x) != nLoc(x2) | nInd(x) != nInd(x2)){
     nh <- length(x2@other$history)
-    x2@other$history[[nh + 1]] <- match.call()
+    x2@other$history[[nh + 1]] <- utils.history.call(match.call())
   }
     
     # FLAG SCRIPT END

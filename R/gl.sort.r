@@ -63,7 +63,7 @@ gl.sort <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func=funname,build="v.2023.2",verbose=verbose)
+  funname <- utils.flag.start(func = funname,build="v.2023.2",verbose=verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose=verbose)
@@ -132,7 +132,7 @@ gl.sort <- function(x,
   # ADD TO HISTORY
   if (is(xx,"genlight")) {
     nh <- length(xx@other$history)
-    xx@other$history[[nh + 1]] <- match.call()
+    xx@other$history[[nh + 1]] <- utils.history.call(match.call())
   }
 
   # FLAG SCRIPT END
