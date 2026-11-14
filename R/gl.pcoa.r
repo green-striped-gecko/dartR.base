@@ -890,6 +890,9 @@ gl.pcoa <- function(x,
         if (!is.null(G.tmp)) {
           tmp.bk <- G.tmp$backingfile
           rm(G, G.tmp)
+          # the file stays memory-mapped until the FBM objects are garbage
+          # collected, and Windows cannot delete a mapped file
+          invisible(gc(verbose = FALSE))
           unlink(tmp.bk)
         }
       } else {
