@@ -41,10 +41,15 @@
 #'
 #' Two algorithms are used for the PCA, depending on how the genotypes are
 #' stored. For ordinary (in-memory) genlight objects the PCA is undertaken
-#' with glPca \{adegenet\}, which handles missing values internally. For
-#' file-backed (FBM) dartR objects the PCA is undertaken with big_SVD
-#' \{bigstatsr\}; missing values are first imputed using
-#' gl.impute(x, method='neighbour').
+#' with glPca \{adegenet\}, which replaces missing values with the mean of
+#' their locus. For file-backed (FBM) dartR objects the PCA is computed from
+#' the backing file in blocks with \{bigstatsr\}. Missing values are
+#' replaced by the mean of their locus there too (rounded to two decimal
+#' places, as snp_fastImputeSimple \{bigsnpr\} stores it), in a temporary
+#' copy, so the two algorithms give the same ordination and the object
+#' passed in is not altered. To ordinate genotypes imputed in another way,
+#' run gl.impute() first.
+#'
 #'\strong{ Sources of stress in the visual representation }
 #' While, technically, any distance matrix can be represented in an ordinated
 #' space, the representation will not typically be exact.There are three major
@@ -195,7 +200,6 @@
 #' @seealso \code{\link{gl.pcoa.plot}}
 #' @family data exploration functions
 #' @importFrom ape pcoa
-#' @importFrom bigstatsr big_SVD
 #' @export
 
 gl.pcoa <- function(x,
@@ -785,39 +789,109 @@ gl.pcoa <- function(x,
                 title <-
                     paste0("PCA on Tag P/A Data\nScree Plot\n (informative axes only -- ",pc.select," criterion)")
             }
-      #!# intermediate fbm fix
+      # File-backed (FBM) objects: the PCA is computed from the backing file in
+      # blocks, so this block never holds the genotype matrix in memory as a
+      # whole. gl.filter.allna() and gl.filter.monomorphs(), called above,
+      # still read it with as.matrix().
       if (!is.null(.fbm_or_null(x))) {
-        
-        #make sure you impute (by frequency of pops (or whatever )
-        if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "neighbour", verbose = verbose)
-        #run PCA on imputed data using big_SVD
-        # big_SVD() returns at most min(nInd, nLoc) - 1 components and stops
-        # ("'k' must satisfy 0 < k < nrow(A)") when asked for more, so k cannot
-        # be nInd - 1 when there are fewer loci than individuals.
-         dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = min(nInd(x), nLoc(x)) - 1)
-        # big_SVD can return NaN for the trailing rank-deficient singular
-        # value (centering leaves a null-space dimension; the internal sqrt of a
-        # tiny-negative Gram eigenvalue is NaN). Zero them so the eigenvalues stay
-        # finite and the any(eig.raw < 0) checks below are not evaluated on NA.
-        # Its u and v columns are NaN too and must be zeroed as well: NaN * 0 is
-        # NaN, so u %*% diag(d) would otherwise make every score NaN.
-         nan.d <- is.nan(dummy$d)
-         dummy$d[nan.d] <- 0
-         dummy$u[, nan.d] <- 0
-         dummy$v[, nan.d] <- 0
-        # construct glPca object
-         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
-         class(pca) <- "glPca"
-        # Truncate scores and loadings to nfactors, matching
+
+        G <- x@fbm
+        n.ind <- nInd(x)
+        n.loc <- nLoc(x)
+
+        # Missing values. The scored genotypes of each locus are counted from
+        # the backing file (bigstatsr::big_counts); as.matrix(x) decoded the
+        # whole matrix into memory as doubles, 8 bytes a genotype, to answer
+        # the same question. Missing values are then replaced by the mean of
+        # their locus, which is what glPca does for in-memory objects, so the
+        # two storage modes give the same ordination (bigsnpr stores the mean
+        # rounded to two decimals). The imputed values are written to a
+        # temporary copy: snp_fastImputeSimple() writes into the file it is
+        # given, and the caller's backing file must not change.
+        G.tmp <- NULL
+        if (any(.fbm_locus_counts(x)$n < n.ind)) {
+          if (verbose >= 2) {
+            cat(report("  Missing values replaced by the mean of their locus for the PCA\n"))
+          }
+          G.tmp <- bigstatsr::big_copy(G, backingfile = tempfile("gl_pcoa_"))
+          G <- bigsnpr::snp_fastImputeSimple(G.tmp, method = "mean2")
+        }
+
+        # Number of axes. The cap of min(nInd, nLoc) - 1 is kept from the
+        # big_SVD() implementation this block replaces.
+        k <- min(n.ind, n.loc) - 1
+        # Scores and loadings are returned for nfactors axes, matching
         # glPca(nf = nfactors) on the in-memory path; $eig stays full length
         # because the pc.select criteria below need all eigenvalues
-         nf.use <- min(nfactors, ncol(dummy$u))
-         if (nf.use < nfactors && verbose >= 2) {
-           cat(warn("  Warning: nfactors reduced from", nfactors, "to",
-                    nf.use, "-- only", ncol(dummy$u), "axes available\n"))
-         }
-         pca$scores <- pca$scores[, 1:nf.use, drop = FALSE]
-         pca$loadings <- pca$loadings[, 1:nf.use, drop = FALSE]
+        nf.use <- min(nfactors, k)
+        if (nf.use < nfactors && verbose >= 2) {
+          cat(warn("  Warning: nfactors reduced from", nfactors, "to",
+                   nf.use, "-- only", k, "axes available\n"))
+        }
+
+        # All eigenvalues come from the smaller of the two cross-product
+        # matrices of the centred genotypes (nInd x nInd, or nLoc x nLoc when
+        # there are fewer loci than individuals), which bigstatsr accumulates
+        # block by block. The vectors on the other side are then computed for
+        # the nf.use axes that are returned. big_SVD(k = nInd - 1) built the
+        # loadings of every axis, nLoc x (nInd - 1) doubles, as much memory as
+        # the genotype matrix itself, and all but nfactors were discarded.
+        centre <- bigstatsr::big_scale(center = TRUE, scale = FALSE)
+        if (n.ind <= n.loc) {
+          K <- bigstatsr::big_tcrossprodSelf(G, fun.scaling = centre)
+        } else {
+          K <- bigstatsr::big_crossprodSelf(G, fun.scaling = centre)
+        }
+        eig.K <- eigen(K[], symmetric = TRUE)
+        # Eigenvalues of the cross-product are the squared singular values.
+        # Centring leaves at least one null axis, whose eigenvalue comes back
+        # as rounding noise of either sign; those are set to zero so that the
+        # eigenvalues stay finite and no vector is divided by noise.
+        d2 <- pmax(eig.K$values[seq_len(k)], 0)
+        d2[d2 < d2[1] * 1e-12] <- 0
+        d <- sqrt(d2)
+        d.nf <- d[seq_len(nf.use)]
+        # singular vectors on the other side: project, then divide by the
+        # singular value; a null axis gets a zero vector
+        other.side <- function(m) {
+          ok <- d.nf > 0
+          m[, ok] <- sweep(m[, ok, drop = FALSE], 2, d.nf[ok], "/")
+          m[, !ok] <- 0
+          m
+        }
+        if (n.ind <= n.loc) {
+          u <- eig.K$vectors[, seq_len(nf.use), drop = FALSE]
+          v <- other.side(bigstatsr::big_cprodMat(G, u,
+                                                  center = attr(K, "center"),
+                                                  scale = attr(K, "scale")))
+        } else {
+          v <- eig.K$vectors[, seq_len(nf.use), drop = FALSE]
+          u <- other.side(bigstatsr::big_prodMat(G, v,
+                                                 center = attr(K, "center"),
+                                                 scale = attr(K, "scale")))
+        }
+
+        # construct glPca object. glPca works on counts / ploidy, so with the
+        # centred count matrix X = U D V', X/2 = U (D/2) V': scores = U D/2,
+        # eig = (D/2)^2 / nInd, and the loadings are V itself (unit norm per
+        # axis, as glPca returns them).
+        pca <- list(scores = sweep(u, 2, d.nf, "*") / 2,
+                    eig = d2 / (4 * n.ind),
+                    loadings = v)
+        class(pca) <- "glPca"
+        # dimnames as glPca sets them, so gl.report.factorloadings and
+        # downstream code find locus and individual names on the FBM path
+        rownames(pca$scores) <- indNames(x)
+        colnames(pca$scores) <- paste0("PC", seq_len(nf.use))
+        rownames(pca$loadings) <- paste(locNames(x), alleles(x), sep = ".")
+        colnames(pca$loadings) <- paste0("Axis", seq_len(nf.use))
+
+        # remove the temporary imputed copy
+        if (!is.null(G.tmp)) {
+          tmp.bk <- G.tmp$backingfile
+          rm(G, G.tmp)
+          unlink(tmp.bk)
+        }
       } else {
         pca <-
             glPca(x,

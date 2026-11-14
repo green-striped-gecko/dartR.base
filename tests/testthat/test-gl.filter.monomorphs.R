@@ -61,3 +61,56 @@ test_that("history does not carry the internal gl.drop.loc entry (F2 fix)", {
   expect_true(grepl("gl.filter.monomorphs", deparse(new_entries[[1]])[1]))
   expect_false(any(grepl("gl.drop.loc", vapply(new_entries, function(h) deparse(h)[1], ""))))
 })
+
+# ---------------------------------------------------------------------------
+# File-backed (FBM) objects (2026-11-10). Monomorphic loci are found from
+# genotype counts read from the backing file in blocks
+# (bigstatsr::big_counts), where as.matrix(x) read the whole matrix into
+# memory. The object returned must be the one the in-memory code returns.
+
+fbm_mono_case <- function() {
+  set.seed(3)
+  m <- matrix(sample(0:2, 12 * 30, replace = TRUE), 12, 30,
+              dimnames = list(sprintf("ind%02d", 1:12), sprintf("L%02d", 1:30)))
+  m[sample.int(length(m), 40)] <- NA
+  m[, 3] <- NA             # all missing
+  m[, 9] <- 0              # fixed for the reference allele
+  m[, 10] <- 2             # fixed for the alternate allele
+  m[, 11] <- 1             # all heterozygous: polymorphic
+  m[, 12] <- c(0, NA)      # 0 and missing: monomorphic
+  m[, 13] <- c(2, 2, NA)   # 2 and missing: monomorphic
+  m[, 14] <- c(0, 2)       # both homozygotes: polymorphic
+  x <- new("genlight", gen = m, ploidy = 2)
+  pop(x) <- factor(rep(c("A", "B", "C"), each = 4))
+  gl.compliance.check(x, verbose = 0)
+}
+
+test_that("FBM-backed object: same loci removed as in memory (constructed cases)", {
+  skip_if_not_installed("bigstatsr")
+  x <- fbm_mono_case()
+  fb <- gl.gen2fbm(x, verbose = 0)
+  a <- gl.filter.monomorphs(x, verbose = 0)
+  b <- gl.filter.monomorphs(fb, verbose = 0)
+  expect_setequal(setdiff(locNames(x), locNames(b)),
+                  c("L03", "L09", "L10", "L12", "L13"))
+  expect_identical(locNames(b), locNames(a))
+  expect_identical(indNames(b), indNames(a))
+  expect_equal(unname(as.matrix(b)), unname(as.matrix(a)))
+  expect_identical(b@other$loc.metrics, a@other$loc.metrics)
+  # still file-backed, flag set, one history entry
+  expect_false(is.null(b@fbm))
+  expect_true(b@other$loc.metrics.flags$monomorphs)
+  expect_length(b@other$history, length(fb@other$history) + 1)
+})
+
+test_that("FBM-backed object: same loci removed and same messages as in memory (testset.gl)", {
+  skip_if_not_installed("bigstatsr")
+  fb <- gl.gen2fbm(testset.gl, verbose = 0)
+  out.a <- capture.output(a <- gl.filter.monomorphs(testset.gl, verbose = 3))
+  out.b <- capture.output(b <- gl.filter.monomorphs(fb, verbose = 3))
+  expect_identical(locNames(b), locNames(a))
+  expect_equal(unname(as.matrix(b)), unname(as.matrix(a)))
+  # counts of monomorphic and all-NA loci are reported the same
+  expect_identical(grep("loci|individuals|populations", out.b, value = TRUE),
+                   grep("loci|individuals|populations", out.a, value = TRUE))
+})

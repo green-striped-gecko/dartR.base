@@ -60,6 +60,10 @@ This function handles either a binary fileset (.bed with its
 .bim and .fam) or a text fileset (.ped, optionally with its .map). Both
 are read in R; no PLINK executable is needed. Without a .map, loci are
 named locus.1, locus.2, ... and chromosome and position are set to NA.
+Loci are returned in file order (note that \code{plink --make-bed} sorts
+loci by chromosome and position, so a .ped read directly and the .bed
+PLINK writes from it can differ in locus order). PLINK's chromosome code
+0 (unmapped) is returned as NA on both routes.
 The only case that still calls PLINK is when \code{plink.flags} is given:
 the .ped/.map are then converted with \code{plink --make-bed} and those
 flags in a temporary directory, so no files are written into the input

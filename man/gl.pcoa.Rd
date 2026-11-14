@@ -77,10 +77,15 @@ function.
 
 Two algorithms are used for the PCA, depending on how the genotypes are
 stored. For ordinary (in-memory) genlight objects the PCA is undertaken
-with glPca \{adegenet\}, which handles missing values internally. For
-file-backed (FBM) dartR objects the PCA is undertaken with big_SVD
-\{bigstatsr\}; missing values are first imputed using
-gl.impute(x, method='neighbour').
+with glPca \{adegenet\}, which replaces missing values with the mean of
+their locus. For file-backed (FBM) dartR objects the PCA is computed from
+the backing file in blocks with \{bigstatsr\}. Missing values are
+replaced by the mean of their locus there too (rounded to two decimal
+places, as snp_fastImputeSimple \{bigsnpr\} stores it), in a temporary
+copy, so the two algorithms give the same ordination and the object
+passed in is not altered. To ordinate genotypes imputed in another way,
+run gl.impute() first.
+
 \strong{ Sources of stress in the visual representation }
 While, technically, any distance matrix can be represented in an ordinated
 space, the representation will not typically be exact.There are three major

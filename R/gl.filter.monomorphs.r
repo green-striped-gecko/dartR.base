@@ -60,10 +60,29 @@ gl.filter.monomorphs <- function(x,
     if (verbose >= 2) {
         cat(report("  Identifying monomorphic loci\n"))
     }
-    
- 
+
+    # File-backed (FBM) objects: the genotypes of each locus are counted from
+    # the backing file in blocks (bigstatsr::big_counts), so the genotype
+    # matrix is not read into memory with as.matrix(x). A locus is
+    # monomorphic when every scored genotype is 0, or every scored genotype
+    # is the other homozygote (2 for SNPs, 1 for presence/absence); a locus
+    # with no scored genotype meets both conditions, as in the loops below.
+    fbm.backed <- .has_fbm(x)
+    if (fbm.backed) {
+      cnt <- bigstatsr::big_counts(x@fbm)
+      state <- as.numeric(rownames(cnt))
+      n.scored <- colSums(cnt[!is.na(state), , drop = FALSE])
+      n.state <- function(s) {
+        if (any(state %in% s)) cnt[which(state == s), ] else integer(ncol(cnt))
+      }
+      top <- if (datatype == "SNP") 2 else 1
+      mono <- n.state(0) == n.scored | n.state(top) == n.scored
+      loc.list[mono] <- locNames(x)[mono]
+      na.counter <- sum(n.scored == 0)
+    }
+
         # Tag presence/absence data
-        if (datatype == "SilicoDArT") {
+        if (datatype == "SilicoDArT" && !fbm.backed) {
           mat <- as.matrix(x)
           lN <- locNames(x)
           for (i in 1:nLoc(x)) {
@@ -79,7 +98,7 @@ gl.filter.monomorphs <- function(x,
         }
         
         # SNP data
-        if (datatype == "SNP") {
+        if (datatype == "SNP" && !fbm.backed) {
           mat <- as.matrix(x)
           lN <- locNames(x)
           for (i in 1:nLoc(x)) {
