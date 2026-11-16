@@ -76,7 +76,19 @@ calls <- list(
                     plot.out = FALSE, verbose = 3),
   filter.hwe = list(gl.filter.hwe, n.min = 2, verbose = 3),
   filter.hwe.all = list(gl.filter.hwe, subset = "all", verbose = 3),
-  hwe.pop = list(gl.hwe.pop, plot.out = FALSE, HWformat = TRUE, verbose = 3)
+  hwe.pop = list(gl.hwe.pop, plot.out = FALSE, HWformat = TRUE, verbose = 3),
+  report.pa = list(gl.report.pa, loc.names = TRUE, matrix.pa = TRUE,
+                   verbose = 3),
+  report.pa.asym = list(gl.report.pa, test.asym = TRUE, test.asym.boot = 5,
+                        verbose = 3),
+  report.pa.1r = list(gl.report.pa, method = "one2rest", loc.names = TRUE,
+                      verbose = 3),
+  filter.pa = list(function(x, ...) {
+    gl.filter.pa(x, popNames(x)[1], popNames(x)[2], ...)
+  }, verbose = 3),
+  filter.pa.inv = list(function(x, ...) {
+    gl.filter.pa(x, popNames(x)[1], popNames(x)[2], ...)
+  }, invers = TRUE, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {

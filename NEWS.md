@@ -112,6 +112,21 @@
   `gl.filter.monomorphs()` and decoding it; monomorphic loci are dropped
   per population with the same rule. Results and messages are identical
   (tested against the previous version and for both storage types).
+* `gl.report.pa()` and `gl.filter.pa()` compute the allele frequencies of
+  the populations (and, for the Chao estimates, the genotyped individuals
+  and allele counts per locus) in one pass over blocks of loci instead of
+  copying each population (`seppop()`) and decoding both populations of
+  every pair. The asymmetry test (`test.asym`) permutes each locus with the
+  same random numbers as before and reads a file-backed pair in blocks for
+  each permutation. Results, messages and seeded permutation tests are
+  identical to the previous version (tested, both storage types), and
+  much faster (10 populations x 5,000 loci: pairwise 2.8 s to 0.2 s in
+  memory and 0.1 s file-backed; `test.asym` with 10 permutations 415 s
+  to 41 s).
+* `gl.report.pa()`: BUG FIX, with `x2` and `test.asym = TRUE` the permuted
+  pooled sample was split after the first population of `x` instead of
+  after all of `x` when `x` held several populations, so `asym` and
+  `asym.sig` were wrong in that case (other cases are unchanged).
 
 # dartR.base 1.2.7 (development)
 

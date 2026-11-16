@@ -83,9 +83,10 @@ FBM and up to 12x faster than the in-memory path (e.g. `gl.allele.freq`
 
 In this order (decodes / `seppop` copies to replace):
 
-1. `gl.report.pa` (lines ~194-302, ~461-483: `seppop` + `as.matrix` per
-   pair, a permutation at ~302), `gl.filter.pa` (68-70),
-   `utils.pa.Chao` (takes two pop objects; called by `gl.report.pa`).
+1. Done (17 Nov, not yet committed): `gl.report.pa`, `gl.filter.pa`,
+   `utils.pa.Chao` (core moved to `.pa_chao()`, built from per-locus
+   terms). Also fixed: with `x2`, `test.asym` split the pooled sample at
+   the first population of `x`.
 2. `gl.report.diversity` (13 decodes: whole object and per pair).
 3. `gl.report.allelerich` (341-346, 494-496).
 4. `gl.test.heterozygosity` (240-247).

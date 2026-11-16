@@ -10,14 +10,27 @@
 # sampled in the pooled pair (twice the mean number of genotyped
 # individuals at the private loci), not the number of private alleles.
 # SNP data only (the caller reports NA for SilicoDArT).
+#
+# pop1_m, pop2_m: the two populations (genlight objects or genotype
+# matrices, 0/1/2 dosages, individuals in rows).
 
 utils.pa.Chao <- function(pop1_m, pop2_m) {
   p1_m <- as.matrix(pop1_m)
   p2_m <- as.matrix(pop2_m)
-  p1alf <- colMeans(p1_m, na.rm = TRUE) / 2
-  p2alf <- colMeans(p2_m, na.rm = TRUE) / 2
-  pooled <- rbind(p1_m, p2_m)
+  .pa_chao(p1alf = colMeans(p1_m, na.rm = TRUE) / 2,
+           p2alf = colMeans(p2_m, na.rm = TRUE) / 2,
+           n.pooled = colSums(!is.na(p1_m)) + colSums(!is.na(p2_m)),
+           s.pooled = colSums(p1_m, na.rm = TRUE) +
+             colSums(p2_m, na.rm = TRUE))
+}
 
+# The estimates of utils.pa.Chao from per-locus terms of the pair, so that
+# gl.report.pa can build them in blocks of loci without copying the
+# populations: allele frequencies of each population (p1alf, p2alf), and,
+# for the pooled pair, the number of genotyped individuals (n.pooled) and
+# the sum of the 0/1/2 dosages (s.pooled). These sums are whole numbers, so
+# adding the two populations' sums equals summing the pooled genotypes.
+.pa_chao <- function(p1alf, p2alf, n.pooled, s.pooled) {
   chao.dir <- function(host_alf, other_alf) {
     # loci where the host population carries an allele absent in the other
     alt.private <- which(other_alf == 0 & host_alf != 0)
@@ -27,13 +40,10 @@ utils.pa.Chao <- function(pop1_m, pop2_m) {
     }
     # sample size: allele copies sampled in the pooled pair, averaged over
     # the private loci (loci differ in missing data)
-    n <- mean(2 * colSums(!is.na(pooled[, c(alt.private, ref.private),
-                                        drop = FALSE])))
+    n <- mean(2 * n.pooled[c(alt.private, ref.private)])
     # copies of the private allele observed in the pooled pair sample
-    alt.count <- colSums(pooled[, alt.private, drop = FALSE], na.rm = TRUE)
-    ref.nonNA <- colSums(!is.na(pooled[, ref.private, drop = FALSE]))
-    ref.count <- 2 * ref.nonNA -
-      colSums(pooled[, ref.private, drop = FALSE], na.rm = TRUE)
+    alt.count <- s.pooled[alt.private]
+    ref.count <- 2 * n.pooled[ref.private] - s.pooled[ref.private]
     counts <- c(alt.count, ref.count)
     f1 <- sum(counts == 1)
     f2 <- sum(counts == 2)
