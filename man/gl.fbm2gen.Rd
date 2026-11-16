@@ -4,15 +4,15 @@
 \alias{gl.fbm2gen}
 \title{Converts a file-backed (FBM) genlight object to a gen-backed one}
 \usage{
-gl.fbm2gen(x, chunk = 256L, quiet = TRUE, verbose = NULL)
+gl.fbm2gen(x, chunk = NULL, quiet = TRUE, verbose = NULL)
 }
 \arguments{
 \item{x}{A `dartR` or `genlight` object. If it holds no FBM, it is returned
 unchanged.}
 
-\item{chunk}{Integer, number of **individuals per block** decoded from the
-FBM at a time; a block holds `chunk` x nLoc(x) values in memory
-(default `256L`). Increase for speed if you have RAM to spare.}
+\item{chunk}{Deprecated and ignored: the blocks are now blocks of loci
+whose size follows \code{bigstatsr.block.sizeGB}. Kept for
+compatibility [default NULL].}
 
 \item{quiet}{Logical; if `TRUE`, suppress the non-critical
 "no FBM found" message regardless of verbosity [default TRUE].}
@@ -27,11 +27,21 @@ A `dartR` object with **`@gen` populated** and **`@fbm = NULL`**.
 }
 \description{
 `gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot
-into a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. The
-conversion runs in blocks of individuals: each block is decoded from the
-FBM and turned into SNPbin objects, so the full genotype matrix is never
-decoded at once. At the end, `@fbm` is set to `NULL` and `@gen` holds the
-SNPbin list.
+into a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. At the
+end, `@fbm` is set to `NULL` and `@gen` holds the SNPbin list.
+
+The conversion reads the FBM in **blocks of loci** (the order in which the
+backing file is stored, so reading is fast) and packs each block directly
+into the bits of the SNPbin objects; the full genotype matrix is never
+decoded at once. The block size follows the bigstatsr option
+\code{bigstatsr.block.sizeGB} (default 1): a block holds one sixteenth of
+\code{bigstatsr::block_size(nInd(x))} loci (at least 512). Beyond the
+result itself, the conversion needs a few hundred Mb with the default
+(about 370 Mb for 2,000 individuals x 200,000 loci); lower the option to
+convert with less memory.
+
+Genotypes must be 0, 1, 2 or missing (0 or 1 for haploid individuals);
+other values give an error.
 }
 \examples{
 x <- gl.gen2fbm(testset.gl)

@@ -208,6 +208,17 @@ Peak memory is about the option in Gb (a block holds `block_size(n)` loci
 as raw bytes, with about 8 temporary copies of that size). Measuring two
 settings in one session overstates the second one (637 instead of 214 Mb).
 
+`gl.fbm2gen` after WP2 (blocks of loci, bits packed with `packBits`, NA as
+a bit plane; result 251 Mb at 200k loci):
+
+| Size | Before (256 rows per block) | WP2, block.sizeGB = 1 | = 0.1 |
+|---|---|---|---|
+| 2,000 x 20,000 | 4.7 s, 207 Mb | 2.9 s, 282 Mb | 2.0 s, 139 Mb |
+| 2,000 x 200,000 | 34.0 s, 1,057 Mb | 16.8 s, 621 Mb | 19.4 s, 570 Mb |
+
+Keeping NA positions as per-block lists of integer vectors cost 337 Mb of
+small vectors at 200k loci; a packed NA bit plane costs n x p / 8 bytes.
+
 ## Decisions (agreed 16 Nov 2026)
 
 1. HW imputation keeps the identical random stream (one pass per

@@ -27,6 +27,16 @@
   accepted, as loci per block). The result is unchanged (byte-identical
   backing file). The first individual is checked against adegenet's own
   decoding, so a change of the SNPbin layout gives an error.
+* `gl.fbm2gen()` reads the FBM in blocks of loci (the storage order of the
+  backing file) and packs them directly into SNPbin bits, instead of
+  decoding blocks of 256 individuals across the whole file. 2,000 x
+  200,000: 17 s and 621 Mb peak memory (including the 251 Mb result)
+  instead of 34 s and 1,057 Mb. The SNPbins are identical to those of
+  adegenet's constructor (as before), including its number of bit planes
+  and SNPbin ploidy per individual. The block size follows
+  `bigstatsr.block.sizeGB`; the argument `chunk` is deprecated and ignored.
+  Genotypes other than 0, 1, 2 (0, 1 for haploid individuals) give an
+  error.
 
 # dartR.base 1.2.7 (development)
 

@@ -40,14 +40,66 @@ test_that("baseline: unsupported inputs", {
 
 test_that("gl.fbm2gen gives the same object for any block size", {
   skip_if_not_installed("bigstatsr")
-  x <- testset.gl
+  x <- platypus.gl
   capture.output(f <- gl.gen2fbm(x, verbose = 0))
-  for (k in c(1L, 7L, 249L, 250L, 1000L)) {
-    capture.output(b <- gl.fbm2gen(f, chunk = k, verbose = 0))
-    expect_identical(as.matrix(b), as.matrix(x), label = paste("chunk", k))
-    expect_identical(b@ploidy, x@ploidy)
-    expect_null(b@fbm)
+  ref <- new("genlight", as.matrix(x), ploidy = x@ploidy)@gen
+  for (k in c(8L, 16L, 504L, 1000L, 1008L)) {
+    gen <- dartR.base:::utils.fbm2gen.copy(f@fbm, x@ploidy, loc_per = k)
+    expect_identical(gen, ref, label = paste("loci per block", k))
   }
+  capture.output(b <- gl.fbm2gen(f, verbose = 0))
+  expect_identical(as.matrix(b), as.matrix(x))
+  expect_identical(b@ploidy, x@ploidy)
+  expect_null(b@fbm)
+  # deprecated 'chunk' is accepted, ignored and reported
+  capture.output(b2 <- gl.fbm2gen(f, chunk = 7L, verbose = 0))
+  expect_identical(b2@gen, b@gen)
+  expect_output(gl.fbm2gen(f, chunk = 7L, verbose = 1), "deprecated")
+})
+
+test_that("gl.fbm2gen builds the same SNPbins as adegenet", {
+  # The SNPbins are packed directly from the FBM; they must be identical to
+  # those of adegenet's constructor, including its rules for the number of
+  # bit planes and the SNPbin ploidy (an individual without a genotype 2
+  # gets one plane and ploidy 1; an all-missing individual ploidy NA)
+  same <- function(x) {
+    capture.output(y <- gl.fbm2gen(gl.gen2fbm(x, verbose = 0), verbose = 0))
+    ref <- new("genlight", as.matrix(x), ploidy = x@ploidy)@gen
+    expect_identical(y@gen, ref)
+    expect_identical(as.matrix(y), as.matrix(x))
+    expect_identical(y@ploidy, x@ploidy)
+  }
+  mk <- function(n, p, ploidy = 2L, na = 0.1) {
+    m <- matrix(sample(0:2, n * p, TRUE), n)
+    m[ploidy == 1L, ] <- m[ploidy == 1L, ] %% 2L
+    m[sample(length(m), floor(length(m) * na))] <- NA
+    new("genlight", m, ploidy = ploidy)
+  }
+  set.seed(5)
+  same(testset.gl)
+  for (p in c(1, 7, 8, 9, 17, 100)) {
+    same(mk(1, p))
+    same(mk(3, p))
+  }
+  same(mk(5, 50, ploidy = c(1L, 2L, 1L, 2L, 2L)))
+  same(mk(5, 50, na = 0))
+  same(mk(5, 50, na = 0.9))
+  m <- rbind(c(NA, NA, NA), c(0L, 0L, NA), c(1L, 0L, 1L), c(2L, 1L, 0L))
+  same(new("genlight", m, ploidy = 2L))
+  same(new("genlight", m[3:4, ], ploidy = c(1L, 2L)))
+  # stored SNPbins with extra padding bytes (as in platypus.gl) decode the
+  # same; the result has adegenet's standard layout
+  same(platypus.gl)
+})
+
+test_that("gl.fbm2gen refuses values that SNPbins cannot hold", {
+  g <- new("genlight", rbind(c(2L, 0L, 1L), c(0L, 1L, NA)), ploidy = 2L)
+  capture.output(f <- gl.gen2fbm(g, verbose = 0))
+  f@ploidy[1] <- 1L                      # a haploid individual with a 2
+  expect_error(gl.fbm2gen(f, verbose = 0), "haploid")
+  G <- bigstatsr::FBM(2, 3, init = 0.5)
+  expect_error(dartR.base:::utils.fbm2gen.copy(G, 2L, loc_per = 8L),
+               "other than 0, 1, 2")
 })
 
 test_that("an object with both slots populated is reported as invalid", {
