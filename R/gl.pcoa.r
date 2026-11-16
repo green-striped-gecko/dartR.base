@@ -814,7 +814,9 @@ gl.pcoa <- function(x,
             cat(report("  Missing values replaced by the mean of their locus for the PCA\n"))
           }
           G.tmp <- utils.fbm.copy(G, prefix = "gl_pcoa_")
-          G <- bigsnpr::snp_fastImputeSimple(G.tmp, method = "mean2")
+          # a new R object on the same file: recorded, so the file is only
+          # deleted when both are gone
+          G <- .fbm_register(bigsnpr::snp_fastImputeSimple(G.tmp, method = "mean2"))
         }
 
         # Number of axes. The cap of min(nInd, nLoc) - 1 is kept from the

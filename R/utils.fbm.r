@@ -7,9 +7,25 @@
 ##   - the file is recorded as created by dartR. Only recorded files may ever
 ##     be removed automatically; a backing file named by the user (argument
 ##     backingfile = ...) is never recorded.
+##
+## Automatic clean-up. Each R object (FBM) that points to a recorded file is
+## counted, and a finalizer on the object lowers the count when the object
+## is garbage collected. When the count reaches zero no object uses the file
+## any more and it is deleted. Counting objects, not files, matters because
+## some bigstatsr/bigsnpr functions (e.g. snp_fastImputeSimple) return a new
+## R object on the same backing file. Copies of a dartR object share one FBM
+## object and are covered by the same count.
+##
+## On Windows a file cannot be deleted while it is still memory-mapped, which
+## it can be for a short while after the object is collected. Such files are
+## kept in a pending list and deleted at the next attempt: when dartR creates
+## the next backing file, in gl.fbm.cleanup(), and when the package unloads.
 
-## Backing files created by dartR in this session (names: full .bk paths)
+## Backing files created by dartR in this session: full .bk path -> number of
+## live R objects that point to the file
 .dartR_fbm_files <- new.env(parent = emptyenv())
+## Files whose deletion failed (still mapped); retried later
+.dartR_fbm_pending <- new.env(parent = emptyenv())
 
 #' @name utils.fbm.tempfile
 #' @title File stem for a new temporary FBM backing file
@@ -40,17 +56,72 @@ utils.fbm.tempfile <- function(prefix = "geno_") {
   tempfile(prefix, tmpdir = dir)
 }
 
-## Record a backing file as created by dartR (internal)
+.fbm_path <- function(G) {
+  normalizePath(G$backingfile, winslash = "/", mustWork = FALSE)
+}
+
+## Delete a backing file (and a .rds descriptor, if any); if it is still
+## mapped, keep it in the pending list. Never raises an error: it can run
+## inside a finalizer.
+.fbm_try_delete <- function(path) {
+  tryCatch({
+    unlink(c(path, sub("\\.bk$", ".rds", path)))
+    if (file.exists(path)) {
+      assign(path, TRUE, envir = .dartR_fbm_pending)
+    } else if (exists(path, envir = .dartR_fbm_pending, inherits = FALSE)) {
+      rm(list = path, envir = .dartR_fbm_pending)
+    }
+  }, error = function(e) NULL)
+  invisible(NULL)
+}
+
+## Retry the deletion of pending files
+.fbm_retry_pending <- function() {
+  for (path in ls(.dartR_fbm_pending, all.names = TRUE)) .fbm_try_delete(path)
+  invisible(NULL)
+}
+
+## Finalizer factory: the closure holds only the path, never the object
+.fbm_release_fun <- function(path) {
+  force(path)
+  function(e) {
+    tryCatch({
+      cnt <- get0(path, envir = .dartR_fbm_files, inherits = FALSE,
+                  ifnotfound = 0L) - 1L
+      if (cnt > 0L) {
+        assign(path, cnt, envir = .dartR_fbm_files)
+      } else {
+        if (exists(path, envir = .dartR_fbm_files, inherits = FALSE)) {
+          rm(list = path, envir = .dartR_fbm_files)
+        }
+        .fbm_try_delete(path)
+      }
+    }, error = function(e) NULL)
+  }
+}
+
+## Record an R object pointing to a backing file created by dartR, so that
+## the file is deleted once no recorded object uses it (internal). Use it
+## also for a new R object that bigstatsr/bigsnpr returns on a recorded file.
+## Recording the same object twice has no effect.
 .fbm_register <- function(G) {
-  assign(normalizePath(G$backingfile, winslash = "/", mustWork = FALSE),
-         TRUE, envir = .dartR_fbm_files)
+  env <- as.environment(G)
+  if (isTRUE(get0(".dartR_registered", envir = env, inherits = FALSE))) {
+    return(invisible(G))
+  }
+  path <- .fbm_path(G)
+  cnt <- get0(path, envir = .dartR_fbm_files, inherits = FALSE,
+              ifnotfound = 0L)
+  assign(path, cnt + 1L, envir = .dartR_fbm_files)
+  assign(".dartR_registered", TRUE, envir = env)
+  reg.finalizer(env, .fbm_release_fun(path), onexit = TRUE)
   invisible(G)
 }
 
-## TRUE if the backing file of G was created by dartR in this session
+## TRUE if the backing file of G was created by dartR in this session and is
+## still in use
 .fbm_is_registered <- function(G) {
-  exists(normalizePath(G$backingfile, winslash = "/", mustWork = FALSE),
-         envir = .dartR_fbm_files, inherits = FALSE)
+  exists(.fbm_path(G), envir = .dartR_fbm_files, inherits = FALSE)
 }
 
 #' @name utils.fbm.new
@@ -81,7 +152,10 @@ utils.fbm.new <- function(n, p,
                           backingfile = NULL,
                           prefix = "geno_") {
   temp <- is.null(backingfile)
-  if (temp) backingfile <- utils.fbm.tempfile(prefix)
+  if (temp) {
+    .fbm_retry_pending()
+    backingfile <- utils.fbm.tempfile(prefix)
+  }
   G <- bigstatsr::FBM.code256(n, p, code = code, backingfile = backingfile)
   if (temp) .fbm_register(G)
   G
@@ -110,6 +184,7 @@ utils.fbm.copy <- function(G,
                            ind.row = bigstatsr::rows_along(G),
                            ind.col = bigstatsr::cols_along(G),
                            prefix = "geno_") {
+  .fbm_retry_pending()
   G2 <- bigstatsr::big_copy(G, ind.row = ind.row, ind.col = ind.col,
                             backingfile = utils.fbm.tempfile(prefix))
   .fbm_register(G2)

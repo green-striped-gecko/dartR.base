@@ -10,6 +10,14 @@
   (a temporary file in `FBM.dir`). A backing file named by the user is
   never recorded for clean-up.
 * `rbind()`: BUG FIX, the `backingfile` argument was ignored.
+* Backing files are deleted automatically once no object in the session
+  uses them (previously every subset, filter or imputation left a file in
+  the temporary folder until R closed). Files are counted per R object, so
+  a file shared by several objects is kept until the last one is gone; on
+  Windows, files still memory-mapped are deleted at the next attempt. Only
+  files created by dartR are deleted, never a file named by the user.
+* New `gl.fbm.cleanup()`: forces the clean-up and reports the backing files
+  deleted and still in use.
 
 # dartR.base 1.2.7 (development)
 

@@ -72,6 +72,7 @@ Other data manipulation:
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
 \code{\link{gl.fbm2gen}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
