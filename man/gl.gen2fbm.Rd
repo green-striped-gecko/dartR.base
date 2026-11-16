@@ -7,7 +7,7 @@
 gl.gen2fbm(
   x,
   code = bigsnpr::CODE_012,
-  backingfile = tempfile("geno_"),
+  backingfile = NULL,
   chunk = 2048L,
   verbose = NULL
 )
@@ -20,7 +20,11 @@ is converted to `dartR` first. Only SNP data are supported.}
 \item{code}{A `bigsnpr` code mapping for `FBM.code256`. Defaults to
 `bigsnpr::CODE_012` (0/1/2 with `NA` support).}
 
-\item{backingfile}{File stem for the FBM backing files. Defaults to a temp file.}
+\item{backingfile}{File stem for the FBM backing file. If NULL, a temporary
+file in the folder \code{getOption("FBM.dir")} (see
+\code{\link{utils.fbm.tempfile}}). A backing file named here is never
+removed automatically
+[default NULL].}
 
 \item{chunk}{Integer, number of **loci per block** to write with `big_apply`
 (default `2048L`). Increase for faster IO if you have RAM to spare.}

@@ -1,3 +1,16 @@
+# dartR.base 1.2.7.9000 (dev_fbm: file-backed storage, step 2)
+
+* Backing files of file-backed objects are placed in `getOption("FBM.dir")`,
+  the folder bigstatsr uses for its own files (default: the session
+  temporary folder). Before, dartR always used `tempdir()` and ignored the
+  option. New internal helpers `utils.fbm.tempfile()`, `utils.fbm.new()` and
+  `utils.fbm.copy()` create all temporary backing files and record them as
+  created by dartR (for the automatic clean-up that follows).
+* `gl.gen2fbm()`, `cbind()` and `rbind()`: `backingfile` defaults to `NULL`
+  (a temporary file in `FBM.dir`). A backing file named by the user is
+  never recorded for clean-up.
+* `rbind()`: BUG FIX, the `backingfile` argument was ignored.
+
 # dartR.base 1.2.7 (development)
 
 * `gl.gen2fbm()`: BUG FIX, polyploid data (dosages above 2) were stored with

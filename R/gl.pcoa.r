@@ -813,7 +813,7 @@ gl.pcoa <- function(x,
           if (verbose >= 2) {
             cat(report("  Missing values replaced by the mean of their locus for the PCA\n"))
           }
-          G.tmp <- bigstatsr::big_copy(G, backingfile = tempfile("gl_pcoa_"))
+          G.tmp <- utils.fbm.copy(G, prefix = "gl_pcoa_")
           G <- bigsnpr::snp_fastImputeSimple(G.tmp, method = "mean2")
         }
 

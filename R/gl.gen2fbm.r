@@ -26,7 +26,11 @@
 #'   is converted to `dartR` first. Only SNP data are supported.
 #' @param code A `bigsnpr` code mapping for `FBM.code256`. Defaults to
 #'   `bigsnpr::CODE_012` (0/1/2 with `NA` support).
-#' @param backingfile File stem for the FBM backing files. Defaults to a temp file.
+#' @param backingfile File stem for the FBM backing file. If NULL, a temporary
+#'   file in the folder \code{getOption("FBM.dir")} (see
+#'   \code{\link{utils.fbm.tempfile}}). A backing file named here is never
+#'   removed automatically
+#'   [default NULL].
 #' @param chunk Integer, number of **loci per block** to write with `big_apply`
 #'   (default `2048L`). Increase for faster IO if you have RAM to spare.
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
@@ -45,7 +49,7 @@
 #' @export
 gl.gen2fbm <- function(x,
                        code        = bigsnpr::CODE_012,
-                       backingfile = tempfile("geno_"),
+                       backingfile = NULL,
                        chunk       = 2048L,
                        verbose     = NULL) {
 
@@ -107,7 +111,7 @@ gl.gen2fbm <- function(x,
   # DO THE JOB
 
   ## Create destination FBM
-  G <- bigstatsr::FBM.code256(n, p, code = code, backingfile = backingfile)
+  G <- utils.fbm.new(n, p, code = code, backingfile = backingfile)
 
   ## Column-chunked write: big_apply over 'G' columns in blocks of 'chunk'
   write_block <- function(Y, ind, ind.col) {
