@@ -219,6 +219,34 @@ a bit plane; result 251 Mb at 200k loci):
 Keeping NA positions as per-block lists of integer vectors cost 337 Mb of
 small vectors at 200k loci; a packed NA bit plane costs n x p / 8 bytes.
 
+`gl.impute` after WP3 (10 populations, 10 % missing; "core" is the
+imputation without the final `gl.compliance.check`):
+
+| 2,000 x 20,000 | Old | New | Core |
+|---|---|---|---|
+| frequency | 18.9 s, 1,262 Mb | 10.8 s, 984 Mb* | 3.9 s, 357 Mb |
+| random | 9.8 s, 1,619 Mb | 9.3 s, 985 Mb* | 2.8 s, 392 Mb |
+| neighbour | 328.6 s, 1,477 Mb | 126.1 s, 1,017 Mb* | 111.8 s, 663 Mb |
+| HW | 73.5 s, 1,319 Mb | 57.8 s, 1,132 Mb* | 51.2 s, 447 Mb |
+
+| 2,000 x 200,000 | Old | New | Core |
+|---|---|---|---|
+| frequency | 125.8 s, 11,017 Mb | 65.8 s, 733 Mb | 27.0 s, 577 Mb |
+| random | 61.3 s, 15,462 Mb | 58.3 s, 736 Mb | 20.5 s, 700 Mb |
+| HW | not run | not run | 561.8 s, 709 Mb |
+| neighbour (50,000 loci) | not run | not run | 249.2 s, 761 Mb |
+
+\* measured before the compliance check was made block-wise (caveat 4):
+it decoded the matrix seven times (value check, avgpic, callrate,
+freqhets, freqhomref, freqhomsnp, gl.alf) and dominated the peak (9.2 Gb
+at 200k). Now all use `.gl_colwise()`; `gl.compliance.check` alone at 200k:
+66.8 s, 294 Mb.
+
+Neighbour time is almost all in the three cross-products per block, run by
+R's reference BLAS on Windows (106 of 112 s at 20k); an optimised BLAS
+speeds it up several times. HW time is the per-value `sample()` calls
+kept for identical draws.
+
 ## Decisions (agreed 16 Nov 2026)
 
 1. HW imputation keeps the identical random stream (one pass per

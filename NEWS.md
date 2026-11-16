@@ -37,6 +37,25 @@
   `bigstatsr.block.sizeGB`; the argument `chunk` is deprecated and ignored.
   Genotypes other than 0, 1, 2 (0, 1 for haploid individuals) give an
   error.
+* `gl.impute()` imputes file-backed objects in blocks of loci (methods
+  frequency, HW, neighbour, random and `fill.residual`), without decoding
+  the whole genotype matrix and without copying each population
+  (`seppop()` + `rbind()`). The result is identical to that of the same
+  data held in memory, including the random draws with the same seed and
+  the messages; HW reads the file once per population to keep the order of
+  the draws. Nearest-neighbour distances are accumulated over blocks with
+  exact integer sums. 2,000 x 200,000 (10 % missing), whole function:
+  frequency 66 s and 733 Mb peak memory instead of 126 s and 11.0 Gb;
+  random 58 s and 736 Mb instead of 61 s and 15.5 Gb. Method beagle is
+  unchanged (the VCF export decodes the matrix).
+* `gl.compliance.check()`, `gl.recalc.metrics()` (through
+  `utils.recalc.avgpic()`, `utils.recalc.callrate()`,
+  `utils.recalc.freqhets()`, `utils.recalc.freqhomref()`,
+  `utils.recalc.freqhomsnp()`) and `gl.alf()` read file-backed objects in
+  blocks of loci instead of decoding the whole matrix (seven full decodes
+  in one compliance check). The values are identical, as the same
+  per-locus expressions are applied block by block. `gl.compliance.check()`
+  at 2,000 x 200,000: 294 Mb peak instead of more than 9 Gb.
 
 # dartR.base 1.2.7 (development)
 

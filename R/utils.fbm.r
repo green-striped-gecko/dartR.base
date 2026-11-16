@@ -189,3 +189,39 @@ utils.fbm.copy <- function(G,
                             backingfile = utils.fbm.tempfile(prefix))
   .fbm_register(G2)
 }
+
+## Blocks of loci (columns) for reading 'nr' rows of an FBM. The block size
+## is bigstatsr's (which follows options(bigstatsr.block.sizeGB), default
+## 1 Gb of doubles) divided by 16, as a block is held in several copies
+## (decoded values, logical masks, results): about 64 Mb per copy with the
+## default. Reading blocks of loci follows the storage order of the backing
+## file (column by column).
+.fbm_col_blocks <- function(p, nr) {
+  size <- max(1L, as.integer(bigstatsr::block_size(max(1L, nr)) %/% 16L))
+  starts <- seq(1L, p, by = size)
+  lapply(starts, function(s) s:min(p, s + size - 1L))
+}
+
+## Applies FUN, a column-wise statistic of the decoded genotype matrix (one
+## value per locus, e.g. colMeans(t == 1, na.rm = TRUE)), and returns the
+## same vector as FUN(as.matrix(x)). For an FBM-backed object, FUN gets
+## blocks of loci decoded exactly as by as.matrix() (integer storage for
+## integer codes, indNames/locNames as dimnames), and the results are
+## concatenated, so the whole matrix is never decoded and the values are
+## identical. For a gen-backed object, FUN(as.matrix(x)).
+.gl_colwise <- function(x, FUN) {
+  G <- .fbm_or_null(x)
+  if (is.null(G)) return(FUN(as.matrix(x)))
+  code <- G$code256
+  int <- all(code[!is.na(code)] %% 1 == 0)
+  ind <- indNames(x)
+  loc <- locNames(x)
+  no_dn <- is.null(ind) && is.null(loc)
+  out <- lapply(.fbm_col_blocks(ncol(G), nrow(G)), function(cols) {
+    B <- G[, cols, drop = FALSE]
+    if (int) storage.mode(B) <- "integer"
+    if (!no_dn) dimnames(B) <- list(ind, loc[cols])
+    FUN(B)
+  })
+  do.call(c, out)
+}
