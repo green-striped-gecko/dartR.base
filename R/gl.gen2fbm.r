@@ -6,8 +6,20 @@
 #' `gl.gen2fbm()` converts a `dartR`/`genlight` object that stores genotypes
 #' in the standard list-of-`SNPbin` format (`@gen`) into an `FBM.code256`
 #' stored in the `@fbm` slot (and clears `@gen`, enforcing XOR).
-#' The copy is done **by column blocks** via `bigstatsr::big_apply`, so the
-#' full genotype matrix is never materialized in memory.
+#' The copy is done **by column blocks** via `bigstatsr::big_apply`.
+#'
+#' Only diploid SNP data (genotypes 0, 1, 2 or missing) can be stored. The
+#' FBM uses the value 3 for a missing genotype, so data with higher dosages
+#' (e.g. polyploids) are refused with an error instead of being silently
+#' turned into missing values.
+#'
+#' **Saving.** The FBM holds only a reference to its backing file, which by
+#' default is a temporary file deleted at the end of the R session. Save a
+#' file-backed object with \code{\link{gl.save}} (and reload it with
+#' \code{\link{gl.load}}), never with \code{saveRDS()}: \code{saveRDS()} stores
+#' only the reference, not the genotypes. After saving, check that the file
+#' size makes sense for the number of individuals and loci (a file of a few
+#' Kb for thousands of loci means the genotypes were not saved).
 #'
 #' @param x A **`dartR`** (preferred) or **`genlight`** object that currently
 #'   has genotype data only in `@gen` (i.e., no FBM yet). A plain `genlight`
@@ -84,6 +96,14 @@ gl.gen2fbm <- function(x,
     stop(error("  Empty object (0 individuals or 0 loci)\n"))
   }
 
+  ## Only diploid data fit the 0/1/2 + NA(=3) coding: a dosage of 3 would be
+  ## stored as the NA code and silently lost
+  if (any(adegenet::ploidy(x) > 2L, na.rm = TRUE)) {
+    stop(error("  Only diploid data can be converted to FBM: ploidy above 2",
+               "found. Dosages of 3 or more cannot be stored (3 is the code",
+               "for a missing genotype)\n"))
+  }
+
   # DO THE JOB
 
   ## Create destination FBM
@@ -92,10 +112,19 @@ gl.gen2fbm <- function(x,
   ## Column-chunked write: big_apply over 'G' columns in blocks of 'chunk'
   write_block <- function(Y, ind, ind.col) {
     Xblk <- as.matrix(x[, ind.col, drop = FALSE])     # (n x |ind.col|)
+    if (any(Xblk > 2, na.rm = TRUE)) {
+      stop(error("  Genotypes above 2 found (e.g. polyploid dosages); they",
+                 "cannot be stored in an FBM, where 3 codes a missing",
+                 "genotype\n"))
+    }
     Xblk[is.na(Xblk)] <- 3                           # NA code
     Y[ind, ind.col] <- Xblk[ind, , drop = FALSE]
     NULL
   }
+
+  ## On error remove the partly written backing file
+  ok <- FALSE
+  on.exit(if (!ok) unlink(c(G$backingfile, G$rds)), add = TRUE)
 
   bigstatsr::big_apply(
     G,
@@ -105,6 +134,7 @@ gl.gen2fbm <- function(x,
     ind.col    = seq_len(p),                          # explicit columns
     block.size = max(1L, as.integer(chunk))           # columns per block
   )
+  ok <- TRUE
 
   ## Set FBM and clear heavy SNPbin list (XOR)
   x@fbm <- G

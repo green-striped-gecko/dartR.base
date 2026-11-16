@@ -13,6 +13,14 @@
 #' reference to its backing file, which is usually temporary, and the
 #' gen-backed copy is also smaller. The input object stays file-backed. Use
 #' gl.load(file, fbm = TRUE) to load it back as a file-backed object.
+#'
+#' **Always use gl.save(), not saveRDS(), for a file-backed object.**
+#' saveRDS() stores only the reference to the backing file, not the
+#' genotypes; the backing file is usually a temporary file that is deleted at
+#' the end of the R session, so the genotypes are lost. After saving, check
+#' that the file size makes sense for the number of individuals and loci: a
+#' file of only a few Kb for thousands of loci means the genotypes were not
+#' saved. gl.save() reports the size of the saved file at verbose >= 2.
 
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param file Name of the file to receive the binary version of the object
@@ -72,7 +80,9 @@ gl.save <- function(x,
 
     saveRDS(xsave, file)
     if (verbose >= 2) {
-      cat(report("  Saved object of type", datatype, "to a compressed RDS file\n"))
+      cat(report("  Saved object of type", datatype, "to a compressed RDS file",
+                 "of", format(structure(file.size(file), class = "object_size"),
+                              units = "auto"), "\n"))
       cat(report("  Load again using function gl.load\n"))
     }
     

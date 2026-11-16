@@ -29,6 +29,14 @@ saved as a gen-backed copy (genotypes in @gen): an FBM holds only a
 reference to its backing file, which is usually temporary, and the
 gen-backed copy is also smaller. The input object stays file-backed. Use
 gl.load(file, fbm = TRUE) to load it back as a file-backed object.
+
+**Always use gl.save(), not saveRDS(), for a file-backed object.**
+saveRDS() stores only the reference to the backing file, not the
+genotypes; the backing file is usually a temporary file that is deleted at
+the end of the R session, so the genotypes are lost. After saving, check
+that the file size makes sense for the number of individuals and loci: a
+file of only a few Kb for thousands of loci means the genotypes were not
+saved. gl.save() reports the size of the saved file at verbose >= 2.
 }
 \examples{
 gl.save(testset.gl,file.path(tempdir(),'testset.rds'))

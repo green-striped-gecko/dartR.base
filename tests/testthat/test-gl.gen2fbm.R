@@ -58,3 +58,13 @@ test_that("an object with both slots populated is reported as invalid", {
   expect_error(capture.output(gl.gen2fbm(bad, verbose = 0)),
                "both @fbm and @gen")
 })
+
+test_that("polyploid dosages are refused, not silently set to missing", {
+  tg <- new("genlight",
+            matrix(c(0, 1, 2, 3, 4, 1, 2, 0, 1, 4, 3, NA), nrow = 2,
+                   byrow = TRUE),
+            ploidy = 4L)
+  before <- list.files(tempdir(), pattern = "^geno_")
+  expect_error(gl.gen2fbm(tg, verbose = 0), "diploid|above 2")
+  expect_identical(list.files(tempdir(), pattern = "^geno_"), before)
+})

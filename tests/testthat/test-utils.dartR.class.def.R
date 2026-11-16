@@ -86,3 +86,10 @@ test_that("as.matrix gives identical matrices for gen- and FBM-backed objects", 
                   verbose = 0)
   expect_type(as.matrix(d), "double")
 })
+
+test_that("show() reports the same missing data for FBM and gen objects", {
+  f <- gl.gen2fbm(testset.gl, verbose = 0)
+  na_line <- function(x) grep("missing data", utils::capture.output(show(x)),
+                              value = TRUE)
+  expect_identical(na_line(f), na_line(testset.gl))
+})

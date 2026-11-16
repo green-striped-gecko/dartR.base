@@ -198,7 +198,13 @@ setMethod ("show", "dartR", function(object) {
     fbm <- object@fbm
     n <- nInd(object); p <- nLoc(object)
     if (n > 0 && p > 0) {
-      nNA <- sum(is.na(fbm[]))
+      # Counted from the backing file in blocks of loci; fbm[] would decode
+      # the whole matrix into memory
+      nNA <- sum(bigstatsr::big_apply(
+        fbm,
+        a.FUN = function(X, ind) sum(is.na(X[, ind, drop = FALSE])),
+        a.combine = "c"
+      ))
       cat("\n\n    missing data: ",
           nNA,
           " (=",

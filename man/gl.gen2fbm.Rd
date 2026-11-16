@@ -38,8 +38,20 @@ object that is already FBM-backed is returned unchanged.
 `gl.gen2fbm()` converts a `dartR`/`genlight` object that stores genotypes
 in the standard list-of-`SNPbin` format (`@gen`) into an `FBM.code256`
 stored in the `@fbm` slot (and clears `@gen`, enforcing XOR).
-The copy is done **by column blocks** via `bigstatsr::big_apply`, so the
-full genotype matrix is never materialized in memory.
+The copy is done **by column blocks** via `bigstatsr::big_apply`.
+
+Only diploid SNP data (genotypes 0, 1, 2 or missing) can be stored. The
+FBM uses the value 3 for a missing genotype, so data with higher dosages
+(e.g. polyploids) are refused with an error instead of being silently
+turned into missing values.
+
+**Saving.** The FBM holds only a reference to its backing file, which by
+default is a temporary file deleted at the end of the R session. Save a
+file-backed object with \code{\link{gl.save}} (and reload it with
+\code{\link{gl.load}}), never with \code{saveRDS()}: \code{saveRDS()} stores
+only the reference, not the genotypes. After saving, check that the file
+size makes sense for the number of individuals and loci (a file of a few
+Kb for thousands of loci means the genotypes were not saved).
 }
 \examples{
 x <- gl.gen2fbm(testset.gl)

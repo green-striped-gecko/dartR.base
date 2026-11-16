@@ -1,5 +1,20 @@
 # dartR.base 1.2.7 (development)
 
+* `gl.gen2fbm()`: BUG FIX, polyploid data (dosages above 2) were stored with
+  the FBM code for a missing genotype, so every dosage of 3 or 4 silently
+  became NA. Data with ploidy or genotypes above 2 are now refused with an
+  error, and no partial backing file is left behind.
+* `show()` of a file-backed object counts the missing genotypes from the
+  backing file in blocks of loci instead of decoding the whole matrix
+  (2,000 x 20,000: about 1 Mb instead of 459 Mb).
+* Option `dartR_fbm`: the environment variable now accepts `1`, `true`,
+  `yes` and `on` (any case), as documented; before only `TRUE` switched it on.
+* `gl.save()` reports the size of the saved file. The help pages of
+  `gl.save()` and `gl.gen2fbm()` now state that file-backed objects must be
+  saved with `gl.save()`, not `saveRDS()` (which stores only the reference
+  to the temporary backing file), and that the saved file size should be
+  checked.
+
 * History: BUG FIX, a function called through `do.call(fun, list(x = gl,
   ...))` stored the whole input object (with its own history) in
   `@other$history`, so objects and saved files grew with every such step
