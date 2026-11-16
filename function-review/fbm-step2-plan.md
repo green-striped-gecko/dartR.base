@@ -247,6 +247,27 @@ R's reference BLAS on Windows (106 of 112 s at 20k); an optimised BLAS
 speeds it up several times. HW time is the per-value `sample()` calls
 kept for identical draws.
 
+`gl.pcoa` (WP5, 1,000 x 20,000, 10 % missing, installed package):
+
+| | Time | Peak vectors | Peak cons cells |
+|---|---|---|---|
+| Luis (macOS) | 7 s | 112 Mb | |
+| Before WP5 | 11 s | about 200 Mb (160 Mb working matrix) | |
+| WP5 (block size passed to bigstatsr) | 11.1 s | 96 Mb | 150-170 Mb, constant |
+
+- No step decodes the whole matrix (Rprofmem; test with `.fbm_as_matrix`
+  mocked to fail). Filters and missing-data counts use `big_counts`.
+- `big_tcrossprodSelf()` allocates an n x block.size working matrix; with
+  bigstatsr's default block (about 1 Gb) that held all loci up to about
+  130,000 loci for 1,000 individuals. Now `.fbm_block_size()` (1/16).
+- 9 of 11 s are the cross-product (reference BLAS on Windows); Luis's
+  faster time is the macOS Accelerate BLAS.
+- The cons-cell overhead is the same at 5,000 and 20,000 loci: R language
+  objects (calls, S4 dispatch, defaults), not genotypes.
+- The mean imputation stores the mean rounded to 2 decimals
+  (`snp_fastImputeSimple(method = "mean2")`); tests compare with glPca at
+  tolerance 1e-3 (eigenvalues) and 5e-3 (scores), as before.
+
 ## Decisions (agreed 16 Nov 2026)
 
 1. HW imputation keeps the identical random stream (one pass per

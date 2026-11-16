@@ -792,7 +792,7 @@ gl.pcoa <- function(x,
       # File-backed (FBM) objects: the PCA is computed from the backing file in
       # blocks, so this block never holds the genotype matrix in memory as a
       # whole. gl.filter.allna() and gl.filter.monomorphs(), called above,
-      # still read it with as.matrix().
+      # also count from the backing file (bigstatsr::big_counts).
       if (!is.null(.fbm_or_null(x))) {
 
         G <- x@fbm
@@ -839,10 +839,17 @@ gl.pcoa <- function(x,
         # loadings of every axis, nLoc x (nInd - 1) doubles, as much memory as
         # the genotype matrix itself, and all but nfactors were discarded.
         centre <- bigstatsr::big_scale(center = TRUE, scale = FALSE)
+        # Blocks of loci sized as elsewhere in dartR (.fbm_block_size).
+        # With bigstatsr's default (about 1 Gb of doubles) the working matrix
+        # of big_tcrossprodSelf held all loci at once for moderate data
+        # (160 Mb at 1,000 x 20,000), as much as decoding the matrix.
+        bs <- .fbm_block_size(n.ind)
         if (n.ind <= n.loc) {
-          K <- bigstatsr::big_tcrossprodSelf(G, fun.scaling = centre)
+          K <- bigstatsr::big_tcrossprodSelf(G, fun.scaling = centre,
+                                             block.size = bs)
         } else {
-          K <- bigstatsr::big_crossprodSelf(G, fun.scaling = centre)
+          K <- bigstatsr::big_crossprodSelf(G, fun.scaling = centre,
+                                            block.size = bs)
         }
         eig.K <- eigen(K[], symmetric = TRUE)
         # Eigenvalues of the cross-product are the squared singular values.
@@ -863,12 +870,12 @@ gl.pcoa <- function(x,
         }
         if (n.ind <= n.loc) {
           u <- eig.K$vectors[, seq_len(nf.use), drop = FALSE]
-          v <- other.side(bigstatsr::big_cprodMat(G, u,
+          v <- other.side(bigstatsr::big_cprodMat(G, u, block.size = bs,
                                                   center = attr(K, "center"),
                                                   scale = attr(K, "scale")))
         } else {
           v <- eig.K$vectors[, seq_len(nf.use), drop = FALSE]
-          u <- other.side(bigstatsr::big_prodMat(G, v,
+          u <- other.side(bigstatsr::big_prodMat(G, v, block.size = bs,
                                                  center = attr(K, "center"),
                                                  scale = attr(K, "scale")))
         }

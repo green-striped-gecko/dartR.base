@@ -196,8 +196,12 @@ utils.fbm.copy <- function(G,
 ## (decoded values, logical masks, results): about 64 Mb per copy with the
 ## default. Reading blocks of loci follows the storage order of the backing
 ## file (column by column).
+.fbm_block_size <- function(nr) {
+  max(1L, as.integer(bigstatsr::block_size(max(1L, nr)) %/% 16L))
+}
+
 .fbm_col_blocks <- function(p, nr) {
-  size <- max(1L, as.integer(bigstatsr::block_size(max(1L, nr)) %/% 16L))
+  size <- .fbm_block_size(nr)
   starts <- seq(1L, p, by = size)
   lapply(starts, function(s) s:min(p, s + size - 1L))
 }

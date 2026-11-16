@@ -57,6 +57,16 @@
   per-locus expressions are applied block by block. `gl.compliance.check()`
   at 2,000 x 200,000: 294 Mb peak instead of more than 9 Gb.
 
+* `gl.pcoa()` (file-backed): the cross-products are computed in blocks of
+  loci sized as elsewhere in dartR. With bigstatsr's default block size
+  (about 1 Gb of doubles) `big_tcrossprodSelf()` held all loci of moderate
+  datasets in one working matrix (160 Mb at 1,000 x 20,000, up to 1 Gb for
+  larger data). 1,000 x 20,000: 11 s and 96 Mb of vector memory (plus a
+  fixed overhead of about 150 Mb of R language objects that does not grow
+  with the data). The result is unchanged. Verified that no step decodes
+  the whole matrix (new test). Most of the time is the cross-product, run by
+  the BLAS that R uses (much faster with an optimised BLAS, e.g. on macOS).
+
 # dartR.base 1.2.7 (development)
 
 * `gl.gen2fbm()`: BUG FIX, polyploid data (dosages above 2) were stored with
