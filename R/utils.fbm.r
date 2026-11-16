@@ -212,8 +212,53 @@ utils.fbm.copy <- function(G,
 ## blocks of loci decoded exactly as by as.matrix() (integer storage for
 ## integer codes, indNames/locNames as dimnames), and the results are
 ## concatenated, so the whole matrix is never decoded and the values are
-## identical. For a gen-backed object, FUN(as.matrix(x)).
-.gl_colwise <- function(x, FUN) {
+## identical. For a gen-backed object, FUN(as.matrix(x)). With 'rows' (row
+## indices, e.g. the individuals of one population), FUN gets only those
+## rows, as FUN(as.matrix(x)[rows, , drop = FALSE]), without copying the
+## object. FUN may return a matrix with one column per locus (several
+## statistics); the blocks are then bound with cbind().
+.gl_colwise <- function(x, FUN, rows = NULL) {
+  out <- .gl_colblocks(x, FUN, rows = rows)
+  # several statistics per locus (a matrix with loci in columns) are bound
+  # column-wise, single statistics concatenated
+  if (is.matrix(out[[1]])) do.call(cbind, out) else do.call(c, out)
+}
+
+## The building block of .gl_colwise: applies FUN to blocks of loci of an
+## FBM-backed object (decoded as by as.matrix(), optionally only 'rows') and
+## returns the list of per-block results, for callers that combine them
+## themselves (e.g. FUN returns a list of matrices, or counts to be added).
+## For a gen-backed object, a list with the single result
+## FUN(as.matrix(x)[rows, ]).
+.gl_colblocks <- function(x, FUN, rows = NULL) {
+  G <- .fbm_or_null(x)
+  if (is.null(G)) {
+    m <- as.matrix(x)
+    return(list(FUN(if (is.null(rows)) m else m[rows, , drop = FALSE])))
+  }
+  code <- G$code256
+  int <- all(code[!is.na(code)] %% 1 == 0)
+  ind <- indNames(x)
+  loc <- locNames(x)
+  no_dn <- is.null(ind) && is.null(loc)
+  if (!is.null(rows) && !no_dn && !is.null(ind)) ind <- ind[rows]
+  lapply(.fbm_col_blocks(ncol(G), if (is.null(rows)) nrow(G) else
+           length(rows)), function(cols) {
+    B <- if (is.null(rows)) G[, cols, drop = FALSE] else
+      G[rows, cols, drop = FALSE]
+    if (int) storage.mode(B) <- "integer"
+    if (!no_dn) dimnames(B) <- list(ind, loc[cols])
+    FUN(B)
+  })
+}
+
+## Applies FUN, a per-individual statistic that is a sum over loci (e.g.
+## rowSums(is.na(t))), and returns the same vector as FUN(as.matrix(x)). For
+## an FBM-backed object, FUN gets blocks of loci decoded as by as.matrix()
+## and the per-block results are added; sums of counts are exact in double
+## precision, so the values are identical. Only for statistics that are
+## sums over loci. For a gen-backed object, FUN(as.matrix(x)).
+.gl_rowwise <- function(x, FUN) {
   G <- .fbm_or_null(x)
   if (is.null(G)) return(FUN(as.matrix(x)))
   code <- G$code256
@@ -221,11 +266,19 @@ utils.fbm.copy <- function(G,
   ind <- indNames(x)
   loc <- locNames(x)
   no_dn <- is.null(ind) && is.null(loc)
-  out <- lapply(.fbm_col_blocks(ncol(G), nrow(G)), function(cols) {
+  res <- NULL
+  for (cols in .fbm_col_blocks(ncol(G), nrow(G))) {
     B <- G[, cols, drop = FALSE]
     if (int) storage.mode(B) <- "integer"
     if (!no_dn) dimnames(B) <- list(ind, loc[cols])
-    FUN(B)
-  })
-  do.call(c, out)
+    r <- FUN(B)
+    res <- if (is.null(res)) r else res + r
+  }
+  res
+}
+
+## Number of missing genotypes, as sum(is.na(as.matrix(x))), in blocks of
+## loci for FBM-backed objects
+.gl_n_na <- function(x) {
+  sum(.gl_colwise(x, function(t) colSums(is.na(t))))
 }

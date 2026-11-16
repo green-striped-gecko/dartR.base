@@ -50,21 +50,58 @@ utils.basic.stats <- function(x, rounded = TRUE) {
     stop(error(" There are populations with one individual. Please remove populations with one individual or merge them with other populations for this function to work\n"))
   }
   
-  pop.names <- popNames(x)
-  sgl_mat <- lapply(seppop(x),as.matrix)
-  pop.vec <- 1:nPop(x)
-  
+  .basic_stats_combine(.basic_pop_stats(x), pop.names = popNames(x),
+                       rounded = rounded)
+}
+
+# Per-population, per-locus statistics for utils.basic.stats: whether the
+# locus is all NA, the number of scored genotypes, the observed
+# heterozygosity, the mean genotype and the sample size. They are computed
+# with the same expressions as from each population's matrix, but on the
+# population's rows read in blocks of loci (.gl_colblocks): the populations
+# are not copied (seppop) and a file-backed object is not decoded as a
+# whole. One list element per population, in the order of seppop() (the
+# levels of pop(x)); each element holds one vector per statistic, with one
+# value per locus.
+.basic_pop_stats <- function(x) {
+  pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+  stat_names <- c("allna", "np", "Ho", "cm", "n")
+  pstats <- lapply(pop_rows, function(r) {
+    blocks <- .gl_colblocks(x, function(m) {
+      list(allna = apply(m, 2, function(x) {
+             all(is.na(x))
+           }),
+           np = colSums(!is.na(m)),
+           Ho = colMeans(m == 1, na.rm = TRUE),
+           cm = colMeans(m, na.rm = TRUE),
+           n = nrow(m) - colSums(apply(m, 2, is.na)))
+    }, rows = r)
+    stats::setNames(lapply(stat_names, function(k) {
+      do.call(c, lapply(blocks, `[[`, k))
+    }), stat_names)
+  })
+  names(pstats) <- levels(pop(x))
+  pstats
+}
+
+# The statistics of utils.basic.stats from the per-population, per-locus
+# statistics of .basic_pop_stats (for the populations in pstats, named by
+# pop.names). Each locus is computed from its own values only, and the
+# overall values are means over loci; a subset of populations or a resample
+# of loci (bootstrap) can therefore be computed from a subset or resample of
+# these vectors, without the genotypes.
+.basic_stats_combine <- function(pstats, pop.names, rounded = TRUE) {
+  pop.vec <- seq_along(pstats)
+
   n.pop <- lapply(pop.vec,function(y){
-    apply(sgl_mat[[y]], 2, function(x){
-      all(is.na(x))
-    })
+    pstats[[y]]$allna
   })    
   
   n.pop <- Reduce("+",n.pop)
-  n.pop <- nPop(x) - n.pop
+  n.pop <- length(pstats) - n.pop
   
   np <- lapply(pop.vec,function(y){
-    colSums(!is.na(sgl_mat[[y]])) 
+    pstats[[y]]$np
   })
   
   np <- Reduce(cbind,np)
@@ -81,7 +118,7 @@ utils.basic.stats <- function(x, rounded = TRUE) {
   }
   
   Ho <- lapply(pop.vec,function(y){
-    colMeans(sgl_mat[[y]] == 1, na.rm = TRUE)
+    pstats[[y]]$Ho
   })
   Ho <- Reduce(cbind,Ho)
   if(length(pop.names)>1){
@@ -92,17 +129,17 @@ utils.basic.stats <- function(x, rounded = TRUE) {
   }
   
   q <- lapply(pop.vec,function(y){
-    colMeans(sgl_mat[[y]], na.rm = TRUE)/2
+    pstats[[y]]$cm/2
   })
   
   if(length(pop.names)>1){
     Hs <- lapply(pop.vec,function(y){
-      n <- nrow(sgl_mat[[y]]) - colSums(apply(sgl_mat[[y]],2,is.na))
+      n <- pstats[[y]]$n
       Hs <- 2 * (1-q[[y]]) * q[[y]] - Ho[,y]/2/n
       return(n/(n - 1) * Hs)
     })
   }else{
-    n <- nrow(sgl_mat[[1]]) - colSums(apply(sgl_mat[[1]],2,is.na))
+    n <- pstats[[1]]$n
     Hs <- 2 * (1-q[[1]]) * q[[1]] - Ho/2/n
     Hs <- n/(n - 1) * Hs
   }

@@ -7,6 +7,15 @@ pop.het_fun <- function(df,
                         aHet,
                         bootstrap=TRUE,
                         ploidy = 2) {
+  .het_summary(.het_byloc(df, ploidy = ploidy),
+               n.invariant = n.invariant, aHet = aHet, bootstrap = bootstrap)
+}
+
+# Per-locus part of pop.het_fun: Ho, He, uHe and FIS for each locus that is
+# not all NA in df. Every value depends on its own locus only, so df may be
+# a block of loci and the vectors of several blocks concatenated (used for
+# file-backed objects, read in blocks of loci).
+.het_byloc <- function(df, ploidy = 2) {
   # rm loci that are all NA
   # otherwise these loci get Ho=0 which would not be correct
   loc.allNA <- colSums(is.na(df)) == nrow(df)
@@ -26,10 +35,6 @@ pop.het_fun <- function(df,
     Ho.loc <- colMeans(df * (k - df) / choose(k, 2), na.rm = TRUE)
     q_freq <- colSums(df, na.rm = TRUE) / colSums((!is.na(df)) * k)
   }
-  n_loc.sample <- apply(df, 1, function(y) {
-    sum(!is.na(y))
-  })
-  n_loc <- ncol(df)
   p_freq <- 1 - q_freq
   He.loc <- 2 * p_freq * q_freq
   n_ind.loc <- apply(df, 2, function(y) {
@@ -45,6 +50,17 @@ pop.het_fun <- function(df,
   uHe.loc <- (n_all.loc / (n_all.loc - 1)) * He.loc
   
   FIS.loc <- 1 - (Ho.loc / uHe.loc)
+
+  list(Ho.loc = Ho.loc, He.loc = He.loc, uHe.loc = uHe.loc, FIS.loc = FIS.loc)
+}
+
+# Summary part of pop.het_fun: means over the loci of .het_byloc
+.het_summary <- function(byloc, n.invariant, aHet, bootstrap = TRUE) {
+  Ho.loc <- byloc$Ho.loc
+  He.loc <- byloc$He.loc
+  uHe.loc <- byloc$uHe.loc
+  FIS.loc <- byloc$FIS.loc
+  n_loc <- length(Ho.loc)
   
   if(aHet) {
     all.res <- c(

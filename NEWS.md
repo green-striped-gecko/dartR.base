@@ -67,6 +67,46 @@
   the whole matrix (new test). Most of the time is the cross-product, run by
   the BLAS that R uses (much faster with an optimised BLAS, e.g. on macOS).
 
+* Count from disk, first batch (FBM step 3): `gl.allele.freq()`,
+  `gl.filter.callrate(method = "ind")`, `gl.filter.heterozygosity()`,
+  `gl.report.allna()`, `gl.report.callrate()`, `gl.report.maf()`,
+  `gl.report.monomorphs()`, `gl.report.rdepth()`,
+  `gl.report.reproducibility()` and `gl.report.taglength()` read
+  file-backed objects in blocks of loci (per locus, per individual, or per
+  population without copying it) instead of decoding the whole matrix.
+  The same expressions are applied block by block, so results and messages
+  are identical; a test checks this for both storage types and that no full
+  decode happens. `gl.report.callrate()` no longer passes the object as the
+  `data` of `aggregate()`, which converted it to a data frame.
+* Count from disk, population statistics (first part):
+  `gl.report.heterozygosity()` (by population and by individual),
+  `gl.report.basics()` and `gl.tree.nj()` read each population's rows in
+  blocks of loci instead of copying the populations with `seppop()` and
+  decoding them. Results and messages are identical (tested for both
+  storage types). The bootstrap of `gl.report.heterozygosity()` still
+  decodes one population at a time, as it resamples its genotype matrix;
+  `subsample.pop = TRUE` is unchanged. Internally, `pop.het_fun()` is split
+  into a per-locus part and a summary, without change to its results.
+* `gl.fst.pop()` computes Weir & Cockerham's theta itself instead of calling
+  `StAMPP::stamppFst()`: the per-population allele frequencies, observed
+  heterozygosities and sample sizes are built in blocks of loci, so
+  file-backed objects are no longer converted to memory. The values are
+  identical to StAMPP's (tested on five datasets) and it is 30 to 200 times
+  faster (e.g. testset.gl: 3.1 s to 0.04 s). bigsnpr's `snp_fst()` was not
+  used: it takes the heterozygosity term from the allele frequencies under
+  Hardy-Weinberg instead of the observed heterozygosity, which would change
+  the results. The argument `nclusters` (StAMPP's cores) is now ignored.
+* `utils.basic.stats()` (used by `gl.report.fstat()` and
+  `gl.diagnostics.hwe()`) computes its per-population, per-locus values in
+  one pass over blocks of loci instead of copying (`seppop()`) and
+  decoding each population. `gl.report.fstat()` computes them once and
+  combines every pair of populations from them, instead of building each
+  pair with `seppop()` + `rbind()`; its bootstrap resamples the per-locus
+  values instead of rebuilding a genlight from the decoded genotypes of
+  the pair for every replicate. Results, including the bootstrap
+  confidence intervals for the same seed, are identical to the previous
+  version (tested), for objects in memory and file-backed.
+
 # dartR.base 1.2.7 (development)
 
 * `gl.gen2fbm()`: BUG FIX, polyploid data (dosages above 2) were stored with

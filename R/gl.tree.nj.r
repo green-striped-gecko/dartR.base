@@ -157,8 +157,10 @@ gl.tree.nj <- function(x,
       # Frequencies exclude missing genotypes (na.rm), matching gl.dist.pop,
       # and are scaled by ploidy (2 for SNP, 1 for Tag P/A)
       pl <- ploidy(x)[1]
-      t <- apply(as.matrix(x), 2, tapply, pop(x), function(e)
-        mean(e, na.rm = TRUE) / pl)
+      # per locus, so computed on blocks of loci (.gl_colwise); a
+      # file-backed object is not decoded as a whole
+      t <- .gl_colwise(x, function(m) apply(m, 2, tapply, pop(x), function(e)
+        mean(e, na.rm = TRUE) / pl))
       # Compute Euclidean distance
       if (verbose >= 2) {
         cat(report("  Computing Euclidean distances\n"))

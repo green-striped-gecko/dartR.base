@@ -49,7 +49,7 @@ test_that("the value check of gl.compliance.check reads FBM blocks", {
 
 test_that("gl.impute and gl.compliance.check never decode the whole FBM", {
   skip_if_not_installed("bigstatsr")
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   xs <- fbm_pair()
   local_mocked_bindings(.fbm_as_matrix = function(x) {
     stop("the whole FBM was decoded")

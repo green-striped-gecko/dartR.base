@@ -427,7 +427,7 @@ test_that("FBM imputation in blocks of loci is identical to the gen-backed run",
   # are interleaved (seppop + rbind on the gen-backed path), one locus is
   # all-NA in one population and one locus is all-NA in every population.
   skip_if_not_installed("bigstatsr")
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
   on.exit(options(old), add = TRUE)
   x <- gl.compliance.check(testset.gl[1:30, 1:60], verbose = 0)

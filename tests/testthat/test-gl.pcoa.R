@@ -269,7 +269,7 @@ test_that("FBM path: gl.pcoa never decodes the whole matrix", {
   local_mocked_bindings(.fbm_as_matrix = function(x) {
     stop("the whole FBM was decoded")
   })
-  pdf(NULL); on.exit(dev.off())
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
   expect_no_error(capture.output(
     gl.pcoa(f, nfactors = 3, plot.out = TRUE, verbose = 3)))
   expect_no_error(capture.output(
