@@ -196,6 +196,18 @@ next `gc()` succeeds. A file stays while any copy of the object exists. 8
 chained subsets left 9 files without cleanup and 1 with it. Registering
 2,000 finalizers takes 0.01 s.
 
+`gl.gen2fbm` after WP1 (variant C, raw bytes, NA cut points computed once;
+each setting in its own R process):
+
+| Size | bigstatsr.block.sizeGB = 1 | = 0.1 |
+|---|---|---|
+| 2,000 x 20,000 | 1.9 s, 296 Mb | 1.9 s, 171 Mb |
+| 2,000 x 200,000 | 12.8 s, 1,149 Mb | 12.9 s, 214 Mb |
+
+Peak memory is about the option in Gb (a block holds `block_size(n)` loci
+as raw bytes, with about 8 temporary copies of that size). Measuring two
+settings in one session overstates the second one (637 instead of 214 Mb).
+
 ## Decisions (agreed 16 Nov 2026)
 
 1. HW imputation keeps the identical random stream (one pass per

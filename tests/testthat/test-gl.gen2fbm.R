@@ -66,5 +66,46 @@ test_that("polyploid dosages are refused, not silently set to missing", {
             ploidy = 4L)
   before <- list.files(tempdir(), pattern = "^geno_")
   expect_error(gl.gen2fbm(tg, verbose = 0), "diploid|above 2")
-  expect_identical(list.files(tempdir(), pattern = "^geno_"), before)
+  # no new file left behind (older ones may be cleaned up meanwhile)
+  expect_length(setdiff(list.files(tempdir(), pattern = "^geno_"), before), 0)
+})
+
+test_that("gen -> FBM copies the decoded genotypes exactly (SNPbin layout)", {
+  # The copy reads the packed SNPbin bits directly; compare with adegenet's
+  # own decoding so that a change of the SNPbin layout is caught.
+  same <- function(x, ...) {
+    capture.output(f <- gl.gen2fbm(x, verbose = 0, ...))
+    m <- as.matrix(x)
+    expect_identical(f@fbm[seq_len(nrow(m)), seq_len(ncol(m)), drop = FALSE],
+                     unname(m) + 0)
+  }
+  mk <- function(n, p, ploidy = 2L, na = 0.1) {
+    m <- matrix(sample(0:2, n * p, TRUE), n)
+    m[ploidy == 1L, ] <- m[ploidy == 1L, ] %% 2L
+    m[sample(length(m), floor(length(m) * na))] <- NA
+    new("genlight", m, ploidy = ploidy)
+  }
+  set.seed(11)
+  same(testset.gl)
+  # loci counts around the 8 loci per byte, one individual, one locus
+  for (p in c(1, 7, 8, 9, 17, 100)) {
+    same(mk(1, p))
+    same(mk(3, p))
+  }
+  same(mk(5, 50, ploidy = c(1L, 2L, 1L, 2L, 2L)))   # haploid individuals
+  same(mk(5, 50, na = 0))                           # no missing data
+  same(mk(5, 50, na = 0.9))                         # mostly missing
+  m0 <- matrix(NA_integer_, 3, 10); m0[, 1] <- 0L    # all-missing loci
+  same(new("genlight", m0, ploidy = 2L))
+  # block boundaries: tiny blocks and the deprecated 'chunk'
+  for (k in c(1L, 8L, 9L, 64L)) same(testset.gl, chunk = k)
+  op <- options(bigstatsr.block.sizeGB = 1e-5)
+  on.exit(options(op))
+  expect_lt(bigstatsr::block_size(nInd(testset.gl)), nLoc(testset.gl))
+  same(testset.gl)
+})
+
+test_that("the deprecated 'chunk' argument is reported", {
+  expect_output(gl.gen2fbm(testset.gl, chunk = 100L, verbose = 1),
+                "deprecated")
 })

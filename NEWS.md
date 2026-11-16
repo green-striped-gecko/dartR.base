@@ -18,6 +18,15 @@
   files created by dartR are deleted, never a file named by the user.
 * New `gl.fbm.cleanup()`: forces the clean-up and reports the backing files
   deleted and still in use.
+* `gl.gen2fbm()` copies the genotypes in blocks of loci read directly from
+  the packed SNPbin bits (one byte per value) instead of decoding all loci
+  for every block. 2,000 x 200,000 (10 % missing): 13 s and 1.1 Gb peak
+  memory instead of 72 s and 6.4 Gb; with
+  `options(bigstatsr.block.sizeGB = 0.1)` 214 Mb. The block size follows
+  `bigstatsr.block.sizeGB`; the argument `chunk` is deprecated (still
+  accepted, as loci per block). The result is unchanged (byte-identical
+  backing file). The first individual is checked against adegenet's own
+  decoding, so a change of the SNPbin layout gives an error.
 
 # dartR.base 1.2.7 (development)
 

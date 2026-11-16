@@ -8,7 +8,7 @@ gl.gen2fbm(
   x,
   code = bigsnpr::CODE_012,
   backingfile = NULL,
-  chunk = 2048L,
+  chunk = NULL,
   verbose = NULL
 )
 }
@@ -26,8 +26,9 @@ file in the folder \code{getOption("FBM.dir")} (see
 removed automatically
 [default NULL].}
 
-\item{chunk}{Integer, number of **loci per block** to write with `big_apply`
-(default `2048L`). Increase for faster IO if you have RAM to spare.}
+\item{chunk}{Deprecated. Number of loci per block; if given, it replaces
+the block size derived from \code{bigstatsr.block.sizeGB} (rounded up to
+a multiple of 8). Kept for compatibility [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -42,7 +43,15 @@ object that is already FBM-backed is returned unchanged.
 `gl.gen2fbm()` converts a `dartR`/`genlight` object that stores genotypes
 in the standard list-of-`SNPbin` format (`@gen`) into an `FBM.code256`
 stored in the `@fbm` slot (and clears `@gen`, enforcing XOR).
-The copy is done **by column blocks** via `bigstatsr::big_apply`.
+
+The genotypes are copied in **blocks of loci** read directly from the
+packed bits of the `SNPbin` objects, so the full genotype matrix is never
+decoded in memory. Each value is held as one byte while it is copied. The
+block size follows the bigstatsr option \code{bigstatsr.block.sizeGB}
+(default 1): a block holds as many loci as
+\code{bigstatsr::block_size(nInd(x))}, and the peak memory use of the
+conversion is roughly that option in Gb. Lower it (e.g.
+\code{options(bigstatsr.block.sizeGB = 0.1)}) to convert with less memory.
 
 Only diploid SNP data (genotypes 0, 1, 2 or missing) can be stored. The
 FBM uses the value 3 for a missing genotype, so data with higher dosages
