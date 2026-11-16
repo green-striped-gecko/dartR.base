@@ -268,6 +268,28 @@ kept for identical draws.
   (`snp_fastImputeSimple(method = "mean2")`); tests compare with glPca at
   tolerance 1e-3 (eigenvalues) and 5e-3 (scores), as before.
 
+WP6: all help-page examples, in memory and file-backed
+(`function-review/run_examples_fbm.R`; each example in its own R session,
+`\donttest` included; installed dartR.base at 67b4e63, downstream packages
+from their current sources in a separate library):
+
+| Package | Pages with examples | Both OK | Fail only FBM | Fail both | Use the `dartR_fbm` switch |
+|---|---|---|---|---|---|
+| dartR.base | 152 | 151 | 0 | 1 | 110 |
+| dartR.popgen | 40 | 40 | 0 | 0 | 2 |
+| dartR.sim | 13 | 13 | 0 | 0 | 2 |
+| dartR.spatial | 10 | 10 | 0 | 0 | 2 |
+| dartR.captive | 16 | 16 | 0 | 0 | 7 |
+| dartR.sexlinked | 4 | 4 | 0 | 0 | 0 |
+
+- The one failure (`gl.report.excess.het`) is environmental: ggtern is not
+  installed; it fails the same way in memory.
+- dartR.base examples took 260 s in memory and 310 s file-backed in total.
+  The largest difference is `gl.fixed.diff` (14 s in memory, 54 s
+  file-backed): a candidate for step 3 (reports from counts).
+- Few downstream examples switch to file-backed data, so for those packages
+  the run mainly shows that nothing breaks.
+
 ## Decisions (agreed 16 Nov 2026)
 
 1. HW imputation keeps the identical random stream (one pass per
