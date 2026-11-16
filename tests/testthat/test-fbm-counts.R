@@ -71,7 +71,12 @@ calls <- list(
   }, rounded = FALSE),
   fstat = list(gl.report.fstat, plot.display = FALSE, verbose = 3),
   fstat.boot = list(gl.report.fstat, nboots = 10, CI.type = "perc",
-                    plot.display = FALSE, verbose = 3)
+                    plot.display = FALSE, verbose = 3),
+  report.hwe = list(gl.report.hwe, sig_only = FALSE, min_sample_size = 2,
+                    plot.out = FALSE, verbose = 3),
+  filter.hwe = list(gl.filter.hwe, n.min = 2, verbose = 3),
+  filter.hwe.all = list(gl.filter.hwe, subset = "all", verbose = 3),
+  hwe.pop = list(gl.hwe.pop, plot.out = FALSE, HWformat = TRUE, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {

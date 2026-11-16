@@ -106,6 +106,12 @@
   the pair for every replicate. Results, including the bootstrap
   confidence intervals for the same seed, are identical to the previous
   version (tested), for objects in memory and file-backed.
+* `gl.report.hwe()`, `gl.filter.hwe()` and `gl.hwe.pop()` count the
+  genotypes 0, 1 and 2 per population and locus from blocks of loci
+  instead of copying each population (`seppop()`), filtering it with
+  `gl.filter.monomorphs()` and decoding it; monomorphic loci are dropped
+  per population with the same rule. Results and messages are identical
+  (tested against the previous version and for both storage types).
 
 # dartR.base 1.2.7 (development)
 
