@@ -251,8 +251,8 @@ gl2vcf <- function(x,
              autosome.only = FALSE,
              extra.options = "") {
       system_verbose(
+        plink.bin.path,
         paste(
-          shQuote(plink.bin.path),
           "--file",
           shQuote(prefix.in),
           "--make-bed",
@@ -269,8 +269,8 @@ gl2vcf <- function(x,
         )
       )
       system_verbose(
+        plink.bin.path,
         paste(
-          shQuote(plink.bin.path),
           "--bfile",
           shQuote(prefix.bed_temp),
           "--recode",
@@ -287,11 +287,16 @@ gl2vcf <- function(x,
 
   # PLINK's console log is progress information: keep it captured for
   # error diagnosis but print it only at verbose >= 2. stderr is captured
-  # with the log (2>&1). A non-zero exit stops with PLINK's own message;
-  # system(intern = TRUE) alone only warns, and gl2vcf used to finish
+  # with the log. A non-zero exit stops with PLINK's own message;
+  # a captured run alone only warns, and gl2vcf used to finish
   # without writing the VCF.
-  system_verbose <- function(cmd) {
-    plink.log <- suppressWarnings(system(paste(cmd, "2>&1"), intern = TRUE))
+  # system2() quotes exe itself and captures stderr without a shell. The
+  # earlier system(paste(cmd, "2>&1")) failed on Windows, where system()
+  # runs no shell and "2>&1" reached PLINK as an argument.
+  system_verbose <- function(exe, args) {
+    plink.log <- suppressWarnings(
+      system2(exe, args, stdout = TRUE, stderr = TRUE)
+    )
     status <- attr(plink.log, "status")
     if (!is.null(status) && status != 0) {
       stop(error(
