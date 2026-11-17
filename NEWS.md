@@ -251,6 +251,18 @@
   converted to @gen in blocks of loci. Results are identical to the
   previous version (1-row and 2-row reports, any chunk size). Scores
   outside 0, 1, 2 now stop with an error.
+* `gl.read.vcf()`: new argument `parser` (last, default `"vcfR"`, unchanged
+  behaviour). `parser = "cpp"` reads the genotypes with the C++ parser of
+  package tidypopgen (now in Suggests; users install it themselves and get
+  a message saying so) chunk by chunk straight into a file-backed matrix,
+  and the fixed vcf columns in chunks, so the file is never held in memory
+  as text. For the single-base SNPs it reads, genotypes, names, alleles,
+  chromosome, position and the QUAL/FILTER/INFO metrics equal the vcfR
+  route. Limits: indels are skipped (warning); `mode = "genotype"` only; no
+  rdepth, read counts or likelihoods; haploid or polyploid calls stop with
+  an error (tidypopgen would code a haploid call like a heterozygote). The
+  QUAL/FILTER/INFO parsing is shared by both routes (`.vcf_fix_info()`);
+  the vcfR route is unchanged (identical objects).
 
 # dartR.base 1.2.7 (development)
 

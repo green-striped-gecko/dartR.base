@@ -15,9 +15,9 @@ continue with "Next" below.
 | 1 | Count from disk (reports and filters) | **In progress**, see below |
 | 2 | Read straight to disk (PLINK, VCF, DArT, CSV) | Redefined (17 Nov): audit readers for dense intermediates, see "Storage model" |
 | 3 | Save/load without converting | **Dropped** (17 Nov), see "Storage model" |
-| 4 | Filter without copying (class change) | Not started; needs Bernd's decision |
+| 4 | Filter without copying (class change) | **Dropped** (17 Nov, Bernd): since WP4's automatic clean-up only the copy time per filter step is left; not worth a class change every FBM function must follow |
 | 5 | Kinship and distances from disk | **Done** (17 Nov), see below |
-| 6 | Read counts and likelihoods on disk | Not started |
+| 6 | Read counts and likelihoods on disk | Low priority (17 Nov): only gl.report.contamination and gl.report.replicates.KING use them; opt-in in gl.read.vcf; not used downstream |
 | 7 | Examples in both storage types in CI | Runner exists (`run_examples_fbm.R`, WP6); not in CI |
 | 8 | New bigsnpr analyses | Not started |
 
@@ -334,6 +334,19 @@ Remaining steps (1 and 2 done):
    FBM; OneRatio via .gl_colwise; fbm = FALSE converts with gl.fbm2gen.
    Identical to the old reader (2-row with/without metafile, 1-row, both
    fbm, chunk sizes 1 Gb and one row). Tests in test-gl.read.dart.R.
-4. Next: gl.read.vcf (vcfR holds the whole VCF as text; options: chunks
-   of variants via vcfR's nrows/skip, or another reader), then
-   gl.read.csv (low priority).
+4. gl.read.vcf: done (17 Nov). Bernd: tidypopgen's C++ parser as an
+   optional fast route, tidypopgen in Suggests only (users install it;
+   message if missing). gl.read.vcf(parser = "cpp"): genotypes via
+   tidypopgen::gen_tibble(parser = "cpp") into its FBM, copied in blocks
+   into a dartR FBM; fixed columns (and a haploid/polyploid GT scan) read
+   in chunks (.vcf_read_fixed, identical to vcfR @fix); QUAL/FILTER/INFO
+   via the shared .vcf_fix_info (R/utils.vcf.cpp.r). Equal to the vcfR
+   route for single-base SNPs except rdepth (not read by cpp). Limits:
+   indels skipped, genotype mode only, no read counts/likelihoods,
+   haploid/polyploid calls stop. vcfR route unchanged (identical objects).
+   Note (pre-existing, not changed): multi-allelic records are dropped by
+   INFO AC when an AC key exists in any record, otherwise by ALT; a
+   multi-allelic record without AC in such a file breaks the reader.
+   tidypopgen for testing: R 4.3 needs a source build (Rtools); R 4.6.2
+   has CRAN binaries.
+5. Next: gl.read.csv (low priority).
