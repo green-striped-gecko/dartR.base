@@ -453,3 +453,87 @@ utils.fbm.copy <- function(G,
     B
   }
 }
+
+## PLINK binary fileset (.bed/.bim/.fam) read without decoding all genotypes
+## in memory (gl.read.PLINK).
+##
+## .bim and .fam are read exactly as snpStats::read.plink reads them
+## (read.table, na.strings c("0", "-9"), the same column names and row
+## names), so the metadata are identical to the snpStats route.
+.plink_read_meta <- function(stub, na.strings = c("0", "-9"), sep = ".") {
+  df.bim <- utils::read.table(paste0(stub, ".bim"), comment.char = "",
+                              as.is = TRUE, na.strings = na.strings)
+  snps <- as.character(df.bim[, 2])
+  if (ncol(df.bim) == 6) {
+    names(df.bim) <- c("chromosome", "snp.name", "cM", "position",
+                       "allele.1", "allele.2")
+  } else {
+    warning("non-standard .bim file")
+  }
+  rownames(df.bim) <- snps
+  if (any(duplicated(snps))) stop("duplicated snp name(s)")
+  df.fam <- utils::read.table(paste0(stub, ".fam"), comment.char = "",
+                              as.is = TRUE, na.strings = na.strings)
+  ped <- as.character(df.fam[, 1])
+  mem <- as.character(df.fam[, 2])
+  if (any(duplicated(ped))) {
+    if (any(duplicated(mem))) {
+      id <- paste(ped, mem, sep = sep)
+      if (any(duplicated(id))) {
+        stop("couldn't create unique subject identifiers")
+      }
+    } else {
+      id <- mem
+    }
+  } else {
+    id <- ped
+  }
+  names(df.fam) <- c("pedigree", "member", "father", "mother", "sex",
+                     "affected")
+  rownames(df.fam) <- id
+  list(fam = df.fam, map = df.bim)
+}
+
+## Genotypes of a SNP-major .bed file written in blocks of SNPs into a new
+## temporary FBM.code256 (CODE_012). In a .bed each SNP takes ceiling(n/4)
+## bytes, four individuals per byte from the low bits up, with the 2-bit
+## codes 00 = homozygous allele.1, 01 = missing, 10 = heterozygous,
+## 11 = homozygous allele.2 (allele.1/allele.2 as columns 5/6 of the .bim).
+## As in snpStats (and gl.read.PLINK before), genotypes are stored as the
+## count of allele.2: 0, 1, 2, and missing as the raw code 3 (NA).
+## Also returns, per individual, the numbers of called and heterozygous
+## genotypes, counted in the same pass. Only one block is in memory.
+.plink_bed_to_fbm <- function(bedfile, n, p) {
+  con <- file(bedfile, open = "rb")
+  on.exit(close(con), add = TRUE)
+  magic <- readBin(con, "raw", 3L)
+  if (length(magic) < 3L || magic[1] != as.raw(0x6c) ||
+      magic[2] != as.raw(0x1b)) {
+    stop(error("  Fatal Error:", bedfile, "is not a PLINK .bed file\n"))
+  }
+  if (magic[3] != as.raw(0x01)) {
+    stop(error("  Fatal Error:", bedfile, "is in individual-major mode;",
+               "convert it to SNP-major with plink --make-bed\n"))
+  }
+  nb <- (n + 3L) %/% 4L
+  expected <- 3 + as.numeric(nb) * p
+  if (file.size(bedfile) != expected) {
+    stop(error("  Fatal Error: size of", bedfile, "does not match the",
+               n, "individuals and", p, "SNPs of the .fam and .bim files\n"))
+  }
+  G <- utils.fbm.new(n, p, code = bigsnpr::CODE_012, prefix = "plink_")
+  # 2-bit code -> stored value: 00 -> 0, 01 -> 3 (NA), 10 -> 1, 11 -> 2
+  lut <- c(0L, 3L, 1L, 2L)
+  called <- het <- numeric(n)
+  for (cols in .fbm_col_blocks(p, n)) {
+    v <- as.integer(readBin(con, "raw", nb * length(cols)))
+    # codes of the four individuals of each byte, in individual order
+    codes <- rbind(v %% 4L, (v %/% 4L) %% 4L, (v %/% 16L) %% 4L,
+                   (v %/% 64L) %% 4L)
+    codes <- matrix(codes, nrow = 4L * nb)[seq_len(n), , drop = FALSE]
+    called <- called + rowSums(codes != 1L)
+    het <- het + rowSums(codes == 2L)
+    G[, cols] <- lut[codes + 1L]
+  }
+  list(G = G, called = called, het = het)
+}

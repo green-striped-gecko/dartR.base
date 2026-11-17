@@ -296,3 +296,34 @@ decode both; next to do.
 - Downstream: dartR.popgen and dartR.spatial call `gl.fbm2gen` for Fst,
   AMOVA and IBD; not changed yet. Run their tests after changes to shared
   helpers (`R_LIBS` with a scratch library if the installed versions are old).
+
+## Item 2 (reader audit), in progress (17 Nov 2026, end of session)
+
+Agreed with Bernd: start with gl.read.PLINK, then gl.read.dart; with
+fbm = TRUE read straight into an FBM, with fbm = FALSE build the FBM
+block-wise and convert with gl.fbm2gen at the end. Audit: all readers hold
+dense intermediates (PLINK: write.SnpMatrix text + fread + as.matrix; DArT:
+csv as text + two dense matrices in utils.dart2genlight + two decodes for
+OneRatio; VCF: vcfR text; CSV: read.csv + t()).
+
+gl.read.PLINK: done (17 Nov). `.plink_read_meta()` (bim/fam read exactly
+as snpStats::read.plink) and `.plink_bed_to_fbm()` (SNP-major .bed read in
+blocks into a CODE_012 FBM, count of allele.2, per-individual called/het
+counts) in R/utils.fbm.r; the .bed route builds the dartR object with
+new("dartR", fbm = ...), converts with gl.fbm2gen when fbm = FALSE.
+Identical to the old reader (genotypes, metadata, row summary; both block
+sizes); tests in test-gl.read.PLINK.R. Found and fixed: ploidy inferred
+per individual from the largest genotype (1 or NA) in the old route.
+
+Remaining steps (1 and 2 done):
+1. In gl.read.PLINK, .bed route (also after plink.flags conversion): meta +
+   .plink_bed_to_fbm; ind.metrics row summary as snpStats::row.summary
+   (Call.rate = called/p, Certain.calls, Heterozygosity = het/called;
+   check snpStats' values for an individual with no calls); build with
+   new("dartR", fbm = G, ...) and run the rest of the pipeline; if
+   !fbm, gl.fbm2gen at the end. .ped route unchanged.
+2. Compare with the old function (git show HEAD:R/gl.read.PLINK.r) on a
+   fixture with missing data, an all-NA individual, a fixed locus and
+   chromosome 0 (snpStats::write.plink), both fbm settings; run
+   tests/testthat/test-gl.read.PLINK.R.
+3. Then gl.read.dart.

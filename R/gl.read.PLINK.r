@@ -43,7 +43,11 @@
 #' loci [default NULL].
 #' @param fbm Logical. If TRUE, the genotypes of the returned object are held
 #' in a file-backed matrix (fbm) in its @fbm slot rather than in @gen. This
-#' is useful for very large datasets that do not fit into RAM. Note that
+#' is useful for very large datasets that do not fit into RAM. A binary
+#' fileset (.bed) is read in blocks of SNPs straight into the file-backed
+#' matrix, so the genotypes are never held in memory as a whole; with
+#' fbm = FALSE that matrix is converted to @gen in blocks of loci at the
+#' end. A .ped is read into memory and converted when fbm = TRUE. Note that
 #' using fbm objects requires the package bigsnpr to be installed. To back
 #' convert use \code{gl.fbm2gen()} [default FALSE].
 #' @param plink.flags additional parameters passed on to PLINK when a .ped
@@ -136,10 +140,12 @@ gl.read.PLINK <- function(filename,
     # If there is more than one .bed
     stop(error("Found more than one .bed file and don't know which one to use\n"))
   }
+  # A binary fileset (.bed/.bim/.fam) is read without holding the decoded
+  # genotypes in memory (bed.stub); a .ped is read through snpStats
+  bed.stub <- NULL
   if (length(plink.fn) == 1) {
     # Binary fileset: .bed with its .bim and .fam
-    snpMatrix <- snpStats::read.plink(bed = sub(x = plink.fn, pattern =
-                                                  ".bed$", ""))
+    bed.stub <- sub(x = plink.fn, pattern = ".bed$", "")
   } else {
     # No .bed: look for a text fileset (.ped, optionally with a .map)
     plink.fn <- plink.fns[grep(".ped$", plink.fns)]
@@ -189,25 +195,68 @@ gl.read.PLINK <- function(filename,
         stop(error("PLINK did not produce a .bed file. Check that PLINK",
                    "is installed and the input files are valid\n"))
       }
-      snpMatrix <- snpStats::read.plink(bed = sub(x = plink.fn, pattern =
-                                                    ".bed$", ""))
+      bed.stub <- sub(x = plink.fn, pattern = ".bed$", "")
     }
   }
 
+  if (!is.null(bed.stub)) {
+    # .bim/.fam read as snpStats::read.plink reads them; the genotypes are
+    # read from the .bed in blocks of SNPs straight into a file-backed
+    # matrix (count of allele.2, as before), so they are never held in
+    # memory as a whole (no text copy, no dense matrix). The per-individual
+    # summary is that of snpStats::row.summary: call rate, share of certain
+    # calls (1, NA without calls) and heterozygosity among calls.
+    meta <- .plink_read_meta(bed.stub)
+    fam <- meta$fam
+    map <- meta$map
+    bed <- .plink_bed_to_fbm(paste0(bed.stub, ".bed"), nrow(fam), nrow(map))
+    has.call <- bed$called > 0
+    row.sum <- data.frame(
+      Call.rate = bed$called / nrow(map),
+      Certain.calls = ifelse(has.call, 1, NA_real_),
+      Heterozygosity = ifelse(has.call, bed$het / bed$called, NA_real_),
+      row.names = fam$member
+    )
+    gl <- new(
+      "dartR",
+      fbm = bed$G,
+      ploidy = rep(2L, nrow(fam)),
+      ind.names = fam$member,
+      loc.names = map$snp.name,
+      chromosome = as.factor(map$chromosome),
+      position = map$position,
+      other = list(
+        ind.metrics = cbind(
+          id = fam$member,
+          row.sum,
+          Family = fam$pedigree,
+          Father = fam$father,
+          Mother = fam$mother,
+          Sex = fam$sex
+        ),
+        loc.metrics = map
+      )
+    )
+    rm(bed)
+  } else {
   gen <- snpMatrix[[1]]
   fam <- snpMatrix[[2]]
   map <- snpMatrix[[3]]
   row.names(gen) <- fam$member
   snpStats::write.SnpMatrix(gen, file.path(dir.out, "snpMatrixComb.txt"))
-  
+
   suppressWarnings(genCombdt <- data.table::fread(file = file.path(dir.out, "snpMatrixComb.txt")))
   setnames(genCombdt, "V1", "id")
-  
+
   genCombNA <- as.matrix(genCombdt[, -1, with = FALSE])
   row.names(genCombNA) <- fam$member
   gl <- new(
     "genlight",
     gen = genCombNA,
+    # diploid: without it adegenet sets each individual's ploidy to its
+    # largest genotype (1 without a homozygous allele.2 call, NA without
+    # calls), and the compliance check then fails
+    ploidy = 2L,
     ind.names = fam$member,
     loc.names = map$snp.name,
     chromosome = map$chromosome,
@@ -228,7 +277,8 @@ gl.read.PLINK <- function(filename,
       loc.metrics = map
     )
   )
-  
+  }
+
   if (length(unique(fam$member)) != length(fam$member)) {
     stop(error(
       "Fatal Error: Individual labels are not unique, check and edit your input file\n"
@@ -362,13 +412,16 @@ gl.read.PLINK <- function(filename,
     cat(report("Completed:", funname, "\n"))
   }
   
-  # convert to fbm only when requested; otherwise the object remains
-  # @gen-backed (F1)
+  # The .bed route is file-backed from the start: keep it with fbm = TRUE,
+  # otherwise convert to @gen in blocks of loci. The .ped route is
+  # gen-backed and is converted only when fbm = TRUE (F1)
   if (fbm) {
-    gl <- gl.gen2fbm(gl, verbose = verbose)
+    if (!.has_fbm(gl)) gl <- gl.gen2fbm(gl, verbose = verbose)
     if (verbose >= 2) {
       cat(report(" Created a file-backed matrix (fbm) dartR object\n"))
     }
+  } else if (.has_fbm(gl)) {
+    gl <- gl.fbm2gen(gl, verbose = 0)
   }
 
   return(gl)

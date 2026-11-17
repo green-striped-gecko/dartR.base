@@ -34,7 +34,11 @@ means}
 
 \item{fbm}{Logical. If TRUE, the genotypes of the returned object are held
 in a file-backed matrix (fbm) in its @fbm slot rather than in @gen. This
-is useful for very large datasets that do not fit into RAM. Note that
+is useful for very large datasets that do not fit into RAM. A binary
+fileset (.bed) is read in blocks of SNPs straight into the file-backed
+matrix, so the genotypes are never held in memory as a whole; with
+fbm = FALSE that matrix is converted to @gen in blocks of loci at the
+end. A .ped is read into memory and converted when fbm = TRUE. Note that
 using fbm objects requires the package bigsnpr to be installed. To back
 convert use \code{gl.fbm2gen()} [default FALSE].}
 

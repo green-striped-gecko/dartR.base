@@ -227,6 +227,20 @@
   `getOption("dartR_fbm_max_decode_gb", 4)` Gb instead of exhausting
   memory; the limit can be raised with `options()`. `utils.fbm.amat()`
   applies the same limit before converting for non-default A.mat options.
+* `gl.read.PLINK()`: a binary fileset (.bed/.bim/.fam) is read in blocks of
+  SNPs straight into a file-backed matrix, instead of through snpStats, a
+  text copy of all genotypes (`write.SnpMatrix()` + `fread()`) and a dense
+  matrix. With `fbm = TRUE` the object stays file-backed (no genlight in
+  between); with `fbm = FALSE` it is converted to @gen in blocks of loci.
+  Genotypes (count of allele.2), .bim/.fam metadata (read as
+  `snpStats::read.plink()` reads them) and the per-individual summary
+  (`snpStats::row.summary()`) are identical to the previous version. The
+  .ped route is unchanged.
+* `gl.read.PLINK()`: BUG FIX, individuals were given ploidy 1 when they had
+  no homozygous allele.2 call and NA when they had no calls (adegenet sets
+  the ploidy of a matrix row to its largest genotype), and the compliance
+  check then stopped with "the condition has length > 1". All individuals
+  are now diploid, on both the .bed and .ped routes.
 
 # dartR.base 1.2.7 (development)
 
