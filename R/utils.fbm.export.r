@@ -214,3 +214,156 @@ utils.fbm.blocks <- function(x, nr = nInd(x)) {
 utils.fbm.pair.counts <- function(x) {
   .gl_pair_counts(x)
 }
+
+#' @name utils.fbm.grm
+#' @title Additive relationship matrix of a file-backed object, as
+#' rrBLUP::A.mat with its default settings, in blocks of loci
+#' @family utilities
+#' @description
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED
+#' BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE
+#' OUTCOMES.
+#'
+#' Computes the realized additive relationship matrix of
+#' \code{rrBLUP::A.mat(as.matrix(x) - 1, min.MAF, max.missing)} with A.mat's
+#' default mean imputation and no shrinkage (Endelman & Jannink 2012;
+#' VanRaden 2008), reading the genotypes in two passes over blocks of loci,
+#' so the genotype matrix is never decoded as a whole.
+#'
+#' As in A.mat, with genotypes g (0, 1, 2) and \code{X = g - 1}: per locus
+#' the frequency p is \code{mean(g, na.rm = TRUE) / 2} (computed per column
+#' exactly as A.mat computes it) and the missing fraction is the share of
+#' NA. Loci with \code{min(p, 1 - p) >= min.MAF} and missing fraction
+#' \code{<= max.missing} are used (m loci). \code{W = g - 2p}, with missing
+#' genotypes set to 0 (mean imputation) and loci fixed in the sample set to
+#' 0, and \code{A = tcrossprod(W) / (2 * mean(p * (1 - p))) / m}, where the
+#' mean is over the m loci.
+#'
+#' The frequencies, filter and scaling are identical to A.mat; the
+#' cross-product is added block by block, so A agrees with A.mat to about
+#' 1e-13 (relative) rather than bit for bit. Memory: the n x n result and
+#' one block of loci.
+#' @param x A file-backed dartR object (diploid SNP) [required].
+#' @param min.MAF Minimum minor allele frequency [default 1/(2n), as A.mat].
+#' @param max.missing Maximum missing fraction of a locus [default
+#' 1 - 1/(2n), as A.mat].
+#' @return An n x n matrix with indNames(x) as row and column names.
+#' @references Endelman, J.B. and Jannink, J.-L. (2012) Shrinkage estimation
+#' of the realized relationship matrix. G3 2:1405-1413.
+#' @author Custodian: Bernd Gruber -- Post to
+#'  \url{https://groups.google.com/d/forum/dartr}
+#' @keywords internal
+#' @export
+utils.fbm.grm <- function(x, min.MAF = NULL, max.missing = NULL) {
+  if (!.has_fbm(x)) {
+    stop(error("  Fatal Error: utils.fbm.grm() needs a file-backed object;",
+               "use rrBLUP::A.mat for a gen-backed one\n"))
+  }
+  n <- nInd(x)
+  blocks <- .fbm_col_blocks(nLoc(x), n)
+  rd <- .gl_reader(x)
+  # Pass 1: per locus the number of NA and the mean genotype, as A.mat:
+  # apply(X + 1, 2, mean) on doubles (two-pass mean() of a double vector)
+  s1 <- do.call(cbind, lapply(blocks, function(cols) {
+    g <- rd(cols = cols)
+    storage.mode(g) <- "double"
+    rbind(colSums(is.na(g)),
+          apply(g, 2, function(v) mean(v, na.rm = TRUE)))
+  }))
+  frac.missing <- s1[1, ] / n
+  missing <- max(frac.missing) > 0
+  freq <- s1[2, ] / 2
+  MAF <- pmin(freq, 1 - freq)
+  if (is.null(min.MAF)) min.MAF <- 1 / (2 * n)
+  if (is.null(max.missing)) max.missing <- 1 - 1 / (2 * n)
+  use <- (MAF >= min.MAF) & (frac.missing <= max.missing)
+  use[is.na(use)] <- FALSE
+  markers <- which(use)
+  m <- length(markers)
+  var.A <- 2 * mean(freq[markers] * (1 - freq[markers]))
+  # loci fixed in the sample: A.mat replaces their genotypes (also NA) by
+  # 2p - 1, so their column of W is 0
+  mono <- freq * (1 - freq) == 0
+  # Pass 2: W W' added over blocks of the loci used
+  A <- matrix(0, n, n)
+  for (cols in blocks) {
+    k <- cols[use[cols]]
+    if (length(k) == 0) next
+    g <- rd(cols = k)
+    storage.mode(g) <- "double"
+    W <- sweep((g - 1) + 1, 2, 2 * freq[k])
+    if (missing) W[is.na(W)] <- 0
+    W[, mono[k]] <- 0
+    A <- A + tcrossprod(W)
+  }
+  A <- A / var.A / m
+  dimnames(A) <- list(indNames(x), indNames(x))
+  A
+}
+
+#' @name utils.fbm.amat
+#' @title Additive relationship matrix by rrBLUP::A.mat for gen- and
+#' file-backed objects
+#' @family utilities
+#' @description
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED
+#' BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE
+#' OUTCOMES.
+#'
+#' Computes \code{rrBLUP::A.mat(as.matrix(x) - 1, ...)}, the matrix used by
+#' gl.grm (dartR.captive) and gl.grm2 (dartR.spatial):
+#' \itemize{
+#' \item gen-backed object: rrBLUP::A.mat, unchanged;
+#' \item file-backed object with A.mat's default method (mean imputation,
+#' no shrinkage, no imputed matrix returned; \code{min.MAF},
+#' \code{max.missing}, \code{n.core} and \code{tol} may be given):
+#' \code{\link{utils.fbm.grm}}, in blocks of loci without decoding the
+#' genotype matrix (agrees with A.mat to about 1e-13);
+#' \item file-backed object with any other A.mat option (\code{shrink},
+#' \code{impute.method = "EM"}, \code{return.imputed}): these need the whole
+#' matrix, so the object is converted to a genlight (\code{gl.fbm2gen}) with
+#' a warning that states the memory A.mat will use, and A.mat is run.
+#' }
+#' @param x A dartR object (diploid SNP) [required].
+#' @param dots A named list of arguments for rrBLUP::A.mat [default list()].
+#' @param verbose Verbosity of the warning about converting [default 2].
+#' @return The matrix returned by rrBLUP::A.mat (or a list, with
+#' \code{return.imputed = TRUE}).
+#' @author Custodian: Bernd Gruber -- Post to
+#'  \url{https://groups.google.com/d/forum/dartr}
+#' @keywords internal
+#' @export
+utils.fbm.amat <- function(x, dots = list(), verbose = 2) {
+  if (!requireNamespace("rrBLUP", quietly = TRUE)) {
+    stop(error("  Package rrBLUP needed for this function to work. Please",
+               "install it.\n"))
+  }
+  if (!.has_fbm(x)) {
+    return(do.call(rrBLUP::A.mat, c(list(as.matrix(x) - 1), dots)))
+  }
+  nm <- names(dots)
+  if (is.null(nm)) nm <- rep("", length(dots))
+  default <- all(nm %in% c("min.MAF", "max.missing", "n.core", "tol",
+                           "impute.method", "shrink", "return.imputed")) &&
+    (is.null(dots$impute.method) ||
+       identical(toupper(dots$impute.method), "MEAN")) &&
+    (is.null(dots$shrink) || isFALSE(dots$shrink)) &&
+    (is.null(dots$return.imputed) || isFALSE(dots$return.imputed))
+  if (default) {
+    return(utils.fbm.grm(x, min.MAF = dots$min.MAF,
+                         max.missing = dots$max.missing))
+  }
+  # A.mat holds about four n x p matrices of doubles (input, filtered and
+  # centred copies, frequency matrix) besides the n x n result
+  gb <- 4 * 8 * as.numeric(nInd(x)) * nLoc(x) / 1024^3
+  if (verbose >= 1) {
+    cat(warn("  Warning: the rrBLUP::A.mat option(s)",
+             paste(setdiff(nm, c("min.MAF", "max.missing", "n.core", "tol")),
+                   collapse = ", "),
+             "need the whole genotype matrix; converting the file-backed",
+             "object to a genlight. A.mat will use about",
+             signif(gb, 2), "Gb of memory\n"))
+  }
+  x <- gl.fbm2gen(x, verbose = 0)
+  do.call(rrBLUP::A.mat, c(list(as.matrix(x) - 1), dots))
+}

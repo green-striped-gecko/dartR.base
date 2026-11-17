@@ -211,6 +211,15 @@
   `utils.fbm.blocks()` and `utils.fbm.pair.counts()` (thin wrappers of the
   internal block-wise helpers). dartR.popgen, dartR.spatial,
   dartR.sexlinked and dartR.sim (dev_fbm) use them.
+* New `utils.fbm.grm()`: rrBLUP::A.mat's default relationship matrix (mean
+  imputation, no shrinkage) for file-backed objects, in two passes over
+  blocks of loci; frequencies, filter and scaling as A.mat, the summed
+  cross-product equal to A.mat up to rounding (bit for bit with R's
+  reference BLAS). New `utils.fbm.amat()`: A.mat for both storage types
+  (gen-backed: A.mat unchanged; file-backed: `utils.fbm.grm()` for the
+  default method, otherwise an explicit conversion with a warning stating
+  the memory needed). Used by `gl.grm()` (dartR.captive) and `gl.grm2()`
+  (dartR.spatial).
 
 # dartR.base 1.2.7 (development)
 

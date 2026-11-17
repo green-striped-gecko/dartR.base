@@ -229,3 +229,45 @@ test_that("exported utils.fbm.* helpers give the internal helpers' results", {
   expect_identical(utils.fbm.count.mean(3337, 5390),
                    .gl_count_mean(3337, 5390))
 })
+
+test_that("utils.fbm.grm and utils.fbm.amat reproduce rrBLUP::A.mat", {
+  skip_if_not_installed("bigstatsr")
+  skip_if_not_installed("rrBLUP")
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  x <- gl.compliance.check(platypus.gl[, 1:300], verbose = 0)
+  f <- suppressWarnings(gl.gen2fbm(x, verbose = 0))
+  X <- as.matrix(x) - 1
+  # the cross-product is added block by block: equal to A.mat up to
+  # rounding (frequencies, filter and scaling are computed as A.mat does)
+  for (bs in c(1, 1e-6)) {
+    options(bigstatsr.block.sizeGB = bs)
+    for (args in list(list(), list(min.MAF = 0), list(max.missing = 0.1),
+                      list(min.MAF = 1 / (2 * nInd(x)) - 1e-10))) {
+      a <- do.call(rrBLUP::A.mat, c(list(X), args))
+      b <- do.call(utils.fbm.grm, c(list(f), args))
+      expect_equal(b, a, tolerance = 1e-12)
+      expect_identical(dimnames(b), dimnames(a))
+    }
+  }
+  # no missing data
+  y <- gl.filter.callrate(x, threshold = 1, verbose = 0)
+  expect_equal(utils.fbm.grm(suppressWarnings(gl.gen2fbm(y, verbose = 0))),
+               rrBLUP::A.mat(as.matrix(y) - 1), tolerance = 1e-12)
+  expect_error(utils.fbm.grm(x), "file-backed")
+  # dispatcher: gen-backed is A.mat itself; FBM default is block-wise and
+  # never decodes the whole matrix; other options convert with a warning
+  expect_identical(utils.fbm.amat(x, list(min.MAF = 0.05)),
+                   rrBLUP::A.mat(X, min.MAF = 0.05))
+  local({
+    local_mocked_bindings(.fbm_as_matrix = function(x) {
+      stop("the whole FBM was decoded")
+    })
+    expect_equal(utils.fbm.amat(f, list(min.MAF = 0.05, n.core = 1)),
+                 rrBLUP::A.mat(X, min.MAF = 0.05), tolerance = 1e-12)
+  })
+  out <- utils::capture.output(r <- utils.fbm.amat(f, list(shrink = TRUE)))
+  expect_true(any(grepl("whole genotype matrix", out)))
+  utils::capture.output(rr <- rrBLUP::A.mat(X, shrink = TRUE))
+  expect_identical(r, rr)
+})

@@ -255,8 +255,24 @@ for both storage types, one-locus blocks and no full decode
   Euclidean from pair counts with dist()'s NA scaling); local
   `.fbm_or_null` removed from zzz.r.
 
-Left: group C (with Bernd); dartR.captive keeps its local `.fbm_or_null`
-until then. `gl.check.panel` / `gl.check.future.panel` (popgen, group A
+Group C, GRM (decided 17 Nov with Bernd: block-wise for A.mat's default
+only, explicit conversion with a warning for the other options; EJ
+shrinkage is not the default and no dartR function asks for it): done.
+`utils.fbm.grm` (A.mat default in two passes; equal to A.mat up to the
+rounding of the summed cross-product, bit for bit with reference BLAS) and
+`utils.fbm.amat` (dispatcher) in dartR.base; used by `gl.grm` (captive)
+and `gl.grm2` (spatial). `gl.check.panel(parameter = "relatedness")` uses
+its own VanRaden GRM, now block-wise for the full data (identical to the
+previous version). Gen-backed objects still use rrBLUP::A.mat unchanged.
+
+Group C still open (questions to Bernd): the functions that need the whole
+matrix by design (`gl.relatedness` engine, `gl.parentage.power`,
+`gl.opt.ind.all`, `gl.ld.haplotype`): explicit conversion with a message,
+a memory guard, or an error for FBM? And the exact cases
+(`gl.report.parent.offspring` via pair counts, `gl.report.errorrate` via
+the replicate rows, all-NA pre-filters of `gl.relatedness` and
+`gl.diagnostics.relatedness`). dartR.captive keeps its local
+`.fbm_or_null` until then. `gl.check.panel` / `gl.check.future.panel` (popgen, group A
 list) not converted yet: they compare a panel with the full data set and
 decode both; next to do.
 
