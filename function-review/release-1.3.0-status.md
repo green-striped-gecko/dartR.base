@@ -41,7 +41,7 @@ started by hand (workflow_dispatch).
 
 | Package | Result | Comment |
 |---|---|---|
-| dartR.base | 1 error, 1 warning, 1 note | error: `gl.report.excess.het` example needed ggtern (now installed, example runs); re-run in progress |
+| dartR.base | 0 / 1 warning / 1 note | re-run with ggtern installed (the first run's only error was the `gl.report.excess.het` example needing ggtern); R-version warning, time check |
 | dartR.data | 0 / 0 / 2 notes | installed size (data package), time check |
 | dartR.popgen | 0 / 1 warning / 2 notes | warning: adegenet built under R 4.3.3; notes: `assignPOP` not installed, time check |
 | dartR.sexlinked | 0 / 1 warning / 1 note | same R-version warning, time check |
