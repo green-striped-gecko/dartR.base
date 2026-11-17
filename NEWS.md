@@ -204,6 +204,13 @@
   is identical to the previous version (checked on five data sets,
   including read counts and the depth pattern), with an optimised BLAS it
   may differ in the last digits.
+* New exported helpers for file-backed objects, for use by the other
+  dartRverse packages (instead of local copies or `:::`):
+  `utils.fbm.has()`, `utils.fbm.colwise()`, `utils.fbm.colblocks()`,
+  `utils.fbm.rowwise()`, `utils.fbm.count.mean()`, `utils.fbm.reader()`,
+  `utils.fbm.blocks()` and `utils.fbm.pair.counts()` (thin wrappers of the
+  internal block-wise helpers). dartR.popgen, dartR.spatial,
+  dartR.sexlinked and dartR.sim (dev_fbm) use them.
 
 # dartR.base 1.2.7 (development)
 

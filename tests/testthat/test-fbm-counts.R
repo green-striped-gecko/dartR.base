@@ -205,3 +205,27 @@ test_that(".gl_pair_counts counts pairwise comparisons for any block size", {
   expect_identical(.gl_pair_counts(xs$f[1, ]),
                    list(L = integer(0), n1 = integer(0), n2 = integer(0)))
 })
+
+test_that("exported utils.fbm.* helpers give the internal helpers' results", {
+  skip_if_not_installed("bigstatsr")
+  set.seed(3)
+  xs <- counts_pair()
+  r <- which(pop(xs$x) == levels(pop(xs$x))[1])
+  for (x in xs) {
+    cm <- function(m) colMeans(m, na.rm = TRUE)
+    rs <- function(m) rowSums(is.na(m))
+    expect_identical(utils.fbm.has(x), .has_fbm(x))
+    expect_identical(utils.fbm.colwise(x, cm, rows = r),
+                     .gl_colwise(x, cm, rows = r))
+    expect_identical(utils.fbm.colblocks(x, cm), .gl_colblocks(x, cm))
+    expect_identical(utils.fbm.rowwise(x, rs), .gl_rowwise(x, rs))
+    expect_identical(utils.fbm.blocks(x), .fbm_col_blocks(nLoc(x), nInd(x)))
+    expect_identical(utils.fbm.reader(x)(r, 3:9),
+                     as.matrix(xs$x)[r, 3:9, drop = FALSE])
+  }
+  expect_false(utils.fbm.has(xs$x))
+  expect_true(utils.fbm.has(xs$f))
+  expect_identical(utils.fbm.pair.counts(xs$f), .gl_pair_counts(xs$f))
+  expect_identical(utils.fbm.count.mean(3337, 5390),
+                   .gl_count_mean(3337, 5390))
+})

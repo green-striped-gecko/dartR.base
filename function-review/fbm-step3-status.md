@@ -224,6 +224,42 @@ base helpers as `utils.*` functions (`utils.fbm.has`, `utils.fbm.colwise`,
 `:::`. Downstream DESCRIPTIONs then need a minimum dartR.base version
 (dependency change: confirm with Bernd before bumping).
 
+### Decisions and progress (17 Nov 2026)
+
+Bernd: create `dev_fbm` branches in popgen, spatial, captive, sexlinked
+(done, from `dev`); minimum `dartR.base (>= 1.2.7.9000)`; do A and B now,
+C later together with Bernd, skip D and E.
+
+Done (A and B), all identical to the gen-backed results, tested in each
+package's `tests/testthat/test-fbm.R` (or `test-fbm-counts.R` in sim)
+for both storage types, one-locus blocks and no full decode
+(`.fbm_as_matrix` mocked in dartR.base):
+
+- dartR.base: exported `utils.fbm.has`, `.colwise`, `.colblocks`,
+  `.rowwise`, `.count.mean`, `.reader`, `.blocks`, `.pair.counts`
+  (`R/utils.fbm.export.r`).
+- dartR.sim: `gl.He`, `gl.Ho`, `gl.report.nall`, `utils.sim.alf` (its
+  big_counts path replaced: it could differ from colMeans by 1 ulp),
+  `fst_hudson`, `inbreeding_real`, `gl.sim.WF.run(real_freq)`;
+  `utils.sim.is.fbm` delegates to `utils.fbm.has`. Note: helpers used on
+  parallel workers (`gl.report.nall`) must not call new internal functions;
+  workers load the installed package.
+- dartR.sexlinked: report/filter/keep (counts by sex in one pass),
+  `gl.infer.sex` (per-individual counts; gametolog loci by reader).
+- dartR.popgen: `gl.sfs`, `gl.select.panel` (dapc converts only the pair
+  of populations), `gl.amova` (`.neis_d_ind_fbm`: StAMPP Nei distance
+  between individuals rebuilt from exact pair counts; terms are multiples
+  of 0.25).
+- dartR.spatial: `gl.kosman` (pair counts), `gl.ibd` (Fst via
+  `gl.fst.pop`, Nei D via StAMPP on a per-population frequency table,
+  Euclidean from pair counts with dist()'s NA scaling); local
+  `.fbm_or_null` removed from zzz.r.
+
+Left: group C (with Bernd); dartR.captive keeps its local `.fbm_or_null`
+until then. `gl.check.panel` / `gl.check.future.panel` (popgen, group A
+list) not converted yet: they compare a panel with the full data set and
+decode both; next to do.
+
 ## Notes
 
 - Not run yet: `R CMD check` (deferred by Bernd; run once later). Last
