@@ -46,9 +46,13 @@ started by hand (workflow_dispatch).
 | dartR.popgen | 0 / 1 warning / 2 notes | warning: adegenet built under R 4.3.3; notes: `assignPOP` not installed, time check |
 | dartR.sexlinked | 0 / 1 warning / 1 note | same R-version warning, time check |
 | dartRverse | 0 / 0 / 1 note | time check |
-| dartR.sim, dartR.spatial, dartR.captive | running | started 17 Nov 22:30 (paused overnight) |
+| dartR.captive | 0 / 1 warning / 3 notes | R-version warning; notes: `poibin`, `kinship2` not installed, time check, and NEWS.md headings (real; **fixed** on `dev`, see below) |
+| dartR.sim, dartR.spatial | running | started 17 Nov 22:30 (paused overnight) |
 
-All issues found so far come from the local machine (R 4.3.1 while
+Apart from the dartR.captive NEWS.md headings (title line above the
+version heading, "Cannot extract version info"; fixed 18 Nov, all other
+NEWS files parse cleanly), all issues found so far come from the local
+machine (R 4.3.1 while
 dependencies were built under 4.3.3; optional packages missing; "unable to
 verify current time"), none from the packages. A local check on an R
 matching the dependencies (e.g. R 4.6.2, now installed) would be clean of
