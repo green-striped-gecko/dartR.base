@@ -305,3 +305,151 @@ utils.fbm.copy <- function(G,
   names(res) <- lv
   res
 }
+
+## R's mean() of a logical or integer vector, rowMeans() and colMeans()
+## divide a long-double sum by the count and round the quotient to double.
+## For a statistic counted over blocks of loci, a plain num / den differs
+## from that by one unit in the last place for about one count in 6,000
+## once den exceeds 2,048. Returns, element by element, exactly the value
+## that mean() (rowMeans(), colMeans()) gives for num TRUE among den values,
+## so counted statistics stay identical to the decoded-matrix versions.
+## num and den are whole numbers; den = 0 gives NaN, as rowMeans(na.rm =
+## TRUE) does for a row without values.
+.gl_count_mean <- function(num, den) {
+  num <- as.numeric(num)
+  den <- rep_len(as.numeric(den), length(num))
+  res <- num / den
+  ok <- which(!is.na(num) & !is.na(den) & den > 2048 & num > 0 & num < den)
+  if (length(ok) > 0) {
+    key <- paste(num[ok], den[ok])
+    u <- !duplicated(key)
+    val <- mapply(function(a, b) mean(rep(c(TRUE, FALSE), c(a, b - a))),
+                  num[ok][u], den[ok][u])
+    res[ok] <- val[match(key, key[u])]
+  }
+  names(res) <- names(num)
+  res
+}
+
+## Pairwise genotype comparisons of all individuals of an FBM-backed object,
+## counted over blocks of loci read from the backing file: for each pair of
+## individuals (i, j), the number of loci scored in both (L), and among those
+## the numbers that differ by one (n1: homozygote vs heterozygote) and by two
+## allele copies (n2: opposite homozygotes). Assumes genotypes coded 0, 1,
+## 2 (number of alternative alleles, diploid) and NA for missing, as dartR
+## writes them (CODE_012). The counts are integers, so they do not depend
+## on the block size. Returns a list of three integer vectors in the order
+## of a 'dist' object (lower triangle by columns), each of length
+## n(n - 1)/2: the pairwise counts take 12 bytes per pair, e.g. 2.4 Gb for
+## 20,000 individuals, besides the n x n result the callers build.
+.gl_pair_counts <- function(x) {
+  G <- .fbm_or_null(x)
+  if (is.null(G)) {
+    stop(error("  Fatal Error: .gl_pair_counts() needs a file-backed object\n"))
+  }
+  code <- G$code256
+  if (!all(code[!is.na(code)] %in% 0:2)) {
+    stop(error("  Fatal Error: pairwise distances from a file-backed object",
+               "need genotypes coded 0, 1, 2 or NA\n"))
+  }
+  # Stub to satisfy package checks; the real function is compiled below
+  dartR_pair_counts_acc <- function(...) NULL
+  Rcpp::cppFunction(
+'
+    void dartR_pair_counts_acc(const NumericMatrix& B, IntegerVector L,
+                               IntegerVector n1, IntegerVector n2) {
+      // Adds the comparisons of one block of loci (individuals x loci,
+      // coded 0, 1, 2 or NA) to the pair counts L, n1, n2 (dist order),
+      // in place.
+      const int n = B.nrow(), b = B.ncol();
+      // individuals in rows of a transposed copy, so that the loci of one
+      // individual are contiguous; -1 marks a missing genotype
+      std::vector<int> g((size_t) n * b);
+      for (int k = 0; k < b; ++k) {
+        for (int i = 0; i < n; ++i) {
+          double v = B(i, k);
+          g[(size_t) i * b + k] = ISNAN(v) ? -1 : (int) v;
+        }
+      }
+      R_xlen_t idx = 0;
+      for (int j = 0; j < n - 1; ++j) {
+        const int* gj = &g[(size_t) j * b];
+        for (int i = j + 1; i < n; ++i, ++idx) {
+          const int* gi = &g[(size_t) i * b];
+          int l = 0, d1 = 0, d2 = 0;
+          for (int k = 0; k < b; ++k) {
+            int a = gi[k], c = gj[k];
+            if (a < 0 || c < 0) continue;
+            ++l;
+            int d = a > c ? a - c : c - a;
+            d1 += (d == 1);
+            d2 += (d == 2);
+          }
+          L[idx] += l;
+          n1[idx] += d1;
+          n2[idx] += d2;
+        }
+      }
+    }'
+  )
+  n <- nrow(G)
+  npair <- n * (n - 1) / 2
+  # fresh vectors, filled in place by the compiled function
+  L <- integer(npair)
+  n1 <- integer(npair)
+  n2 <- integer(npair)
+  if (npair > 0) {
+    for (cols in .fbm_col_blocks(ncol(G), n)) {
+      dartR_pair_counts_acc(G[, cols, drop = FALSE], L, n1, n2)
+    }
+  }
+  list(L = L, n1 = n1, n2 = n2)
+}
+
+## A symmetric n x n matrix from a vector in 'dist' order, with the given
+## diagonal and no dimnames
+.gl_dist_to_matrix <- function(v, n, diag = 0) {
+  m <- matrix(diag, n, n)
+  lt <- lower.tri(m)
+  m[lt] <- v
+  m <- t(m)
+  m[lt] <- v
+  m
+}
+
+## Reader of the decoded genotypes of x: returns function(rows = NULL,
+## cols = NULL) giving as.matrix(x)[rows, cols, drop = FALSE] (NULL: all
+## rows or all columns), with the dimnames and storage of as.matrix(). For
+## an FBM-backed object only the requested part is read from the backing
+## file, so callers that ask for blocks of loci (.fbm_col_blocks), single
+## individuals or selected loci never decode the whole matrix. Reading one
+## individual touches the whole backing file (stored by loci), so callers
+## should read few rows. For a gen-backed object the matrix is decoded once
+## and kept by the reader, as as.matrix(x) would.
+.gl_reader <- function(x) {
+  G <- .fbm_or_null(x)
+  if (is.null(G)) {
+    m <- as.matrix(x)
+    return(function(rows = NULL, cols = NULL) {
+      if (is.null(rows) && is.null(cols)) return(m)
+      if (is.null(rows)) return(m[, cols, drop = FALSE])
+      if (is.null(cols)) return(m[rows, , drop = FALSE])
+      m[rows, cols, drop = FALSE]
+    })
+  }
+  code <- G$code256
+  int <- all(code[!is.na(code)] %% 1 == 0)
+  ind <- indNames(x)
+  loc <- locNames(x)
+  no_dn <- is.null(ind) && is.null(loc)
+  function(rows = NULL, cols = NULL) {
+    rows <- if (is.null(rows)) bigstatsr::rows_along(G) else
+      seq_len(nrow(G))[rows]
+    cols <- if (is.null(cols)) bigstatsr::cols_along(G) else
+      seq_len(ncol(G))[cols]
+    B <- G[rows, cols, drop = FALSE]
+    if (int) storage.mode(B) <- "integer"
+    if (!no_dn) dimnames(B) <- list(ind[rows], loc[cols])
+    B
+  }
+}

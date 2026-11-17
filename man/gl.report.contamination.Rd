@@ -274,7 +274,12 @@ between two populations of one species at a typical heterozygosity of
 0.3 shifts heterozygosity by less than the natural spread of many
 populations. Tier 2 can only name a source that is in the dataset.
 
-The function densifies the genotype matrix with \code{as.matrix()}.
+A file-backed (FBM) object is read from its backing file in blocks of
+loci, and by individual for the suspects examined in tiers 3 and 4; the
+genotype matrix is never decoded as a whole, and the results are
+identical to those of the same data held in memory. The kinship matrix
+(8 bytes per pair of individuals) is held in memory, as are read counts
+in \code{other$geno.metrics}.
 
 The plot shows heterozygosity against rare-allele burden with suspects
 labelled. When plate positions are known, a second plot maps each plate

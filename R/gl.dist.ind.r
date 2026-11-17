@@ -50,6 +50,12 @@
 #'  }
 #' Jaccard, Bray-Curtis and Sorensen are defined for presence/absence data
 #' only; requesting them for SNP data stops with an error.
+#'
+#' For a file-backed (FBM) object the pairwise counts behind every SNP
+#' distance are added over blocks of loci read from the backing file, so the
+#' genotype matrix is never decoded as a whole; the distances are identical
+#' to those of the same data held in memory. The distance matrix itself
+#' (8 bytes per pair of individuals) is held in memory.
 
 #' Refer to the documentation of functions in
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms

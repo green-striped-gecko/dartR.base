@@ -109,7 +109,26 @@ calls <- list(
     gl.fdsim(x, poppair = popNames(x)[1:2], ...)
   }, reps = 10, verbose = 3),
   filter.maf.pop = list(gl.filter.maf, by.pop = TRUE, ind.limit = 2,
-                        pop.limit = 1, threshold = 0.1, verbose = 3)
+                        pop.limit = 1, threshold = 0.1, verbose = 3),
+  dist.ind = list(gl.dist.ind, plot.display = FALSE, verbose = 3),
+  dist.ind.scaled = list(gl.dist.ind, scale = TRUE, type = "matrix",
+                         plot.display = FALSE, verbose = 3),
+  dist.ind.simple = list(gl.dist.ind, method = "Simple",
+                         plot.display = FALSE, verbose = 3),
+  dist.ind.absolute = list(gl.dist.ind, method = "Absolute",
+                           plot.display = FALSE, verbose = 3),
+  dist.ind.manhattan = list(gl.dist.ind, method = "Manhattan",
+                            type = "matrix", plot.display = FALSE,
+                            verbose = 3),
+  dist.pop = list(gl.dist.pop, plot.display = FALSE, verbose = 3),
+  dist.pop.nei = list(gl.dist.pop, method = "nei", plot.display = FALSE,
+                      verbose = 3),
+  replicates = list(gl.report.replicates, loc_threshold = 20,
+                    perc_geno = 0.6, plot.out = FALSE, verbose = 3),
+  replicates.king = list(gl.report.replicates.KING, loc_threshold = 20,
+                         plot.out = FALSE, verbose = 3),
+  contamination = list(gl.report.contamination, min.n = 2,
+                       plot.display = FALSE, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {
@@ -146,4 +165,43 @@ test_that("reports and filters never decode the whole FBM", {
     expect_no_error(utils::capture.output(suppressWarnings(
       do.call(cl[[1]], c(list(xs$f), cl[-1])))), message = nm)
   }
+})
+
+test_that(".gl_count_mean divides counts as rowMeans() does", {
+  # pairs for which num / den differs from the long-double mean by one
+  # unit in the last place (found by search)
+  num <- c(3337, 3323, 14896, 0, 7, 5, NA, 0)
+  den <- c(5390, 4590, 29237, 5000, 7, 10, 4, 0)
+  ref <- vapply(seq_along(num), function(i) {
+    if (is.na(num[i])) return(NA_real_)
+    rowMeans(matrix(rep(c(TRUE, FALSE), c(num[i], den[i] - num[i])), 1),
+             na.rm = TRUE)
+  }, numeric(1))
+  expect_identical(.gl_count_mean(num, den), ref)
+})
+
+test_that(".gl_pair_counts counts pairwise comparisons for any block size", {
+  skip_if_not_installed("bigstatsr")
+  skip_if_not_installed("Rcpp")
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  set.seed(3)
+  xs <- counts_pair()
+  m <- as.matrix(xs$x)
+  n <- nrow(m)
+  ref <- list(L = integer(0), n1 = integer(0), n2 = integer(0))
+  for (j in seq_len(n - 1)) for (i in (j + 1):n) {
+    d <- abs(m[i, ] - m[j, ])
+    ref$L <- c(ref$L, sum(!is.na(d)))
+    ref$n1 <- c(ref$n1, sum(d == 1, na.rm = TRUE))
+    ref$n2 <- c(ref$n2, sum(d == 2, na.rm = TRUE))
+  }
+  for (bs in c(1, 1e-6)) {
+    options(bigstatsr.block.sizeGB = bs)
+    expect_identical(.gl_pair_counts(xs$f), ref)
+  }
+  expect_error(.gl_pair_counts(xs$x), "file-backed")
+  # one individual: no pairs
+  expect_identical(.gl_pair_counts(xs$f[1, ]),
+                   list(L = integer(0), n1 = integer(0), n2 = integer(0)))
 })

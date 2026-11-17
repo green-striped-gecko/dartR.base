@@ -179,6 +179,31 @@
 * Internal `.gl_pop_genotype_counts()` (used by the HWE functions) reads
   all populations in one pass over the data instead of one pass per
   population; the result is unchanged.
+* Distances and kinship from disk (FBM step 3, item 5):
+  `gl.dist.ind()` (SNP data, all methods, through `utils.dist.ind.snp()`),
+  `gl.report.replicates()`, `gl.report.replicates.KING()` (called
+  genotypes) and `gl.report.contamination()` read file-backed objects in
+  blocks of loci instead of decoding the whole genotype matrix. Results and
+  messages are identical to those of the same data held in memory, for any
+  block size. New internal helpers: `.gl_pair_counts()` adds, per pair of
+  individuals, the loci scored in both and those differing by one or two
+  allele copies (compiled loop over blocks; every SNP distance and the
+  replicate proportions follow from these whole-number counts);
+  `.gl_count_mean()` divides counts exactly as `rowMeans()` does (a plain
+  division differs in the last digit for about one count in 6,000 once
+  more than 2,048 loci are counted); `.gl_reader()` reads blocks of loci,
+  single individuals or selected loci. `gl.dist.ind()` at 2,000 x 20,000:
+  94 s file-backed against 330 s in memory (the new loop reads each
+  individual's loci contiguously). The n x n results stay in memory.
+  `gl.dist.pop()` already read from disk (through `gl.allele.freq()`) and
+  is now tested for both storage types. `gl.dist.phylo()` is unchanged: it
+  builds the full DNA alignment for `ape::dist.dna()` (larger than the
+  genotype matrix) through `gl2fasta()`, which decodes the matrix.
+* `gl.report.contamination()`: the kinship cross-product is added over
+  blocks of loci for both storage types; with R's reference BLAS the result
+  is identical to the previous version (checked on five data sets,
+  including read counts and the depth pattern), with an optimised BLAS it
+  may differ in the last digits.
 
 # dartR.base 1.2.7 (development)
 

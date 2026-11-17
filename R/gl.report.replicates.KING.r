@@ -136,6 +136,12 @@
 #' for full siblings in an outbred population) and \code{het_threshold}. A gap between the relatives
 #' and the duplicates means the duplicate calls are clear-cut.
 #'
+#' A file-backed (FBM) object (called genotypes) is read from its backing
+#' file in blocks of loci: missing data, allele frequencies and the counts of
+#' the nine genotype combinations are added block by block, so the genotype
+#' matrix is never decoded as a whole, and the results are identical to those
+#' of the same data held in memory.
+#'
 #' @return A list, returned invisibly, with:
 #' \itemize{
 #' \item table.rep: the flagged pairs, with their statistics, class, group,
@@ -286,8 +292,20 @@ gl.report.replicates.KING <- function(x,
   }
 
   # DO THE JOB
-  G <- as.matrix(x)
-  ind.miss <- rowMeans(is.na(G))
+  # A file-backed object is read in blocks of loci and never decoded as a
+  # whole: missing data and allele frequencies are counted per block
+  # (.gl_rowwise, .gl_colwise; .gl_count_mean divides as rowMeans() does),
+  # and the genotype combinations are added over blocks of loci read from
+  # the backing file (.king_calls9). All results are identical to those of
+  # the gen-backed object.
+  fbm <- .fbm_or_null(x)
+  if (is.null(fbm)) {
+    G <- as.matrix(x)
+    ind.miss <- rowMeans(is.na(G))
+  } else {
+    ind.miss <- .gl_count_mean(.gl_rowwise(x, function(t) rowSums(is.na(t))),
+                               nLoc(x))
+  }
   names(ind.miss) <- indNames(x)
 
   # Loci by minor allele frequency
@@ -295,7 +313,11 @@ gl.report.replicates.KING <- function(x,
     L <- lapply(gm[pl.names], function(m) t(10^(-m / 10)))
     f <- .king_freq(L)
   } else {
-    f <- colMeans(G, na.rm = TRUE) / 2
+    f <- if (is.null(fbm)) {
+      colMeans(G, na.rm = TRUE) / 2
+    } else {
+      .gl_colwise(x, function(t) colMeans(t, na.rm = TRUE)) / 2
+    }
   }
   use <- which(f >= maf & f <= 1 - maf)
   if (verbose >= 2) {
@@ -307,7 +329,11 @@ gl.report.replicates.KING <- function(x,
   n <- nInd(x)
   pairs <- which(upper.tri(matrix(TRUE, n, n)), arr.ind = TRUE)
   if (input == "calls") {
-    s9 <- .king_calls9(G, use, pairs)
+    s9 <- if (is.null(fbm)) {
+      .king_calls9(G, use, pairs)
+    } else {
+      .king_calls9(fbm, use, pairs, block = .fbm_block_size(nInd(x)))
+    }
     nloc <- rowSums(s9)
   } else {
     if (input == "likelihoods") {
@@ -463,7 +489,9 @@ gl.report.replicates.KING <- function(x,
 
 ## Counts of the nine genotype combinations A-I of each pair from called
 ## genotypes, by matrix products over blocks of loci. D, G and H are the
-## transposes of B, C and F.
+## transposes of B, C and F. The argument G is the decoded genotype matrix or
+## the FBM of a file-backed object (read block by block); the counts are whole
+## numbers, so they do not depend on the block size.
 .king_calls9 <- function(G, use, pairs, block = 5000L) {
   n <- nrow(G)
   acc <- rep(list(matrix(0, n, n)), 6)
