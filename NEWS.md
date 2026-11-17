@@ -220,6 +220,13 @@
   default method, otherwise an explicit conversion with a warning stating
   the memory needed). Used by `gl.grm()` (dartR.captive) and `gl.grm2()`
   (dartR.spatial).
+* New `utils.fbm.decode()`: for functions whose algorithm needs the whole
+  genotype matrix. Gen-backed objects: `as.matrix(x)`, unchanged.
+  File-backed objects: the memory needed is reported (verbose >= 2) and
+  the function stops with an informative error above
+  `getOption("dartR_fbm_max_decode_gb", 4)` Gb instead of exhausting
+  memory; the limit can be raised with `options()`. `utils.fbm.amat()`
+  applies the same limit before converting for non-default A.mat options.
 
 # dartR.base 1.2.7 (development)
 

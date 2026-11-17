@@ -265,14 +265,24 @@ and `gl.grm2` (spatial). `gl.check.panel(parameter = "relatedness")` uses
 its own VanRaden GRM, now block-wise for the full data (identical to the
 previous version). Gen-backed objects still use rrBLUP::A.mat unchanged.
 
-Group C still open (questions to Bernd): the functions that need the whole
-matrix by design (`gl.relatedness` engine, `gl.parentage.power`,
-`gl.opt.ind.all`, `gl.ld.haplotype`): explicit conversion with a message,
-a memory guard, or an error for FBM? And the exact cases
-(`gl.report.parent.offspring` via pair counts, `gl.report.errorrate` via
-the replicate rows, all-NA pre-filters of `gl.relatedness` and
-`gl.diagnostics.relatedness`). dartR.captive keeps its local
-`.fbm_or_null` until then. `gl.check.panel` / `gl.check.future.panel` (popgen, group A
+Group C, rest (decided 17 Nov with Bernd: option 2 = decode with a
+message and a memory limit; convert the exact cases): done.
+- `utils.fbm.decode()` (dartR.base): as.matrix for gen-backed; for FBM
+  reports the memory (verbose >= 2) and stops above
+  `getOption("dartR_fbm_max_decode_gb", 4)` Gb (default 4 chosen by
+  Claude; Bernd may change it). Also guards `utils.fbm.amat`'s conversion.
+  Used by `gl.relatedness` (engine, 4 bytes/genotype),
+  `gl.parentage.power`, `gl.opt.ind.all` (2 copies).
+- Exact: `gl.report.parent.offspring` (pair counts n2, L),
+  `gl.report.errorrate` (replicate rows, counts per block), all-NA
+  pre-filters of `gl.relatedness` and `gl.diagnostics.relatedness`.
+- `gl.ld.haplotype` needed nothing: it works per population through base
+  statistics (block-wise) and `gl2plink` (group D, skipped).
+- Not testable here: `gl.relatedness` and `gl.diagnostics.relatedness`
+  need dartR.coancestry (not installed); their changes are the pre-filter
+  counts and the decode call only.
+- dartR.captive: local `.fbm_or_null` removed from zzz.r
+  (`gl.filter.parent.offspring` uses `dartR.base::utils.fbm.has`). `gl.check.panel` / `gl.check.future.panel` (popgen, group A
 list) not converted yet: they compare a panel with the full data set and
 decode both; next to do.
 

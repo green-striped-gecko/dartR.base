@@ -322,7 +322,9 @@ utils.fbm.grm <- function(x, min.MAF = NULL, max.missing = NULL) {
 #' \item file-backed object with any other A.mat option (\code{shrink},
 #' \code{impute.method = "EM"}, \code{return.imputed}): these need the whole
 #' matrix, so the object is converted to a genlight (\code{gl.fbm2gen}) with
-#' a warning that states the memory A.mat will use, and A.mat is run.
+#' a warning that states the memory A.mat will use, and A.mat is run (it
+#' stops instead if that exceeds the limit of
+#' \code{\link{utils.fbm.decode}}).
 #' }
 #' @param x A dartR object (diploid SNP) [required].
 #' @param dots A named list of arguments for rrBLUP::A.mat [default list()].
@@ -356,6 +358,9 @@ utils.fbm.amat <- function(x, dots = list(), verbose = 2) {
   # A.mat holds about four n x p matrices of doubles (input, filtered and
   # centred copies, frequency matrix) besides the n x n result
   gb <- 4 * 8 * as.numeric(nInd(x)) * nLoc(x) / 1024^3
+  # stop before exhausting memory (limit: option dartR_fbm_max_decode_gb)
+  .fbm_decode_guard(x, what = "rrBLUP::A.mat with these options",
+                    bytes = 8, copies = 4, verbose = 0)
   if (verbose >= 1) {
     cat(warn("  Warning: the rrBLUP::A.mat option(s)",
              paste(setdiff(nm, c("min.MAF", "max.missing", "n.core", "tol")),
@@ -366,4 +371,70 @@ utils.fbm.amat <- function(x, dots = list(), verbose = 2) {
   }
   x <- gl.fbm2gen(x, verbose = 0)
   do.call(rrBLUP::A.mat, c(list(as.matrix(x) - 1), dots))
+}
+
+#' @name utils.fbm.decode
+#' @title Decodes the whole genotype matrix, with a memory guard for
+#' file-backed objects
+#' @family utilities
+#' @description
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED
+#' BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE
+#' OUTCOMES.
+#'
+#' For functions whose algorithm needs the whole genotype matrix in memory.
+#' Returns \code{as.matrix(x)}. For a gen-backed object nothing else
+#' happens. For a file-backed object the memory the matrix needs is
+#' estimated first (\code{nInd(x) * nLoc(x) * bytes}): it is reported at
+#' verbose >= 2, and if it exceeds
+#' \code{getOption("dartR_fbm_max_decode_gb", 4)} Gb the function stops
+#' with an informative error instead of exhausting memory. The limit can
+#' be raised, e.g. \code{options(dartR_fbm_max_decode_gb = 16)}.
+#' @param x A dartR object [required].
+#' @param what Name of the calling function, for the messages
+#' [default "this function"].
+#' @param bytes Bytes per genotype of the matrix the caller works with
+#' (4 for integers, 8 for doubles) [default 8].
+#' @param copies Number of such matrices the caller holds at once
+#' [default 1].
+#' @param verbose Verbosity [default 2].
+#' @return The decoded genotype matrix, as \code{as.matrix(x)}.
+#' @author Custodian: Bernd Gruber -- Post to
+#'  \url{https://groups.google.com/d/forum/dartr}
+#' @keywords internal
+#' @export
+utils.fbm.decode <- function(x, what = "this function", bytes = 8,
+                             copies = 1, verbose = 2) {
+  if (!.has_fbm(x)) return(as.matrix(x))
+  .fbm_decode_guard(x, what = what, bytes = bytes, copies = copies,
+                    verbose = verbose)
+  as.matrix(x)
+}
+
+## Estimates the memory of decoding a file-backed x (copies matrices of
+## 'bytes' per genotype), reports it at verbose >= 2 and stops above
+## getOption("dartR_fbm_max_decode_gb", 4) Gb
+.fbm_decode_guard <- function(x, what, bytes = 8, copies = 1, verbose = 2) {
+  gb <- copies * bytes * as.numeric(nInd(x)) * nLoc(x) / 1024^3
+  limit <- getOption("dartR_fbm_max_decode_gb", 4)
+  if (!is.numeric(limit) || length(limit) != 1 || is.na(limit)) {
+    stop(error("  Fatal Error: option dartR_fbm_max_decode_gb must be a",
+               "single number (Gb)\n"))
+  }
+  if (gb > limit) {
+    stop(error("  Fatal Error:", what, "needs the whole genotype matrix in",
+               "memory: about", signif(gb, 2), "Gb for", nInd(x),
+               "individuals and", nLoc(x), "loci, more than the limit of",
+               limit, "Gb (option dartR_fbm_max_decode_gb). Raise the",
+               "limit if enough memory is available, e.g.",
+               paste0("options(dartR_fbm_max_decode_gb = ",
+                      ceiling(gb * 1.5), "),"),
+               "or reduce the data (filter loci or individuals)\n"))
+  }
+  if (verbose >= 2) {
+    cat(report("  ", what, "needs the whole genotype matrix in memory:",
+               "decoding the file-backed object (about", signif(gb, 2),
+               "Gb)\n"))
+  }
+  invisible(gb)
 }

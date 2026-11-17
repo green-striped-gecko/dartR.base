@@ -43,6 +43,7 @@ Other utilities:
 \code{\link{utils.fbm.colblocks}()},
 \code{\link{utils.fbm.colwise}()},
 \code{\link{utils.fbm.copy}()},
+\code{\link{utils.fbm.decode}()},
 \code{\link{utils.fbm.grm}()},
 \code{\link{utils.fbm.has}()},
 \code{\link{utils.fbm.new}()},

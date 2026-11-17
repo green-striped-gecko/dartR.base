@@ -35,7 +35,9 @@ genotype matrix (agrees with A.mat to about 1e-13);
 \item file-backed object with any other A.mat option (\code{shrink},
 \code{impute.method = "EM"}, \code{return.imputed}): these need the whole
 matrix, so the object is converted to a genlight (\code{gl.fbm2gen}) with
-a warning that states the memory A.mat will use, and A.mat is run.
+a warning that states the memory A.mat will use, and A.mat is run (it
+stops instead if that exceeds the limit of
+\code{\link{utils.fbm.decode}}).
 }
 }
 \seealso{
@@ -52,6 +54,7 @@ Other utilities:
 \code{\link{utils.fbm.colwise}()},
 \code{\link{utils.fbm.copy}()},
 \code{\link{utils.fbm.count.mean}()},
+\code{\link{utils.fbm.decode}()},
 \code{\link{utils.fbm.grm}()},
 \code{\link{utils.fbm.has}()},
 \code{\link{utils.fbm.new}()},
