@@ -279,8 +279,8 @@ gl2plink <- function(x,
                 # Every path is quoted: an unquoted path containing a space
                 # split into several arguments and PLINK rejected the call
                 system_verbose(
+                    plink.path,
                     paste(
-                        shQuote(plink.path),
                         "--file",
                         shQuote(prefix.in),
                         "--allow-no-sex",
@@ -305,14 +305,16 @@ gl2plink <- function(x,
         
         
         # Runs PLINK, shows its log at verbose >= 3, and stops when PLINK
-        # exits with an error. system(intern = TRUE) turns a non-zero exit
+        # exits with an error. A captured run turns a non-zero exit
         # into an R warning only, so a failed run used to be reported as
         # success with no .bed file written.
-        system_verbose <- function(cmd) {
-            # 2>&1: PLINK writes some errors to stderr, which intern = TRUE
-            # does not capture
+        system_verbose <- function(exe, args) {
+            # PLINK writes some errors to stderr, so capture it too.
+            # system2() quotes exe itself and needs no shell for this; the
+            # earlier system(paste(cmd, "2>&1")) failed on Windows, where
+            # system() runs no shell and "2>&1" reached PLINK as an argument
             plink.out <- suppressWarnings(
-                system(paste(cmd, "2>&1"), intern = TRUE)
+                system2(exe, args, stdout = TRUE, stderr = TRUE)
             )
             status <- attr(plink.out, "status")
             if (verbose >= 3) {

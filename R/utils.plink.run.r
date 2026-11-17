@@ -59,15 +59,19 @@ utils.plink.run <- function(dir.in,
   # The executable and output name are quoted, so paths containing spaces
   # reach PLINK as single arguments; paths inside syntax must be quoted by
   # the caller
-  cmd <- paste(shQuote(exe), syntax, "--out", shQuote(out))
-  # Capture PLINK's output, stderr included (2>&1), and print it only at
+  args <- paste(syntax, "--out", shQuote(out))
+  cmd <- paste(shQuote(exe), args)
+  # Capture PLINK's output, stderr included, and print it only at
   # verbose >= 3; it bypasses sink() and would print even at verbose = 0
   # (gl.read.PLINK review, F5). A non-zero exit stops with PLINK's own
   # message rather than letting the caller fail later on a missing file.
-  # system() itself errors when the command cannot be started at all
-  # (e.g. a wrong plink.path); report that the same way
+  # system2() quotes exe itself and captures stderr without a shell; the
+  # earlier system(paste(cmd, "2>&1")) failed on Windows, where system()
+  # runs no shell and "2>&1" reached PLINK as an argument.
+  # system2() itself errors on Windows when the command cannot be started
+  # at all (e.g. a wrong plink.path); report that the same way
   plink.out <- tryCatch(
-    suppressWarnings(system(paste(cmd, "2>&1"), intern = TRUE)),
+    suppressWarnings(system2(exe, args, stdout = TRUE, stderr = TRUE)),
     error = function(e) structure(conditionMessage(e), status = 127L)
   )
   status <- attr(plink.out, "status")
