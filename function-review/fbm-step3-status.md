@@ -1,5 +1,8 @@
 # FBM step 3: where we are (hand-over, 17 Nov 2026)
 
+> Current state of all packages (1.3.0 merged into `dev`, CI, local
+> checks, open PRs): see `release-1.3.0-status.md`.
+
 Branch `dev_fbm` of dartR.base (dartR.sim also has a `dev_fbm` branch, with
 the WP0 helpers and `gl.sim.mutate`). Step 2 (WP0-WP6) is complete; see
 `fbm-step2-plan.md` for its plan, measurements and decisions. Step 3 items
