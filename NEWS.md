@@ -137,6 +137,17 @@
   missing loci, an empty population level and a single population, both
   storage types), and faster (10 populations x 5,000 loci: 9.4 s to 1.2 s
   in memory, 0.9 s file-backed).
+* `gl.report.allelerich()` takes the allele counts per population and
+  site from genotype counts read in one pass over blocks of loci, instead
+  of decoding every population and melting it to a long table. The
+  bootstrap (`nboots > 0`) still needs one population's genotypes at a
+  time; a file-backed population is read in blocks, never the whole
+  object. Results and messages identical to the previous version (seven
+  data sets, including numeric locus names and an empty population level;
+  SD, SE and both bootstrap methods; both storage types).
+* Internal `.gl_pop_genotype_counts()` (used by the HWE functions) reads
+  all populations in one pass over the data instead of one pass per
+  population; the result is unchanged.
 
 # dartR.base 1.2.7 (development)
 

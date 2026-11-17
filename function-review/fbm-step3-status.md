@@ -94,7 +94,9 @@ In this order (decodes / `seppop` copies to replace):
    samples up to 400 individuals (checked exhaustively); `colMeans` divides
    in long double, so above ~1,000 individuals a 1-ulp difference is
    theoretically possible.
-3. `gl.report.allelerich` (341-346, 494-496).
+3. Done (17 Nov): `gl.report.allelerich` (counts from
+   `.gl_pop_genotype_counts()`, now one pass for all populations; the
+   bootstrap decodes one population at a time, in blocks for FBM).
 4. `gl.test.heterozygosity` (240-247).
 5. `gl.report.shannon` (197).
 6. Optional: `gl.fdsim` (used by `gl.fixed.diff(test = TRUE)`).

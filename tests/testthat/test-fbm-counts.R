@@ -92,7 +92,10 @@ calls <- list(
   diversity = list(gl.report.diversity, plot.display = FALSE, verbose = 3),
   diversity.1pop = list(function(x, ...) {
     gl.report.diversity(gl.keep.pop(x, popNames(x)[1], verbose = 0), ...)
-  }, plot.display = FALSE, verbose = 3)
+  }, plot.display = FALSE, verbose = 3),
+  allelerich = list(gl.report.allelerich, plot.display = FALSE, verbose = 3),
+  allelerich.boot = list(gl.report.allelerich, nboots = 5, CI.type = "perc",
+                         plot.display = FALSE, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {

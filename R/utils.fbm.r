@@ -286,16 +286,21 @@ utils.fbm.copy <- function(G,
 ## Genotype counts per population and locus: for each population (in the
 ## order of seppop(), the levels of pop(x)) a 3 x nLoc matrix with the
 ## numbers of genotypes 0, 1 and 2 (colSums(m == k, na.rm = TRUE), double,
-## named by locus), read from each population's rows in blocks of loci, so
-## the populations are not copied and a file-backed object is not decoded
-## as a whole.
+## named by locus), read from each population's rows in one pass over
+## blocks of loci, so the populations are not copied and a file-backed
+## object is not decoded as a whole.
 .gl_pop_genotype_counts <- function(x) {
   lv <- levels(pop(x))
-  res <- lapply(lv, function(p) {
-    .gl_colwise(x, function(m) {
+  rows <- lapply(lv, function(p) which(pop(x) == p))
+  blocks <- .gl_colblocks(x, function(B) {
+    lapply(rows, function(r) {
+      m <- B[r, , drop = FALSE]
       rbind(colSums(m == 0, na.rm = TRUE), colSums(m == 1, na.rm = TRUE),
             colSums(m == 2, na.rm = TRUE))
-    }, rows = which(pop(x) == p))
+    })
+  })
+  res <- lapply(seq_along(lv), function(g) {
+    do.call(cbind, lapply(blocks, function(b) b[[g]]))
   })
   names(res) <- lv
   res
