@@ -104,7 +104,20 @@ In this order (decodes / `seppop` copies to replace):
    bit-identical to the old version: the Hill sums are formed per
    distinct value instead of locus by locus (long-double summation order),
    max relative difference 5e-14; gen and FBM identical.
-6. Optional: `gl.fdsim` (used by `gl.fixed.diff(test = TRUE)`).
+6. Checked (17 Nov), no change needed: `gl.fdsim` and
+   `gl.fixed.diff(test = TRUE)` already read FBM in blocks through
+   `gl.keep.pop`, `gl.filter.monomorphs` and `gl.allele.freq` (no full
+   decode, results identical for both storage types); `gl.fdsim` added to
+   `test-fbm-counts.R`.
+7. Done (17 Nov, not in the original list): `gl.filter.maf(by.pop = TRUE)`
+   and its per-population plots (`seppop()` copies replaced by one pass,
+   `.pop_maf()`; returned object and plot data identical).
+
+Group C is complete. Remaining `seppop`/decodes by design: per-population
+bootstraps, `gl.report.ld.map` (LD needs each population's matrix),
+`gl.smearplot` (plots every genotype); polyploid functions (FBM refuses
+polyploid data). Next is item 5 (group D: distances, kinship,
+replicates) or item 2 (reading straight to disk); see the table above.
 
 Out of scope for item 1: group D (distances, kinship, replicates:
 `gl.dist.ind`, `gl.dist.phylo`, `gl.report.replicates(.KING)`,

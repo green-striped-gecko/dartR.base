@@ -149,6 +149,13 @@
   "Not a matrix." when a population had a single individual (the
   resampled row was dropped to a vector in `utils.allelic.richness()`).
   Results for other populations are unchanged.
+* `gl.filter.maf(by.pop = TRUE)` computes the MAF of every population in
+  one pass over blocks of loci instead of copying each population with
+  `seppop()` (for file-backed objects a new backing file per population);
+  the per-population plots likewise (polymorphic loci by the rule of
+  `gl.filter.monomorphs()`). The returned object and the plotted data are
+  identical to the previous version (four data sets, both storage
+  types).
 * `gl.test.heterozygosity()` reads each population's genotypes for its
   bootstrap from the object (in blocks of loci for file-backed objects)
   instead of copying all populations with `seppop()`; one population is

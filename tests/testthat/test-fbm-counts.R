@@ -104,7 +104,12 @@ calls <- list(
   shannon.beta = list(gl.report.shannon, level = "beta",
                       plot.display = FALSE, verbose = 3),
   shannon.gamma = list(gl.report.shannon, level = "gamma",
-                       plot.display = FALSE, verbose = 3)
+                       plot.display = FALSE, verbose = 3),
+  fdsim = list(function(x, ...) {
+    gl.fdsim(x, poppair = popNames(x)[1:2], ...)
+  }, reps = 10, verbose = 3),
+  filter.maf.pop = list(gl.filter.maf, by.pop = TRUE, ind.limit = 2,
+                        pop.limit = 1, threshold = 0.1, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {
