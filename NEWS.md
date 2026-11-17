@@ -145,6 +145,10 @@
   object. Results and messages identical to the previous version (seven
   data sets, including numeric locus names and an empty population level;
   SD, SE and both bootstrap methods; both storage types).
+* `gl.report.allelerich()`: BUG FIX, `boot.method = "ind"` stopped with
+  "Not a matrix." when a population had a single individual (the
+  resampled row was dropped to a vector in `utils.allelic.richness()`).
+  Results for other populations are unchanged.
 * Internal `.gl_pop_genotype_counts()` (used by the HWE functions) reads
   all populations in one pass over the data instead of one pass per
   population; the result is unchanged.
