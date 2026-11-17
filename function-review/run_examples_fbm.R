@@ -4,6 +4,11 @@
 ##
 ## Usage (from any folder; the package must be installed):
 ##   Rscript run_examples_fbm.R <package source folder> <output csv>
+##           [timeout per example in s, default 600] [topic regex, default all]
+##
+## Exit status 1 when any example fails file-backed but not in memory (a
+## regression of the FBM code; used by the fbm-examples GitHub workflow);
+## examples failing in both modes are reported but do not fail the run.
 ##
 ## Each example runs in its own R session (Rscript), with \donttest sections
 ## included and \dontrun sections excluded, in a temporary working folder,
@@ -15,10 +20,12 @@ args <- commandArgs(TRUE)
 pkg_dir <- normalizePath(args[1], winslash = "/")
 out_csv <- args[2]
 timeout <- if (length(args) >= 3) as.numeric(args[3]) else 600
+topics <- if (length(args) >= 4) args[4] else "."
 pkg <- read.dcf(file.path(pkg_dir, "DESCRIPTION"), fields = "Package")[1, 1]
 
 rd_files <- list.files(file.path(pkg_dir, "man"), pattern = "\\.Rd$",
                        full.names = TRUE)
+rd_files <- rd_files[grepl(topics, sub("\\.Rd$", "", basename(rd_files)))]
 work <- file.path(tempdir(), "fbm_examples")
 dir.create(work, showWarnings = FALSE)
 
@@ -80,3 +87,15 @@ cat("  fail only FBM:  ", sum(ok(tab$gen) & !ok(tab$fbm)), "\n")
 cat("  fail only gen:  ", sum(!ok(tab$gen) & ok(tab$fbm)), "\n")
 cat("  fail both:      ", sum(!ok(tab$gen) & !ok(tab$fbm)), "\n")
 cat("  examples with the dartR_fbm switch:", sum(tab$uses_fbm_switch), "\n")
+
+only_fbm <- tab$topic[ok(tab$gen) & !ok(tab$fbm)]
+both <- tab$topic[!ok(tab$gen) & !ok(tab$fbm)]
+if (length(both)) {
+  cat("\nFailing in both modes (environment, e.g. a missing package):\n")
+  print(tab[tab$topic %in% both, c("topic", "gen")], row.names = FALSE)
+}
+if (length(only_fbm)) {
+  cat("\nFailing only file-backed (FBM regression):\n")
+  print(tab[tab$topic %in% only_fbm, c("topic", "fbm")], row.names = FALSE)
+  quit(status = 1)
+}
