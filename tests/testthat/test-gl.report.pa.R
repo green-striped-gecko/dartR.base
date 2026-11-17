@@ -118,3 +118,21 @@ test_that("sankey colours follow population names", {
     expect_false(toupper(d3_colours(sc, "Rest")) %in% hex)
   }
 })
+
+test_that("with x2, the asymmetry test splits after all of x", {
+  # Regression: the permuted pair was split at the size of x's first
+  # population (table(pop(dd))[1]) instead of nInd(x), so with x2 and an x
+  # of several populations the permuted groups had the wrong sizes. The
+  # result must not depend on how x is divided into populations.
+  pn <- popNames(platypus.gl)
+  xa <- gl.keep.pop(platypus.gl, pn[1:2], verbose = 0)
+  xb <- gl.keep.pop(platypus.gl, pn[3], verbose = 0)
+  xa1 <- xa
+  pop(xa1) <- factor(rep("A", nInd(xa)))
+  asym <- function(x) {
+    set.seed(5)
+    gl.report.pa(x, x2 = xb, test.asym = TRUE, test.asym.boot = 20,
+                 verbose = 0)[, c("asym", "asym.sig")]
+  }
+  expect_identical(asym(xa), asym(xa1))
+})

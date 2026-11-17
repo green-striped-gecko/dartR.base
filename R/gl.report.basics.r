@@ -64,13 +64,17 @@ gl.report.basics <- function(x,
       # genotype class is entirely absent)
       cat(report("Values: "))
       cat(nLoc(x)*nInd(x),"\n")
-      mat <- as.matrix(x)
+      # The genotype matrix is read in blocks of loci (.gl_colblocks,
+      # .gl_colwise, .gl_rowwise), so a file-backed object is never decoded
+      # as a whole; counts are added over blocks, per-locus values bound.
       if (datatype == "SilicoDArT") {
         lv <- c("0", "1")
       } else {
         lv <- c("0", "1", "2")
       }
-      tmp <- table(factor(mat, levels = lv), useNA = "always")
+      tmp <- Reduce(`+`, .gl_colblocks(x, function(mat) {
+        table(factor(mat, levels = lv), useNA = "always")
+      }))
       tmp <- round(tmp * 100 / (nLoc(x) * nInd(x)), 1)
       tmp <- as.data.frame(t(as.matrix(tmp)))
       colnames(tmp) <- c(lv, "NA")
@@ -80,14 +84,13 @@ gl.report.basics <- function(x,
 
       # Report Monomorphic loci (all-NA loci count as monomorphic,
       # consistent with gl.filter.monomorphs)
-      non.na <- colSums(!is.na(mat))
-      if (datatype == "SilicoDArT") {
-        mono.count <- sum(colSums(mat == 0, na.rm = TRUE) == non.na |
-                            colSums(mat == 1, na.rm = TRUE) == non.na)
-      } else {
-        mono.count <- sum(colSums(mat == 0, na.rm = TRUE) == non.na |
-                            colSums(mat == 2, na.rm = TRUE) == non.na)
-      }
+      hom <- if (datatype == "SilicoDArT") 1 else 2
+      cnt <- .gl_colwise(x, function(mat) {
+        rbind(colSums(!is.na(mat)), colSums(mat == 0, na.rm = TRUE),
+              colSums(mat == hom, na.rm = TRUE))
+      })
+      non.na <- cnt[1, ]
+      mono.count <- sum(cnt[2, ] == non.na | cnt[3, ] == non.na)
       cat(report("Monomorphic Loci: "))
       cat(mono.count,"\n")
 
@@ -96,7 +99,8 @@ gl.report.basics <- function(x,
       cat(report("Loci all NA: "))
       cat(sum(non.na == 0),"\n")
       # Individuals
-      ind.all.na <- indNames(x)[rowSums(!is.na(mat)) == 0]
+      ind.scored <- .gl_rowwise(x, function(mat) rowSums(!is.na(mat)))
+      ind.all.na <- indNames(x)[ind.scored == 0]
       cat(report("Individuals all NA: "))
       cat(length(ind.all.na),"\n")
       if(length(ind.all.na) > 0){cat(ind.all.na,"\n")}
@@ -112,9 +116,11 @@ gl.report.basics <- function(x,
       loc.na.pop <- array(NA,nPop(x))
       ind.na.pop <- array(NA,nPop(x))
       for (i in 1:nPop(x)){
-        tmpop <- mat[as.character(pop(x)) == popNames(x)[i], , drop = FALSE]
-        loc.na.pop[i] <- sum(colSums(!is.na(tmpop)) == 0)
-        ind.na.pop[i] <- sum(rowSums(!is.na(tmpop)) == 0)
+        rows <- which(as.character(pop(x)) == popNames(x)[i])
+        loc.na.pop[i] <- sum(.gl_colwise(x, function(tmpop) {
+          colSums(!is.na(tmpop))
+        }, rows = rows) == 0)
+        ind.na.pop[i] <- sum(ind.scored[rows] == 0)
       }
       tmp <- t(as.data.frame(loc.na.pop))
       colnames(tmp) <- popNames(x)

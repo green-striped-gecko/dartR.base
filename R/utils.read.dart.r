@@ -83,17 +83,22 @@ utils.read.dart <- function(filename,
     if (verbose >= 2) {
         cat(report("  Reading in the SNP data\n"))
     }
-    snpraw <-
-        read.csv(
-            filename,
-            na.strings = nas,
-            skip = topskip,
-            check.names = FALSE,
-            stringsAsFactors = TRUE
-        )
-    
+    # The column names, then the locus-metric columns only (each column is
+    # typed by read.csv exactly as when the whole file is read); the
+    # genotype columns are read further below in chunks of rows into a
+    # file-backed matrix, so they are never held in memory as text or as
+    # a dense matrix
+    hdr <- names(read.csv(
+        filename,
+        na.strings = nas,
+        skip = topskip,
+        check.names = FALSE,
+        nrows = 1,
+        stringsAsFactors = TRUE
+    ))
+
     if (is.character(lastmetric)) {
-        lmet <- which(lastmetric == names(snpraw))
+        lmet <- which(lastmetric == hdr)
         if (length(lmet) == 0) {
             stop(error(
                 paste(
@@ -106,7 +111,18 @@ utils.read.dart <- function(filename,
     } else {
         lmet <- lastmetric
     }
-    
+    snpraw <-
+        read.csv(
+            filename,
+            na.strings = nas,
+            skip = topskip,
+            check.names = FALSE,
+            stringsAsFactors = TRUE,
+            colClasses = c(rep(NA, lmet), rep("NULL", length(hdr) - lmet))
+        )
+    n.data.rows <- nrow(snpraw)
+    keep.rows <- seq_len(n.data.rows)
+
     service <- NA
     plate_location <- NA
     if(exists("tdummy")){
@@ -140,7 +156,7 @@ utils.read.dart <- function(filename,
     }
     }
     
-    ind.names <- colnames(snpraw)[(lmet + 1):ncol(snpraw)]
+    ind.names <- hdr[(lmet + 1):length(hdr)]
     ind.names <-
         trimws(ind.names, which = "both")  #trim for spaces
     if (length(ind.names) != length(unique(ind.names))) {
@@ -225,6 +241,7 @@ utils.read.dart <- function(filename,
       # removing SNPs whose row count departs from the modal count
       covmetrics <- covmetrics[-bad.rows,]
       snpraw <- snpraw[-bad.rows,]
+      keep.rows <- keep.rows[-bad.rows]
 
       if (verbose >= 1) {
         cat(warn(
@@ -237,16 +254,17 @@ utils.read.dart <- function(filename,
       tt <- table(table(covmetrics$uid))
     }
       
-    datas <- snpraw[, (lmet + 1):ncol(snpraw)]
-    # Apply the trimmed, uniquified individual names to the genotype
-    # columns, so the '_n' suffixes promised by the warning above are what
-    # downstream code and ind.metafile matching actually see (previously
-    # the make.unique result was computed but never applied).
-    colnames(datas) <- ind.names
+    # Genotype columns, in chunks of rows, into a file-backed matrix of the
+    # raw scores (individuals x kept rows), with the largest score. The
+    # trimmed, uniquified individual names are those of the returned object.
+    gen <- .dart_read_genotypes(filename, topskip = topskip, lmet = lmet,
+                                ncols = length(hdr), nas = nas,
+                                keep = keep.rows, n.rows = n.data.rows,
+                                nind = length(ind.names))
 
     nrows <-NULL
     if (is.null(nrows)) {
-        gnrows <-3 - max(datas, na.rm = TRUE)  #if max(datas==1) then two row format, if two then one row format
+        gnrows <-3 - gen$max  #if max(datas==1) then two row format, if two then one row format
         
         if (gnrows == 1 | gnrows == 2) {
             nrows <- gnrows
@@ -301,7 +319,7 @@ utils.read.dart <- function(filename,
         )))
     }
     
-    nind <- ncol(datas)
+    nind <- length(ind.names)
     nsnp <- nrow(covmetrics) / nrows
     
     if (verbose >= 2) {
@@ -326,7 +344,9 @@ utils.read.dart <- function(filename,
             nind = nind,
             nsnp = nsnp,
             covmetrics = covmetrics,
-            gendata = datas,
+            genraw = gen$G,
+            genmax = gen$max,
+            ind.names = ind.names,
             service = service,
             plate_location = plate_location
         )

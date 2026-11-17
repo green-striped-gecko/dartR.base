@@ -22,7 +22,7 @@ test_that("real 2-row testset: dims, format, metrics, and header parsing", {
   expect_equal(d$nind, 250)
   expect_equal(d$nsnp, 255)
   expect_equal(nrow(d$covmetrics), 510)   # two rows per locus
-  expect_equal(ncol(d$gendata), 250)
+  expect_equal(nrow(d$genraw), 250)  # individuals x rows, file-backed
   expect_true(all(c("clone", "uid") %in% names(d$covmetrics)))
   # This file has only 3 header rows. service.row = 1 is in range, so service
   # still reads header row 1 (which in this file carries the plate wells,
@@ -121,7 +121,7 @@ test_that("duplicate individual names get the promised '_n' suffix", {
     "100002|F|0--5:C>T,,5,1,18,12,0.98,0,0,1",
     "100002|F|0-5:C>T-5:C>T,5:C>T,5,1,18,12,0.98,0,1,0"), f)
   o <- capture.output(suppressWarnings(d <- utils.read.dart(f, verbose = 0)))
-  expect_equal(colnames(d$gendata), c("indA", "indA_1", "indB"))  # [approved F4]
+  expect_equal(d$ind.names, c("indA", "indA_1", "indB"))  # [approved F4]
 })
 
 test_that("verbose = 0 is silent: all warnings are gated", {

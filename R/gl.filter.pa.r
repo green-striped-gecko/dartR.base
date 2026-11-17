@@ -65,15 +65,16 @@ gl.filter.pa <- function(x,
 
     # DO THE JOB
 
-    pops <- seppop(x)
-    p1 <- as.matrix(pops[[pop1]])
-    p2 <- as.matrix(pops[[pop2]])
-    if (datatype == "SilicoDArT") {
-      p1alf <- colMeans(p1, na.rm = TRUE)
-      p2alf <- colMeans(p2, na.rm = TRUE)
-    } else {
-      p1alf <- colMeans(p1, na.rm = TRUE) / 2
-      p2alf <- colMeans(p2, na.rm = TRUE) / 2
+    # allele frequencies of the two populations, read from their rows in
+    # blocks of loci (.gl_colwise): the populations are not copied and a
+    # file-backed object is not decoded as a whole
+    p1alf <- .gl_colwise(x, function(m) colMeans(m, na.rm = TRUE),
+                         rows = which(pop(x) == pop1))
+    p2alf <- .gl_colwise(x, function(m) colMeans(m, na.rm = TRUE),
+                         rows = which(pop(x) == pop2))
+    if (datatype != "SilicoDArT") {
+      p1alf <- p1alf / 2
+      p2alf <- p2alf / 2
     }
     # private alleles for pop 1
     priv1 <-

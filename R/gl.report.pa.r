@@ -186,12 +186,17 @@ gl.report.pa <- function(x,
     }
   }
   
+  # The groups compared, as row indices of x: all of x against all of x2,
+  # or the populations of x in the order of seppop() (the levels of
+  # pop(x)). Rows are read in place; the populations are not copied.
   if (!is.null(x2)) {
-    pops <- list(pop1 = x, pop2 = x2)
+    n.x <- nInd(x)
     x <- rbind(x, x2)
+    pops <- list(pop1 = seq_len(n.x), pop2 = n.x + seq_len(nInd(x) - n.x))
   } else {
     if (length(unique(pop(x))) > 1) {
-      pops <- seppop(x)
+      pops <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+      names(pops) <- levels(pop(x))
     } else {
       stop(
         error(
@@ -243,23 +248,36 @@ gl.report.pa <- function(x,
     })
     
 
+    # Per group and locus, in one pass over blocks of loci (.gl_colblocks):
+    # the allele frequency (the original colMeans expression; SilicoDArT
+    # scores are not divided), and, for the Chao estimates, the number of
+    # genotyped individuals and the sum of dosages. Every pair is computed
+    # from these, so a file-backed object is never decoded as a whole.
+    # Memory: about 24 bytes per group and locus.
+    denom <- if (datatype1 == "SilicoDArT") 1 else 2
+    term.blocks <- .gl_colblocks(x, function(B) {
+      lapply(pops, function(r) {
+        m <- B[r, , drop = FALSE]
+        list(alf = colMeans(m, na.rm = TRUE) / denom,
+             n = colSums(!is.na(m)),
+             s = colSums(m, na.rm = TRUE))
+      })
+    })
+    terms <- lapply(seq_along(pops), function(g) {
+      lapply(c(alf = "alf", n = "n", s = "s"), function(k) {
+        do.call(c, lapply(term.blocks, function(b) b[[g]][[k]]))
+      })
+    })
+    rm(term.blocks)
+
     for (i in 1:nrow(pc)) {
       i1 <- pall[i, 1]
       i2 <- pall[i, 2]
-      
-      p1 <- as.matrix(pops[[i1]])
-      p2 <- as.matrix(pops[[i2]])
-      
-      if(datatype1 == "SilicoDArT"){
-        p1alf <- colMeans(p1, na.rm = TRUE) 
-        p2alf <- colMeans(p2, na.rm = TRUE) 
-        
-      }else{
-        p1alf <- colMeans(p1, na.rm = TRUE) / 2
-        p2alf <- colMeans(p2, na.rm = TRUE) / 2
-      }
-      
-      pall[i, c("N1","N2")] <- c(nrow(p1), nrow(p2))
+
+      p1alf <- terms[[i1]]$alf
+      p2alf <- terms[[i2]]$alf
+
+      pall[i, c("N1","N2")] <- c(length(pops[[i1]]), length(pops[[i2]]))
 
       pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                              which(p2alf == 1 & p1alf != 1)))))
@@ -286,31 +304,55 @@ gl.report.pa <- function(x,
         pall[i,"Chao1"] <- NA
         pall[i,"Chao2"] <- NA
       }else{
-        pa_Chao <- utils.pa.Chao(pops[[i1]], pops[[i2]])
+        pa_Chao <- .pa_chao(p1alf, p2alf,
+                            n.pooled = terms[[i1]]$n + terms[[i2]]$n,
+                            s.pooled = terms[[i1]]$s + terms[[i2]]$s)
         pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
         pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
-        
+
       }
       #### bootstrap test to check for asymmetry of private alleles
       if (test.asym){
         asym <- NA
         p1a <- NA
         p2a <- NA
-        dd <- rbind(pops[[i1]], pops[[i2]])
-        
+        # the pooled pair: the first population's rows, then the second's;
+        # the split is at the size of the first group (with x2, all of x)
+        dd.rows <- c(pops[[i1]], pops[[i2]])
+        n1 <- length(pops[[i1]])
+        # private alleles in each direction after permuting each locus
+        # among the pooled individuals; loci are permuted in column order,
+        # so blocks of loci draw the same random numbers as the whole
+        # matrix
+        perm.pa <- function(B) {
+          ab <- apply(B, 2, function(x) x[sample(1:nrow(B))])
+          p1 <- ab[1:n1, , drop = FALSE]
+          p2 <- ab[(n1 + 1):nrow(B), , drop = FALSE]
+          p1alf <- colMeans(p1, na.rm = TRUE) / 2
+          p2alf <- colMeans(p2, na.rm = TRUE) / 2
+          c(sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1),
+                na.rm = TRUE),
+            sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1),
+                na.rm = TRUE))
+        }
+        # a file-backed pair is read in blocks of loci for each permutation
+        # (never decoded as a whole); an in-memory pair is decoded once
+        dd.blocks <- if (.has_fbm(x)) NULL else
+          .gl_colblocks(x, identity, rows = dd.rows)
+
         for (bb in 1:test.asym.boot){
-        ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:nrow(dd))]))
-        tt <- table(pop(dd))
-        p1 <- ab[1:tt[1],]
-        p2 <- ab[(tt[1]+1):(nrow(dd)),]
-        p1alf <- colMeans(p1, na.rm = T) / 2
-        p2alf <- colMeans(p2, na.rm = T) / 2
-        pa_12 <- sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1),na.rm = T)
+        pa <- if (is.null(dd.blocks)) {
+          Reduce(`+`, .gl_colblocks(x, perm.pa, rows = dd.rows))
+        } else {
+          Reduce(`+`, lapply(dd.blocks, perm.pa))
+        }
+        pa_12 <- pa[1]
         p1a[bb] <- pa_12
-        pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1),na.rm = T)
+        pa_21 <- pa[2]
         p2a[bb] <- pa_21
         if (pa_21!=pa_12) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
         }
+        rm(dd.blocks)
         dasym <-  round(mean(asym),3)
         pall[i,"asym"] <- dasym
         estasym <- pall[i, "priv1"] / (pall[i, "priv1"]+pall[i, "priv2"])
@@ -452,13 +494,29 @@ gl.report.pa <- function(x,
       return(x)
     })
     
+    # Allele frequencies of each population (focal) and of all other
+    # individuals (rest), as the original colMeans expressions on those
+    # rows, in one pass over blocks of loci: neither copies of the object
+    # nor a decode of a file-backed object as a whole. Individuals without
+    # a population belong to neither group, as before.
+    denom <- if (datatype1 == "SilicoDArT") 1 else 2
+    focal.rows <- lapply(popNames(x), function(p) which(pop(x) == p))
+    rest.rows <- lapply(popNames(x), function(p) which(pop(x) != p))
+    alf.blocks <- .gl_colblocks(x, function(B) {
+      lapply(seq_along(focal.rows), function(y) {
+        rbind(colMeans(B[focal.rows[[y]], , drop = FALSE], na.rm = TRUE),
+              colMeans(B[rest.rows[[y]], , drop = FALSE], na.rm = TRUE))
+      })
+    })
+    alf.focal.rest <- lapply(seq_along(focal.rows), function(y) {
+      do.call(cbind, lapply(alf.blocks, `[[`, y)) / denom
+    })
+    rm(alf.blocks)
+
     for (y in 1:nPop(x)) {
-      gl2 <- x
-      pop(gl2) <-
-        factor(ifelse(pop(gl2) == popNames(x)[y], popNames(x)[y], ".rest"))
-      # explicit indexing: the focal population is always pop1, regardless
-      # of how its name sorts against the sentinel
-      pops <- seppop(gl2)[c(popNames(x)[y], ".rest")]
+      # the focal population is always pop1
+      pops <- list(focal.rows[[y]], rest.rows[[y]])
+      names(pops) <- c(popNames(x)[y], ".rest")
       pc <- t(combn(length(pops), 2))
       pall <-
         data.frame(
@@ -478,19 +536,10 @@ gl.report.pa <- function(x,
       for (i in 1:nrow(pc)) {
         i1 <- pall[i, 1]
         i2 <- pall[i, 2]
-        
-        p1 <- as.matrix(pops[[i1]])
-        p2 <- as.matrix(pops[[i2]])
-        
-        if(datatype1 == "SilicoDArT"){
-          p1alf <- colMeans(p1, na.rm = TRUE) 
-          p2alf <- colMeans(p2, na.rm = TRUE) 
-          
-        }else{
-          p1alf <- colMeans(p1, na.rm = TRUE) / 2
-          p2alf <- colMeans(p2, na.rm = TRUE) / 2
-        }
-        
+
+        p1alf <- alf.focal.rest[[y]][i1, ]
+        p2alf <- alf.focal.rest[[y]][i2, ]
+
         pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                                which(p2alf == 1 & p1alf != 1)))))
         pop1_pop2_pa_loc.names <- locNames(x)[pop1_pop2_pa]
@@ -508,7 +557,7 @@ gl.report.pa <- function(x,
         pall_loc.names[[y]][["pop2_pop1_pa"]] <- pop2_pop1_pa_loc.names
         pall_loc.names[[y]][["fd"]] <- pop1_pop2_fd_loc.names
         
-        pall[i, 5:6] <- c(nrow(p1), nrow(p2))
+        pall[i, 5:6] <- c(length(pops[[i1]]), length(pops[[i2]]))
         pall[i, 10] <- pall[i, 8] + pall[i, 9]
         pall[i, 11] <-
           round(mean(abs(p1alf - p2alf), na.rm = T), 3)

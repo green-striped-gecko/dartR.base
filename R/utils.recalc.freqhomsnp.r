@@ -79,11 +79,10 @@ utils.recalc.freqhomsnp <- function(x,
     
     # DO THE JOB
     
-    t <- as.matrix(x)
     if (verbose >= 2) {
         cat(report("  Recalculating locus metric freqHomSnp\n"))
     }
-    x@other$loc.metrics$FreqHomSnp <- colMeans(t == 2, na.rm = TRUE)
+    x@other$loc.metrics$FreqHomSnp <- .gl_colwise(x, function(t) colMeans(t == 2, na.rm = TRUE))
     x@other$loc.metrics.flags$FreqHomSnp <- TRUE
     
     # FLAG SCRIPT END

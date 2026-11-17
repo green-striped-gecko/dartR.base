@@ -108,7 +108,10 @@ depth.host <- function(prob.fun, seed = 1) {
   indNames(x) <- paste0("i", seq_len(n.a + n.b))
   locNames(x) <- paste0("L", seq_len(n.loc))
   pop(x) <- rep(c("A", "B"), c(n.a, n.b))
-  x@other$loc.metrics <- data.frame(rdepth = depth)
+  # a dartR object, as the other fixtures (a plain adegenet genlight makes
+  # every call print a conversion warning)
+  x <- gl.compliance.check(x, verbose = 0)
+  x@other$loc.metrics$rdepth <- depth
   list(x = x, host = "i1")
 }
 
@@ -504,4 +507,30 @@ test_that("gl.filter.contamination removes mixed samples by default", {
   capture.output(y2 <- gl.filter.contamination(x, flag = "suspect",
                                                verbose = 0))
   expect_true(all(c("mix", "mix_R") %in% indNames(y2)))
+})
+
+test_that("file-backed objects give identical results, read in blocks of loci", {
+  skip_if_not_installed("bigstatsr")
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  # read counts (tier 4) and 3,000 loci, so per-individual means divide
+  # counts above 2,048 (.gl_count_mean); depth pattern (tier 3)
+  x <- reads.cohort()
+  y <- depth.host(function(d) 0.6 * rank(d) / length(d))$x
+  local_mocked_bindings(.fbm_as_matrix = function(x) {
+    stop("the whole FBM was decoded")
+  })
+  for (obj in list(x, y)) {
+    f <- suppressWarnings(gl.gen2fbm(obj, verbose = 0))
+    for (bs in c(1, 1e-6)) {                 # 1e-6: one locus per block
+      options(bigstatsr.block.sizeGB = bs)
+      g.out <- capture.output(g <- gl.report.contamination(
+        obj, plot.display = FALSE, verbose = 3))
+      f.out <- capture.output(h <- gl.report.contamination(
+        f, plot.display = FALSE, verbose = 3))
+      g$plot <- h$plot <- g$plot.map <- h$plot.map <- NULL
+      expect_identical(h, g)
+      expect_identical(f.out, g.out)
+    }
+  }
 })

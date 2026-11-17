@@ -106,15 +106,17 @@ gl.hwe.pop <-  function(x,
     
     # DO THE JOB
     
-    pops <- adegenet::seppop(x)
+    # genotype counts per population and locus, read in blocks of loci
+    # (.gl_pop_genotype_counts): the populations are not copied and a
+    # file-backed object is not decoded as a whole
+    pops <- .gl_pop_genotype_counts(x)
     
-    out <- lapply(pops, function(x) {
-        pp <- as.matrix(x)
+    out <- lapply(pops, function(cnt) {
         xx <-
             data.frame(
-                AA = colSums(pp == 0, na.rm = T),
-                AB = colSums(pp == 1, na.rm = T),
-                BB = colSums(pp == 2, na.rm = T)
+                AA = cnt[1, ],
+                AB = cnt[2, ],
+                BB = cnt[3, ]
             )
         HardyWeinberg::HWExactStats(xx) < alpha_val
     })
@@ -148,13 +150,12 @@ gl.hwe.pop <-  function(x,
     out <- NULL
     
     if (HWformat) {
-        out <- lapply(pops, function(x) {
-            pp <- as.matrix(x)
+        out <- lapply(pops, function(cnt) {
             xx <-
                 data.frame(
-                    AA = colSums(pp == 0, na.rm = T),
-                    AB = colSums(pp == 1, na.rm = T),
-                    BB = colSums(pp == 2, na.rm = T)
+                    AA = cnt[1, ],
+                    AB = cnt[2, ],
+                    BB = cnt[3, ]
                 )
             rownames(xx) <- locNames(x)
             xx

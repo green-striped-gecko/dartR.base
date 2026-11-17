@@ -418,7 +418,7 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             if (!is.null(fbm)) {
               # Subset FBM first (keeps XOR: @gen remains empty)
               
-                dummyG <-bigstatsr::big_copy(x@fbm, ind.row = ii, ind.col = jj, backingfile = tempfile("geno_"))
+                dummyG <- utils.fbm.copy(x@fbm, ind.row = ii, ind.col = jj)
                 x@fbm <- dummyG
               #unlink temp file
               #bigstatsr::big_unlink(dummyG)
@@ -545,7 +545,8 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' other slot is lost). You can get most of the loci metadata back using
 #' gl.compliance.check.
 #' @param ... list of dartR objects
-#' @param backingfile prefix for the backing file of the resulting FBM
+#' @param backingfile File stem for the backing file of the resulting FBM, or
+#' NULL for a temporary file in getOption("FBM.dir") [default NULL]
 #' @param code code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input
 #' @param chunk number of columns to process in a block when copying from FBMs
 #' @param quiet suppress warnings. default: TRUE
@@ -556,7 +557,7 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' @export
 
 cbind.dartR <- function(...,
-                        backingfile = tempfile("geno_"),
+                        backingfile = NULL,
                         code = NULL,          # if NULL: inherit from first FBM or use CODE_DOSAGE
                         chunk = 2048L,        # columns per block to copy from FBMs
                         quiet = TRUE) {
@@ -621,7 +622,7 @@ cbind.dartR <- function(...,
     }
     #    code <- bigsnpr::CODE_012
     ## Create target FBM
-    Gnew <- bigstatsr::FBM.code256(n.ind, total_p, code = code, backingfile = backingfile)
+    Gnew <- utils.fbm.new(n.ind, total_p, code = code, backingfile = backingfile)
     
     ## Fill columns from each object using big_apply
     col_off <- 0L
@@ -774,7 +775,8 @@ cbind.dartR <- function(...,
 #' SilicoDArT (ploidy 1) data. To combine a list of objects, use
 #' \code{do.call(rbind, list_of_objects)}.
 #' @param ... dartR objects to combine [required]
-#' @param backingfile prefix for the backing file of the resulting FBM
+#' @param backingfile File stem for the backing file of the resulting FBM, or
+#' NULL for a temporary file in getOption("FBM.dir") [default NULL]
 #' @param code code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input
 #' @param chunk number of columns to process in a block when copying from FBMs
 #' @param quiet suppress warnings. default: TRUE
@@ -786,7 +788,7 @@ cbind.dartR <- function(...,
 #' @return A dartR object
 #' @export
 rbind.dartR <- function(...,
-                        backingfile   = tempfile("geno_rbind_"),
+                        backingfile   = NULL,
                         code          = NULL,        # if NULL: inherit from first FBM
                         chunk         = 2048L,       # columns per block
                         quiet         = TRUE) {
@@ -912,7 +914,8 @@ rbind.dartR <- function(...,
     }
     
     ## Target FBM
-    Gnew <- bigstatsr::FBM.code256(total_n, p, code = code)
+    Gnew <- utils.fbm.new(total_n, p, code = code, backingfile = backingfile,
+                          prefix = "geno_rbind_")
     
     ## Copy each object into row slices of Gnew using big_apply
     row_off <- 0L

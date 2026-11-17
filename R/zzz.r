@@ -61,3 +61,9 @@ packageStartupMessage(important(
   }
 }
 
+
+.onUnload <- function(libpath) {
+  # last attempt to delete backing files that were still mapped
+  invisible(gc(verbose = FALSE))
+  .fbm_retry_pending()
+}

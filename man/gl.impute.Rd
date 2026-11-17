@@ -112,6 +112,17 @@ from allele frequencies or neighbours: with methods 'frequency', 'HW' and
 fill.residual (the global frequency at such loci is undefined). Method
 'random' substitutes unconditioned random values at such loci. Use
 \code{\link{gl.filter.allna}} (without by.pop) to remove them first.
+
+File-backed objects (see \code{\link{gl.gen2fbm}}) are imputed in blocks
+of loci, without decoding the whole genotype matrix; the block size
+follows \code{options(bigstatsr.block.sizeGB)}. The imputed genotypes are
+written into a new backing file, and the input is left unchanged. The
+result is identical to that for the same data held in memory, including
+the random draws with the same seed (method 'HW' reads the file once per
+population to keep that order). Method 'neighbour' holds the matrix of
+distances between individuals in memory (8 bytes per pair, e.g. 32 Mb for
+2,000 individuals). Method 'beagle' exports the data to a VCF file, which
+decodes the genotypes.
 }
 \examples{
  \donttest{
@@ -144,6 +155,7 @@ Other data manipulation:
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
 \code{\link{gl.fbm2gen}()},
 \code{\link{gl.gen2fbm}()},
 \code{\link{gl.join}()},

@@ -76,7 +76,7 @@ utils.recalc.callrate <- function(x,
         cat(report("  Recalculating locus metric CallRate\n"))
     }
     x@other$loc.metrics$CallRate <-
-         1-colSums(is.na(as.matrix(x)))/nInd(x)
+         1-.gl_colwise(x, function(t) colSums(is.na(t)))/nInd(x)
     x@other$loc.metrics$CallRate <- signif(x@other$loc.metrics$CallRate,digits=6)
     x@other$loc.metrics.flags$CallRate <- TRUE
     

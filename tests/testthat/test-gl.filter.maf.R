@@ -81,3 +81,20 @@ test_that("SilicoDArT data rejected", {
   expect_error(capture.output(gl.filter.maf(testset.gs, threshold = 0.05,
         plot.display = FALSE, verbose = 0)))
 })
+
+test_that("by-population plots work when loc.metrics has no maf column", {
+  # Regression: with by.pop = TRUE and plots on, the pre-filter histogram
+  # over all populations read x@other$loc.metrics$maf without computing
+  # it, so an object without that column (testset.gl) stopped with
+  # "'names' attribute [1] must be the same length as the vector [0]",
+  # and a stale column was plotted as it was.
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
+  x <- testset.gl
+  expect_null(x@other$loc.metrics$maf)
+  d <- tempfile("maf_plot"); dir.create(d)
+  invisible(capture.output(res <- gl.filter.maf(
+    x, by.pop = TRUE, ind.limit = 5, threshold = 0.05, plot.dir = d,
+    plot.file = "p", verbose = 3)))
+  expect_s4_class(res, "genlight")
+  expect_true(length(list.files(d)) > 0)
+})

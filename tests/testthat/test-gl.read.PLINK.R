@@ -287,3 +287,96 @@ test_that("gl.read.PLINK .ped route reads PLINK chromosome 0 (unmapped) as NA, l
   expect_true(all(is.na(gl@other$loc.metrics$chromosome)))
   expect_equal(as.integer(gl@position), c(100L, 200L, 150L, 300L))
 })
+
+# Block-wise .bed route (FBM step 3, item 2): genotypes are read from the
+# .bed in blocks of SNPs into a file-backed matrix, never as a whole.
+# Fixture: missing data, an individual without calls, individuals without a
+# homozygous allele.2 call, a fixed locus and chromosome 0.
+write_bed_edge <- function(dir, n = 30, p = 203) {
+  x <- gl.compliance.check(platypus.gl[1:n, 1:p], verbose = 0)
+  m <- as.matrix(x)
+  m[, 7] <- 0L                               # fixed locus
+  m[5, 1:50] <- NA
+  m[6, ][m[6, ] == 2L] <- 1L                 # no homozygous allele.2 call
+  m[3, ] <- NA                               # no calls at all
+  sm <- methods::new("SnpMatrix",
+                     matrix(as.raw(ifelse(is.na(m), 0, m + 1)), nrow(m),
+                            dimnames = list(indNames(x), locNames(x))))
+  base <- file.path(dir, "edge")
+  utils::capture.output(snpStats::write.plink(
+    base, snps = sm, pedigree = rep(c("F1", "F2"), length.out = n),
+    id = indNames(x), sex = rep(1:2, length.out = n),
+    phenotype = rep(1, n), chromosome = rep(1:2, length.out = p),
+    position = seq_len(p) * 10L, allele.1 = rep("A", p),
+    allele.2 = rep("G", p)))
+  bim <- readLines(paste0(base, ".bim"))
+  z <- seq(1, p, by = 3)                     # chromosome 0 (unmapped)
+  bim[z] <- sub("^[^\t ]+", "0", bim[z])
+  writeLines(bim, paste0(base, ".bim"))
+  list(base = base, m = m)
+}
+
+test_that(".bed route: block-wise genotypes and row summary equal snpStats", {
+  skip_if_not_installed("bigstatsr")
+  d <- tempfile("plink_edge_"); dir.create(d)
+  on.exit(unlink(d, recursive = TRUE), add = TRUE)
+  fx <- write_bed_edge(d)
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  sp <- snpStats::read.plink(fx$base)
+  rs <- snpStats::row.summary(sp$genotypes)
+  for (bs in c(1, 1e-6)) {                   # 1e-6: one SNP per block
+    options(bigstatsr.block.sizeGB = bs)
+    for (fbm in c(FALSE, TRUE)) {
+      gl <- gl.read.PLINK(fx$base, fbm = fbm, verbose = 0)
+      expect_identical(unname(as.matrix(gl)), unname(fx$m))
+      expect_identical(unname(as.matrix(gl)),
+                       unname(matrix(as.integer(sp$genotypes) - 1L,
+                                     nrow(sp$genotypes))) |>
+                         (function(v) { v[v < 0L] <- NA; v })())
+      expect_equal(unname(ploidy(gl)), rep(2L, nInd(gl)))
+      im <- gl@other$ind.metrics
+      expect_identical(im$Call.rate, rs$Call.rate)
+      expect_identical(im$Certain.calls, rs$Certain.calls)
+      expect_identical(im$Heterozygosity, rs$Heterozygosity)
+      expect_identical(is.na(gl@chromosome), is.na(sp$map$chromosome))
+      expect_identical(!is.null(gl@fbm), fbm)
+    }
+  }
+})
+
+test_that(".bed route with fbm = TRUE never decodes the whole matrix", {
+  skip_if_not_installed("bigstatsr")
+  d <- tempfile("plink_edge_"); dir.create(d)
+  on.exit(unlink(d, recursive = TRUE), add = TRUE)
+  fx <- write_bed_edge(d)
+  local_mocked_bindings(.fbm_as_matrix = function(x) {
+    stop("the whole FBM was decoded")
+  })
+  expect_no_error(gl <- gl.read.PLINK(fx$base, fbm = TRUE, verbose = 0))
+  expect_s4_class(gl@fbm, "FBM.code256")
+})
+
+test_that(".bed route: a truncated .bed stops with an informative error", {
+  skip_if_not_installed("bigstatsr")
+  d <- tempfile("plink_edge_"); dir.create(d)
+  on.exit(unlink(d, recursive = TRUE), add = TRUE)
+  fx <- write_bed_edge(d)
+  bed <- paste0(fx$base, ".bed")
+  b <- readBin(bed, "raw", file.size(bed))
+  writeBin(b[-length(b)], bed)
+  expect_error(gl.read.PLINK(fx$base, verbose = 0), "size of")
+})
+
+test_that(".ped route sets ploidy 2 (no inference from the largest genotype)", {
+  d <- tempfile("plink_ped_"); dir.create(d)
+  on.exit(unlink(d, recursive = TRUE), add = TRUE)
+  # ind2 has no homozygous allele.2 call
+  writeLines(c("F1 ind1 0 0 1 1 A A G G A G",
+               "F1 ind2 0 0 2 1 A G A A A A",
+               "F2 ind3 0 0 1 1 G G A G G G"), file.path(d, "toy.ped"))
+  writeLines(c("1 s1 0 10", "1 s2 0 20", "2 s3 0 30"),
+             file.path(d, "toy.map"))
+  gl <- gl.read.PLINK(file.path(d, "toy"), verbose = 0)
+  expect_equal(unname(ploidy(gl)), rep(2L, 3))
+})
