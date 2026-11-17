@@ -1,4 +1,4 @@
-# dartR.base 1.2.7.9000 (dev_fbm: file-backed storage, step 2)
+# dartR.base 1.3.0 (file-backed storage: FBM objects read from disk)
 
 * Backing files of file-backed objects are placed in `getOption("FBM.dir")`,
   the folder bigstatsr uses for its own files (default: the session
