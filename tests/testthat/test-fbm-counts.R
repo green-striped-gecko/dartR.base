@@ -95,7 +95,16 @@ calls <- list(
   }, plot.display = FALSE, verbose = 3),
   allelerich = list(gl.report.allelerich, plot.display = FALSE, verbose = 3),
   allelerich.boot = list(gl.report.allelerich, nboots = 5, CI.type = "perc",
-                         plot.display = FALSE, verbose = 3)
+                         plot.display = FALSE, verbose = 3),
+  test.het = list(gl.test.heterozygosity, nreps = 5, plot.out = FALSE,
+                  verbose = 3),
+  test.het.loc = list(gl.test.heterozygosity, nreps = 5, boot.method = "loc",
+                      plot.out = FALSE, verbose = 3),
+  shannon = list(gl.report.shannon, plot.display = FALSE, verbose = 3),
+  shannon.beta = list(gl.report.shannon, level = "beta",
+                      plot.display = FALSE, verbose = 3),
+  shannon.gamma = list(gl.report.shannon, level = "gamma",
+                       plot.display = FALSE, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {

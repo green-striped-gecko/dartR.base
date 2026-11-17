@@ -97,8 +97,13 @@ In this order (decodes / `seppop` copies to replace):
 3. Done (17 Nov): `gl.report.allelerich` (counts from
    `.gl_pop_genotype_counts()`, now one pass for all populations; the
    bootstrap decodes one population at a time, in blocks for FBM).
-4. `gl.test.heterozygosity` (240-247).
-5. `gl.report.shannon` (197).
+4. Done (17 Nov): `gl.test.heterozygosity` (bootstrap decodes one
+   population at a time, in blocks for FBM; identical).
+5. Done (17 Nov): `gl.report.shannon`, from per-individual counts of
+   dosages 1/2 and per-population histograms of pooled dosages. Not
+   bit-identical to the old version: the Hill sums are formed per
+   distinct value instead of locus by locus (long-double summation order),
+   max relative difference 5e-14; gen and FBM identical.
 6. Optional: `gl.fdsim` (used by `gl.fixed.diff(test = TRUE)`).
 
 Out of scope for item 1: group D (distances, kinship, replicates:

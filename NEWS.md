@@ -149,6 +149,19 @@
   "Not a matrix." when a population had a single individual (the
   resampled row was dropped to a vector in `utils.allelic.richness()`).
   Results for other populations are unchanged.
+* `gl.test.heterozygosity()` reads each population's genotypes for its
+  bootstrap from the object (in blocks of loci for file-backed objects)
+  instead of copying all populations with `seppop()`; one population is
+  held in memory at a time. Results identical to the previous version.
+* `gl.report.shannon()` computes the Hill numbers from the numbers of
+  dosages 1 and 2 per individual and the distribution of pooled dosages
+  per population, read in one pass over blocks of loci, instead of
+  decoding the whole genotype matrix. Same formulas (Ma, Li & Zhang); the
+  sums are now formed per distinct abundance value rather than locus by
+  locus, so values can differ from the previous version in the last
+  digits (relative differences up to about 5e-14, rounding only); results
+  are identical for both storage types. 300 x 20,000: 2.0 s to 0.4 s
+  (alpha).
 * Internal `.gl_pop_genotype_counts()` (used by the HWE functions) reads
   all populations in one pass over the data instead of one pass per
   population; the result is unchanged.
