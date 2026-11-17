@@ -327,9 +327,12 @@ gl.filter.maf <- function(x,
       as.data.frame(cbind(pop = names(ind_per_pop), ind_per_pop))
     test_pop$ind_per_pop <- as.numeric(test_pop$ind_per_pop)
     
-    maf_pre <- data.frame(x@other$loc.metrics$maf)
+    # the MAF of the input over all individuals: by population, x itself
+    # was not recalculated, so its maf column may be missing or stale
+    # (block-wise for file-backed objects)
+    maf_pre <- data.frame(utils.recalc.maf(x, verbose = 0)@other$loc.metrics$maf)
     colnames(maf_pre) <- "maf"
-    
+
     maf_post <- data.frame(x2@other$loc.metrics$maf)
     colnames(maf_post) <- "maf"
     

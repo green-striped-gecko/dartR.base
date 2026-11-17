@@ -156,6 +156,13 @@
   `gl.filter.monomorphs()`). The returned object and the plotted data are
   identical to the previous version (four data sets, both storage
   types).
+* `gl.filter.maf()`: BUG FIX, with `by.pop = TRUE` and plots on, the
+  pre-filter histogram over all populations used `loc.metrics$maf` of the
+  input without recalculating it: an object without that column (e.g.
+  `testset.gl`) stopped with "'names' attribute [1] must be the same
+  length as the vector [0]", and a stale column was plotted as it was.
+  The MAF is now recalculated for the plot. The returned object is
+  unchanged.
 * `gl.test.heterozygosity()` reads each population's genotypes for its
   bootstrap from the object (in blocks of loci for file-backed objects)
   instead of copying all populations with `seppop()`; one population is
