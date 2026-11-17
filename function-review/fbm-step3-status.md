@@ -83,11 +83,17 @@ FBM and up to 12x faster than the in-memory path (e.g. `gl.allele.freq`
 
 In this order (decodes / `seppop` copies to replace):
 
-1. Done (17 Nov, not yet committed): `gl.report.pa`, `gl.filter.pa`,
+1. Done (17 Nov, f15888b): `gl.report.pa`, `gl.filter.pa`,
    `utils.pa.Chao` (core moved to `.pa_chao()`, built from per-locus
    terms). Also fixed: with `x2`, `test.asym` split the pooled sample at
    the first population of `x`.
-2. `gl.report.diversity` (13 decodes: whole object and per pair).
+2. Done (17 Nov): `gl.report.diversity`. One block pass stores per
+   population and locus the mean dosage and genotype counts; pooled pair
+   frequencies are (sum of dosages) / (number of genotypes) of both
+   populations. Equal to `colMeans(rbind(m1, m2))` bit for bit for pooled
+   samples up to 400 individuals (checked exhaustively); `colMeans` divides
+   in long double, so above ~1,000 individuals a 1-ulp difference is
+   theoretically possible.
 3. `gl.report.allelerich` (341-346, 494-496).
 4. `gl.test.heterozygosity` (240-247).
 5. `gl.report.shannon` (197).

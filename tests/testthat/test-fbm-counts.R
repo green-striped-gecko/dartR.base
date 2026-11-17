@@ -88,7 +88,11 @@ calls <- list(
   }, verbose = 3),
   filter.pa.inv = list(function(x, ...) {
     gl.filter.pa(x, popNames(x)[1], popNames(x)[2], ...)
-  }, invers = TRUE, verbose = 3)
+  }, invers = TRUE, verbose = 3),
+  diversity = list(gl.report.diversity, plot.display = FALSE, verbose = 3),
+  diversity.1pop = list(function(x, ...) {
+    gl.report.diversity(gl.keep.pop(x, popNames(x)[1], verbose = 0), ...)
+  }, plot.display = FALSE, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {

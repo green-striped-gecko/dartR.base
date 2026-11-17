@@ -127,6 +127,16 @@
   pooled sample was split after the first population of `x` instead of
   after all of `x` when `x` held several populations, so `asym` and
   `asym.sig` were wrong in that case (other cases are unchanged).
+* `gl.report.diversity()` computes the mean dosage and the genotype counts
+  of every population and locus in one pass over blocks of loci, and all
+  alpha and beta indexes from these, instead of copying each population
+  (`seppop()`) and decoding it up to five times, plus both populations of
+  every pair twice. A file-backed object is never decoded as a whole.
+  Results and messages are identical to the previous version (tested on
+  six data sets including all-missing, monomorphic and per-population
+  missing loci, an empty population level and a single population, both
+  storage types), and faster (10 populations x 5,000 loci: 9.4 s to 1.2 s
+  in memory, 0.9 s file-backed).
 
 # dartR.base 1.2.7 (development)
 
