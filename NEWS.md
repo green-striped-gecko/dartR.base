@@ -241,6 +241,16 @@
   the ploidy of a matrix row to its largest genotype), and the compliance
   check then stopped with "the condition has length > 1". All individuals
   are now diploid, on both the .bed and .ped routes.
+* `gl.read.dart()`: the genotype columns of the DArT report are read in
+  chunks of rows straight into a file-backed matrix (raw scores), and the
+  1-row recoding or 2-row pairing is done in blocks of loci into the
+  genotype matrix, instead of reading the whole report as text, building a
+  SNP x individual matrix and its transpose, and decoding it twice more for
+  OneRatioRef/OneRatioSnp. The locus-metric columns are read as before.
+  With `fbm = TRUE` the object stays file-backed; with `fbm = FALSE` it is
+  converted to @gen in blocks of loci. Results are identical to the
+  previous version (1-row and 2-row reports, any chunk size). Scores
+  outside 0, 1, 2 now stop with an error.
 
 # dartR.base 1.2.7 (development)
 

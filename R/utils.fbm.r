@@ -537,3 +537,53 @@ utils.fbm.copy <- function(G,
   }
   list(G = G, called = called, het = het)
 }
+
+## Genotype columns of a DArT report (gl.read.dart) read in chunks of rows
+## from an open connection into a new temporary FBM of the raw scores,
+## individuals x rows (only the rows in 'keep', the rows of the file after
+## the locus checks), with missing scores stored as the raw code 3 (NA).
+## Returns the FBM and the largest score (as max(..., na.rm = TRUE) over the
+## kept rows, -Inf if none), which decides between the 1-row and 2-row
+## format. Scores outside 0..2 stop with an error. Each chunk is parsed by
+## read.csv with the same na.strings as the locus metrics; only one chunk
+## is in memory.
+.dart_read_genotypes <- function(filename, topskip, lmet, ncols, nas, keep,
+                                 n.rows, nind) {
+  con <- file(filename, open = "r")
+  on.exit(close(con), add = TRUE)
+  # the header block and the column-name row
+  invisible(readLines(con, n = topskip + 1L))
+  G <- utils.fbm.new(nind, length(keep), code = bigsnpr::CODE_012,
+                     prefix = "dart_")
+  cls <- c(rep("NULL", lmet), rep("integer", ncols - lmet))
+  chunk <- .fbm_block_size(nind)
+  is.kept <- logical(n.rows)
+  is.kept[keep] <- TRUE
+  pos <- 0L
+  done <- 0L
+  mx <- -Inf
+  while (pos < n.rows) {
+    k <- min(chunk, n.rows - pos)
+    d <- utils::read.csv(con, header = FALSE, nrows = k, na.strings = nas,
+                         colClasses = cls, check.names = FALSE)
+    if (nrow(d) == 0L) break
+    sel <- which(is.kept[pos + seq_len(nrow(d))])
+    pos <- pos + nrow(d)
+    if (length(sel) == 0L) next
+    v <- t(as.matrix(d[sel, , drop = FALSE]))
+    dimnames(v) <- NULL
+    if (any(v < 0L | v > 2L, na.rm = TRUE)) {
+      stop(error("  Fatal Error: genotype scores outside 0, 1, 2 found in",
+                 filename, "\n"))
+    }
+    mx <- max(mx, suppressWarnings(max(v, na.rm = TRUE)))
+    v[is.na(v)] <- 3L
+    G[, done + seq_along(sel)] <- v
+    done <- done + length(sel)
+  }
+  if (done != length(keep)) {
+    stop(error("  Fatal Error: could not read all genotype rows of",
+               filename, "\n"))
+  }
+  list(G = G, max = mx)
+}

@@ -326,4 +326,14 @@ Remaining steps (1 and 2 done):
    fixture with missing data, an all-NA individual, a fixed locus and
    chromosome 0 (snpStats::write.plink), both fbm settings; run
    tests/testthat/test-gl.read.PLINK.R.
-3. Then gl.read.dart.
+3. gl.read.dart: done (17 Nov). Locus-metric columns read with
+   colClasses (genotype columns skipped); `.dart_read_genotypes()` reads
+   the genotype columns in chunks of rows from an open connection into a
+   raw-score FBM (with the largest score for the 1-/2-row detection);
+   utils.dart2genlight pairs/recodes in blocks of loci into the genotype
+   FBM; OneRatio via .gl_colwise; fbm = FALSE converts with gl.fbm2gen.
+   Identical to the old reader (2-row with/without metafile, 1-row, both
+   fbm, chunk sizes 1 Gb and one row). Tests in test-gl.read.dart.R.
+4. Next: gl.read.vcf (vcfR holds the whole VCF as text; options: chunks
+   of variants via vcfR's nrows/skip, or another reader), then
+   gl.read.csv (low priority).
