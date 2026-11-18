@@ -19,7 +19,11 @@
 #'
 #' Genotypes are coded as the count of \code{allele.2} (column 6 of the
 #' .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
-#' \code{allele.1}, 2 = homozygous \code{allele.2}. Note that this is the
+#' \code{allele.1}, 2 = homozygous \code{allele.2}. The alleles are stored
+#' as \code{"allele.1/allele.2"} (see \code{alleles()}), so the counted
+#' allele is the second one, as for every dartR object; a missing allele
+#' (PLINK code 0, e.g. for a monomorphic locus) is written as 0. Note that
+#' this is the
 #' opposite orientation to \code{\link{gl.read.vcf}}, which counts the ALT
 #' allele.
 #'
@@ -296,6 +300,11 @@ gl.read.PLINK <- function(filename,
   # Fix order of cols
   gl@other$loc.metrics <-
     gl@other$loc.metrics[, c("AlleleID", names(gl@other$loc.metrics)[-2])]
+  # Allele names from the .bim/.map as "allele.1/allele.2". The genotypes
+  # count allele.2, so it is the second allele, as dartR's convention
+  # requires. Without this the slot stayed empty and the compliance check
+  # filled it with the placeholder "A/C" for every locus.
+  gl@loc.all <- .plink_loc_all(map$allele.1, map$allele.2)
   gl <- gl.compliance.check(gl, verbose = verbose)
   
   # NOW THE LOCUS METADATA
@@ -426,4 +435,18 @@ gl.read.PLINK <- function(filename,
 
   return(gl)
   
+}
+
+## "allele.1/allele.2" for @loc.all from the PLINK map columns. A missing
+## allele (PLINK code 0, read as NA through na.strings) is written as "0",
+## as PLINK writes it (e.g. allele.1 of a monomorphic locus). read.table()
+## turns a column holding only T and F into logical; restore the letters.
+.plink_loc_all <- function(a1, a2) {
+  as_allele <- function(a) {
+    if (is.logical(a)) a <- ifelse(a, "T", "F")
+    a <- as.character(a)
+    a[is.na(a)] <- "0"
+    a
+  }
+  paste(as_allele(a1), as_allele(a2), sep = "/")
 }

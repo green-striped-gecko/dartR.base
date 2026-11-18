@@ -380,3 +380,45 @@ test_that(".ped route sets ploidy 2 (no inference from the largest genotype)", {
   gl <- gl.read.PLINK(file.path(d, "toy"), verbose = 0)
   expect_equal(unname(ploidy(gl)), rep(2L, 3))
 })
+
+test_that("gl.read.PLINK sets the alleles from the .bim as allele.1/allele.2", {
+  # Before, @loc.all stayed empty and the compliance check filled in the
+  # placeholder "A/C" for every locus. Genotypes count allele.2, so it is
+  # the second allele, as dartR's convention requires.
+  skip_if_not_installed("snpStats")
+  d <- plink_tmpdir()
+  base <- write_plink_fixture(d)
+  expected <- c("G/A", "T/G", "A/C", "C/T")
+  gl <- gl.read.PLINK(base, verbose = 0)
+  expect_identical(gl@loc.all, expected)
+  expect_identical(alleles(gl.read.PLINK(base, verbose = 0, fbm = TRUE)),
+                   expected)
+  # alleles follow the loci when subsetting
+  expect_identical(alleles(gl[, c(4, 1)]), expected[c(4, 1)])
+
+  # a .bim allele column holding only T is read by read.table as logical
+  writeLines(c(
+    "1\tsnp1\t0\t100\tT\tA",
+    "1\tsnp2\t0\t200\tT\tG",
+    "2\tsnp3\t0\t150\tT\tC",
+    "2\tsnp4\t0\t300\tT\tG"), paste0(base, ".bim"))
+  gl <- gl.read.PLINK(base, verbose = 0)
+  expect_identical(gl@loc.all, c("T/A", "T/G", "T/C", "T/G"))
+})
+
+test_that("gl.read.PLINK .ped route sets the alleles in PLINK orientation", {
+  skip_if_not_installed("snpStats")
+  d <- plink_tmpdir()
+  base <- file.path(d, "tie")
+  writeLines(c(
+    "F1 i1 0 0 1 1 A G C C T T 0 0 C C",
+    "F1 i2 0 0 2 1 G A A C G G T C C C",
+    "F2 i3 0 0 1 2 A A C A G G T T C C",
+    "F2 i4 0 0 2 2 G G A A G T C C C C"), paste0(base, ".ped"))
+  writeLines(c("1 s1 0 100", "1 s2 0 200", "2 s3 0 300", "2 s4 0 400",
+               "2 s5 0 500"), paste0(base, ".map"))
+  expect_warning(gl <- gl.read.PLINK(base, plink.path = d, verbose = 0),
+                 "monomorphic")
+  # same as PLINK 1.9 --make-bed: A1/A2 = G/A, A/C, T/G, C/T, 0/C
+  expect_identical(gl@loc.all, c("G/A", "A/C", "T/G", "C/T", "0/C"))
+})

@@ -1,5 +1,18 @@
 # dartR.base 1.3.0 (file-backed storage: FBM objects read from disk)
 
+* Subsetting (`[`) with a repeated locus: BUG FIX, in objects held in memory
+  a missing genotype was kept only in the first copy of the locus and read
+  as 0 (homozygous reference) in the others, because adegenet's SNPbin
+  subset marks each missing position once. Every copy is now missing, as in
+  file-backed objects, which were not affected. Subsets without repeated
+  loci are unchanged. Reported by Luis Mijangos (FBM review, 14 Nov 2026).
+* `gl.read.PLINK()`: BUG FIX, the alleles in the .bim (or .ped) were not
+  stored: `alleles()` returned the placeholder "A/C" for every locus, so an
+  object written with `gl2plink()` and read back seemed to have its
+  genotypes flipped. The alleles are now stored as "allele.1/allele.2";
+  the genotypes count allele.2, the second allele, as before. Reported by
+  Luis Mijangos (FBM review, 14 Nov 2026).
+
 * `gl.He()` and `gl.Ho()` (moved to dartR.sim in 1.2.7) and
   `gl.propShared()` (moved to dartR.spatial in 1.2.7) are back in
   dartR.base, unchanged. The CRAN releases of dartR.sim and dartR.spatial

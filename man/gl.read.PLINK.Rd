@@ -75,7 +75,11 @@ directory.
 
 Genotypes are coded as the count of \code{allele.2} (column 6 of the
 .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
-\code{allele.1}, 2 = homozygous \code{allele.2}. Note that this is the
+\code{allele.1}, 2 = homozygous \code{allele.2}. The alleles are stored
+as \code{"allele.1/allele.2"} (see \code{alleles()}), so the counted
+allele is the second one, as for every dartR object; a missing allele
+(PLINK code 0, e.g. for a monomorphic locus) is written as 0. Note that
+this is the
 opposite orientation to \code{\link{gl.read.vcf}}, which counts the ALT
 allele.
 

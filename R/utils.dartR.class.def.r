@@ -526,7 +526,20 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             x@chromosome <- chr(x)[jj]
             x@position   <- position(x)[jj]
             x@loc.all    <- alleles(x)[jj]
-            x@gen        <- lapply(x@gen, function(e) e[jj])
+            # adegenet's SNPbin subset (.SNPbinset) maps each missing
+            # position to the FIRST copy of a repeated locus only (match()),
+            # so the other copies read as 0. With repeated loci, mark every
+            # copy of a missing locus as missing (the FBM branch is correct).
+            if (anyDuplicated(jj)) {
+              x@gen <- lapply(x@gen, function(e) {
+                na.old <- e@NA.posi
+                e <- e[jj]
+                if (length(na.old) > 0) e@NA.posi <- which(jj %in% na.old)
+                e
+              })
+            } else {
+              x@gen <- lapply(x@gen, function(e) e[jj])
+            }
             x@n.loc      <- x@gen[[1]]@n.loc
             
             if (!is.null(x@other$loc.metrics))
