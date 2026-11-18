@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.impute
 # Baseline snapshotted before review (review-gl.impute, dev at ddaed27).
 # Phase C (2026-09-06): assertions formerly marked [baseline defect Fn] have

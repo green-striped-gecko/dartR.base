@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.test.heterozygosity
 # Baseline snapshotted before review (review-gl.test.heterozygosity) at
 # 98d3a98. Assertions marked [approved diff, change n] were flipped in

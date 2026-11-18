@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl2bpp — snapshot of CURRENT behaviour
 # (review baseline, function-review campaign). Bugs are captured as-is and
 # annotated; do not treat every expectation here as intended behaviour.

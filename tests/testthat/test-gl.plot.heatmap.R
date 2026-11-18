@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.plot.heatmap
 # Baseline snapshotted before review (dev_luis at 250b840, origin/dev
 # f9ee087 merged). Assertions tagged [approved diff, change n] were flipped

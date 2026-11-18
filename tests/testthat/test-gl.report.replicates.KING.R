@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # gl.report.replicates.KING: duplicate samples by KING-robust kinship and the
 # heterozygote share, from genotype likelihoods, read counts or calls.
 

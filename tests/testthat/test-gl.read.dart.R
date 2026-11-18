@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Baseline characterization tests for gl.read.dart (Phase A, dartr-function-review).
 # These snapshot CURRENT behaviour on the reviewed commit, including known
 # defects, so that any change in behaviour is detected. They are not an

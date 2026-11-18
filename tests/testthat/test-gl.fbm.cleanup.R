@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 ## helper: run the finalizers and retry pending deletions
 collect <- function() {
   invisible(gc(verbose = FALSE)); invisible(gc(verbose = FALSE))

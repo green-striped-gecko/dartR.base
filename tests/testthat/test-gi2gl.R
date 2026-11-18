@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gi2gl — snapshot of CURRENT behaviour
 # (review baseline, bugs included), including the gl2gi -> gi2gl round
 # trip. Captured 2026-09-05 at ed99203.

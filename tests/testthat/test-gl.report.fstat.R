@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.report.fstat
 # Baseline snapshotted before review (review-gl.report.fstat), on
 # dartR.data 1.2.5, then updated when the approved findings were applied.

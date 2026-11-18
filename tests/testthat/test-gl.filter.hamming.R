@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.filter.hamming
 # Baseline snapshotted before review (dev at 984ab05). Expectations marked
 # CURRENT DEFECT pin today's behaviour; they flip only if an approved finding
