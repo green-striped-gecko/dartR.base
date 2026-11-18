@@ -185,6 +185,12 @@ from called genotypes, the heterozygote share of the pairs above 0.4,
 with lines at 0.5 (parent and offspring), 0.625 (the largest expected
 for full siblings in an outbred population) and \code{het_threshold}. A gap between the relatives
 and the duplicates means the duplicate calls are clear-cut.
+
+A file-backed (FBM) object (called genotypes) is read from its backing
+file in blocks of loci: missing data, allele frequencies and the counts of
+the nine genotype combinations are added block by block, so the genotype
+matrix is never decoded as a whole, and the results are identical to those
+of the same data held in memory.
 }
 \examples{
 \donttest{

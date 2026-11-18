@@ -11,7 +11,8 @@ gl.read.vcf(
   fbm = FALSE,
   read.counts = FALSE,
   likelihoods = FALSE,
-  verbose = NULL
+  verbose = NULL,
+  parser = "vcfR"
 )
 }
 \arguments{
@@ -38,6 +39,14 @@ about 190 MB for 171 individuals and 93,000 loci [default FALSE].}
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
+
+\item{parser}{"vcfR" reads the vcf with package vcfR (the whole file is
+held in memory as text); "cpp" reads the genotypes with the C++ parser of
+package tidypopgen, chunk by chunk straight into a file-backed matrix,
+which is much faster and needs little memory for large files. tidypopgen
+is not installed with dartR.base; install it with
+\code{install.packages("tidypopgen")} to use "cpp". See details for the
+limits of "cpp" [default "vcfR"].}
 }
 \value{
 A genlight object.
@@ -105,6 +114,21 @@ are subset, sorted or combined, and \code{\link{gl.randomize.snps}} swaps
 the REF and ALT read counts and the 0/0 and 1/1 likelihoods of the loci it
 recodes; \code{\link{gl.compliance.check}} removes them if their
 dimensions no longer match the object.
+
+With \code{parser = "cpp"} (package tidypopgen) the genotypes are read
+by tidypopgen's C++ parser into a file-backed matrix and copied in blocks
+of loci into the returned object (file-backed with \code{fbm = TRUE},
+converted to @gen in blocks otherwise); the fixed columns of the vcf
+(CHROM to INFO) are read in chunks as well, so the whole file is never
+held in memory. For the variants it reads, the result is the same as with
+\code{parser = "vcfR"}: genotypes (count of the ALT allele), locus names,
+alleles, chromosome, position and the QUAL, FILTER and INFO locus
+metrics. Limits: only single-base (SNP) variants are read, so indels are
+skipped (with a warning); only \code{mode = "genotype"}; no rdepth, read
+counts or likelihoods; and only diploid genotype calls -- a vcf with
+haploid or polyploid calls (e.g. a sex chromosome in the heterogametic
+sex) stops with an error, as tidypopgen would code a haploid call like a
+heterozygote. Use \code{parser = "vcfR"} in these cases.
 }
 \examples{
 \dontrun{

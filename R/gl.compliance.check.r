@@ -102,7 +102,6 @@ gl.compliance.check <- function(x,
     # appropriate values
     
     if (datatype == "SNP") {
-        mat <- as.matrix(x)
         scores <- c(0, 1, 2, NA)
         if (verbose >= 2) {
             cat(report("  Checking coding of SNPs\n"))
@@ -111,7 +110,9 @@ gl.compliance.check <- function(x,
         # was vacuous whenever the data held an NA: max() without na.rm
         # returns NA, and NA %in% scores is TRUE because scores includes
         # NA, so out-of-range genotypes passed as confirmed.
-        if (all(mat %in% scores)) {
+        # Blocks of loci for FBM-backed objects (.gl_colwise), so the whole
+        # matrix is not decoded.
+        if (all(.gl_colwise(x, function(m) all(m %in% scores)))) {
             if (verbose >= 1) {
                 cat(report("    SNP data scored NA, 0, 1 or 2 confirmed\n"))
             }
@@ -126,13 +127,14 @@ gl.compliance.check <- function(x,
             }
         }
     } else {
-        mat <- as.matrix(x)
         scores <- c(0, 1, NA)
         if (verbose >= 2) {
             cat(report("  Checking coding of Tag P/A data\n"))
         }
         # Exact value-set test (see the SNP check above).
-        if (all(mat %in% scores)) {
+        # Blocks of loci for FBM-backed objects (.gl_colwise), so the whole
+        # matrix is not decoded.
+        if (all(.gl_colwise(x, function(m) all(m %in% scores)))) {
             if (verbose >= 1) {
                 cat(
                     report(

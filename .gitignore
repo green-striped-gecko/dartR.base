@@ -38,3 +38,6 @@ dartR.base.Rproj
 .Rdata
 .DS_Store
 .quarto
+
+# Plots written by test runs
+tests/testthat/Rplots.pdf

@@ -288,7 +288,7 @@ gl.filter.callrate <- function(x,
         # if (verbose >= 3) {cat('Initial no. of individuals =', n0, '\n')}
         
         # Calculate the individual call rate
-        ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
+        ind.call.rate <- 1 - .gl_rowwise(x, function(t) rowSums(is.na(t))) / nLoc(x)
         
         # Store the initial call rate profile
         hold2 <- ind.call.rate
@@ -355,7 +355,7 @@ gl.filter.callrate <- function(x,
                 }
             }
             # Recalculate the callrate
-            ind.call.rate <- 1 - rowSums(is.na(as.matrix(x2))) / nLoc(x2)
+            ind.call.rate <- 1 - .gl_rowwise(x2, function(t) rowSums(is.na(t))) / nLoc(x2)
             # cat(min(ind.call.rate),'\n')
         } else {
             # If recursive
@@ -373,7 +373,7 @@ gl.filter.callrate <- function(x,
             }
             for (i in 1:10) {
                 # Recalculate the callrate
-                ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
+                ind.call.rate <- 1 - .gl_rowwise(x, function(t) rowSums(is.na(t))) / nLoc(x)
                 # Extract those individuals with a call rate greater or equal to
                 #the threshold
                 x2 <- x[ind.call.rate >= threshold,]

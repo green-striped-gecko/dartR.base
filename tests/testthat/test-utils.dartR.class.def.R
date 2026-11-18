@@ -86,3 +86,26 @@ test_that("as.matrix gives identical matrices for gen- and FBM-backed objects", 
                   verbose = 0)
   expect_type(as.matrix(d), "double")
 })
+
+test_that("show() reports the same missing data for FBM and gen objects", {
+  f <- gl.gen2fbm(testset.gl, verbose = 0)
+  na_line <- function(x) grep("missing data", utils::capture.output(show(x)),
+                              value = TRUE)
+  expect_identical(na_line(f), na_line(testset.gl))
+})
+
+test_that("repeated loci keep their missing genotypes in every copy (gen and FBM)", {
+  # adegenet's SNPbin subset marked a missing genotype only at the first
+  # copy of a repeated locus; the other copies read as 0 (gen-backed only)
+  m <- as.matrix(testset.gl)
+  js <- which(colSums(is.na(m)) > 0)[1:3]
+  jj <- c(js[1], js[2], js[1], js[3], js[2], 5)
+  expect_true(all(colSums(is.na(m[, jj])) > 0 | jj == 5))
+  expect_identical(as.matrix(testset.gl[, jj]), m[, jj])
+  expect_identical(as.matrix(testset.gl[1:20, c(jj[1], jj[1])]),
+                   m[1:20, c(jj[1], jj[1])])
+  f <- gl.gen2fbm(testset.gl, verbose = 0)
+  expect_identical(as.matrix(f[, jj]), as.matrix(testset.gl[, jj]))
+  # unrepeated subsets are unchanged
+  expect_identical(as.matrix(testset.gl[, -1]), m[, -1])
+})

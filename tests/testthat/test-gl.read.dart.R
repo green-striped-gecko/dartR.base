@@ -161,3 +161,61 @@ test_that("missing AvgCount columns leave rdepth NA instead of crashing", {
   expect_equal(nLoc(g2), 2)
   expect_true(all(is.na(g2@other$loc.metrics$rdepth)))
 })
+
+# Chunked reading (FBM step 3, item 2): the genotype columns are read in
+# chunks of rows into a file-backed matrix; results must not depend on the
+# chunk size or the storage type, and fbm = TRUE never decodes the matrix.
+test_that("gl.read.dart: identical for any chunk size and both storage types", {
+  skip_if_not_installed("bigstatsr")
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  rd <- function(fbm) {
+    suppressWarnings(gl.read.dart(dartfile, ind.metafile = metafile,
+                                  fbm = fbm, probar = FALSE, verbose = 0))
+  }
+  ref <- rd(FALSE)
+  for (bs in c(1, 1e-6)) {                   # 1e-6: one row per chunk
+    options(bigstatsr.block.sizeGB = bs)
+    for (fbm in c(FALSE, TRUE)) {
+      g <- rd(fbm)
+      expect_identical(as.matrix(g), as.matrix(ref))
+      expect_identical(g@other$loc.metrics, ref@other$loc.metrics)
+      expect_identical(g@other$ind.metrics, ref@other$ind.metrics)
+      expect_identical(!is.null(g@fbm), fbm)
+    }
+  }
+})
+
+test_that("gl.read.dart(fbm = TRUE) never decodes the whole matrix", {
+  skip_if_not_installed("bigstatsr")
+  local_mocked_bindings(.fbm_as_matrix = function(x) {
+    stop("the whole FBM was decoded")
+  })
+  expect_no_error(suppressWarnings(
+    g <- gl.read.dart(dartfile, fbm = TRUE, probar = FALSE, verbose = 0)))
+  expect_s4_class(g@fbm, "FBM.code256")
+})
+
+test_that("gl.read.dart: a malformed locus is removed with chunked reading", {
+  skip_if_not_installed("bigstatsr")
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  # an extra copy of one row of the 10th locus: its rows per uid are no
+  # longer 2, so the whole locus is removed
+  lines <- readLines(dartfile)
+  first <- which(startsWith(lines, "*"))
+  hdr <- max(first) + 1L
+  extra <- hdr + 2L * 9L + 1L                # first row of locus 10
+  f <- tempfile(fileext = ".csv")
+  on.exit(unlink(f), add = TRUE)
+  writeLines(append(lines, lines[extra], after = extra), f)
+  ref <- suppressWarnings(gl.read.dart(dartfile, probar = FALSE,
+                                       verbose = 0))
+  ref <- gl.drop.loc(ref, loc.list = locNames(ref)[10], verbose = 0)
+  for (bs in c(1, 1e-6)) {
+    options(bigstatsr.block.sizeGB = bs)
+    g <- suppressWarnings(gl.read.dart(f, probar = FALSE, verbose = 0))
+    expect_identical(locNames(g), locNames(ref))
+    expect_identical(as.matrix(g), as.matrix(ref))
+  }
+})

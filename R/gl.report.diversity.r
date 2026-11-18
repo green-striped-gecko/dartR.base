@@ -149,18 +149,41 @@ gl.report.diversity <- function(x,
         pop(x) <- factor(rep("all", nInd(x)))
     }
     
-    # split in pops
-    pops <- seppop(x)
-    
+    # the populations as row indices of x, in the order of seppop() (the
+    # levels of pop(x)); rows are read in place, populations are not copied
+    pops <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+    names(pops) <- levels(pop(x))
+
+    # Per population and locus, in one pass over blocks of loci
+    # (.gl_colblocks, so a file-backed object is never decoded as a whole):
+    # the mean dosage (colMeans, the original expression) and the numbers of
+    # genotypes 0, 1 and 2. Genotypes are diploid SNP dosages 0/1/2, NA
+    # missing. All alpha and beta indexes below are computed from these
+    # terms with the original expressions. Memory: about 32 bytes per
+    # population and locus.
+    term.blocks <- .gl_colblocks(x, function(B) {
+        lapply(pops, function(r) {
+            m <- B[r, , drop = FALSE]
+            list(mean = colMeans(m, na.rm = TRUE),
+                 cnt = rbind(colSums(m == 0, na.rm = TRUE),
+                             colSums(m == 1, na.rm = TRUE),
+                             colSums(m == 2, na.rm = TRUE)))
+        })
+    })
+    terms <- lapply(seq_along(pops), function(g) {
+        list(mean = do.call(c, lapply(term.blocks, function(b) b[[g]]$mean)),
+             cnt = do.call(cbind, lapply(term.blocks, function(b) b[[g]]$cnt)))
+    })
+    names(terms) <- names(pops)
+    rm(term.blocks)
+
     # number of non-missing loci per population
     nlocpop <-
-        lapply(pops, function(x)
-            sum(!is.na(colMeans(
-                as.matrix(x), na.rm = T
-            ))))
-    
-    zero_H_alpha_es <- lapply(pops, function(x) {
-        dummys <- as.numeric((colMeans(as.matrix(x), na.rm = TRUE) %% 2) > 0)
+        lapply(terms, function(tm)
+            sum(!is.na(tm$mean)))
+
+    zero_H_alpha_es <- lapply(terms, function(tm) {
+        dummys <- as.numeric((tm$mean %% 2) > 0)
         return(list(
             estH = mean(dummys, na.rm = T),
             sdH = sd(dummys, na.rm = T),
@@ -188,20 +211,13 @@ gl.report.diversity <- function(x,
         - sum(p * log(p))
     }
     
-    one_H_alpha_es <- lapply(pops, function(x) {
-        mat_temp <- as.matrix(x)
+    one_H_alpha_es <- lapply(terms, function(tm) {
         mat <- matrix(nrow = 6, ncol = nLoc(x))
         rownames(mat) <-
             c("AA", "AB", "BB", "A", "B", "shannon")
-        mat["AA", ] <- apply(mat_temp, 2, function(y) {
-            length(y[which(y == 0)])
-        })
-        mat["AB", ] <- apply(mat_temp, 2, function(y) {
-            length(y[which(y == 1)])
-        })
-        mat["BB", ] <- apply(mat_temp, 2, function(y) {
-            length(y[which(y == 2)])
-        })
+        mat["AA", ] <- tm$cnt[1, ]
+        mat["AB", ] <- tm$cnt[2, ]
+        mat["BB", ] <- tm$cnt[3, ]
         mat["A", ] <- 2 * mat["AA", ] + mat["AB", ]
         mat["B", ] <- 2 * mat["BB", ] + mat["AB", ]
         mat_shannon <- mat[c("A", "B"), ]
@@ -235,8 +251,8 @@ gl.report.diversity <- function(x,
             x[[4]]))
     
     # two_H_alpha
-    two_H_alpha_es <- lapply(pops, function(x) {
-        p <- colMeans(as.matrix(x), na.rm = T) / 2
+    two_H_alpha_es <- lapply(terms, function(tm) {
+        p <- tm$mean / 2
         
         p <- p[!is.na(p)]  #ignore loci with just missing data
         dummys <- (1 - (p * p + (1 - p) * (1 - p)))
@@ -271,12 +287,25 @@ gl.report.diversity <- function(x,
     if (npops > 1) {
 
         pairs <- t(combn(npops, 2))
+
+        # The pooled allele frequency of a pair at the loci 'index', i.e.
+        # colMeans(rbind(m1, m2)[, index], na.rm = TRUE) / 2: the sum of
+        # dosages of both populations over their number of genotypes. The
+        # sums are exact integers; for pooled samples of up to 400
+        # individuals the quotient was verified to be bit-identical to
+        # colMeans (which divides in long double).
+        pooled_p <- function(z, index) {
+            c1 <- terms[[z[1]]]$cnt
+            c2 <- terms[[z[2]]]$cnt
+            s <- (c1[2, ] + 2 * c1[3, ]) + (c2[2, ] + 2 * c2[3, ])
+            n <- colSums(c1) + colSums(c2)
+            (s[index] / n[index]) / 2
+        }
+
         ### pairwise missing loci
         nlocpairpop <- apply(pairs, 1, function(x) {
-            pop1 <- pops[[x[1]]]
-            pop2 <- pops[[x[2]]]
-            pp1 <- colMeans(as.matrix(pop1), na.rm = T) / 2
-            pp2 <- colMeans(as.matrix(pop2), na.rm = T) / 2
+            pp1 <- terms[[x[1]]]$mean / 2
+            pp2 <- terms[[x[2]]]$mean / 2
             index <- !is.na(pp1) & !is.na(pp2)
             return(sum(index))
         })
@@ -287,12 +316,10 @@ gl.report.diversity <- function(x,
         
         # zero_H_beta
         zero_H_beta_es <- apply(pairs, 1, function(x) {
-            pop1 <- pops[[x[1]]]
-            pop2 <- pops[[x[2]]]
-            pp1 <- colMeans(as.matrix(pop1), na.rm = T) / 2
-            
+            pp1 <- terms[[x[1]]]$mean / 2
+
             pp1 <- ifelse(pp1 > 0 & pp1 < 1, 0.5, pp1)
-            pp2 <- colMeans(as.matrix(pop2), na.rm = T) / 2
+            pp2 <- terms[[x[2]]]$mean / 2
             pp2 <- ifelse(pp2 > 0 & pp2 < 1, 0.5, pp2)
             
             index <- !is.na(pp1) & !is.na(pp2)
@@ -342,13 +369,10 @@ gl.report.diversity <- function(x,
         # the pairwise value does not depend on other populations in the
         # dataset
         one_H_beta_es <- apply(pairs, 1, function(z) {
-            m1 <- as.matrix(pops[[z[1]]])
-            m2 <- as.matrix(pops[[z[2]]])
-            i1 <- which(!is.na(colMeans(m1, na.rm = TRUE)))
-            i2 <- which(!is.na(colMeans(m2, na.rm = TRUE)))
+            i1 <- which(!is.na(terms[[z[1]]]$mean))
+            i2 <- which(!is.na(terms[[z[2]]]$mean))
             index <- intersect(i1, i2)
-            p <- colMeans(rbind(m1, m2)[, index, drop = FALSE],
-                          na.rm = TRUE) / 2
+            p <- pooled_p(z, index)
             logp <- ifelse(!is.finite(log(p)), 0, log(p))
             log1_p <- ifelse(!is.finite(log(1 - p)), 0, log(1 - p))
             H_pair <- -(p * logp + (1 - p) * log1_p)
@@ -391,13 +415,10 @@ gl.report.diversity <- function(x,
         # two_H_beta: the pooled term is computed from the pair only,
         # and the correction factor is the pairwise one (npops = 2)
         two_H_beta_es <- apply(pairs, 1, function(z) {
-            m1 <- as.matrix(pops[[z[1]]])
-            m2 <- as.matrix(pops[[z[2]]])
-            i1 <- which(!is.na(colMeans(m1, na.rm = TRUE)))
-            i2 <- which(!is.na(colMeans(m2, na.rm = TRUE)))
+            i1 <- which(!is.na(terms[[z[1]]]$mean))
+            i2 <- which(!is.na(terms[[z[2]]]$mean))
             index <- intersect(i1, i2)
-            p <- colMeans(rbind(m1, m2)[, index, drop = FALSE],
-                          na.rm = TRUE) / 2
+            p <- pooled_p(z, index)
             two_H_pair <- (1 - (p * p + (1 - p) * (1 - p)))
             m2Ha <-
                 (two_H_alpha_es[[z[1]]]$dummys[i1 %in% index] +

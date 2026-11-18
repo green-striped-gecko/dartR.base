@@ -34,7 +34,11 @@ means}
 
 \item{fbm}{Logical. If TRUE, the genotypes of the returned object are held
 in a file-backed matrix (fbm) in its @fbm slot rather than in @gen. This
-is useful for very large datasets that do not fit into RAM. Note that
+is useful for very large datasets that do not fit into RAM. A binary
+fileset (.bed) is read in blocks of SNPs straight into the file-backed
+matrix, so the genotypes are never held in memory as a whole; with
+fbm = FALSE that matrix is converted to @gen in blocks of loci at the
+end. A .ped is read into memory and converted when fbm = TRUE. Note that
 using fbm objects requires the package bigsnpr to be installed. To back
 convert use \code{gl.fbm2gen()} [default FALSE].}
 
@@ -71,7 +75,11 @@ directory.
 
 Genotypes are coded as the count of \code{allele.2} (column 6 of the
 .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
-\code{allele.1}, 2 = homozygous \code{allele.2}. Note that this is the
+\code{allele.1}, 2 = homozygous \code{allele.2}. The alleles are stored
+as \code{"allele.1/allele.2"} (see \code{alleles()}), so the counted
+allele is the second one, as for every dartR object; a missing allele
+(PLINK code 0, e.g. for a monomorphic locus) is written as 0. Note that
+this is the
 opposite orientation to \code{\link{gl.read.vcf}}, which counts the ALT
 allele.
 

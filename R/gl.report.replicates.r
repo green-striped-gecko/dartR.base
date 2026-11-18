@@ -42,6 +42,12 @@
 #' first call in a session will be slower because the C++ code must be compiled;
 #' subsequent calls are fast.
 #'
+#' A file-backed (FBM) object is read from its backing file in blocks of loci
+#' and the pairwise counts are added block by block (serially), so the
+#' genotype matrix is never decoded as a whole; the results are identical to
+#' those of the same data held in memory. The pairwise counts and results
+#' (\code{nInd(x)^2} values) are held in memory.
+#'
 #' \strong{Suggested individual to drop}
 #' For each flagged pair, the function calculates per-individual missingness as the
 #' proportion of `NA` genotypes across all loci. The replicate suggested for removal
@@ -131,6 +137,18 @@ gl.report.replicates <- function(x,
     }
   }
 
+  if (.has_fbm(x)) {
+    # File-backed: the counts of loci scored in both individuals and of
+    # identical genotypes are added over blocks of loci read from the
+    # backing file (.gl_pair_counts), so the genotype matrix is never
+    # decoded as a whole. Identical genotypes are the loci scored in both
+    # that differ by neither one nor two allele copies; the counts, and so
+    # the proportions, are identical to those of pairwiseMatchParallel().
+    pc <- .gl_pair_counts(x)
+    mat_same <- .gl_dist_to_matrix(as.numeric(pc$L - pc$n1 - pc$n2), nInd(x))
+    mat_nonmiss <- .gl_dist_to_matrix(as.numeric(pc$L), nInd(x))
+    rm(pc)
+  } else {
   # Convert genlight or other object to plain numeric matrix
   xx <- as.matrix(x)
   
@@ -203,6 +221,7 @@ gl.report.replicates <- function(x,
   pm <- pairwiseMatchParallel(xx)
   mat_same     <- pm[["same"]]      # matrix of identical counts
   mat_nonmiss  <- pm[["nonmiss"]]   # matrix of non-missing counts
+  }
   
   # Assign individual names to rows/columns
   dimnames(mat_same)    <- dimnames(mat_nonmiss) <-
@@ -249,7 +268,12 @@ gl.report.replicates <- function(x,
   }
   
   # Calculate per-individual missing-data proportion
-  miss_prop <- 1 - rowSums(!is.na(xx)) / ncol(xx)
+  # (counted over blocks of loci for a file-backed object, .gl_rowwise)
+  miss_prop <- if (.has_fbm(x)) {
+    1 - .gl_rowwise(x, function(t) rowSums(!is.na(t))) / nLoc(x)
+  } else {
+    1 - rowSums(!is.na(xx)) / ncol(xx)
+  }
   miss_dt   <- data.table(id = indNames(x), miss = miss_prop)
   
   # Merge in missing-data rates for ind1 and ind2

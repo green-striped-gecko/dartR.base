@@ -350,28 +350,31 @@ gl.report.hwe <- function(x,
         }
     }
     
-    poplist_temp <- seppop(x)
-    # filtering monomorphs; a population in which every locus is
-    # monomorphic cannot be subset to zero loci, so flag it with NULL
-    # for the skip below instead of crashing inside gl.drop.loc
-    poplist <-
-        lapply(poplist_temp, function(y) {
-            tryCatch(
-                gl.filter.monomorphs(y, verbose = 0),
-                error = function(e) {
-                    if (grepl("zero loci", conditionMessage(e))) {
-                        NULL
-                    } else {
-                        stop(e)
-                    }
-                }
-            )
-        })
+    # Per population: the genotype counts at each locus, read in blocks of
+    # loci (.gl_pop_genotype_counts), and the loci that are not monomorphic
+    # under the rule of gl.filter.monomorphs (every scored genotype the
+    # same homozygote, or the locus all NA). Each population is a record of
+    # its name, size, retained loci and their counts, instead of a copy of
+    # the population filtered by gl.filter.monomorphs; a population with no
+    # retained locus is NULL, as before.
+    pop_counts <- .gl_pop_genotype_counts(x)
+    poplist <- lapply(names(pop_counts), function(p) {
+        cnt <- pop_counts[[p]]
+        scored <- colSums(cnt)
+        keep <- !(cnt[1, ] == scored | cnt[3, ] == scored)
+        if (!any(keep)) {
+            return(NULL)
+        }
+        list(name = p, n = sum(pop(x) == p),
+             loc = colnames(cnt)[keep],
+             counts = cnt[, keep, drop = FALSE])
+    })
+    names(poplist) <- names(pop_counts)
 
     # testing whether populations have heteromorphic loci
     monomorphic_pops_temp <-
         vapply(poplist, function(y) {
-            if (is.null(y)) 0L else nLoc(y)
+            if (is.null(y)) 0L else length(y$loc)
         }, integer(1))
     monomorphic_pops <-
         monomorphic_pops_temp[which(monomorphic_pops_temp == 0)]
@@ -394,7 +397,7 @@ gl.report.hwe <- function(x,
     }
 
     # testing whether populations have small sample size
-    n_ind_pops_temp <- unlist(lapply(poplist, nInd))
+    n_ind_pops_temp <- unlist(lapply(poplist, function(y) y$n))
     n_ind_pops <-
         n_ind_pops_temp[which(n_ind_pops_temp <= min_sample_size)]
 
@@ -442,18 +445,10 @@ gl.report.hwe <- function(x,
         )
     
     for (i in poplist) {
-        mat_HWE_temp <- t(as.matrix(i))
-        mat_HWE <- matrix(nrow = nLoc(i), ncol = 3)
+        # genotype counts of the retained loci (integer, as counted before)
+        mat_HWE <- matrix(as.integer(t(i$counts)), nrow = length(i$loc),
+                          ncol = 3)
         colnames(mat_HWE) <- c("AA", "AB", "BB")
-        mat_HWE[, "AA"] <- apply(mat_HWE_temp, 1, function(y) {
-            length(y[which(y == 0)])
-        })
-        mat_HWE[, "AB"] <- apply(mat_HWE_temp, 1, function(y) {
-            length(y[which(y == 1)])
-        })
-        mat_HWE[, "BB"] <- apply(mat_HWE_temp, 1, function(y) {
-            length(y[which(y == 2)])
-        })
         
         if (method_sig == "ChiSquare") {
             p.values <- apply(mat_HWE, 1, function(x) {
@@ -475,8 +470,8 @@ gl.report.hwe <- function(x,
         # Assemble results into a dataframe
         result_temp <-
             cbind.data.frame(
-                popNames(i),
-                locNames(i),
+                i$name,
+                i$loc,
                 mat_HWE,
                 total,
                 p.values,
@@ -552,7 +547,7 @@ gl.report.hwe <- function(x,
         # Plot the tertiary plots
         for (z in poplist) {
             count <- count + 1
-            pop_name <- popNames(z)
+            pop_name <- z$name
             result_pop <-
                 result[which(result$Population == pop_name),]
             mat_genotypes <-

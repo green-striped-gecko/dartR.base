@@ -110,7 +110,7 @@ gl.randomize.snps <- function(x,
       # reads come from the FBM, not @gen, so @gen is left as it is. NA is
       # stored as code 3 (CODE_012 mapping, as in gl.gen2fbm). Columns are
       # recoded in blocks to avoid densifying the whole matrix.
-      x@fbm <- bigstatsr::big_copy(fbm, backingfile = tempfile("geno_"))
+      x@fbm <- utils.fbm.copy(fbm)
       blocks <- split(random_snps, ceiling(seq_along(random_snps) / 1000))
       for (cols in blocks) {
         block <- 2 - x@fbm[, cols, drop = FALSE]

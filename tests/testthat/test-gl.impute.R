@@ -419,3 +419,49 @@ test_that("beagle keeps the individuals' names (real PLINK and beagle)", {
     expect_equal(sum(is.na(as.matrix(res))), 0)
   }
 })
+
+test_that("FBM imputation in blocks of loci is identical to the gen-backed run", {
+  # The FBM path reads blocks of loci and never decodes the whole matrix;
+  # genotypes, random draws (same seed) and the messages at verbose 3 must
+  # be identical to the gen-backed path, for any block size. Populations
+  # are interleaved (seppop + rbind on the gen-backed path), one locus is
+  # all-NA in one population and one locus is all-NA in every population.
+  skip_if_not_installed("bigstatsr")
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  x <- gl.compliance.check(testset.gl[1:30, 1:60], verbose = 0)
+  set.seed(1)
+  x <- x[sample(nInd(x)), ]
+  m <- as.matrix(x)
+  m[pop(x) == levels(pop(x))[1], 3] <- NA
+  m[, 5] <- NA
+  x@gen <- new("genlight", m, ploidy = ploidy(x))@gen
+  f <- suppressWarnings(gl.gen2fbm(x, verbose = 0))
+  before <- as.matrix(f)
+  for (bs in c(1, 1e-6)) {               # 1e-6: one locus per block
+    options(bigstatsr.block.sizeGB = bs)
+    for (meth in c("frequency", "HW", "neighbour", "random")) {
+      for (fr in c(TRUE, FALSE)) {
+        lab <- paste(meth, fr, bs)
+        set.seed(9)
+        og <- capture.output(rg <- gl.impute(x, method = meth,
+                                             fill.residual = fr,
+                                             verbose = 3))
+        next_g <- runif(1)
+        set.seed(9)
+        of <- capture.output(rf <- gl.impute(f, method = meth,
+                                             fill.residual = fr,
+                                             verbose = 3))
+        next_f <- runif(1)
+        expect_identical(as.matrix(rf), as.matrix(rg), label = lab)
+        expect_identical(of, og, label = lab)
+        # the random stream ends in the same state
+        expect_identical(next_f, next_g, label = lab)
+        expect_identical(pop(rf), pop(x))
+        expect_identical(indNames(rf), indNames(x))
+      }
+    }
+  }
+  expect_identical(as.matrix(f), before)   # the input's file is untouched
+})

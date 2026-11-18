@@ -58,15 +58,15 @@
 #' gl.allele.freq(possums.gl[,1:10],simple=TRUE)
 #' barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
 
-#' @seealso \code{\link{gl.allele.freq}}; gl.Ho() and gl.He() now live in
-#' dartR.sim
+#' @seealso \code{\link{gl.allele.freq}}, \code{\link{gl.He}},
+#' \code{\link{gl.Ho}}
 #' @export
 
 gl.alf <- function(x, verbose = NULL) {
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   utils.check.datatype(x, accept = "SNP", verbose = verbose)
-  alf <- colMeans(as.matrix(x), na.rm = TRUE) / 2
+  alf <- .gl_colwise(x, function(t) colMeans(t, na.rm = TRUE)) / 2
   # data.frame() accepts the colMeans names as row names only when they are
   # unique, and otherwise substitutes 1:n without warning. Callers read
   # rownames() as locus names, so set them explicitly from locNames() and

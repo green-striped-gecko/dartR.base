@@ -65,7 +65,8 @@ allele.
 Other distance: 
 \code{\link{gl.dist.ind}()},
 \code{\link{gl.dist.pop}()},
-\code{\link{gl.fst.pop}()}
+\code{\link{gl.fst.pop}()},
+\code{\link{gl.propShared}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

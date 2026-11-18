@@ -93,3 +93,24 @@ test_that("population colours follow population names", {
     }
   }
 })
+
+test_that("individual bootstrap works with a population of one individual", {
+  # Regression: utils.allelic.richness() subset the resampled rows with
+  # df[indices, ], which drops a one-row matrix to a vector, so
+  # boot.method = "ind" stopped with "Not a matrix." for any population
+  # of a single individual.
+  skip_if_not_installed("boot")
+  skip_if_not_installed("Rcpp")
+  x <- gl.keep.pop(testset.gl, popNames(testset.gl)[1:2], verbose = 0)
+  pn <- popNames(x)
+  x <- x[c(which(pop(x) == pn[1])[1], which(pop(x) == pn[2])), 1:40]
+  expect_equal(min(table(pop(x))), 1)
+  set.seed(2)
+  o <- capture.output(res <- suppressWarnings(
+    gl.report.allelerich(x, nboots = 10, boot.method = "ind",
+                         CI.type = "perc", plot.display = FALSE,
+                         verbose = 0)))
+  ar <- res[["Allelic Richness per population"]]
+  expect_true(all(c("LCI", "HCI") %in% colnames(ar)))
+  expect_equal(nrow(ar), 2)
+})

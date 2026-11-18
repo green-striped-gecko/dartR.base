@@ -174,9 +174,7 @@ gl.report.callrate <- function(x,
       cat("    Mean         : ", stats[4], "\n")
       cat("    3rd quartile : ", stats[5], "\n")
       cat("    Maximum      : ", stats[6], "\n")
-      cat("    Missing Rate Overall: ", round(sum(is.na(
-        as.matrix(x)
-      )) / (nLoc(x) * nInd(x)), 4), "\n\n")
+      cat("    Missing Rate Overall: ", round(.gl_n_na(x) / (nLoc(x) * nInd(x)), 4), "\n\n")
 
       # Determine the loss of loci for a given threshold using quantiles
       quantile_res <- quantile(callrate, probs = seq(0, 1, 1 / 20),type=1,na.rm = TRUE)
@@ -255,7 +253,7 @@ gl.report.callrate <- function(x,
   ########### FOR METHOD BASED ON INDIVIDUAL -----------------------
   # Calculate the call rate by individual
   if (method == "ind") {
-    ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
+    ind.call.rate <- 1 - .gl_rowwise(x, function(t) rowSums(is.na(t))) / nLoc(x)
     # Print out some statistics
     if (verbose >= 1) {
       stats <- summary(ind.call.rate)
@@ -268,13 +266,16 @@ gl.report.callrate <- function(x,
       cat("    Mean         : ", stats[4], "\n")
       cat("    3rd quartile : ", stats[5], "\n")
       cat("    Maximum      : ", stats[6], "\n")
-      cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(x)))/(nLoc(x)*nInd(x)), 4), "\n\n")
+      cat("    Missing Rate Overall: ", round(.gl_n_na(x)/(nLoc(x)*nInd(x)), 4), "\n\n")
 
       # Print out statistics for each population
       sample_sizes <- table(pop(x))
       sample_sizes <- as.matrix(sample_sizes)
-      ind.means <- rowSums(!is.na(as.matrix(x)))/nLoc(x)
-      means <- aggregate(ind.means ~ pop(x), x, mean)
+      ind.means <- .gl_rowwise(x, function(t) rowSums(!is.na(t)))/nLoc(x)
+      # data = a data frame, not x: model.frame() would convert the whole
+      # object (decoding a file-backed one); pop(x) is found in this frame
+      means <- aggregate(ind.means ~ pop(x), data.frame(ind.means = ind.means),
+                         mean)
       means$ind.means <- round(as.numeric(means$ind.means),4)
       means <- cbind(means,sample_sizes)
       names(means) <- c("Population","CallRate","N")

@@ -190,9 +190,7 @@ gl.report.maf <- function(x,
       cat("    3rd quantile : ", stats[5], "\n")
       cat("    Maximum      : ", stats[6], "\n")
       cat("    Missing Rate Overall: ",
-          round(sum(is.na(as.matrix(
-            z
-          ))) / (nLoc(z) * nInd(z)), 2), "\n\n")
+          round(.gl_n_na(z) / (nLoc(z) * nInd(z)), 2), "\n\n")
     }
     # Create the plot for each population
     mafs_per_pop_tmp <- z$other$loc.metrics$maf
@@ -243,9 +241,7 @@ gl.report.maf <- function(x,
     cat("    3rd quantile : ", stats[5], "\n")
     cat("    Maximum      : ", stats[6], "\n")
     cat("    Missing Rate Overall: ",
-        round(sum(is.na(as.matrix(
-          x
-        ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
+        round(.gl_n_na(x) / (nLoc(x) * nInd(x)), 2), "\n\n")
   }
   
   # Determine the loss of loci for a given threshold using quantiles

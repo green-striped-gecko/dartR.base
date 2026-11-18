@@ -31,8 +31,8 @@ gl.colors,dartR.base,utility,arthur,done,276
 gl.select.colors,dartR.base,utility,arthur,done,274
 gl.report.basics,dartR.base,report,arthur,done,285
 gl.fixed.diff,dartR.base,analysis,arthur,done,278
-gl.Ho,dartR.sim,utility,arthur,moved-to-dartR.sim,44
-gl.He,dartR.sim,utility,arthur,moved-to-dartR.sim,44
+gl.Ho,dartR.base,utility,arthur,done,44
+gl.He,dartR.base,utility,arthur,done,44
 gl.smearplot,dartR.base,graphics,arthur,done,277
 gl.make.recode.pop,dartR.base,data manipulation,arthur,done,270
 gl.make.recode.ind,dartR.base,data manipulation,arthur,done,269
@@ -56,7 +56,7 @@ gl.keep.loc,dartR.base,data manipulation,arthur,done,245
 gl.report.bases,dartR.base,matched report,arthur,done,244
 gl.drop.loc,dartR.base,data manipulation,arthur,done,246
 gl.find.genes.for.loci,dartR.popgen,analysis,luis,done,87
-gl.propShared,dartR.spatial,analysis,arthur,moved-to-dartR.spatial,34
+gl.propShared,dartR.base,analysis,arthur,done,34
 gl.sim.genotypes,dartR.base,data manipulation,arthur,done,389
 gl.sim.crosses,dartR.base,analysis,arthur,done,388
 gl.sample,dartR.base,modify,arthur,done,387
