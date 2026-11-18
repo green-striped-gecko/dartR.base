@@ -34,6 +34,8 @@ restriction enzyme recognition sites. The locus metadata supplied by DArT has
 locus metrics
 
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.basic.stats}()},

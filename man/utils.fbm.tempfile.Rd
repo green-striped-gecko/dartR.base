@@ -25,6 +25,8 @@ disk, set e.g. \code{options(FBM.dir = "D:/scratch")}.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.basic.stats}()},

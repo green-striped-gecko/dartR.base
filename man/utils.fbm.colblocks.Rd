@@ -29,6 +29,8 @@ single result \code{FUN(as.matrix(x)[rows, ])}.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.basic.stats}()},

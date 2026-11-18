@@ -128,7 +128,10 @@ calls <- list(
   replicates.king = list(gl.report.replicates.KING, loc_threshold = 20,
                          plot.out = FALSE, verbose = 3),
   contamination = list(gl.report.contamination, min.n = 2,
-                       plot.display = FALSE, verbose = 3)
+                       plot.display = FALSE, verbose = 3),
+  He = list(gl.He),
+  Ho = list(gl.Ho),
+  propShared = list(gl.propShared, verbose = 3)
 )
 
 test_that("reports and filters give identical results for gen and FBM", {

@@ -33,6 +33,8 @@ This script recalculates the MAF and places these recalculated values in the
 locus metrics
 
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
 \code{\link{utils.basic.stats}()},

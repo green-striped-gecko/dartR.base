@@ -1,5 +1,12 @@
 # dartR.base 1.3.0 (file-backed storage: FBM objects read from disk)
 
+* `gl.He()` and `gl.Ho()` (moved to dartR.sim in 1.2.7) and
+  `gl.propShared()` (moved to dartR.spatial in 1.2.7) are back in
+  dartR.base, unchanged. The CRAN releases of dartR.sim and dartR.spatial
+  (1.2.2) call them from dartR.base: without them dartR.sim, and with it
+  dartR.captive, failed to load next to this version, and dartR.spatial's
+  propShared distances failed when run.
+
 * Backing files of file-backed objects are placed in `getOption("FBM.dir")`,
   the folder bigstatsr uses for its own files (default: the session
   temporary folder). Before, dartR always used `tempdir()` and ignored the
