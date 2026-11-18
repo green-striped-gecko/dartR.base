@@ -16,8 +16,9 @@ estimates alone [default 1].}
 \item{percent}{Percentile to calculate the confidence interval around,
 greater than 0 and less than 100 [default 95].}
 
-\item{nclusters}{Number of processor threads or cores to use during
-calculation of the point estimates [default 1].}
+\item{nclusters}{Ignored. It set the number of cores used by StAMPP,
+which is no longer called; kept so that existing calls still work
+[default 1].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -49,10 +50,13 @@ populations in a genlight object, with optional bootstrap confidence
 intervals and p-values obtained by resampling loci.
 }
 \details{
-The statistic is Weir and Cockerham's (1984) theta, estimated by
-\code{\link[StAMPP]{stamppFst}} from allele frequencies, observed
-heterozygosities and per-locus sample sizes computed separately for each
-population. Theta is a variance-components estimator that corrects for
+The statistic is Weir and Cockerham's (1984) theta, estimated from allele
+frequencies, observed heterozygosities and per-locus sample sizes
+computed separately for each population. The estimator is the one of
+\code{\link[StAMPP]{stamppFst}} and gives identical values; it is
+computed by dartR from blocks of loci, so file-backed objects (see
+\code{\link{gl.gen2fbm}}) are not converted to memory, and it is much
+faster. Theta is a variance-components estimator that corrects for
 unequal sample sizes, so it is not the same quantity as the Nei (1987)
 Gst-family statistics reported by \code{\link{gl.report.fstat}} under the
 same word "Fst"; the two can differ substantially on unevenly sampled
@@ -111,6 +115,7 @@ Cockerham theta returned here.
 Other distance: 
 \code{\link{gl.dist.ind}()},
 \code{\link{gl.dist.pop}()},
+\code{\link{gl.propShared}()},
 \code{\link{utils.dist.ind.snp}()}
 }
 \author{

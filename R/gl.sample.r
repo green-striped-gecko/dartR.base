@@ -94,7 +94,7 @@ gl.sample <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname, verbose = verbose)
+    funname <- utils.flag.start(func = funname, verbose = verbose)
 
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
@@ -215,11 +215,10 @@ gl.sample <- function(x,
         pos <- match(samps, drawn)
         xx <- x[drawn, ]
         if (.has_fbm(xx)) {
-            xx@fbm <- bigstatsr::big_copy(
+            xx@fbm <- utils.fbm.copy(
                 xx@fbm,
                 ind.row = pos,
-                ind.col = seq_len(nLoc(xx)),
-                backingfile = tempfile("geno_")
+                ind.col = seq_len(nLoc(xx))
             )
         } else {
             xx@gen <- xx@gen[pos]
@@ -314,7 +313,7 @@ gl.sample <- function(x,
 
     # ADD TO HISTORY
     nh <- length(xx@other$history)
-    xx@other$history[[nh + 1]] <- match.call()
+    xx@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
     if (verbose > 0) {

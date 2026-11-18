@@ -107,7 +107,7 @@ gl.report.shannon <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
 
@@ -157,50 +157,56 @@ gl.report.shannon <- function(x,
   # Ma ZS, Li LW and Zhang YP (2019) Defining Individual-Level Genetic
   # Diversity and Similarity Profiles. Scientific Reports
 
-  d.chao <- function(A, lev, q) {
-    tot <- sum(A)
-    eA <- A / tot
-    eA <- eA[eA > 0]
-    if (is.vector(A)) {
-      cA <- A
-      N <- 1
-    } else{
-      cA <- colSums(A)
-      N <- nrow(A)
-    }
-    ecA <- cA / tot
-    ecA <- ecA[ecA > 0]
+  # Hill numbers (alpha, beta = gamma / alpha, gamma) from abundances given
+  # as their distinct values 'v' (> 0) with multiplicities 'w', so that a
+  # sum over the abundance vector, sum(f(a)), is sum(w * f(v)). Dosages are
+  # 0/1/2 (missing as zero), so an individual's abundances are n1 ones and
+  # n2 twos, and a population's pooled abundances (colSums) are integers
+  # 1..2N. Same formulas as the OSI code (previously d.chao() on the
+  # decoded vector or matrix); only the order of summation differs
+  # (relative differences of about 1e-14).
+  #   tot: total abundance; N: number of individuals (rows of A);
+  #   v, w: element abundances (alpha); vc, wc: pooled abundances (gamma)
+  d.chao.counts <- function(tot, N, v, w, vc = NULL, wc = NULL, lev, q) {
     if (lev == 'alpha') {
+      keep <- w > 0
+      eA <- v[keep] / tot
+      w <- w[keep]
       if (q != 1) {
-        Da <- (1 / N) * (sum(eA ^ q)) ^ (1 / (1 - q))
-        D.value <- Da
+        D.value <- (1 / N) * (sum(w * eA ^ q)) ^ (1 / (1 - q))
       } else{
-        Da <- exp(-sum(eA * log(eA)) - log(N))
-        D.value <- Da
+        D.value <- exp(-sum(w * eA * log(eA)) - log(N))
       }
     }
     if (lev == 'beta') {
-      D.value <- d.chao(A, lev = 'gamma', q) / d.chao(A, lev = 'alpha', q)
+      D.value <- d.chao.counts(tot, N, v, w, vc, wc, lev = 'gamma', q) /
+        d.chao.counts(tot, N, v, w, vc, wc, lev = 'alpha', q)
     }
     if (lev == 'gamma') {
+      keep <- wc > 0 & vc > 0
+      ecA <- vc[keep] / tot
+      wc <- wc[keep]
       if (q != 1) {
-        Dg <- (sum(ecA ^ q)) ^ (1 / (1 - q))
-        D.value <- Dg
+        D.value <- (sum(wc * ecA ^ q)) ^ (1 / (1 - q))
       } else{
-        Dg <- exp(-sum(ecA * log(ecA)))
-        D.value <- Dg
+        D.value <- exp(-sum(wc * ecA * log(ecA)))
       }
     }
     D.value
   }
 
-  x_mat <- as.matrix(x)
-  ID <- rownames(x_mat)
+  # Per individual, the numbers of dosages 1 and 2, summed over blocks of
+  # loci (.gl_rowwise), so a file-backed object is not decoded as a whole
+  # (previously the whole genotype matrix was decoded with as.matrix())
+  n12 <- .gl_rowwise(x, function(t) {
+    cbind(rowSums(t == 1, na.rm = TRUE), rowSums(t == 2, na.rm = TRUE))
+  })
+  ID <- indNames(x)
   list_order <- order-1
 
   # Individuals with no non-missing, non-zero dosages carry no abundance
   # information: diversity is undefined for them
-  informative <- apply(x_mat, 1, function(v) any(!is.na(v) & v > 0))
+  informative <- (n12[, 1] + n12[, 2]) > 0
   if (any(!informative) && verbose >= 1) {
     cat(
       warn(
@@ -221,13 +227,14 @@ gl.report.shannon <- function(x,
       )
     }
 
-    div_mat <- matrix(0, nrow(x_mat), order)
-    for (n in 1:nrow(x_mat)) {
-      otu <- x_mat[n, ]
-      otu <- otu[otu > 0]
-      otu <- otu[!is.na(otu)]
+    div_mat <- matrix(0, nInd(x), order)
+    for (n in seq_len(nInd(x))) {
+      # the individual's abundances: n1 dosages of 1 and n2 of 2 (N = 1)
+      w <- n12[n, ]
       for (q in 0:list_order) {
-        div_mat[n, q + 1] <- d.chao(A = otu, lev = level, q)
+        div_mat[n, q + 1] <- d.chao.counts(tot = sum(w * c(1, 2)), N = 1,
+                                           v = c(1, 2), w = w,
+                                           lev = level, q = q)
       }
     }
     div_mat[!informative, ] <- NA
@@ -254,6 +261,22 @@ gl.report.shannon <- function(x,
 
     pops <- levels(pop(x))
     pop_vec <- as.character(pop(x))
+    # Per population, the distribution of the pooled abundances (colSums
+    # of the informative individuals, missing genotypes as zero) over loci:
+    # tabulated in one pass over blocks of loci and added, so neither the
+    # object nor a population is decoded as a whole
+    pop_keep <- lapply(pops, function(p) which(pop_vec == p & informative))
+    hist_blocks <- .gl_colblocks(x, function(B) {
+      lapply(pop_keep, function(r) {
+        A <- B[r, , drop = FALSE]
+        A[is.na(A)] <- 0
+        tabulate(colSums(A) + 1, nbins = 2 * length(r) + 1)
+      })
+    })
+    pop_hist <- lapply(seq_along(pops), function(g) {
+      Reduce(`+`, lapply(hist_blocks, function(b) b[[g]]))
+    })
+    rm(hist_blocks)
     div_mat <- matrix(NA_real_, length(pops), order)
     for (n in seq_along(pops)) {
       keep <- pop_vec == pops[n] & informative
@@ -268,10 +291,17 @@ gl.report.shannon <- function(x,
         }
         next
       }
-      A <- x_mat[keep, , drop = FALSE]
-      A[is.na(A)] <- 0
+      # element abundances: the dosages 1 and 2 of the population's
+      # informative individuals; pooled abundances: values 0..2N with
+      # their numbers of loci
+      w <- colSums(n12[keep, , drop = FALSE])
+      vc <- seq_along(pop_hist[[n]]) - 1
       for (q in 0:list_order) {
-        div_mat[n, q + 1] <- d.chao(A = A, lev = level, q)
+        div_mat[n, q + 1] <- d.chao.counts(tot = sum(w * c(1, 2)),
+                                           N = sum(keep),
+                                           v = c(1, 2), w = w,
+                                           vc = vc, wc = pop_hist[[n]],
+                                           lev = level, q = q)
       }
     }
 

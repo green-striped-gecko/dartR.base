@@ -114,7 +114,7 @@ gl.report.hamming <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname, verbose = verbose)
+    funname <- utils.flag.start(func = funname, verbose = verbose)
 
     # DEPRECATED ARGUMENTS
     if ((!is.null(tag.length) || !is.null(probar)) && verbose >= 2) {

@@ -95,7 +95,7 @@ gl.filter.maf <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Josh",
                    verbose = verbose)
   
@@ -142,11 +142,14 @@ gl.filter.maf <- function(x,
         )
       )
     }
-    pop.list <- seppop(x)
+    # the populations as row indices of x, in the order of seppop() (the
+    # levels of pop(x)); rows are read in place, populations are not copied
+    pop.list <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+    names(pop.list) <- levels(pop(x))
 
     # getting populations with more than ind.limit
     ind_per_pop <-
-      which(unlist(lapply(pop.list, nInd)) >= ind.limit)
+      which(lengths(pop.list) >= ind.limit)
     pop.list <- pop.list[ind_per_pop]
     if (length(pop.list) == 0) {
       if (verbose >= 1) {
@@ -157,11 +160,13 @@ gl.filter.maf <- function(x,
       }
       x2 <- x
     } else {
-      # recalculating MAF by population
-      pop.list <- lapply(pop.list, utils.recalc.maf, verbose = 0)
+      # recalculating MAF by population, as utils.recalc.maf() does for a
+      # copy of the population (gl.alf(): colMeans / 2, folded at 0.5),
+      # for all populations in one pass over blocks of loci
+      pop.maf <- .pop_maf(x, pop.list)
       # getting loci with MAF < threshold
-      loci.list <- lapply(pop.list, function(y) {
-        y$other$loc.metrics$maf < threshold
+      loci.list <- lapply(pop.maf, function(m) {
+        m$maf < threshold
       })
       # getting the loci in which MAF < threshold in at least pop.limit
       # populations
@@ -256,17 +261,16 @@ gl.filter.maf <- function(x,
   }
   
   if (plot.display & by.pop == TRUE) {
-    # plots pre
-    pops_maf_pre <- seppop(x)
-    
+    # plots pre: per population the MAF of the loci polymorphic in that
+    # population (as gl.filter.monomorphs() and gl.recalc.metrics() on a
+    # copy of the population gave), from one pass over blocks of loci
+    pop.rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+    names(pop.rows) <- levels(pop(x))
+    pops_maf_pre <- .pop_maf(x, pop.rows)
+
     mafs_plots_pre <- lapply(pops_maf_pre, function(z) {
-      pop_name <- popNames(z)
-      z$other$loc.metrics <-
-        as.data.frame(z$other$loc.metrics)
-      z <- gl.filter.monomorphs(z, verbose = 0)
-      z <- gl.recalc.metrics(z, verbose = 0)
-      mafs_per_pop <- z$other$loc.metrics$maf
-      
+      mafs_per_pop <- z$maf[z$poly]
+
       p_temp <-
         ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) +
         geom_histogram(bins = bins,
@@ -279,22 +283,17 @@ gl.filter.maf <- function(x,
         ylab("Count") +
         xlim(0, 0.5) +
         plot.theme +
-        ggtitle(paste(popNames(z), "n =", nInd(z)))
+        ggtitle(paste(z$pop, "n =", z$n))
       
       return(p_temp)
     })
     
     # plots post
-    pops_maf_post <- seppop(x2)
-    
+    pops_maf_post <- .pop_maf(x2, pop.rows)
+
     mafs_plots_post <- lapply(pops_maf_post, function(z) {
-      pop_name <- popNames(z)
-      z$other$loc.metrics <-
-        as.data.frame(z$other$loc.metrics)
-      z <- gl.filter.monomorphs(z, verbose = 0)
-      z <- gl.recalc.metrics(z, verbose = 0)
-      mafs_per_pop <- z$other$loc.metrics$maf
-      
+      mafs_per_pop <- z$maf[z$poly]
+
       p_temp <-
         ggplot(as.data.frame(mafs_per_pop), aes(x = mafs_per_pop)) +
         geom_histogram(bins = bins,
@@ -322,15 +321,18 @@ gl.filter.maf <- function(x,
     
     # Check for status -- any populations with ind > ind.limit; and is
     #nPop > 1
-    ind_per_pop <- unlist(lapply(pops_maf_pre, nInd))
+    ind_per_pop <- unlist(lapply(pops_maf_pre, function(z) z$n))
     
     test_pop <-
       as.data.frame(cbind(pop = names(ind_per_pop), ind_per_pop))
     test_pop$ind_per_pop <- as.numeric(test_pop$ind_per_pop)
     
-    maf_pre <- data.frame(x@other$loc.metrics$maf)
+    # the MAF of the input over all individuals: by population, x itself
+    # was not recalculated, so its maf column may be missing or stale
+    # (block-wise for file-backed objects)
+    maf_pre <- data.frame(utils.recalc.maf(x, verbose = 0)@other$loc.metrics$maf)
     colnames(maf_pre) <- "maf"
-    
+
     maf_post <- data.frame(x2@other$loc.metrics$maf)
     colnames(maf_post) <- "maf"
     
@@ -546,7 +548,7 @@ gl.filter.maf <- function(x,
   
   # ADD TO HISTORY
   nh <- length(x2@other$history)
-  x2@other$history[[nh + 1]] <- match.call()
+  x2@other$history[[nh + 1]] <- utils.history.call(match.call())
   
   # FLAG SCRIPT END
   
@@ -555,4 +557,35 @@ gl.filter.maf <- function(x,
   }
 
   return(invisible(x2))
+}
+
+## Per population (rows: a named list of row indices of x) and locus, in
+## one pass over blocks of loci, so populations are not copied and a
+## file-backed object is not decoded as a whole: the MAF as
+## utils.recalc.maf() computes it for a copy of the population (gl.alf():
+## colMeans(t, na.rm = TRUE) / 2, folded at 0.5; NaN for loci not scored in
+## the population), and whether the locus is polymorphic in the population
+## by the rule of gl.filter.monomorphs() (not every scored genotype 0, not
+## every scored genotype 2, at least one scored). SNP dosages 0/1/2, NA
+## missing. Returns for each population list(pop, n, maf, poly) (vectors
+## unnamed), named by population.
+.pop_maf <- function(x, rows) {
+  blocks <- .gl_colblocks(x, function(B) {
+    lapply(rows, function(r) {
+      m <- B[r, , drop = FALSE]
+      n.scored <- colSums(!is.na(m))
+      list(alf = colMeans(m, na.rm = TRUE),
+           poly = !(colSums(m == 0, na.rm = TRUE) == n.scored |
+                      colSums(m == 2, na.rm = TRUE) == n.scored))
+    })
+  })
+  out <- lapply(seq_along(rows), function(g) {
+    alf <- unname(do.call(c, lapply(blocks, function(b) b[[g]]$alf))) / 2
+    list(pop = names(rows)[g],
+         n = length(rows[[g]]),
+         maf = ifelse(alf > 0.5, 1 - alf, alf),
+         poly = unname(do.call(c, lapply(blocks, function(b) b[[g]]$poly))))
+  })
+  names(out) <- names(rows)
+  out
 }

@@ -1,9 +1,9 @@
 Package: dartR.base
 Type: Package
 Title: Analysing 'SNP' and 'Silicodart' Data - Basic Functions
-Version: 1.2.6
-Date: 2026-09-24
-Revision: Elastic Elapid
+Version: 1.3.0
+Date: 2026-11-18
+Revision: Hardy Hedgehog
 Authors@R: c(
             person("Bernd", "Gruber", email="bernd.gruber@canberra.edu.au", role=c("aut","cre")), 
             person("Arthur", "Georges", email="georges@aerg.edu.au", role="aut"),
@@ -34,12 +34,11 @@ Description: Facilitates the import and analysis of 'SNP' (single nucleotide 'po
     If you want to cite 'dartR', you find the information by typing citation('dartR.base')
     in the console.
 Encoding: UTF-8
-Depends: R (>= 4.1), adegenet (>= 2.0.0), ggplot2, dplyr, dartR.data
+Depends: R (>= 4.1), adegenet (>= 2.0.0), ggplot2, dplyr, dartR.data (>= 1.2.7)
 biocViews:
 Imports: ape,crayon,data.table,foreach,methods,patchwork,plyr,
          reshape2,SNPRelate,StAMPP,stats,stringr,tidyr,utils,
          bigstatsr, bigsnpr, snpStats
-Remotes: green-striped-gecko/dartR.data@dev
 Suggests: 
     boot,
     devtools,
@@ -100,7 +99,8 @@ Suggests:
     dendextend,
     ggdendro,
     terra,
-    R.utils
+    R.utils,
+    tidypopgen
 License: GPL (>= 3)
 RoxygenNote: 7.3.3
 NeedsCompilation: no

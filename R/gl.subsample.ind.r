@@ -51,7 +51,7 @@ gl.subsample.ind <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
     
@@ -196,7 +196,7 @@ gl.subsample.ind <- function(x,
     # recorded whether or not error.check / mono.rm are set.
     xx@other$history <- x@other$history
     nh <- length(xx@other$history)
-    xx@other$history[[nh + 1]] <- match.call()
+    xx@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     if(error.check==TRUE){
       # FLAG SCRIPT END ---------------

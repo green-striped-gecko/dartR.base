@@ -80,7 +80,7 @@ gl.report.reproducibility <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
 
@@ -170,9 +170,7 @@ gl.report.reproducibility <- function(x,
         cat("    Mean         : ", stats[4], "\n")
         cat("    3rd quartile : ", stats[5], "\n")
         cat("    Maximum      : ", stats[6], "\n")
-        cat("    Missing Rate Overall: ", round(sum(is.na(as.matrix(
-            x
-        ))) / (nLoc(x) * nInd(x)), 2), "\n\n")
+        cat("    Missing Rate Overall: ", round(.gl_n_na(x) / (nLoc(x) * nInd(x)), 2), "\n\n")
     }
 
     # Determine the loss of loci for a given threshold using quantiles

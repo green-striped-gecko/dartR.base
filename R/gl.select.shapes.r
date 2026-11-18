@@ -71,7 +71,7 @@ gl.select.shapes <- function(x = NULL,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "Jody",
                      verbose = verbose)
 

@@ -42,7 +42,7 @@ utils.recalc.freqhomref <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -77,11 +77,10 @@ utils.recalc.freqhomref <- function(x,
     
     # DO THE JOB
     
-    t <- as.matrix(x)
     if (verbose >= 2) {
         cat(report("  Recalculating locus metric freqHomRef\n"))
     }
-    x@other$loc.metrics$FreqHomRef <- colMeans(t == 0, na.rm = TRUE)
+    x@other$loc.metrics$FreqHomRef <- .gl_colwise(x, function(t) colMeans(t == 0, na.rm = TRUE))
     x@other$loc.metrics.flags$FreqHomRef <- TRUE
     
     # FLAG SCRIPT END

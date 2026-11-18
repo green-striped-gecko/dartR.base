@@ -11,8 +11,12 @@
 #'@param ind.metafile File that contains additional information on individuals
 #' [required].
 #'@param covfilename Deprecated, sse ind.metafile parameter [NULL].
-#'@param fbm If TRUE, the genlight object will be converted to a filebacked large matrix format, which is faster if
-#' the dataset is large [default FALSE, because still in a testing phase].
+#'@param fbm If TRUE, the genotypes of the returned object are held in a
+#' file-backed matrix (@fbm), which suits large datasets. The genotype
+#' columns of the report are read in chunks of rows straight into a
+#' file-backed matrix, so they are never held in memory as a whole; with
+#' fbm = FALSE that matrix is converted to @gen in blocks of loci at the end
+#' [default FALSE].
 #' If you want to back convert use \code{\link{gl.gen2fbm}} and \code{\link{gl.fbm2gen}}.
 #'@param nas A character specifying NAs [default '-'].
 #'@param topskip A number specifying the number of initial rows to be skipped
@@ -87,7 +91,7 @@ gl.read.dart <- function(filename,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
 
@@ -188,19 +192,22 @@ gl.read.dart <- function(filename,
     # in the Reference allele row	
     # OneRatioSnp	The proportion of samples for which the genotype score is "1", 
     # in the SNP allele row	
-    glout@other$loc.metrics$OneRatioRef  <- apply(as.matrix(glout),2,
+    # (per locus, read in blocks of loci: the genotypes are file-backed)
+    glout@other$loc.metrics$OneRatioRef  <- .gl_colwise(glout, function(m)
+                                              apply(m,2,
                                                   function(y){
-                                                    (sum(!is.na(y[y==0])) + 
+                                                    (sum(!is.na(y[y==0])) +
                                                        sum(!is.na(y[y==1])) )/
                                                       sum(!is.na(y))
-                                                  })
-    
-    glout@other$loc.metrics$OneRatioSnp  <- apply(as.matrix(glout),2,
+                                                  }))
+
+    glout@other$loc.metrics$OneRatioSnp  <- .gl_colwise(glout, function(m)
+                                              apply(m,2,
                                                   function(y){
-                                                    (sum(!is.na(y[y==2])) + 
-                                                       sum(!is.na(y[y==1])) )/ 
+                                                    (sum(!is.na(y[y==2])) +
+                                                       sum(!is.na(y[y==1])) )/
                                                       sum(!is.na(y))
-                                                  })
+                                                  }))
     
     if (is.null(glout@other$loc.metrics$rdepth)) {
       # The calculation needs CallRate, AvgCountRef and AvgCountSnp; reports
@@ -304,7 +311,7 @@ gl.read.dart <- function(filename,
     
     # Create the history repository --------------------
     if (is.null(glout@other$history)) {
-        glout@other$history <- list(match.call())
+        glout@other$history <- list(utils.history.call(match.call()))
     }
     
     glout <- gl.compliance.check(glout, verbose = verbose)
@@ -315,12 +322,12 @@ gl.read.dart <- function(filename,
     }
     # End Block -----------------
     
-    #convert to fbm 
+    # The genotypes were read into a file-backed matrix: keep it with
+    # fbm = TRUE, otherwise convert to @gen in blocks of loci
     if (fbm) {
-    glout <- gl.gen2fbm(glout, verbose = verbose) 
     if (verbose>2) {
       cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-    }} else glout@fbm <- NULL
+    }} else glout <- gl.fbm2gen(glout, verbose = 0)
     
     return(glout)
 }

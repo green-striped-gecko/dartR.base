@@ -270,7 +270,7 @@ gl.report.allelerich <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
@@ -337,49 +337,44 @@ gl.report.allelerich <- function(x,
     )
   }
   
-  # Split the genlight object into a list of populations
-  pop_list <- seppop(x)
+  # The populations as row indices of x, in the order of seppop() (the
+  # levels of pop(x)); rows are read in place, populations are not copied
+  pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+  names(pop_rows) <- levels(pop(x))
 
-  allele_site_summary <- lapply(names(pop_list), function(pop_name) {
-    pop_data <- pop_list[[pop_name]]
-    # Convert genlight object to a matrix and reshape to long format
-    m <- as.matrix(pop_data)
-    allele_df <- reshape2::melt(m, varnames = c("ind", "site"), value.name = "genotype") %>%
-      dplyr::mutate(pop = pop_name)
-    
-    # Summarise counts per genotype for each SNP and compute allele counts:
-    # - Genotype 0: 2 copies of the reference allele, 0 copies of the alternate allele.
-    # - Genotype 1: 1 copy each of reference and alternate.
-    # - Genotype 2: 0 copies of the reference allele, 2 copies of the alternate allele.
-    allele_summary <- allele_df %>%
-      group_by(site, genotype, pop) %>%
-      dplyr::tally(name = "n") %>%
-      stats::na.omit() %>%
-      dplyr::ungroup() %>%
-      dplyr::mutate(
-        ref_allele = dplyr::case_when(
-          genotype == 0 ~ n * 2,
-          genotype == 1 ~ n,
-          genotype == 2 ~ 0
-        ),
-        alt_allele = dplyr::case_when(
-          genotype == 0 ~ 0,
-          genotype == 1 ~ n,
-          genotype == 2 ~ n * 2
-        )
-      )
-    
-    # Summarise total allele counts per site for the population
-    site_summary <- allele_summary %>%
-      dplyr::group_by(site, pop) %>%
-      summarise(
-        all_ref_allele = sum(ref_allele,na.rm = TRUE),
-        all_alt_allele = sum(alt_allele,na.rm = TRUE),
-        raw_count = sum(ref_allele, alt_allele,na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    return(site_summary)
+  # Genotype counts per population and site, read in one pass over blocks
+  # of loci (.gl_pop_genotype_counts), so a file-backed object is not
+  # decoded as a whole. Genotypes are diploid SNP dosages of the alternate
+  # allele, NA missing:
+  # - Genotype 0: 2 copies of the reference allele, 0 copies of the alternate allele.
+  # - Genotype 1: 1 copy each of reference and alternate.
+  # - Genotype 2: 0 copies of the reference allele, 2 copies of the alternate allele.
+  # A site without genotypes in a population is absent for that population.
+  # (Previously each population was decoded and melted to long format and
+  # the genotypes tallied; the counts and the table are the same.)
+  pop_counts <- .gl_pop_genotype_counts(x)
+  # the site column as reshape2::melt() built it from the locus names (a
+  # factor, or numbers for numeric-looking names): only the names are
+  # melted, not the genotypes
+  site_col <- reshape2::melt(
+    matrix(0L, nrow = 1, ncol = nLoc(x),
+           dimnames = list("i", locNames(x))),
+    varnames = c("ind", "site"), value.name = "genotype")$site
+
+  allele_site_summary <- lapply(names(pop_counts), function(pop_name) {
+    cnt <- pop_counts[[pop_name]]
+    keep <- colSums(cnt) > 0
+    ref <- unname(2 * cnt[1, ] + cnt[2, ])[keep]
+    alt <- unname(cnt[2, ] + 2 * cnt[3, ])[keep]
+    # Total allele counts per site for the population, ordered by site
+    site_summary <- tibble::tibble(
+      site = site_col[keep],
+      pop = pop_name,
+      all_ref_allele = ref,
+      all_alt_allele = alt,
+      raw_count = ref + alt
+    )
+    return(site_summary[order(site_summary$site), ])
   })
   
   # Combine data from all populations into one data frame
@@ -442,8 +437,8 @@ gl.report.allelerich <- function(x,
       .groups = "drop"
     ) %>%
     dplyr::left_join(
-      tibble::tibble(pop = names(pop_list),
-             popsize = sapply(pop_list, nInd)),
+      tibble::tibble(pop = names(pop_rows),
+             popsize = sapply(pop_rows, length)),
       by = "pop"
     )
   
@@ -490,11 +485,15 @@ gl.report.allelerich <- function(x,
         ))
       }
     }
-    # Split the genlight object into a list of populations
-    sgl <- seppop(x)
-    pop_boot <- lapply(sgl, function(y) {
-      df <- as.matrix(y)
-      
+    # The bootstrap resamples the genotypes of one population, so each
+    # population is decoded in turn (by design; never the whole object):
+    # a file-backed population is read in blocks of loci, about
+    # 8 bytes x individuals x loci of that population.
+    sgl <- pop_rows
+    pop_boot <- lapply(sgl, function(r) {
+      df <- if (.has_fbm(x)) .gl_colwise(x, identity, rows = r) else
+        as.matrix(x[r, ])
+
       if(boot.method == "loc"){
         df <- t(df)
       }

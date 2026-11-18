@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.read.vcf. Captured pre-review at
 # upstream/dev ddaed27, then updated for the approved Phase C fixes
 # (findings F1-F6, approved 2026-09-05); each changed expectation is
@@ -459,4 +463,85 @@ test_that("gl.read.vcf likelihoods are the same when read in chunks", {
   for (nm in c("pl.ref", "pl.het", "pl.alt")) {
     expect_identical(x2[[nm]], x1@other$geno.metrics[[nm]])
   }
+})
+
+# parser = "cpp" (package tidypopgen, optional): genotypes read by
+# tidypopgen's C++ parser into a file-backed matrix; for the SNPs it reads
+# the result equals parser = "vcfR" (apart from rdepth, not read by "cpp")
+test_that("gl.read.vcf(parser = 'cpp') equals the vcfR route for diploid SNPs", {
+  skip_if_not_installed("tidypopgen")
+  skip_if_not_installed("vcfR")
+  vcf <- system.file("extdata", "test.vcf", package = "dartR.data")
+  L <- readLines(vcf)
+  dat <- L[!startsWith(L, "#")]
+  f <- tempfile(fileext = ".vcf")
+  on.exit(unlink(f), add = TRUE)
+  # without the haploid calls of chromosome X
+  writeLines(c(L[startsWith(L, "#")], dat[!startsWith(dat, "X\t")]), f)
+  old <- options(bigstatsr.block.sizeGB = getOption("bigstatsr.block.sizeGB"))
+  on.exit(options(old), add = TRUE)
+  a <- suppressWarnings(gl.read.vcf(f, verbose = 0))
+  a <- a[, nchar(a@loc.all) == 3]            # single-base SNPs only
+  for (bs in c(1, 1e-6)) {
+    options(bigstatsr.block.sizeGB = bs)
+    for (fbm in c(FALSE, TRUE)) {
+      b <- suppressWarnings(gl.read.vcf(f, fbm = fbm, parser = "cpp",
+                                        verbose = 0))
+      expect_identical(unname(as.matrix(b)), unname(as.matrix(a)))
+      expect_identical(locNames(b), locNames(a))
+      expect_identical(indNames(b), indNames(a))
+      expect_identical(b@loc.all, a@loc.all)
+      expect_identical(as.character(b@chromosome), as.character(a@chromosome))
+      expect_identical(b@position, a@position)
+      cm <- setdiff(names(a@other$loc.metrics), "rdepth")
+      expect_equal(b@other$loc.metrics[cm], a@other$loc.metrics[cm],
+                   ignore_attr = TRUE)
+      expect_identical(!is.null(b@fbm), fbm)
+    }
+  }
+  # indels are skipped with a warning
+  out <- utils::capture.output(gl.read.vcf(f, parser = "cpp", verbose = 1))
+  expect_true(any(grepl("not single-base SNPs", out)))
+})
+
+test_that("gl.read.vcf(parser = 'cpp', fbm = TRUE) never decodes the matrix", {
+  skip_if_not_installed("tidypopgen")
+  vcf <- system.file("extdata", "test.vcf", package = "dartR.data")
+  L <- readLines(vcf)
+  dat <- L[!startsWith(L, "#")]
+  f <- tempfile(fileext = ".vcf")
+  on.exit(unlink(f), add = TRUE)
+  writeLines(c(L[startsWith(L, "#")], dat[!startsWith(dat, "X\t")]), f)
+  local_mocked_bindings(.fbm_as_matrix = function(x) {
+    stop("the whole FBM was decoded")
+  })
+  expect_no_error(suppressWarnings(
+    gl.read.vcf(f, fbm = TRUE, parser = "cpp", verbose = 0)))
+})
+
+test_that("gl.read.vcf(parser = 'cpp') refuses haploid calls and other options", {
+  skip_if_not_installed("tidypopgen")
+  vcf <- system.file("extdata", "test.vcf", package = "dartR.data")
+  # test.vcf has haploid calls on chromosome X
+  expect_error(gl.read.vcf(vcf, parser = "cpp", verbose = 0), "haploid")
+  expect_error(gl.read.vcf(vcf, parser = "cpp", mode = "dosage", verbose = 0),
+               "genotypes only")
+  expect_error(gl.read.vcf(vcf, parser = "cpp", read.counts = TRUE,
+                           verbose = 0), "genotypes only")
+})
+
+test_that("gl.read.vcf: an unknown parser stops", {
+  vcf <- system.file("extdata", "test.vcf", package = "dartR.data")
+  expect_error(gl.read.vcf(vcf, parser = "fast", verbose = 0),
+               "parser must be")
+})
+
+test_that(".vcf_read_fixed reads the fixed columns as vcfR does", {
+  skip_if_not_installed("vcfR")
+  vcf <- system.file("extdata", "test.vcf", package = "dartR.data")
+  v <- vcfR::read.vcfR(vcf, verbose = FALSE)
+  fx <- .vcf_read_fixed(vcf, chunk.bytes = 500)   # a few lines per chunk
+  expect_identical(unname(fx$fix), unname(v@fix))
+  expect_equal(fx$n.haploid, 3)
+  expect_equal(fx$n.polyploid, 0)
 })

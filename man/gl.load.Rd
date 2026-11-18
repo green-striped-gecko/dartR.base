@@ -27,6 +27,13 @@ This is a wrapper for readRDS()
 The function reads the object from the nominated file, checks if it is a
 dartR genlight object, converts it if it is not, and returns the
 gl object. A compliance check can be requested.
+
+Objects of class dartR saved by the legacy dartR package are converted to
+dartR.base objects without loading the legacy package (which would mask
+the dartR.base functions), and also when it is not installed. A
+file-backed (FBM) object saved with saveRDS() instead of gl.save() can
+only be loaded while its backing file (.bk) exists; otherwise gl.load()
+stops with an error.
 }
 \examples{
 f <- file.path(tempdir(), 'testset.rds')

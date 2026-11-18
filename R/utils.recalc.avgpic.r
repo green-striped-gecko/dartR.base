@@ -43,7 +43,7 @@ utils.recalc.avgpic <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -143,7 +143,7 @@ utils.recalc.avgpic <- function(x,
     
     # DO THE JOB
     
-    t <- as.matrix(x)
+    # column-wise counts, in blocks of loci for FBM-backed objects
     
     if (datatype == "SNP") {
         if (verbose >= 2) {
@@ -154,9 +154,9 @@ utils.recalc.avgpic <- function(x,
             )
         }
         
-        c0 <- colSums(t == 0, na.rm = TRUE)
-        c1 <- colSums(t == 1, na.rm = TRUE)
-        c2 <- colSums(t == 2, na.rm = TRUE)
+        c0 <- .gl_colwise(x, function(t) colSums(t == 0, na.rm = TRUE))
+        c1 <- .gl_colwise(x, function(t) colSums(t == 1, na.rm = TRUE))
+        c2 <- .gl_colwise(x, function(t) colSums(t == 2, na.rm = TRUE))
         ctot <- (c0 + c1 + c2)
         x@other$loc.metrics$OneRatioRef <- (c0 + c1) / ctot
         x@other$loc.metrics.flags$OneRatioRef <- TRUE
@@ -187,7 +187,7 @@ utils.recalc.avgpic <- function(x,
             cat(report("  Recalculating OneRatio, PIC\n"))
         }
         
-        OneRatio <- colMeans(t == 1, na.rm = T)
+        OneRatio <- .gl_colwise(x, function(t) colMeans(t == 1, na.rm = TRUE))
         x@other$loc.metrics$OneRatio <- OneRatio
         x@other$loc.metrics.flags$OneRatio <- TRUE
         

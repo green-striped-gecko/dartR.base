@@ -40,7 +40,7 @@ gl.report.monomorphs <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
     
@@ -61,38 +61,29 @@ gl.report.monomorphs <- function(x,
     # loc.list <- rownames(tmp[which(tmp$alf1==1 | tmp$alf1 == 0),])
     # loc.list_NA <- rownames(tmp[which(is.na(tmp$alf1)),])
   
-    # Tag presence/absence data
-    if (datatype == "SilicoDArT") {
-      mat <- as.matrix(x)
-      lN <- locNames(x)
-      for (i in 1:nLoc(x)) {
+    # A locus is listed if all scored genotypes are the same homozygote (0,
+    # or 2 for SNP / 1 for presence-absence data) or if it is scored NA for
+    # every individual. The test runs per locus on blocks of loci
+    # (.gl_colwise), so a file-backed object is not decoded as a whole.
+    # Code per locus: 0 polymorphic, 1 monomorphic, 2 all NA.
+    hom <- if (datatype == "SilicoDArT") 1 else 2
+    code <- .gl_colwise(x, function(mat) {
+      vapply(seq_len(ncol(mat)), function(i) {
         row <- mat[, i]  # Row for each locus
-        if (all(row == 0, na.rm = TRUE) |
-            all(row == 1, na.rm = TRUE) | all(is.na(row))) {
-          loc.list[i] <- lN[i]
-          if (all(is.na(row))) {
-            na.counter <-na.counter + 1
-          }
+        if (all(is.na(row))) {
+          2L
+        } else if (all(row == 0, na.rm = TRUE) |
+                   all(row == hom, na.rm = TRUE)) {
+          1L
+        } else {
+          0L
         }
-      }
-    }
-    
-    # SNP data
-    if (datatype == "SNP") {
-      mat <- as.matrix(x)
-      lN <- locNames(x)
-      for (i in 1:nLoc(x)) {
-        row <- mat[, i]  # Row for each locus
-        if (all(row == 0, na.rm = TRUE) |
-            all(row == 2, na.rm = TRUE) | all(is.na(row))) {
-          loc.list[i] <- lN[i]
-          if (all(is.na(row))) {
-            na.counter <-na.counter + 1
-          }
-        }
-      }
-    }
-    
+      }, integer(1))
+    })
+    lN <- locNames(x)
+    loc.list[code > 0] <- lN[code > 0]
+    na.counter <- na.counter + sum(code == 2L)
+
     # Remove NAs from list of monomorphic loci and loci with all NAs
     loc.list <- loc.list[!is.na(loc.list)]
     

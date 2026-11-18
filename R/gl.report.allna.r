@@ -53,7 +53,7 @@ gl.report.allna <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
   
@@ -82,15 +82,11 @@ gl.report.allna <- function(x,
     na.counter <- 0
     nL <- nLoc(x)
     loc.list <- array(NA, nL)
-    matrix_tmp <- as.matrix(x)
     l.names <- locNames(x)
-    for (i in 1:nL) {
-      row_tmp <- matrix_tmp[, i]
-      if (all(is.na(row_tmp))) {
-        loc.list[i] <- l.names[i]
-        na.counter <- na.counter + 1
-      }
-    }
+    # loci scored NA for every individual, in blocks of loci
+    all.na <- .gl_colwise(x, function(m) colSums(!is.na(m)) == 0)
+    loc.list[all.na] <- l.names[all.na]
+    na.counter <- sum(all.na)
     if (verbose >= 1) {
       if (na.counter == 0) {
         cat("  Zero loci that are missing (NA) across all individuals\n")
@@ -115,15 +111,11 @@ gl.report.allna <- function(x,
     na.counter <- 0
     nI <- nInd(x)
     ind.list <- array(NA, nI)
-    matrix_tmp <- as.matrix(x)
     I.names <- indNames(x)
-    for (i in 1:nI) {
-      row_tmp <- matrix_tmp[i, ]
-      if (all(is.na(row_tmp))) {
-        ind.list[i] <- I.names[i]
-        na.counter <- na.counter + 1
-      }
-    }
+    # individuals scored NA at every locus, in blocks of loci
+    all.na <- unname(.gl_rowwise(x, function(m) rowSums(!is.na(m))) == 0)
+    ind.list[all.na] <- I.names[all.na]
+    na.counter <- sum(all.na)
 
     if (verbose >= 1) {
       if (na.counter == 0) {
@@ -150,10 +142,11 @@ gl.report.allna <- function(x,
     total <- 0
     loc.list <- NULL
     for (i in 1:nPop(x)) {
-      tmpop <- as.matrix(gl.keep.pop(x, popNames(x)[i], verbose = 0))
-      tmpsums <- apply(tmpop, 2, function(x) {
+      # the population's rows, read in blocks without copying the object
+      rows <- which(pop(x) == popNames(x)[i])
+      tmpsums <- .gl_colwise(x, function(m) apply(m, 2, function(x) {
         all(is.na(x))
-      })
+      }), rows = rows)
       tmp.list <- locNames(x)[tmpsums == TRUE]
       count <- length(tmp.list)
       if (verbose >= 1) {

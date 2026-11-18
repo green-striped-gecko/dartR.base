@@ -7,8 +7,8 @@
 gl.gen2fbm(
   x,
   code = bigsnpr::CODE_012,
-  backingfile = tempfile("geno_"),
-  chunk = 2048L,
+  backingfile = NULL,
+  chunk = NULL,
   verbose = NULL
 )
 }
@@ -20,10 +20,15 @@ is converted to `dartR` first. Only SNP data are supported.}
 \item{code}{A `bigsnpr` code mapping for `FBM.code256`. Defaults to
 `bigsnpr::CODE_012` (0/1/2 with `NA` support).}
 
-\item{backingfile}{File stem for the FBM backing files. Defaults to a temp file.}
+\item{backingfile}{File stem for the FBM backing file. If NULL, a temporary
+file in the folder \code{getOption("FBM.dir")} (see
+\code{\link{utils.fbm.tempfile}}). A backing file named here is never
+removed automatically
+[default NULL].}
 
-\item{chunk}{Integer, number of **loci per block** to write with `big_apply`
-(default `2048L`). Increase for faster IO if you have RAM to spare.}
+\item{chunk}{Deprecated. Number of loci per block; if given, it replaces
+the block size derived from \code{bigstatsr.block.sizeGB} (rounded up to
+a multiple of 8). Kept for compatibility [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -38,8 +43,28 @@ object that is already FBM-backed is returned unchanged.
 `gl.gen2fbm()` converts a `dartR`/`genlight` object that stores genotypes
 in the standard list-of-`SNPbin` format (`@gen`) into an `FBM.code256`
 stored in the `@fbm` slot (and clears `@gen`, enforcing XOR).
-The copy is done **by column blocks** via `bigstatsr::big_apply`, so the
-full genotype matrix is never materialized in memory.
+
+The genotypes are copied in **blocks of loci** read directly from the
+packed bits of the `SNPbin` objects, so the full genotype matrix is never
+decoded in memory. Each value is held as one byte while it is copied. The
+block size follows the bigstatsr option \code{bigstatsr.block.sizeGB}
+(default 1): a block holds as many loci as
+\code{bigstatsr::block_size(nInd(x))}, and the peak memory use of the
+conversion is roughly that option in Gb. Lower it (e.g.
+\code{options(bigstatsr.block.sizeGB = 0.1)}) to convert with less memory.
+
+Only diploid SNP data (genotypes 0, 1, 2 or missing) can be stored. The
+FBM uses the value 3 for a missing genotype, so data with higher dosages
+(e.g. polyploids) are refused with an error instead of being silently
+turned into missing values.
+
+**Saving.** The FBM holds only a reference to its backing file, which by
+default is a temporary file deleted at the end of the R session. Save a
+file-backed object with \code{\link{gl.save}} (and reload it with
+\code{\link{gl.load}}), never with \code{saveRDS()}: \code{saveRDS()} stores
+only the reference, not the genotypes. After saving, check that the file
+size makes sense for the number of individuals and loci (a file of a few
+Kb for thousands of loci means the genotypes were not saved).
 }
 \examples{
 x <- gl.gen2fbm(testset.gl)
@@ -56,6 +81,7 @@ Other data manipulation:
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
 \code{\link{gl.fbm2gen}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
@@ -74,7 +100,8 @@ Other data manipulation:
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
 Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to

@@ -80,6 +80,12 @@ compiled at run time. This requires the Rcpp/RcppParallel packages. The
 first call in a session will be slower because the C++ code must be compiled;
 subsequent calls are fast.
 
+A file-backed (FBM) object is read from its backing file in blocks of loci
+and the pairwise counts are added block by block (serially), so the
+genotype matrix is never decoded as a whole; the results are identical to
+those of the same data held in memory. The pairwise counts and results
+(\code{nInd(x)^2} values) are held in memory.
+
 \strong{Suggested individual to drop}
 For each flagged pair, the function calculates per-individual missingness as the
 proportion of `NA` genotypes across all loci. The replicate suggested for removal

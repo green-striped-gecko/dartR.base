@@ -18,6 +18,13 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
+#' @param parser "vcfR" reads the vcf with package vcfR (the whole file is
+#' held in memory as text); "cpp" reads the genotypes with the C++ parser of
+#' package tidypopgen, chunk by chunk straight into a file-backed matrix,
+#' which is much faster and needs little memory for large files. tidypopgen
+#' is not installed with dartR.base; install it with
+#' \code{install.packages("tidypopgen")} to use "cpp". See details for the
+#' limits of "cpp" [default "vcfR"].
 #' @details
 #' The ind.metadata file needs to have very specific headings. First a heading
 #' called id. Here the ids have to match the ids in the dartR object.
@@ -78,6 +85,21 @@
 #' the REF and ALT read counts and the 0/0 and 1/1 likelihoods of the loci it
 #' recodes; \code{\link{gl.compliance.check}} removes them if their
 #' dimensions no longer match the object.
+#'
+#' With \code{parser = "cpp"} (package tidypopgen) the genotypes are read
+#' by tidypopgen's C++ parser into a file-backed matrix and copied in blocks
+#' of loci into the returned object (file-backed with \code{fbm = TRUE},
+#' converted to @gen in blocks otherwise); the fixed columns of the vcf
+#' (CHROM to INFO) are read in chunks as well, so the whole file is never
+#' held in memory. For the variants it reads, the result is the same as with
+#' \code{parser = "vcfR"}: genotypes (count of the ALT allele), locus names,
+#' alleles, chromosome, position and the QUAL, FILTER and INFO locus
+#' metrics. Limits: only single-base (SNP) variants are read, so indels are
+#' skipped (with a warning); only \code{mode = "genotype"}; no rdepth, read
+#' counts or likelihoods; and only diploid genotype calls -- a vcf with
+#' haploid or polyploid calls (e.g. a sex chromosome in the heterogametic
+#' sex) stops with an error, as tidypopgen would code a haploid call like a
+#' heterozygote. Use \code{parser = "vcfR"} in these cases.
 #' @return A genlight object.
 #' @export
 #' @author Author(s): Bernd Gruber, Ching Ching Lau. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
@@ -97,19 +119,43 @@ gl.read.vcf <- function(vcffile,
                         fbm=FALSE,
                         read.counts = FALSE,
                         likelihoods = FALSE,
-                        verbose = NULL) {
+                        verbose = NULL,
+                        parser = "vcfR") {
 
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
   x <- NULL
-  
+
+  if (length(parser) != 1 || !parser %in% c("vcfR", "cpp")) {
+    stop(error("  Fatal Error: parser must be \"vcfR\" or \"cpp\"\n"))
+  }
+  if (parser == "cpp") {
+    if (!requireNamespace("tidypopgen", quietly = TRUE)) {
+      stop(error("  Fatal Error: parser = \"cpp\" needs the package",
+                 "tidypopgen, which is not installed with dartR.base.",
+                 "Install it with install.packages(\"tidypopgen\"),",
+                 "or use parser = \"vcfR\"\n"))
+    }
+    if (mode != "genotype" || read.counts || likelihoods) {
+      stop(error("  Fatal Error: parser = \"cpp\" reads genotypes only",
+                 "(mode = \"genotype\", no read counts or likelihoods);",
+                 "use parser = \"vcfR\" for these options\n"))
+    }
+    # genotypes by tidypopgen into a file-backed matrix, fixed columns in
+    # chunks (see .vcf_read_cpp); no read depth from this route
+    rc <- .vcf_read_cpp(vcffile, verbose = verbose)
+    x <- rc$x
+    info <- rc$info
+    rm(rc)
+    depth <- list()
+  } else {
   pkg <- "vcfR"
   if (!(requireNamespace(pkg, quietly = TRUE))) {
     cat(error(
@@ -161,72 +207,14 @@ gl.read.vcf <- function(vcffile,
                            read.counts = read.counts,
                            likelihoods = likelihoods)
 
-  # adding SNP information from VCF
-  info_tmp_1 <- vcf@fix[,6:7]
-  info_tmp_2 <- vcfR::getINFO(vcf)
-  if(any(is.na(info_tmp_2[1]) | is.na(info_tmp_1[1]))==TRUE){
-    info <- info_tmp_1
-    colnames(info) <- c("QUAL","FILTER")
-  }else{
-    # Parse each record's INFO string into key=value pairs and fill by
-    # key, so records whose keys differ in order or presence still land
-    # in the right columns (F2). Flag-type keys (no '=') are recorded as
-    # "TRUE"; keys absent from a record are NA.
-    info_list <- lapply(stringr::str_split(info_tmp_2, ";"), function(rec) {
-      rec <- rec[rec != "" & rec != "."]
-      has_eq <- grepl("=", rec, fixed = TRUE)
-      keys <- ifelse(has_eq, sub("=.*$", "", rec), rec)
-      vals <- ifelse(has_eq, sub("^[^=]*=", "", rec), "TRUE")
-      stats::setNames(vals, keys)
-    })
-    keys_all <- unique(unlist(lapply(info_list, names)))
-    if (length(keys_all) == 0) {
-      info <- info_tmp_1
-      colnames(info) <- c("QUAL","FILTER")
-    } else {
-      info_tmp_2 <- as.data.frame(
-        do.call(rbind, lapply(info_list, function(rec) unname(rec[keys_all]))),
-        stringsAsFactors = FALSE)
-      info <- cbind(info_tmp_1, info_tmp_2)
-      colnames(info) <- c("QUAL","FILTER",keys_all)
-    }
-  }
-  
-  # identify which SNPs have more than 2 alleles
-  if("AC" %in% colnames(info)){
-    more_alleles <- grep(",",info$AC)
-    if(length(more_alleles)!=0){
-      info <- info[-more_alleles,]
-      # Numerify only the columns that parse as numeric; coercing every
-      # column destroyed FILTER ("PASS" -> NA) and any character INFO
-      # field whenever a multi-allelic record was present (F4).
-      numerifiable <- vapply(info, function(col) {
-        col <- as.character(col)
-        all(is.na(col) | !is.na(suppressWarnings(as.numeric(col))))
-      }, logical(1))
-      info[numerifiable] <- lapply(info[numerifiable],
-                                   function(col) as.numeric(as.character(col)))
-      x@loc.all <- loc.all[-more_alleles]
-      x@chromosome <- as.factor(chrom[-more_alleles])
-      x@position <- pos[-more_alleles]
-    }else{
-      x@loc.all <- loc.all
-      x@chromosome <- as.factor(chrom)
-      x@position <- pos
-    }
-  }else{
-    ALT <- vcfR::getALT(vcf)
-    more_alleles <- grep(pattern = ",",ALT)
-    if(length(more_alleles)>0){
-      info <- info[-more_alleles,]
-      x@loc.all <- loc.all[-more_alleles]
-      x@chromosome <- as.factor(chrom[-more_alleles])
-      x@position <- pos[-more_alleles]
-    }else{
-      x@loc.all <- loc.all
-      x@chromosome <- as.factor(chrom)
-      x@position <- pos
-    }
+  # adding SNP information from VCF (QUAL, FILTER and INFO of the
+  # biallelic records; shared with the cpp parser)
+  fi <- .vcf_fix_info(vcf@fix, pos = pos, loc.all = loc.all)
+  info <- fi$info
+  x@loc.all <- fi$loc.all
+  x@chromosome <- fi$chromosome
+  x@position <- fi$position
+  rm(vcf, fi)
   }
 
   # In genotype mode heterozygous calls are collapsed onto a 0/1/2 scale,
@@ -436,7 +424,7 @@ gl.read.vcf <- function(vcffile,
   }
   
   # add history
-  x@other$history <- list(match.call())
+  x@other$history <- list(utils.history.call(match.call()))
   x <- gl.recalc.metrics(x, verbose = verbose)
   
   if (verbose > 2) {
@@ -446,9 +434,12 @@ gl.read.vcf <- function(vcffile,
       )
     )
   }
-  #convert to fbm 
+  # convert to fbm: the cpp parser reads into a file-backed matrix, which
+  # is kept with fbm = TRUE and converted in blocks of loci otherwise
   if (fbm) {
-  x <- gl.gen2fbm(x, verbose = verbose) 
+    if (!.has_fbm(x)) x <- gl.gen2fbm(x, verbose = verbose)
+  } else if (.has_fbm(x)) {
+    x <- gl.fbm2gen(x, verbose = 0)
   }
   # else x@fbm <- NULL
   if (verbose>2) {

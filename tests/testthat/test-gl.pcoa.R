@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.pcoa
 # Baseline snapshotted before review (review-gl.pcoa), upstream/dev ddaed27.
 # Assertions marked [approved F<n>] were flipped in Phase C per the
@@ -252,4 +256,26 @@ test_that("FBM path: no imputation message or copy without missing data", {
                  verbose = 2))
   expect_false(any(grepl("Missing values replaced", out)))
   expect_equal(b$eig[1:10], a$eig[1:10], tolerance = 1e-6)
+})
+
+test_that("FBM path: gl.pcoa never decodes the whole matrix", {
+  # Missing data (mean-imputed copy), a monomorphic and an all-NA locus
+  # (filtered first), and both orientations of the cross-product. Every
+  # step must read the backing file in blocks, never through as.matrix().
+  skip_if_not_installed("bigsnpr")
+  x <- gl.compliance.check(platypus.gl[, 1:200], verbose = 0)
+  m <- as.matrix(x)
+  m[, 3] <- 0L                              # monomorphic
+  m[, 4] <- NA                              # all missing
+  x@gen <- new("genlight", m, ploidy = ploidy(x))@gen
+  f <- gl.gen2fbm(x, verbose = 0)
+  f_few <- gl.gen2fbm(x[, 1:40], verbose = 0)  # fewer loci than individuals
+  local_mocked_bindings(.fbm_as_matrix = function(x) {
+    stop("the whole FBM was decoded")
+  })
+  pdf(NULL); on.exit(dev.off(), add = TRUE)
+  expect_no_error(capture.output(
+    gl.pcoa(f, nfactors = 3, plot.out = TRUE, verbose = 3)))
+  expect_no_error(capture.output(
+    gl.pcoa(f_few, nfactors = 3, plot.out = FALSE, verbose = 3)))
 })

@@ -371,7 +371,7 @@ gl.report.fstat <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    verbose = verbose)
 
   # CHECK DATATYPE
@@ -460,29 +460,23 @@ gl.report.fstat <- function(x,
   # frame and the statistic applied the row indices to the columns, so only
   # the first nInd loci could ever enter a replicate.
   #
-  # The replicate is rebuilt from the decoded genotype matrix with new()
-  # rather than by subsetting the genlight, because adegenet's SNPbin "["
-  # method drops NA on repeated indices and a draw with replacement always
-  # produces repeated indices.
-  #
-  # The replicate statistics come from utils.basic.stats, the same function
-  # that produces the reported point estimate, so the interval and the value
-  # it brackets are the same estimator. The estimator was previously
-  # duplicated inline here, and the copy had drifted.
+  # The statistics of utils.basic.stats are computed per locus from
+  # per-population, per-locus values (.basic_pop_stats) and then averaged
+  # over loci. A replicate is therefore the resample of those per-locus
+  # values, combined by .basic_stats_combine, the same code that produces
+  # the reported point estimate: identical to rebuilding a genlight from
+  # the resampled columns of the genotype matrix (as before), but without
+  # decoding the matrix. Nothing is subsetted out of the genlight with
+  # repeated indices, so adegenet's SNPbin "[" method, which drops NA on
+  # repeated indices, is never involved.
   pop.diff <- function(loc.index,
                        indices,
-                       gen.mat,
-                       pops.info) {
-    gl.boot <- new(
-      "genlight",
-      gen = gen.mat[, loc.index$loc[indices], drop = FALSE],
-      ploidy = 2,
-      pop = pops.info,
-      parallel = FALSE
-    )
-
-    res <- utils.basic.stats(gl.boot)$overall[c("Fst", "Fstp", "Dest",
-                                                "Gst_H")]
+                       pstats.pair) {
+    idx <- loc.index$loc[indices]
+    res <- .basic_stats_combine(
+      lapply(pstats.pair, function(s) lapply(s, `[`, idx)),
+      pop.names = names(pstats.pair)
+    )$overall[c("Fst", "Fstp", "Dest", "Gst_H")]
 
     return(res)
 
@@ -501,33 +495,35 @@ gl.report.fstat <- function(x,
   
   # DO THE JOB
   
-  pops <- seppop(x)
-  npops <- length(pops)
+  # Per-population, per-locus statistics, computed once from blocks of
+  # loci (.basic_pop_stats); each pair is combined from its two populations
+  # (.basic_stats_combine), with the same result as utils.basic.stats on the
+  # pair's individuals. The populations are not copied (seppop, rbind) and
+  # a file-backed object is not decoded as a whole. Populations in the order
+  # of seppop(), the levels of pop(x).
+  pstats <- .basic_pop_stats(x)
+  pair.stats <- function(y) {
+    .basic_stats_combine(pstats[y], pop.names = names(pstats)[y])$overall[
+      c("Fst", "Fstp", "Dest", "Gst_H")]
+  }
+  npops <- length(pstats)
   pairs_pops <- t(combn(npops, 2))
   pairs_pops_names <- apply(pairs_pops, 1, function(y) {
-    paste0(names(pops)[y[1]], "_vs_", names(pops)[y[2]])
+    paste0(names(pstats)[y[1]], "_vs_", names(pstats)[y[2]])
   })
   
   ### pairwise
   if (npops > 2) {
     # observed value
-    pairpop_res <- apply(pairs_pops, 1, function(y) {
-      tpop <- rbind.dartR(pops[[y[1]]], pops[[y[2]]])
-      res_tmp <-
-        utils.basic.stats(tpop)$overall[c("Fst", "Fstp", "Dest", "Gst_H")]
-      return(res_tmp)
-    })
+    pairpop_res <- apply(pairs_pops, 1, pair.stats)
     
     if (nboots > 0) {
       # bootstrapping
       pairpop_boot <- apply(pairs_pops, 1, function(y) {
-        tpop <- rbind.dartR(pops[[y[1]]], pops[[y[2]]])
-
         res_boots <- boot::boot(
-          data = data.frame(loc = seq_len(nLoc(tpop))),
+          data = data.frame(loc = seq_len(nLoc(x))),
           statistic = pop.diff,
-          gen.mat = as.matrix(tpop),
-          pops.info = as.character(pop(tpop)),
+          pstats.pair = pstats[y],
           R = nboots,
           parallel = parallel,
           ncpus = ncpus
@@ -560,20 +556,17 @@ gl.report.fstat <- function(x,
     }
     
   } else{
-    tpop <- rbind.dartR(pops[[1]], pops[[2]])
     # observed values
-    pairpop_res <-
-      utils.basic.stats(tpop)$overall[c("Fst", "Fstp", "Dest", "Gst_H")]
+    pairpop_res <- pair.stats(1:2)
     
     if (nboots > 0) {
       res_CI <- as.data.frame(matrix(nrow = 4, ncol = 2))
 
       # bootstrapping
       pairpop_boot <- boot::boot(
-        data = data.frame(loc = seq_len(nLoc(tpop))),
+        data = data.frame(loc = seq_len(nLoc(x))),
         statistic = pop.diff,
-        gen.mat = as.matrix(tpop),
-        pops.info = as.character(pop(tpop)),
+        pstats.pair = pstats[1:2],
         R = nboots,
         parallel = parallel,
         ncpus = ncpus
@@ -625,7 +618,7 @@ gl.report.fstat <- function(x,
     for (i in 1:length(mat_pops)) {
       mat_pops[[i]][lower.tri(mat_pops[[i]])] <- pairpop_res[i, ]
       colnames(mat_pops[[i]]) <-
-        rownames(mat_pops[[i]]) <- names(pops)
+        rownames(mat_pops[[i]]) <- names(pstats)
       mat_pops[[i]][upper.tri(mat_pops[[i]])] <-
         t(mat_pops[[i]])[rev(lower.tri(mat_pops[[i]]))]
     }
@@ -633,7 +626,7 @@ gl.report.fstat <- function(x,
     for (i in 1:length(mat_pops)) {
       mat_pops[[i]][lower.tri(mat_pops[[i]])] <- pairpop_res[i]
       colnames(mat_pops[[i]]) <-
-        rownames(mat_pops[[i]]) <- names(pops)
+        rownames(mat_pops[[i]]) <- names(pstats)
       mat_pops[[i]][upper.tri(mat_pops[[i]])] <-
         t(mat_pops[[i]])[rev(lower.tri(mat_pops[[i]]))]
     }

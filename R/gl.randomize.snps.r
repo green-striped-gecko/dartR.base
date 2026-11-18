@@ -79,7 +79,7 @@ gl.randomize.snps <- function(x,
 
   # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
 
@@ -110,7 +110,7 @@ gl.randomize.snps <- function(x,
       # reads come from the FBM, not @gen, so @gen is left as it is. NA is
       # stored as code 3 (CODE_012 mapping, as in gl.gen2fbm). Columns are
       # recoded in blocks to avoid densifying the whole matrix.
-      x@fbm <- bigstatsr::big_copy(fbm, backingfile = tempfile("geno_"))
+      x@fbm <- utils.fbm.copy(fbm)
       blocks <- split(random_snps, ceiling(seq_along(random_snps) / 1000))
       for (cols in blocks) {
         block <- 2 - x@fbm[, cols, drop = FALSE]
@@ -208,7 +208,7 @@ gl.randomize.snps <- function(x,
 
     # ADD TO HISTORY
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
     if (verbose >= 1) {

@@ -153,7 +153,12 @@
 #' 0.3 shifts heterozygosity by less than the natural spread of many
 #' populations. Tier 2 can only name a source that is in the dataset.
 #'
-#' The function densifies the genotype matrix with \code{as.matrix()}.
+#' A file-backed (FBM) object is read from its backing file in blocks of
+#' loci, and by individual for the suspects examined in tiers 3 and 4; the
+#' genotype matrix is never decoded as a whole, and the results are
+#' identical to those of the same data held in memory. The kinship matrix
+#' (8 bytes per pair of individuals) is held in memory, as are read counts
+#' in \code{other$geno.metrics}.
 #'
 #' The plot shows heterozygosity against rare-allele burden with suspects
 #' labelled. When plate positions are known, a second plot maps each plate
@@ -293,7 +298,7 @@ gl.report.contamination <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
 
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose = verbose)
@@ -373,11 +378,20 @@ gl.report.contamination <- function(x,
   }
 
   # DO THE JOB
-  gm <- as.matrix(x)
+  # The genotypes are read through .gl_reader(): in blocks of loci for the
+  # per-individual statistics and the kinship matrix (two passes), and by
+  # individual or by selected loci in the later tiers, so a file-backed
+  # object is never decoded as a whole (a gen-backed one is decoded once,
+  # as before). Counts are whole numbers and their means are formed as by
+  # rowMeans() (.gl_count_mean), so the results are identical for both
+  # storage types; the kinship cross-product is added over the same blocks
+  # of loci for both.
+  rd <- .gl_reader(x)
   ids <- indNames(x)
   pops <- as.character(pop(x))
-  n.ind <- nrow(gm)
-  called <- !is.na(gm)
+  n.ind <- nInd(x)
+  n.loc <- nLoc(x)
+  blocks <- .fbm_col_blocks(n.loc, n.ind)
 
   # Robust z-score; falls back to the SD when the MAD is zero
   robust.z <- function(v) {
@@ -395,35 +409,58 @@ gl.report.contamination <- function(x,
   if (verbose >= 2) {
     cat(report("  Tier 1: heterozygosity and rare-allele burden\n"))
   }
-  het <- rowMeans(gm == 1, na.rm = TRUE)
-  callrate <- rowMeans(called)
+  # One pass over blocks of loci: per individual the numbers of called and
+  # heterozygous loci, and of loci used for and showing a rare allele (with
+  # the rare-allele loci); per locus the mean genotype (for tier 2)
+  pop.idx <- lapply(unique(pops), function(p) which(pops == p))
+  pop.idx <- pop.idx[lengths(pop.idx) >= 2]
+  n.called <- n.het <- 0
+  n.use <- n.rare <- numeric(n.ind)
+  alt.loci <- ref.loci <- vector("list", n.ind)
+  col.mean <- vector("list", length(blocks))
+  for (b in seq_along(blocks)) {
+    cols <- blocks[[b]]
+    gb <- rd(cols = cols)
+    n.called <- n.called + rowSums(!is.na(gb))
+    n.het <- n.het + rowSums(gb == 1, na.rm = TRUE)
+    col.mean[[b]] <- colMeans(gb, na.rm = TRUE)
+    for (idx in pop.idx) {
+      gp <- gb[idx, , drop = FALSE]
+      alt.sum <- colSums(gp, na.rm = TRUE)
+      n.call <- colSums(!is.na(gp))
+      for (k in seq_along(idx)) {
+        g <- gp[k, ]
+        ok <- !is.na(g)
+        # Allele counts among the other members of the population
+        n.other <- n.call - ok
+        alt.other <- alt.sum - ifelse(ok, g, 0)
+        use <- ok & n.other >= min.n
+        if (!any(use)) next
+        p.alt <- alt.other[use] / (2 * n.other[use])
+        gg <- g[use]
+        rare.alt <- p.alt < rare.freq & gg >= 1
+        rare.ref <- p.alt > 1 - rare.freq & gg <= 1
+        i <- idx[k]
+        n.use[i] <- n.use[i] + sum(use)
+        n.rare[i] <- n.rare[i] + sum(rare.alt | rare.ref)
+        loc.use <- cols[use]
+        alt.loci[[i]] <- c(alt.loci[[i]], loc.use[rare.alt])
+        ref.loci[[i]] <- c(ref.loci[[i]], loc.use[rare.ref])
+      }
+    }
+  }
+  col.mean <- do.call(c, col.mean)
+  het <- .gl_count_mean(n.het, n.called)
+  callrate <- .gl_count_mean(n.called, n.loc)
   rare.burden <- rep(NA_real_, n.ind)
   # Per individual: its rare-allele loci and the sign of the rare allele
   rare.loci <- vector("list", n.ind)
-  for (p in unique(pops)) {
-    idx <- which(pops == p)
-    if (length(idx) < 2) next
-    gp <- gm[idx, , drop = FALSE]
-    alt.sum <- colSums(gp, na.rm = TRUE)
-    n.call <- colSums(!is.na(gp))
-    for (k in seq_along(idx)) {
-      g <- gp[k, ]
-      ok <- !is.na(g)
-      # Allele counts among the other members of the population
-      n.other <- n.call - ok
-      alt.other <- alt.sum - ifelse(ok, g, 0)
-      use <- ok & n.other >= min.n
-      if (!any(use)) next
-      p.alt <- alt.other[use] / (2 * n.other[use])
-      gg <- g[use]
-      rare.alt <- p.alt < rare.freq & gg >= 1
-      rare.ref <- p.alt > 1 - rare.freq & gg <= 1
-      rare.burden[idx[k]] <- mean(rare.alt | rare.ref)
-      loc.use <- which(use)
-      rare.loci[[idx[k]]] <- list(
-        loci = c(loc.use[rare.alt], loc.use[rare.ref]),
-        sign = c(rep(1, sum(rare.alt)), rep(-1, sum(rare.ref))))
-    }
+  for (i in which(n.use > 0)) {
+    rare.burden[i] <- .gl_count_mean(n.rare[i], n.use[i])
+    la <- alt.loci[[i]]
+    lr <- ref.loci[[i]]
+    rare.loci[[i]] <- list(loci = c(la, lr),
+                           sign = c(rep(1, length(la)), rep(-1, length(lr))))
   }
   het.z <- ave(het, pops, FUN = robust.z)
   rare.z <- ave(rare.burden, pops, FUN = robust.z)
@@ -434,13 +471,22 @@ gl.report.contamination <- function(x,
   if (verbose >= 2) {
     cat(report("  Tier 2: residual kinship and plate adjacency\n"))
   }
-  col.mean <- colMeans(gm, na.rm = TRUE)
+  # Second pass over blocks of loci: the cross-product of the centred,
+  # mean-imputed genotypes is added block by block
   keep <- is.finite(col.mean) & col.mean > 0 & col.mean < 2
-  gi <- gm[, keep, drop = FALSE]
-  gi[!called[, keep]] <- col.mean[keep][col(gi)][!called[, keep]]
   p.k <- col.mean[keep] / 2
-  z.mat <- sweep(gi, 2, 2 * p.k)
-  kin <- (z.mat %*% t(z.mat)) / (4 * sum(p.k * (1 - p.k)))
+  kin <- matrix(0, n.ind, n.ind)
+  for (cols in blocks) {
+    kb <- cols[keep[cols]]
+    if (length(kb) == 0) next
+    gi <- rd(cols = kb)
+    miss <- is.na(gi)
+    pb <- col.mean[kb] / 2
+    gi[miss] <- col.mean[kb][col(gi)][miss]
+    z.mat <- sweep(gi, 2, 2 * pb)
+    kin <- kin + z.mat %*% t(z.mat)
+  }
+  kin <- kin / (4 * sum(p.k * (1 - p.k)))
   dimnames(kin) <- list(ids, ids)
   resid <- kin
   for (a in unique(pops)) {
@@ -464,7 +510,7 @@ gl.report.contamination <- function(x,
     sg <- rare.loci[[i]]$sign
     # dosage of the rare allele in every individual: gm when the rare allele
     # is the alternative, 2 - gm when it is the reference
-    dos <- sweep(gm[, loci, drop = FALSE] - 1, 2, sg, `*`) + 1
+    dos <- sweep(rd(cols = loci) - 1, 2, sg, `*`) + 1
     score <- rowMeans(dos, na.rm = TRUE) / 2
     score[i] <- NA
     if (all(is.na(score))) next
@@ -568,9 +614,14 @@ gl.report.contamination <- function(x,
     if (verbose >= 2) {
       cat(report("  Tier 3: foreign-allele rate against locus depth\n"))
     }
+    # (in blocks of loci of the population's rows)
     pop.freq <- function(idx) {
-      n <- colSums(called[idx, , drop = FALSE])
-      list(p = colSums(gm[idx, , drop = FALSE], na.rm = TRUE) / (2 * n), n = n)
+      s <- do.call(cbind, lapply(blocks, function(cols) {
+        gp <- rd(idx, cols)
+        rbind(colSums(!is.na(gp)), colSums(gp, na.rm = TRUE))
+      }))
+      n <- s[1, ]
+      list(p = s[2, ] / (2 * n), n = n)
     }
     # Reference sets are the unflagged members of each population: a second
     # contaminated animal in the host population would otherwise remove every
@@ -581,8 +632,8 @@ gl.report.contamination <- function(x,
       if (pops[j] == pops[i]) next
       own <- pop.freq(which(pops == pops[i] & clean))
       don <- pop.freq(which(pops == pops[j] & clean))
-      g <- gm[i, ]
-      ok <- called[i, ] & own$n >= min.n & don$n >= min.n & is.finite(depth)
+      g <- rd(i)[1, ]
+      ok <- !is.na(g) & own$n >= min.n & don$n >= min.n & is.finite(depth)
       # inclusive on the donor side: an admixed or contaminated donor-population
       # animal carrying one host allele must not remove the locus
       alt.in <- ok & own$p < rare.freq & don$p >= 1 - rare.freq - 1e-9
@@ -624,8 +675,8 @@ gl.report.contamination <- function(x,
   n.extra <- rep(NA_integer_, n.ind)
   mixed <- rep(FALSE, n.ind)
   has.reads <- !is.null(rc$ref.count) && !is.null(rc$alt.count) &&
-    identical(dim(rc$ref.count), dim(gm)) &&
-    identical(dim(rc$alt.count), dim(gm))
+    identical(dim(rc$ref.count), as.integer(c(n.ind, n.loc))) &&
+    identical(dim(rc$alt.count), as.integer(c(n.ind, n.loc)))
   if (!has.reads) {
     if (verbose >= 2) {
       cat(warn("  No read counts in other$geno.metrics; read balance not",
@@ -635,14 +686,30 @@ gl.report.contamination <- function(x,
     if (verbose >= 2) {
       cat(report("  Tier 4: read balance at heterozygous calls\n"))
     }
+    # The read counts are matrices in memory; the genotypes are read in
+    # blocks of loci and the per-individual counts added
     n.reads <- rc$ref.count + rc$alt.count
-    deep <- called & !is.na(n.reads) & n.reads >= min.reads
-    het.deep <- deep & gm == 1
-    minor <- pmin(rc$ref.count, rc$alt.count) / n.reads
-    skewed <- het.deep & minor < balance.cut
-    read.calls <- as.integer(rowSums(deep))
+    n.deep <- n.skewed <- 0
+    for (cols in blocks) {
+      gb <- rd(cols = cols)
+      nr <- n.reads[, cols, drop = FALSE]
+      deep <- !is.na(gb) & !is.na(nr) & nr >= min.reads
+      het.deep <- deep & gb == 1
+      minor <- pmin(rc$ref.count[, cols, drop = FALSE],
+                    rc$alt.count[, cols, drop = FALSE]) / nr
+      skewed <- het.deep & minor < balance.cut
+      n.deep <- n.deep + rowSums(deep)
+      n.skewed <- n.skewed + rowSums(skewed)
+    }
+    read.calls <- as.integer(n.deep)
     skew.rate <- ifelse(read.calls > 0,
-                        1000 * rowSums(skewed) / read.calls, NA)
+                        1000 * n.skewed / read.calls, NA)
+    # genotypes of one individual and its loci called with enough reads
+    deep.row <- function(r) {
+      g <- rd(r)[1, ]
+      nr <- n.reads[r, ]
+      list(g = g, deep = !is.na(g) & !is.na(nr) & nr >= min.reads)
+    }
     # across all individuals: read balance does not depend on population
     screened <- read.calls >= min.calls
     if (any(screened)) {
@@ -660,10 +727,12 @@ gl.report.contamination <- function(x,
       main.kin[i] <- kin[i, m]
       # Extra sites: the sample is heterozygous where the major genome is
       # homozygous, so one allele came from the other DNA
-      ex <- which(het.deep[i, ] & deep[m, ] & gm[m, ] != 1)
+      row.i <- deep.row(i)
+      row.m <- deep.row(m)
+      ex <- which(row.i$deep & row.i$g == 1 & row.m$deep & row.m$g != 1)
       n.extra[i] <- length(ex)
       if (length(ex) < min.share) next
-      lack.alt <- gm[m, ex] == 0
+      lack.alt <- row.m$g[ex] == 0
       fr <- ifelse(lack.alt, rc$alt.count[i, ex], rc$ref.count[i, ex]) /
         n.reads[i, ex]
       extra.share[i] <- median(fr)
@@ -671,7 +740,7 @@ gl.report.contamination <- function(x,
       # heterozygotes: main.source is not its major genome
       if (extra.share[i] >= 0.35) next
       # copies of the extra allele in every individual
-      dos <- gm[, ex, drop = FALSE]
+      dos <- rd(cols = ex)
       dos[, !lack.alt] <- 2 - dos[, !lack.alt]
       carry <- rowMeans(dos >= 1, na.rm = TRUE)
       carry[c(i, m, which(mixed))] <- NA
@@ -680,10 +749,12 @@ gl.report.contamination <- function(x,
       second.j[i] <- s
       second.share[i] <- carry[s]
       # runner-up: the best candidate that is not a replicate of the source
+      g.s <- rd(s)[1, ]
       for (k in order(carry, decreasing = TRUE, na.last = NA)) {
         if (k == s) next
-        both <- called[k, ] & called[s, ]
-        same <- if (any(both)) mean(gm[k, both] == gm[s, both]) else 0
+        g.k <- rd(k)[1, ]
+        both <- !is.na(g.k) & !is.na(g.s)
+        same <- if (any(both)) mean(g.k[both] == g.s[both]) else 0
         if (same < 0.9) {
           next.j[i] <- k
           second.gap[i] <- carry[s] - carry[k]

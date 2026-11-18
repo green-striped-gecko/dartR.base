@@ -129,7 +129,7 @@ gl.test.heterozygosity <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      verbose = verbose)
     
     # SET WORKING DIRECTORY
@@ -237,14 +237,20 @@ gl.test.heterozygosity <- function(x,
         cat(important("  Please be patient .... go have a coffee\n"))
     }
 
-    sgl <- seppop(x)
+    # The populations as row indices of x, in the order of seppop() (the
+    # levels of pop(x)). The bootstrap resamples the genotypes of one
+    # population, so each population is decoded in turn (by design; never
+    # the whole object): a file-backed population is read in blocks of
+    # loci, about 8 bytes x individuals x loci of that population.
+    sgl <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
     npop <- nPop(x)
 
     # he_boot: nreps bootstrap replicates of uHe for each population (rows = pops)
     he_boot <- matrix(NA_real_, nrow = npop, ncol = nreps)
     out <- numeric(npop)                 # observed uHe per population
     for (i in seq_len(npop)) {
-        pop_mat <- as.matrix(sgl[[i]])
+        pop_mat <- if (.has_fbm(x)) .gl_colwise(x, identity, rows = sgl[[i]]) else
+            as.matrix(x[sgl[[i]], ])
         if (boot.method == "loc") {
             pop_mat <- t(pop_mat)
         }

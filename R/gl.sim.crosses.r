@@ -125,7 +125,7 @@ gl.sim.crosses <- function(fathers,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
 
@@ -326,7 +326,7 @@ gl.sim.crosses <- function(fathers,
   # The object is newly constructed, so its provenance is this call alone. Any
   # entries left by the internal gl.compliance.check() and gl.recalc.metrics()
   # calls reference local variables and are discarded.
-  gl2@other$history <- list(match.call())
+  gl2@other$history <- list(utils.history.call(match.call()))
 
   # FLAG SCRIPT END ---------------
 

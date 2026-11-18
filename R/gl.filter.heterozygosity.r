@@ -52,7 +52,7 @@ gl.filter.heterozygosity <- function(x,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
 
@@ -101,20 +101,19 @@ gl.filter.heterozygosity <- function(x,
 
     # DO THE JOB
 
-    # Convert to matrix
-    m <- as.matrix(x)
-
-    # For each individual determine counts of hets, homs and NAs
-    c.na <- array(NA, nInd(x))
-    c.hets <- array(NA, nInd(x))
-    c.hom0 <- array(NA, nInd(x))
-    c.hom2 <- array(NA, nInd(x))
-    for (i in 1:nInd(x)) {
-        c.na[i] <- sum(is.na(m[i,]))
-        c.hets[i] <- sum(m[i,] == 1, na.rm = TRUE) / (nLoc(x) - c.na[i])
-        c.hom0[i] <- sum(m[i,] == 0, na.rm = TRUE) / (nLoc(x) - c.na[i])
-        c.hom2[i] <- sum(m[i,] == 2, na.rm = TRUE) / (nLoc(x) - c.na[i])
-    }
+    # For each individual determine counts of hets, homs and NAs. The counts
+    # are summed over blocks of loci (.gl_rowwise), so a file-backed object
+    # is not decoded as a whole; integer counts, as from the whole matrix.
+    cnt <- .gl_rowwise(x, function(m) cbind(rowSums(is.na(m)),
+                                            rowSums(m == 1, na.rm = TRUE),
+                                            rowSums(m == 0, na.rm = TRUE),
+                                            rowSums(m == 2, na.rm = TRUE)))
+    storage.mode(cnt) <- "integer"
+    cnt <- unname(cnt)
+    c.na <- cnt[, 1]
+    c.hets <- cnt[, 2] / (nLoc(x) - c.na)
+    c.hom0 <- cnt[, 3] / (nLoc(x) - c.na)
+    c.hom2 <- cnt[, 4] / (nLoc(x) - c.na)
 
     # Individuals with all genotypes missing have undefined heterozygosity
     # (NaN) and cannot be assessed against the thresholds; they are removed
@@ -231,7 +230,7 @@ gl.filter.heterozygosity <- function(x,
     # ADD ACTION TO HISTORY
 
     nh <- length(x.kept@other$history)
-    x.kept@other$history[[nh + 1]] <- match.call()
+    x.kept@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
 

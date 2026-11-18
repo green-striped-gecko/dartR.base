@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.report.polyploid_heterozygosity, captured
 # before the function-review changes and updated for the approved changes
 # (report: function-review/reports/dartR.base/

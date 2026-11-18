@@ -128,7 +128,7 @@ gl.filter.callrate <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -288,7 +288,7 @@ gl.filter.callrate <- function(x,
         # if (verbose >= 3) {cat('Initial no. of individuals =', n0, '\n')}
         
         # Calculate the individual call rate
-        ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
+        ind.call.rate <- 1 - .gl_rowwise(x, function(t) rowSums(is.na(t))) / nLoc(x)
         
         # Store the initial call rate profile
         hold2 <- ind.call.rate
@@ -355,7 +355,7 @@ gl.filter.callrate <- function(x,
                 }
             }
             # Recalculate the callrate
-            ind.call.rate <- 1 - rowSums(is.na(as.matrix(x2))) / nLoc(x2)
+            ind.call.rate <- 1 - .gl_rowwise(x2, function(t) rowSums(is.na(t))) / nLoc(x2)
             # cat(min(ind.call.rate),'\n')
         } else {
             # If recursive
@@ -373,7 +373,7 @@ gl.filter.callrate <- function(x,
             }
             for (i in 1:10) {
                 # Recalculate the callrate
-                ind.call.rate <- 1 - rowSums(is.na(as.matrix(x))) / nLoc(x)
+                ind.call.rate <- 1 - .gl_rowwise(x, function(t) rowSums(is.na(t))) / nLoc(x)
                 # Extract those individuals with a call rate greater or equal to
                 #the threshold
                 x2 <- x[ind.call.rate >= threshold,]
@@ -649,7 +649,7 @@ gl.filter.callrate <- function(x,
     # ADD TO HISTORY
     
     nh <- length(x2@other$history)
-    x2@other$history[[nh + 1]] <- match.call()
+    x2@other$history[[nh + 1]] <- utils.history.call(match.call())
     
     # FLAG SCRIPT END
     

@@ -65,7 +65,7 @@ utils.dist.ind.snp <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
 
@@ -89,8 +89,6 @@ utils.dist.ind.snp <- function(x,
   }
 
   # DO THE JOB
-  mat <- as.matrix(x)
-
   if (verbose >= 2) {
     if (method == "euclidean") {
       if (scale) {
@@ -102,6 +100,16 @@ utils.dist.ind.snp <- function(x,
       cat(report("  Calculating the distance matrix --", method, "\n"))
     }
   }
+
+  if (.has_fbm(x)) {
+    # File-backed: the per-pair counts are added over blocks of loci read
+    # from the backing file (.gl_pair_counts), so the genotype matrix is
+    # never decoded as a whole. The counts are integers and the distances
+    # are the same expressions as in dist_mod(), so the result is
+    # identical to that of the gen-backed object.
+    dd <- .dist_ind_snp_fbm(x, method = method, scale = scale)
+  } else {
+  mat <- as.matrix(x)
 
   # dummy so R CMD check does not flag the Rcpp-compiled symbol as
   # undefined; the real function is created by cppFunction below
@@ -194,6 +202,7 @@ utils.dist.ind.snp <- function(x,
   )
 
   dd <- dist_mod(mat, method = method, scale = scale)
+  }
 
   if (type == "dist") {
     dd <- as.dist(dd)
@@ -212,4 +221,29 @@ utils.dist.ind.snp <- function(x,
   }
 
   return(dd)
+}
+
+## Distances of utils.dist.ind.snp() for a file-backed object, from the
+## pairwise counts of .gl_pair_counts(): L loci scored in both individuals,
+## n1 differing by one and n2 by two allele copies. With |g1 - g2| in
+## {0, 1, 2}: sum of squared differences n1 + 4 n2, sum of absolute
+## differences n1 + 2 n2, shared alleles 2 L - (n1 + 2 n2), loci sharing an
+## allele L - n2. All sums are whole numbers, as in dist_mod(); a pair
+## without common loci is NA, the diagonal 0.
+.dist_ind_snp_fbm <- function(x, method, scale) {
+  pc <- .gl_pair_counts(x)
+  L <- pc$L
+  sumabs <- pc$n1 + 2 * pc$n2
+  v <- switch(method,
+    euclidean = {
+      sumsq <- pc$n1 + 4 * pc$n2
+      if (scale) sqrt(sumsq / L) else sqrt(sumsq)
+    },
+    simple = 1 - (2 * L - sumabs) / (2 * L),
+    absolute = 1 - (L - pc$n2) / L,
+    manhattan = ,
+    czekanowski = sumabs / (2 * L)
+  )
+  v[L == 0] <- NA_real_
+  .gl_dist_to_matrix(v, nInd(x))
 }

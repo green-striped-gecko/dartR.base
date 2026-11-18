@@ -75,7 +75,7 @@ gl.sim.genotypes <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    verbose = verbose)
 
   # CHECK DATATYPE
@@ -209,7 +209,7 @@ gl.sim.genotypes <- function(x,
   # The object is newly constructed, so its provenance is this call alone. The
   # entries left by the internal gl.compliance.check() and gl.recalc.metrics()
   # calls reference local variables and are discarded.
-  gl@other$history <- list(match.call())
+  gl@other$history <- list(utils.history.call(match.call()))
 
   # Results summary ------------
   if (verbose >= 3) {

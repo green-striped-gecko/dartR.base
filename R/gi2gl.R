@@ -50,7 +50,7 @@ gi2gl <- function(gi,
 
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
 
@@ -125,7 +125,7 @@ gi2gl <- function(gi,
     # ADD TO HISTORY
 
     nh <- length(gl@other$history)
-    gl@other$history[[nh + 1]] <- match.call()
+    gl@other$history[[nh + 1]] <- utils.history.call(match.call())
 
     # FLAG SCRIPT END
 

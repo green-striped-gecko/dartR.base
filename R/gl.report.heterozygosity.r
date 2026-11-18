@@ -353,7 +353,7 @@ gl.report.heterozygosity <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
 
@@ -450,38 +450,66 @@ gl.report.heterozygosity <- function(x,
     res_sub <- utils.subsample.pop(x,n.limit = n.limit)
     }
     
-    # Split the genlight object into a list of populations
-    sgl <- seppop(x)
+    # The populations, in the order of seppop() (the levels of pop(x)), as
+    # row indices: each population is read from the object in blocks of
+    # loci (.gl_colblocks), without copying it (seppop) or decoding the
+    # whole matrix. Per population and locus, one pass gives the missing
+    # counts, the mean genotype (as in gl.alf) and the per-locus
+    # heterozygosities (.het_byloc); every statistic below is computed from
+    # these with the same expressions as from the population's matrix.
+    pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+    names(pop_rows) <- levels(pop(x))
+    het_names <- c("Ho.loc", "He.loc", "uHe.loc", "FIS.loc")
+    pop_stats <- lapply(pop_rows, function(r) {
+      blocks <- .gl_colblocks(x, function(m) {
+        list(nna = colSums(is.na(m)), mean = colMeans(m, na.rm = TRUE),
+             het = .het_byloc(m))
+      }, rows = r)
+      list(n = length(r),
+           nna = do.call(c, lapply(blocks, `[[`, "nna")),
+           mean = do.call(c, lapply(blocks, `[[`, "mean")),
+           het = stats::setNames(lapply(het_names, function(k) {
+             do.call(c, lapply(blocks, function(b) b$het[[k]]))
+           }), het_names))
+    })
     
     # Calculate the number of loci that are not all NAs CP ###
     n_loc <-
-      unlist(lapply(sgl, function(x)
+      unlist(lapply(pop_stats, function(s)
         sum(!(
-          colSums(is.na(as.matrix(x))) == nrow(as.matrix(x))
+          s$nna == s$n
         ))))
     
-    # Calculate the number of individuals
-    n_ind <- sapply(sgl, ind.count)
+    # Calculate the number of individuals (as ind.count(): mean number of
+    # scored individuals over the loci that are not all NA)
+    n_ind <- sapply(pop_stats, function(s) {
+      loci.na <- which(s$nna == s$n)
+      if (length(loci.na) > 0) {
+        mean(s$n - s$nna[-loci.na])
+      } else {
+        mean(s$n - s$nna)
+      }
+    })
     
     # calculate the number of polymorphic and monomorphic loci by population
     poly_loc <- NULL
     mono_loc <- NULL
     all_na_loc <- NULL
     
-    for (y in 1:length(sgl)) {
-      y_temp <- sgl[[y]]
-      mono_tmp <- gl.alf(y_temp, verbose = 0)
-      # Loci with no data in the population have alf1 NaN, so which() leaves
-      # them out of loc.list: loc.list holds the monomorphic loci only, and
-      # the all-NA loci are counted separately, not as polymorphic
-      loc.list <- rownames(mono_tmp[which(mono_tmp$alf1 == 1 |
-                                            mono_tmp$alf1 == 0), ])
-      loc.list_NA <- which(colSums(is.na(as.matrix(y_temp)))==nInd(y_temp))
+    for (y in seq_along(pop_stats)) {
+      s <- pop_stats[[y]]
+      # alf1 as in gl.alf. Loci with no data in the population have alf1
+      # NaN, so which() leaves them out of loc.list: loc.list holds the
+      # monomorphic loci only, and the all-NA loci are counted separately,
+      # not as polymorphic
+      alf1 <- 1 - s$mean / 2
+      loc.list <- which(alf1 == 1 | alf1 == 0)
+      loc.list_NA <- which(s$nna == s$n)
 
       mono_loc <- c(mono_loc, length(loc.list))
       all_na_loc <- c(all_na_loc, length(loc.list_NA))
       poly_loc <- c(poly_loc,
-                    nLoc(y_temp) - length(loc.list) - length(loc.list_NA))
+                    nLoc(x) - length(loc.list) - length(loc.list_NA))
     }
     
     
@@ -495,8 +523,8 @@ gl.report.heterozygosity <- function(x,
       )
     }
     
-    all.het <- lapply(sgl, 
-           FUN = function(gl) pop.het_fun(as.matrix(gl), 
+    all.het <- lapply(pop_stats,
+           FUN = function(s) .het_summary(s$het,
                                           n.invariant=n.invariant,
                                           aHet=n.invariant > 0,
                                           bootstrap=FALSE))
@@ -591,9 +619,11 @@ gl.report.heterozygosity <- function(x,
     
     #### bootstrapping ####
     if (nboots > 0) {
-      pop_boot <- lapply(sgl, function(y) {
+      pop_boot <- lapply(pop_rows, function(r) {
         
-        df <- as.matrix(y)
+        # the bootstrap resamples the population's genotype matrix, so it
+        # is decoded here, one population at a time (read in blocks)
+        df <- .gl_colwise(x, function(m) m, rows = r)
         
         if(boot.method == "loc"){
           df <- t(df)
@@ -627,7 +657,7 @@ gl.report.heterozygosity <- function(x,
       }
       
       no_CI <- character(0)
-      for (pop_n in 1:length(sgl)) {
+      for (pop_n in 1:length(pop_rows)) {
         for (stat_n in seq_len(nparams)) {
           # boot.ci cannot produce an interval when every replicate is
           # identical (e.g. a single-individual population resampled by
@@ -648,7 +678,7 @@ gl.report.heterozygosity <- function(x,
             ci
           }, error = function(e) NULL)
           if (is.null(res_CI_tmp) || length(res_CI_tmp) < 4) {
-            no_CI <- union(no_CI, names(sgl)[pop_n])
+            no_CI <- union(no_CI, names(pop_rows)[pop_n])
             res_CI[[pop_n]][stat_n,] <- c(NA_real_, NA_real_)
           } else {
             res_CI[[pop_n]][stat_n,] <-
@@ -992,25 +1022,20 @@ gl.report.heterozygosity <- function(x,
         "  Note: No adjustment for invariant loci (n.invariant set to 0)\n"
       ))
     }
-    # Convert to matrix
-    m <- as.matrix(x)
-    
-    # For each individual determine counts of hets, homs and NAs
-    c.na <- array(NA, nInd(x))
-    c.hets <- array(NA, nInd(x))
-    c.hom0 <- array(NA, nInd(x))
-    c.hom2 <- array(NA, nInd(x))
-    c.nloc <- array(NA, nInd(x))
-    for (i in 1:nInd(x)) {
-      c.na[i] <- sum(is.na(m[i, ]))
-      c.hets[i] <-
-        sum(m[i, ] == 1, na.rm = TRUE) / (nLoc(x) - c.na[i])
-      c.hom0[i] <-
-        sum(m[i, ] == 0, na.rm = TRUE) / (nLoc(x) - c.na[i])
-      c.hom2[i] <-
-        sum(m[i, ] == 2, na.rm = TRUE) / (nLoc(x) - c.na[i])
-      c.nloc[i] <- (nLoc(x) - c.na[i])
-    }
+    # For each individual determine counts of hets, homs and NAs, summed
+    # over blocks of loci (.gl_rowwise): a file-backed object is not decoded
+    # as a whole; integer counts, as from the whole matrix
+    cnt <- .gl_rowwise(x, function(m) cbind(rowSums(is.na(m)),
+                                            rowSums(m == 1, na.rm = TRUE),
+                                            rowSums(m == 0, na.rm = TRUE),
+                                            rowSums(m == 2, na.rm = TRUE)))
+    storage.mode(cnt) <- "integer"
+    cnt <- unname(cnt)
+    c.na <- cnt[, 1]
+    c.hets <- cnt[, 2] / (nLoc(x) - c.na)
+    c.hom0 <- cnt[, 3] / (nLoc(x) - c.na)
+    c.hom2 <- cnt[, 4] / (nLoc(x) - c.na)
+    c.nloc <- (nLoc(x) - c.na)
     
     # Join the sample sizes with the heterozygosities
     df <-

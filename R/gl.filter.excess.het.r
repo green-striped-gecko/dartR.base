@@ -71,7 +71,7 @@ gl.filter.excess.het <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
 
   # The advice must reproduce this call's result: min.hobs = 0.5 is part of
   # the published workflow, and cc.val defaults to 0.5 in gl.filter.hwe
@@ -104,7 +104,7 @@ gl.filter.excess.het <- function(x,
   # records this call rather than the inner gl.filter.hwe() call, whose
   # arguments refer to variables local to this function
   hold.history <- x2@other$history
-  hold.history[[length(hold.history)]] <- match.call()
+  hold.history[[length(hold.history)]] <- utils.history.call(match.call())
   if (mono.rm) {
     x2 <- gl.filter.monomorphs(x2, verbose = 0)
   }

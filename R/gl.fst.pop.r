@@ -13,18 +13,22 @@
 #' estimates alone [default 1].
 #' @param percent Percentile to calculate the confidence interval around,
 #' greater than 0 and less than 100 [default 95].
-#' @param nclusters Number of processor threads or cores to use during
-#' calculation of the point estimates [default 1].
+#' @param nclusters Ignored. It set the number of cores used by StAMPP,
+#' which is no longer called; kept so that existing calls still work
+#' [default 1].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
 #' or 2 if no global is set].
 
 #' @details
-#' The statistic is Weir and Cockerham's (1984) theta, estimated by
-#' \code{\link[StAMPP]{stamppFst}} from allele frequencies, observed
-#' heterozygosities and per-locus sample sizes computed separately for each
-#' population. Theta is a variance-components estimator that corrects for
+#' The statistic is Weir and Cockerham's (1984) theta, estimated from allele
+#' frequencies, observed heterozygosities and per-locus sample sizes
+#' computed separately for each population. The estimator is the one of
+#' \code{\link[StAMPP]{stamppFst}} and gives identical values; it is
+#' computed by dartR from blocks of loci, so file-backed objects (see
+#' \code{\link{gl.gen2fbm}}) are not converted to memory, and it is much
+#' faster. Theta is a variance-components estimator that corrects for
 #' unequal sample sizes, so it is not the same quantity as the Nei (1987)
 #' Gst-family statistics reported by \code{\link{gl.report.fstat}} under the
 #' same word "Fst"; the two can differ substantially on unevenly sampled
@@ -82,7 +86,6 @@
 #' replicate thetas sorted in increasing order, "Lower bound CI limit",
 #' "Upper bound CI limit", "p-value" and "Fst".
 #' }
-#' @importFrom StAMPP stamppFst
 #' @export
 #' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
@@ -111,7 +114,7 @@ gl.fst.pop <- function(x,
 
     # FLAG SCRIPT START [approved F12]
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      verbose = verbose)
 
     # CHECK DATATYPE
@@ -172,23 +175,45 @@ gl.fst.pop <- function(x,
 
     # DO THE JOB
 
-    #!# intermediate fbm fix
-    if (!is.null(.fbm_or_null(x))) x <- gl.fbm2gen(x)
-
-    class(x)<- "genlight" #needs to be genlight due to stampp
-
-    # ---- point estimates ------------------------------------------------
-    # StAMPP computes the reported theta. It is called with nboots = 1 so
-    # that only the estimator runs; the bootstrap below is this function's
-    # own [approved F1]
-    fstmat <-
-        stamppFst(x,
-                  nboots = 1,
-                  percent = percent,
-                  nclusters = nclusters)
-
-    pops <- rownames(fstmat)
+    # ---- per-population, per-locus terms ---------------------------------
+    # Allele frequency, observed heterozygosity and sample size for each
+    # population and locus, in the form StAMPP builds them. Every term
+    # depends on its own locus only, so they are computed on blocks of loci
+    # (.gl_colblocks) and bound: a file-backed object is neither converted
+    # to memory nor decoded as a whole. Populations in order of first
+    # appearance, as StAMPP orders them.
+    pops <- unique(as.character(pop(x)))
     npops <- length(pops)
+
+    stampp.terms <- function(gm, ploidy.vec, pop.vec, pop.order) {
+        gm <- gm * (1 / ploidy.vec)  # dosage to allele frequency
+        np <- length(pop.order)
+        p <- oh <- ninds <-
+            matrix(NA_real_, nrow = np, ncol = ncol(gm),
+                   dimnames = list(pop.order, NULL))
+        w <- ploidy.vec / 2
+        for (i in seq_len(np)) {
+            sel <- pop.vec == pop.order[i]
+            g <- gm[sel, , drop = FALSE]
+            wi <- w[sel]
+            ninds[i, ] <- colSums((!is.na(g)) * wi, na.rm = TRUE)
+            p[i, ] <- colMeans(g, na.rm = TRUE)
+            het <- (g * (g <= 0.5)) + ((g - 0.5) * (g > 0.5 & g != 1))
+            oh[i, ] <- 2 * colSums(het * wi, na.rm = TRUE)
+        }
+        list(p = p, oh = oh / ninds, ninds = ninds)
+    }
+
+    nloc <- nLoc(x)
+    ploidy.vec <- ploidy(x)
+    pop.vec <- as.character(pop(x))
+    tt.blocks <- .gl_colblocks(x, function(gm) {
+        stampp.terms(gm, ploidy.vec, pop.vec, pops)
+    })
+    tt <- lapply(c(p = "p", oh = "oh", ninds = "ninds"), function(k) {
+        do.call(cbind, lapply(tt.blocks, `[[`, k))
+    })
+    rm(tt.blocks)
 
     # lower triangle in column-major order: pair k compares population
     # index1[k] (row) with index2[k] (column)
@@ -199,93 +224,74 @@ gl.fst.pop <- function(x,
     }
     npairs <- length(index1)
 
+    # Weir & Cockerham (1984) theta for every pair, from those terms (ratio
+    # of the variance components summed over loci)
+    wc.theta <- function(p, oh, ninds, nloc) {
+        r <- 2
+        n1 <- ninds[index1, ]
+        n2 <- ninds[index2, ]
+        p1 <- p[index1, ]
+        p2 <- p[index2, ]
+        oh1 <- oh[index1, ]
+        oh2 <- oh[index2, ]
+        n.bar <- (n1 + n2) / r
+        nc <- (r * n.bar) - (((n1 ^ 2) + (n2 ^ 2)) / (r * n.bar))
+        p.bar <- ((n1 * p1) / (r * n.bar)) + ((n2 * p2) / (r * n.bar))
+        s.square <- ((n1 * ((p1 - p.bar) ^ 2)) / n.bar) +
+            ((n2 * ((p2 - p.bar) ^ 2)) / n.bar)
+        h.bar <- ((n1 * oh1) / (r * n.bar)) + ((n2 * oh2) / (r * n.bar))
+        a <- (n.bar / nc) * (s.square - (1 / (n.bar - 1)) *
+            ((p.bar * (1 - p.bar)) - (((r - 1) / r) * s.square) -
+                 ((1 / 4) * h.bar)))
+        b <- (n.bar / (n.bar - 1)) * ((p.bar * (1 - p.bar)) -
+            (((r - 1) / r) * s.square) -
+            (((2 * n.bar - 1) / (4 * n.bar)) * h.bar))
+        cw <- (1 / 2) * h.bar
+        bad <- which(!is.finite(a) | !is.finite(b) | !is.finite(cw))
+        a[bad] <- NA
+        b[bad] <- NA
+        cw[bad] <- NA
+        if (nloc > 1) {
+            if (npops > 2) {
+                rowSums(a, na.rm = TRUE) /
+                    (rowSums(a, na.rm = TRUE) +
+                         rowSums(b, na.rm = TRUE) +
+                         rowSums(cw, na.rm = TRUE))
+            } else {
+                sum(a, na.rm = TRUE) /
+                    (sum(a, na.rm = TRUE) + sum(b, na.rm = TRUE) +
+                         sum(cw, na.rm = TRUE))
+            }
+        } else {
+            a / (a + b + cw)
+        }
+    }
+
+    # ---- point estimates ------------------------------------------------
+    # The same estimator as StAMPP::stamppFst (identical values, checked in
+    # the tests), computed here from the terms above: StAMPP needed the
+    # genotypes in memory and was much slower. [approved F1]
+    fstmat <- matrix(NA_real_, nrow = npops, ncol = npops,
+                     dimnames = list(pops, pops))
+    fstmat[cbind(index1, index2)] <- unname(wc.theta(tt$p, tt$oh, tt$ninds,
+                                                     nloc))
+
     if (nboots > 1) {
         # ---- bootstrap over loci ----------------------------------------
-        # The bootstrap is computed here rather than by StAMPP, which runs
-        # it inside foreach %dopar% on a PSOCK cluster of its own making.
-        # Those worker RNG streams are never seeded from the calling
-        # session, so set.seed() had no effect on the confidence limits or
-        # the p-values and no reported result could be reproduced. Drawing
-        # the replicate indices in this session restores reproducibility
-        # [approved F1].
+        # The replicate indices are drawn in this session, so set.seed()
+        # makes the confidence limits and p-values reproducible (StAMPP ran
+        # its bootstrap on unseeded parallel workers) [approved F1].
         #
-        # The unit of resampling is the locus. Per-population allele
-        # frequency, observed heterozygosity and sample size are computed
-        # once per locus from the DECODED genotype matrix, and a replicate
-        # is a resample of the columns of those three matrices. Nothing is
-        # subsetted out of the genlight with repeated indices, so adegenet's
-        # SNPbin "[" method -- which drops NA when an index repeats, as a
-        # draw with replacement always does -- is never involved.
-
-        # per-population, per-locus terms, in the form StAMPP builds them
-        stampp.terms <- function(gm, ploidy.vec, pop.vec, pop.order) {
-            gm <- gm * (1 / ploidy.vec)  # dosage to allele frequency
-            np <- length(pop.order)
-            p <- oh <- ninds <-
-                matrix(NA_real_, nrow = np, ncol = ncol(gm),
-                       dimnames = list(pop.order, NULL))
-            w <- ploidy.vec / 2
-            for (i in seq_len(np)) {
-                sel <- pop.vec == pop.order[i]
-                g <- gm[sel, , drop = FALSE]
-                wi <- w[sel]
-                ninds[i, ] <- colSums((!is.na(g)) * wi, na.rm = TRUE)
-                p[i, ] <- colMeans(g, na.rm = TRUE)
-                het <- (g * (g <= 0.5)) + ((g - 0.5) * (g > 0.5 & g != 1))
-                oh[i, ] <- 2 * colSums(het * wi, na.rm = TRUE)
-            }
-            list(p = p, oh = oh / ninds, ninds = ninds)
-        }
-
-        # Weir & Cockerham (1984) theta for every pair, from those terms
-        wc.theta <- function(p, oh, ninds, nloc) {
-            r <- 2
-            n1 <- ninds[index1, ]
-            n2 <- ninds[index2, ]
-            p1 <- p[index1, ]
-            p2 <- p[index2, ]
-            oh1 <- oh[index1, ]
-            oh2 <- oh[index2, ]
-            n.bar <- (n1 + n2) / r
-            nc <- (r * n.bar) - (((n1 ^ 2) + (n2 ^ 2)) / (r * n.bar))
-            p.bar <- ((n1 * p1) / (r * n.bar)) + ((n2 * p2) / (r * n.bar))
-            s.square <- ((n1 * ((p1 - p.bar) ^ 2)) / n.bar) +
-                ((n2 * ((p2 - p.bar) ^ 2)) / n.bar)
-            h.bar <- ((n1 * oh1) / (r * n.bar)) + ((n2 * oh2) / (r * n.bar))
-            a <- (n.bar / nc) * (s.square - (1 / (n.bar - 1)) *
-                ((p.bar * (1 - p.bar)) - (((r - 1) / r) * s.square) -
-                     ((1 / 4) * h.bar)))
-            b <- (n.bar / (n.bar - 1)) * ((p.bar * (1 - p.bar)) -
-                (((r - 1) / r) * s.square) -
-                (((2 * n.bar - 1) / (4 * n.bar)) * h.bar))
-            cw <- (1 / 2) * h.bar
-            bad <- which(!is.finite(a) | !is.finite(b) | !is.finite(cw))
-            a[bad] <- NA
-            b[bad] <- NA
-            cw[bad] <- NA
-            if (nloc > 1) {
-                if (npops > 2) {
-                    rowSums(a, na.rm = TRUE) /
-                        (rowSums(a, na.rm = TRUE) +
-                             rowSums(b, na.rm = TRUE) +
-                             rowSums(cw, na.rm = TRUE))
-                } else {
-                    sum(a, na.rm = TRUE) /
-                        (sum(a, na.rm = TRUE) + sum(b, na.rm = TRUE) +
-                             sum(cw, na.rm = TRUE))
-                }
-            } else {
-                a / (a + b + cw)
-            }
-        }
-
-        gm <- as.matrix(x)
-        nloc <- ncol(gm)
-        tt <- stampp.terms(gm, ploidy(x), as.character(pop(x)), pops)
+        # The unit of resampling is the locus: a replicate is a resample of
+        # the columns of the per-locus terms above. Nothing is subsetted out
+        # of the genlight with repeated indices, so adegenet's SNPbin "["
+        # method -- which drops NA when an index repeats, as a draw with
+        # replacement always does -- is never involved.
 
         if (verbose >= 2) {
             cat(report("  Bootstrapping", nboots, "replicates over", nloc,
-                       "loci\n"))
+                       "loci
+"))
         }
 
         reps <- matrix(NA_real_, nrow = npairs, ncol = nboots)

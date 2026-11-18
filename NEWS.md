@@ -1,4 +1,340 @@
-# dartR.base 1.2.6 (development)
+# dartR.base 1.3.0 (file-backed storage: FBM objects read from disk)
+
+* Subsetting (`[`) with a repeated locus: BUG FIX, in objects held in memory
+  a missing genotype was kept only in the first copy of the locus and read
+  as 0 (homozygous reference) in the others, because adegenet's SNPbin
+  subset marks each missing position once. Every copy is now missing, as in
+  file-backed objects, which were not affected. Subsets without repeated
+  loci are unchanged. Reported by Luis Mijangos (FBM review, 14 Nov 2026).
+* `gl.read.PLINK()`: BUG FIX, the alleles in the .bim (or .ped) were not
+  stored: `alleles()` returned the placeholder "A/C" for every locus, so an
+  object written with `gl2plink()` and read back seemed to have its
+  genotypes flipped. The alleles are now stored as "allele.1/allele.2";
+  the genotypes count allele.2, the second allele, as before. Reported by
+  Luis Mijangos (FBM review, 14 Nov 2026).
+
+* `gl.He()` and `gl.Ho()` (moved to dartR.sim in 1.2.7) and
+  `gl.propShared()` (moved to dartR.spatial in 1.2.7) are back in
+  dartR.base, unchanged. The CRAN releases of dartR.sim and dartR.spatial
+  (1.2.2) call them from dartR.base: without them dartR.sim, and with it
+  dartR.captive, failed to load next to this version, and dartR.spatial's
+  propShared distances failed when run.
+
+* Backing files of file-backed objects are placed in `getOption("FBM.dir")`,
+  the folder bigstatsr uses for its own files (default: the session
+  temporary folder). Before, dartR always used `tempdir()` and ignored the
+  option. New internal helpers `utils.fbm.tempfile()`, `utils.fbm.new()` and
+  `utils.fbm.copy()` create all temporary backing files and record them as
+  created by dartR (for the automatic clean-up that follows).
+* `gl.gen2fbm()`, `cbind()` and `rbind()`: `backingfile` defaults to `NULL`
+  (a temporary file in `FBM.dir`). A backing file named by the user is
+  never recorded for clean-up.
+* `rbind()`: BUG FIX, the `backingfile` argument was ignored.
+* Backing files are deleted automatically once no object in the session
+  uses them (previously every subset, filter or imputation left a file in
+  the temporary folder until R closed). Files are counted per R object, so
+  a file shared by several objects is kept until the last one is gone; on
+  Windows, files still memory-mapped are deleted at the next attempt. Only
+  files created by dartR are deleted, never a file named by the user.
+* New `gl.fbm.cleanup()`: forces the clean-up and reports the backing files
+  deleted and still in use.
+* `gl.gen2fbm()` copies the genotypes in blocks of loci read directly from
+  the packed SNPbin bits (one byte per value) instead of decoding all loci
+  for every block. 2,000 x 200,000 (10 % missing): 13 s and 1.1 Gb peak
+  memory instead of 72 s and 6.4 Gb; with
+  `options(bigstatsr.block.sizeGB = 0.1)` 214 Mb. The block size follows
+  `bigstatsr.block.sizeGB`; the argument `chunk` is deprecated (still
+  accepted, as loci per block). The result is unchanged (byte-identical
+  backing file). The first individual is checked against adegenet's own
+  decoding, so a change of the SNPbin layout gives an error.
+* `gl.fbm2gen()` reads the FBM in blocks of loci (the storage order of the
+  backing file) and packs them directly into SNPbin bits, instead of
+  decoding blocks of 256 individuals across the whole file. 2,000 x
+  200,000: 17 s and 621 Mb peak memory (including the 251 Mb result)
+  instead of 34 s and 1,057 Mb. The SNPbins are identical to those of
+  adegenet's constructor (as before), including its number of bit planes
+  and SNPbin ploidy per individual. The block size follows
+  `bigstatsr.block.sizeGB`; the argument `chunk` is deprecated and ignored.
+  Genotypes other than 0, 1, 2 (0, 1 for haploid individuals) give an
+  error.
+* `gl.impute()` imputes file-backed objects in blocks of loci (methods
+  frequency, HW, neighbour, random and `fill.residual`), without decoding
+  the whole genotype matrix and without copying each population
+  (`seppop()` + `rbind()`). The result is identical to that of the same
+  data held in memory, including the random draws with the same seed and
+  the messages; HW reads the file once per population to keep the order of
+  the draws. Nearest-neighbour distances are accumulated over blocks with
+  exact integer sums. 2,000 x 200,000 (10 % missing), whole function:
+  frequency 66 s and 733 Mb peak memory instead of 126 s and 11.0 Gb;
+  random 58 s and 736 Mb instead of 61 s and 15.5 Gb. Method beagle is
+  unchanged (the VCF export decodes the matrix).
+* `gl.compliance.check()`, `gl.recalc.metrics()` (through
+  `utils.recalc.avgpic()`, `utils.recalc.callrate()`,
+  `utils.recalc.freqhets()`, `utils.recalc.freqhomref()`,
+  `utils.recalc.freqhomsnp()`) and `gl.alf()` read file-backed objects in
+  blocks of loci instead of decoding the whole matrix (seven full decodes
+  in one compliance check). The values are identical, as the same
+  per-locus expressions are applied block by block. `gl.compliance.check()`
+  at 2,000 x 200,000: 294 Mb peak instead of more than 9 Gb.
+
+* `gl.pcoa()` (file-backed): the cross-products are computed in blocks of
+  loci sized as elsewhere in dartR. With bigstatsr's default block size
+  (about 1 Gb of doubles) `big_tcrossprodSelf()` held all loci of moderate
+  datasets in one working matrix (160 Mb at 1,000 x 20,000, up to 1 Gb for
+  larger data). 1,000 x 20,000: 11 s and 96 Mb of vector memory (plus a
+  fixed overhead of about 150 Mb of R language objects that does not grow
+  with the data). The result is unchanged. Verified that no step decodes
+  the whole matrix (new test). Most of the time is the cross-product, run by
+  the BLAS that R uses (much faster with an optimised BLAS, e.g. on macOS).
+
+* Count from disk, first batch (FBM step 3): `gl.allele.freq()`,
+  `gl.filter.callrate(method = "ind")`, `gl.filter.heterozygosity()`,
+  `gl.report.allna()`, `gl.report.callrate()`, `gl.report.maf()`,
+  `gl.report.monomorphs()`, `gl.report.rdepth()`,
+  `gl.report.reproducibility()` and `gl.report.taglength()` read
+  file-backed objects in blocks of loci (per locus, per individual, or per
+  population without copying it) instead of decoding the whole matrix.
+  The same expressions are applied block by block, so results and messages
+  are identical; a test checks this for both storage types and that no full
+  decode happens. `gl.report.callrate()` no longer passes the object as the
+  `data` of `aggregate()`, which converted it to a data frame.
+* Count from disk, population statistics (first part):
+  `gl.report.heterozygosity()` (by population and by individual),
+  `gl.report.basics()` and `gl.tree.nj()` read each population's rows in
+  blocks of loci instead of copying the populations with `seppop()` and
+  decoding them. Results and messages are identical (tested for both
+  storage types). The bootstrap of `gl.report.heterozygosity()` still
+  decodes one population at a time, as it resamples its genotype matrix;
+  `subsample.pop = TRUE` is unchanged. Internally, `pop.het_fun()` is split
+  into a per-locus part and a summary, without change to its results.
+* `gl.fst.pop()` computes Weir & Cockerham's theta itself instead of calling
+  `StAMPP::stamppFst()`: the per-population allele frequencies, observed
+  heterozygosities and sample sizes are built in blocks of loci, so
+  file-backed objects are no longer converted to memory. The values are
+  identical to StAMPP's (tested on five datasets) and it is 30 to 200 times
+  faster (e.g. testset.gl: 3.1 s to 0.04 s). bigsnpr's `snp_fst()` was not
+  used: it takes the heterozygosity term from the allele frequencies under
+  Hardy-Weinberg instead of the observed heterozygosity, which would change
+  the results. The argument `nclusters` (StAMPP's cores) is now ignored.
+* `utils.basic.stats()` (used by `gl.report.fstat()` and
+  `gl.diagnostics.hwe()`) computes its per-population, per-locus values in
+  one pass over blocks of loci instead of copying (`seppop()`) and
+  decoding each population. `gl.report.fstat()` computes them once and
+  combines every pair of populations from them, instead of building each
+  pair with `seppop()` + `rbind()`; its bootstrap resamples the per-locus
+  values instead of rebuilding a genlight from the decoded genotypes of
+  the pair for every replicate. Results, including the bootstrap
+  confidence intervals for the same seed, are identical to the previous
+  version (tested), for objects in memory and file-backed.
+* `gl.report.hwe()`, `gl.filter.hwe()` and `gl.hwe.pop()` count the
+  genotypes 0, 1 and 2 per population and locus from blocks of loci
+  instead of copying each population (`seppop()`), filtering it with
+  `gl.filter.monomorphs()` and decoding it; monomorphic loci are dropped
+  per population with the same rule. Results and messages are identical
+  (tested against the previous version and for both storage types).
+* `gl.report.pa()` and `gl.filter.pa()` compute the allele frequencies of
+  the populations (and, for the Chao estimates, the genotyped individuals
+  and allele counts per locus) in one pass over blocks of loci instead of
+  copying each population (`seppop()`) and decoding both populations of
+  every pair. The asymmetry test (`test.asym`) permutes each locus with the
+  same random numbers as before and reads a file-backed pair in blocks for
+  each permutation. Results, messages and seeded permutation tests are
+  identical to the previous version (tested, both storage types), and
+  much faster (10 populations x 5,000 loci: pairwise 2.8 s to 0.2 s in
+  memory and 0.1 s file-backed; `test.asym` with 10 permutations 415 s
+  to 41 s).
+* `gl.report.pa()`: BUG FIX, with `x2` and `test.asym = TRUE` the permuted
+  pooled sample was split after the first population of `x` instead of
+  after all of `x` when `x` held several populations, so `asym` and
+  `asym.sig` were wrong in that case (other cases are unchanged).
+* `gl.report.diversity()` computes the mean dosage and the genotype counts
+  of every population and locus in one pass over blocks of loci, and all
+  alpha and beta indexes from these, instead of copying each population
+  (`seppop()`) and decoding it up to five times, plus both populations of
+  every pair twice. A file-backed object is never decoded as a whole.
+  Results and messages are identical to the previous version (tested on
+  six data sets including all-missing, monomorphic and per-population
+  missing loci, an empty population level and a single population, both
+  storage types), and faster (10 populations x 5,000 loci: 9.4 s to 1.2 s
+  in memory, 0.9 s file-backed).
+* `gl.report.allelerich()` takes the allele counts per population and
+  site from genotype counts read in one pass over blocks of loci, instead
+  of decoding every population and melting it to a long table. The
+  bootstrap (`nboots > 0`) still needs one population's genotypes at a
+  time; a file-backed population is read in blocks, never the whole
+  object. Results and messages identical to the previous version (seven
+  data sets, including numeric locus names and an empty population level;
+  SD, SE and both bootstrap methods; both storage types).
+* `gl.report.allelerich()`: BUG FIX, `boot.method = "ind"` stopped with
+  "Not a matrix." when a population had a single individual (the
+  resampled row was dropped to a vector in `utils.allelic.richness()`).
+  Results for other populations are unchanged.
+* `gl.filter.maf(by.pop = TRUE)` computes the MAF of every population in
+  one pass over blocks of loci instead of copying each population with
+  `seppop()` (for file-backed objects a new backing file per population);
+  the per-population plots likewise (polymorphic loci by the rule of
+  `gl.filter.monomorphs()`). The returned object and the plotted data are
+  identical to the previous version (four data sets, both storage
+  types).
+* `gl.filter.maf()`: BUG FIX, with `by.pop = TRUE` and plots on, the
+  pre-filter histogram over all populations used `loc.metrics$maf` of the
+  input without recalculating it: an object without that column (e.g.
+  `testset.gl`) stopped with "'names' attribute [1] must be the same
+  length as the vector [0]", and a stale column was plotted as it was.
+  The MAF is now recalculated for the plot. The returned object is
+  unchanged.
+* `gl.test.heterozygosity()` reads each population's genotypes for its
+  bootstrap from the object (in blocks of loci for file-backed objects)
+  instead of copying all populations with `seppop()`; one population is
+  held in memory at a time. Results identical to the previous version.
+* `gl.report.shannon()` computes the Hill numbers from the numbers of
+  dosages 1 and 2 per individual and the distribution of pooled dosages
+  per population, read in one pass over blocks of loci, instead of
+  decoding the whole genotype matrix. Same formulas (Ma, Li & Zhang); the
+  sums are now formed per distinct abundance value rather than locus by
+  locus, so values can differ from the previous version in the last
+  digits (relative differences up to about 5e-14, rounding only); results
+  are identical for both storage types. 300 x 20,000: 2.0 s to 0.4 s
+  (alpha).
+* Internal `.gl_pop_genotype_counts()` (used by the HWE functions) reads
+  all populations in one pass over the data instead of one pass per
+  population; the result is unchanged.
+* Distances and kinship from disk (FBM step 3, item 5):
+  `gl.dist.ind()` (SNP data, all methods, through `utils.dist.ind.snp()`),
+  `gl.report.replicates()`, `gl.report.replicates.KING()` (called
+  genotypes) and `gl.report.contamination()` read file-backed objects in
+  blocks of loci instead of decoding the whole genotype matrix. Results and
+  messages are identical to those of the same data held in memory, for any
+  block size. New internal helpers: `.gl_pair_counts()` adds, per pair of
+  individuals, the loci scored in both and those differing by one or two
+  allele copies (compiled loop over blocks; every SNP distance and the
+  replicate proportions follow from these whole-number counts);
+  `.gl_count_mean()` divides counts exactly as `rowMeans()` does (a plain
+  division differs in the last digit for about one count in 6,000 once
+  more than 2,048 loci are counted); `.gl_reader()` reads blocks of loci,
+  single individuals or selected loci. `gl.dist.ind()` at 2,000 x 20,000:
+  94 s file-backed against 330 s in memory (the new loop reads each
+  individual's loci contiguously). The n x n results stay in memory.
+  `gl.dist.pop()` already read from disk (through `gl.allele.freq()`) and
+  is now tested for both storage types. `gl.dist.phylo()` is unchanged: it
+  builds the full DNA alignment for `ape::dist.dna()` (larger than the
+  genotype matrix) through `gl2fasta()`, which decodes the matrix.
+* `gl.report.contamination()`: the kinship cross-product is added over
+  blocks of loci for both storage types; with R's reference BLAS the result
+  is identical to the previous version (checked on five data sets,
+  including read counts and the depth pattern), with an optimised BLAS it
+  may differ in the last digits.
+* New exported helpers for file-backed objects, for use by the other
+  dartRverse packages (instead of local copies or `:::`):
+  `utils.fbm.has()`, `utils.fbm.colwise()`, `utils.fbm.colblocks()`,
+  `utils.fbm.rowwise()`, `utils.fbm.count.mean()`, `utils.fbm.reader()`,
+  `utils.fbm.blocks()` and `utils.fbm.pair.counts()` (thin wrappers of the
+  internal block-wise helpers). dartR.popgen, dartR.spatial,
+  dartR.sexlinked and dartR.sim (dev_fbm) use them.
+* New `utils.fbm.grm()`: rrBLUP::A.mat's default relationship matrix (mean
+  imputation, no shrinkage) for file-backed objects, in two passes over
+  blocks of loci; frequencies, filter and scaling as A.mat, the summed
+  cross-product equal to A.mat up to rounding (bit for bit with R's
+  reference BLAS). New `utils.fbm.amat()`: A.mat for both storage types
+  (gen-backed: A.mat unchanged; file-backed: `utils.fbm.grm()` for the
+  default method, otherwise an explicit conversion with a warning stating
+  the memory needed). Used by `gl.grm()` (dartR.captive) and `gl.grm2()`
+  (dartR.spatial).
+* New `utils.fbm.decode()`: for functions whose algorithm needs the whole
+  genotype matrix. Gen-backed objects: `as.matrix(x)`, unchanged.
+  File-backed objects: the memory needed is reported (verbose >= 2) and
+  the function stops with an informative error above
+  `getOption("dartR_fbm_max_decode_gb", 4)` Gb instead of exhausting
+  memory; the limit can be raised with `options()`. `utils.fbm.amat()`
+  applies the same limit before converting for non-default A.mat options.
+* `gl.read.PLINK()`: a binary fileset (.bed/.bim/.fam) is read in blocks of
+  SNPs straight into a file-backed matrix, instead of through snpStats, a
+  text copy of all genotypes (`write.SnpMatrix()` + `fread()`) and a dense
+  matrix. With `fbm = TRUE` the object stays file-backed (no genlight in
+  between); with `fbm = FALSE` it is converted to @gen in blocks of loci.
+  Genotypes (count of allele.2), .bim/.fam metadata (read as
+  `snpStats::read.plink()` reads them) and the per-individual summary
+  (`snpStats::row.summary()`) are identical to the previous version. The
+  .ped route is unchanged.
+* `gl.read.PLINK()`: BUG FIX, individuals were given ploidy 1 when they had
+  no homozygous allele.2 call and NA when they had no calls (adegenet sets
+  the ploidy of a matrix row to its largest genotype), and the compliance
+  check then stopped with "the condition has length > 1". All individuals
+  are now diploid, on both the .bed and .ped routes.
+* `gl.read.dart()`: the genotype columns of the DArT report are read in
+  chunks of rows straight into a file-backed matrix (raw scores), and the
+  1-row recoding or 2-row pairing is done in blocks of loci into the
+  genotype matrix, instead of reading the whole report as text, building a
+  SNP x individual matrix and its transpose, and decoding it twice more for
+  OneRatioRef/OneRatioSnp. The locus-metric columns are read as before.
+  With `fbm = TRUE` the object stays file-backed; with `fbm = FALSE` it is
+  converted to @gen in blocks of loci. Results are identical to the
+  previous version (1-row and 2-row reports, any chunk size). Scores
+  outside 0, 1, 2 now stop with an error.
+* `gl.read.vcf()`: new argument `parser` (last, default `"vcfR"`, unchanged
+  behaviour). `parser = "cpp"` reads the genotypes with the C++ parser of
+  package tidypopgen (now in Suggests; users install it themselves and get
+  a message saying so) chunk by chunk straight into a file-backed matrix,
+  and the fixed vcf columns in chunks, so the file is never held in memory
+  as text. For the single-base SNPs it reads, genotypes, names, alleles,
+  chromosome, position and the QUAL/FILTER/INFO metrics equal the vcfR
+  route. Limits: indels are skipped (warning); `mode = "genotype"` only; no
+  rdepth, read counts or likelihoods; haploid or polyploid calls stop with
+  an error (tidypopgen would code a haploid call like a heterozygote). The
+  QUAL/FILTER/INFO parsing is shared by both routes (`.vcf_fix_info()`);
+  the vcfR route is unchanged (identical objects).
+
+# dartR.base 1.2.7 (development)
+
+* `gl.gen2fbm()`: BUG FIX, polyploid data (dosages above 2) were stored with
+  the FBM code for a missing genotype, so every dosage of 3 or 4 silently
+  became NA. Data with ploidy or genotypes above 2 are now refused with an
+  error, and no partial backing file is left behind.
+* `show()` of a file-backed object counts the missing genotypes from the
+  backing file in blocks of loci instead of decoding the whole matrix
+  (2,000 x 20,000: about 1 Mb instead of 459 Mb).
+* Option `dartR_fbm`: the environment variable now accepts `1`, `true`,
+  `yes` and `on` (any case), as documented; before only `TRUE` switched it on.
+* `gl.save()` reports the size of the saved file. The help pages of
+  `gl.save()` and `gl.gen2fbm()` now state that file-backed objects must be
+  saved with `gl.save()`, not `saveRDS()` (which stores only the reference
+  to the temporary backing file), and that the saved file size should be
+  checked.
+
+* History: BUG FIX, a function called through `do.call(fun, list(x = gl,
+  ...))` stored the whole input object (with its own history) in
+  `@other$history`, so objects and saved files grew with every such step
+  (4 chained steps on `testset.gl`: 29.8 MB in memory instead of 0.7 MB).
+  The calls are now compacted by the new internal
+  `utils.history.call()`: names, expressions and small values are kept,
+  other values are replaced by a label such as
+  `` `<dartR: 250 ind x 255 loc>` ``, and a function in the call head by its
+  name.
+* `utils.flag.start()`: BUG FIX, functions called through `do.call(fun,
+  ...)` stopped with "cannot coerce type 'closure' to vector of type
+  'character'" at `verbose >= 1`, and functions called as `pkg::fun`
+  printed "Completed: :: dartR.base gl.x". `utils.flag.start()` returns a
+  printable function name, which the functions now use for the closing
+  message.
+
+* `gl.load()`: BUG FIX, objects of class dartR saved by the legacy dartR
+  package no longer make R load and attach the legacy package (which masked
+  about 150 dartR.base functions for the rest of the session, or failed when
+  it was not installed). They are converted to dartR.base objects. An FBM
+  object saved with `saveRDS()` whose backing file no longer exists now
+  stops with a clear error pointing to `gl.save()`. `fbm = TRUE` no longer
+  prints the `gl.gen2fbm()` messages at `verbose = 0`.
+* `gl.save()`: no longer prints the `gl.fbm2gen()` messages at
+  `verbose = 0` when saving an FBM object. The documentation now says that
+  FBM objects are saved as gen-backed copies and that only the object, not
+  the workspace, is saved.
+
+* `as.matrix()` and `as(x, "matrix")` of an FBM-backed dartR object now
+  return the same matrix as for the gen-backed object: integer storage
+  (FBM.code256 decodes to double) and the same dimnames (`as(x, "matrix")`
+  dropped them, and an object without names got empty dimnames), so
+  `identical(as.matrix(x), as.matrix(gl.gen2fbm(x)))` is TRUE. Codes with
+  fractional values (e.g. `bigsnpr::CODE_DOSAGE`) still return doubles.
 
 * `gl.report.replicates.KING()` and `gl.filter.replicates.KING()`: NEW
   FUNCTIONS, duplicate samples by KING-robust kinship (Manichaikul et al.

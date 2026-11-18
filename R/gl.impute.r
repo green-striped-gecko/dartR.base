@@ -73,6 +73,17 @@
 #' 'random' substitutes unconditioned random values at such loci. Use
 #' \code{\link{gl.filter.allna}} (without by.pop) to remove them first.
 #'
+#' File-backed objects (see \code{\link{gl.gen2fbm}}) are imputed in blocks
+#' of loci, without decoding the whole genotype matrix; the block size
+#' follows \code{options(bigstatsr.block.sizeGB)}. The imputed genotypes are
+#' written into a new backing file, and the input is left unchanged. The
+#' result is identical to that for the same data held in memory, including
+#' the random draws with the same seed (method 'HW' reads the file once per
+#' population to keep that order). Method 'neighbour' holds the matrix of
+#' distances between individuals in memory (8 bytes per pair, e.g. 32 Mb for
+#' 2,000 individuals). Method 'beagle' exports the data to a VCF file, which
+#' decodes the genotypes.
+#'
 #' @param x Name of the genlight object containing the SNP or presence-absence
 #' data [required].
 #' @param method Imputation method, either "frequency" or "HW" or "neighbour"
@@ -132,7 +143,7 @@ gl.impute <-  function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
 
@@ -216,7 +227,7 @@ gl.impute <-  function(x,
       # methods start from x3 <- x: writing into that backing file would
       # also impute the caller's object. The genotypes go into a copy.
       if (identical(obj@fbm$backingfile, fbm$backingfile)) {
-        obj@fbm <- bigstatsr::big_copy(obj@fbm, backingfile = tempfile("geno_"))
+        obj@fbm <- utils.fbm.copy(obj@fbm)
       }
       obj@fbm[] <- geno_matrix
     }
@@ -248,9 +259,40 @@ gl.impute <-  function(x,
     return(filled)
   }
 
+  # FBM-backed objects are imputed in blocks of loci (utils.impute.fbm.r),
+  # without decoding the whole genotype matrix or copying populations; the
+  # result is identical to the gen-backed path below, including the random
+  # draws. Method 'beagle' goes through a VCF file for both storage types.
+  fbm_path <- !is.null(fbm) && method != "beagle"
+
+  if (fbm_path) {
+    groups <- split(seq_len(nInd(x)), pop(x))   # the populations of seppop()
+    ploidy_x <- as.integer(rep_len(ploidy(x), nInd(x)))
+    if (verbose >= 2) {
+      na_pop <- utils.impute.fbm.na.by.pop(fbm, groups, ploidy_x, pl)
+      .impute_fbm_messages(method, names(groups), lengths(groups), na_pop,
+                           verbose)
+    }
+    imp <- utils.impute.fbm(fbm, method = method, groups = groups,
+                            ploidy = ploidy_x, datatype = datatype,
+                            freq_fill = freq_fill,
+                            bernoulli_fill = bernoulli_fill)
+    x3 <- x
+    x3@fbm <- imp$G
+    if (method == "neighbour" && verbose >= 1) {
+      for (i in which(imp$remaining > 0)) {
+        cat(important(
+          "  Unable to fully impute individual ", indNames(x)[i],
+          " (", imp$remaining[i], " loci remain NA)\n",
+          sep = ""
+        ))
+      }
+    }
+  }
+
   #separating populations
 
-  if (method == "frequency" | method == "HW") {
+  if (!fbm_path && (method == "frequency" | method == "HW")) {
     pop_list_temp <- seppop(x)
     pop_list <- list()
 
@@ -356,7 +398,7 @@ gl.impute <-  function(x,
 
   }
 
-  if (method == "neighbour") {
+  if (!fbm_path && method == "neighbour") {
 
     if (verbose >= 2) {
       cat(report("  Imputation based on drawing from the nearest neighbour\n"))
@@ -450,7 +492,7 @@ gl.impute <-  function(x,
     x3 <- write_back(x3, x_matrix)
   }
 
-  if (method == "random") {
+  if (!fbm_path && method == "random") {
 
     ## ---- Optional: per-population diagnostics (does not affect imputation) ----
     if (verbose >= 2) {
@@ -576,7 +618,23 @@ gl.impute <-  function(x,
 
   }
 
-  if(fill.residual==TRUE){
+  if (fill.residual == TRUE && !is.null(.fbm_or_null(x3))) {
+    # FBM: one pass over blocks of loci, same draws as below. Never write
+    # into the caller's backing file.
+    G3 <- x3@fbm
+    if (!is.null(fbm) && identical(G3$backingfile, fbm$backingfile)) {
+      G3 <- utils.fbm.copy(G3)
+    }
+    utils.impute.fbm.residual(G3,
+                              ploidy = as.integer(rep_len(ploidy(x3),
+                                                          nInd(x3))),
+                              datatype = datatype,
+                              bernoulli_fill = bernoulli_fill)
+    x3@fbm <- G3
+    if (verbose >= 2) {
+      cat(report("  Residual missing values were filled randomly drawing from the global allele profiles by locus\n"))
+    }
+  } else if (fill.residual == TRUE) {
 
     q_allele <- glMean(x3)
     pop_matrix <- as.matrix(x3)
@@ -606,7 +664,23 @@ gl.impute <-  function(x,
 
   x3 <- gl.compliance.check(x3, verbose = 0)
 
-  if(verbose>=3){
+  if (verbose >= 3 && !is.null(fbm) && !is.null(.fbm_or_null(x3))) {
+    # FBM: the same counts from one pass each, without seppop() copies
+    na_pop_b <- utils.impute.fbm.na.by.pop(
+      fbm, split(seq_len(nInd(x_hold)), pop(x_hold)),
+      as.integer(rep_len(ploidy(x_hold), nInd(x_hold))), pl)
+    na_pop_a <- utils.impute.fbm.na.by.pop(
+      x3@fbm, split(seq_len(nInd(x3)), pop(x3)),
+      as.integer(rep_len(ploidy(x3), nInd(x3))), pl)
+    nas_before <- na_pop_b$total
+    nas_after <- na_pop_a$total
+    cat("  Imputation method:",method,"\n")
+    cat("  No. of missing values before imputation:",nas_before,"\n")
+    cat("  No. of loci with all NA's for any one population before imputation:",sum(na_pop_b$all_na),"\n")
+    cat("  No. of values imputed:",nas_before - nas_after,"\n")
+    cat("  No. of missing values after imputation:",nas_after,"\n")
+    cat("  No. of loci with all NA's for any one population after imputation:",sum(na_pop_a$all_na),"\n")
+  } else if(verbose>=3){
 
     pop_list_before <- seppop(x_hold)
     all_nas_before <- sum(unlist(lapply(pop_list_before,function(y){
@@ -635,7 +709,7 @@ gl.impute <-  function(x,
   # ADD TO HISTORY
   x3@other$history <- x@other$history
   nh <- length(x3@other$history)
-  x3@other$history[[nh + 1]] <- match.call()
+  x3@other$history[[nh + 1]] <- utils.history.call(match.call())
 
   # FLAG SCRIPT END
 

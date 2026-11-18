@@ -45,7 +45,7 @@ utils.dart2genlight <- function(dart,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -68,7 +68,7 @@ utils.dart2genlight <- function(dart,
         cat(report(
             "nrows not provided. Trying to guess if one row or two row format...\n"
         ))
-        gnrows <-3 - max(dart$gendata, na.rm = TRUE)
+        gnrows <-3 - dart$genmax
         
         if (gnrows == 1 | gnrows == 2) {
             nrows <- gnrows
@@ -119,9 +119,10 @@ utils.dart2genlight <- function(dart,
         )
     }
     
-    sdata <- dart[["gendata"]]
+    # raw scores, individuals x rows of the file (file-backed)
+    sdata <- dart[["genraw"]]
     # every second line only....
-    esl <-seq(nrows, nrow(sdata), nrows)
+    esl <-seq(nrows, ncol(sdata), nrows)
 
     # NOTE: the DArT SnpPosition (0-based offset of the SNP within the
     # trimmed sequence tag) is carried in @other$loc.metrics$SnpPosition
@@ -141,8 +142,12 @@ utils.dart2genlight <- function(dart,
     a1 <- substr(alleles, nchar(alleles) - 2, nchar(alleles))
     a2 <- sub(">", "/", a1)
     locname <- paste(sraw$uid[esl], a2, sep = "-")
-    geninddata <- matrix(NA, nrow = nsnp, ncol = nind)
-    
+    # Genotypes are translated in blocks of loci from the raw scores into a
+    # new file-backed matrix (individuals x loci, missing as code 3), so the
+    # whole matrix is never held in memory
+    G <- utils.fbm.new(nind, as.integer(nsnp), prefix = "dart_")
+    blocks <- .fbm_col_blocks(as.integer(nsnp), nind)
+
     if (nrows == 2) {
         # Exhaustive translation of ref-row/snp-row pairs. 0/0 (double
         # null) and pairs with a missing half carry no callable genotype
@@ -161,14 +166,16 @@ utils.dart2genlight <- function(dart,
             "1/NA" = NA
         )
         unmatched <- character(0)
-        for (i in 1:nind) {
-            isnp <-paste(sdata[esl - 1, i], sdata[esl, i], sep = "/")
-            g <- unname(translate[isnp])
+        for (b in seq_along(blocks)) {
+            cols <- blocks[[b]]
+            isnp <-paste(sdata[, esl[cols] - 1], sdata[, esl[cols]], sep = "/")
+            g <- matrix(unname(translate[isnp]), nind, length(cols))
             unmatched <- union(unmatched,
                                unique(isnp[!(isnp %in% names(translate))]))
-            geninddata[, i] <- g
+            g[is.na(g)] <- 3
+            G[, cols] <- g
             if (probar) {
-                setTxtProgressBar(pb, i / nind)
+                setTxtProgressBar(pb, b / length(blocks))
             }
         }
         if (length(unmatched) > 0 && verbose >= 1) {
@@ -179,26 +186,27 @@ utils.dart2genlight <- function(dart,
             ))
         }
     } else {
-        for (i in 1:nind) {
-            isnp <-sdata[esl, i]
-            g <- isnp
+        for (b in seq_along(blocks)) {
+            cols <- blocks[[b]]
+            g <- sdata[, esl[cols], drop = FALSE]
             g <- 3 - g
             g <- ifelse(g == 3, 0, g)
-            geninddata[, i] <- g
+            g[is.na(g)] <- 3
+            G[, cols] <- g
             if (probar) {
-                setTxtProgressBar(pb, i / nind)
+                setTxtProgressBar(pb, b / length(blocks))
             }
         }
     }
+    rm(sdata)
     gout <-
         new(
             "dartR",
-            gen = t(geninddata),
-            ploidy = 2,
-            ind.names = colnames(sdata),
+            fbm = G,
+            ploidy = rep(2L, nind),
+            ind.names = dart[["ind.names"]],
             loc.names = locname,
-            loc.all = a2,
-            parallel = FALSE
+            loc.all = a2
         )
     
     if (probar) {
@@ -279,7 +287,7 @@ utils.dart2genlight <- function(dart,
             }
             
             # reorder
-            if (length(ind.cov[, id.col]) != length(names(sdata))) {
+            if (length(ind.cov[, id.col]) != length(dart[["ind.names"]])) {
                 if (verbose >= 1) {
                     cat(
                         warn(
@@ -288,7 +296,7 @@ utils.dart2genlight <- function(dart,
                     )
                 }
                 nam.indmeta <- ind.cov[, id.col]
-                nam.dart <- names(sdata)
+                nam.dart <- dart[["ind.names"]]
 
                 nm.indmeta <-
                     nam.indmeta[!nam.indmeta %in% nam.dart]
@@ -304,7 +312,7 @@ utils.dart2genlight <- function(dart,
                 }
             }
             
-            ord <- match(names(sdata), ind.cov[, id.col])
+            ord <- match(dart[["ind.names"]], ind.cov[, id.col])
             ord <- ord[!is.na(ord)]
             
             if (length(ord) > 1 & length(ord) <= nind) {
@@ -446,7 +454,7 @@ utils.dart2genlight <- function(dart,
       pop(gout) <- as.factor(pop(gout))
     }
     
-    ord3 <- match(indNames(gout), names(sdata))
+    ord3 <- match(indNames(gout), dart[["ind.names"]])
     
     gout@other$ind.metrics$service <- service[ord3]
     gout@other$ind.metrics$plate_location <-

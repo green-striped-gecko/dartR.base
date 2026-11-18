@@ -81,7 +81,7 @@ gl.filter.replicates.KING <- function(x,
 
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname, build = "Jody", verbose = verbose)
+  funname <- utils.flag.start(func = funname, build = "Jody", verbose = verbose)
 
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
@@ -165,7 +165,7 @@ gl.filter.replicates.KING <- function(x,
   # ADD TO HISTORY (a single entry for this call)
   xx@other$history <- hold.history
   nh <- length(xx@other$history)
-  xx@other$history[[nh + 1]] <- match.call()
+  xx@other$history[[nh + 1]] <- utils.history.call(match.call())
 
   # FLAG SCRIPT END
   if (verbose >= 1) {

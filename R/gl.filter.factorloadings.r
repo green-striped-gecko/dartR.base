@@ -106,7 +106,7 @@ gl.filter.factorloadings <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
   
@@ -171,7 +171,7 @@ gl.filter.factorloadings <- function(x,
   # monomorph-removal and keep.loc calls are implementation detail)
   x2@other$history <- input.history
   nh <- length(x2@other$history)
-  x2@other$history[[nh + 1]] <- match.call()
+  x2@other$history[[nh + 1]] <- utils.history.call(match.call())
   
   # Prepare the plots
   # get title for plots

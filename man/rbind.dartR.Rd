@@ -4,18 +4,13 @@
 \alias{rbind.dartR}
 \title{rbind for dartR objects}
 \usage{
-\method{rbind}{dartR}(
-  ...,
-  backingfile = tempfile("geno_rbind_"),
-  code = NULL,
-  chunk = 2048L,
-  quiet = TRUE
-)
+\method{rbind}{dartR}(..., backingfile = NULL, code = NULL, chunk = 2048L, quiet = TRUE)
 }
 \arguments{
 \item{...}{dartR objects to combine [required]}
 
-\item{backingfile}{prefix for the backing file of the resulting FBM}
+\item{backingfile}{File stem for the backing file of the resulting FBM, or
+NULL for a temporary file in getOption("FBM.dir") [default NULL]}
 
 \item{code}{code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input}
 

@@ -74,7 +74,7 @@ gl.read.silicodart <- function(filename,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -395,7 +395,7 @@ gl.read.silicodart <- function(filename,
     }
     
     if (is.null(glout@other$history)) {
-        glout@other$history <- list(match.call())
+        glout@other$history <- list(utils.history.call(match.call()))
     }
     # add recalc flags (TRUE=up-to-date, FALSE=no longer valid) all potential headers that can be relculated
     recalc.flags <-

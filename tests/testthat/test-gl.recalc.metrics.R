@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.recalc.metrics
 # Baseline snapshotted before review (dev at ddaed27; helper battery at
 # integration-local ed99203). These assertions pin behaviour against the

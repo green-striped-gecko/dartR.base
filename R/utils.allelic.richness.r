@@ -115,7 +115,9 @@ double allelicRichness(NumericMatrix x) {
     '
   )
 
-  df <- df[indices,]
+  # drop = FALSE: a single resampled row (a population of one individual
+  # with boot_method "ind", or one locus with "loc") must stay a matrix
+  df <- df[indices, , drop = FALSE]
 
   if(boot_method == "loc"){
     df <- t(df)

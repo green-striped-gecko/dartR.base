@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.dist.pop
 # Baseline snapshotted before review (population-distance chain review,
 # dev at ddaed27). Pins current behaviour, defects included; assertions

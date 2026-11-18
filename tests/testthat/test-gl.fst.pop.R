@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.fst.pop
 # Baseline snapshotted before review (review-gl.fst.pop), on dartR.data
 # 1.2.5 and StAMPP 1.6.3, then updated for the findings approved on
@@ -453,4 +457,26 @@ test_that("the gl.check.panel consumption pattern is stable", {
   expect_equal(nrow(d), nPop(xo) * (nPop(xo) - 1) / 2)
   # a real dist return would yield the same 45 paired values (F3 fix is safe)
   expect_setequal(round(d$o, 10), round(as.numeric(as.dist(fo)), 10))
+})
+
+test_that("the point estimates equal StAMPP::stamppFst exactly", {
+  # gl.fst.pop computes Weir & Cockerham's theta itself (from blocks of
+  # loci, so that file-backed objects need no conversion). It must give the
+  # values of StAMPP, which it replaced: same estimator, same population
+  # order, NaN for the pairs StAMPP cannot form.
+  skip_if_not_installed("StAMPP")
+  stampp <- function(x) {
+    g <- x
+    class(g) <- "genlight"
+    StAMPP::stamppFst(g, nboots = 1)
+  }
+  two <- gl.keep.pop(testset.gl, popNames(testset.gl)[1:2], verbose = 0)
+  for (x in list(testset.gl, platypus.gl, possums.gl, bandicoot.gl, two)) {
+    x <- gl.compliance.check(x, verbose = 0)
+    own <- gl.fst.pop(x, verbose = 0)
+    ref <- stampp(x)
+    expect_identical(dimnames(own), dimnames(ref))
+    expect_identical(own[lower.tri(own)], ref[lower.tri(ref)])
+    expect_true(all(is.na(own[upper.tri(own, diag = TRUE)])))
+  }
 })

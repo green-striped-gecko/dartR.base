@@ -67,3 +67,45 @@ test_that("negative indices work on FBM-backed objects", {
   expect_equal(nInd(fneg), 9)
   expect_equal(nInd(sub[-1, ]), 9)  # gen-backed negative indexing works
 })
+
+test_that("as.matrix gives identical matrices for gen- and FBM-backed objects", {
+  skip_if_not_installed("bigsnpr")
+  for (x in list(testset.gl, possums.gl)) {
+    f <- gl.gen2fbm(x, verbose = 0)
+    # same values, NA (stored as code 3), integer storage and dimnames
+    expect_identical(as.matrix(f), as.matrix(x))
+    expect_identical(as(f, "matrix"), as(x, "matrix"))
+    expect_identical(as.matrix(f[1:5, 1:10]), as.matrix(x[1:5, 1:10]))
+  }
+  # no names: no dimnames, as for a gen-backed object
+  m <- as.matrix(testset.gl)[1:5, 1:10]
+  g <- new("dartR", gen = unname(m), ploidy = 2)
+  expect_identical(as.matrix(gl.gen2fbm(g, verbose = 0)), as.matrix(g))
+  # a code with fractional values (dosages) stays double
+  d <- gl.gen2fbm(testset.gl[1:5, 1:10], code = bigsnpr::CODE_DOSAGE,
+                  verbose = 0)
+  expect_type(as.matrix(d), "double")
+})
+
+test_that("show() reports the same missing data for FBM and gen objects", {
+  f <- gl.gen2fbm(testset.gl, verbose = 0)
+  na_line <- function(x) grep("missing data", utils::capture.output(show(x)),
+                              value = TRUE)
+  expect_identical(na_line(f), na_line(testset.gl))
+})
+
+test_that("repeated loci keep their missing genotypes in every copy (gen and FBM)", {
+  # adegenet's SNPbin subset marked a missing genotype only at the first
+  # copy of a repeated locus; the other copies read as 0 (gen-backed only)
+  m <- as.matrix(testset.gl)
+  js <- which(colSums(is.na(m)) > 0)[1:3]
+  jj <- c(js[1], js[2], js[1], js[3], js[2], 5)
+  expect_true(all(colSums(is.na(m[, jj])) > 0 | jj == 5))
+  expect_identical(as.matrix(testset.gl[, jj]), m[, jj])
+  expect_identical(as.matrix(testset.gl[1:20, c(jj[1], jj[1])]),
+                   m[1:20, c(jj[1], jj[1])])
+  f <- gl.gen2fbm(testset.gl, verbose = 0)
+  expect_identical(as.matrix(f[, jj]), as.matrix(testset.gl[, jj]))
+  # unrepeated subsets are unchanged
+  expect_identical(as.matrix(testset.gl[, -1]), m[, -1])
+})
