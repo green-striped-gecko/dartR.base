@@ -26,8 +26,12 @@ gl.read.dart(
 \item{ind.metafile}{File that contains additional information on individuals
 [required].}
 
-\item{fbm}{If TRUE, the genlight object will be converted to a filebacked large matrix format, which is faster if
-the dataset is large [default FALSE, because still in a testing phase].
+\item{fbm}{If TRUE, the genotypes of the returned object are held in a
+file-backed matrix (@fbm), which suits large datasets. The genotype
+columns of the report are read in chunks of rows straight into a
+file-backed matrix, so they are never held in memory as a whole; with
+fbm = FALSE that matrix is converted to @gen in blocks of loci at the end
+[default FALSE].
 If you want to back convert use \code{\link{gl.gen2fbm}} and \code{\link{gl.fbm2gen}}.}
 
 \item{recalc}{If TRUE, force the recalculation of locus metrics [default TRUE].}
@@ -95,6 +99,7 @@ gl <- gl.read.dart(dartfile, ind.metafile = metadata, fbm=TRUE)
 
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.read.silicodart}()},
@@ -103,6 +108,6 @@ Other io:
 \code{\link{utils.read.dart}()}
 }
 \author{
-Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{io}

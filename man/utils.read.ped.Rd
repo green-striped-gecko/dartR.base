@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.read.ped.r
 \name{utils.read.ped}
 \alias{utils.read.ped}
-\title{An internal script [Custodian to provide a title]}
+\title{Reads a PLINK .ped file into a SnpMatrix with family and map data}
 \usage{
 utils.read.ped(
   file,
@@ -16,45 +16,84 @@ utils.read.ped(
 )
 }
 \arguments{
-\item{file}{Custodian to provide}
+\item{file}{Name of the .ped file to read (plain text or gzipped)
+[required].}
 
-\item{snps}{Custodian to provide}
+\item{snps}{Either the name of the associated .map file, or a character
+vector of locus names (one per locus) [optional; if missing, loci are
+named locus.1, locus.2, ...].}
 
-\item{which}{Custodian to provide}
+\item{which}{When snps is a map file, the column of that file holding
+the locus names [optional; defaults to the first column with no
+duplicates].}
 
-\item{split}{Custodian to provide}
+\item{split}{Regular expression used to split fields on each line
+[default "\\t| +", i.e. tabs and spaces].}
 
-\item{sep}{Custodian to provide}
+\item{sep}{Separator used when constructing locus and subject names
+[default "."].}
 
-\item{na.strings}{Custodian to provide}
+\item{na.strings}{Strings to be treated as missing values. Note that
+the default treats the conventional PLINK missing-allele code as
+missing [default "0"].}
 
-\item{lex.order}{Custodian to provide}
+\item{lex.order}{If TRUE, alleles at each locus are reordered
+lexicographically, and the genotype codes are switched to match
+[default FALSE].}
 
-\item{show_warnings}{Custodian to provide
- 
-#[Custodian to provide other parameter descriptions]}
+\item{show_warnings}{If FALSE, the warnings for no-data, monomorphic
+and multi-allelic loci are suppressed. The multi-allelic NA reset is
+applied regardless [default TRUE].}
 }
 \value{
-The resultant genlight object
+A list with elements: \code{genotypes} (a
+\code{snpStats::SnpMatrix}, individuals x loci), \code{fam} (a data
+frame with pedigree, member, father, mother, sex, affected) and
+\code{map} (a data frame with the locus names and alleles, plus the
+.map columns when one was supplied).
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
 \details{
-#[Custodian to provide details]
+A vendored, lightly modified copy of \code{snpStats::read.pedfile}. The
+file is read twice: a first pass counts the lines, a second parses each
+line into the six pedigree columns and the genotype allele pairs. For
+each locus the first allele encountered in file order becomes
+\code{allele.1} and the second becomes \code{allele.2}; genotypes are
+coded on that basis (raw SnpMatrix coding; as numeric, the count of
+\code{allele.2}). Loci at which more than two alleles are observed are
+set entirely to NA. The only in-package caller is
+\code{gl.report.ld.map}.
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
+\code{\link{utils.fbm.amat}()},
+\code{\link{utils.fbm.blocks}()},
+\code{\link{utils.fbm.colblocks}()},
+\code{\link{utils.fbm.colwise}()},
+\code{\link{utils.fbm.copy}()},
+\code{\link{utils.fbm.count.mean}()},
+\code{\link{utils.fbm.decode}()},
+\code{\link{utils.fbm.grm}()},
+\code{\link{utils.fbm.has}()},
+\code{\link{utils.fbm.new}()},
+\code{\link{utils.fbm.pair.counts}()},
+\code{\link{utils.fbm.reader}()},
+\code{\link{utils.fbm.rowwise}()},
+\code{\link{utils.fbm.tempfile}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
+\code{\link{utils.history.call}()},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -68,6 +107,7 @@ Other utilities:
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()},
+\code{\link{utils.vcf.depth}()},
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
@@ -75,3 +115,4 @@ Custodian: Luis Mijangos (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{utilities}
+\keyword{internal}

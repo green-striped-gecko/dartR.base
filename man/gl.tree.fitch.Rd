@@ -2,7 +2,7 @@
 % Please edit documentation in R/gl.tree.fitch.r
 \name{gl.tree.fitch}
 \alias{gl.tree.fitch}
-\title{Generates a distance phylogeny}
+\title{Generates a Fitch-Margoliash distance phylogeny}
 \usage{
 gl.tree.fitch(
   D,
@@ -15,6 +15,10 @@ gl.tree.fitch(
   randomize = FALSE,
   n.jumble = 9,
   bstrap = 1,
+  subst.model = "F81",
+  pairwise.missing = TRUE,
+  min.tag.len = NULL,
+  plot.display = TRUE,
   plot.type = "phylogram",
   bstrap.threshold = 0.8,
   branch.width = 2,
@@ -35,9 +39,9 @@ gl.tree.fitch(
 
 \item{out.path}{Path to the directory to save files produced by the analysis [default tempdir()]}
 
-\item{tree.method}{Algorithm used for constructing trees and selecting the best tree [default "FM"]}
+\item{tree.method}{Algorithm used for constructing trees and selecting the best tree; only "FM" (Fitch-Margoliash) is implemented [default "FM"]}
 
-\item{outgroup}{Name of the outgroup taxon [default NULL, no outgroup, tree not rooted]}
+\item{outgroup}{Name of the outgroup taxon; if supplied, the returned tree is rooted on it [default NULL, no outgroup, tree not rooted]}
 
 \item{global.rearrange}{If TRUE, undertake global rearrangements when generating the tree [default FALSE].}
 
@@ -45,7 +49,21 @@ gl.tree.fitch(
 
 \item{n.jumble}{Number of randomizations of the input order, must be odd [default 9]}
 
-\item{bstrap}{Number of bootstrap replicates [default 1000]}
+\item{bstrap}{Number of bootstrap replicates [default 1, no bootstrapping]}
+
+\item{subst.model}{The substitution model used by gl.dist.phylo() when
+recomputing distances for the bootstrap replicates; set to the model used
+to build D [default "F81"]}
+
+\item{pairwise.missing}{Whether gl.dist.phylo() deletes sites with missing
+data pairwise when recomputing distances for the bootstrap replicates; set
+to the value used to build D [default TRUE]}
+
+\item{min.tag.len}{Minimum tag length applied by gl.dist.phylo() when
+recomputing distances for the bootstrap replicates; set to the value used
+to build D [default NULL]}
+
+\item{plot.display}{If TRUE, the tree is plotted in the plot window [default TRUE]}
 
 \item{plot.type}{One of 'phylogram','cladogram','unrooted','fan','tidy','radial' [default "phylogram"]}
 
@@ -61,29 +79,64 @@ gl.tree.fitch(
 
 \item{node.label.cex}{Height of the node label text [default 0.8]}
 
-\item{offset}{Horizontal offset of the node labels from the node [default 1.8]}
+\item{offset}{Horizontal offset of the node labels from the node [default 1.2]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2, unless specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-The tree file in newick format.
+A tree of class phylo. When bstrap > 1, node.label carries the
+bootstrap support proportions for the corresponding internal nodes and
+the Phylip majority-rule consensus tree is attached as attribute
+"consensus.tree".
 }
 \description{
-Generates a distance phylogeny from a distance object
- using the Fitch-Margoliash algorithm in Phylip.
+Generates a distance phylogeny from a distance object using the
+Fitch-Margoliash weighted least-squares method implemented by program
+fitch in the Phylip suite of executables, optionally with bootstrap
+support values computed by resampling loci from the genlight object.
 }
 \details{
-The script takes a distance object as input. This distance object is typically created with gl.dist.phylo().
-The script then creates a file consistent with what is expected
-by program fitch in the Phylip suite of executables. It then runs fitch to generate the "best" phylogenetic
-tree. Program fitch is run again with bstrap replicates to generate bootstrap support for each node
-in the tree and plots these on the tree.
+The script takes a distance object as input. This distance object is
+typically created with gl.dist.phylo(). The script writes the distance
+matrix to a file in the format expected by program fitch in the Phylip
+suite of executables, then runs fitch to generate the best tree by the
+Fitch-Margoliash method -- weighted least-squares fitting of branch
+lengths to the distances (power 2, negative branch lengths disallowed).
+This is a distance method, not maximum parsimony.
+
+Program fitch requires at least four taxa, and taxon names are truncated
+to the 10 characters of the Phylip format (execution stops if the
+truncated names are not unique). The Phylip tree file carries branch
+lengths to 6 decimal places only, which would leave SNP-scale distances
+with one or two significant digits; the distance matrix is therefore
+scaled by 10,000 before it is passed to fitch and the branch lengths are
+rescaled on return. The Fitch-Margoliash criterion is invariant to this
+scaling, so the topology and relative branch lengths are unaffected.
 
      tree.method : Currently only Fitch-Margoliash is implemented.
-     
-     outgroup : Name the taxon to be used as outgroup. Must be among the names of the populations defined in the genlight object.
+
+     outgroup : Name the taxon to be used as outgroup. Must be among the
+     names of the populations defined in the genlight object. When
+     supplied, the returned tree is rooted on the outgroup.
+
+If bstrap > 1, bootstrap replicates are generated by resampling loci with
+replacement from the genlight object x, and distances for each replicate
+are recomputed with gl.dist.phylo() using the settings given by
+subst.model, pairwise.missing and min.tag.len -- set these to the values
+used to build D, otherwise the support values will measure the stability
+of trees built under a different model. The support for each node of the
+best tree is the proportion of replicate trees that contain the same
+bipartition (computed with ape::prop.clades) and is attached to the
+returned tree as node.label; the Phylip majority-rule consensus tree from
+consense is attached as attribute "consensus.tree". The seeds for the
+Phylip-side searches are fixed (12345 for the jumbled input order, 331
+for the replicate analyses); global.rearrange and randomize apply to the
+search for the best tree only, not to the replicate searches; and the
+locus resampling is governed by the R session's random number generator
+(use set.seed() for reproducibility).
 }
 \examples{
 
@@ -91,7 +144,7 @@ in the tree and plots these on the tree.
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 tmp <- gl.filter.monomorphs(testset.gl)
 D <- gl.dist.phylo(testset.gl,subst.model="F81")
-gl.phylip(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
+gl.tree.fitch(D=D,x=tmp,phylip.path="D:/workspace/R/phylip-3.695/exe",plot.type="unrooted",
 node.label.cex=0.5,terminal.label.cex=0.6,global.rearrange = FALSE, bstrap=10)
 }
 
@@ -102,7 +155,7 @@ Other phylogeny:
 \code{\link{gl.dist.phylo}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to 
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{phylogeny}

@@ -9,7 +9,10 @@ gl.read.vcf(
   ind.metafile = NULL,
   mode = "genotype",
   fbm = FALSE,
-  verbose = NULL
+  read.counts = FALSE,
+  likelihoods = FALSE,
+  verbose = NULL,
+  parser = "vcfR"
 )
 }
 \arguments{
@@ -24,9 +27,26 @@ dosage: sites will be codes as copy number of alternate allele [default genotype
 \item{fbm}{Logical, if TRUE the dartR object will contain a file-backed matrix. 
 this is important for large data sets that do not fit into RAM.}
 
+\item{read.counts}{Logical, if TRUE the reference and alternative read
+counts of each genotype are stored in the dartR object (see details). They
+take much more memory than the genotypes [default FALSE].}
+
+\item{likelihoods}{Logical, if TRUE the likelihoods of the three genotypes
+(FORMAT PL, or GL) of each genotype call are stored in the dartR object
+(see details). Only in "genotype" mode. They take 12 bytes per genotype,
+about 190 MB for 171 individuals and 93,000 loci [default FALSE].}
+
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
+
+\item{parser}{"vcfR" reads the vcf with package vcfR (the whole file is
+held in memory as text); "cpp" reads the genotypes with the C++ parser of
+package tidypopgen, chunk by chunk straight into a file-backed matrix,
+which is much faster and needs little memory for large files. tidypopgen
+is not installed with dartR.base; install it with
+\code{install.packages("tidypopgen")} to use "cpp". See details for the
+limits of "cpp" [default "vcfR"].}
 }
 \value{
 A genlight object.
@@ -36,14 +56,79 @@ This function needs package vcfR, please install it.
 }
 \details{
 The ind.metadata file needs to have very specific headings. First a heading
-called id. Here the ids have to match the ids in the dartR object. 
+called id. Here the ids have to match the ids in the dartR object.
 The following column headings are optional.
 pop: specifies the population membership of each individual. lat and lon
 specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
-Note also that this function checks to see if there are input of mode, missing input of mode 
-will issue the user with an error. "Dosage" mode of this function assign ploidy levels as maximum copy number of alternate alleles. 
+Individuals in the SNP data that are absent from the ind.metafile are
+retained in the returned object with NA metadata; a warning lists them
+at verbose >= 1.
+
+Genotypes are coded as the count of the ALT allele: 0 = homozygous
+REF, 2 (or the copy number in dosage mode) = homozygous ALT. Note that
+this is the opposite orientation to \code{\link{gl.read.PLINK}}, which
+counts allele.2 (the PLINK 1.x major allele).
+
+In "genotype" mode the returned object is coded as diploid; if the vcf
+contains haploid or polyploid genotype calls a warning is issued at
+verbose >= 1 (haploid calls are recoded as diploid homozygotes,
+polyploid heterozygous calls as 1). In "dosage" mode the ploidy of the
+object is set to the data's maximum copy number of the alternate
+allele, uniform across individuals.
+Note also that this function checks to see if there are input of mode, missing input of mode
+will issue the user with an error.
 Please carefully check the data if "dosage" mode is used.
+
+When the vcf holds FORMAT DP, the mean read depth of each locus over its
+called genotypes is stored in \code{x@other$loc.metrics$rdepth}, where
+\code{\link{gl.report.rdepth}} and \code{\link{gl.filter.rdepth}} find it.
+Missing and half-missing calls (e.g. ./., 0/.) are not counted; some
+callers report a depth of 0 for them.
+
+With \code{read.counts = TRUE}, \code{x@other$geno.metrics} holds two
+integer matrices of individuals x loci: \code{ref.count} and
+\code{alt.count}, the reads of the REF and ALT allele of each genotype.
+They are read from FORMAT AD or, for genotypes without AD, from FORMAT
+BSDP (read counts of the bases A, C, G and T) at the REF and ALT bases.
+Counts are stored as the vcf reports them, also for uncalled genotypes.
+
+With \code{likelihoods = TRUE}, \code{x@other$geno.metrics} also holds
+\code{pl.ref}, \code{pl.het} and \code{pl.alt}: the phred-scaled
+likelihoods of 0/0, 0/1 and 1/1 for each genotype, as integer matrices of
+individuals x loci. They are read from FORMAT PL or, for genotypes without
+PL, from FORMAT GL as round(-10 * GL). Each genotype's likelihoods are
+shifted so that the most likely genotype has 0, as some callers write PL
+whose lowest value is above 0; likelihoods are defined only up to a
+constant, so nothing is lost. A likelihood of 0 (GL of -inf) is stored as
+the largest integer. Genotypes whose likelihoods are missing, do not
+number three (haploid or polyploid calls) or are all equal (e.g.
+./.:0,0,0) get NA; uncalled genotypes with informative likelihoods keep
+them. Likelihoods are not stored in "dosage" mode.
+
+The matrices in \code{x@other$geno.metrics} have no row or column names:
+row i belongs to \code{indNames(x)[i]} and column j to
+\code{locNames(x)[j]}, so renaming individuals or loci cannot leave stale
+names on them. The matrices follow the genotypes when individuals or loci
+are subset, sorted or combined, and \code{\link{gl.randomize.snps}} swaps
+the REF and ALT read counts and the 0/0 and 1/1 likelihoods of the loci it
+recodes; \code{\link{gl.compliance.check}} removes them if their
+dimensions no longer match the object.
+
+With \code{parser = "cpp"} (package tidypopgen) the genotypes are read
+by tidypopgen's C++ parser into a file-backed matrix and copied in blocks
+of loci into the returned object (file-backed with \code{fbm = TRUE},
+converted to @gen in blocks otherwise); the fixed columns of the vcf
+(CHROM to INFO) are read in chunks as well, so the whole file is never
+held in memory. For the variants it reads, the result is the same as with
+\code{parser = "vcfR"}: genotypes (count of the ALT allele), locus names,
+alleles, chromosome, position and the QUAL, FILTER and INFO locus
+metrics. Limits: only single-base (SNP) variants are read, so indels are
+skipped (with a warning); only \code{mode = "genotype"}; no rdepth, read
+counts or likelihoods; and only diploid genotype calls -- a vcf with
+haploid or polyploid calls (e.g. a sex chromosome in the heterogametic
+sex) stops with an error, as tidypopgen would code a haploid call like a
+heterozygote. Use \code{parser = "vcfR"} in these cases.
 }
 \examples{
 \dontrun{
@@ -56,5 +141,5 @@ ind.metafile="metafile.csv",mode="dosage")
 }
 }
 \author{
-Bernd Gruber, Ching Ching Lau (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber, Ching Ching Lau. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }

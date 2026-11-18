@@ -1,16 +1,18 @@
 #' @name gl.add.indmetrics
 #' @title Adds metadata into a genlight object
+#' @family data manipulation
 #' @description
 #' This function adds the metadata information to the slot ind.metrics and
-#' populates population and coordinates information slots if the they are
+#' populates population and coordinates information slots if they are
 #' found in the metadata.
-#' @param x Name of the genlight object containing the SNP data, or the genind
-#'  object containing the SilocoDArT data [required].
+#' @param x Name of the genlight object containing the SNP or SilicoDArT data
+#' [required].
 #' @param ind.metafile path and name of CSV file containing the metadata
 #' information for each individual (see details for explanation) [required].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-#' progress log ; 3, progress and results summary; 5, full report
-#' [default 2, unless specified using gl.set.verbosity].
+#' progress log; 3, progress and results summary; 5, full report
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #'
 #' @details
 #' The ind.metadata file needs to have very specific headings. First a column
@@ -25,7 +27,7 @@
 #'
 #'  Additional columns with individual metadata can be imported (e.g. age,
 #'  sex, etc).
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' dartfile <- system.file('extdata','testset_SNPs_2Row.csv', package='dartR.data')
@@ -45,7 +47,7 @@ gl.add.indmetrics <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.2",
                    verbose = verbose)
   
@@ -75,10 +77,9 @@ gl.add.indmetrics <- function(x,
         trimws(ind.cov[, id.col], which = "both")  #trim spaces
       
       if (length(ind.cov[, id.col]) != length(unique(ind.cov[, id.col]))) {
-        cat(error(
-          "Individual names are not unique. You need to change them!\n"
+        stop(error(
+          "Fatal Error: Individual names are not unique. You need to change them!\n"
         ))
-        stop()
       }
       
       # reorder
@@ -118,7 +119,7 @@ gl.add.indmetrics <- function(x,
           cat(report(
             paste(
               "  Found ",
-              length(ord == nInd(x)),
+              length(ord),
               "matching ids out of",
               nrow(ind.cov),
               "ids provided in the ind.metadata file.\n "
@@ -128,6 +129,14 @@ gl.add.indmetrics <- function(x,
         ord2 <-
           match(ind.cov[ord, id.col], indNames(x))
         x <- x[ord2,]
+        # Align the metadata to the matched, reordered individuals. x[ord2, ]
+        # is in ind.cov[ord, ] order, so this subset keeps ind.cov in step
+        # with x; ord is reset so every subsequent ind.cov[ord, ] indexes the
+        # aligned rows (previously ind.cov kept its full row count, so
+        # ind.cov$pop_old <- x@pop crashed whenever the metadata carried ids
+        # not present in x).
+        ind.cov <- ind.cov[ord, , drop = FALSE]
+        ord <- seq_len(nrow(ind.cov))
       } else {
         stop(error("Fatal Error: Individual ids are not matching!!!!\n"))
       }
@@ -202,7 +211,7 @@ gl.add.indmetrics <- function(x,
   
   # ADD TO HISTORY
   nh <- length(x@other$history)
-  x@other$history[[nh + 1]] <- match.call()
+  x@other$history[[nh + 1]] <- utils.history.call(match.call())
   
   # FLAG SCRIPT END
   

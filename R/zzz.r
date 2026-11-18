@@ -57,7 +57,13 @@ packageStartupMessage(important(
   if (is.null(getOption("dartR_fbm"))) {
     val <- Sys.getenv("dartR_fbm", "")
     # Accept a few truthy values: 1, true, yes, on (case-insensitive)
-    if (val=="TRUE") options(dartR_fbm = TRUE) else options(dartR_fbm=FALSE)
+    options(dartR_fbm = tolower(trimws(val)) %in% c("1", "true", "yes", "on"))
   }
 }
 
+
+.onUnload <- function(libpath) {
+  # last attempt to delete backing files that were still mapped
+  invisible(gc(verbose = FALSE))
+  .fbm_retry_pending()
+}

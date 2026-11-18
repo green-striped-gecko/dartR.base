@@ -7,7 +7,8 @@
 gl.reassign.pop(x, as.pop, verbose = NULL)
 }
 \arguments{
-\item{x}{Name of the genlight object containing SNP genotypes [required].}
+\item{x}{Name of the genlight object containing SNP or SilicoDArT data
+[required].}
 
 \item{as.pop}{Specify the name of the individual metric to set as the pop
 variable [required].}
@@ -44,17 +45,22 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.gen2fbm}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.recode.ind}()},
@@ -64,10 +70,11 @@ Other data manipulation:
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

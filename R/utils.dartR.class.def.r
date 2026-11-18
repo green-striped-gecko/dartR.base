@@ -23,6 +23,62 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
 
 .has_fbm <- function(x) !is.null(.fbm_or_null(x))
 
+## @other$geno.metrics holds per-genotype matrices (individuals x loci, e.g.
+## the read counts kept by gl.read.vcf); they follow both indices. They are
+## kept by position only, without dimnames, because individuals and loci are
+## renamed in many places that would leave dimnames stale.
+.gm_subset <- function(gm, ii, jj) {
+  lapply(gm, function(m) m[ii, jj, drop = FALSE])
+}
+
+## Binds the geno.metrics of objects joined by rbind (along = 1, with each
+## object's columns put in the first object's locus order by colmap) or by
+## cbind (along = 2). They are dropped when not every object holds the same
+## matrices, as the result would mix aligned and missing counts.
+.gm_bind <- function(objs, along, colmap = NULL) {
+  gms <- lapply(objs, function(o) o@other$geno.metrics)
+  if (all(vapply(gms, is.null, logical(1)))) return(NULL)
+  nms <- names(gms[[1L]])
+  if (any(vapply(gms, function(g) is.null(g) || !identical(names(g), nms),
+                 logical(1)))) {
+    warning("Not every object holds the same other$geno.metrics; they are ",
+            "dropped from the result.")
+    return(NULL)
+  }
+  out <- lapply(nms, function(nm) {
+    ms <- lapply(seq_along(gms), function(k) {
+      m <- gms[[k]][[nm]]
+      if (!is.null(colmap)) m <- m[, colmap[[k]], drop = FALSE]
+      m
+    })
+    if (along == 1L) do.call(rbind, ms) else do.call(cbind, ms)
+  })
+  names(out) <- nms
+  out
+}
+
+## Returns a valid dartR object. A plain genlight is coerced with as(), which
+## adds the fbm slot. `class(x) <- "dartR"` only relabels the object, so the
+## result lacks @fbm and fails validObject(); objects made that way (or saved
+## before the slot existed) are rebuilt slot by slot. A valid dartR object is
+## returned unchanged.
+.as_dartR <- function(x) {
+  if (!methods::is(x, "dartR")) {
+    return(methods::as(x, "dartR"))
+  }
+  if (!methods::.hasSlot(x, "fbm")) {
+    y <- methods::new("dartR")
+    for (s in setdiff(methods::slotNames("dartR"), "fbm")) {
+      if (methods::.hasSlot(x, s)) {
+        methods::slot(y, s, check = FALSE) <- methods::slot(x, s)
+      }
+    }
+    y@fbm <- NULL
+    return(y)
+  }
+  x
+}
+
 fbm_or_gen <- function(x) {
   # early guard: must be an S4 object
   
@@ -126,7 +182,7 @@ setMethod ("show", "dartR", function(object) {
   if (!is.null(object@gen)) {
   temp <- sapply(object@gen, function(e)
     length(e@NA.posi))
-  if (length(temp > 1)) {
+  if (length(temp) > 0) {
     cat("\n\n    missing data: ",
         sum(temp),
         " (=",
@@ -142,7 +198,13 @@ setMethod ("show", "dartR", function(object) {
     fbm <- object@fbm
     n <- nInd(object); p <- nLoc(object)
     if (n > 0 && p > 0) {
-      nNA <- sum(is.na(fbm[]))
+      # Counted from the backing file in blocks of loci; fbm[] would decode
+      # the whole matrix into memory
+      nNA <- sum(bigstatsr::big_apply(
+        fbm,
+        a.FUN = function(X, ind) sum(is.na(X[, ind, drop = FALSE])),
+        a.combine = "c"
+      ))
       cat("\n\n    missing data: ",
           nNA,
           " (=",
@@ -195,9 +257,8 @@ setMethod ("show", "dartR", function(object) {
   
   if (!is.null(object@position)) {
     optional <- TRUE
-    cat("\n   @position: integer storing positions of the",
-        marker,
-        "[within 69 base sequence]")
+    cat("\n   @position: integer storing genomic positions of the",
+        marker)
   }
   if (!is.null(object@pop)) {
     optional <- TRUE
@@ -206,7 +267,7 @@ setMethod ("show", "dartR", function(object) {
                                            "-"), ")", sep = "")
     cat("\n   @pop:", paste("population of each individual", poptxt))
   } else
-    cat("\n   @pop:", "no population lables for individuals")
+    cat("\n   @pop:", "no population labels for individuals")
   
   if (!is.null(object@strata)) {
     optional <- TRUE
@@ -250,7 +311,7 @@ setMethod ("show", "dartR", function(object) {
     ), "\n")
   }
   
-  if (!is.null(object@other$ind.metrics)) {
+  if (!is.null(object@other$loc.metrics)) {
     optional <- TRUE
     cat("    @other$loc.metrics: ")
     cat(ifelse(
@@ -279,32 +340,6 @@ setMethod ("show", "dartR", function(object) {
 }) # end show method
 
 
-.fbmsub_copy <- function(G, i, j, backingfile = tempfile("geno_"), col_block = 1024L) {
-  stopifnot(inherits(G, "FBM.code256"))
-  
-  nr <- nrow(G); nc <- ncol(G)
-  
-  # Normalize i, j to integer indices
-  if (is.logical(i)) i <- which(rep_len(i, nr))
-  if (is.logical(j)) j <- which(rep_len(j, nc))
-  if (anyNA(i) || anyNA(j)) stop("Indices i/j contain NAs after normalization.")
-  
-  G2 <- bigstatsr::FBM.code256(length(i), length(j), code = code)
-  
-  # Chunk over columns to limit memory footprint
-  if (length(j) > 0L) {
-    starts <- seq.int(1L, length(j), by = col_block)
-    for (s in starts) {
-      e <- min(s + col_block - 1L, length(j))
-      j_chunk <- j[s:e]
-      # pull (all rows, chunked columns), then subset rows
-      chunk <- G[, j_chunk]
-      if (!is.null(i)) chunk <- chunk[i, , drop = FALSE]
-      G2[, s:e] <- chunk
-    }
-  }
-  G2
-}
 
 #################
 ## subset dartR
@@ -318,7 +353,8 @@ setMethod ("show", "dartR", function(object) {
 #' @param ... other parameters
 #' @param pop list of populations to be kept
 #' @param treatOther elements in other (and ind.metrics & loci.metrics) as 
-#' indexed as well. default: TRUE
+#' indexed as well. default: TRUE. The matrices in other$geno.metrics
+#' (individuals x loci) are always subset by individuals and loci.
 #' @param quiet warnings are suppressed. default: TRUE
 #' @param drop reduced to a vector if a single individual/loci is selected. 
 #' default: FALSE [should never set to TRUE]
@@ -349,14 +385,24 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
               i <- .get_pop_inds(x, pop)  # returns integer indices
             }
             
-            ## Character j = match locus names
+            ## Character j = match locus names; unmatched names are fatal
             if (is.character(j)) {
-              j <- match(j, x@loc.names, nomatch = 0L)
+              jmatch <- match(j, x@loc.names)
+              if (anyNA(jmatch)) {
+                stop(error("Fatal Error: unknown locus name(s): ",
+                           paste(j[is.na(jmatch)], collapse = ", "), "\n"))
+              }
+              j <- jmatch
             }
             
-            ## Normalize i/j to integer indices now (keeps logicals if you prefer)
-            ii <- if (is.logical(i)) which(i) else i
-            jj <- if (is.logical(j)) which(j) else j
+            ## Normalize i/j to positive integer indices; seq_len()[i]
+            ## resolves negative indexing uniformly for the FBM and
+            ## SNPbin branches
+            ii <- if (is.logical(i)) which(i) else seq_len(ori.n)[i]
+            jj <- if (is.logical(j)) which(j) else seq_len(ori.p)[j]
+            if (anyNA(ii) || anyNA(jj)) {
+              stop(error("Fatal Error: subscript out of bounds.\n"))
+            }
             
             if (length(ii)==0 ) {
               stop(error("Subsetting resulted in zero individuals."))
@@ -371,9 +417,8 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             fbm <- .fbm_or_null(x)
             if (!is.null(fbm)) {
               # Subset FBM first (keeps XOR: @gen remains empty)
-              #x@fbm <- .fbmsub_copy(x@fbm, ii, jj, code = x@fbm$code256)
               
-                dummyG <-bigstatsr::big_copy(x@fbm, ind.row = ii, ind.col = jj, backingfile = tempfile("geno_"))
+                dummyG <- utils.fbm.copy(x@fbm, ind.row = ii, ind.col = jj)
                 x@fbm <- dummyG
               #unlink temp file
               #bigstatsr::big_unlink(dummyG)
@@ -398,7 +443,9 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
                 counter <- 0L
                 f1 <- function(obj) {
                   counter <<- counter + 1L
-                  if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
+                  if (identical(namesOther[counter], "geno.metrics")) {
+                    obj
+                  } else if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
                     obj[ii, , drop = FALSE]
                   } else if (length(obj) == ori.n) {
                     obj <- obj[ii]
@@ -416,7 +463,12 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
               if (!is.null(x@other$loc.metrics)) {
                 x@other$loc.metrics <- x@other$loc.metrics[jj, , drop = FALSE]
               }
-              
+
+              ## Per-genotype matrices follow individuals and loci
+              if (!is.null(x@other$geno.metrics)) {
+                x@other$geno.metrics <- .gm_subset(x@other$geno.metrics, ii, jj)
+              }
+
               ## Ensure XOR: keep @gen empty
               x@gen <- vector("list", 0L)
               
@@ -453,7 +505,9 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             if (treatOther && !(is.logical(i) && all(i))) {
               f2 <- function(obj, n = ori.n) {
                 counter <<- counter + 1L
-                if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
+                if (identical(namesOther[counter], "geno.metrics")) {
+                  obj
+                } else if (!is.null(dim(obj)) && nrow(obj) == ori.n) {
                   obj[ii, , drop = FALSE]
                 } else if (length(obj) == ori.n) {
                   obj <- obj[ii]
@@ -472,11 +526,26 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
             x@chromosome <- chr(x)[jj]
             x@position   <- position(x)[jj]
             x@loc.all    <- alleles(x)[jj]
-            x@gen        <- lapply(x@gen, function(e) e[jj])
+            # adegenet's SNPbin subset (.SNPbinset) maps each missing
+            # position to the FIRST copy of a repeated locus only (match()),
+            # so the other copies read as 0. With repeated loci, mark every
+            # copy of a missing locus as missing (the FBM branch is correct).
+            if (anyDuplicated(jj)) {
+              x@gen <- lapply(x@gen, function(e) {
+                na.old <- e@NA.posi
+                e <- e[jj]
+                if (length(na.old) > 0) e@NA.posi <- which(jj %in% na.old)
+                e
+              })
+            } else {
+              x@gen <- lapply(x@gen, function(e) e[jj])
+            }
             x@n.loc      <- x@gen[[1]]@n.loc
             
             if (!is.null(x@other$loc.metrics))
               x@other$loc.metrics <- x@other$loc.metrics[jj, , drop = FALSE]
+            if (!is.null(x@other$geno.metrics))
+              x@other$geno.metrics <- .gm_subset(x@other$geno.metrics, ii, jj)
             if (!.has_fbm(x)) x@fbm <- NULL
             
             x
@@ -489,19 +558,19 @@ setMethod("[", signature(x = "dartR", i = "ANY", j = "ANY", drop = "ANY"),
 #' other slot is lost). You can get most of the loci metadata back using
 #' gl.compliance.check.
 #' @param ... list of dartR objects
-#' @param backingfile prefix for the backing file of the resulting FBM
+#' @param backingfile File stem for the backing file of the resulting FBM, or
+#' NULL for a temporary file in getOption("FBM.dir") [default NULL]
 #' @param code code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input
 #' @param chunk number of columns to process in a block when copying from FBMs
 #' @param quiet suppress warnings. default: TRUE
 #' @examples
 #' t1 <- platypus.gl
-#' class(t1) <- "dartR"
 #' t2 <- cbind(t1[,1:10],t1[,11:20])
-#' @return A genlight object
+#' @return A dartR object
 #' @export
 
 cbind.dartR <- function(...,
-                        backingfile = tempfile("geno_"),
+                        backingfile = NULL,
                         code = NULL,          # if NULL: inherit from first FBM or use CODE_DOSAGE
                         chunk = 2048L,        # columns per block to copy from FBMs
                         quiet = TRUE) {
@@ -566,7 +635,7 @@ cbind.dartR <- function(...,
     }
     #    code <- bigsnpr::CODE_012
     ## Create target FBM
-    Gnew <- bigstatsr::FBM.code256(n.ind, total_p, code = code, backingfile = backingfile)
+    Gnew <- utils.fbm.new(n.ind, total_p, code = code, backingfile = backingfile)
     
     ## Fill columns from each object using big_apply
     col_off <- 0L
@@ -638,7 +707,8 @@ cbind.dartR <- function(...,
         warning("loc.metrics columns differ; not merging.")
       }
     }
-    
+    out@other$geno.metrics <- .gm_bind(objs, 2L)
+
     return(out)
   }
   
@@ -692,36 +762,63 @@ cbind.dartR <- function(...,
       }
     }
   }
-  
+  out@other$geno.metrics <- .gm_bind(myList, 2L)
+
   out
 } # end cbind.dartR
 ###############################################################
 ##################################################################
 #' @name rbind.dartR
 #' @title rbind for dartR objects
-#' @description rbind is a bit lazy and does not take care for the metadata (so data in the
-#' other slot is lost). You can get most of the loci metadata back using
-#' gl.compliance.check.
-#' @param ... list of dartR objects
-#' @param backingfile prefix for the backing file of the resulting FBM
+#' @description Combines the individuals of two or more dartR objects that
+#' hold the same loci. Loci are matched by name, so the objects may list them
+#' in different orders; the result follows the locus order of the first
+#' object.
+#'
+#' Metadata are carried over: locus metrics come from the first object;
+#' individual metrics are stacked (a column missing from an object is filled
+#' with NA), and so are coordinates in \code{latlon} when every object has
+#' them; the locus-metric flags are reset to FALSE, because metrics such as
+#' call rate and allele frequencies no longer describe the combined set of
+#' individuals (use \code{gl.recalc.metrics} to recompute them); the call is
+#' added to the history of the first object.
+#'
+#' The function stops when the objects hold different loci, code the alleles
+#' of a locus differently (\code{loc.all}), or mix SNP (ploidy 2) and
+#' SilicoDArT (ploidy 1) data. To combine a list of objects, use
+#' \code{do.call(rbind, list_of_objects)}.
+#' @param ... dartR objects to combine [required]
+#' @param backingfile File stem for the backing file of the resulting FBM, or
+#' NULL for a temporary file in getOption("FBM.dir") [default NULL]
 #' @param code code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input
 #' @param chunk number of columns to process in a block when copying from FBMs
 #' @param quiet suppress warnings. default: TRUE
 #' @examples
 #' t1 <- platypus.gl
-#' class(t1) <- "dartR"
 #' t2 <- rbind(t1[1:5,],t1[6:10,])
-#' @return A genlight object 
+#' # a list of objects
+#' t3 <- do.call(rbind, list(t1[1:5,], t1[6:10,], t1[11:15,]))
+#' @return A dartR object
 #' @export
 rbind.dartR <- function(...,
-                        backingfile   = tempfile("geno_rbind_"),
+                        backingfile   = NULL,
                         code          = NULL,        # if NULL: inherit from first FBM
                         chunk         = 2048L,       # columns per block
                         quiet         = TRUE) {
   dots <- list(...)
-  objs <- dots[sapply(dots, function(x) inherits(x, "genlight"))]
-  if (length(objs) == 1L && is.list(objs[[1L]])) objs <- objs[[1L]]
-  if (!length(objs)) stop("No dartR/genlight objects supplied to rbind().")
+  # NULL is allowed so that a result can be built up from NULL in a loop
+  # (gl.impute does this); anything else must be a genlight object
+  dots <- dots[!vapply(dots, is.null, logical(1))]
+  not.gl <- !vapply(dots, function(o) inherits(o, "genlight"), logical(1))
+  if (any(not.gl)) {
+    stop(error(
+      "Fatal Error: rbind() on dartR objects accepts only dartR/genlight",
+      "objects (or NULL). To combine a list of objects use",
+      "do.call(rbind, list_of_objects)\n"
+    ))
+  }
+  objs <- dots
+  if (!length(objs)) stop(error("Fatal Error: no dartR/genlight objects supplied to rbind()\n"))
   
   ## Drop empties
   objs <- objs[sapply(objs, nLoc) > 0 & sapply(objs, nInd) > 0]
@@ -755,6 +852,35 @@ rbind.dartR <- function(...,
     }
   }
   
+  ## SNP (ploidy 2) and SilicoDArT (ploidy 1) data cannot share an object:
+  ## a SilicoDArT presence score of 1 would read as an SNP heterozygote
+  ploidies <- unique(unlist(lapply(objs, ploidy), use.names = FALSE))
+  if (length(ploidies) > 1L) {
+    stop(error(
+      "Fatal Error: the objects mix ploidy levels (", paste(ploidies, collapse = ", "),
+      "); SNP and SilicoDArT data cannot be combined\n"
+    ))
+  }
+
+  ## Every object must code the alleles of each locus as the first object
+  ## does; otherwise the same genotype score means different alleles in
+  ## different rows
+  ref_all <- alleles(objs[[1L]])
+  if (!is.null(ref_all) && length(objs) > 1L) {
+    for (k in 2:length(objs)) {
+      all.k <- alleles(objs[[k]])
+      if (is.null(all.k)) next
+      n.diff <- sum(all.k[colmap[[k]]] != ref_all, na.rm = TRUE)
+      if (n.diff > 0L) {
+        stop(error(
+          "Fatal Error: object", k, "codes the alleles (loc.all) of", n.diff,
+          "loci differently from the first object; recode them before",
+          "combining\n"
+        ))
+      }
+    }
+  }
+
   ## Concatenate per-individual metadata
   ind_names_in <- unlist(lapply(objs, indNames), use.names = FALSE)
   ind_names    <- make.unique(ind_names_in, "__ind")
@@ -781,12 +907,8 @@ rbind.dartR <- function(...,
   alleles_out  <- alleles(objs[[1L]])
   chrom_out    <- chr(objs[[1L]])
   pos_out      <- position(objs[[1L]])
-  loc_metrics  <- objs[[1L]]@other$loc.metrics
-  other_out    <- objs[[1L]]@other
-  if (!is.null(loc_metrics) && nrow(loc_metrics) == length(loc_names)) {
-    rownames(loc_metrics) <- loc_names
-    other_out$loc.metrics <- loc_metrics
-  }
+  other_out    <- .rbind_other(objs, ind_names)
+  other_out$geno.metrics <- .gm_bind(objs, 1L, colmap)
   
   ## Any FBM present?
   has_fbm_vec <- vapply(objs, function(o) !is.null(.fbm_or_null(o)), logical(1))
@@ -805,7 +927,8 @@ rbind.dartR <- function(...,
     }
     
     ## Target FBM
-    Gnew <- bigstatsr::FBM.code256(total_n, p, code = code)
+    Gnew <- utils.fbm.new(total_n, p, code = code, backingfile = backingfile,
+                          prefix = "geno_rbind_")
     
     ## Copy each object into row slices of Gnew using big_apply
     row_off <- 0L
@@ -873,7 +996,7 @@ rbind.dartR <- function(...,
     )
     if (!.has_fbm(out)) out@fbm <- NULL
     methods::validObject(out)
-    return(out)
+    return(.rbind_finish(out, length(objs)))
   }
   
   ## ---------------- No FBM: SNPbin-based fallback (original logic) ----------------
@@ -881,6 +1004,15 @@ rbind.dartR <- function(...,
   if (length(unique(sapply(myList, nLoc))) != 1L)
     stop("objects have different numbers of SNPs")
   
+  # Put every object in the first object's locus order before joining the
+  # genotype lists; joining them as stored misplaced genotypes whenever
+  # the locus order differed
+  for (k in seq_along(myList)) {
+    if (!identical(colmap[[k]], seq_len(p.ref))) {
+      myList[[k]] <- myList[[k]][, colmap[[k]]]
+    }
+  }
+
   dots <- list()
   dots$Class <- "dartR"
   dots$gen <- Reduce(c, lapply(myList, function(e) e@gen))
@@ -893,11 +1025,66 @@ rbind.dartR <- function(...,
   out@chromosome <- chr(myList[[1L]])
   out@position   <- position(myList[[1L]])
   ploidy(out)    <- ploidy_out
+  out@other      <- other_out
   if (!.has_fbm(out)) out@fbm <- NULL
   methods::validObject(out)
-  out
+  .rbind_finish(out, length(objs))
 }
 # end of rbind.dartR
+
+## @other for rbind.dartR: loc.metrics from the first object, per-individual
+## tables stacked, everything else from the first object
+.rbind_other <- function(objs, ind_names) {
+  oth <- objs[[1L]]@other
+  lm <- oth$loc.metrics
+  if (!is.null(lm) && nrow(lm) == nLoc(objs[[1L]])) {
+    rownames(lm) <- locNames(objs[[1L]])
+    oth$loc.metrics <- lm
+  }
+
+  # ind.metrics: union of columns, NA where an object lacks a column
+  im <- lapply(objs, function(o) o@other$ind.metrics)
+  if (any(!vapply(im, is.null, logical(1)))) {
+    cols <- unique(unlist(lapply(im, names)))
+    im <- lapply(seq_along(objs), function(k) {
+      d <- im[[k]]
+      d <- if (is.null(d)) data.frame(row.names = seq_len(nInd(objs[[k]])))
+           else as.data.frame(d)
+      for (cc in setdiff(cols, names(d))) d[[cc]] <- NA
+      d[, cols, drop = FALSE]
+    })
+    im <- do.call(rbind, im)
+    rownames(im) <- NULL
+    if ("id" %in% names(im)) im$id <- ind_names
+    oth$ind.metrics <- im
+  }
+
+  # latlon is per individual: keep it only when every object has it
+  ll <- lapply(objs, function(o) o@other$latlon)
+  if (all(vapply(seq_along(objs), function(k)
+    !is.null(ll[[k]]) && NROW(ll[[k]]) == nInd(objs[[k]]), logical(1)))) {
+    ll <- do.call(rbind, lapply(ll, as.data.frame))
+    rownames(ll) <- ind_names
+    oth$latlon <- ll
+  } else {
+    oth$latlon <- NULL
+  }
+  oth
+}
+
+## Reset the locus-metric flags (the set of individuals changed) and record
+## the call. A compact call is stored: match.call() under do.call() embeds
+## the whole objects in the history.
+.rbind_finish <- function(out, n.objects) {
+  if (!is.null(out@other$loc.metrics.flags)) {
+    out <- utils.reset.flags(out, set = FALSE, verbose = 0)
+  }
+  nh <- length(out@other$history)
+  out@other$history[[nh + 1]] <- str2lang(
+    sprintf("rbind.dartR(n.objects = %d)", n.objects)
+  )
+  out
+}
 ###############################################################
 
 #now set methods to use FBM when present.
@@ -927,19 +1114,34 @@ if (!methods::isGeneric("as.matrix")) {
   methods::setGeneric("as.matrix", useAsDefault = base::as.matrix)
 }
 
+## Decoded genotype matrix of an FBM-backed object, the same as for a
+## gen-backed one: individuals x loci with indNames/locNames as dimnames, and
+## integer storage when the code maps to whole numbers (e.g. CODE_012, where
+## the raw code 3 decodes to NA). FBM.code256 decodes to double, so without
+## this the two flavours give equal values but not identical matrices. A code
+## with fractional values (e.g. dosages) is returned as double.
+.fbm_as_matrix <- function(x) {
+  fbm <- x@fbm
+  dummy <- fbm[, , drop = FALSE]
+  code <- fbm$code256
+  if (all(code[!is.na(code)] %% 1 == 0)) {
+    storage.mode(dummy) <- "integer"
+  }
+  dn <- list(indNames(x), locNames(x))
+  dimnames(dummy) <- if (all(vapply(dn, is.null, logical(1)))) NULL else dn
+  dummy
+}
+
 setMethod("as.matrix", "dartR", function(x, ...) {
-  fbm <- .fbm_or_null(x)
-  if (is.null(fbm)) methods::as(methods::as(x, "genlight"), "matrix") else {
-    
-    dummy <- x@fbm[, drop=FALSE]
-    colnames(dummy)<- locNames(x)
-    rownames(dummy)<- indNames(x)
-    return(dummy) 
-    }
+  if (is.null(.fbm_or_null(x))) {
+    methods::as(methods::as(x, "genlight"), "matrix")
+  } else {
+    .fbm_as_matrix(x)
+  }
 })
 # 3) Also register an explicit coercion (used by some internals)
 methods::setAs("dartR", "matrix", function(from) {
-  if (!is.null(.fbm_or_null(from))) return(from@fbm[])
+  if (!is.null(.fbm_or_null(from))) return(.fbm_as_matrix(from))
   methods::as(methods::as(from, "genlight"), "matrix")
 })
 
@@ -952,14 +1154,39 @@ methods::setAs("dartR", "matrix", function(from) {
 
 
 
+## Per-locus allele sum and number of scored individuals of an FBM-backed
+## object, from one column-wise pass over the file (big_counts tallies each
+## genotype code per locus; the FBM is stored column by column, so reading
+## it row by row is much slower).
+.fbm_locus_counts <- function(x) {
+  cnt <- bigstatsr::big_counts(x@fbm)
+  vals <- as.numeric(rownames(cnt))
+  scored <- !is.na(vals)
+  list(sum = colSums(cnt[scored, , drop = FALSE] * vals[scored]),
+       n = colSums(cnt[scored, , drop = FALSE]))
+}
+
 #' @name glSum
-#' @title glSum for dartR objects
-#' @description glSum is necessary as adegenet is using it internally and we need one for fbm projects
-#' @param x a dartR object 
-#' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
-#' if FALSE, per individual
-#' @param useC FALSE, default if set to true not sure what happens ;-)
-#' @return A numeric vector of sum of second allele per locus
+#' @title Sum of the second allele per locus, for dartR and genlight objects
+#' @description Returns, for each locus, the number of copies of the second
+#' (alternative) allele summed over individuals, ignoring missing data. It
+#' replaces \code{adegenet::glSum} so that FBM-backed dartR objects (see
+#' \code{\link{gl.gen2fbm}}) are handled; other objects are passed to
+#' \code{adegenet::glSum} and give identical results.
+#' @param x Name of the dartR or genlight object [required].
+#' @param alleleAsUnit If TRUE, the sum counts alleles; if FALSE, each
+#' genotype is first divided by the individual's ploidy, so the sum counts
+#' individuals [default TRUE].
+#' @param useC Passed through to adegenet::glSum for non-FBM objects
+#' [default FALSE].
+#' @return A named numeric vector with one value per locus; integer for
+#' alleleAsUnit = TRUE. Loci with no data give 0.
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#' @examples
+#' head(glSum(testset.gl))
+#' fbm.gl <- gl.gen2fbm(testset.gl, verbose = 0)
+#' identical(glSum(fbm.gl), glSum(testset.gl))
 #' @export
 glSum <- function(x, alleleAsUnit = TRUE, useC=FALSE) {
   fbm <- .has_fbm(x)
@@ -973,17 +1200,14 @@ glSum <- function(x, alleleAsUnit = TRUE, useC=FALSE) {
 
 ## ---- FBM-aware glSum for dartR ----
 
-  
+  myPloidy <- ploidy(x)
   if (alleleAsUnit) {
-    res <- integer(nLoc(x))
-    for (e in 1:nInd(x)) {
-      temp <- as.integer(x@fbm[e,])
-      temp[is.na(temp)] <- 0L
-      res <- res + temp
-    }
-  }  else {
+    res <- as.integer(.fbm_locus_counts(x)$sum)
+  } else if (length(unique(myPloidy)) == 1) {
+    res <- .fbm_locus_counts(x)$sum / myPloidy[1]
+  } else {
+    # mixed ploidy: divide each individual's genotypes by its own ploidy
     res <- numeric(nLoc(x))
-    myPloidy <- ploidy(x)
     for (i in 1:nInd(x)) {
       temp <- as.integer(x@fbm[i,])/myPloidy[i]
       temp[is.na(temp)] <- 0
@@ -1024,12 +1248,26 @@ setMethod("glNA", signature(x = "dartR"), function(x, alleleAsUnit = TRUE)  {
 #}
 #setMethod("glMean", signature(x = "dartR"),  function(x, alleleAsUnit = TRUE) {
 #' @name glMean
-#' @title glMean for dartR objects
-#' @description glMean is necessary as adegenet is using it internally and we need one for fbm projects
-#' @param x a dartR object 
-#' @param alleleAsUnit logical; if TRUE, the mean is calculated per allele,
-#' if FALSE, per individual
-#' @return A numeric vector of means per locus
+#' @title Frequency of the second allele per locus, for dartR and genlight
+#' objects
+#' @description Returns, for each locus, the mean of the second
+#' (alternative) allele, ignoring missing data: with alleleAsUnit = TRUE,
+#' its frequency among the scored allele copies. It replaces
+#' \code{adegenet::glMean} so that FBM-backed dartR objects (see
+#' \code{\link{gl.gen2fbm}}) are handled; other objects are passed to
+#' \code{adegenet::glMean} and give identical results.
+#' @param x Name of the dartR or genlight object [required].
+#' @param alleleAsUnit If TRUE, the mean is taken over allele copies; if
+#' FALSE, over individuals, each genotype divided by the individual's ploidy
+#' [default TRUE].
+#' @return A named numeric vector with one value per locus. Loci with no
+#' data give NaN.
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
+#' @examples
+#' head(glMean(testset.gl))
+#' fbm.gl <- gl.gen2fbm(testset.gl, verbose = 0)
+#' all.equal(glMean(fbm.gl), glMean(testset.gl))
 #' @export
 glMean <- function(x, alleleAsUnit = TRUE) {
   fbm <- .has_fbm(x)
@@ -1040,9 +1278,14 @@ glMean <- function(x, alleleAsUnit = TRUE) {
     }
     
   
-  if (alleleAsUnit) {
-    
-    N <- sum(ploidy(x)) - glNA(x, alleleAsUnit = TRUE)
+  myPloidy <- ploidy(x)
+  if (length(unique(myPloidy)) == 1) {
+    # one pass gives both the allele sum and the scored individuals; with a
+    # single ploidy k, both units give sum / (k * n)
+    cnt <- .fbm_locus_counts(x)
+    res <- cnt$sum / (myPloidy[1] * cnt$n)
+  } else if (alleleAsUnit) {
+    N <- sum(myPloidy) - glNA(x, alleleAsUnit = TRUE)
     res <- glSum(x, alleleAsUnit = TRUE)/N
   } else {
     N <- nInd(x) - glNA(x, alleleAsUnit = FALSE)

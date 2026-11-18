@@ -16,14 +16,14 @@ gl.read.PLINK(
 )
 }
 \arguments{
-\item{filename}{Fully qualified path to PLINK input file (without including 
-the extension)}
+\item{filename}{Fully qualified path to PLINK input file (without including
+the extension) [required].}
 
 \item{ind.metafile}{Name of the csv file containing the metrics for
-individuals [optional].}
+individuals [default NULL].}
 
 \item{loc.metafile}{Name of the csv file containing the metrics for
-loci [optional].}
+loci [default NULL].}
 
 \item{plink.cmd}{The 'name' to call plink. This will depend on the file name 
 (without the extension '.exe' if on windows) or the name of the PATH variable}
@@ -32,39 +32,98 @@ loci [optional].}
 the PATH then there is no need for this. This is what the option "path"
 means}
 
-\item{fbm}{Logical. If TRUE, the returned genlight object will contain a
-file-backed matrix (fbm) in its @genome slot. This is useful for very
-large datasets that do not fit into RAM. Note that using fbm objects
-requires the package bigsnpr to be installed. [default FALSE]. to back convert
-use \code{gl.fbm2gen()}.}
+\item{fbm}{Logical. If TRUE, the genotypes of the returned object are held
+in a file-backed matrix (fbm) in its @fbm slot rather than in @gen. This
+is useful for very large datasets that do not fit into RAM. A binary
+fileset (.bed) is read in blocks of SNPs straight into the file-backed
+matrix, so the genotypes are never held in memory as a whole; with
+fbm = FALSE that matrix is converted to @gen in blocks of loci at the
+end. A .ped is read into memory and converted when fbm = TRUE. Note that
+using fbm objects requires the package bigsnpr to be installed. To back
+convert use \code{gl.fbm2gen()} [default FALSE].}
 
-\item{plink.flags}{additional possible parameters passed on to plink.}
+\item{plink.flags}{additional parameters passed on to PLINK when a .ped
+is converted with \code{plink --make-bed}. Giving any flags forces the
+conversion through PLINK (which must be installed) and requires a .map
+[default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A genlight object with the SNP data and associated metadata included.
 }
 \description{
-This function imports PLINK data into a genlight object and 
+This function imports PLINK data into a genlight object and
 append available metadata.
 }
 \details{
-This function handles .ped or .bed file (with the associate files -
-e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be
-installed and it is used to convert the .ped into a .bed, which is then
- converted into a genlight.
+This function handles either a binary fileset (.bed with its
+.bim and .fam) or a text fileset (.ped, optionally with its .map). Both
+are read in R; no PLINK executable is needed. Without a .map, loci are
+named locus.1, locus.2, ... and chromosome and position are set to NA.
+Loci are returned in file order (note that \code{plink --make-bed} sorts
+loci by chromosome and position, so a .ped read directly and the .bed
+PLINK writes from it can differ in locus order). PLINK's chromosome code
+0 (unmapped) is returned as NA on both routes.
+The only case that still calls PLINK is when \code{plink.flags} is given:
+the .ped/.map are then converted with \code{plink --make-bed} and those
+flags in a temporary directory, so no files are written into the input
+directory.
 
-Additional metadata can be included passing .csv files. These will be 
+Genotypes are coded as the count of \code{allele.2} (column 6 of the
+.bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
+\code{allele.1}, 2 = homozygous \code{allele.2}. The alleles are stored
+as \code{"allele.1/allele.2"} (see \code{alleles()}), so the counted
+allele is the second one, as for every dartR object; a missing allele
+(PLINK code 0, e.g. for a monomorphic locus) is written as 0. Note that
+this is the
+opposite orientation to \code{\link{gl.read.vcf}}, which counts the ALT
+allele.
+
+Additional metadata can be included passing .csv files. These will be
 appended to the existing metadata present in the PLINK files.
 
 The locus metadata needs to be in a csv file with headings, with a mandatory
 column headed AlleleID corresponding exactly to the locus identity labels
-provided with the SNP data
+provided with the SNP data.
+
+The individual metadata needs a mandatory column headed id whose entries
+match the individual labels in the PLINK .fam file; rows are matched to
+individuals by id, so their order in the file does not matter. If a pop
+column is present it is used to assign populations.
+}
+\examples{
+\donttest{
+# Create a small PLINK binary fileset (4 individuals x 4 SNPs) and read it
+base <- file.path(tempdir(), "toy")
+writeLines(c("1\tsnp1\t0\t100\tG\tA", "1\tsnp2\t0\t200\tT\tG",
+             "2\tsnp3\t0\t150\tA\tC", "2\tsnp4\t0\t300\tC\tT"),
+           paste0(base, ".bim"))
+writeLines(c("FAM1 ind1 0 0 1 1", "FAM1 ind2 0 0 2 1",
+             "FAM2 ind3 0 0 1 2", "FAM2 ind4 0 0 2 2"),
+           paste0(base, ".fam"))
+writeBin(as.raw(c(0x6c, 0x1b, 0x01, 0xcb, 0x2f, 0xab, 0xb7)),
+         paste0(base, ".bed"))
+gl <- gl.read.PLINK(base, verbose = 0)
+as.matrix(gl)
+}
+}
+\seealso{
+Other io: 
+\code{\link{gl.load}()},
+\code{\link{gl.read.csv}()},
+\code{\link{gl.read.dart}()},
+\code{\link{gl.read.fasta}()},
+\code{\link{gl.read.silicodart}()},
+\code{\link{gl.save}()},
+\code{\link{gl.write.csv}()},
+\code{\link{utils.read.dart}()}
 }
 \author{
-Custodian: Carlo Pacioni -- Post to
+Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{io}

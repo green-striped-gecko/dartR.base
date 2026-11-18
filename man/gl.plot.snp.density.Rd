@@ -13,72 +13,97 @@ gl.plot.snp.density(
   chr.info = TRUE,
   plot.title = NULL,
   plot.theme = theme_dartR(),
-  save2tmp = FALSE,
+  plot.display = TRUE,
+  plot.file = NULL,
+  plot.dir = NULL,
   verbose = NULL
 )
 }
 \arguments{
-\item{x}{A genlight object with chromosome information in
-@chromosome and SNP positions in @position
-[required].}
+\item{x}{A genlight object with chromosome names in \code{@chromosome}
+and SNP positions in \code{@position} [required].}
 
 \item{bin.size}{Width (bp) of the genomic bins used to count SNPs
-[default 1 000 000].}
+[default 1e6].}
 
-\item{min.snps}{Minimum number of SNPs a chromosome must possess to
-be plotted [default 50].}
+\item{min.snps}{Minimum number of positioned SNPs a chromosome must have
+to be plotted [default 50].}
 
-\item{min.length}{Minimum chromosome length (bp) to include
-[default 1 000 000].}
+\item{min.length}{Minimum position (bp) of the last SNP for a chromosome
+to be plotted [default 1e6].}
 
-\item{color.palette}{A function returning a vector of colours to be
-passed to ggplot2; typically viridis::viridis
-[default viridis::viridis].}
+\item{color.palette}{A function returning a vector of colours, passed to
+ggplot2; typically viridis::viridis [default viridis::viridis].}
 
-\item{chr.info}{Logical; if TRUE append (N SNPs, L Mb) to
-chromosome labels [default TRUE].}
+\item{chr.info}{If TRUE, append (N SNPs, L Mb) to the chromosome labels
+[default TRUE].}
 
-\item{plot.title}{Optional main title for the plot [default NULL].}
+\item{plot.title}{Main title for the plot [default NULL].}
 
-\item{plot.theme}{ggplot2 theme applied to the plot
-[default theme_dartR()].}
+\item{plot.theme}{User specified theme [default theme_dartR()].}
 
-\item{save2tmp}{Logical; save the ggplot object to tempdir()
-for later retrieval with gl.print.reports()
-[default FALSE].}
+\item{plot.display}{Specify if plot is to be displayed in the graphics
+window [default TRUE].}
 
-\item{verbose}{Verbosity: 0 = silent; 1 = begin/end; 2 = progress;
-3 = progress + summary; 5 = full report
-[default 2 or as set by gl.set.verbosity()].}
+\item{plot.file}{Filename (minus extension) for the RDS plot file
+[Required for plot save].}
+
+\item{plot.dir}{Directory to save the plot RDS file [default as specified
+by the global working directory or tempdir()].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+brief progress messages; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
 }
 \value{
 A ggplot object (invisibly) displaying the SNP-density
-        heat-map.
+heat-map.
 }
 \description{
 Generates a tiled heat-map of single-nucleotide polymorphisms (SNPs)
 across chromosomes or scaffolds in a genlight object. SNPs are binned
 into fixed-width windows and coloured by SNP count, optionally
-annotating chromosomes with their length (Mb) and SNP number.
+annotating chromosomes with their SNP number and the position of their
+last SNP (Mb).
 }
 \details{
-Chromosomes are ordered from longest (bottom) to shortest (top) so that
-density patterns can be compared visually.  Bins containing no SNPs are
-rendered in the lowest colour of the palette.  The function does not
+Chromosome names are taken from \code{x@chromosome} and SNP positions
+from \code{x@position}. Packaged datasets ship with these slots empty;
+fill them from the locus metrics first, as in the example. Loci with a
+missing chromosome or a missing or zero position are ignored.
+
+A chromosome is plotted when it carries at least \code{min.snps}
+positioned SNPs and its last SNP lies at or beyond \code{min.length}
+bp; the "length" used here and in the labels is the position of the
+last SNP, not the assembly length. Chromosomes are ordered
+alphabetically, numeric-aware (\code{chr2} before \code{chr10}), with
+the first name at the top of the plot. Every bin from the start of the
+chromosome to its last SNP is drawn; bins containing no SNPs are
+rendered in the lowest colour of the palette. The function does not
 modify the input genlight object.
 }
 \examples{
-
-  t1 <- platypus.gl
-  t1$chromosome <- t1$other$loc.metrics$Chrom_Platypus_Chrom_NCBIv1
-  t1$position   <- t1$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
-  gl.plot.snp.density(t1,
-                      bin.size   = 5e6,
-                      min.snps   = 10,
-                      min.length = 2e6,
-                      plot.title = "Platypus SNP density")
+t1 <- platypus.gl
+t1$chromosome <- t1$other$loc.metrics$Chrom_Platypus_Chrom_NCBIv1
+t1$position   <- t1$other$loc.metrics$ChromPos_Platypus_Chrom_NCBIv1
+gl.plot.snp.density(t1,
+                    bin.size   = 5e6,
+                    min.snps   = 10,
+                    min.length = 2e6,
+                    plot.title = "Platypus SNP density")
+}
+\seealso{
+Other graphics: 
+\code{\link{gl.colors}()},
+\code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.heatmap}()},
+\code{\link{gl.select.colors}()},
+\code{\link{gl.select.shapes}()},
+\code{\link{gl.smearplot}()},
+\code{\link{gl.tree.nj}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
+\concept{graphics}

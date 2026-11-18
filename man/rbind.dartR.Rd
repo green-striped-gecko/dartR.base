@@ -4,18 +4,13 @@
 \alias{rbind.dartR}
 \title{rbind for dartR objects}
 \usage{
-\method{rbind}{dartR}(
-  ...,
-  backingfile = tempfile("geno_rbind_"),
-  code = NULL,
-  chunk = 2048L,
-  quiet = TRUE
-)
+\method{rbind}{dartR}(..., backingfile = NULL, code = NULL, chunk = 2048L, quiet = TRUE)
 }
 \arguments{
-\item{...}{list of dartR objects}
+\item{...}{dartR objects to combine [required]}
 
-\item{backingfile}{prefix for the backing file of the resulting FBM}
+\item{backingfile}{File stem for the backing file of the resulting FBM, or
+NULL for a temporary file in getOption("FBM.dir") [default NULL]}
 
 \item{code}{code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input}
 
@@ -24,15 +19,30 @@
 \item{quiet}{suppress warnings. default: TRUE}
 }
 \value{
-A genlight object
+A dartR object
 }
 \description{
-rbind is a bit lazy and does not take care for the metadata (so data in the
-other slot is lost). You can get most of the loci metadata back using
-gl.compliance.check.
+Combines the individuals of two or more dartR objects that
+hold the same loci. Loci are matched by name, so the objects may list them
+in different orders; the result follows the locus order of the first
+object.
+
+Metadata are carried over: locus metrics come from the first object;
+individual metrics are stacked (a column missing from an object is filled
+with NA), and so are coordinates in \code{latlon} when every object has
+them; the locus-metric flags are reset to FALSE, because metrics such as
+call rate and allele frequencies no longer describe the combined set of
+individuals (use \code{gl.recalc.metrics} to recompute them); the call is
+added to the history of the first object.
+
+The function stops when the objects hold different loci, code the alleles
+of a locus differently (\code{loc.all}), or mix SNP (ploidy 2) and
+SilicoDArT (ploidy 1) data. To combine a list of objects, use
+\code{do.call(rbind, list_of_objects)}.
 }
 \examples{
 t1 <- platypus.gl
-class(t1) <- "dartR"
 t2 <- rbind(t1[1:5,],t1[6:10,])
+# a list of objects
+t3 <- do.call(rbind, list(t1[1:5,], t1[6:10,], t1[11:15,]))
 }

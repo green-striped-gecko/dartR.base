@@ -5,8 +5,22 @@
 #' @description
 #' This is a wrapper for saveRDS().
 
-#' The script saves the object in binary form to the current workspace and
-#' returns the input gl object.
+#' The script saves the object in compressed binary form to the nominated
+#' file and returns the input gl object unchanged.
+#'
+#' Only the object is saved, not the workspace. A file-backed (FBM) object is
+#' saved as a gen-backed copy (genotypes in @gen): an FBM holds only a
+#' reference to its backing file, which is usually temporary, and the
+#' gen-backed copy is also smaller. The input object stays file-backed. Use
+#' gl.load(file, fbm = TRUE) to load it back as a file-backed object.
+#'
+#' **Always use gl.save(), not saveRDS(), for a file-backed object.**
+#' saveRDS() stores only the reference to the backing file, not the
+#' genotypes; the backing file is usually a temporary file that is deleted at
+#' the end of the R session, so the genotypes are lost. After saving, check
+#' that the file size makes sense for the number of individuals and loci: a
+#' file of only a few Kb for thousands of loci means the genotypes were not
+#' saved. gl.save() reports the size of the saved file at verbose >= 2.
 
 #' @param x Name of the genlight object containing SNP genotypes [required].
 #' @param file Name of the file to receive the binary version of the object
@@ -15,15 +29,15 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity].
 #' 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
 #' gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 #' @seealso \code{\link{gl.load}}
 #' 
+#' @return The input object, returned invisibly
 #' @export
-#' @return The input object
 
 gl.save <- function(x,
                     file,
@@ -33,7 +47,7 @@ gl.save <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2024.1",
                      verbose = verbose)
     
@@ -41,19 +55,36 @@ gl.save <- function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # DO THE JOB
-    
-    #check if fbm (needs to be converted to gen)
-    fbm <- .fbm_or_null(x)
-    if (!is.null(fbm)) {
-      x <- dartR.base::gl.fbm2gen(x)
-      cat(report("  Converted from dartR-FBM to dartR-gen object for saving\n"))
+
+    if (!dir.exists(dirname(file))) {
+        stop(error(
+            "Fatal Error: directory", dirname(file), "does not exist\n"
+        ))
     }
-    
-    attributes(class(x))<- list(package="dartR.base")
-    
-    saveRDS(x, file)
-    cat(report("  Saved object of type", datatype, "to a compressed RDA file\n"))
-    cat(report("  Load again using function gl.load\n"))
+
+    # Save a copy; the input object is returned unchanged
+    xsave <- x
+
+    #check if fbm (needs to be converted to gen)
+    fbm <- .fbm_or_null(xsave)
+    if (!is.null(fbm)) {
+      # Saved as gen-backed: an FBM holds only a reference to its backing
+      # file (usually temporary), and the SNPbin list is also smaller
+      xsave <- gl.fbm2gen(xsave, verbose = 0)
+      if (verbose >= 2) {
+        cat(report("  Converted from dartR-FBM to dartR-gen object for saving\n"))
+      }
+    }
+
+    attributes(class(xsave)) <- list(package="dartR.base")
+
+    saveRDS(xsave, file)
+    if (verbose >= 2) {
+      cat(report("  Saved object of type", datatype, "to a compressed RDS file",
+                 "of", format(structure(file.size(file), class = "object_size"),
+                              units = "auto"), "\n"))
+      cat(report("  Load again using function gl.load\n"))
+    }
     
     # FLAG SCRIPT END
     

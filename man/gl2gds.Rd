@@ -34,7 +34,8 @@ each is stored [default '0'].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
-[default 2 or as specified using gl.set.verbosity].}
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 returns no value (i.e. NULL)
@@ -75,20 +76,20 @@ snp.chr = 'Chrom_Platypus_Chrom_NCBIv1', outpath=tempdir())
 }
 \seealso{
 Other linker: 
+\code{\link{gi2gl}()},
 \code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
 \code{\link{gl2faststructure}()},
+\code{\link{gl2gapit}()},
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
 \code{\link{gl2hapmap}()},
 \code{\link{gl2hiphop}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
@@ -96,7 +97,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}

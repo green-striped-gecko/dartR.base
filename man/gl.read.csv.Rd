@@ -70,6 +70,7 @@ gl  <- gl.read.csv(filename = csv_file, ind.metafile = ind_metadata)
 \seealso{
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
 \code{\link{gl.read.silicodart}()},
@@ -78,7 +79,7 @@ Other io:
 \code{\link{utils.read.dart}()}
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{io}

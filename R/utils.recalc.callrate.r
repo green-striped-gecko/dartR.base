@@ -1,6 +1,6 @@
 #' @name utils.recalc.callrate
-#' @title A utility script to recalculate the callrate by locus after some populations
-#' have been deleted
+#' @title A utility script to recalculate the callrate by locus after some
+#' individuals or populations have been deleted
 #' @family utilities
 
 #' @description 
@@ -23,14 +23,9 @@
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
 
-#' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
-#' \code{utils.recalc.avgpic} for recalculating avgPIC,
-#' \code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-#' reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-#' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
-#'  of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele
-#'  frequency, \code{gl.recalc.rdepth} for recalculating average read depth
-#'  
+#' @seealso \code{\link{gl.recalc.metrics}} for recalculating all
+#' locus metrics
+#' @keywords internal
 # @export
 #' @return The modified genlight object
 
@@ -44,7 +39,7 @@ utils.recalc.callrate <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -52,7 +47,7 @@ utils.recalc.callrate <- function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
@@ -66,7 +61,7 @@ utils.recalc.callrate <- function(x,
     
     if (is.null(x@other$loc.metrics$CallRate)) {
         x@other$loc.metrics$CallRate <- array(NA, nLoc(x))
-        if (verbose >= 2) {
+        if (verbose >= 3) {
             cat(
                 report(
                     "  Locus metric CallRate does not exist, creating slot @other$loc.metrics$CallRate\n"
@@ -81,7 +76,7 @@ utils.recalc.callrate <- function(x,
         cat(report("  Recalculating locus metric CallRate\n"))
     }
     x@other$loc.metrics$CallRate <-
-         1-colSums(is.na(as.matrix(x)))/nInd(x)
+         1-.gl_colwise(x, function(t) colSums(is.na(t)))/nInd(x)
     x@other$loc.metrics$CallRate <- signif(x@other$loc.metrics$CallRate,digits=6)
     x@other$loc.metrics.flags$CallRate <- TRUE
     

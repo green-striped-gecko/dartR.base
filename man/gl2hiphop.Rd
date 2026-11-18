@@ -26,6 +26,13 @@ genotypes of offspring with any combination of potentials parents and scores
 the number of mismatches of these individuals at bi-allelic genetic markers
  (e.g. Single Nucleotide Polymorphisms).
 }
+\details{
+The dartR and hiphop genotype encodings differ: dartR scores
+0 = homozygous reference, 1 = heterozygous, 2 = homozygous alternate,
+while hiphop expects 0 = homozygote, 1 = the other homozygote,
+2 = heterozygote. The conversion therefore maps 0 -> 0, 1 -> 2,
+2 -> 1, and missing values (NA) are preserved.
+}
 \examples{
 \donttest{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -42,20 +49,20 @@ Cockburn, A., Penalba, J.V.,Jaccoud, D.,Kilian, A., Brouwer, L.,Double, M.C.,
 }
 \seealso{
 Other linker: 
+\code{\link{gi2gl}()},
 \code{\link{gl2bayesAss}()},
 \code{\link{gl2bayescan}()},
 \code{\link{gl2bpp}()},
 \code{\link{gl2demerelate}()},
 \code{\link{gl2eigenstrat}()},
 \code{\link{gl2faststructure}()},
+\code{\link{gl2gapit}()},
 \code{\link{gl2gds}()},
 \code{\link{gl2genalex}()},
 \code{\link{gl2genepop}()},
 \code{\link{gl2geno}()},
 \code{\link{gl2gi}()},
 \code{\link{gl2hapmap}()},
-\code{\link{gl2phylip}()},
-\code{\link{gl2plink}()},
 \code{\link{gl2related}()},
 \code{\link{gl2snapper}()},
 \code{\link{gl2structure}()},
@@ -63,6 +70,7 @@ Other linker:
 \code{\link{gl2vcf}()}
 }
 \author{
-Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{linker}

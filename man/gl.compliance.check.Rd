@@ -46,6 +46,6 @@ x <- gl.compliance.check(testset.gs)
 
 }
 \author{
-Custodian: Luis Mijangos -- Post to
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }

@@ -1,40 +1,87 @@
 #' @name gl.read.PLINK
 #' @title Reads PLINK data file into a genlight object
-#' @description This function imports PLINK data into a genlight object and 
+#' @family io
+#' @description This function imports PLINK data into a genlight object and
 #' append available metadata.
 #'
-#' @details This function handles .ped or .bed file (with the associate files -
-#' e.g. .fam, .bim). However, if a .ped file is provided, PLINK needs to be
-#' installed and it is used to convert the .ped into a .bed, which is then
-#'  converted into a genlight.
+#' @details This function handles either a binary fileset (.bed with its
+#' .bim and .fam) or a text fileset (.ped, optionally with its .map). Both
+#' are read in R; no PLINK executable is needed. Without a .map, loci are
+#' named locus.1, locus.2, ... and chromosome and position are set to NA.
+#' Loci are returned in file order (note that \code{plink --make-bed} sorts
+#' loci by chromosome and position, so a .ped read directly and the .bed
+#' PLINK writes from it can differ in locus order). PLINK's chromosome code
+#' 0 (unmapped) is returned as NA on both routes.
+#' The only case that still calls PLINK is when \code{plink.flags} is given:
+#' the .ped/.map are then converted with \code{plink --make-bed} and those
+#' flags in a temporary directory, so no files are written into the input
+#' directory.
 #'
-#' Additional metadata can be included passing .csv files. These will be 
+#' Genotypes are coded as the count of \code{allele.2} (column 6 of the
+#' .bim file, the major allele under PLINK 1.x defaults): 0 = homozygous
+#' \code{allele.1}, 2 = homozygous \code{allele.2}. The alleles are stored
+#' as \code{"allele.1/allele.2"} (see \code{alleles()}), so the counted
+#' allele is the second one, as for every dartR object; a missing allele
+#' (PLINK code 0, e.g. for a monomorphic locus) is written as 0. Note that
+#' this is the
+#' opposite orientation to \code{\link{gl.read.vcf}}, which counts the ALT
+#' allele.
+#'
+#' Additional metadata can be included passing .csv files. These will be
 #' appended to the existing metadata present in the PLINK files.
 #'
 #' The locus metadata needs to be in a csv file with headings, with a mandatory
 #' column headed AlleleID corresponding exactly to the locus identity labels
-#' provided with the SNP data
+#' provided with the SNP data.
 #'
-#' @param filename Fully qualified path to PLINK input file (without including 
-#' the extension)
+#' The individual metadata needs a mandatory column headed id whose entries
+#' match the individual labels in the PLINK .fam file; rows are matched to
+#' individuals by id, so their order in the file does not matter. If a pop
+#' column is present it is used to assign populations.
+#'
+#' @param filename Fully qualified path to PLINK input file (without including
+#' the extension) [required].
 #' @param ind.metafile Name of the csv file containing the metrics for
-#' individuals [optional].
+#' individuals [default NULL].
 #' @param loc.metafile Name of the csv file containing the metrics for
-#' loci [optional].
-#' @param fbm Logical. If TRUE, the returned genlight object will contain a
-#' file-backed matrix (fbm) in its @genome slot. This is useful for very
-#' large datasets that do not fit into RAM. Note that using fbm objects
-#' requires the package bigsnpr to be installed. [default FALSE]. to back convert
-#' use \code{gl.fbm2gen()}.
-#' @param plink.flags additional possible parameters passed on to plink.
+#' loci [default NULL].
+#' @param fbm Logical. If TRUE, the genotypes of the returned object are held
+#' in a file-backed matrix (fbm) in its @fbm slot rather than in @gen. This
+#' is useful for very large datasets that do not fit into RAM. A binary
+#' fileset (.bed) is read in blocks of SNPs straight into the file-backed
+#' matrix, so the genotypes are never held in memory as a whole; with
+#' fbm = FALSE that matrix is converted to @gen in blocks of loci at the
+#' end. A .ped is read into memory and converted when fbm = TRUE. Note that
+#' using fbm objects requires the package bigsnpr to be installed. To back
+#' convert use \code{gl.fbm2gen()} [default FALSE].
+#' @param plink.flags additional parameters passed on to PLINK when a .ped
+#' is converted with \code{plink --make-bed}. Giving any flags forces the
+#' conversion through PLINK (which must be installed) and requires a .map
+#' [default NULL].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 #' @inheritParams utils.plink.run
 #' @return A genlight object with the SNP data and associated metadata included.
-#' @export
-#' @author Custodian: Carlo Pacioni -- Post to
+#' @author Author(s): Carlo Pacioni. Custodian: Carlo Pacioni -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
+#' @examples
+#' \donttest{
+#' # Create a small PLINK binary fileset (4 individuals x 4 SNPs) and read it
+#' base <- file.path(tempdir(), "toy")
+#' writeLines(c("1\tsnp1\t0\t100\tG\tA", "1\tsnp2\t0\t200\tT\tG",
+#'              "2\tsnp3\t0\t150\tA\tC", "2\tsnp4\t0\t300\tC\tT"),
+#'            paste0(base, ".bim"))
+#' writeLines(c("FAM1 ind1 0 0 1 1", "FAM1 ind2 0 0 2 1",
+#'              "FAM2 ind3 0 0 1 2", "FAM2 ind4 0 0 2 2"),
+#'            paste0(base, ".fam"))
+#' writeBin(as.raw(c(0x6c, 0x1b, 0x01, 0xcb, 0x2f, 0xab, 0xb7)),
+#'          paste0(base, ".bed"))
+#' gl <- gl.read.PLINK(base, verbose = 0)
+#' as.matrix(gl)
+#' }
+#' @export
 #' @rawNamespace import(data.table, except = c(melt,dcast))
 #' @importFrom snpStats read.plink write.SnpMatrix row.summary
 
@@ -51,7 +98,7 @@ gl.read.PLINK <- function(filename,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
@@ -96,67 +143,124 @@ gl.read.PLINK <- function(filename,
   if (length(plink.fn) > 1) {
     # If there is more than one .bed
     stop(error("Found more than one .bed file and don't know which one to use\n"))
+  }
+  # A binary fileset (.bed/.bim/.fam) is read without holding the decoded
+  # genotypes in memory (bed.stub); a .ped is read through snpStats
+  bed.stub <- NULL
+  if (length(plink.fn) == 1) {
+    # Binary fileset: .bed with its .bim and .fam
+    bed.stub <- sub(x = plink.fn, pattern = ".bed$", "")
   } else {
-    if (length(plink.fn) == 0) {
-      # If there is no .bed
-      plink.fn <- plink.fns[grep(".ped$", plink.fns)] # look for .ped
-      if (length(plink.fn) == 0 |
-          length(plink.fn) > 1) {
-        # If there is no or >1 .ped
-        stop(
-          error(
-            "Found no .bed files and",
-            length(plink.fn),
-            ".ped file(s). This function needs either one .bed or .ped file\n"
-          )
+    # No .bed: look for a text fileset (.ped, optionally with a .map)
+    plink.fn <- plink.fns[grep(".ped$", plink.fns)]
+    if (length(plink.fn) != 1) {
+      stop(
+        error(
+          "Found no .bed files and",
+          length(plink.fn),
+          ".ped file(s). This function needs either one .bed or .ped file\n"
         )
-      } else {
-        # This should mean that there is one .ped
-        if (length(plink.fn) == 1) {
-          # But it is checked here for safety
-          utils.plink.run(
-            dir.in = dirname(filename),
-            plink.cmd = plink.cmd,
-            plink.path = plink.path,
-            out = basename(filename),
-            syntax = paste(
-              "--file",
-              basename(filename),
-              "--make-bed",
-              plink.flags
-            )
-          )
-          plink.fn <- list.files(
-            path = dirname(filename),
-            pattern = ".bed$",
-            full.names = TRUE,
-            recursive = TRUE
-          )
-        } else {
-          # If we got it wrong stop the FUN
-          stop(error("Couldn't find any .bed or .ped file\n"))
-        }
-        
-      } # Close if there is 1 .ped
-    } # close if there is no .bed
-  } # Close the else L85 from here onwards there should be only 1 .bed in plink.fn
-  
-  snpMatrix <- snpStats::read.plink(bed = sub(x = plink.fn, pattern =
-                                                ".bed$", ""))
+      )
+    }
+    map.fn <- plink.fns[grep(".map$", plink.fns)]
+    if (length(map.fn) > 1) {
+      stop(error("Found more than one .map file and don't know which one to use\n"))
+    }
+    if (is.null(plink.flags)) {
+      # Read the .ped in R; no PLINK executable and no .map needed
+      if (length(map.fn) == 0 && verbose >= 2) {
+        cat(warn("  Warning: no .map file found, loci are named locus.1, locus.2, ... and chromosome and position are set to NA\n"))
+      }
+      snpMatrix <- utils.ped2plink(ped = plink.fn,
+                                  map = if (length(map.fn) == 1) map.fn else NULL)
+    } else {
+      # plink.flags were given, so the conversion has to go through PLINK.
+      # Copy the fileset to the temporary directory so the conversion does
+      # not write into the user's data directory (F5)
+      if (length(map.fn) == 0) {
+        stop(error("A .map file is required when plink.flags are used, because the conversion is done by PLINK\n"))
+      }
+      file.copy(plink.fns, dir.out, overwrite = TRUE)
+      utils.plink.run(
+        dir.in = dir.out,
+        plink.cmd = plink.cmd,
+        plink.path = plink.path,
+        out = basename(filename),
+        syntax = paste(
+          "--file",
+          shQuote(basename(filename)),
+          "--make-bed",
+          plink.flags
+        ),
+        verbose = verbose
+      )
+      plink.fn <- file.path(dir.out, paste0(basename(filename), ".bed"))
+      if (!file.exists(plink.fn)) {
+        stop(error("PLINK did not produce a .bed file. Check that PLINK",
+                   "is installed and the input files are valid\n"))
+      }
+      bed.stub <- sub(x = plink.fn, pattern = ".bed$", "")
+    }
+  }
+
+  if (!is.null(bed.stub)) {
+    # .bim/.fam read as snpStats::read.plink reads them; the genotypes are
+    # read from the .bed in blocks of SNPs straight into a file-backed
+    # matrix (count of allele.2, as before), so they are never held in
+    # memory as a whole (no text copy, no dense matrix). The per-individual
+    # summary is that of snpStats::row.summary: call rate, share of certain
+    # calls (1, NA without calls) and heterozygosity among calls.
+    meta <- .plink_read_meta(bed.stub)
+    fam <- meta$fam
+    map <- meta$map
+    bed <- .plink_bed_to_fbm(paste0(bed.stub, ".bed"), nrow(fam), nrow(map))
+    has.call <- bed$called > 0
+    row.sum <- data.frame(
+      Call.rate = bed$called / nrow(map),
+      Certain.calls = ifelse(has.call, 1, NA_real_),
+      Heterozygosity = ifelse(has.call, bed$het / bed$called, NA_real_),
+      row.names = fam$member
+    )
+    gl <- new(
+      "dartR",
+      fbm = bed$G,
+      ploidy = rep(2L, nrow(fam)),
+      ind.names = fam$member,
+      loc.names = map$snp.name,
+      chromosome = as.factor(map$chromosome),
+      position = map$position,
+      other = list(
+        ind.metrics = cbind(
+          id = fam$member,
+          row.sum,
+          Family = fam$pedigree,
+          Father = fam$father,
+          Mother = fam$mother,
+          Sex = fam$sex
+        ),
+        loc.metrics = map
+      )
+    )
+    rm(bed)
+  } else {
   gen <- snpMatrix[[1]]
   fam <- snpMatrix[[2]]
   map <- snpMatrix[[3]]
   row.names(gen) <- fam$member
   snpStats::write.SnpMatrix(gen, file.path(dir.out, "snpMatrixComb.txt"))
-  
+
   suppressWarnings(genCombdt <- data.table::fread(file = file.path(dir.out, "snpMatrixComb.txt")))
   setnames(genCombdt, "V1", "id")
-  
+
   genCombNA <- as.matrix(genCombdt[, -1, with = FALSE])
   row.names(genCombNA) <- fam$member
   gl <- new(
     "genlight",
     gen = genCombNA,
+    # diploid: without it adegenet sets each individual's ploidy to its
+    # largest genotype (1 without a homozygous allele.2 call, NA without
+    # calls), and the compliance check then fails
+    ploidy = 2L,
     ind.names = fam$member,
     loc.names = map$snp.name,
     chromosome = map$chromosome,
@@ -177,21 +281,18 @@ gl.read.PLINK <- function(filename,
       loc.metrics = map
     )
   )
-  
-  if (length(unique(fam$member)) != length(fam$member)) {
-    cat(
-      error(
-        "Fatal Error: Individual labels are not unique, check and edit your input file\n"
-      )
-    )
-    stop()
   }
-  
+
+  if (length(unique(fam$member)) != length(fam$member)) {
+    stop(error(
+      "Fatal Error: Individual labels are not unique, check and edit your input file\n"
+    ))
+  }
+
   if (length(unique(map$snp.name)) != length(map$snp.name)) {
-    cat(error(
+    stop(error(
       "Fatal Error: AlleleID not unique, check and edit your input file\n"
     ))
-    stop()
   }
   
   pop(gl) <- array("A", nInd(gl))
@@ -199,6 +300,11 @@ gl.read.PLINK <- function(filename,
   # Fix order of cols
   gl@other$loc.metrics <-
     gl@other$loc.metrics[, c("AlleleID", names(gl@other$loc.metrics)[-2])]
+  # Allele names from the .bim/.map as "allele.1/allele.2". The genotypes
+  # count allele.2, so it is the second allele, as dartR's convention
+  # requires. Without this the slot stayed empty and the compliance check
+  # filled it with the placeholder "A/C" for every locus.
+  gl@loc.all <- .plink_loc_all(map$allele.1, map$allele.2)
   gl <- gl.compliance.check(gl, verbose = verbose)
   
   # NOW THE LOCUS METADATA
@@ -209,12 +315,9 @@ gl.read.PLINK <- function(filename,
                header = TRUE,
                stringsAsFactors = TRUE)
     if (!("AlleleID" %in% names(loc.metrics))) {
-      cat(
-        error(
-          "Fatal Error: mandatory AlleleID column absent
-                                               from the locus metrics file\n"
-        )
-      )
+      stop(error(
+        "Fatal Error: mandatory AlleleID column absent from the locus metrics file\n"
+      ))
     }
     
     if (nrow(loc.metrics) != nLoc(gl))
@@ -287,8 +390,13 @@ gl.read.PLINK <- function(filename,
       )
       ind.metrics$pop <- array("A", nInd(gl))
     }
-    
+
+    # Match the metafile rows to the individuals in .fam order by id, so
+    # the row order of the metafile does not matter (F2)
+    ind.metrics <- ind.metrics[match(fam$member, ind.metrics$id), ]
+
     gl@other$ind.metrics <- cbind(gl@other$ind.metrics, ind.metrics)
+    pop(gl) <- as.character(ind.metrics$pop)
     if (verbose >= 2) {
       cat(report(
         paste(
@@ -305,7 +413,7 @@ gl.read.PLINK <- function(filename,
   
   # ADD TO HISTORY (add the first entry)
   gl@other$history <- list()
-  gl@other$history[[1]] <- match.call()
+  gl@other$history[[1]] <- utils.history.call(match.call())
   
   # FLAG SCRIPT END
   
@@ -313,14 +421,32 @@ gl.read.PLINK <- function(filename,
     cat(report("Completed:", funname, "\n"))
   }
   
-  #convert to fbm 
-  if (fbm) {}
-  gl <- gl.gen2fbm(gl, verbose = verbose) 
-  if (verbose>2) {
-    cat(report(" Created an  file-backed matrix (fbm) dartR object\n"))
-  } else gl@fbm <- NULL
-  
-  
+  # The .bed route is file-backed from the start: keep it with fbm = TRUE,
+  # otherwise convert to @gen in blocks of loci. The .ped route is
+  # gen-backed and is converted only when fbm = TRUE (F1)
+  if (fbm) {
+    if (!.has_fbm(gl)) gl <- gl.gen2fbm(gl, verbose = verbose)
+    if (verbose >= 2) {
+      cat(report(" Created a file-backed matrix (fbm) dartR object\n"))
+    }
+  } else if (.has_fbm(gl)) {
+    gl <- gl.fbm2gen(gl, verbose = 0)
+  }
+
   return(gl)
   
+}
+
+## "allele.1/allele.2" for @loc.all from the PLINK map columns. A missing
+## allele (PLINK code 0, read as NA through na.strings) is written as "0",
+## as PLINK writes it (e.g. allele.1 of a monomorphic locus). read.table()
+## turns a column holding only T and F into logical; restore the letters.
+.plink_loc_all <- function(a1, a2) {
+  as_allele <- function(a) {
+    if (is.logical(a)) a <- ifelse(a, "T", "F")
+    a <- as.character(a)
+    a[is.na(a)] <- "0"
+    a
+  }
+  paste(as_allele(a1), as_allele(a2), sep = "/")
 }

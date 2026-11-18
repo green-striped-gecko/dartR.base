@@ -21,8 +21,8 @@ gl.report.maf(
 \arguments{
 \item{x}{Name of the genlight object containing the SNP data [required].}
 
-\item{as.pop}{Temporarily assign another locus metric as the population for
-the purposes of deletions [default NULL].}
+\item{as.pop}{Temporarily assign another individual metric as the population
+for the purposes of reporting [default NULL].}
 
 \item{maf.limit}{Show histograms MAF range <= maf.limit [default 0.5].}
 
@@ -37,7 +37,7 @@ ind.limit [default 5].}
 [default c("#2171B5", "#6BAED6")].}
 
 \item{plot.dir}{Directory to save the plot RDS files
-[default as specified by the global working directory or tempdir()]}
+[default as specified by the global working directory or tempdir()].}
 
 \item{plot.file}{Filename (minus extension) for the RDS plot file
 [Required for plot save].}
@@ -46,10 +46,12 @@ ind.limit [default 5].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log ; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-An unaltered genlight object
+A dataframe (returned invisibly) of minor allele frequencies by
+locus (rows) and population (columns). The input genlight object is
+unaltered.
 }
 \description{
 This script provides summary histograms of MAF for each
@@ -91,20 +93,29 @@ gl.report.maf(gl)
 \code{\link{gl.filter.maf}}
 
 Other matched report: 
-\code{\link{gl.filter.excess.het}()},
 \code{\link{gl.report.allna}()},
 \code{\link{gl.report.callrate}()},
+\code{\link{gl.report.contamination}()},
+\code{\link{gl.report.excess.het}()},
+\code{\link{gl.report.factorloadings}()},
+\code{\link{gl.report.fstat}()},
 \code{\link{gl.report.hamming}()},
+\code{\link{gl.report.heterozygosity}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.ld}()},
+\code{\link{gl.report.ld.map}()},
 \code{\link{gl.report.locmetric}()},
 \code{\link{gl.report.overshoot}()},
 \code{\link{gl.report.pa}()},
 \code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
+\code{\link{gl.report.replicates.KING}()},
 \code{\link{gl.report.reproducibility}()},
 \code{\link{gl.report.secondaries}()},
 \code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{matched report}

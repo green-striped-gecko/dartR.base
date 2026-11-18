@@ -38,10 +38,9 @@
 #' @param error.bar Character specifying the statistic used for error bars: 
 #'   "SD" (standard deviation), "SE" (standard error), or "CI" (confidence 
 #'   intervals) [default "SD"].
-#' @param verbose Numeric controlling the level of printed messages: 
-#'   0 = silent or fatal errors; 1 = begin/end; 2 = progress log; 3 = progress 
-#'   and summary; 5 = full report. Defaults to 2 unless changed via 
-#'   \code{gl.set.verbosity}.
+#' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+#'   progress log; 3, progress and results summary; 5, full report
+#'   [default 2 or as specified using gl.set.verbosity].
 #'
 #' @details
 #' \strong{Allelic Richness via Rarefaction:}
@@ -198,12 +197,14 @@
 #'   indicate an error but can reflect genuine asymmetry in the data.
 #'
 #' @return
-#' A list of data frames containing:
+#' A list of data frames (returned invisibly) containing:
 #' \itemize{
-#'   \item Allelic Richness per site (corrected by rarefaction).
-#'   \item Allelic Richness per population (summarized across sites).
-#'   \item Raw reference allele counts.
-#'   \item Raw alternate allele counts.
+#'   \item $`Allelic Richness per site` -- richness per site, corrected by
+#'   rarefaction.
+#'   \item $`Allelic Richness per population` -- richness summarised across
+#'   sites, with the error-bar statistic.
+#'   \item $`Raw reference allele count`.
+#'   \item $`Raw alternate allele count`.
 #' }
 #'
 #' @references
@@ -212,7 +213,7 @@
 #' [\emph{Argania spinosa} (L.) Skeels] endemic to Morocco. 
 #' \emph{Theoretical and Applied Genetics}, 92, 832–839.
 #'
-#' @author Author(s): Ching Ching Lau -- Post to
+#' @author Author(s): Ching Ching Lau. Custodian: Ching Ching Lau -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @export
@@ -233,42 +234,43 @@ gl.report.allelerich <- function(x,
                                  CI.type = "bca",
                                  plot.display = TRUE,
                                  plot.theme = theme_dartR(),
-                                 plot.colors.pop = gl.colors("dis"),
+                                 plot.colors.pop = gl.colors("dis", verbose = 0),
                                  plot.dir = NULL,
                                  plot.file = NULL,
                                  error.bar = "SD",
                                  verbose = NULL) {
   
-  # # setting parallel
-  # if (grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
-  #   parallel <- "multicore"
-  # }
-  # ## if windows
-  # if (!grepl("unix", .Platform$OS.type, ignore.case = TRUE)) {
-  #   parallel <- "snow"
-  # }
-  min_sample <- overall_min <- r_ref <- r_alt <- r_total <- 
-    corrected_richness <- sum_corrected_richness <- 
-    mean_corrected_richness <- NULL
+  # Define some global variables to satisfy package checking
+  min_sample <- overall_min <- r_ref <- r_alt <- r_total <-
+    corrected_richness <- sum_corrected_richness <-
+    mean_corrected_richness <- site <- genotype <- ref_allele <-
+    alt_allele <- raw_count <- sum_site_richness <- sum_richness <-
+    popsize <- mean_richness <- all_ref_allele <- all_alt_allele <- NULL
+
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
 
-  pkg <- c("dplyr", "tidyr","reshape2")
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
+  if (verbose == 0) {
+    plot.display <- FALSE
   }
-  
+
+  for (pkg in c("dplyr", "tidyr", "reshape2")) {
+    if (!(requireNamespace(pkg, quietly = TRUE))) {
+      stop(error(
+        "Package",
+        pkg,
+        " needed for this function to work. Please install it.\n"
+      ))
+    }
+  }
+
+
   # SET WORKING DIRECTORY
   plot.dir <- gl.check.wd(plot.dir, verbose = 0)
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
@@ -291,22 +293,40 @@ gl.report.allelerich <- function(x,
     pop(x) <- as.factor(pop(x))
   }
   
+  if (!error.bar %in% c("SD", "SE", "CI")) {
+    if (verbose >= 2) {
+      cat(warn(
+        "  Warning: error.bar must be one of 'SD', 'SE' or 'CI'; setting to 'SD'\n"
+      ))
+    }
+    error.bar <- "SD"
+  }
+
+  if (!boot.method %in% c("ind", "loc")) {
+    if (verbose >= 2) {
+      cat(warn(
+        "  Warning: boot.method must be 'ind' or 'loc'; setting to 'loc'\n"
+      ))
+    }
+    boot.method <- "loc"
+  }
+
   if( nboots == 0 & error.bar == "CI" ){
-    cat(error(
-      "  Number of boostraps ('nboots' parameter) must be > 0 to calculate confidence 
-   intervals \n"))
-    stop()
+    stop(error(
+      "  Number of bootstraps ('nboots' parameter) must be > 0 to calculate confidence intervals\n"
+    ))
   }
-  
+
   if( nboots > 0){
-  error.bar <- "CI"
+    if (error.bar != "CI" && verbose >= 2) {
+      cat(report(
+        "  Bootstrapping requested; error bars will show confidence intervals\n"
+      ))
+    }
+    error.bar <- "CI"
   }
-  
-  #define some global variables...
-  site <- genotype <- ref_allele <- alt_allele <- raw_count <-  
-    sum_site_richness <- sum_richness <- popsize <- mean_richness <- 
-    all_ref_allele <- all_alt_allele <-  NA
-  
+
+
   # ALLELIC RICHNESS
   if (verbose >= 2) {
     cat(
@@ -317,49 +337,44 @@ gl.report.allelerich <- function(x,
     )
   }
   
-  # Split the genlight object into a list of populations
-  pop_list <- seppop(x)
+  # The populations as row indices of x, in the order of seppop() (the
+  # levels of pop(x)); rows are read in place, populations are not copied
+  pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+  names(pop_rows) <- levels(pop(x))
 
-  allele_site_summary <- lapply(names(pop_list), function(pop_name) {
-    pop_data <- pop_list[[pop_name]]
-    # Convert genlight object to a matrix and reshape to long format
-    m <- as.matrix(pop_data)
-    allele_df <- reshape2::melt(m, varnames = c("ind", "site"), value.name = "genotype") %>%
-      dplyr::mutate(pop = pop_name)
-    
-    # Summarise counts per genotype for each SNP and compute allele counts:
-    # - Genotype 0: 2 copies of the reference allele, 0 copies of the alternate allele.
-    # - Genotype 1: 1 copy each of reference and alternate.
-    # - Genotype 2: 0 copies of the reference allele, 2 copies of the alternate allele.
-    allele_summary <- allele_df %>%
-      group_by(site, genotype, pop) %>%
-      dplyr::tally(name = "n") %>%
-      stats::na.omit() %>%
-      dplyr::ungroup() %>%
-      dplyr::mutate(
-        ref_allele = dplyr::case_when(
-          genotype == 0 ~ n * 2,
-          genotype == 1 ~ n,
-          genotype == 2 ~ 0
-        ),
-        alt_allele = dplyr::case_when(
-          genotype == 0 ~ 0,
-          genotype == 1 ~ n,
-          genotype == 2 ~ n * 2
-        )
-      )
-    
-    # Summarise total allele counts per site for the population
-    site_summary <- allele_summary %>%
-      dplyr::group_by(site, pop) %>%
-      summarise(
-        all_ref_allele = sum(ref_allele,na.rm = TRUE),
-        all_alt_allele = sum(alt_allele,na.rm = TRUE),
-        raw_count = sum(ref_allele, alt_allele,na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    return(site_summary)
+  # Genotype counts per population and site, read in one pass over blocks
+  # of loci (.gl_pop_genotype_counts), so a file-backed object is not
+  # decoded as a whole. Genotypes are diploid SNP dosages of the alternate
+  # allele, NA missing:
+  # - Genotype 0: 2 copies of the reference allele, 0 copies of the alternate allele.
+  # - Genotype 1: 1 copy each of reference and alternate.
+  # - Genotype 2: 0 copies of the reference allele, 2 copies of the alternate allele.
+  # A site without genotypes in a population is absent for that population.
+  # (Previously each population was decoded and melted to long format and
+  # the genotypes tallied; the counts and the table are the same.)
+  pop_counts <- .gl_pop_genotype_counts(x)
+  # the site column as reshape2::melt() built it from the locus names (a
+  # factor, or numbers for numeric-looking names): only the names are
+  # melted, not the genotypes
+  site_col <- reshape2::melt(
+    matrix(0L, nrow = 1, ncol = nLoc(x),
+           dimnames = list("i", locNames(x))),
+    varnames = c("ind", "site"), value.name = "genotype")$site
+
+  allele_site_summary <- lapply(names(pop_counts), function(pop_name) {
+    cnt <- pop_counts[[pop_name]]
+    keep <- colSums(cnt) > 0
+    ref <- unname(2 * cnt[1, ] + cnt[2, ])[keep]
+    alt <- unname(cnt[2, ] + 2 * cnt[3, ])[keep]
+    # Total allele counts per site for the population, ordered by site
+    site_summary <- tibble::tibble(
+      site = site_col[keep],
+      pop = pop_name,
+      all_ref_allele = ref,
+      all_alt_allele = alt,
+      raw_count = ref + alt
+    )
+    return(site_summary[order(site_summary$site), ])
   })
   
   # Combine data from all populations into one data frame
@@ -422,8 +437,8 @@ gl.report.allelerich <- function(x,
       .groups = "drop"
     ) %>%
     dplyr::left_join(
-      tibble::tibble(pop = names(pop_list),
-             popsize = sapply(pop_list, nInd)),
+      tibble::tibble(pop = names(pop_rows),
+             popsize = sapply(pop_rows, length)),
       by = "pop"
     )
   
@@ -461,11 +476,24 @@ gl.report.allelerich <- function(x,
   npops <- nPop(x)
   # bootstrapping
   if (nboots > 0) {
-    # Split the genlight object into a list of populations
-    sgl <- seppop(x)
-    pop_boot <- lapply(sgl, function(y) {
-      df <- as.matrix(y)
-      
+    for (pkg in c("boot", "Rcpp")) {
+      if (!(requireNamespace(pkg, quietly = TRUE))) {
+        stop(error(
+          "Package",
+          pkg,
+          " needed for bootstrapping. Please install it.\n"
+        ))
+      }
+    }
+    # The bootstrap resamples the genotypes of one population, so each
+    # population is decoded in turn (by design; never the whole object):
+    # a file-backed population is read in blocks of loci, about
+    # 8 bytes x individuals x loci of that population.
+    sgl <- pop_rows
+    pop_boot <- lapply(sgl, function(r) {
+      df <- if (.has_fbm(x)) .gl_colwise(x, identity, rows = r) else
+        as.matrix(x[r, ])
+
       if(boot.method == "loc"){
         df <- t(df)
       }
@@ -490,17 +518,25 @@ gl.report.allelerich <- function(x,
     
     for (pop_n in 1:length(sgl)) {
       for (stat_n in seq_len(nparams)) {
-        res_CI_tmp <- boot::boot.ci(
-          boot.out = pop_boot[[pop_n]],
-          conf = conf,
-          type = CI.type,
-          index = stat_n,
-          t0 =  pop_boot[[pop_n]]$t0,
-          t = pop_boot[[pop_n]]$t[, stat_n]
+        res_CI_tmp <- tryCatch(
+          boot::boot.ci(
+            boot.out = pop_boot[[pop_n]],
+            conf = conf,
+            type = CI.type,
+            index = stat_n,
+            t0 =  pop_boot[[pop_n]]$t0,
+            t = pop_boot[[pop_n]]$t[, stat_n]
+          ),
+          error = function(e) NULL
         )
-        
-        res_CI[[pop_n]][stat_n,] <-
-          tail(as.vector(res_CI_tmp[[4]]), 2)
+
+        # boot.ci returns no interval component when the statistic is
+        # constant across replicates; leave the CI row as NA
+        if (!is.null(res_CI_tmp) && length(res_CI_tmp) >= 4 &&
+            !is.null(res_CI_tmp[[4]])) {
+          res_CI[[pop_n]][stat_n,] <-
+            tail(as.vector(res_CI_tmp[[4]]), 2)
+        }
         
       }
     }
@@ -542,24 +578,17 @@ gl.report.allelerich <- function(x,
   if (!is(plot.colors.pop, "function")) {
     colors_pops <- plot.colors.pop
   }
+  if (length(colors_pops) < nPop(x)) {
+    stop(error("  plot.colors.pop must be a palette or hold one color per",
+               "population\n"))
+  }
+  # key colours by population name: names given by the user are kept when
+  # they cover every population, otherwise colours follow levels(pop(x))
+  if (!all(popNames(x) %in% names(colors_pops))) {
+    colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+  }
+  colors_pops <- colors_pops[popNames(x)]
     
-  p1 <-
-    ggplot(result[[2]], 
-           aes(x = pop, y = sum_corrected_richness, fill = pop)) +
-    geom_bar(position = "dodge",
-             stat = "identity",
-             color = "black") +
-    plot.theme +
-    theme(
-      axis.ticks.x = element_blank(),
-      axis.text.x = element_blank(),
-      axis.title.x = element_blank(),
-      axis.ticks.y = element_blank(),
-      axis.title.y = element_blank(),
-      legend.position = "none" ) +
-    labs(fill = "Population") +
-    ggtitle("Sum allelic richness by Population")
-
   p2 <-
     ggplot(result[[2]], aes(
       x = paste(pop, "n=", popsize),
@@ -624,9 +653,8 @@ gl.report.allelerich <- function(x,
               subtitle = "Error bars show Confidence Intervals")
   }
 
-  # p3 <- (p1 / p2)
   p3 <-  p2
-  
+
 
   # Optionally save the plot ---------------------
 

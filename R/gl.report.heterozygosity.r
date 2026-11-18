@@ -1,7 +1,7 @@
 #' @name gl.report.heterozygosity
 #' @title Reports observed, expected and unbiased heterozygosities and FIS
 #' (inbreeding coefficient) by population or by individual from SNP data
-#' @family unmatched report
+#' @family matched report
 #'
 #' @description Calculates the observed, expected and unbiased expected (i.e.
 #' corrected for sample size) heterozygosities and FIS (inbreeding coefficient)
@@ -71,12 +71,12 @@
 #' (that is, across populations), is typically unknown. This can render
 #' estimates of heterozygosity analysis specific, and so it is not valid to
 #' compare such estimates across species or even across different analyses 
-#' (see Schimdt et al 2021). This is a similar problem faced by microsatellites. 
+#' (see Schmidt et al 2021). This is a similar problem faced by microsatellites. 
 #' If you have an estimate of the
 #' number of invariant sequence tags (loci) in your data, such as provided by
 #' \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 #' parameter to standardize your estimates of heterozygosity. This is called
-#' autosomal heterozygosities by Schimddt et al (2021).
+#' autosomal heterozygosities by Schmidt et al (2021).
 #'
 #' \strong{NOTE}: It is important to realise that estimation of adjusted (autosomal)
 #' heterozygosity requires that secondaries not to be removed.
@@ -110,7 +110,12 @@
 #' heterozygosities and FIS by population and their respective standard 
 #' deviations (SD).
 
-#' In the output, it is also reported by population: the number of loci used to
+#' In the output, it is also reported by population: the mean number of
+#'  individuals with a non-missing genotype per locus (n.Ind), which is the
+#'  denominator used to calculate Ho; because of missing data this is an
+#'  average across loci, so it usually shows decimals slightly below the
+#'  number of individuals in the population. Also reported are the number of
+#'  loci used to
 #'  estimate heterozygosity (n.Loc), the number of polymorphic loci (polyLoc),
 #'  the number of monomorphic loci (monoLoc) and loci with all missing data
 #'   (all_NALoc).
@@ -277,8 +282,8 @@
 #'     amount of processing time, therefore parallelisation in Windows machines
 #'    is only quicker than not using parallelisation when nboots > 1000-2000.
 #'    
-#' @author Custodian: Luis Mijangos (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Luis Mijangos, Carlo Pacioni. Custodian: Luis Mijangos
+#' -- Post to \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @references
 #' \itemize{
@@ -303,9 +308,12 @@
 
 #' @seealso \code{\link{gl.filter.heterozygosity}}
 
-#' @export
 #' @return A dataframe containing population labels, heterozygosities, FIS,
-#' their standard deviations and sample sizes.
+#' their standard deviations and sample sizes. When subsample.pop = TRUE
+#' (method='pop'), a named list with two elements: $subsample (the
+#' subsampling results for populations of at least n.limit individuals) and
+#' $results (the dataframe described above).
+#' @export
 
 gl.report.heterozygosity <- function(x,
                                      method = "pop",
@@ -342,16 +350,16 @@ gl.report.heterozygosity <- function(x,
   # SET VERBOSITY
   verbose <- gl.check.verbosity(verbose)
   if(verbose==0){plot.display <- FALSE}
-  
-  # SET WORKING DIRECTORY
-  plot.dir <- gl.check.wd(plot.dir,verbose=0)
-  
+
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
-  
+
+  # SET WORKING DIRECTORY
+  plot.dir <- gl.check.wd(plot.dir,verbose=0)
+
   # CHECK DATATYPE
   datatype <-
     utils.check.datatype(x, accept = "SNP", verbose = verbose)
@@ -359,20 +367,24 @@ gl.report.heterozygosity <- function(x,
   # FUNCTION SPECIFIC ERROR CHECKING
   
   if (!(method == "pop" | method == "ind")) {
-    cat(
-      warn(
-        "Warning: Method must either be by population or by individual,
+    if (verbose >= 1) {
+      cat(
+        warn(
+          "Warning: Method must either be by population or by individual,
                 set to method='pop'\n"
+        )
       )
-    )
+    }
     method <- "pop"
   }
-  
+
   if (n.invariant < 0) {
-    cat(warn(
-      "Warning: Number of invariant loci must be non-negative, set to
+    if (verbose >= 1) {
+      cat(warn(
+        "Warning: Number of invariant loci must be non-negative, set to
             zero\n"
-    ))
+      ))
+    }
     n.invariant <- 0
     if (verbose == 5) {
       cat(report(
@@ -381,26 +393,36 @@ gl.report.heterozygosity <- function(x,
       ))
     }
   }
-  
+
   if (any(grepl(x@other$history, pattern = "gl.filter.secondaries") == TRUE) &
       n.invariant > 0) {
-    cat(
-      warn(
-        "  Warning: Estimation of adjusted heterozygosity requires that
+    if (verbose >= 1) {
+      cat(
+        warn(
+          "  Warning: Estimation of adjusted heterozygosity requires that
                 secondaries not to be removed. A gl.filter.secondaries call was
                 found in the history. This may cause the results to be
                 incorrect\n"
+        )
       )
-    )
+    }
   }
-  
+
   if( nboots == 0 & error.bar == "CI" ){
-    cat(error(
-"  Number of boostraps ('nboots' parameter) must be > 0 to calculate confidence 
-   intervals \n"))
-    stop()
+    stop(error(
+      "  Number of bootstraps ('nboots' parameter) must be > 0 to calculate confidence intervals\n"
+    ))
   }
-  
+
+  if (subsample.pop == TRUE && method == "ind") {
+    if (verbose >= 1) {
+      cat(warn(
+        "  Warning: subsample.pop applies to method='pop' only -- ignored\n"
+      ))
+    }
+    subsample.pop <- FALSE
+  }
+
   # DO THE JOB
   
   ########### FOR METHOD BASED ON POPULATIONS
@@ -428,163 +450,127 @@ gl.report.heterozygosity <- function(x,
     res_sub <- utils.subsample.pop(x,n.limit = n.limit)
     }
     
-    # Split the genlight object into a list of populations
-    sgl <- seppop(x)
-    
-    # OBSERVED HETEROZYGOSITY
-    if (verbose >= 2) {
-      cat(
-        report(
-          "  Calculating Observed Heterozygosities, averaged across
-                    loci, for each population\n"
-        )
-      )
-    }
-    
-    # Calculate heterozygosity for each population in the list
-    # CP = Carlo Pacioni CP ###
-    Ho.loc <-
-      lapply(sgl, function(x)
-        colMeans(as.matrix(x) == 1, na.rm = TRUE))
-
-    Ho <-
-      unlist(lapply(sgl, function(x)
-        mean(
-          colMeans(as.matrix(x) == 1, na.rm = TRUE), na.rm = TRUE
-        )))
-    
-    ### CP ### observed heterozygosity standard deviation
-    HoSD <-
-      unlist(lapply(sgl, function(x)
-        sd(
-          colMeans(as.matrix(x) == 1, na.rm = TRUE), na.rm = TRUE
-        )))
-    
-    HoSE <- unlist(lapply(sgl, function(x)
-      std.error(colMeans(
-        as.matrix(x) == 1, na.rm = TRUE
-      ))))
-    
-    ##########
+    # The populations, in the order of seppop() (the levels of pop(x)), as
+    # row indices: each population is read from the object in blocks of
+    # loci (.gl_colblocks), without copying it (seppop) or decoding the
+    # whole matrix. Per population and locus, one pass gives the missing
+    # counts, the mean genotype (as in gl.alf) and the per-locus
+    # heterozygosities (.het_byloc); every statistic below is computed from
+    # these with the same expressions as from the population's matrix.
+    pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+    names(pop_rows) <- levels(pop(x))
+    het_names <- c("Ho.loc", "He.loc", "uHe.loc", "FIS.loc")
+    pop_stats <- lapply(pop_rows, function(r) {
+      blocks <- .gl_colblocks(x, function(m) {
+        list(nna = colSums(is.na(m)), mean = colMeans(m, na.rm = TRUE),
+             het = .het_byloc(m))
+      }, rows = r)
+      list(n = length(r),
+           nna = do.call(c, lapply(blocks, `[[`, "nna")),
+           mean = do.call(c, lapply(blocks, `[[`, "mean")),
+           het = stats::setNames(lapply(het_names, function(k) {
+             do.call(c, lapply(blocks, function(b) b$het[[k]]))
+           }), het_names))
+    })
     
     # Calculate the number of loci that are not all NAs CP ###
     n_loc <-
-      unlist(lapply(sgl, function(x)
+      unlist(lapply(pop_stats, function(s)
         sum(!(
-          colSums(is.na(as.matrix(x))) == nrow(as.matrix(x))
+          s$nna == s$n
         ))))
-    ##########
+    
+    # Calculate the number of individuals (as ind.count(): mean number of
+    # scored individuals over the loci that are not all NA)
+    n_ind <- sapply(pop_stats, function(s) {
+      loci.na <- which(s$nna == s$n)
+      if (length(loci.na) > 0) {
+        mean(s$n - s$nna[-loci.na])
+      } else {
+        mean(s$n - s$nna)
+      }
+    })
     
     # calculate the number of polymorphic and monomorphic loci by population
     poly_loc <- NULL
     mono_loc <- NULL
     all_na_loc <- NULL
     
-    for (y in 1:length(sgl)) {
-      y_temp <- sgl[[y]]
-      hold <- y_temp
-      mono_tmp <- gl.alf(y_temp)
-      loc.list <- rownames(mono_tmp[which(mono_tmp$alf1 == 1 |
-                                            mono_tmp$alf1 == 0), ])
-      loc.list_NA <- which(colSums(is.na(as.matrix(y_temp)))==nInd(y_temp))
-        # rownames(mono_tmp[which(is.na(mono_tmp$alf1)), ])
-      
-      # Remove NAs from list of monomorphic loci and loci with all NAs
-      # loc.list <- loc.list[!is.na(loc.list)]
-      
-      # remove monomorphic loci and loci with all NAs
-      if (length(loc.list) > 0) {
-        y_temp <- gl.drop.loc(y_temp, loc.list = loc.list, verbose = 0)
-      }
-      
-      poly_loc <-  c(poly_loc, nLoc(y_temp))
-      mono_loc <- c(mono_loc, (nLoc(hold) - nLoc(y_temp) - length(loc.list_NA)))
+    for (y in seq_along(pop_stats)) {
+      s <- pop_stats[[y]]
+      # alf1 as in gl.alf. Loci with no data in the population have alf1
+      # NaN, so which() leaves them out of loc.list: loc.list holds the
+      # monomorphic loci only, and the all-NA loci are counted separately,
+      # not as polymorphic
+      alf1 <- 1 - s$mean / 2
+      loc.list <- which(alf1 == 1 | alf1 == 0)
+      loc.list_NA <- which(s$nna == s$n)
+
+      mono_loc <- c(mono_loc, length(loc.list))
       all_na_loc <- c(all_na_loc, length(loc.list_NA))
+      poly_loc <- c(poly_loc,
+                    nLoc(x) - length(loc.list) - length(loc.list_NA))
     }
     
-    # Apply correction CP ###
-    Ho.adj <- Ho * n_loc / (n_loc + n.invariant)
-    # Manually compute SD for Ho.adj sum of the square of differences from
-    # the mean for polymorphic sites plus sum of the square of differences
-    #(which is the Ho.adj because Ho=0) from the mean for invariant sites
-    Ho.adjSD <-
-      sqrt((
-        mapply(function(x, Mean)
-          sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc, Mean = Ho.adj) +
-          n.invariant * Ho.adj ^
-          2
-      ) / (n_loc +
-             n.invariant - 1))
     
-    Ho.adjSE <-  Ho.adjSD / sqrt(poly_loc+mono_loc)
-    
-    n_ind <- sapply(sgl, ind.count)
-    
-    ##########
-    
-    # EXPECTED HETEROZYGOSITY
+    #### Calculate heterozygosities for each population ####
     if (verbose >= 2) {
-      cat(report("  Calculating Expected Heterozygosities\n\n"))
+      cat(
+        report(
+          "  Calculating Heterozygosities, averaged across
+                    loci, for each population\n"
+        )
+      )
     }
     
-    Hexp <- array(NA, length(sgl))
-    HexpSD <- array(NA, length(sgl))
-    HexpSE <- array(NA, length(sgl))
+    all.het <- lapply(pop_stats,
+           FUN = function(s) .het_summary(s$het,
+                                          n.invariant=n.invariant,
+                                          aHet=n.invariant > 0,
+                                          bootstrap=FALSE))
     
-    uHexp <- array(NA, length(sgl))
-    uHexpSD <- array(NA, length(sgl))
-    uHexpSE <- array(NA, length(sgl))
+    Ho.loc <- sapply(all.het, function(x) x[["byloc"]]["Ho.loc"])
     
-    Hexp.adj <- array(NA, length(sgl))
-    Hexp.adjSD <- array(NA, length(sgl))
-    Hexp.adjSE <- array(NA, length(sgl))
-    
-    FIS <- array(NA, length(sgl))
-    FISSD <- array(NA, length(sgl))
-    FISSE <- array(NA, length(sgl))
-    
-    # dataframes to store data for boxplots
-    uHe_df <- as.list(rep(NA, length(sgl)))
-    Fis_df <- as.list(rep(NA, length(sgl)))
-    
-    # For each population
-    for (i in 1:length(sgl)) {
-      gl <- sgl[[i]]
-      gl <- utils.recalc.freqhomref(gl, verbose = 0)
-      gl <- utils.recalc.freqhomsnp(gl, verbose = 0)
-      gl <- utils.recalc.freqhets(gl, verbose = 0)
-      p <- gl@other$loc.metrics$FreqHomRef
-      q <- gl@other$loc.metrics$FreqHomSnp
-      hets <- gl@other$loc.metrics$FreqHets
-      p <- (2 * p + hets) / 2
-      q <- (2 * q + hets) / 2
-      H <- 1 - (p ^ 2 + q ^ 2)
+    He.loc <- sapply(all.het, function(x) x[["byloc"]]["He.loc"])
       
-      Hexp[i] <- mean(H, na.rm = TRUE)
-      HexpSD[i] <- sd(H, na.rm = TRUE)
-      HexpSE[i] <- std.error(H)
+    Ho <- sapply(all.het, function(x) x[["means"]]["Ho"])
+    HoSD <- compute.variability(all.het, what.st = "sd", what.het = "Ho.loc")
+    HoSE <- compute.variability(all.het, what.st = "std.error", what.het = "Ho.loc")
       
-      ### CP ### Unbiased He (i.e. corrected for sample size) hard
-      # coded for diploid
-      uH <- (2 * as.numeric(n_ind[i]) / (2 * as.numeric(n_ind[i]) - 1)) * H
-      uHe_df[[i]] <-  uH
-      ### CP ###
-      uHexp[i] <- mean(uH, na.rm = TRUE)
-      uHexpSD[i] <- sd(uH, na.rm = TRUE)
-      uHexpSE[i] <- std.error(uH)
-      
-      Hexp.adj[i] <- Hexp[i] * n_loc[i] / (n_loc[i] + n.invariant)
-      Hexp.adjSD[i] <-
-        sqrt((sum((H - Hexp.adj[i]) ^ 2, na.rm = TRUE) + n.invariant * Hexp.adj[i] ^ 2) /
-               (n_loc[i] + n.invariant - 1))
-      Hexp.adjSE[i] <- Hexp.adjSD[i] / sqrt(poly_loc[i]+mono_loc[i])
+    Hexp <- sapply(all.het, function(x) x[["means"]]["He"])
+    HexpSD <- compute.variability(all.het, what.st = "sd", what.het = "He.loc")
+    HexpSE <- compute.variability(all.het, what.st = "std.error", what.het = "He.loc")
     
-      FIS_temp <- (uH - Ho.loc[[i]]) /  uH 
-      Fis_df[[i]] <- FIS_temp
-      FIS[i] <- mean(FIS_temp, na.rm = TRUE)
-      FISSD[i] <- sd(FIS_temp, na.rm = TRUE)
-      FISSE[i] <- std.error(FIS_temp)
+    uHexp <- sapply(all.het, function(x) x[["means"]]["uHe"])
+    uHexpSD <- compute.variability(all.het, what.st = "sd", what.het = "uHe.loc")
+    uHexpSE <- compute.variability(all.het, what.st = "std.error", what.het = "uHe.loc")
+    
+    FIS <- sapply(all.het, function(x) x[["means"]]["FIS"])
+    FISSD <- compute.variability(all.het, what.st = "sd", what.het = "FIS.loc")
+    FISSE <- compute.variability(all.het, what.st = "std.error", what.het = "FIS.loc")
+    
+    
+    if (n.invariant > 0) {
+      # Apply correction CP ###
+      Ho.adj <- sapply(all.het, function(x) x[["means"]]["Ho.adj"])
+      # Manually compute SD for Ho.adj sum of the square of differences from
+      # the mean for polymorphic sites plus sum of the square of differences
+      #(which is the Ho.adj because Ho=0) from the mean for invariant sites
+      Ho.adjSD <-
+        sqrt((
+          mapply(function(x, Mean)
+            sum((x - Mean) ^ 2, na.rm = TRUE), Ho.loc, Mean = Ho.adj) +
+            n.invariant * Ho.adj ^ 2) / (n_loc + n.invariant - 1))
       
+      Ho.adjSE <-  Ho.adjSD / sqrt(n_loc+n.invariant)
+      
+      Hexp.adj <- sapply(all.het, function(x) x[["means"]]["Hexp.adj"])
+      Hexp.adjSD <- 
+        sqrt((
+          mapply(function(x, Mean)
+            sum((x - Mean) ^ 2, na.rm = TRUE), He.loc, Mean = Hexp.adj) + 
+            n.invariant * Hexp.adj ^ 2) /(n_loc + n.invariant - 1))
+      Hexp.adjSE <- Hexp.adjSD / sqrt(n_loc+n.invariant)
     }
     
     # Prep for results
@@ -631,11 +617,13 @@ gl.report.heterozygosity <- function(x,
     df <- cbind(df.base, df.params)
     npops <- nPop(x)
     
-    # bootstrapping
+    #### bootstrapping ####
     if (nboots > 0) {
-      pop_boot <- lapply(sgl, function(y) {
+      pop_boot <- lapply(pop_rows, function(r) {
         
-        df <- as.matrix(y)
+        # the bootstrap resamples the population's genotype matrix, so it
+        # is decoded here, one population at a time (read in blocks)
+        df <- .gl_colwise(x, function(m) m, rows = r)
         
         if(boot.method == "loc"){
           df <- t(df)
@@ -668,22 +656,43 @@ gl.report.heterozygosity <- function(x,
         pop_res <- rbind(Ho.adj, Hexp.adj)
       }
       
-      for (pop_n in 1:length(sgl)) {
+      no_CI <- character(0)
+      for (pop_n in 1:length(pop_rows)) {
         for (stat_n in seq_len(nparams)) {
-          res_CI_tmp <- boot::boot.ci(
-            boot.out = pop_boot[[pop_n]],
-            conf = conf,
-            type = CI.type,
-            index = stat_n
-            # ,
-            # t0 =  pop_res[stat_n, pop_n],
-            # t = pop_boot[[pop_n]]$t[, stat_n]
-          )
-          
-          res_CI[[pop_n]][stat_n,] <-
-            tail(as.vector(res_CI_tmp[[4]]), 2)
+          # boot.ci cannot produce an interval when every replicate is
+          # identical (e.g. a single-individual population resampled by
+          # individual; it returns NULL) or when replicates are NA (e.g.
+          # FIS where uHe is 0; it errors). Record NA limits and report
+          # the population below instead of aborting the whole run.
+          # (capture.output: boot.ci print()s its constant-t message,
+          # which would break silence at verbose = 0)
+          res_CI_tmp <- tryCatch({
+            utils::capture.output(
+              ci <- suppressWarnings(boot::boot.ci(
+                boot.out = pop_boot[[pop_n]],
+                conf = conf,
+                type = CI.type,
+                index = stat_n
+              ))
+            )
+            ci
+          }, error = function(e) NULL)
+          if (is.null(res_CI_tmp) || length(res_CI_tmp) < 4) {
+            no_CI <- union(no_CI, names(pop_rows)[pop_n])
+            res_CI[[pop_n]][stat_n,] <- c(NA_real_, NA_real_)
+          } else {
+            res_CI[[pop_n]][stat_n,] <-
+              tail(as.vector(res_CI_tmp[[4]]), 2)
+          }
           
         }
+      }
+      if (length(no_CI) > 0 && verbose >= 1) {
+        cat(warn(
+          "  Warning: no confidence interval could be computed for",
+          length(no_CI), "population(s); limits set to NA:",
+          paste(no_CI, collapse = ", "), "\n"
+        ))
       }
       
       # Build df with CI
@@ -719,13 +728,23 @@ gl.report.heterozygosity <- function(x,
       if (!is(plot.colors.pop, "function")) {
         colors_pops <- plot.colors.pop
       }
-      colors_pops <- setNames(colors_pops, pop_order)
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  plot.colors.pop must be a palette or hold one color per",
+                   "population\n"))
+      }
+      # key colours by population name: names given by the user are kept when
+      # they cover every population, otherwise colours follow levels(pop(x));
+      # pop_order only sets the order of the bars
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
       
       if (n.invariant == 0) {
         
         pop_list_plot <- df
         pop_list_plot$pop <- as.factor(pop_list_plot$pop)
-        pop_list_plot$color <- colors_pops
+        pop_list_plot$color <- colors_pops[as.character(pop_list_plot$pop)]
         
         pop_list_plot_stat <- pop_list_plot[,c("Ho", "uHe", "FIS", "n.Ind",  "pop",  "color")]
         pop_list_plot_stat <- reshape2::melt(pop_list_plot_stat, id = c("pop", "color", "n.Ind"))
@@ -830,18 +849,20 @@ gl.report.heterozygosity <- function(x,
           res_sub_plot <- res_sub
           res_sub_plot$pop <- as.factor(res_sub_plot$pop)
           res_sub_plot$subsample <- as.factor(res_sub_plot$subsample )
-          res_sub_plot$color <- rep(colors_pops,each=5)
+          # key colours by population name; populations below n.limit are
+          # skipped by utils.subsample.pop, so a positional rep() desyncs
+          res_sub_plot$color <- colors_pops[as.character(res_sub_plot$pop)]
           
           res_sub_plot_2 <- reshape2::melt(res_sub_plot, id = c("pop", "color", "subsample","res_SE"))
           
-          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value))+
+          p4 <- ggplot(res_sub_plot_2,aes(x=subsample,y=value,fill=pop))+
             
             geom_bar(stat = "identity", 
                      color = "black", 
-                     fill = res_sub_plot_2$color,
                      position = position_dodge())+ 
             facet_wrap(~variable, nrow=1) +
             facet_wrap(~pop)+
+            scale_fill_manual(values = colors_pops) +
             geom_errorbar(aes(ymin = value, 
                               ymax = value + res_SE), 
                           width=0.5)+
@@ -867,7 +888,7 @@ gl.report.heterozygosity <- function(x,
       } else {
 
         df.ordered <- df
-        df.ordered$color <- colors_pops
+        df.ordered$color <- colors_pops[as.character(df.ordered$pop)]
         df.ordered <- df.ordered[order(df.ordered$Ho.adj), ]
         df.ordered$pop <- factor(df.ordered$pop, levels = df.ordered$pop)
         p1 <-
@@ -878,7 +899,7 @@ gl.report.heterozygosity <- function(x,
           )) + geom_bar(position = "dodge",
                         stat = "identity",
                         color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
+          scale_fill_manual(values = colors_pops) +
           scale_x_discrete(labels = paste(df.ordered$pop,
                                           round(df.ordered$n.Ind, 0),
                                           sep = " | ")) + plot.theme + theme(
@@ -900,7 +921,7 @@ gl.report.heterozygosity <- function(x,
           )) + geom_bar(position = "dodge",
                         stat = "identity",
                         color = "black") +
-          scale_fill_manual(values = df.ordered$color) +
+          scale_fill_manual(values = colors_pops) +
           scale_x_discrete(labels = paste(df.ordered$pop,
                                           round(df.ordered$n.Ind, 0),
                                           sep = " | ")) + plot.theme + theme(
@@ -1001,25 +1022,20 @@ gl.report.heterozygosity <- function(x,
         "  Note: No adjustment for invariant loci (n.invariant set to 0)\n"
       ))
     }
-    # Convert to matrix
-    m <- as.matrix(x)
-    
-    # For each individual determine counts of hets, homs and NAs
-    c.na <- array(NA, nInd(x))
-    c.hets <- array(NA, nInd(x))
-    c.hom0 <- array(NA, nInd(x))
-    c.hom2 <- array(NA, nInd(x))
-    c.nloc <- array(NA, nInd(x))
-    for (i in 1:nInd(x)) {
-      c.na[i] <- sum(is.na(m[i, ]))
-      c.hets[i] <-
-        sum(m[i, ] == 1, na.rm = TRUE) / (nLoc(x) - c.na[i])
-      c.hom0[i] <-
-        sum(m[i, ] == 0, na.rm = TRUE) / (nLoc(x) - c.na[i])
-      c.hom2[i] <-
-        sum(m[i, ] == 2, na.rm = TRUE) / (nLoc(x) - c.na[i])
-      c.nloc[i] <- (nLoc(x) - c.na[i])
-    }
+    # For each individual determine counts of hets, homs and NAs, summed
+    # over blocks of loci (.gl_rowwise): a file-backed object is not decoded
+    # as a whole; integer counts, as from the whole matrix
+    cnt <- .gl_rowwise(x, function(m) cbind(rowSums(is.na(m)),
+                                            rowSums(m == 1, na.rm = TRUE),
+                                            rowSums(m == 0, na.rm = TRUE),
+                                            rowSums(m == 2, na.rm = TRUE)))
+    storage.mode(cnt) <- "integer"
+    cnt <- unname(cnt)
+    c.na <- cnt[, 1]
+    c.hets <- cnt[, 2] / (nLoc(x) - c.na)
+    c.hom0 <- cnt[, 3] / (nLoc(x) - c.na)
+    c.hom2 <- cnt[, 4] / (nLoc(x) - c.na)
+    c.nloc <- (nLoc(x) - c.na)
     
     # Join the sample sizes with the heterozygosities
     df <-
@@ -1053,15 +1069,14 @@ gl.report.heterozygosity <- function(x,
         plot.theme
     }
     
-    if (plot.display) 
-      {
-      outliers_temp <-
-      ggplot_build(p1)$data[[1]]$outliers[[1]]
+    # Outliers are computed from the data (Tukey boxplot statistics, the
+    # same rule ggplot uses) so the verbose >= 3 report does not depend
+    # on the plot being displayed
+    outliers_temp <- grDevices::boxplot.stats(df$Ho)$out
     outliers <-
       data.frame(ID = as.character(df$ind.name[df$Ho %in% outliers_temp]),
-                 Ho = outliers_temp)
-    }
-    
+                 Ho = df$Ho[df$Ho %in% outliers_temp])
+
     # OUTPUT REPORT
     if (verbose >= 3) {
       cat("Reporting Heterozygosity by Individual\n")
@@ -1100,12 +1115,18 @@ gl.report.heterozygosity <- function(x,
   }
   
   # Optionally save the plot ---------------------
-  
+
   if(!is.null(plot.file)){
-    tmp <- utils.plot.save(p3,
-                           dir=plot.dir,
-                           file=plot.file,
-                           verbose=verbose)
+    if (exists("p3", inherits = FALSE)) {
+      tmp <- utils.plot.save(p3,
+                             dir=plot.dir,
+                             file=plot.file,
+                             verbose=verbose)
+    } else if (verbose >= 1) {
+      cat(warn(
+        "  Warning: plot.file specified but no plot was built (plot.display is FALSE); nothing saved\n"
+      ))
+    }
   }
   
   if (verbose >= 3) {
@@ -1119,9 +1140,9 @@ gl.report.heterozygosity <- function(x,
   
   # RETURN
   if(subsample.pop==TRUE){
-   return(invisible(list(res_sub,df)))
+   return(invisible(list(subsample = res_sub, results = df)))
   }else{
   return(invisible(df))
   }
-  
+
 }

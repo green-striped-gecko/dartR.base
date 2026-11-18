@@ -11,21 +11,25 @@ gl.join(x1, x2, method = NULL, verbose = NULL)
 
 \item{x2}{Name of the second genlight object [required].}
 
-\item{method}{Legacy parameter, issue warning [default NULL]}
+\item{method}{Legacy parameter, deprecated and no longer required.
+Accepted legacy values for backward compatibility: 'join.by.loc' or
+'end2end' (same loci, individuals combined); 'join.by.ind' or
+'sidebyside' (same individuals, loci combined) [default NULL].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-A new genlight object
+A new genlight object with the combined data and metadata.
 }
 \description{
 This function combines two genlight objects and their associated metadata.
-The history associated with the two genlight objects is cleared from the new
-genlight object. Either the individuals/samples must be the same in each genlight
+The history of the new genlight object is taken from the first genlight
+object, with the gl.join call appended. Either the individuals/samples must
+be the same in each genlight
 object, in which case the new genlight object has the same individuals but combined loci,
-or the number of loci must be the same in each genlight object in which case the new
+or the loci must be the same in each genlight object in which case the new
 genlight object has the same loci but combined individuals/samples.
 The function is typically used to combine datasets from the same service
 where the files have been split because of size limitations. The data is read
@@ -34,11 +38,16 @@ in from multiple csv files, then the resultant genlight objects are combined.
 This function works with both SNP and Tag P/A data.
 }
 \details{
-This script joins two genlight objects together along with the associated metadata. if method='sidebyside' (the default), the individuals 
-in the two genlight objects must be the same and in the same order. The loci are combined.
-
-If method='end2end', the loci in the two genlight objects must be the same and in the same order. The data for the two sets of individuals
-are combined. Note that if two individuals have the same names, they will be made unique.#'
+This script joins two genlight objects together along with the associated
+metadata. The join mode is detected automatically: if the two objects have
+identical individuals (in the same order), the loci are combined; if they
+have identical loci (in the same order), the individuals are combined.
+Individual names duplicated across the two objects are made unique.
+The legacy method parameter is deprecated and no longer required; the
+historical values 'join.by.loc'/'end2end' (join by shared loci) and
+'join.by.ind'/'sidebyside' (join by shared individuals) remain accepted
+for backward compatibility, and the requested join is validated against
+the data.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -74,16 +83,21 @@ nInd(gl)
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.gen2fbm}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
@@ -94,7 +108,8 @@ Other data manipulation:
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
 Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to

@@ -7,11 +7,11 @@
 gl.load(file, fbm = FALSE, compliance = FALSE, verbose = NULL)
 }
 \arguments{
-\item{file}{Name of the file to receive data
+\item{file}{Name of the file from which to read the saved object
 [required].}
 
 \item{fbm}{Whether to convert dartR-gen object to dartR-fbm object [default
-TRUE].}
+FALSE].}
 
 \item{compliance}{Whether to undertake a compliance check [default FALSE].}
 
@@ -20,18 +20,32 @@ progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-The loaded object
+The loaded object, returned invisibly
 }
 \description{
 This is a wrapper for readRDS()
-The function loads the object from the current workspace, checks if it is a
+The function reads the object from the nominated file, checks if it is a
 dartR genlight object, converts it if it is not, and returns the
 gl object. A compliance check can be requested.
+
+Objects of class dartR saved by the legacy dartR package are converted to
+dartR.base objects without loading the legacy package (which would mask
+the dartR.base functions), and also when it is not installed. A
+file-backed (FBM) object saved with saveRDS() instead of gl.save() can
+only be loaded while its backing file (.bk) exists; otherwise gl.load()
+stops with an error.
+}
+\examples{
+f <- file.path(tempdir(), 'testset.rds')
+gl.save(testset.gl, f)
+gl <- gl.load(f)
+
 }
 \seealso{
 \code{\link{gl.save}}
 
 Other io: 
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
@@ -41,7 +55,7 @@ Other io:
 \code{\link{utils.read.dart}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{io}

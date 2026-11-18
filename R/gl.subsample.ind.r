@@ -8,7 +8,8 @@
 #'
 #' @param x Name of the genlight object containing the SNP or presence/absence
 #' (SilicoDArT) data [required].
-#' @param n Number of individuals to include in the subsample [default NULL]
+#' @param n Number of individuals to include in the subsample; if NULL, the
+#' size of the smallest population (by.pop = TRUE) or nInd(x) [default NULL]
 #' @param replace If TRUE, sampling is with replacement [default TRUE]
 #' @param by.pop If FALSE, ignore population settings when subsampling; if TRUE, subsample
 #' each population to n individuals [default TRUE]. 
@@ -25,7 +26,7 @@
 #' 
 #' Set error.check = FALSE for speedy execution in simulations
 #' 
-#' @author Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 
 #' @examples 
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
@@ -50,7 +51,7 @@ gl.subsample.ind <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
     
@@ -58,7 +59,7 @@ gl.subsample.ind <- function(x,
     datatype <- utils.check.datatype(x, verbose=verbose)
     
     if (!is(x, "dartR")) {
-      class(x) <- "dartR"  
+      x <- .as_dartR(x)
       if (verbose>2) {
         cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
         cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
@@ -68,21 +69,21 @@ gl.subsample.ind <- function(x,
     
     # FUNCTION SPECIFIC ERROR CHECKING
     
-    if(n < 1){
-      cat(error("Fatal Error: Number of individuals must be a positive integer\n"))
-      stop()
-    }
-    
     # Set the limit for n if Replace=FALSE
     n.limit <- min(table(pop(x)))
     
-    # Set the default value of n if not specified
+    # Set the default value of n if not specified (before checking n)
     if (is.null(n)){
       if (by.pop){
         n <- n.limit
       } else {
         n <- nInd(x)
       }
+    }
+    
+    if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n < 1) {
+      stop(error("  Fatal Error: n, the number of individuals, must be a",
+                 "positive integer\n"))
     }
     
     if (by.pop==TRUE){
@@ -97,15 +98,14 @@ gl.subsample.ind <- function(x,
       }
     }
     if(by.pop==FALSE){
-      if ( n > nLoc(x) ){
+      if ( n > nInd(x) ){
         if (verbose >= 1) {cat(warn("  Warning: Specified subsample size larger than total number of individuals\n"))}
         if(replace==FALSE){
-          if (verbose >= 1) {cat(warn("    Sampling without replacement, n set to",nLoc(x),"\n"))}
-          n <- nLoc(x)
+          if (verbose >= 1) {cat(warn("    Sampling without replacement, n set to",nInd(x),"\n"))}
+          n <- nInd(x)
         } else {
-          if (verbose >= 1) {cat(warn("    Some populations will be upsampled by replacement\n"))}
+          if (verbose >= 1) {cat(warn("    Individuals will be upsampled by replacement\n"))}
         }
-        n <- nLoc(x)
       }
     }
   }
@@ -126,7 +126,8 @@ gl.subsample.ind <- function(x,
         # then if n is more than double nInd(x)
         if(n/nInd(x)>=2){
           # Add increments of nInd(x) individuals to the new genlight object
-          for (i in 1:trunc(n/nInd(x))-1){
+          # the first copy is drawn above, so add k - 1 more
+          for (i in seq_len(trunc(n/nInd(x)) - 1)){
             idx <- sample(seq_len(nInd(x)), size = nInd(x), replace = TRUE)
             tmp <- x[idx,] # Requires dartR genlight object to ensure loc.metrics subsetted also
             xx <- gl.join(xx,tmp,method="join.by.loc",verbose=0)
@@ -139,8 +140,7 @@ gl.subsample.ind <- function(x,
           xx <- gl.join(xx,tmp,method="join.by.loc",verbose=0)
         }
       } else {
-        cat(error("Fatal Error: Cannot upsample a genlight object without replacement\n"))
-        stop()
+        stop(error("Fatal Error: Cannot upsample a genlight object without replacement\n"))
       }
     }
     return(xx)
@@ -175,20 +175,37 @@ gl.subsample.ind <- function(x,
     if(error.check==TRUE){
       # FILTER MONOMORPHS
       if(mono.rm==TRUE){
-        x <- gl.filter.monomorphs(x,verbose=verbose)
-        
-        # ADD TO HISTORY
-        nh <- length(x2@other$history)
-        x2@other$history[[nh + 1]] <- match.call()
+        xx <- gl.filter.monomorphs(xx,verbose=verbose)
       }
-      
+
+      # RESET FLAGS
+      # Individuals have been removed, so the locus metrics computed over the
+      # original sample (call rate, allele frequencies, heterozygosities, ...)
+      # no longer describe xx. Mark them as no longer current (matching
+      # gl.drop.ind) so downstream gl.recalc.metrics / compliance checks know to
+      # recompute them.
+      xx <- utils.reset.flags(xx, verbose = 0)
+    }
+
+    # ADD TO HISTORY
+    # Record this call on the returned object (xx). Reset to the input's
+    # history first so the entries that gl.keep.pop / gl.join /
+    # gl.filter.monomorphs append internally (as verbose = 0 helpers) are
+    # dropped, leaving the input's provenance followed by this
+    # gl.subsample.ind() call. Done unconditionally so the subsample is
+    # recorded whether or not error.check / mono.rm are set.
+    xx@other$history <- x@other$history
+    nh <- length(xx@other$history)
+    xx@other$history[[nh + 1]] <- utils.history.call(match.call())
+
+    if(error.check==TRUE){
       # FLAG SCRIPT END ---------------
-      
+
       if (verbose >= 1) {
         cat(report("Completed:", funname, "\n"))
       }
     }
-  
+
   return(xx)
 }
     

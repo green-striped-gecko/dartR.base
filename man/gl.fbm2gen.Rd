@@ -2,33 +2,87 @@
 % Please edit documentation in R/gl.fbm2gen.r
 \name{gl.fbm2gen}
 \alias{gl.fbm2gen}
-\title{Convert an FBM-backed dartR to a GEN-backed dartR (streamed with big_apply)}
+\title{Converts a file-backed (FBM) genlight object to a gen-backed one}
 \usage{
-gl.fbm2gen(x, chunk = 2048L, quiet = TRUE)
+gl.fbm2gen(x, chunk = NULL, quiet = TRUE, verbose = NULL)
 }
 \arguments{
-\item{x}{A `dartR` object with `@fbm` populated. If `@fbm` is `NULL`,
-the object is returned unchanged.}
+\item{x}{A `dartR` or `genlight` object. If it holds no FBM, it is returned
+unchanged.}
 
-\item{chunk}{Integer, number of **loci per block** to read from FBM
-(default `2048L`). Increase for speed if you have RAM to spare.}
+\item{chunk}{Deprecated and ignored: the blocks are now blocks of loci
+whose size follows \code{bigstatsr.block.sizeGB}. Kept for
+compatibility [default NULL].}
 
-\item{quiet}{Logical; if `TRUE`, suppress non-critical messages.}
+\item{quiet}{Logical; if `TRUE`, suppress the non-critical
+"no FBM found" message regardless of verbosity [default TRUE].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
 A `dartR` object with **`@gen` populated** and **`@fbm = NULL`**.
 }
 \description{
-`gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot into
-a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. The operation is
-**column-chunked** via `bigstatsr::big_apply`: each block is decoded from FBM,
-turned into a small `genlight`, and concatenated using `cbind.dartR` (SNPbin
-path). At the end, `@fbm` is set to `NULL` and `@gen` holds the SNPbin list.
+`gl.fbm2gen()` converts a `dartR` whose genotypes live in the `@fbm` slot
+into a `dartR` with genotypes in the `@gen` (list of SNPbin) slot. At the
+end, `@fbm` is set to `NULL` and `@gen` holds the SNPbin list.
+
+The conversion reads the FBM in **blocks of loci** (the order in which the
+backing file is stored, so reading is fast) and packs each block directly
+into the bits of the SNPbin objects; the full genotype matrix is never
+decoded at once. The block size follows the bigstatsr option
+\code{bigstatsr.block.sizeGB} (default 1): a block holds one sixteenth of
+\code{bigstatsr::block_size(nInd(x))} loci (at least 512). Beyond the
+result itself, the conversion needs a few hundred Mb with the default
+(about 370 Mb for 2,000 individuals x 200,000 loci); lower the option to
+convert with less memory.
+
+Genotypes must be 0, 1, 2 or missing (0 or 1 for haploid individuals);
+other values give an error.
 }
 \examples{
-\dontrun{
-d_gen <- gl.fbm2gen(d_fbm, chunk = 4096L)
-length(d_gen@gen)      # nInd
-nLoc(d_gen)            # number of loci (via genlight path)
+x <- gl.gen2fbm(testset.gl)
+y <- gl.fbm2gen(x)
+length(y@gen)      # one SNPbin per individual
+identical(as.matrix(y), as.matrix(testset.gl))
 }
+\seealso{
+\code{\link{gl.gen2fbm}}
+
+Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
+\code{\link{gl.define.pop}()},
+\code{\link{gl.drop.ind}()},
+\code{\link{gl.drop.loc}()},
+\code{\link{gl.drop.pop}()},
+\code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.gen2fbm}()},
+\code{\link{gl.impute}()},
+\code{\link{gl.join}()},
+\code{\link{gl.keep.ind}()},
+\code{\link{gl.keep.loc}()},
+\code{\link{gl.keep.pop}()},
+\code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
+\code{\link{gl.merge.pop}()},
+\code{\link{gl.reassign.ind}()},
+\code{\link{gl.reassign.pop}()},
+\code{\link{gl.recode.ind}()},
+\code{\link{gl.recode.pop}()},
+\code{\link{gl.rename.pop}()},
+\code{\link{gl.sample}()},
+\code{\link{gl.sim.genotypes}()},
+\code{\link{gl.sort}()},
+\code{\link{gl.subsample.ind}()},
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
+\author{
+Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+\url{https://groups.google.com/d/forum/dartr}
+}
+\concept{data manipulation}

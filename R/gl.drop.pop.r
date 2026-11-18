@@ -25,7 +25,9 @@
 #' progress but not results; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @return A reduced dartR genlight object
+
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' 
 # Examples -------------
@@ -43,7 +45,6 @@
 #' @seealso \code{\link{gl.keep.pop}} to keep rather than drop specified populations
 #' 
 #' @export
-#' @return A reduced dartR genlight object
 
 # --------------
 # Function 
@@ -61,7 +62,7 @@ gl.drop.pop <-  function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -69,7 +70,7 @@ gl.drop.pop <-  function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     if (!("dartR" %in% class(x))) {
-      class(x) <- "dartR"
+      x <- .as_dartR(x)
       if (verbose>2) {
         cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
         cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR", 
@@ -125,7 +126,7 @@ gl.drop.pop <-  function(x,
     # Remove populations ------
     
     if (verbose >= 3) {
-        cat("  Deleting populations", paste(pop.list, collapse = ", "),"\n")
+        cat(report("  Deleting populations", paste(pop.list, collapse = ", "),"\n"))
     }
     # Drop the specified populations
     ind.to.keep <- which(!(pop(x) %in% pop.list))
@@ -167,27 +168,27 @@ gl.drop.pop <-  function(x,
     # REPORT A SUMMARY ----------------
     if (verbose >= 3) {
       if (!is.null(as.pop)) {
-        cat("  Summary of recoded dataset\n")
-        cat(paste("    Original no. of populations", nPop(hold), "\n"))
-        cat(paste("    Selecting populations to delete based on",as.pop,"\n"))
-        cat(paste("    No. of levels of",as.pop,"remaining: ",nPop(x),"\n"))
-        cat(paste("  Original No. of loci:", nLoc(hold), "\n"))
-        cat(paste("    Deleted monomorphic loci arising (if mono.rm=TRUE):", nLoc(hold)-nLoc(x), "\n"))
-        cat(paste("  Final No. of Loci:", nLoc(x), "\n"))
-        cat(paste("  Original No. of individuals:", nInd(hold), "\n"))
-        cat(paste("    Deleted:", nInd(hold)-nInd(x), "\n"))
-        cat(paste("  Final No. of individuals:", nInd(x), "\n"))
+        cat(report("  Summary of recoded dataset\n"))
+        cat(report(paste("    Original no. of populations", nPop(hold), "\n")))
+        cat(report(paste("    Selecting populations to delete based on",as.pop,"\n")))
+        cat(report(paste("    No. of levels of",as.pop,"remaining: ",nPop(x),"\n")))
+        cat(report(paste("  Original No. of loci:", nLoc(hold), "\n")))
+        cat(report(paste("    Deleted monomorphic loci arising (if mono.rm=TRUE):", nLoc(hold)-nLoc(x), "\n")))
+        cat(report(paste("  Final No. of Loci:", nLoc(x), "\n")))
+        cat(report(paste("  Original No. of individuals:", nInd(hold), "\n")))
+        cat(report(paste("    Deleted:", nInd(hold)-nInd(x), "\n")))
+        cat(report(paste("  Final No. of individuals:", nInd(x), "\n")))
       } else {
-        cat("  Summary of recoded dataset\n")
-        cat(paste("  Original no. of populations", nPop(hold), "\n"))
-        cat(paste("     No. of populations deleted:",nPop(hold)-nPop(x),"\n"))
-        cat(paste("  Final No. of Populations:", nPop(x), "\n"))
-        cat(paste("  Original No. of loci:", nLoc(hold), "\n"))
-        cat(paste("    Deleted monomorphic loci arising (if mono.rm=TRUE):", nLoc(hold)-nLoc(x), "\n"))
-        cat(paste("  Final No. of Loci:", nLoc(x), "\n"))
-        cat(paste("  Original No. of individuals:", nInd(hold), "\n"))
-        cat(paste("    Deleted:", nInd(hold)-nInd(x), "\n"))
-        cat(paste("  Final No. of individuals:", nInd(x), "\n"))
+        cat(report("  Summary of recoded dataset\n"))
+        cat(report(paste("  Original no. of populations", nPop(hold), "\n")))
+        cat(report(paste("     No. of populations deleted:",nPop(hold)-nPop(x),"\n")))
+        cat(report(paste("  Final No. of Populations:", nPop(x), "\n")))
+        cat(report(paste("  Original No. of loci:", nLoc(hold), "\n")))
+        cat(report(paste("    Deleted monomorphic loci arising (if mono.rm=TRUE):", nLoc(hold)-nLoc(x), "\n")))
+        cat(report(paste("  Final No. of Loci:", nLoc(x), "\n")))
+        cat(report(paste("  Original No. of individuals:", nInd(hold), "\n")))
+        cat(report(paste("    Deleted:", nInd(hold)-nInd(x), "\n")))
+        cat(report(paste("  Final No. of individuals:", nInd(x), "\n")))
       }
     }
     
@@ -202,7 +203,7 @@ gl.drop.pop <-  function(x,
     
 # ADD TO HISTORY ------
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
     
 # FLAG SCRIPT END ------
     
@@ -210,5 +211,5 @@ gl.drop.pop <-  function(x,
         cat(report("Completed:", funname, "\n"))
     }
     # End block -----
-    return(x)
+    return(invisible(x))
 }

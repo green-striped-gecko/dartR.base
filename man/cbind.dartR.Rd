@@ -4,18 +4,13 @@
 \alias{cbind.dartR}
 \title{cbind for dartR objects}
 \usage{
-\method{cbind}{dartR}(
-  ...,
-  backingfile = tempfile("geno_"),
-  code = NULL,
-  chunk = 2048L,
-  quiet = TRUE
-)
+\method{cbind}{dartR}(..., backingfile = NULL, code = NULL, chunk = 2048L, quiet = TRUE)
 }
 \arguments{
 \item{...}{list of dartR objects}
 
-\item{backingfile}{prefix for the backing file of the resulting FBM}
+\item{backingfile}{File stem for the backing file of the resulting FBM, or
+NULL for a temporary file in getOption("FBM.dir") [default NULL]}
 
 \item{code}{code mapping to use for the resulting FBM=CODE_012; if NULL, inherits from the first FBM input}
 
@@ -24,7 +19,7 @@
 \item{quiet}{suppress warnings. default: TRUE}
 }
 \value{
-A genlight object
+A dartR object
 }
 \description{
 cbind is a bit lazy and does not take care for the metadata (so data in the
@@ -33,6 +28,5 @@ gl.compliance.check.
 }
 \examples{
 t1 <- platypus.gl
-class(t1) <- "dartR"
 t2 <- cbind(t1[,1:10],t1[,11:20])
 }

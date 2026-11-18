@@ -43,16 +43,21 @@ containing SNP genotypes and Tag P/A data (SilicoDArT).
 \code{\link{gl.drop.pop}} to drop rather than keep specified populations
 
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.gen2fbm}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
@@ -63,10 +68,11 @@ Other data manipulation:
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

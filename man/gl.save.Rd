@@ -17,12 +17,26 @@ progress log; 3, progress and results summary; 5, full report
 [default 2 or as specified using gl.set.verbosity].}
 }
 \value{
-The input object
+The input object, returned invisibly
 }
 \description{
 This is a wrapper for saveRDS().
-The script saves the object in binary form to the current workspace and
-returns the input gl object.
+The script saves the object in compressed binary form to the nominated
+file and returns the input gl object unchanged.
+
+Only the object is saved, not the workspace. A file-backed (FBM) object is
+saved as a gen-backed copy (genotypes in @gen): an FBM holds only a
+reference to its backing file, which is usually temporary, and the
+gen-backed copy is also smaller. The input object stays file-backed. Use
+gl.load(file, fbm = TRUE) to load it back as a file-backed object.
+
+**Always use gl.save(), not saveRDS(), for a file-backed object.**
+saveRDS() stores only the reference to the backing file, not the
+genotypes; the backing file is usually a temporary file that is deleted at
+the end of the R session, so the genotypes are lost. After saving, check
+that the file size makes sense for the number of individuals and loci: a
+file of only a few Kb for thousands of loci means the genotypes were not
+saved. gl.save() reports the size of the saved file at verbose >= 2.
 }
 \examples{
 gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
@@ -32,6 +46,7 @@ gl.save(testset.gl,file.path(tempdir(),'testset.rds'))
 
 Other io: 
 \code{\link{gl.load}()},
+\code{\link{gl.read.PLINK}()},
 \code{\link{gl.read.csv}()},
 \code{\link{gl.read.dart}()},
 \code{\link{gl.read.fasta}()},
@@ -40,7 +55,7 @@ Other io:
 \code{\link{utils.read.dart}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{io}

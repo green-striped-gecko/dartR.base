@@ -21,10 +21,8 @@ progress log; 3, progress and results summary; 5, full report
 A genlight object with the new population assignments.
 }
 \description{
-Individuals are assigned to populations based on the specimen metadata data
-file (csv) used with gl.read.dart().
-This function assigns individuals from two nominated populations into a new
-single population. It can also be used to rename populations.
+This function assigns individuals from two or more nominated populations
+into a new single population. It can also be used to rename populations.
 The function works with both SNP and Tag P/A (silicoDArT) data.
 The function returns a genlight object with the new population assignments.
 }
@@ -35,17 +33,22 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.gen2fbm}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
 \code{\link{gl.recode.ind}()},
@@ -55,10 +58,11 @@ Other data manipulation:
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{data manipulation}

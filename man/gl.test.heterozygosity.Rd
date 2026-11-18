@@ -7,9 +7,11 @@
 \usage{
 gl.test.heterozygosity(
   x,
-  nreps = 100,
+  nreps = 1000,
+  boot.method = "ind",
   alpha1 = 0.05,
   alpha2 = 0.01,
+  conf = 0.95,
   plot.out = TRUE,
   max_plots = 6,
   plot.theme = theme_dartR(),
@@ -22,13 +24,20 @@ gl.test.heterozygosity(
 \arguments{
 \item{x}{A genlight object containing the SNP genotypes [required].}
 
-\item{nreps}{Number of replications of the re-randomization [default 1,000].}
+\item{nreps}{Number of bootstrap replicates used to build the sampling
+distribution of each pairwise difference [default 1,000].}
 
-\item{alpha1}{First significance level for comparison with diff=0 on plot
-[default 0.05].}
+\item{boot.method}{Resample across individuals ("ind") or across loci ("loc")
+when bootstrapping the heterozygosity of each population [default "ind"].}
 
-\item{alpha2}{Second significance level for comparison with diff=0 on plot
-[default 0.01].}
+\item{alpha1}{First significance level for the two-sided test of diff=0,
+used for the significance label and the plot [default 0.05].}
+
+\item{alpha2}{Second significance level for the two-sided test of diff=0,
+used for the significance label and the plot [default 0.01].}
+
+\item{conf}{Confidence level for the bootstrap confidence interval of each
+pairwise difference [default 0.95].}
 
 \item{plot.out}{If TRUE, plots a sampling distribution of the differences for
 each comparison [default TRUE].}
@@ -39,55 +48,103 @@ each comparison [default TRUE].}
 [default theme_dartR()].}
 
 \item{plot.colors}{List of two color names for the borders and fill of the
-plots [default gl.colors(2)].}
+plots [default gl.select.colors(ncolors = 2, verbose = 0)].}
 
-\item{plot.file}{Name for the RDS binary file to save (base name only, exclude extension) [default NULL]}
+\item{plot.file}{Base name (no extension) for the RDS files that save each
+page of plots and the result table; see Details [default NULL]}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified 
 by the global working directory or tempdir()]}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
-progress log; 3, progress and results summary; 5, full report
-[default NULL, unless specified using gl.set.verbosity].}
+brief progress messages; 3, progress and results summary; 5, full report
+[default 2, unless specified using gl.set.verbosity].}
 }
 \value{
-A dataframe containing population labels, heterozygosities and sample
- sizes
+A dataframe with one row per population pair containing the two
+ population labels, the observed difference in unbiased expected
+ heterozygosity (pop1 - pop2), the lower and upper bounds of its bootstrap
+ confidence interval, the significance label and the two-sided bootstrap
+ p value (raw and Benjamini-Hochberg adjusted).
 }
 \description{
-Calculates the expected heterozygosities for each population in a genlight
-object, and uses re-randomization to test the statistical significance of
-differences in heterozygosity between populations taken pairwise.
-
-Expected heterozygosity is calculated using the correction for sample size 
-following equation 2 from Nei 1978.
+Tests whether the unbiased expected heterozygosity (uHe) differs between
+populations, for every pair of populations in a genlight object. The uHe of
+each population is bootstrapped (resampling individuals or loci, see Details),
+and for each pair the function returns the observed difference (pop1 - pop2),
+a bootstrap confidence interval, a significance label and a two-sided p value
+(raw and Benjamini-Hochberg adjusted across pairs). uHe is corrected for
+sample size following equation 2 of Nei (1978).
 }
 \details{
-\strong{ Function's output }
-If plot.out = TRUE, plots are created showing the sampling distribution for
-the difference between each pair of heterozygosities, marked with the
-critical limits alpha1 and alpha2, the observed heterozygosity, and the zero
-value (if in range).
-  If a plot.file is given, the ggplot arising from this function is saved as an "RDS" 
-binary file using saveRDS(); can be reloaded with readRDS(). A file name must be 
-specified for the plot to be saved.
- If a plot directory (plot.dir) is specified, the ggplot binary is saved to that
- directory; otherwise to the tempdir(). 
- Examples of other themes that can be used can be consulted in \itemize{
- \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
- \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
+\strong{Choosing the resampling unit (boot.method)}
+
+The uHe of each population is bootstrapped with the same engine as
+\code{\link{gl.report.heterozygosity}}, and \code{boot.method} sets what is
+resampled. The two units answer different questions and can yield different
+confidence intervals and p values for the same data:
+\itemize{
+ \item \code{"ind"} (default) resamples individuals. It treats the sampled
+ individuals as a sample of each population and tests whether the two
+ populations differ in heterozygosity. This is the usual question.
+ \item \code{"loc"} resamples loci, with the individuals held fixed. It tests
+ whether the genome-wide difference is consistent across loci rather than
+ driven by a few of them, and does not generalise to the populations the
+ individuals came from. Use it only when the individuals are effectively a
+ census of each group (for example a fully sampled captive lineage or a
+ complete cohort), where there is no individual-sampling variance to account
+ for; with a sample of individuals from each population, use \code{"ind"}.
  }
+For \code{"loc"} the loci are resampled independently within each population
+and treated as independent, so the interval ignores linkage and is
+approximate.
+
+\strong{Interpreting the plot}
+
+With \code{plot.out = TRUE} one histogram is drawn per pair of populations.
+The histogram is the bootstrap distribution of the difference in uHe
+(pop1 - pop2), with four vertical lines:
+\itemize{
+ \item green: the observed difference.
+ \item blue: zero (no difference).
+ \item two dark red lines: the significance limits at level \code{alpha1}
+ (default 0.05).
+ \item two bright red lines: the limits at level \code{alpha2} (default 0.01).
+ }
+The red lines are the \code{alpha/2} and \code{1 - alpha/2} quantiles of
+the bootstrap distribution, so they bound a two-sided test at each level.
+Read significance from the blue zero line, not the green one. If zero lies
+outside the red lines of a given level, the difference is significant at that
+level; if it lies inside the \code{alpha1} lines, the difference is not
+significant. The significance label and the p value in the table are
+computed the same way and agree with each other, except that the p value
+cannot fall below 2 / (nreps + 1): with few replicates a pair can carry
+the stricter label while its p value stays at that floor, so use
+\code{nreps} of 1000 or more when the p values matter. The green observed line sits near the centre of its own bootstrap
+distribution by construction, so its position is not the test. Each panel
+subtitle gives the significance label and the p value.
+
+\strong{Saving the plot}
+
+If \code{plot.file} is given, each page of plots is saved as an RDS file
+named \code{<plot.file>_<first pair>_to_<last pair>.RDS}, and the result
+table as \code{table_<plot.file>.RDS}; both can be reloaded with
+\code{readRDS()}. They are written to \code{plot.dir} if given, otherwise
+to \code{tempdir()}. Other ggplot themes
+can be consulted at
+\url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and
+\url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}.
 }
 \examples{
 if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
-out <- gl.test.heterozygosity(platypus.gl, nreps=1, verbose=3, plot.out=TRUE)
+out <- gl.test.heterozygosity(platypus.gl, nreps=100, verbose=3, plot.out=TRUE)
 }
 \references{
 Nei, M. (1978). Estimation of average heterozygosity and genetic distance 
 from a small number of individuals. Genetics, 89(3), 583-590.
 }
 \author{
-Custodian: Luis Mijangos (Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Arthur Georges, Luis Mijangos. Custodian: Luis Mijangos
+ -- Post to \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{Genetic variation within populations}

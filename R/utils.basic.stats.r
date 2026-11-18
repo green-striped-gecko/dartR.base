@@ -2,18 +2,25 @@
 #' @title Calculates mean observed heterozygosity, mean expected heterozygosity 
 #' and FIS per locus, per population and various population differentiation 
 #' measures
-#'  @family utilities
+#' @family utilities
 #'  
 #' @description 
 #' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
 #'  END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 #' 
 #' @param x A genlight object containing the SNP genotypes [required].
+#' SilicoDArT (presence/absence) data are rejected with an error.
+#' @param rounded If TRUE, results are rounded to 4 decimals; FALSE returns
+#' them unrounded [default TRUE].
 #' 
 #' @details
-#'  This is a re-implementation of \code{hierfstat::basics.stats} specifically 
-#'  for genlight objects. Formula (and hence results) match exactly the original 
-#' version of \code{hierfstat::basics.stats} but it is much faster.
+#'  This is a re-implementation of \code{hierfstat::basic.stats} specifically
+#'  for genlight objects. Formula (and hence results) match exactly the
+#'  original version of \code{hierfstat::basic.stats} but it is much faster.
+#'  Loci absent from one or more populations are computed from the
+#'  populations that carry them. With a single population, only Ho, Hs and
+#'  Fis are meaningful; the differentiation measures involve divisions by
+#'  zero and are not interpretable.
 
 #' @author Luis Mijangos and Carlo Pacioni (post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -23,47 +30,95 @@
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- utils.basic.stats(platypus.gl)
 #' 
+#' @keywords internal
 #' @export
-#' @return A list with with the statistics for each population
+#' @return A list with the statistics for each population
 
-utils.basic.stats <- function(x) {
+utils.basic.stats <- function(x, rounded = TRUE) {
+  
+  # Ho, He and Fis need diploid genotypes; on presence/absence data a
+  # presence would be counted as a heterozygote. A direct ploidy check is
+  # used instead of utils.check.datatype() because gl.report.fstat() calls
+  # this function once per bootstrap replicate.
+  if (all(ploidy(x) == 1)) {
+    stop(error(" Cannot calculate heterozygosity, Fis or differentiation statistics from fragment presence/absence (SilicoDArT) data\n"))
+  }
   
   n.ind <- table(pop(x))
   
-  if(any(n.ind <= 1)){
-    cat(error(" There are populations with one individual. Please remove populations with one individual or merged them with other populations for this function to work\n"))
-    stop()
+  if (any(n.ind <= 1)) {
+    stop(error(" There are populations with one individual. Please remove populations with one individual or merge them with other populations for this function to work\n"))
   }
   
-  pop.names <- popNames(x)
-  sgl_mat <- lapply(seppop(x),as.matrix)
-  pop.vec <- 1:nPop(x)
-  
+  .basic_stats_combine(.basic_pop_stats(x), pop.names = popNames(x),
+                       rounded = rounded)
+}
+
+# Per-population, per-locus statistics for utils.basic.stats: whether the
+# locus is all NA, the number of scored genotypes, the observed
+# heterozygosity, the mean genotype and the sample size. They are computed
+# with the same expressions as from each population's matrix, but on the
+# population's rows read in blocks of loci (.gl_colblocks): the populations
+# are not copied (seppop) and a file-backed object is not decoded as a
+# whole. One list element per population, in the order of seppop() (the
+# levels of pop(x)); each element holds one vector per statistic, with one
+# value per locus.
+.basic_pop_stats <- function(x) {
+  pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+  stat_names <- c("allna", "np", "Ho", "cm", "n")
+  pstats <- lapply(pop_rows, function(r) {
+    blocks <- .gl_colblocks(x, function(m) {
+      list(allna = apply(m, 2, function(x) {
+             all(is.na(x))
+           }),
+           np = colSums(!is.na(m)),
+           Ho = colMeans(m == 1, na.rm = TRUE),
+           cm = colMeans(m, na.rm = TRUE),
+           n = nrow(m) - colSums(apply(m, 2, is.na)))
+    }, rows = r)
+    stats::setNames(lapply(stat_names, function(k) {
+      do.call(c, lapply(blocks, `[[`, k))
+    }), stat_names)
+  })
+  names(pstats) <- levels(pop(x))
+  pstats
+}
+
+# The statistics of utils.basic.stats from the per-population, per-locus
+# statistics of .basic_pop_stats (for the populations in pstats, named by
+# pop.names). Each locus is computed from its own values only, and the
+# overall values are means over loci; a subset of populations or a resample
+# of loci (bootstrap) can therefore be computed from a subset or resample of
+# these vectors, without the genotypes.
+.basic_stats_combine <- function(pstats, pop.names, rounded = TRUE) {
+  pop.vec <- seq_along(pstats)
+
   n.pop <- lapply(pop.vec,function(y){
-    apply(sgl_mat[[y]], 2, function(x){
-      all(is.na(x))
-    })
+    pstats[[y]]$allna
   })    
   
   n.pop <- Reduce("+",n.pop)
-  n.pop <- nPop(x) - n.pop
+  n.pop <- length(pstats) - n.pop
   
   np <- lapply(pop.vec,function(y){
-    colSums(!is.na(sgl_mat[[y]])) 
+    pstats[[y]]$np
   })
   
   np <- Reduce(cbind,np)
   
   if(length(pop.names)>1){
     mn <- apply(np,1,function(y){
-      1/mean(1/y)
+      # harmonic mean over the populations that carry the locus; a zero
+      # count would otherwise zero the harmonic mean and NaN-poison every
+      # cross-population statistic for the locus
+      1/mean(1/y[y > 0])
     })
   }else{
     mn <- np
   }
   
   Ho <- lapply(pop.vec,function(y){
-    colMeans(sgl_mat[[y]] == 1, na.rm = TRUE)
+    pstats[[y]]$Ho
   })
   Ho <- Reduce(cbind,Ho)
   if(length(pop.names)>1){
@@ -74,17 +129,17 @@ utils.basic.stats <- function(x) {
   }
   
   q <- lapply(pop.vec,function(y){
-    colMeans(sgl_mat[[y]], na.rm = TRUE)/2
+    pstats[[y]]$cm/2
   })
   
   if(length(pop.names)>1){
     Hs <- lapply(pop.vec,function(y){
-      n <- nrow(sgl_mat[[y]]) - colSums(apply(sgl_mat[[y]],2,is.na))
+      n <- pstats[[y]]$n
       Hs <- 2 * (1-q[[y]]) * q[[y]] - Ho[,y]/2/n
       return(n/(n - 1) * Hs)
     })
   }else{
-    n <- nrow(sgl_mat[[1]]) - colSums(apply(sgl_mat[[1]],2,is.na))
+    n <- pstats[[1]]$n
     Hs <- 2 * (1-q[[1]]) * q[[1]] - Ho/2/n
     Hs <- n/(n - 1) * Hs
   }
@@ -118,6 +173,10 @@ utils.basic.stats <- function(x) {
    Ht <- Ht + mHs / mn /n.pop - mHo / 2 / mn / n.pop
    Dst <- Ht - mHs
    Dstp <- n.pop/(n.pop - 1) * Dst
+   # differentiation is undefined for loci carried by a single population
+   # (division by zero); mark NaN so they drop from the overall averages,
+   # matching hierfstat
+   Dstp[n.pop < 2] <- NaN
    Htp <- mHs + Dstp
 
    # option 2 as in Nei 1987
@@ -176,6 +235,17 @@ utils.basic.stats <- function(x) {
   overall["Fstp"] <- overall["Dstp"] / overall["Htp"]
   overall["Gst_H"] <- overall["Fstp"] / overall["Gst_max"]
   
+  # Callers that derive further statistics (e.g. the jackknife in
+  # gl.diagnostics.hwe) need the unrounded values. The rounded branch is
+  # kept verbatim: with one population, as.data.frame() names the column
+  # after the expression ("round(Fis, 4)") and callers rely on that name
+  if (!rounded) {
+    return(list("Ho" = as.data.frame(Ho),
+                "Hs" = as.data.frame(Hs),
+                "Fis" = as.data.frame(Fis),
+                perloc = as.data.frame(res),
+                overall = overall))
+  }
   all.res <- list("Ho" = as.data.frame(round(Ho, 4)), 
                   "Hs" = as.data.frame(round(Hs, 4)), 
                   "Fis" = as.data.frame(round(Fis, 4)), 

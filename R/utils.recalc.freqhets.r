@@ -19,21 +19,16 @@
 #' This script recalculates the FreqHets and places these recalculated values in
 #'  the appropriate place in the genlight object.
 
-#' Note that the frequency of the homozygote reference SNPS is calculated from
-#' the individuals that could be scored.
+#' Note that the frequency of the heterozygotes is calculated from the
+#' individuals that could be scored.
 
 #' @author Custodian: Luis Mijangos (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 
-#' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
-#' \code{utils.recalc.callrate} for recalculating CallRate,
-#' \code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-#' reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-#' homozygous alternate,
-#' \code{utils.recalc.AvgPIC} for recalculating RepAvg, \code{gl.recalc.maf} for
-#'  recalculating minor allele frequency,
-#' \code{gl.recalc.rdepth} for recalculating average read depth
+#' @seealso \code{\link{gl.recalc.metrics}} for recalculating all
+#' locus metrics
 
+#' @keywords internal
 # @export
 #' @return The modified genlight object.
 
@@ -47,15 +42,15 @@ utils.recalc.freqhets <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
@@ -82,11 +77,10 @@ utils.recalc.freqhets <- function(x,
     
     # DO THE JOB
     
-    t <- as.matrix(x)
     if (verbose >= 2) {
         cat(report("  Recalculating locus metric freqHets\n"))
     }
-    x@other$loc.metrics$FreqHets <- colMeans(t == 1, na.rm = TRUE)
+    x@other$loc.metrics$FreqHets <- .gl_colwise(x, function(t) colMeans(t == 1, na.rm = TRUE))
     x@other$loc.metrics.flags$FreqHets <- TRUE
     
     # FLAG SCRIPT END

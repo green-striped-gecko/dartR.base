@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.jackknife.R
 \name{utils.jackknife}
 \alias{utils.jackknife}
-\title{An internal function to conducts jackknife resampling using a genlight object}
+\title{An internal function to conduct jackknife resampling using a genlight object}
 \usage{
 utils.jackknife(
   x,
@@ -18,7 +18,9 @@ utils.jackknife(
 \arguments{
 \item{x}{Name of the genlight object [required].}
 
-\item{FUN}{the name of the function to be used to calculate the statistic}
+\item{FUN}{the name of the function to be used to calculate the
+statistic (for n.cores > 1 it must be reachable on the worker processes,
+i.e. exported by dartR.base or an attached package)}
 
 \item{unit}{The unit to use for resampling. One of c("loc", "ind", "pop"): 
 loci, individuals or populations}
@@ -64,16 +66,32 @@ recalc = FALSE, mono.rm = FALSE, n.cores = 1, verbose=0)
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
+\code{\link{utils.fbm.amat}()},
+\code{\link{utils.fbm.blocks}()},
+\code{\link{utils.fbm.colblocks}()},
+\code{\link{utils.fbm.colwise}()},
+\code{\link{utils.fbm.copy}()},
+\code{\link{utils.fbm.count.mean}()},
+\code{\link{utils.fbm.decode}()},
+\code{\link{utils.fbm.grm}()},
+\code{\link{utils.fbm.has}()},
+\code{\link{utils.fbm.new}()},
+\code{\link{utils.fbm.pair.counts}()},
+\code{\link{utils.fbm.reader}()},
+\code{\link{utils.fbm.rowwise}()},
+\code{\link{utils.fbm.tempfile}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
+\code{\link{utils.history.call}()},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.n.var.invariant}()},
 \code{\link{utils.plot.save}()},
@@ -87,6 +105,7 @@ Other utilities:
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()},
+\code{\link{utils.vcf.depth}()},
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
@@ -94,3 +113,4 @@ Custodian: Carlo Pacioni -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
+\keyword{internal}

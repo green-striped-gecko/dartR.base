@@ -42,18 +42,39 @@ called id. Here the ids have to match the ids in the dart object
 pop: specifies the population membership of each individual. lat and lon
 specify spatial coordinates (in decimal degrees WGS1984 format). Additional
 columns with individual metadata can be imported (e.g. age, gender).
+
+Note that the ind.metafile acts as a filter as well as a source of
+metadata: individuals in the DArT file that have no matching id row in
+the ind.metafile are REMOVED from the returned object (a warning
+reports how many were removed).
 }
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dist.binary}()},
+\code{\link{utils.fbm.amat}()},
+\code{\link{utils.fbm.blocks}()},
+\code{\link{utils.fbm.colblocks}()},
+\code{\link{utils.fbm.colwise}()},
+\code{\link{utils.fbm.copy}()},
+\code{\link{utils.fbm.count.mean}()},
+\code{\link{utils.fbm.decode}()},
+\code{\link{utils.fbm.grm}()},
+\code{\link{utils.fbm.has}()},
+\code{\link{utils.fbm.new}()},
+\code{\link{utils.fbm.pair.counts}()},
+\code{\link{utils.fbm.reader}()},
+\code{\link{utils.fbm.rowwise}()},
+\code{\link{utils.fbm.tempfile}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
+\code{\link{utils.history.call}()},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -68,6 +89,7 @@ Other utilities:
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()},
+\code{\link{utils.vcf.depth}()},
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{

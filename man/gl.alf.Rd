@@ -2,20 +2,55 @@
 % Please edit documentation in R/gl.alf.r
 \name{gl.alf}
 \alias{gl.alf}
-\title{Calculates allele frequency of the first and second allele for each locus
-A very simple function to report allele frequencies}
+\title{Calculates the frequency of the reference and alternate allele for
+each locus}
 \usage{
-gl.alf(x)
+gl.alf(x, verbose = NULL)
 }
 \arguments{
 \item{x}{Name of the genlight object [required].}
+
+\item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
+progress log; 3, progress and results summary; 5, full report
+[default NULL, adopting the global verbosity set by gl.set.verbosity(),
+or 2 if no global is set].}
 }
 \value{
-A simple data.frame with ref (reference allele), alt (alternate allele).
+A data.frame with one row per locus, in locus order, and two
+columns: alf1, the frequency of the reference allele, and alf2, the
+frequency of the alternate allele. Loci with all genotypes missing return
+NaN in both columns.
 }
 \description{
-Calculates allele frequency of the first and second allele for each locus
-A very simple function to report allele frequencies
+Calculates the frequency of the reference allele (alf1) and the alternate
+allele (alf2) at each locus, pooled across all individuals in the genlight
+object.
+}
+\details{
+This is a lightweight accessor: it returns the per-locus frequencies
+directly (visibly) and does not modify the input. Apart from the datatype
+check (which honours the resolved verbosity, so it is silent at
+verbose = 0), it produces no console output. The alternate allele
+frequency is the mean genotype score at the
+locus divided by 2, computed with na.rm = TRUE, and alf1 is its
+complement, so the two columns sum to 1 at every locus with at least one
+scored genotype. A locus with no scored genotypes returns NaN in both
+columns.
+
+The frequencies are unrounded, and they are computed in a single pass over
+the genotype matrix without splitting the object by population, which
+makes this the fast path used inside loops and by \code{utils.recalc.maf}.
+\code{\link{gl.allele.freq}} with \code{simple = TRUE} returns the same
+quantity rounded to 4 decimal places, and additionally offers the
+per-population and population x locus aggregations that gl.alf does not.
+
+Row names are the locus names, in locus order. Duplicate locus names are
+disambiguated with \code{make.unique()} so that the row keys always
+correspond positionally to the loci of the input.
+
+The function applies to SNP genotype data only. Tag presence/absence
+(SilicoDArT) data has ploidy 1 and no alternate allele, so it is rejected
+rather than divided by the SNP ploidy.
 }
 \examples{
 
@@ -28,16 +63,35 @@ gl.allele.freq(possums.gl[,1:10],simple=TRUE)
 barplot(t(as.matrix(gl.allele.freq(possums.gl[,1:10],simple=TRUE))))
 }
 \seealso{
+\code{\link{gl.allele.freq}}, \code{\link{gl.He}},
+\code{\link{gl.Ho}}
+
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.collapse.matrix}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
+\code{\link{utils.fbm.amat}()},
+\code{\link{utils.fbm.blocks}()},
+\code{\link{utils.fbm.colblocks}()},
+\code{\link{utils.fbm.colwise}()},
+\code{\link{utils.fbm.copy}()},
+\code{\link{utils.fbm.count.mean}()},
+\code{\link{utils.fbm.decode}()},
+\code{\link{utils.fbm.grm}()},
+\code{\link{utils.fbm.has}()},
+\code{\link{utils.fbm.new}()},
+\code{\link{utils.fbm.pair.counts}()},
+\code{\link{utils.fbm.reader}()},
+\code{\link{utils.fbm.rowwise}()},
+\code{\link{utils.fbm.tempfile}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
+\code{\link{utils.history.call}()},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -52,10 +106,11 @@ Other utilities:
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()},
+\code{\link{utils.vcf.depth}()},
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
-Bernd Gruber (bugs? Post to
- \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+\url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}

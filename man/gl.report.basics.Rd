@@ -13,6 +13,9 @@ gl.report.basics(x, verbose = NULL)
 progress log; 3, progress and results summary; 5, full report
 [default 2, unless specified using gl.set.verbosity].}
 }
+\value{
+Returns NULL invisibly; the results are printed to the console.
+}
 \description{
 Calculates basic statistics for a genlight object.
 }
@@ -26,12 +29,11 @@ Other unmatched report:
 \code{\link{gl.allele.freq}()},
 \code{\link{gl.report.allelerich}()},
 \code{\link{gl.report.diversity}()},
-\code{\link{gl.report.excess.het}()},
-\code{\link{gl.report.heterozygosity}()},
-\code{\link{gl.report.polyploid_heterozygosity}()}
+\code{\link{gl.report.polyploid_heterozygosity}()},
+\code{\link{gl.report.shannon}()}
 }
 \author{
-Custodian: Arthur Georges (Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
 \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{unmatched report}

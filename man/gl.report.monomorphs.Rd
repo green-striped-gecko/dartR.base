@@ -40,13 +40,10 @@ if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 \code{\link{gl.filter.monomorphs}}
 
 Other matched reports: 
-\code{\link{gl.mahal.assign}()},
-\code{\link{gl.report.bases}()},
-\code{\link{gl.report.factorloadings}()},
-\code{\link{gl.report.fstat}()}
+\code{\link{gl.report.bases}()}
 }
 \author{
-Custodian: Arthur Georges -- Post to
+Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
  \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{matched reports}

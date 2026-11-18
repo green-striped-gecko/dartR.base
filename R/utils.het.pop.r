@@ -1,13 +1,26 @@
 #' @name utils.het.pop
 #' @title An internal function that calculates expected mean heterozygosity per population
 #' @family utilities
-#' 
+#'
+#' @description
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED
+#' BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE
+#' OUTCOMES.
+#'
+#' @details
+#' For each population the unbiased expected heterozygosity
+#' 2n/(2n-1) * (1 - p^2 - q^2) is averaged over loci, where n is the mean
+#' number of genotyped individuals across loci (loci with no data in the
+#' population are excluded).
+#'
 #' @param x A genlight object containing the SNP genotypes [required].
 #
 #' @author Custodian: Luis Mijangos (Post to \url{https://groups.google.com/d/forum/dartr})
 
+#' @keywords internal
 # @export
-#' @return A vector with the mean expected heterozygosity for each population
+#' @return A named vector with the mean expected heterozygosity for each
+#' population
 
 # Examples for testing
 # out <- utils.het.pop(testset.gl)
@@ -38,16 +51,17 @@ utils.het.pop <- function(x) {
     # For each population
     for (i in 1:length(sgl)) {
         gl <- sgl[[i]]
-        t <- as.matrix(gl)
-        p <- colMeans(t == 0, na.rm = TRUE)
-        q <- colMeans(t == 2, na.rm = TRUE)
-        hets <- colMeans(t == 1, na.rm = TRUE)
+        gm <- as.matrix(gl)
+        p <- colMeans(gm == 0, na.rm = TRUE)
+        q <- colMeans(gm == 2, na.rm = TRUE)
+        hets <- colMeans(gm == 1, na.rm = TRUE)
         p <- (2 * p + hets) / 2
         q <- (2 * q + hets) / 2
         H <- 1 - (p * p + q * q)
         H <- (2 * as.numeric(n_ind[i]) / (2 * as.numeric(n_ind[i]) - 1)) * H
         Hexp[i] <- round(mean(H, na.rm = TRUE), 6)
-        
+
     }
+    names(Hexp) <- names(sgl)
     invisible(Hexp)
 }

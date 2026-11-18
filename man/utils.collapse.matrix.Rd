@@ -13,30 +13,48 @@ utils.collapse.matrix(D, x, verbose = NULL)
 \item{x}{Name of the genlight object containing the genotypes [required].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
- progress log; 3, progress and results summary; 5, full report [default 2].
- 
- @details
-This script takes a matrix of distances calculated between individuals and collapses it by averaging to a matrix of distances between populations.
-The script gl.dist.ind has a lot of options for distances for presence absence data, but gl.dist.pop does not. This script allows efficient and
-consistent transfer of this capability to gl.dist.pop.}
+progress log; 3, progress and results summary; 5, full report [default 2].}
 }
 \value{
-An object of class 'dist' or 'matrix' giving distances between individuals
+An object of class 'dist' or 'matrix' giving mean distances
+between populations; the diagonal holds the mean distance among
+distinct individuals within each population
 }
 \description{
 WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
 }
+\details{
+This script takes a matrix of distances calculated between individuals and collapses it by averaging to a matrix of distances between populations.
+The script gl.dist.ind has a lot of options for distances for presence absence data, but gl.dist.pop does not. This script allows efficient and
+consistent transfer of this capability to gl.dist.pop.
+}
 \seealso{
 Other utilities: 
+\code{\link{gl.He}()},
+\code{\link{gl.Ho}()},
 \code{\link{gl.alf}()},
 \code{\link{utils.allelic.richness}()},
+\code{\link{utils.basic.stats}()},
 \code{\link{utils.check.datatype}()},
 \code{\link{utils.dart2genlight}()},
 \code{\link{utils.dist.binary}()},
+\code{\link{utils.fbm.amat}()},
+\code{\link{utils.fbm.blocks}()},
+\code{\link{utils.fbm.colblocks}()},
+\code{\link{utils.fbm.colwise}()},
+\code{\link{utils.fbm.copy}()},
+\code{\link{utils.fbm.count.mean}()},
+\code{\link{utils.fbm.decode}()},
+\code{\link{utils.fbm.grm}()},
+\code{\link{utils.fbm.has}()},
+\code{\link{utils.fbm.new}()},
+\code{\link{utils.fbm.pair.counts}()},
+\code{\link{utils.fbm.reader}()},
+\code{\link{utils.fbm.rowwise}()},
+\code{\link{utils.fbm.tempfile}()},
 \code{\link{utils.flag.start}()},
-\code{\link{utils.hamming}()},
 \code{\link{utils.het.pop}()},
-\code{\link{utils.impute}},
+\code{\link{utils.history.call}()},
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
@@ -51,6 +69,7 @@ Other utilities:
 \code{\link{utils.recalc.maf}()},
 \code{\link{utils.reset.flags}()},
 \code{\link{utils.transpose}()},
+\code{\link{utils.vcf.depth}()},
 \code{\link{utils.vcfr2genlight.polyploid}()}
 }
 \author{
@@ -58,3 +77,4 @@ Author: Arthur Georges. Custodian: Arthur Georges -- Post to
 \url{https://groups.google.com/d/forum/dartr}
 }
 \concept{utilities}
+\keyword{internal}

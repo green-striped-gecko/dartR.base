@@ -18,7 +18,8 @@ gl.subsample.ind(
 \item{x}{Name of the genlight object containing the SNP or presence/absence
 (SilicoDArT) data [required].}
 
-\item{n}{Number of individuals to include in the subsample [default NULL]}
+\item{n}{Number of individuals to include in the subsample; if NULL, the
+size of the smallest population (by.pop = TRUE) or nInd(x) [default NULL]}
 
 \item{replace}{If TRUE, sampling is with replacement [default TRUE]}
 
@@ -56,17 +57,22 @@ gl <- gl.subsample.ind(platypus.gl, n=10, by.pop=TRUE, replace=TRUE)
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.gen2fbm}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
@@ -76,9 +82,10 @@ Other data manipulation:
 \code{\link{gl.sample}()},
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.sort}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
-Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{data manipulation}

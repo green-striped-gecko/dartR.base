@@ -4,11 +4,8 @@
 #' @family data manipulation
 
 #' @description
-#' Individuals are assigned to populations based on the specimen metadata data
-#' file (csv) used with gl.read.dart().
-
-#' This function assigns individuals from two nominated populations into a new
-#' single population. It can also be used to rename populations.
+#' This function assigns individuals from two or more nominated populations
+#' into a new single population. It can also be used to rename populations.
 
 #' The function works with both SNP and Tag P/A (silicoDArT) data.
 
@@ -22,16 +19,16 @@
 #'  [default 2 or as specified using gl.set.verbosity].
 
 
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) testset.gl <- gl.gen2fbm(testset.gl)
 #'    gl <- gl.merge.pop(testset.gl, old=c('EmsubRopeMata','EmvicVictJasp'), new='Outgroup')
 #'    
-#' @export
 #' @return A genlight object with the new population assignments.
-#' 
+#' @export
+#'
 # ----------------------
 gl.merge.pop <- function(x,
                          old = NULL,
@@ -43,38 +40,40 @@ gl.merge.pop <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
     # CHECK DATATYPE
     datatype <- utils.check.datatype(x, verbose = verbose)
     
+    # SCRIPT SPECIFIC ERROR TESTING
+
+    if (is.null(old) || length(old) == 0) {
+        stop(error(
+            "Fatal Error: At least one old population label must be provided\n"
+        ))
+    }
+    if (is.null(new)) {
+        stop(error("Fatal Error: A new population label must be specified\n"))
+    }
+    if (!all(old %in% popNames(x))) {
+        not.present <- old[!(old %in% popNames(x))]
+        stop(error(
+            "Fatal Error: Population(s)",
+            paste(not.present, collapse = ", "),
+            "not present in the dataset\n"
+        ))
+    }
+
     if (verbose >= 1) {
         if (length(old) == 1) {
             cat(report("  Renaming a population\n"))
-        } else if (length(old) > 1) {
-            cat(report("  Merging a list of populations into one\n"))
         } else {
-            stop(error(
-                "Fatal Error: At least one old population label must be provided\n"
-            ))
+            cat(report("  Merging a list of populations into one\n"))
         }
     }
-    
-    # SCRIPT SPECIFIC ERROR TESTING
-    
-    if (is.null(old)) {
-        stop(error("Fatal Error: Populations to be combined must be specified\n"))
-    }
-        if (is.null(new)) {
-        stop(error("Fatal Error: A new population label must be specified\n"))
-    }
-    if (!is(x ,"genlight")) {
-        stop(error(
-            "Fatal Error: genlight object required!\n"
-        ))
-    }
+
     if (verbose >= 2) {
         if (length(old) == 1) {
             cat("  Renaming", old, "as", new, "\n")
@@ -93,7 +92,7 @@ gl.merge.pop <- function(x,
     
     # ADD TO HISTORY
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
     
     # FLAG SCRIPT END
     

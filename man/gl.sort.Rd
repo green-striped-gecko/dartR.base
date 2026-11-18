@@ -15,7 +15,8 @@ gl.sort(
 \arguments{
 \item{x}{Genlight object containing SNP/Silicodart genotypes [required].}
 
-\item{sort.by}{Specify to sort the genotypes by either 'ind', "pop" [default 'pop'].}
+\item{sort.by}{Specify to sort the genotypes by either 'ind' or 'pop'
+[default 'pop'].}
 
 \item{order.by}{Vector used to order genotypes [default NULL].}
 
@@ -24,7 +25,7 @@ SNP position [default FALSE].}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
- [default NULL, unless specified using gl.set.verbosity]}
+[default 2 or as specified using gl.set.verbosity].}
 }
 \value{
 Returns a reordered genlight object. Sorts also the ind/loc.metrics 
@@ -66,17 +67,22 @@ gl.smearplot(bc3)
 }
 \seealso{
 Other data manipulation: 
+\code{\link{gl.add.indmetrics}()},
 \code{\link{gl.define.pop}()},
 \code{\link{gl.drop.ind}()},
 \code{\link{gl.drop.loc}()},
 \code{\link{gl.drop.pop}()},
 \code{\link{gl.edit.recode.pop}()},
+\code{\link{gl.fbm.cleanup}()},
+\code{\link{gl.fbm2gen}()},
+\code{\link{gl.gen2fbm}()},
 \code{\link{gl.impute}()},
 \code{\link{gl.join}()},
 \code{\link{gl.keep.ind}()},
 \code{\link{gl.keep.loc}()},
 \code{\link{gl.keep.pop}()},
 \code{\link{gl.make.recode.ind}()},
+\code{\link{gl.make.recode.pop}()},
 \code{\link{gl.merge.pop}()},
 \code{\link{gl.reassign.ind}()},
 \code{\link{gl.reassign.pop}()},
@@ -86,9 +92,10 @@ Other data manipulation:
 \code{\link{gl.sample}()},
 \code{\link{gl.sim.genotypes}()},
 \code{\link{gl.subsample.ind}()},
-\code{\link{gl.subsample.loc}()}
+\code{\link{gl.subsample.loc}()},
+\code{\link{gl.subsample.loci}()}
 }
 \author{
-Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 }
 \concept{data manipulation}

@@ -11,8 +11,7 @@
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default NULL, unless specified using gl.set.verbosity]
-#' @param ... Parameters passed to function \link[ggplot2]{ggsave}, 
-#'  such as width and height, when the ggplot is to be saved.
+#' @param ... Ignored; retained for call compatibility.
 #'  
 #' @details
 #' An internal function to save a ggplot object to disk in RDS binary format.
@@ -20,8 +19,9 @@
 
 #' @author Custodian: Arthur Georges (Post to \url{https://groups.google.com/d/forum/dartr})
 
+#' @keywords internal
 #' @export
-#' @return returns NULL
+#' @return NULL, invisibly
 
 
 utils.plot.save <- function(
@@ -31,28 +31,32 @@ utils.plot.save <- function(
   verbose=NULL,
   ...
 ){
-  
+
+  # SET VERBOSITY
+  verbose <- gl.check.verbosity(verbose)
+
   if(is.null(file)){
-    cat(report("  No plot saved\n"))
+    if (verbose >= 2) {
+      cat(report("  No plot saved\n"))
+    }
   } else {
-    
+
     if(is.null(dir)){
-      dir <- getwd()
       dir <- paste0(getwd(),"/")
     }
-    
+
     if(!dir.exists(dir)){
-      dir <- tempfile()
-      if(verbose >= 2){cat(warn("Specified directory does not exist, ggplot saved to system tempdir,\n"))}
+      dir <- tempdir()
+      if(verbose >= 2){cat(warn("Specified directory does not exist, ggplot saved to", dir, "\n"))}
     }
     
     filespec <- file.path(dir, file)
     filespec <- paste0(filespec,".RDS")
     if(verbose >= 2){cat(report("ggplot object saved as RDS binary to",filespec,"using saveRDS()\n"))}
     saveRDS(x, filespec)
-    
+
   }
-  
-return(NULL)
-  
+
+  return(invisible(NULL))
+
 }

@@ -38,6 +38,18 @@
 #'The function is essentially a wrapper for glPca \{adegenet\} or pcoa \{ape\}
 #'with default settings apart from those specified as parameters in this
 #'function.
+#'
+#' Two algorithms are used for the PCA, depending on how the genotypes are
+#' stored. For ordinary (in-memory) genlight objects the PCA is undertaken
+#' with glPca \{adegenet\}, which replaces missing values with the mean of
+#' their locus. For file-backed (FBM) dartR objects the PCA is computed from
+#' the backing file in blocks with \{bigstatsr\}. Missing values are
+#' replaced by the mean of their locus there too (rounded to two decimal
+#' places, as snp_fastImputeSimple \{bigsnpr\} stores it), in a temporary
+#' copy, so the two algorithms give the same ordination and the object
+#' passed in is not altered. To ordinate genotypes imputed in another way,
+#' run gl.impute() first.
+#'
 #'\strong{ Sources of stress in the visual representation }
 #' While, technically, any distance matrix can be represented in an ordinated
 #' space, the representation will not typically be exact.There are three major
@@ -188,7 +200,6 @@
 #' @seealso \code{\link{gl.pcoa.plot}}
 #' @family data exploration functions
 #' @importFrom ape pcoa
-#' @importFrom bigstatsr big_SVD
 #' @export
 
 gl.pcoa <- function(x,
@@ -210,7 +221,7 @@ gl.pcoa <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "2024V1",
                      verbose = verbose)
     
@@ -724,13 +735,13 @@ gl.pcoa <- function(x,
                 round(eig.raw.pos.pc[1], 1),
                 "% of the total variance\n"
             ))
-            if(length(eig.top >= 2)){cat(
+            if (length(eig.raw.pos.pc) >= 2) {cat(
                 paste(
                     "    PCoA Axis 1 and 2 combined explain",
                     round(eig.raw.pos.pc[1] + eig.raw.pos.pc[2], 1),
                     "% of the total variance\n"))
             }
-            if(length(eig.top >= 3)){cat(paste(
+            if (length(eig.raw.pos.pc) >= 3) {cat(paste(
                 "    PCoA Axis 1-3 combined explain",
                 round(
                     eig.raw.pos.pc[1] + eig.raw.pos.pc[2] + eig.raw.pos.pc[3],
@@ -740,10 +751,18 @@ gl.pcoa <- function(x,
             }
         }
         # Construct a universal output file
+        # Clamp nfactors to the number of axes the ordination yields, else
+        # the subset below fails with "subscript out of bounds"
+        nf.use <- min(nfactors, ncol(pco$vectors))
+        if (nf.use < nfactors && verbose >= 2) {
+            cat(warn("  Warning: nfactors reduced from", nfactors, "to",
+                     nf.use, "-- the distance matrix yields only",
+                     ncol(pco$vectors), "axes\n"))
+        }
         p.object <- list()
-        p.object$scores <- pco$vectors[, 1:nfactors]
+        p.object$scores <- pco$vectors[, 1:nf.use]
         p.object$eig <- pco$values$Eigenvalues
-        p.object$loadings <- pco$vectors.cor[, 1:nfactors]
+        p.object$loadings <- pco$vectors.cor[, 1:nf.use]
         p.object$call <- match.call()
         
     }  ######## END DISTANCE DATA
@@ -770,16 +789,121 @@ gl.pcoa <- function(x,
                 title <-
                     paste0("PCA on Tag P/A Data\nScree Plot\n (informative axes only -- ",pc.select," criterion)")
             }
-      #!# intermediate fbm fix
+      # File-backed (FBM) objects: the PCA is computed from the backing file in
+      # blocks, so this block never holds the genotype matrix in memory as a
+      # whole. gl.filter.allna() and gl.filter.monomorphs(), called above,
+      # also count from the backing file (bigstatsr::big_counts).
       if (!is.null(.fbm_or_null(x))) {
-        
-        #make sure you impute (by frequency of pops (or whatever )
-        if (is.na(sum(as.matrix(x))))  x <- gl.impute(x, method = "frequency", verbose = verbose)
-        #run PCA on imputed data using big_SVD
-         dummy <- bigstatsr::big_SVD(x@fbm, fun.scaling = big_scale(center = T, scale=FALSE), k = nInd(x)-1)
-        # construct glPca object
-         pca <- list(scores = dummy$u %*% diag(dummy$d)/2, eig = dummy$d^2 / (4*nInd(x)),loadings=dummy$v*2)  
-         class(pca) <- "glPca"
+
+        G <- x@fbm
+        n.ind <- nInd(x)
+        n.loc <- nLoc(x)
+
+        # Missing values. The scored genotypes of each locus are counted from
+        # the backing file (bigstatsr::big_counts); as.matrix(x) decoded the
+        # whole matrix into memory as doubles, 8 bytes a genotype, to answer
+        # the same question. Missing values are then replaced by the mean of
+        # their locus, which is what glPca does for in-memory objects, so the
+        # two storage modes give the same ordination (bigsnpr stores the mean
+        # rounded to two decimals). The imputed values are written to a
+        # temporary copy: snp_fastImputeSimple() writes into the file it is
+        # given, and the caller's backing file must not change.
+        G.tmp <- NULL
+        if (any(.fbm_locus_counts(x)$n < n.ind)) {
+          if (verbose >= 2) {
+            cat(report("  Missing values replaced by the mean of their locus for the PCA\n"))
+          }
+          G.tmp <- utils.fbm.copy(G, prefix = "gl_pcoa_")
+          # a new R object on the same file: recorded, so the file is only
+          # deleted when both are gone
+          G <- .fbm_register(bigsnpr::snp_fastImputeSimple(G.tmp, method = "mean2"))
+        }
+
+        # Number of axes. The cap of min(nInd, nLoc) - 1 is kept from the
+        # big_SVD() implementation this block replaces.
+        k <- min(n.ind, n.loc) - 1
+        # Scores and loadings are returned for nfactors axes, matching
+        # glPca(nf = nfactors) on the in-memory path; $eig stays full length
+        # because the pc.select criteria below need all eigenvalues
+        nf.use <- min(nfactors, k)
+        if (nf.use < nfactors && verbose >= 2) {
+          cat(warn("  Warning: nfactors reduced from", nfactors, "to",
+                   nf.use, "-- only", k, "axes available\n"))
+        }
+
+        # All eigenvalues come from the smaller of the two cross-product
+        # matrices of the centred genotypes (nInd x nInd, or nLoc x nLoc when
+        # there are fewer loci than individuals), which bigstatsr accumulates
+        # block by block. The vectors on the other side are then computed for
+        # the nf.use axes that are returned. big_SVD(k = nInd - 1) built the
+        # loadings of every axis, nLoc x (nInd - 1) doubles, as much memory as
+        # the genotype matrix itself, and all but nfactors were discarded.
+        centre <- bigstatsr::big_scale(center = TRUE, scale = FALSE)
+        # Blocks of loci sized as elsewhere in dartR (.fbm_block_size).
+        # With bigstatsr's default (about 1 Gb of doubles) the working matrix
+        # of big_tcrossprodSelf held all loci at once for moderate data
+        # (160 Mb at 1,000 x 20,000), as much as decoding the matrix.
+        bs <- .fbm_block_size(n.ind)
+        if (n.ind <= n.loc) {
+          K <- bigstatsr::big_tcrossprodSelf(G, fun.scaling = centre,
+                                             block.size = bs)
+        } else {
+          K <- bigstatsr::big_crossprodSelf(G, fun.scaling = centre,
+                                            block.size = bs)
+        }
+        eig.K <- eigen(K[], symmetric = TRUE)
+        # Eigenvalues of the cross-product are the squared singular values.
+        # Centring leaves at least one null axis, whose eigenvalue comes back
+        # as rounding noise of either sign; those are set to zero so that the
+        # eigenvalues stay finite and no vector is divided by noise.
+        d2 <- pmax(eig.K$values[seq_len(k)], 0)
+        d2[d2 < d2[1] * 1e-12] <- 0
+        d <- sqrt(d2)
+        d.nf <- d[seq_len(nf.use)]
+        # singular vectors on the other side: project, then divide by the
+        # singular value; a null axis gets a zero vector
+        other.side <- function(m) {
+          ok <- d.nf > 0
+          m[, ok] <- sweep(m[, ok, drop = FALSE], 2, d.nf[ok], "/")
+          m[, !ok] <- 0
+          m
+        }
+        if (n.ind <= n.loc) {
+          u <- eig.K$vectors[, seq_len(nf.use), drop = FALSE]
+          v <- other.side(bigstatsr::big_cprodMat(G, u, block.size = bs,
+                                                  center = attr(K, "center"),
+                                                  scale = attr(K, "scale")))
+        } else {
+          v <- eig.K$vectors[, seq_len(nf.use), drop = FALSE]
+          u <- other.side(bigstatsr::big_prodMat(G, v, block.size = bs,
+                                                 center = attr(K, "center"),
+                                                 scale = attr(K, "scale")))
+        }
+
+        # construct glPca object. glPca works on counts / ploidy, so with the
+        # centred count matrix X = U D V', X/2 = U (D/2) V': scores = U D/2,
+        # eig = (D/2)^2 / nInd, and the loadings are V itself (unit norm per
+        # axis, as glPca returns them).
+        pca <- list(scores = sweep(u, 2, d.nf, "*") / 2,
+                    eig = d2 / (4 * n.ind),
+                    loadings = v)
+        class(pca) <- "glPca"
+        # dimnames as glPca sets them, so gl.report.factorloadings and
+        # downstream code find locus and individual names on the FBM path
+        rownames(pca$scores) <- indNames(x)
+        colnames(pca$scores) <- paste0("PC", seq_len(nf.use))
+        rownames(pca$loadings) <- paste(locNames(x), alleles(x), sep = ".")
+        colnames(pca$loadings) <- paste0("Axis", seq_len(nf.use))
+
+        # remove the temporary imputed copy
+        if (!is.null(G.tmp)) {
+          tmp.bk <- G.tmp$backingfile
+          rm(G, G.tmp)
+          # the file stays memory-mapped until the FBM objects are garbage
+          # collected, and Windows cannot delete a mapped file
+          invisible(gc(verbose = FALSE))
+          unlink(tmp.bk)
+        }
       } else {
         pca <-
             glPca(x,
@@ -840,14 +964,17 @@ gl.pcoa <- function(x,
           }
         }
         
-        e <- pca$eig[pca$eig > sum(pca$eig / length(pca$eig))]
         e <- eig.top
         e <- round(e * 100 / sum(pca$eig), 1)
         if (verbose >= 3) {
           cat(paste("  Ordination yielded", length(e), "informative dimensions(", pc.select, "criterion) from", nInd(x) - 1, "original dimensions\n"))
           cat(paste("    PCA Axis 1 explains", e[1], "% of the total variance\n"))
-          cat(paste("    PCA Axis 1 and 2 combined explain", e[1] + e[2], "% of the total variance\n"))
-          cat(paste("    PCA Axis 1-3 combined explain", e[1] + e[2] + e[3], "% of the total variance\n"))
+          if (length(e) >= 2) {
+            cat(paste("    PCA Axis 1 and 2 combined explain", e[1] + e[2], "% of the total variance\n"))
+          }
+          if (length(e) >= 3) {
+            cat(paste("    PCA Axis 1-3 combined explain", e[1] + e[2] + e[3], "% of the total variance\n"))
+          }
         }
         
         # Construct a universal output file

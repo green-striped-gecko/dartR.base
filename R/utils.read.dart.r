@@ -43,7 +43,7 @@ utils.read.dart <- function(filename,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -83,17 +83,22 @@ utils.read.dart <- function(filename,
     if (verbose >= 2) {
         cat(report("  Reading in the SNP data\n"))
     }
-    snpraw <-
-        read.csv(
-            filename,
-            na.strings = nas,
-            skip = topskip,
-            check.names = FALSE,
-            stringsAsFactors = TRUE
-        )
-    
+    # The column names, then the locus-metric columns only (each column is
+    # typed by read.csv exactly as when the whole file is read); the
+    # genotype columns are read further below in chunks of rows into a
+    # file-backed matrix, so they are never held in memory as text or as
+    # a dense matrix
+    hdr <- names(read.csv(
+        filename,
+        na.strings = nas,
+        skip = topskip,
+        check.names = FALSE,
+        nrows = 1,
+        stringsAsFactors = TRUE
+    ))
+
     if (is.character(lastmetric)) {
-        lmet <- which(lastmetric == names(snpraw))
+        lmet <- which(lastmetric == hdr)
         if (length(lmet) == 0) {
             stop(error(
                 paste(
@@ -106,12 +111,34 @@ utils.read.dart <- function(filename,
     } else {
         lmet <- lastmetric
     }
-    
-    service <- NA 
-    plate_location <- NA 
+    snpraw <-
+        read.csv(
+            filename,
+            na.strings = nas,
+            skip = topskip,
+            check.names = FALSE,
+            stringsAsFactors = TRUE,
+            colClasses = c(rep(NA, lmet), rep("NULL", length(hdr) - lmet))
+        )
+    n.data.rows <- nrow(snpraw)
+    keep.rows <- seq_len(n.data.rows)
+
+    service <- NA
+    plate_location <- NA
     if(exists("tdummy")){
+    # The header block holds topskip rows; indexing tdummy beyond it would
+    # paste the column-header row and data rows into the service/plate
+    # fields, so out-of-range rows yield NA instead.
+    if (service.row <= topskip) {
     # extracting service information
     service <- tdummy[service.row, (lmet + 1):ncol(tdummy)]
+    } else if (verbose >= 1) {
+        cat(warn(
+            "  Warning: service.row", service.row, "lies beyond the",
+            topskip, "header rows; service set to NA.\n"
+        ))
+    }
+    if ((plate.row + 2) <= topskip) {
     # extracting plate information
     plate <-
         unlist(unname(tdummy[plate.row, (lmet + 1):ncol(tdummy)]))
@@ -121,17 +148,25 @@ utils.read.dart <- function(filename,
         unlist(unname(tdummy[(plate.row + 2), (lmet + 1):ncol(tdummy)]))
     plate_location <-
         paste0(plate, "-", plate.row_res, plate_col_res)
+    } else if (verbose >= 1) {
+        cat(warn(
+            "  Warning: plate.row", plate.row, "plus its two following rows lie beyond the",
+            topskip, "header rows; plate location set to NA.\n"
+        ))
+    }
     }
     
-    ind.names <- colnames(snpraw)[(lmet + 1):ncol(snpraw)]
+    ind.names <- hdr[(lmet + 1):length(hdr)]
     ind.names <-
         trimws(ind.names, which = "both")  #trim for spaces
     if (length(ind.names) != length(unique(ind.names))) {
-        cat(
-            warn(
-                "Warning: Individual names are not unique, adding '_n' to replicates (but not the first instance) to render them unique.\n"
+        if (verbose >= 1) {
+            cat(
+                warn(
+                    "Warning: Individual names are not unique, adding '_n' to replicates (but not the first instance) to render them unique.\n"
+                )
             )
-        )
+        }
         ind.names <-
             make.unique(as.character(ind.names), sep = "_")
     }
@@ -192,58 +227,44 @@ utils.read.dart <- function(filename,
     # initial marker discovery and output.
     
     if(length(tt)>1){
-      # if format is two rows
-      if(as.numeric(names(tt[2]))==4){
-        
-        t1 <- as.data.frame(cbind(1:nrow(covmetrics),covmetrics$uid))
-        t2 <- table(t1$V2)
-        t3 <- names(t2[t2>2])
-        t4 <- unlist(lapply(t3,function(x){
-          which(t1$V2==x)
-        }))
-        t5  <- t1[t4,]
-        # removing SNPs with the same ID
-        
-        t5$V1 <- as.numeric(t5$V1)
-        covmetrics <- covmetrics[-t5$V1,]
-        
-        snpraw <- snpraw[-t5$V1,]
-          
+      # Mixed row-counts per uid. The modal count is the expected number of
+      # rows per locus (2 in 2-row format, 1 in 1-row format); only uids
+      # departing from it are malformed (e.g. a marker-name clash yielding
+      # 4 rows, or an orphaned allele row yielding an odd count). Remove
+      # those uids only - never the valid majority. (The previous logic
+      # removed every uid with count > 1 whenever the second count class
+      # was not 4, which wiped every locus of a 2-row file.)
+      uid.counts <- table(covmetrics$uid)
+      modal.count <- as.numeric(names(tt)[which.max(tt)])
+      bad.uid <- names(uid.counts)[uid.counts != modal.count]
+      bad.rows <- which(covmetrics$uid %in% bad.uid)
+      # removing SNPs whose row count departs from the modal count
+      covmetrics <- covmetrics[-bad.rows,]
+      snpraw <- snpraw[-bad.rows,]
+      keep.rows <- keep.rows[-bad.rows]
+
+      if (verbose >= 1) {
         cat(warn(
-          "  There were",tt[2],"SNPs with the same ID. These SNPs will be removed. SNPs names are:",paste(unique(t5$V2),collapse = " "),"\n"
-          
+          "  There were",length(bad.uid),"SNPs whose number of rows differed from the expected",modal.count,"per locus. These SNPs have been removed. SNP names are:",paste(bad.uid,collapse = " "),"\n"
         ))
-        
-      }else{
-        
-        t1 <- as.data.frame(cbind(1:nrow(covmetrics),covmetrics$uid))
-        t2 <- table(t1$V2)
-        t3 <- names(t2[t2>1])
-        t4 <- unlist(lapply(t3,function(x){
-          which(t1$V2==x)
-        }))
-        t5  <- t1[t4,]
-        t5$V1 <- as.numeric(t5$V1)
-        # removing SNPs with the same ID
-        covmetrics <- covmetrics[-t5$V1,]
-        snpraw <- snpraw[-t5$V1,]
-        
-        cat(warn(
-          "  There were",tt[2],"SNPs with the same ID. These SNPs will be removed. SNPs names are:",paste(unique(t5$V2),collapse = " "),"\n"
-          
-        ))
-        
-        
       }
-      
-      
+
+      # recompute the row-count table so downstream format checks and
+      # reports reflect the cleaned data
+      tt <- table(table(covmetrics$uid))
     }
       
-    datas <- snpraw[, (lmet + 1):ncol(snpraw)]
-    
+    # Genotype columns, in chunks of rows, into a file-backed matrix of the
+    # raw scores (individuals x kept rows), with the largest score. The
+    # trimmed, uniquified individual names are those of the returned object.
+    gen <- .dart_read_genotypes(filename, topskip = topskip, lmet = lmet,
+                                ncols = length(hdr), nas = nas,
+                                keep = keep.rows, n.rows = n.data.rows,
+                                nind = length(ind.names))
+
     nrows <-NULL
     if (is.null(nrows)) {
-        gnrows <-3 - max(datas, na.rm = TRUE)  #if max(datas==1) then two row format, if two then one row format
+        gnrows <-3 - gen$max  #if max(datas==1) then two row format, if two then one row format
         
         if (gnrows == 1 | gnrows == 2) {
             nrows <- gnrows
@@ -262,12 +283,21 @@ utils.read.dart <- function(filename,
         
     }
     
-    if (nrows != as.numeric(names(tt[1]))) {
-      cat(
-        warn(
-          "  Warning: The no. rows per Clone does not fit with nrow format. Most likely your data are not read in correctly!\n"
+    # Cross-check the two independent format signals: the genotype range
+    # (which set nrows above) and the number of rows per locus ID. A genuine
+    # 1-row file whose called genotypes happen to be only 0/1 (no
+    # heterozygotes) would otherwise be silently misread as 2-row, pairing
+    # unrelated adjacent rows into fabricated genotypes.
+    uid.rows <- as.numeric(names(tt)[which.max(tt)])
+    if (nrows != uid.rows) {
+      stop(error(
+        paste(
+          "The genotype codes suggest a", nrows, "row format, but each locus ID occurs",
+          uid.rows, "time(s), which contradicts that format. The file would be misread.",
+          "Check the file: a 1-row report with no heterozygous calls, or a corrupted",
+          "2-row report, can produce this disagreement.\n"
         )
-      )
+      ))
     }
     
     if (verbose >= 2) {
@@ -289,7 +319,7 @@ utils.read.dart <- function(filename,
         )))
     }
     
-    nind <- ncol(datas)
+    nind <- length(ind.names)
     nsnp <- nrow(covmetrics) / nrows
     
     if (verbose >= 2) {
@@ -314,7 +344,9 @@ utils.read.dart <- function(filename,
             nind = nind,
             nsnp = nsnp,
             covmetrics = covmetrics,
-            gendata = datas,
+            genraw = gen$G,
+            genmax = gen$max,
+            ind.names = ind.names,
             service = service,
             plate_location = plate_location
         )

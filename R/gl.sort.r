@@ -8,13 +8,14 @@
 #' ordering in visualizations such as \code{gl.smearplot}.
 #' 
 #'@param x Genlight object containing SNP/Silicodart genotypes [required].
-#'@param sort.by Specify to sort the genotypes by either 'ind', "pop" [default 'pop'].
+#'@param sort.by Specify to sort the genotypes by either 'ind' or 'pop'
+#' [default 'pop'].
 #'@param order.by Vector used to order genotypes [default NULL].
 #'@param order.by.chr.pos Whether to order loci first by chromosome and then by
 #' SNP position [default FALSE].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#'  [default NULL, unless specified using gl.set.verbosity]
+#' [default 2 or as specified using gl.set.verbosity].
 #'
 #'@details 
 #'This is a function to sort genotypes in a genlight object by individual name, 
@@ -33,7 +34,7 @@
 #' Ordering by chromosome and SNP position requires that \code{chromosome} and 
 #' \code{position} slots are set in the genlight object.
 #'  
-#'@author Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
+#'@author Author(s): Bernd Gruber. Custodian: Bernd Gruber (Post to \url{https://groups.google.com/d/forum/dartr})
 #'
 #'@examples 
 #'#sort by populations
@@ -62,14 +63,14 @@ gl.sort <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func=funname,build="v.2023.2",verbose=verbose)
+  funname <- utils.flag.start(func = funname,build="v.2023.2",verbose=verbose)
   
   # CHECK DATATYPE
   datatype <- utils.check.datatype(x, verbose=verbose)
   
   if (!is(x, "dartR")) {
-    class(x) <- "dartR"  
-    if (verbose>2) {
+    x <- .as_dartR(x)
+    if (verbose>=2) {
       cat(warn(". Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
       cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
                  please use function dartR2gl\n"))
@@ -108,10 +109,9 @@ gl.sort <- function(x,
     }
     if (sort.by=="ind") {
     if (is.null(order.by)) index <- order(indNames(x)) else {
-      if (!(length(order.by)==nInd(x))) stop(error("order.by does not contain all levels of sort.by."))
       index  <- order(order.by)
-    } 
-    
+    }
+
   # Apply sorting
     xx <- x[index,]
     xx@other$latlon <- x@other$latlon[index,]
@@ -120,19 +120,27 @@ gl.sort <- function(x,
   
   if(order.by.chr.pos){
     if(is.null(xx$chromosome)){
-      cat(warn("  To order by chromosome and SNP position, it is necessary first to assign chromosome and SNP position to your genlight object.\n"))
+      if (verbose >= 2) {
+        cat(warn("  To order by chromosome and SNP position, it is necessary first to assign chromosome and SNP position to your genlight object.\n"))
+      }
     }else{
       xx <- xx[,order(as.character(xx$chromosome),as.numeric(xx@position))]
     }
-    
+
   }
-  
+
   # ADD TO HISTORY
   if (is(xx,"genlight")) {
     nh <- length(xx@other$history)
-    xx@other$history[[nh + 1]] <- c(match.call())
-  } 
-  
+    xx@other$history[[nh + 1]] <- utils.history.call(match.call())
+  }
+
+  # FLAG SCRIPT END
+
+  if (verbose >= 1) {
+    cat(report("Completed:", funname, "\n"))
+  }
+
   return(xx)
 }
     

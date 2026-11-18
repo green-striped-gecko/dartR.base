@@ -1,36 +1,27 @@
-#' @name utils.impute
-#' @title An internal script [Custodian to provide a title]
-#' @family utilities
-#' 
-#' @description 
-#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+# Internal helpers used by gl.impute, utils.transpose and the readers.
+# Custodian: Luis Mijangos (Post to
+# https://groups.google.com/d/forum/dartr)
 
-#' @param snp_matrix [Custodian to provide parameter description]
-#' @param parallel [Custodian to provide parameter description]
-
-#' @details
-#' #[Custodian to provide details for future you]
-#' 
-#' @author Custodian: Luis Mijangos (Post to
-#' \url{https://groups.google.com/d/forum/dartr})
-
-# @export
-#' @return The resultant genlight object
-
-
+#' Converts a genotype matrix (individuals x loci, 0/1/2/NA) to a list of
+#' SNPbin objects suitable for the gen slot of a genlight object
+#' @param snp_matrix Genotype matrix, one row per individual
+#' @param parallel If TRUE, use parallel::mclapply (serial on Windows)
+#' @return A list of SNPbin objects, one per row
+#' @noRd
 matrix2gen <- function(snp_matrix, parallel = FALSE) {
   if (parallel) {
-    i@gen <-
-      parallel::mclapply(1:nrow(snp_matrix), function(i)
-        new("SNPbin", as.integer(snp_matrix[i, ])), mc.silent = TRUE, mc.cleanup =
-          TRUE, mc.preschedule = FALSE)
+    parallel::mclapply(1:nrow(snp_matrix), function(i)
+      new("SNPbin", as.integer(snp_matrix[i, ])), mc.silent = TRUE,
+      mc.cleanup = TRUE, mc.preschedule = FALSE)
   } else {
     lapply(1:nrow(snp_matrix), function(i)
       new("SNPbin", as.integer(snp_matrix[i, ])))
   }
 }
 
-# function to sample alleles using allele frequencies as probability
+#' Samples a genotype (0/1/2) by drawing two alleles with the alternate
+#' allele frequency q_freq; NA in, NA out
+#' @noRd
 s_alleles <- function(q_freq) {
   if (is.na(q_freq)) {
     return(NA)
@@ -62,7 +53,9 @@ s_alleles <- function(q_freq) {
   return(as.numeric(alleles_sam))
 }
 
-# function to sample genotypes based on Hardy-Weinberg equation
+#' Samples a genotype (0/1/2) from Hardy-Weinberg proportions at the
+#' alternate allele frequency q_freq; NA in, NA out
+#' @noRd
 sample_genotype <- function(genotype_list = c(0, 1, 2), q_freq) {
   if (is.na(q_freq)) {
     return(NA)

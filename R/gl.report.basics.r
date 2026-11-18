@@ -10,16 +10,15 @@
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2, unless specified using gl.set.verbosity].
 #' 
-#' @author Custodian: Arthur Georges (Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' gl.report.basics(platypus.gl)
 #' 
-# @import tibble
+#' @return Returns NULL invisibly; the results are printed to the console.
 #' @export
-#' @return NULL
 
 gl.report.basics <- function(x,
                            verbose = NULL) {
@@ -28,12 +27,12 @@ gl.report.basics <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = 0)
+    datatype <- utils.check.datatype(x, verbose = verbose)
 
     if(verbose >= 1){
       cat(report("\nSUMMARY STATISTICS\n\n"))
@@ -53,107 +52,84 @@ gl.report.basics <- function(x,
       
       # Report average read depth
       cat(report("Average Read Depth: "))
-      cat(mean(x@other$loc.metrics$rdepth))
+      if (is.null(x@other$loc.metrics$rdepth)) {
+        cat("not available")
+      } else {
+        cat(round(mean(x@other$loc.metrics$rdepth, na.rm = TRUE), 2))
+      }
       cat("\n")
-      
-      # Report composition
+
+      # Report composition (tabulated over explicit levels so the table
+      # has a fixed shape for both datatypes and for data in which a
+      # genotype class is entirely absent)
       cat(report("Values: "))
       cat(nLoc(x)*nInd(x),"\n")
-      tmp <- table(as.matrix(x),useNA='always')
-      tmp <- round(tmp*100/(nLoc(x)*nInd(x)),1)
-      tmp <- t(as.data.frame(tmp))
-      colnames(tmp) <- c("0","1","2","NA")
-      tmp <- tmp[2,]
-      tmp <- as.data.frame(t(tmp))
+      # The genotype matrix is read in blocks of loci (.gl_colblocks,
+      # .gl_colwise, .gl_rowwise), so a file-backed object is never decoded
+      # as a whole; counts are added over blocks, per-locus values bound.
+      if (datatype == "SilicoDArT") {
+        lv <- c("0", "1")
+      } else {
+        lv <- c("0", "1", "2")
+      }
+      tmp <- Reduce(`+`, .gl_colblocks(x, function(mat) {
+        table(factor(mat, levels = lv), useNA = "always")
+      }))
+      tmp <- round(tmp * 100 / (nLoc(x) * nInd(x)), 1)
+      tmp <- as.data.frame(t(as.matrix(tmp)))
+      colnames(tmp) <- c(lv, "NA")
       rownames(tmp) <- "percent"
       print(tmp)
       cat("\n")
-      
-      # Report Monomorphic loci
-      if (datatype == "SilicoDArT") {
-        mat <- as.matrix(x)
-        mono.count <- 0
-        for (i in 1:nLoc(x)) {
-          row <- mat[, i]  # Row for each locus
-          if (all(row == 0, na.rm = TRUE) |
-              all(row == 1, na.rm = TRUE)) {
-            mono.count <- mono.count + 1
-          }
-        }
-      }
-      
-      # SNP data
-      if (datatype == "SNP") {
-        mat <- as.matrix(x)
-        mono.count <- 0
-        for (i in 1:nLoc(x)) {
-          row <- mat[, i]  # Row for each locus
-          if (all(row == 0, na.rm = TRUE) |
-              all(row == 2, na.rm = TRUE)) {
-            mono.count <- mono.count + 1
-          }
-        }
-      }
+
+      # Report Monomorphic loci (all-NA loci count as monomorphic,
+      # consistent with gl.filter.monomorphs)
+      hom <- if (datatype == "SilicoDArT") 1 else 2
+      cnt <- .gl_colwise(x, function(mat) {
+        rbind(colSums(!is.na(mat)), colSums(mat == 0, na.rm = TRUE),
+              colSums(mat == hom, na.rm = TRUE))
+      })
+      non.na <- cnt[1, ]
+      mono.count <- sum(cnt[2, ] == non.na | cnt[3, ] == non.na)
       cat(report("Monomorphic Loci: "))
       cat(mono.count,"\n")
-      
+
       # Report allNA
       # Loci
-      na.counter <- 0
-      matrix <- as.matrix(x)
-      for (i in 1:nLoc(x)) {
-        row <- matrix[, i]  # Row for each locus
-        if (all(is.na(row))) {
-          na.counter <-na.counter + 1
-        }
-      }
       cat(report("Loci all NA: "))
-      cat(na.counter,"\n")
+      cat(sum(non.na == 0),"\n")
       # Individuals
-      na.counter <- 0
-      ind.list <- array(NA, nInd(x))
-      matrix <- as.matrix(x)
-      i.names <- indNames(x)
-      for (i in 1:nInd(x)) {
-        col <- matrix[i, ]  # Row for each individual
-        if (all(is.na(col))) {
-          ind.list[i] <- i.names[i]
-          na.counter <-na.counter + 1
-        }
-      }
+      ind.scored <- .gl_rowwise(x, function(mat) rowSums(!is.na(mat)))
+      ind.all.na <- indNames(x)[ind.scored == 0]
       cat(report("Individuals all NA: "))
-      cat(na.counter,"\n")
-      if(na.counter > 0){cat(ind.list,"\n")}
+      cat(length(ind.all.na),"\n")
+      if(length(ind.all.na) > 0){cat(ind.all.na,"\n")}
       cat("\n")
-      
+
       # Report sample sizes
       cat(report("Sample Sizes:\n"))
       tmp <- table(pop(x))
       print(tmp)
       cat("\n")
-      
-      # Report loci allNA by pop
-      tmp <- array(NA,nPop(x))
+
+      # Report loci and individuals allNA by pop (single pass)
+      loc.na.pop <- array(NA,nPop(x))
+      ind.na.pop <- array(NA,nPop(x))
       for (i in 1:nPop(x)){
-        tmpop <- as.matrix(gl.keep.pop(x,popNames(x)[i],verbose=0))
-        tmpsums <- apply(tmpop,2,function(x){all(is.na(x))})
-        tmp[i] <- sum(tmpsums)
+        rows <- which(as.character(pop(x)) == popNames(x)[i])
+        loc.na.pop[i] <- sum(.gl_colwise(x, function(tmpop) {
+          colSums(!is.na(tmpop))
+        }, rows = rows) == 0)
+        ind.na.pop[i] <- sum(ind.scored[rows] == 0)
       }
-      tmp <- t(as.data.frame(tmp))
+      tmp <- t(as.data.frame(loc.na.pop))
       colnames(tmp) <- popNames(x)
       rownames(tmp) <- ""
       cat(report("Loci all NA across individuals by Population\n"))
       print(tmp)
       cat("\n")
-      
-      # Report individuals allNA by pop
-      tmp <- array(NA,nPop(x))
-      for (i in 1:nPop(x)){
-        tmpop <- as.matrix(gl.keep.pop(x,popNames(x)[i],verbose=0))
-        tmpsums <- apply(tmpop,1,function(x){all(is.na(x))})
-        tmp[i] <- sum(tmpsums)
-      }
-      tmp <- t(as.data.frame(tmp))
+
+      tmp <- t(as.data.frame(ind.na.pop))
       colnames(tmp) <- popNames(x)
       rownames(tmp) <- ""
       cat(report("Individuals all NA across loci by Population\n"))

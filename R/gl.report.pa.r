@@ -14,12 +14,12 @@
 #' provided here, but they must have the same number of SNPs [default NULL].
 #' @param method Method to calculate private alleles: 'pairwise' comparison or
 #' compare each population against the rest 'one2rest' [default 'pairwise'].
-#' @param loc.names Whether names of loci with private alleles and fixed 
-#' differences should reported. If TRUE, loci names are reported using a list
+#' @param loc.names Whether names of loci with private alleles and fixed
+#' differences should be reported. If TRUE, loci names are reported using a
+#' list [default FALSE].
 #' @param test.asym Bootstrap test for significant differences of private 
 #' alleles (see details section) [default FALSE].
-#' @param test.asym.boot Number of bootstraps [default 100].
-#'  [default FALSE].
+#' @param test.asym.boot Number of permutations [default 100].
 #' @param plot.display Specify if Sankey plot is to be produced [default FALSE].
 #' @param matrix.pa Whether to generate a matrix of private alleles
 #'  [default FALSE].
@@ -30,7 +30,7 @@
 #' @param provider Passed to leaflet [default "Esri.NatGeoWorldMap"].
 #' @param palette.discrete A discrete palette for the color of populations or a
 #' list with as many colors as there are populations in the dataset
-#'  [default gl.select.colors(x)].
+#' [default NULL, in which case gl.select.colors(x) is used].
 #' @param plot.dir Directory in which to save files [default = working directory]
 #' @param plot.file Name for the RDS binary file to save (base name only, exclude extension) [default NULL]
 #' @param verbose Verbosity: 0, silent, fatal errors only; 1, flag function
@@ -77,21 +77,26 @@
 #' valuable alternative to FST. For details about its properties and how it is
 #' calculated see Berner (2019).
 #' 
-#' \strong{The Bootstrap test} for significant differences of private alleles 
-#' uses a bootstrap simulation by shuffling individuals between a pair of 
-#' populations and drawing with replacement. For each bootstrap the ratio of 
-#' private alleles is compared to the actual ratio and recorded how often it is 
-#' larger than the simulated one. If number of individuals are different between
-#'  population bootstrap is done using the smaller number of samples in both 
-#'  populations.
+#' \strong{The test for asymmetry of private alleles} (test.asym) is a
+#' permutation test: for each pair, the genotypes at each locus are permuted
+#' among the pooled individuals of the two populations (retaining the
+#' original sample sizes), and the ratio of private alleles
+#' pop1/(pop1 + pop2) is recomputed for each of test.asym.boot permutations.
+#' The reported significance is the proportion of permuted ratios exceeding
+#' the observed ratio. Available for SNP data only.
+#'
+#' For method 'one2rest', the Chao estimates, the asymmetry test and the
+#' interactive map are not reported; they apply to method 'pairwise' only.
 #' 
 #' The function also reports an estimation of the lower bound of the number of
 #'  undetected private alleles using the Good-Turing frequency formula,
 #'  originally developed for cryptography, which estimates in an ecological 
 #'  context the true frequencies of rare species in a single assemblage based on
-#'   an incomplete sample of individuals. The approach is described in Chao et 
-#'   al. (2017). For this function, the equation 2c is used. This estimate is 
-#'   reported in the output table as Chao1 and Chao2. 
+#'   an incomplete sample of individuals. The approach is described in Chao et
+#'   al. (2017). For this function, equation 2c is used, based on the counts
+#'   of private alleles observed once and twice in the pooled sample of the
+#'   two populations compared. The estimate is reported in the output table
+#'   as Chao1 and Chao2 (SNP data only).
 #'   
 #' In this function a Sankey Diagram is used to visualize patterns of private
 #' alleles between populations. This diagram allows to display flows (private
@@ -99,14 +104,8 @@
 #' that have a width proportional to the importance of the flow (number of
 #' private alleles).
 #' 
-#' if save2temp=TRUE, resultant plot(s) and the tabulation(s) are saved to the
-#' session's temporary directory.
-#' 
-#' @author Custodian: Bernd Gruber -- Post to
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
-#' 
-#' @examples
-#' out <- gl.report.pa(platypus.gl)
 #' 
 #' @references \itemize{
 #' \item Berner, D. (2019). Allele frequency difference AFD – an intuitive
@@ -119,7 +118,6 @@
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) platypus.gl <- gl.gen2fbm(platypus.gl)
 #' out <- gl.report.pa(platypus.gl)
-#' @family report functions
 #' @importFrom tidyr pivot_longer
 #' @export
 #' @return A data.frame. Each row shows, for each pair of populations the number
@@ -153,7 +151,7 @@ gl.report.pa <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "Jackson",
                    verbose = verbose)
   
@@ -161,48 +159,44 @@ gl.report.pa <- function(x,
   datatype1 <- utils.check.datatype(x, verbose = verbose)
   if (!is.null(x2)) {
     datatype2 <- utils.check.datatype(x2, verbose = verbose)
+    if (datatype2 != datatype1) {
+      stop(error("Fatal Error: x and x2 must be of the same datatype\n"))
+    }
   }
-  
+
   # FUNCTION SPECIFIC ERROR CHECKING
+  if (!method %in% c("pairwise", "one2rest")) {
+    stop(error("Fatal Error: method must be either 'pairwise' or 'one2rest',
+                    not '", method, "'\n"))
+  }
+
+  if (test.asym && datatype1 == "SilicoDArT") {
+    if (verbose >= 1) {
+      cat(warn("  Warning: test.asym is available for SNP data only; skipping\n"))
+    }
+    test.asym <- FALSE
+  }
+
   
   # check if package is installed
-  pkg <- "tibble"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
+  for (pkg in c("tibble", "networkD3", "tidyr")) {
+    if (!(requireNamespace(pkg, quietly = TRUE))) {
+      stop(error("Package", pkg, "needed for this function to work.
+                    Please install it.\n"))
+    }
   }
   
-  # check if package is installed
-  pkg <- "networkD3"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  }
-  
-  pkg <- "tidyr"
-  if (!(requireNamespace(pkg, quietly = TRUE))) {
-    cat(error(
-      "Package",
-      pkg,
-      " needed for this function to work. Please install it.\n"
-    ))
-    return(-1)
-  }
-  
+  # The groups compared, as row indices of x: all of x against all of x2,
+  # or the populations of x in the order of seppop() (the levels of
+  # pop(x)). Rows are read in place; the populations are not copied.
   if (!is.null(x2)) {
-    pops <- list(pop1 = x, pop2 = x2)
+    n.x <- nInd(x)
     x <- rbind(x, x2)
+    pops <- list(pop1 = seq_len(n.x), pop2 = n.x + seq_len(nInd(x) - n.x))
   } else {
     if (length(unique(pop(x))) > 1) {
-      pops <- seppop(x)
+      pops <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+      names(pops) <- levels(pop(x))
     } else {
       stop(
         error(
@@ -254,23 +248,36 @@ gl.report.pa <- function(x,
     })
     
 
+    # Per group and locus, in one pass over blocks of loci (.gl_colblocks):
+    # the allele frequency (the original colMeans expression; SilicoDArT
+    # scores are not divided), and, for the Chao estimates, the number of
+    # genotyped individuals and the sum of dosages. Every pair is computed
+    # from these, so a file-backed object is never decoded as a whole.
+    # Memory: about 24 bytes per group and locus.
+    denom <- if (datatype1 == "SilicoDArT") 1 else 2
+    term.blocks <- .gl_colblocks(x, function(B) {
+      lapply(pops, function(r) {
+        m <- B[r, , drop = FALSE]
+        list(alf = colMeans(m, na.rm = TRUE) / denom,
+             n = colSums(!is.na(m)),
+             s = colSums(m, na.rm = TRUE))
+      })
+    })
+    terms <- lapply(seq_along(pops), function(g) {
+      lapply(c(alf = "alf", n = "n", s = "s"), function(k) {
+        do.call(c, lapply(term.blocks, function(b) b[[g]][[k]]))
+      })
+    })
+    rm(term.blocks)
+
     for (i in 1:nrow(pc)) {
       i1 <- pall[i, 1]
       i2 <- pall[i, 2]
-      
-      p1 <- as.matrix(pops[[i1]])
-      p2 <- as.matrix(pops[[i2]])
-      
-      if(datatype1 == "SilicoDArT"){
-        p1alf <- colMeans(p1, na.rm = TRUE) 
-        p2alf <- colMeans(p2, na.rm = TRUE) 
-        
-      }else{
-        p1alf <- colMeans(p1, na.rm = TRUE) / 2
-        p2alf <- colMeans(p2, na.rm = TRUE) / 2
-      }
-      
-      pall[i, c("N1","N2")] <- c(nrow(p1), nrow(p2))
+
+      p1alf <- terms[[i1]]$alf
+      p2alf <- terms[[i2]]$alf
+
+      pall[i, c("N1","N2")] <- c(length(pops[[i1]]), length(pops[[i2]]))
 
       pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                              which(p2alf == 1 & p1alf != 1)))))
@@ -297,31 +304,55 @@ gl.report.pa <- function(x,
         pall[i,"Chao1"] <- NA
         pall[i,"Chao2"] <- NA
       }else{
-        pa_Chao <- utils.pa.Chao(x=x,pop1_m=pops[[i1]],pop2_m=pops[[i2]])
+        pa_Chao <- .pa_chao(p1alf, p2alf,
+                            n.pooled = terms[[i1]]$n + terms[[i2]]$n,
+                            s.pooled = terms[[i1]]$s + terms[[i2]]$s)
         pall[i,"Chao1"] <- round(pa_Chao[[1]],0)
         pall[i,"Chao2"] <- round(pa_Chao[[2]],0)
-        
+
       }
       #### bootstrap test to check for asymmetry of private alleles
       if (test.asym){
         asym <- NA
         p1a <- NA
         p2a <- NA
-        dd <- rbind(pops[[i1]], pops[[i2]])
-        
+        # the pooled pair: the first population's rows, then the second's;
+        # the split is at the size of the first group (with x2, all of x)
+        dd.rows <- c(pops[[i1]], pops[[i2]])
+        n1 <- length(pops[[i1]])
+        # private alleles in each direction after permuting each locus
+        # among the pooled individuals; loci are permuted in column order,
+        # so blocks of loci draw the same random numbers as the whole
+        # matrix
+        perm.pa <- function(B) {
+          ab <- apply(B, 2, function(x) x[sample(1:nrow(B))])
+          p1 <- ab[1:n1, , drop = FALSE]
+          p2 <- ab[(n1 + 1):nrow(B), , drop = FALSE]
+          p1alf <- colMeans(p1, na.rm = TRUE) / 2
+          p2alf <- colMeans(p2, na.rm = TRUE) / 2
+          c(sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1),
+                na.rm = TRUE),
+            sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1),
+                na.rm = TRUE))
+        }
+        # a file-backed pair is read in blocks of loci for each permutation
+        # (never decoded as a whole); an in-memory pair is decoded once
+        dd.blocks <- if (.has_fbm(x)) NULL else
+          .gl_colblocks(x, identity, rows = dd.rows)
+
         for (bb in 1:test.asym.boot){
-        ab <- (apply(as.matrix(dd),2, function(x)  x[sample(1:nrow(dd))]))
-        tt <- table(pop(dd))
-        p1 <- ab[1:tt[1],]
-        p2 <- ab[(tt[1]+1):(nrow(dd)),]
-        p1alf <- colMeans(p1, na.rm = T) / 2
-        p2alf <- colMeans(p2, na.rm = T) / 2
-        pa_12 <- sum((p2alf == 0 & p1alf != 0) | (p2alf == 1 & p1alf != 1),na.rm = T)
+        pa <- if (is.null(dd.blocks)) {
+          Reduce(`+`, .gl_colblocks(x, perm.pa, rows = dd.rows))
+        } else {
+          Reduce(`+`, lapply(dd.blocks, perm.pa))
+        }
+        pa_12 <- pa[1]
         p1a[bb] <- pa_12
-        pa_21 <- sum((p1alf == 0 & p2alf != 0) | (p1alf == 1 & p2alf != 1),na.rm = T)
+        pa_21 <- pa[2]
         p2a[bb] <- pa_21
         if (pa_21!=pa_12) asym[bb] <- pa_12/(pa_12+pa_21) else asym[bb]<- 0.5
         }
+        rm(dd.blocks)
         dasym <-  round(mean(asym),3)
         pall[i,"asym"] <- dasym
         estasym <- pall[i, "priv1"] / (pall[i, "priv1"]+pall[i, "priv2"])
@@ -382,13 +413,32 @@ gl.report.pa <- function(x,
       
       if (is.null(palette.discrete)){
          colors_pops <- gl.select.colors(x, verbose=0)
+      } else if (is(palette.discrete, "function")) {
+        colors_pops <- palette.discrete(nPop(x))
       } else {
         colors_pops <- palette.discrete
       }
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  palette.discrete must be a palette or hold one color",
+                   "per population\n"))
+      }
+      # names given by the user are kept when they cover every population,
+      # otherwise colours follow levels(pop(x))
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
+      # nodes and links are coloured by population name; an explicit domain
+      # gives each name its colour whatever the order in which d3 draws them
+      # (target names have dots replaced by spaces)
+      scale_keys <- c(popNames(x), gsub("\\.", " ", popNames(x)))
+      scale_cols <- c(colors_pops, colors_pops)[!duplicated(scale_keys)]
+      scale_keys <- scale_keys[!duplicated(scale_keys)]
       
-      colors_pops <- paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
-      
-      colorScal <- paste("d3.scaleOrdinal().range([", colors_pops, "])")
+      colorScal <- paste0("d3.scaleOrdinal().domain([\"",
+                          paste0(scale_keys, collapse = "\",\""),
+                          "\"]).range([\"",
+                          paste0(scale_cols, collapse = "\",\""), "\"])")
       # color links
       data_long$color <-  gsub("src_", "", data_long$source)
 
@@ -444,11 +494,29 @@ gl.report.pa <- function(x,
       return(x)
     })
     
+    # Allele frequencies of each population (focal) and of all other
+    # individuals (rest), as the original colMeans expressions on those
+    # rows, in one pass over blocks of loci: neither copies of the object
+    # nor a decode of a file-backed object as a whole. Individuals without
+    # a population belong to neither group, as before.
+    denom <- if (datatype1 == "SilicoDArT") 1 else 2
+    focal.rows <- lapply(popNames(x), function(p) which(pop(x) == p))
+    rest.rows <- lapply(popNames(x), function(p) which(pop(x) != p))
+    alf.blocks <- .gl_colblocks(x, function(B) {
+      lapply(seq_along(focal.rows), function(y) {
+        rbind(colMeans(B[focal.rows[[y]], , drop = FALSE], na.rm = TRUE),
+              colMeans(B[rest.rows[[y]], , drop = FALSE], na.rm = TRUE))
+      })
+    })
+    alf.focal.rest <- lapply(seq_along(focal.rows), function(y) {
+      do.call(cbind, lapply(alf.blocks, `[[`, y)) / denom
+    })
+    rm(alf.blocks)
+
     for (y in 1:nPop(x)) {
-      gl2 <- x
-      pop(gl2) <-
-        factor(ifelse(pop(gl2) == popNames(x)[y], popNames(x)[y], "zzest"))
-      pops <- seppop(gl2)
+      # the focal population is always pop1
+      pops <- list(focal.rows[[y]], rest.rows[[y]])
+      names(pops) <- c(popNames(x)[y], ".rest")
       pc <- t(combn(length(pops), 2))
       pall <-
         data.frame(
@@ -468,19 +536,10 @@ gl.report.pa <- function(x,
       for (i in 1:nrow(pc)) {
         i1 <- pall[i, 1]
         i2 <- pall[i, 2]
-        
-        p1 <- as.matrix(pops[[i1]])
-        p2 <- as.matrix(pops[[i2]])
-        
-        if(datatype1 == "SilicoDArT"){
-          p1alf <- colMeans(p1, na.rm = TRUE) 
-          p2alf <- colMeans(p2, na.rm = TRUE) 
-          
-        }else{
-          p1alf <- colMeans(p1, na.rm = TRUE) / 2
-          p2alf <- colMeans(p2, na.rm = TRUE) / 2
-        }
-        
+
+        p1alf <- alf.focal.rest[[y]][i1, ]
+        p2alf <- alf.focal.rest[[y]][i2, ]
+
         pop1_pop2_pa <- unique(unname(unlist(c(which(p2alf == 0 & p1alf != 0),
                                                which(p2alf == 1 & p1alf != 1)))))
         pop1_pop2_pa_loc.names <- locNames(x)[pop1_pop2_pa]
@@ -498,7 +557,7 @@ gl.report.pa <- function(x,
         pall_loc.names[[y]][["pop2_pop1_pa"]] <- pop2_pop1_pa_loc.names
         pall_loc.names[[y]][["fd"]] <- pop1_pop2_fd_loc.names
         
-        pall[i, 5:6] <- c(nrow(p1), nrow(p2))
+        pall[i, 5:6] <- c(length(pops[[i1]]), length(pops[[i2]]))
         pall[i, 10] <- pall[i, 8] + pall[i, 9]
         pall[i, 11] <-
           round(mean(abs(p1alf - p2alf), na.rm = T), 3)
@@ -512,15 +571,15 @@ gl.report.pa <- function(x,
     
     if (plot.display) {
       # assigning colors to populations
-      if (is(palette.discrete, "function")) {
+      if (is.null(palette.discrete)) {
+        colors_pops <- gl.select.colors(x, verbose = 0)
+      } else if (is(palette.discrete, "function")) {
         colors_pops <- palette.discrete(length(levels(pop(x))) + 1)
-      }
-      
-      if (!is(palette.discrete, "function")) {
+      } else {
         colors_pops <- palette.discrete
         # if colors are not in RGB format
         if (grepl("#", colors_pops[1]) == FALSE) {
-          colors_pops <- RGB_colors(colors_pops)
+          colors_pops <- setNames(RGB_colors(colors_pops), names(colors_pops))
         }
       }
       
@@ -562,11 +621,35 @@ gl.report.pa <- function(x,
       colnames(nodes) <- c("name")
       nodes$name <- c(data_long_1$source, "Rest", data_long_2$target)
       
-      colors_pops <-
-        paste0("\"", paste0(colors_pops, collapse = "\",\""), "\"")
+      if (length(colors_pops) < nPop(x)) {
+        stop(error("  palette.discrete must be a palette or hold one color",
+                   "per population\n"))
+      }
+      # "Rest" takes a colour named "Rest", or the one after the populations'
+      # (a palette function gives nPop + 1), otherwise grey
+      rest_col <- "#BEBEBE"
+      if ("Rest" %in% names(colors_pops)) {
+        rest_col <- colors_pops[["Rest"]]
+      } else if (!all(popNames(x) %in% names(colors_pops)) &&
+                 length(colors_pops) > nPop(x)) {
+        rest_col <- colors_pops[[nPop(x) + 1]]
+      }
+      # names given by the user are kept when they cover every population,
+      # otherwise colours follow levels(pop(x))
+      if (!all(popNames(x) %in% names(colors_pops))) {
+        colors_pops <- setNames(colors_pops[seq_len(nPop(x))], popNames(x))
+      }
+      colors_pops <- colors_pops[popNames(x)]
+      # an explicit domain gives each node and link its population's colour
+      # whatever the order in which d3 draws them
+      scale_keys <- c(paste(popNames(x), "source"), "Rest",
+                      paste(popNames(x), "target"))
+      scale_cols <- c(colors_pops, rest_col, colors_pops)
       
-      colorScal <-
-        paste("d3.scaleOrdinal().range([", colors_pops, "])")
+      colorScal <- paste0("d3.scaleOrdinal().domain([\"",
+                          paste0(scale_keys, collapse = "\",\""),
+                          "\"]).range([\"",
+                          paste0(scale_cols, collapse = "\",\""), "\"])")
       # color links
       data_long$color <-
         gsub("src_", "", data_long$source)
@@ -619,11 +702,15 @@ gl.report.pa <- function(x,
   
   # Optionally save the plot ---------------------
   
-  if(!is.null(plot.file)){
-    tmp <- utils.plot.save(p3,
-                           dir = plot.dir,
-                           file = plot.file,
-                           verbose = verbose)
+  if (!is.null(plot.file)) {
+    if (exists("p3", inherits = FALSE)) {
+      tmp <- utils.plot.save(p3,
+                             dir = plot.dir,
+                             file = plot.file,
+                             verbose = verbose)
+    } else if (verbose >= 2) {
+      cat(report("  No plot generated (plot.display = FALSE); nothing to save\n"))
+    }
   }
   
   # FLAG SCRIPT END

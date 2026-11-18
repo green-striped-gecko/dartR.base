@@ -8,7 +8,9 @@
 
 #' @param x Name of the genlight [required].
 #' @param method Specify distance measure [SNP: Euclidean; P/A: Simple].
-#' @param scale If TRUE, the distances are scaled to fall in the range [0,1] [default TRUE]
+#' @param scale If TRUE and method='euclidean', the Euclidean distances are
+#' scaled to fall in the range [0,1]; scale is ignored for the other methods
+#' [default FALSE]
 #' @param swap If TRUE and working with presence-absence data, then presence 
 #' (no disrupting mutation) is scored as 0 and absence (presence of a disrupting 
 #' mutation) is scored as 1 [default FALSE].
@@ -43,13 +45,24 @@
 #'  \item Simple Matching Distance [method = "Simple"]
 #'  \item Jaccard Distance [method = "Jaccard"]
 #'  \item Bray-Curtis Distance [method = "Bray-Curtis"]
+#'  \item Sorensen Distance [method = "Sorensen"] (identical by formula to
+#'  Bray-Curtis for binary data)
 #'  }
+#' Jaccard, Bray-Curtis and Sorensen are defined for presence/absence data
+#' only; requesting them for SNP data stops with an error.
+#'
+#' For a file-backed (FBM) object the pairwise counts behind every SNP
+#' distance are added over blocks of loci read from the backing file, so the
+#' genotype matrix is never decoded as a whole; the distances are identical
+#' to those of the same data held in memory. The distance matrix itself
+#' (8 bytes per pair of individuals) is held in memory.
 
 #' Refer to the documentation of functions in
 #'   https://doi.org/10.1101/2023.03.22.533737 for algorithms
 #'   and definitions.
 #' 
-#' @author Author(s): Custodian: Arthur Georges -- Post to #' \url{https://groups.google.com/d/forum/dartr}
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' 
 #' @examples
 #' \donttest{
@@ -95,7 +108,7 @@ gl.dist.ind <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2023.3",
                    verbose = verbose)
   
@@ -114,7 +127,7 @@ gl.dist.ind <- function(x,
     method <- "Simple"
   }
   method <- tolower(method)
-  
+
   if (!(
     method %in% c(
       "euclidean",
@@ -122,24 +135,50 @@ gl.dist.ind <- function(x,
       "manhattan",
       "jaccard",
       "bray-curtis",
+      "sorensen",
       "czekanowski",
       "absolute"
     )
   )) {
     if (datatype == "SNP") {
       method <- "euclidean"
-      cat(warn(
-        " Warning: Method not in the list of options, set to Euclidean Distance\n"
-      ))
+      if (verbose >= 1) {
+        cat(warn(
+          " Warning: Method not in the list of options, set to Euclidean Distance\n"
+        ))
+      }
     }
     if (datatype == "SilicoDArT") {
       method <- "simple"
-      cat(
-        warn(
-          " Warning: Method not in the list of options, set to Simple Matching Distance\n"
+      if (verbose >= 1) {
+        cat(
+          warn(
+            " Warning: Method not in the list of options, set to Simple Matching Distance\n"
+          )
         )
-      )
+      }
     }
+  }
+
+  # Jaccard, Bray-Curtis and Sorensen are defined for presence/absence
+  # data only; without this check SNP data fell through every SNP branch
+  # and failed with "object 'dd' not found"
+  if (datatype == "SNP" &&
+      method %in% c("jaccard", "bray-curtis", "sorensen")) {
+    stop(error(
+      "Fatal Error: method '", method, "' applies to SilicoDArT ",
+      "(presence/absence) data only. For SNP data use one of ",
+      "'Euclidean', 'Simple', 'Absolute', 'Manhattan' or 'Czekanowski'\n",
+      sep = ""
+    ))
+  }
+
+  type <- tolower(type)
+  if (!type %in% c("dist", "matrix")) {
+    stop(error(
+      "Fatal Error: type must be one of 'dist' or 'matrix'; found",
+      type, "\n"
+    ))
   }
   
   # DO THE JOB
@@ -246,7 +285,18 @@ gl.dist.ind <- function(x,
     )
     dd <- as.dist(mat)
   }
-  
+
+  # Warn when distances are undefined (e.g. an individual with no scored
+  # genotypes in common with another): downstream consumers (hclust, nj,
+  # utils.collapse.matrix) receive NA cells (VRB4)
+  n.na <- sum(is.na(as.vector(dd)))
+  if (n.na > 0 && verbose >= 1) {
+    cat(warn(
+      "  Warning:", n.na,
+      "of the pairwise distances are NA; downstream analyses may fail\n"
+    ))
+  }
+
   # PLOT
   if (datatype == "SNP") {
     title_plot <-
@@ -340,6 +390,7 @@ gl.dist.ind <- function(x,
     if (verbose >= 2) {
       cat(report("  Returning a square matrix\n"))
     }
+    mat <- as.matrix(mat)
     dimnames(mat) <- list(indNames(x), indNames(x))
     final <- mat
   }

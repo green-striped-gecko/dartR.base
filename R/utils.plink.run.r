@@ -9,10 +9,12 @@
 #'   the PATH then there is no need for this. This is what the option "path"
 #'   means
 #' @param out The root of the output file name
-#' @param syntax the flags to pass to plink call
+#' @param syntax the flags to pass to plink call; any file names in it must
+#'   be quoted by the caller (e.g. with \code{shQuote()})
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report [default NULL].
-#' @return A character vector with the command used for PLINK.
+#' @return A character vector with the command used for PLINK. Stops with
+#'   an error, quoting PLINK's output, when PLINK exits with an error.
 #' @details
 #' PLINK needs to be installed on the 
 #'   machine and syntax used need to be appropriate for the version installed.
@@ -20,6 +22,7 @@
 #' Purcell, Shaun, et al. 'PLINK: a tool set for whole-genome association and
 #' population-based linkage analyses.' The American journal of human genetics
 #' 81.3 (2007): 559-575.
+#' @keywords internal
 #' @export
 #' @author Custodian: Carlo Pacioni and Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
@@ -36,9 +39,7 @@ utils.plink.run <- function(dir.in,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
-                   build = "Jody",
-                   verbose = verbose)
+  funname <- utils.flag.start(func = funname, verbose = verbose)
   
   # DO THE JOB
   old.wd <- getwd()
@@ -47,20 +48,43 @@ utils.plink.run <- function(dir.in,
   # executable because providing the path to PLINK doesn't work for me on 
   # Windows and I couldn't find a better solution
   
-  setwd(dir.in) 
-  
-  # if(!plink.path == "path") {
-  #   is.win <- Sys.info()['sysname'] == "Windows" # Possibly is not needed to 
-  #   # specifically search for the .exe on windows, it is just a safety feature
-  #   exe <- list.files(plink.path, 
-  #                     pattern = if(is.win) ".exe$" else paste0("^", plink.cmd), 
-  #                     full.names = TRUE, include.dirs = TRUE)
-  #   file.copy(from = exe, to = file.path(dir.in, basename(exe)))
-  # }
-  
-  cmd <- paste0(plink.path,"/",plink.cmd," ", syntax, "--out ", out, collapse=" ")
-  system(cmd)
-  # file.remove(from = exe, to = file.path(dir.in, basename(exe)))
+  setwd(dir.in)
+
+  # plink.path == "path" means the executable is found via the system PATH
+  if (plink.path == "path") {
+    exe <- plink.cmd
+  } else {
+    exe <- file.path(plink.path, plink.cmd)
+  }
+  # The executable and output name are quoted, so paths containing spaces
+  # reach PLINK as single arguments; paths inside syntax must be quoted by
+  # the caller
+  args <- paste(syntax, "--out", shQuote(out))
+  cmd <- paste(shQuote(exe), args)
+  # Capture PLINK's output, stderr included, and print it only at
+  # verbose >= 3; it bypasses sink() and would print even at verbose = 0
+  # (gl.read.PLINK review, F5). A non-zero exit stops with PLINK's own
+  # message rather than letting the caller fail later on a missing file.
+  # system2() quotes exe itself and captures stderr without a shell; the
+  # earlier system(paste(cmd, "2>&1")) failed on Windows, where system()
+  # runs no shell and "2>&1" reached PLINK as an argument.
+  # system2() itself errors on Windows when the command cannot be started
+  # at all (e.g. a wrong plink.path); report that the same way
+  plink.out <- tryCatch(
+    suppressWarnings(system2(exe, args, stdout = TRUE, stderr = TRUE)),
+    error = function(e) structure(conditionMessage(e), status = 127L)
+  )
+  status <- attr(plink.out, "status")
+  if (verbose >= 3) {
+    cat(report(paste(plink.out, collapse = "\n"), "\n"))
+  }
+  if (!is.null(status) && status != 0) {
+    stop(error(
+      "Fatal Error: PLINK exited with status", status, "running\n", cmd,
+      "\nLast lines of the PLINK output:\n",
+      paste(utils::tail(plink.out, 5), collapse = "\n"), "\n"
+    ))
+  }
   
   # FLAG SCRIPT END
   

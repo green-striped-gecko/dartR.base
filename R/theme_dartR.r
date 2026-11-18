@@ -7,25 +7,23 @@
 #' This is the theme used as default for dartR plots.
 #' This function controls all non-data display elements in the plots.
 
-#' @param base_size base font size, given in pts.
-#' @param base_family base font family
-#' @param base_line_size base size for line elements
-#' @param base_rect_size base size for rect elements
-#' @return a the standard dartR theme to be used in ggplots
+#' @param base_size Base font size, in points; all text sizes scale with it
+#' [default 11].
+#' @param base_family Base font family [default ""].
+#' @param base_line_size Base size for line elements [default base_size / 22].
+#' @param base_rect_size Base size for rect elements [default base_size / 22].
+#' @return A complete ggplot2 theme, to be added to a ggplot.
+#' @author Author(s): Bernd Gruber. Custodian: Bernd Gruber -- Post to
+#' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' ggplot(data.frame(dummy=rnorm(1000)),aes(dummy)) +
 #' geom_histogram(binwidth=0.1) + theme_dartR()
 #' 
 #' @export
 
-# Version v.2023.2
-
-# The half-line (base-fontsize / 2) sets up the basic vertical rhythm of the
-# theme. Most margins will be set to this value.  However, when we work with
-# relative sizes, we may want to multiply `half_line` with the appropriate
-# relative size. This applies in particular for axis tick sizes. And also, for
-# axis ticks and axis titles, `half_size` is too large a distance, and we use
-# `half_size/2` instead.
+# The half-line (base_size / 2) sets up the basic vertical rhythm of the
+# theme. Most margins are set to this value. For axis ticks and axis titles,
+# `half_line` is too large a distance, and `half_line / 2` is used instead.
 theme_dartR <- function(base_size = 11,
                         base_family = "",
                         base_line_size = base_size / 22,
@@ -38,8 +36,7 @@ theme_dartR <- function(base_size = 11,
   
   # Elements in this first block aren't used directly, but are inherited by
   # others
-  t <-
-    theme(
+  theme(
       line = element_line(
         color = "black",
         linewidth = base_line_size,
@@ -150,7 +147,8 @@ theme_dartR <- function(base_size = 11,
           0.8 * half_line
         )
       ),
-      strip.text.x = element_text(size = 14, face = "bold"),
+      # 14 pt at the default base_size of 11, scaling with base_size
+      strip.text.x = element_text(size = rel(14 / 11), face = "bold"),
       strip.text.y = element_text(angle = -90),
       strip.text.y.left = element_text(angle = 90),
       strip.placement = "inside",

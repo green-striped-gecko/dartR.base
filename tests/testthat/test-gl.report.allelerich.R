@@ -1,0 +1,120 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
+# Characterization tests for gl.report.allelerich
+# Baseline snapshotted before review (review-gl.report.allelerich).
+# Assertions marked [approved diff] were flipped in Phase C.
+
+gl4 <- gl.filter.allna(gl.keep.pop(testset.gl,
+        pop.list = c("EmmacBrisWive", "EmmacBurdMist",
+                     "EmmacClarJack", "EmmacRussEube"),
+        verbose = 0), verbose = 0)
+
+test_that("richness values match an independent recomputation", {
+  pdf(NULL); on.exit(dev.off())
+  invisible(capture.output(res <- gl.report.allelerich(gl4,
+        plot.display = FALSE, verbose = 0)))
+  expect_named(res, c("Allelic Richness per site",
+                      "Allelic Richness per population",
+                      "Raw reference allele count",
+                      "Raw alternate allele count"))
+  fn <- res[["Allelic Richness per population"]]
+  means <- fn$mean_corrected_richness
+  names(means) <- fn$pop
+  # pinned on dartR.data >= 1.2.6 testset.gl
+  expect_equal(round(means[["EmmacBrisWive"]], 5), 1.01484)
+  expect_equal(round(means[["EmmacBurdMist"]], 5), 1.00990)
+  expect_equal(round(means[["EmmacClarJack"]], 5), 1.01150)
+  expect_equal(round(means[["EmmacRussEube"]], 5), 1.02391)
+  expect_equal(fn$popsize, c(10, 10, 5, 10))
+  expect_true("SD" %in% colnames(fn))          # default error.bar
+})
+
+test_that("silence and visibility at verbose 0", {
+  pdf(NULL); on.exit(dev.off())
+  xcopy <- gl4
+  o <- capture.output(v <- withVisible(
+    gl.report.allelerich(gl4, plot.display = FALSE, verbose = 0)))
+  # [approved diff F1] baseline: the lazy default gl.colors("dis")
+  # printed the 3-line gl.colors banner at every verbosity.
+  expect_length(o, 0)
+  expect_false(v$visible)
+  expect_identical(xcopy, gl4)
+})
+
+test_that("plot rendering at verbose 0", {
+  # BASELINE: no verbose==0 -> plot.display <- FALSE guard; the plot
+  # renders at verbose 0.
+  t0 <- tempfile(fileext = ".pdf"); pdf(t0); dev.off()
+  empty <- file.info(t0)$size
+  tf <- tempfile(fileext = ".pdf"); pdf(tf)
+  invisible(capture.output(g <- gl.report.allelerich(gl4, verbose = 0)))
+  dev.off()
+  # [approved diff F1] baseline: a page was drawn at verbose 0.
+  expect_lt(file.info(tf)$size, empty + 500)
+  unlink(c(t0, tf))
+})
+
+test_that("error.bar validation", {
+  pdf(NULL); on.exit(dev.off())
+  # [approved diff F2] baseline: an unknown error.bar crashed
+  # downstream with "object 'max_val' not found". Now coerced to SD.
+  invisible(capture.output(res <- gl.report.allelerich(gl4,
+        error.bar = "bogus", plot.display = FALSE, verbose = 0)))
+  expect_true("SD" %in% colnames(res[["Allelic Richness per population"]]))
+})
+
+test_that("bootstrap path adds CI columns", {
+  pdf(NULL); on.exit(dev.off())
+  skip_if_not_installed("boot")
+  skip_if_not_installed("Rcpp")
+  o <- capture.output(res <- suppressWarnings(
+    gl.report.allelerich(gl4[, 1:60], nboots = 15, CI.type = "perc",
+                         error.bar = "SD", plot.display = FALSE,
+                         verbose = 0)))
+  cn <- colnames(res[["Allelic Richness per population"]])
+  expect_true(all(c("LCI", "HCI") %in% cn))
+  # BASELINE: the user's error.bar = "SD" is silently overridden to CI.
+  expect_false("SD" %in% cn)
+})
+
+test_that("population colours follow population names", {
+  # before: unnamed colours were passed by position to a character pop
+  # column, which ggplot sorts alphabetically, not by levels(pop(x))
+  pdf(NULL); on.exit(dev.off())
+  x <- pop_colours_gl()
+  pops <- popNames(x)
+  cases <- list(list(pop_colours_named, pop_colours_expected),
+                list(pop_colours_unnamed, pop_colours_expected_unnamed))
+  for (cs in cases) {
+    d <- tempfile("ar_cols"); dir.create(d)
+    invisible(capture.output(gl.report.allelerich(
+      x, plot.colors.pop = cs[[1]], plot.file = "p", plot.dir = d,
+      verbose = 1)))
+    for (p in pop_colours_plots(d)) {
+      expect_equal(pop_colours_of(p, pops), cs[[2]][pops])
+    }
+  }
+})
+
+test_that("individual bootstrap works with a population of one individual", {
+  # Regression: utils.allelic.richness() subset the resampled rows with
+  # df[indices, ], which drops a one-row matrix to a vector, so
+  # boot.method = "ind" stopped with "Not a matrix." for any population
+  # of a single individual.
+  skip_if_not_installed("boot")
+  skip_if_not_installed("Rcpp")
+  x <- gl.keep.pop(testset.gl, popNames(testset.gl)[1:2], verbose = 0)
+  pn <- popNames(x)
+  x <- x[c(which(pop(x) == pn[1])[1], which(pop(x) == pn[2])), 1:40]
+  expect_equal(min(table(pop(x))), 1)
+  set.seed(2)
+  o <- capture.output(res <- suppressWarnings(
+    gl.report.allelerich(x, nboots = 10, boot.method = "ind",
+                         CI.type = "perc", plot.display = FALSE,
+                         verbose = 0)))
+  ar <- res[["Allelic Richness per population"]]
+  expect_true(all(c("LCI", "HCI") %in% colnames(ar)))
+  expect_equal(nrow(ar), 2)
+})

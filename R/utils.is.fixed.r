@@ -1,5 +1,5 @@
 #' @name utils.is.fixed
-#' @title An internal function to tests if two populations are fixed at a given locus
+#' @title An internal function to test if two populations are fixed at a given locus
 #' @family utilities
 #' 
 #' @description
@@ -14,7 +14,7 @@
 #'  
 #' @details
 #' This script compares two percent allele frequencies
-#' and reports TRUE if they represent a fixed difference, FALSE otherwise.
+#' and reports 1 if they represent a fixed difference, 0 otherwise.
 #' 
 #'  A fixed difference at a locus occurs when two populations share no alleles,
 #'  noting that SNPs are biallelic (ploidy=2).
@@ -26,8 +26,10 @@
 
 #' @seealso \code{\link{gl.fixed.diff}}
 #'  
+#' @keywords internal
 #' @export
-#' @return TRUE (fixed difference) or FALSE (alleles shared) or NA (one or both s1 or s2 missing)
+#' @return 1 (fixed difference), 0 (alleles shared) or NA (one or both of s1
+#' or s2 missing); numeric, so callers can sum or threshold the result
 
 # Examples for testing
 # utils.is.fixed(s1=100, s2=0, tloc=0)
@@ -39,7 +41,7 @@ utils.is.fixed <- function(s1,
     if (is.na(s1) | is.na(s2)) {
         result <- NA
     } else {
-        # Transform to fixed, if outside tollerance
+        # Transform to fixed, if outside tolerance
         if (s1 <= tloc * 100) {
             s1 <- 0
         }
@@ -64,7 +66,3 @@ utils.is.fixed <- function(s1,
     return(result)
 }
 
-# Test function utils.is.fixed(0,100) utils.is.fixed(100,0) utils.is.fixed(80,0) utils.is.fixed(100,NA) 
-#utils.is.fixed(0,NA) utils.is.fixed(NA,0) utils.is.fixed(NaN,100)
-# utils.is.fixed(NaN,0) utils.is.fixed(100,NaN) utils.is.fixed(0,NaN) utils.is.fixed(NaN,NaN) 
-#utils.is.fixed(NA,NA) utils.is.fixed(50,50,tloc=0.05)

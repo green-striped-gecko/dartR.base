@@ -28,7 +28,7 @@
 #'  progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using \code{gl.set.verbosity}].
 #'
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #'
 #' @examples
@@ -68,7 +68,7 @@ gl.reassign.ind <- function(x,
   
   # FLAG SCRIPT START
   funname <- match.call()[[1]]
-  utils.flag.start(func = funname,
+  funname <- utils.flag.start(func = funname,
                    build = "v.2025.1",
                    verbose = verbose)
   
@@ -78,11 +78,11 @@ gl.reassign.ind <- function(x,
   # ---- CHECKS ON ARGUMENTS ----
   
   if (missing(ind.list) || is.null(ind.list)) {
-    stop("Fatal error: ind.list must be provided\n")
+    stop(error("Fatal Error: ind.list must be provided\n"))
   }
-  
+
   if (missing(new.pop) || is.null(new.pop) || new.pop == "") {
-    stop("Fatal error: new.pop must be a non-empty character string\n")
+    stop(error("Fatal Error: new.pop must be a non-empty character string\n"))
   }
   
   # Standardise individual indices
@@ -91,30 +91,34 @@ gl.reassign.ind <- function(x,
   
   if (is.logical(ind.list)) {
     if (length(ind.list) != n_ind) {
-      stop("Fatal error: logical ind.list must have length nInd(x)\n")
+      stop(error("Fatal Error: logical ind.list must have length nInd(x)\n"))
     }
     idx <- which(ind.list)
   } else if (is.numeric(ind.list)) {
     if (any(ind.list < 1 | ind.list > n_ind)) {
-      stop("Fatal error: numeric ind.list contains indices outside [1, nInd(x)]\n")
+      stop(error("Fatal Error: numeric ind.list contains indices outside [1, nInd(x)]\n"))
     }
     idx <- ind.list
   } else if (is.character(ind.list)) {
     idx <- match(ind.list, all_inds)
     if (any(is.na(idx))) {
       missing_inds <- ind.list[is.na(idx)]
-      stop(
-        "Fatal error: the following individuals in ind.list were not found in indNames(x):\n  ",
+      stop(error(
+        "Fatal Error: the following individuals in ind.list were not found in indNames(x):\n  ",
         paste(missing_inds, collapse = ", "),
         "\n"
-      )
+      ))
     }
   } else {
-    stop("Fatal error: ind.list must be logical, numeric, or character\n")
+    stop(error("Fatal Error: ind.list must be logical, numeric, or character\n"))
   }
-  
+
+  idx <- unique(idx)
+
   if (length(idx) == 0) {
-    warning("No individuals selected in ind.list; no changes made\n")
+    if (verbose >= 2) {
+      cat(warn("  Warning: No individuals selected in ind.list; no changes made\n"))
+    }
     return(x)
   }
   
@@ -152,7 +156,7 @@ gl.reassign.ind <- function(x,
   
   # ---- ADD TO HISTORY ----
   nh <- length(x@other$history)
-  x@other$history[[nh + 1]] <- match.call()
+  x@other$history[[nh + 1]] <- utils.history.call(match.call())
   
   # FLAG SCRIPT END
   if (verbose >= 1) {

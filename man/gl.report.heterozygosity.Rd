@@ -83,7 +83,10 @@ progress log; 3, progress and results summary; 5, full report
 }
 \value{
 A dataframe containing population labels, heterozygosities, FIS,
-their standard deviations and sample sizes.
+their standard deviations and sample sizes. When subsample.pop = TRUE
+(method='pop'), a named list with two elements: $subsample (the
+subsampling results for populations of at least n.limit individuals) and
+$results (the dataframe described above).
 }
 \description{
 Calculates the observed, expected and unbiased expected (i.e.
@@ -117,12 +120,12 @@ Finally, the loci that are invariant across all individuals in the dataset
 (that is, across populations), is typically unknown. This can render
 estimates of heterozygosity analysis specific, and so it is not valid to
 compare such estimates across species or even across different analyses 
-(see Schimdt et al 2021). This is a similar problem faced by microsatellites. 
+(see Schmidt et al 2021). This is a similar problem faced by microsatellites. 
 If you have an estimate of the
 number of invariant sequence tags (loci) in your data, such as provided by
 \code{\link{gl.report.secondaries}}, you can specify it with the n.invariant
 parameter to standardize your estimates of heterozygosity. This is called
-autosomal heterozygosities by Schimddt et al (2021).
+autosomal heterozygosities by Schmidt et al (2021).
 
 \strong{NOTE}: It is important to realise that estimation of adjusted (autosomal)
 heterozygosity requires that secondaries not to be removed.
@@ -154,7 +157,12 @@ unbiased expected heterozygosity and FIS (Inbreeding coefficient) across
 populations together with a table of mean observed and expected 
 heterozygosities and FIS by population and their respective standard 
 deviations (SD).
-In the output, it is also reported by population: the number of loci used to
+In the output, it is also reported by population: the mean number of
+ individuals with a non-missing genotype per locus (n.Ind), which is the
+ denominator used to calculate Ho; because of missing data this is an
+ average across loci, so it usually shows decimals slightly below the
+ number of individuals in the population. Also reported are the number of
+ loci used to
  estimate heterozygosity (n.Loc), the number of polymorphic loci (polyLoc),
  the number of monomorphic loci (monoLoc) and loci with all missing data
   (all_NALoc).
@@ -345,16 +353,30 @@ distance from a small number of individuals. Genetics, 89(3), 583-590.
 \seealso{
 \code{\link{gl.filter.heterozygosity}}
 
-Other unmatched report: 
-\code{\link{gl.allele.freq}()},
-\code{\link{gl.report.allelerich}()},
-\code{\link{gl.report.basics}()},
-\code{\link{gl.report.diversity}()},
+Other matched report: 
+\code{\link{gl.report.allna}()},
+\code{\link{gl.report.callrate}()},
+\code{\link{gl.report.contamination}()},
 \code{\link{gl.report.excess.het}()},
-\code{\link{gl.report.polyploid_heterozygosity}()}
+\code{\link{gl.report.factorloadings}()},
+\code{\link{gl.report.fstat}()},
+\code{\link{gl.report.hamming}()},
+\code{\link{gl.report.hwe}()},
+\code{\link{gl.report.ld}()},
+\code{\link{gl.report.ld.map}()},
+\code{\link{gl.report.locmetric}()},
+\code{\link{gl.report.maf}()},
+\code{\link{gl.report.overshoot}()},
+\code{\link{gl.report.pa}()},
+\code{\link{gl.report.rdepth}()},
+\code{\link{gl.report.replicates}()},
+\code{\link{gl.report.replicates.KING}()},
+\code{\link{gl.report.reproducibility}()},
+\code{\link{gl.report.secondaries}()},
+\code{\link{gl.report.taglength}()}
 }
 \author{
-Custodian: Luis Mijangos (Post to
-\url{https://groups.google.com/d/forum/dartr})
+Author(s): Luis Mijangos, Carlo Pacioni. Custodian: Luis Mijangos
+-- Post to \url{https://groups.google.com/d/forum/dartr}
 }
-\concept{unmatched report}
+\concept{matched report}

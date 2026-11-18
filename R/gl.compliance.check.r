@@ -30,7 +30,7 @@
 #' updated.
 #' }
 #' 
-#' @author Custodian: Luis Mijangos -- Post to
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
 #'  \url{https://groups.google.com/d/forum/dartr}
 #'  
 #' @examples
@@ -47,7 +47,7 @@ gl.compliance.check <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -74,13 +74,15 @@ gl.compliance.check <- function(x,
     if(is(x,"genlight")){
       
       if (!is(x, "dartR")) {
-        class(x) <- "dartR"  
         if (verbose>2) {
           cat(warn("Warning: Standard adegenet genlight object encountered. Converted to compatible dartR genlight object\n"))
           cat(warn("                    Should you wish to convert it back to an adegenet genlight object for later use outside dartR, 
                  please use function dartR2gl\n"))
         }
       }
+      # Also repairs dartR objects that lack the fbm slot (made with
+      # class<- or saved by older versions)
+      x <- .as_dartR(x)
     }
     
     # if slot loc.all is empty
@@ -100,12 +102,17 @@ gl.compliance.check <- function(x,
     # appropriate values
     
     if (datatype == "SNP") {
-        mat <- as.matrix(x)
         scores <- c(0, 1, 2, NA)
         if (verbose >= 2) {
             cat(report("  Checking coding of SNPs\n"))
         }
-        if (max(mat) %in% scores) {
+        # Exact value-set test. The previous test, max(mat) %in% scores,
+        # was vacuous whenever the data held an NA: max() without na.rm
+        # returns NA, and NA %in% scores is TRUE because scores includes
+        # NA, so out-of-range genotypes passed as confirmed.
+        # Blocks of loci for FBM-backed objects (.gl_colwise), so the whole
+        # matrix is not decoded.
+        if (all(.gl_colwise(x, function(m) all(m %in% scores)))) {
             if (verbose >= 1) {
                 cat(report("    SNP data scored NA, 0, 1 or 2 confirmed\n"))
             }
@@ -120,12 +127,14 @@ gl.compliance.check <- function(x,
             }
         }
     } else {
-        mat <- as.matrix(x)
         scores <- c(0, 1, NA)
         if (verbose >= 2) {
             cat(report("  Checking coding of Tag P/A data\n"))
         }
-        if (max(mat) %in% scores) {
+        # Exact value-set test (see the SNP check above).
+        # Blocks of loci for FBM-backed objects (.gl_colwise), so the whole
+        # matrix is not decoded.
+        if (all(.gl_colwise(x, function(m) all(m %in% scores)))) {
             if (verbose >= 1) {
                 cat(
                     report(
@@ -189,8 +198,18 @@ gl.compliance.check <- function(x,
     if (verbose >= 2) {
         cat(report("  Checking for monomorphic loci\n"))
     }
-    x2 <- gl.filter.monomorphs(x, verbose = 0)
-    if (nLoc(x2) == nLoc(x)) {
+    # gl.filter.monomorphs cannot return a zero-locus object: when every
+    # locus is monomorphic, the subset in gl.drop.loc errors ("Subsetting
+    # resulted in zero loci"). Catch that error and read it as the
+    # all-monomorphic case, so the check flags rather than crashes.
+    x2 <- tryCatch(gl.filter.monomorphs(x, verbose = 0),
+                   error = function(e) NULL)
+    if (is.null(x2)) {
+        if (verbose >= 1) {
+            cat(warn("    All loci are monomorphic\n"))
+        }
+        x@other$loc.metrics.flags$monomorphs <- FALSE
+    } else if (nLoc(x2) == nLoc(x)) {
         if (verbose >= 1) {
             cat(report("    No monomorphic loci detected\n"))
         }
@@ -206,8 +225,16 @@ gl.compliance.check <- function(x,
     if (verbose >= 2) {
         cat(report("  Checking for loci with all missing data\n"))
     }
-    x2 <- gl.filter.allna(x, verbose = 0)
-    if (nLoc(x2) == nLoc(x)) {
+    # Same guard as the monomorph check: gl.filter.allna errors the same
+    # way when every locus is all missing.
+    x2 <- tryCatch(gl.filter.allna(x, verbose = 0),
+                   error = function(e) NULL)
+    if (is.null(x2)) {
+        if (verbose >= 1) {
+            cat(warn("    All loci have all missing data\n"))
+        }
+        x@other$loc.metrics.flags$allna <- FALSE
+    } else if (nLoc(x2) == nLoc(x)) {
         if (verbose >= 1) {
             cat(report("    No loci with all missing data detected\n"))
         }
@@ -230,6 +257,23 @@ gl.compliance.check <- function(x,
                 identify the cause.\n"
             )
         )
+    }
+
+    # Per-genotype matrices (e.g. read counts from gl.read.vcf) must have one
+    # row per individual and one column per locus; a function that rebuilt
+    # the object outside the subsetting method leaves them misaligned, so
+    # they are removed rather than kept with the wrong genotypes
+    gm <- x@other$geno.metrics
+    if (!is.null(gm) &&
+        !all(vapply(gm, function(m) {
+            length(dim(m)) == 2 && all(dim(m) == c(nInd(x), nLoc(x)))
+        }, logical(1)))) {
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: the matrices in other$geno.metrics do not match the number of individuals and loci; they have been removed.\n"
+            ))
+        }
+        x@other$geno.metrics <- NULL
     }
     
     # check that individual names are unique, and if not, add underscore and
@@ -290,19 +334,33 @@ gl.compliance.check <- function(x,
         ))
     }
     
-    # Check SNP position
-    if(is.null(x$position) & "SnpPosition" %in% names(x$other$loc.metrics)){
-      x$position <- x$other$loc.metrics$SnpPosition
-      if (verbose >= 2) {
-        cat(report(
-          "  Assigning SNP position using slot gl$other$loc.metrics$SnpPosition \n"
-        ))
-      }
+    # Check SNP position. The @position/@chromosome slots are reserved
+    # for genome coordinates; the position of the SNP within the sequence
+    # tag lives in @other$loc.metrics$SnpPosition (0-based). Earlier
+    # versions copied SnpPosition into @position - clear such a stale
+    # copy when it is provably the copy (identical to SnpPosition);
+    # genuine genome coordinates can never equal the tag offsets.
+    if (!is.null(x$position) &&
+        "SnpPosition" %in% names(x$other$loc.metrics)) {
+        slotpos <- suppressWarnings(as.numeric(x$position))
+        tagpos <- suppressWarnings(
+            as.numeric(as.character(x$other$loc.metrics$SnpPosition)))
+        if (length(slotpos) == length(tagpos) &&
+            isTRUE(all.equal(slotpos, tagpos))) {
+            x$position <- NULL
+            if (verbose >= 2) {
+                cat(report(
+                    "  Cleared a stale copy of SnpPosition from @position;
+                    tag positions remain in gl@other$loc.metrics$SnpPosition
+                    and @position is reserved for genome coordinates\n"
+                ))
+            }
+        }
     }
     
     # ADD TO HISTORY
     nh <- length(x@other$history)
-    x@other$history[[nh + 1]] <- match.call()
+    x@other$history[[nh + 1]] <- utils.history.call(match.call())
     
     # FLAG SCRIPT END
     

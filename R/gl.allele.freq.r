@@ -13,14 +13,17 @@
 #' allele proportions are given [default FALSE]
 #' @param by If by='popxloc' then breakdown is given by population and locus; if by='pop'
 #' then breakdown is given by population with statistics averaged across loci; if by='loc'
-#' then breakdown is given by locus with statistics averaged across individuals [default 'pop']
-#' @param simple A legacy option to return a dataframe with the frequency of the 
-#' reference allele (alf1) and the frequency of the alternate allele (alf2) by locus [default FALSE]
+#' then breakdown is given by locus, with the frequency computed across all
+#' individuals and the other statistics (nobs, nmissing, n) averaged across
+#' populations [default 'pop']
+#' @param simple A legacy option to return a dataframe with the frequency of the
+#' reference allele (alf1) and the frequency of the alternate allele (alf2) by locus;
+#' overrides percent and by (sets by='loc' and percent=FALSE) [default FALSE]
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #' [default 2 or as specified using gl.set.verbosity]
 #' 
-#' @author Custodian: Arthur Georges (Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
 #' 
 #' @examples
@@ -35,11 +38,10 @@
 #' @importFrom plyr rbind.fill
 #' @importFrom stats na.pass
 #' @export
-#' @return A matrix with allele (SNP data) or presence/absence frequencies
+#' @return A data.frame with allele (SNP data) or presence/absence frequencies
 #' (Tag P/A data) broken down by population and locus
 #
 # FOR THE DEVELOPER
-# gl.alf(x) is replaced by gl.allele.freq(x,simple=TRUE); gl.alf is deprecated
 # gl.percent.freq(x) is replaced by gl.allele.freq(x,percent=TRUE,by="popxloc"); gl.percent.freq is deprecated
 
 gl.allele.freq <- function(x,
@@ -52,7 +54,7 @@ gl.allele.freq <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.3",
                      verbose = verbose)
     
@@ -65,9 +67,17 @@ gl.allele.freq <- function(x,
       by="loc"
       percent=FALSE
     }
-    
-    # Checking for and removing monomorphic loci
-    if (!(x@other$loc.metrics.flags$monomorphs == TRUE)) {
+
+    if (!by %in% c("pop", "loc", "popxloc")) {
+        stop(error(
+            "Fatal Error: by must be one of 'pop', 'loc' or 'popxloc'; found",
+            by, "\n"
+        ))
+    }
+
+    # Checking for and removing monomorphic loci; isTRUE guards against the
+    # flag being absent on genlight objects not built by dartR
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 1) {
             cat(warn(
                 "Warning: Monomorphic loci retained, used in calculations\n"
@@ -76,8 +86,12 @@ gl.allele.freq <- function(x,
     }
     
     # DO THE JOB
-    x2 <- seppop(x)
-    x2_list <- lapply(x2, as.matrix)
+    # Per population and locus: missing genotypes, allele sum and mean,
+    # read in blocks of loci for each population's rows (.gl_colwise), so
+    # neither the populations are copied (seppop) nor the matrix decoded.
+    # Populations in the order of seppop(), the levels of pop(x).
+    pop_rows <- lapply(levels(pop(x)), function(p) which(pop(x) == p))
+    names(pop_rows) <- levels(pop(x))
     
     if (datatype == "SilicoDArT") {
         if (verbose >= 2) {
@@ -89,20 +103,17 @@ gl.allele.freq <- function(x,
             cat(report("  Calculating Tag P/A frequencies broken down by population and locus\n"))
           }
         }
-        # Treat SilicoDArT as biallelic, no heterozygotes
-        x2_list <- lapply(x2_list, function(x) {
-            x[x == 1] <- 2
-            return(x)
-        })
+        # Treat SilicoDArT as biallelic, no heterozygotes (applied to each
+        # block below)
         
     } else {
       if (verbose >= 2) {
         if(by=="pop"){
-          cat(report("  Calculating Tag allele frequencies for populations\n"))
+          cat(report("  Calculating allele frequencies for populations\n"))
         } else if(by=="loc"){
-          cat(report("  Calculating Tag allele frequencies for loci\n"))
+          cat(report("  Calculating allele frequencies for loci\n"))
         } else {
-          cat(report("  Calculating Tag allele frequencies broken down by population and locus\n"))
+          cat(report("  Calculating allele frequencies broken down by population and locus\n"))
         }
       }
       # if (verbose >= 3) {
@@ -110,20 +121,27 @@ gl.allele.freq <- function(x,
         # }
     }
     
-    loc_names <- lapply(x2_list, colnames)
+    stats <- lapply(pop_rows, function(r) {
+      .gl_colwise(x, function(t) {
+        if (datatype == "SilicoDArT") t[t == 1] <- 2
+        rbind(colSums(is.na(t)), colSums(t, na.rm = TRUE),
+              colMeans(t, na.rm = TRUE))
+      }, rows = r)
+    })
+
+    loc_names <- lapply(stats, colnames)
     
-    nmissing_temp <- lapply(x2_list, is.na)
-    nmissing <- lapply(nmissing_temp, colSums)
+    nmissing <- lapply(stats, function(s) s[1, ])
     
-    n_temp <- lapply(x2_list, nrow)
+    n_temp <- lapply(pop_rows, length)
     n <- lapply(n_temp, rep, nLoc(x))
     
     nobs_temp <- lapply(nmissing, unname)
     nobs <- Map("-", n, nobs_temp)
     
-    sum_res <- lapply(x2_list, colSums, na.rm = T)
+    sum_res <- lapply(stats, function(s) s[2, ])
     
-    f <- lapply(x2_list, colMeans, na.rm = T)
+    f <- lapply(stats, function(s) s[3, ])
     f <- lapply(f, "/", 2)
     f <- lapply(f, "*", 100)
     f <- lapply(f, "round", 2)
@@ -190,8 +208,17 @@ gl.allele.freq <- function(x,
                      na.action=na.pass)
       # reorder by loci
       m <- m[order(m$loc_order),]
-      # calculating allele frequency
-      m$frequency <- colMeans(as.matrix(x), na.rm = TRUE) / 2
+      # calculating allele frequency across all individuals; SilicoDArT is
+      # 0/1 presence data, so the mean is the presence frequency and takes
+      # no ploidy divisor (the /2 applies to SNP dosage 0/1/2 only)
+      if (datatype == "SilicoDArT") {
+        m$frequency <- .gl_colwise(x, function(t) colMeans(t, na.rm = TRUE))
+      } else {
+        m$frequency <- .gl_colwise(x, function(t) colMeans(t, na.rm = TRUE)) / 2
+      }
+      if (percent) {
+        m$frequency <- m$frequency * 100
+      }
       m$popn <- NULL
       m$sum <- NULL
       m$nobs <- round(m$nobs,1)

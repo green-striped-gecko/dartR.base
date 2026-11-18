@@ -27,14 +27,9 @@
 #' @author Custodian: Luis Mijangos (Post to
 #'  \url{https://groups.google.com/d/forum/dartr})
 
-#' @seealso \code{utils.recalc.metrics} for recalculating all metrics,
-#' \code{utils.recalc.callrate} for recalculating CallRate,
-#' \code{utils.recalc.freqhomref} for recalculating frequency of homozygous
-#' reference, \code{utils.recalc.freqhomsnp} for recalculating frequency of
-#' homozygous alternate, \code{utils.recalc.freqhet} for recalculating frequency
-#'  of heterozygotes, \code{gl.recalc.maf} for recalculating minor allele
-#'  frequency, \code{gl.recalc.rdepth} for recalculating average read depth
-#'  
+#' @seealso \code{\link{gl.recalc.metrics}} for recalculating all
+#' locus metrics
+#' @keywords internal
 # @export
 #' @return The modified genlight object.
 
@@ -48,7 +43,7 @@ utils.recalc.avgpic <- function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
@@ -56,7 +51,7 @@ utils.recalc.avgpic <- function(x,
     datatype <- utils.check.datatype(x, verbose = verbose)
     
     # Check monomorphs have been removed up to date
-    if (x@other$loc.metrics.flags$monomorphs == FALSE) {
+    if (!isTRUE(x@other$loc.metrics.flags$monomorphs)) {
         if (verbose >= 2) {
             cat(
                 warn(
@@ -148,7 +143,7 @@ utils.recalc.avgpic <- function(x,
     
     # DO THE JOB
     
-    t <- as.matrix(x)
+    # column-wise counts, in blocks of loci for FBM-backed objects
     
     if (datatype == "SNP") {
         if (verbose >= 2) {
@@ -159,14 +154,14 @@ utils.recalc.avgpic <- function(x,
             )
         }
         
-        c0 <- colSums(t == 0, na.rm = T)
-        c1 <- colSums(t == 1, na.rm = T)
-        c2 <- colSums(t == 2, na.rm = T)
-        c <- (c0 + c1 + c2)
-        x@other$loc.metrics$OneRatioRef <- (c0 + c1) / c
+        c0 <- .gl_colwise(x, function(t) colSums(t == 0, na.rm = TRUE))
+        c1 <- .gl_colwise(x, function(t) colSums(t == 1, na.rm = TRUE))
+        c2 <- .gl_colwise(x, function(t) colSums(t == 2, na.rm = TRUE))
+        ctot <- (c0 + c1 + c2)
+        x@other$loc.metrics$OneRatioRef <- (c0 + c1) / ctot
         x@other$loc.metrics.flags$OneRatioRef <- TRUE
-        
-        x@other$loc.metrics$OneRatioSnp <- (c1 + c2) / c
+
+        x@other$loc.metrics$OneRatioSnp <- (c1 + c2) / ctot
         x@other$loc.metrics.flags$OneRatioSnp <- TRUE
         
         OneRatioRef <- x@other$loc.metrics$OneRatioRef
@@ -192,7 +187,7 @@ utils.recalc.avgpic <- function(x,
             cat(report("  Recalculating OneRatio, PIC\n"))
         }
         
-        OneRatio <- colMeans(t == 1, na.rm = T)
+        OneRatio <- .gl_colwise(x, function(t) colMeans(t == 1, na.rm = TRUE))
         x@other$loc.metrics$OneRatio <- OneRatio
         x@other$loc.metrics.flags$OneRatio <- TRUE
         

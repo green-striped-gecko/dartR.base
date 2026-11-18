@@ -1,12 +1,15 @@
 #' @name gl2plink
 #' @title Converts a genlight object into PLINK format
-#' @family linker
+#' @family linkers
 
 #' @description
 #' This function exports a genlight object into PLINK format and save it into a
 #' file.
-#' This function produces the following PLINK files: bed, bim, fam, ped and map.
-#' 
+#' By default it produces two files: a .ped file (which embeds the six sample
+#' columns of the .fam format) and a .map file. With bed.files = TRUE and an
+#' external PLINK 1.9 binary, the binary .bed, .bim and .fam files are also
+#' produced.
+#'
 #' @param x Name of the genlight object containing the SNP data [required].
 #' @param plink.bin.path Path of PLINK binary file [default getwd()].
 #' @param bed.files Whether create PLINK files .bed, .bim and .fam
@@ -31,8 +34,9 @@
 #' [default '0'].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
-#' [default 2 or as specified using gl.set.verbosity].
-#' 
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
+#'
 #' @details
 #' To create PLINK files .bed, .bim and .fam (bed.files = TRUE), it is necessary
 #' to download the binary file of PLINK 1.9 and provide its path (plink.bin.path).
@@ -47,7 +51,16 @@
 #' 
 #' The chromosome of each SNP can be a character or numeric. The chromosome
 #' information for unmapped SNPS is coded as 0.
-#' 
+#'
+#' If the accessors x$chromosome and x$position are unset (NULL), the loci are
+#' treated as unmapped: chromosome and base-pair position are written as 0,
+#' PLINK's own convention, and a warning is given. Note also that if
+#' x$position holds within-tag offsets (as when read directly from a DArT
+#' report, values typically < 70) rather than genomic coordinates, those
+#' offsets are written to the .map as base-pair positions; assign genomic
+#' coordinates before calling if downstream position-aware PLINK operations
+#' are intended.
+#'
 #' Family ID is taken from  x$pop.
 #' 
 #' Within-family ID (cannot be '0') is taken from indNames(x).
@@ -66,10 +79,11 @@
 #'  names as 'contig1', 'contig2', etc. as described in the section "Nonstandard
 #'   chromosome IDs" in the following link:
 #'   https://www.cog-genomics.org/plink/1.9/input
-#'   
-#' @author Custodian: Luis Mijangos (Post to
-#'  \url{https://groups.google.com/d/forum/dartr})
-#'  
+#'
+#' @return returns no value (i.e. NULL)
+#' @author Author(s): Luis Mijangos. Custodian: Luis Mijangos -- Post to
+#'  \url{https://groups.google.com/d/forum/dartr}
+#'
 #' @examples
 #' \donttest{
 #' require("dartR.data")
@@ -86,9 +100,8 @@
 #' Purcell, Shaun, et al. 'PLINK: a tool set for whole-genome association and
 #' population-based linkage analyses.' The American journal of human genetics
 #' 81.3 (2007): 559-575.
-#' 
+#'
 #' @export
-#' @return  returns no value (i.e. NULL)
 
 gl2plink <- function(x,
                      plink.bin.path = getwd(),
@@ -111,25 +124,31 @@ gl2plink <- function(x,
         
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "v.2023.2",
                      verbose = verbose)
     
     # CHECK DATATYPE
-    datatype <- utils.check.datatype(x, verbose = verbose)
-    
+    # SNP only: the recoding requires loc.all and 0/1/2 dosage (F3)
+    datatype <- utils.check.datatype(x, accept = "SNP", verbose = verbose)
+
     # DO THE JOB
 
+    # Unset slots are treated as unmapped loci and written with PLINK's own
+    # convention, chromosome 0 and position 0, instead of fabricated
+    # coordinates (F1); results-affecting, so warned at verbose >= 1 (F5)
     if(is.null(x$chromosome)){
-      x$chromosome <- as.factor(rep("1",nLoc(x)))
-      cat(warn("   chromosome slot is empty. Using 1 as dummy name.\n"))
+      x$chromosome <- as.factor(rep("0",nLoc(x)))
+      if (verbose >= 1) {
+        cat(warn("  Warning: chromosome slot is empty. Loci are coded as unmapped (chromosome 0).\n"))
+      }
     }
-    
+
     if(is.null(x$position)){
-      x$position <- 1:nLoc(x)
-      cat(warn(
-        "   position slot is empty. Using sequence from one to number of loci in the 
-dataset as dummy position.\n"))
+      x$position <- rep(0L, nLoc(x))
+      if (verbose >= 1) {
+        cat(warn("  Warning: position slot is empty. Loci are coded as unmapped (position 0).\n"))
+      }
     }
     
     snp_temp <- as.data.frame(cbind(as.character(x$chromosome),
@@ -185,16 +204,16 @@ dataset as dummy position.\n"))
     ID.mum <- gsub(" ","_",ID.mum)
 
     # Sex code ('1' = male, '2' = female, '0' = unknown)
-    if (length(sex.code) > 1) {
-        sex.code <- as.character(sex.code)
-        sex.code[startsWith(sex.code, "f") |
-                     startsWith(sex.code, "F")] <- "2"
-        sex.code[startsWith(sex.code, "m") |
-                     startsWith(sex.code, "M")] <- "1"
-        sex.code[startsWith(sex.code, "u") |
-                     startsWith(sex.code, "U")] <- "0"
-        sex.code[nchar(sex.code) == 0] <- "0"
-    }
+    # Recoded unconditionally; scalars (including the default 'unknown')
+    # previously reached the .ped verbatim (F2)
+    sex.code <- as.character(sex.code)
+    sex.code[startsWith(sex.code, "f") |
+                 startsWith(sex.code, "F")] <- "2"
+    sex.code[startsWith(sex.code, "m") |
+                 startsWith(sex.code, "M")] <- "1"
+    sex.code[startsWith(sex.code, "u") |
+                 startsWith(sex.code, "U")] <- "0"
+    sex.code[nchar(sex.code) == 0] <- "0"
     
     gl_fam <-
         cbind(FID, IID, ID.dad, ID.mum, sex.code, phen.value)
@@ -235,32 +254,49 @@ dataset as dummy position.\n"))
         prefix.in_temp <- outfilespec
         prefix.out_temp <- outfilespec
         
+        # Reference (A2) allele list: locus name, first allele of loc.all.
+        # Named from outfile and passed to PLINK via --a2-allele so the
+        # .bed/.bim ref/alt orientation matches the genlight, rather than
+        # being reassigned by minor-allele frequency (F4)
         allele_tmp <- gsub("/"," ", x$loc.all)
         allele_tmp <- strsplit(allele_tmp,split = " ")
         allele_tmp <- Reduce(rbind,allele_tmp)[,1]
         allele_tmp <- cbind(locNames(x), allele_tmp)
+        allele.file <- file.path(outpath, paste0(outfile, "_a2_alleles.txt"))
         write.table(allele_tmp,
-                    file = file.path(outpath,"mylist.txt"),
+                    file = allele.file,
                     row.names = FALSE,
                     col.names = FALSE,
                     quote = FALSE
                     )
-        
+
         make_plink <-
             function(plink.path,
                      prefix.in = prefix.in_temp,
                      prefix.out = prefix.out_temp,
                      extra.options = "") {
                 bedfile.out <- paste0(prefix.out, ".bed")
+                # Every path is quoted: an unquoted path containing a space
+                # split into several arguments and PLINK rejected the call
                 system_verbose(
+                    plink.path,
                     paste(
-                        plink.path,
                         "--file",
-                        prefix.in,
+                        shQuote(prefix.in),
                         "--allow-no-sex",
                         "--allow-extra-chr",
+                        # PLINK 1.9 treats --a2-allele as a filtering operation
+                        # and refuses it in a basic --file conversion ("Rerun
+                        # your command with --make-bed"), so ask for the binary
+                        # fileset explicitly.
+                        "--make-bed",
+                        # A2 allele in column 2, variant ID in column 1 (F4)
+                        "--a2-allele",
+                        shQuote(allele.file),
+                        "2",
+                        "1",
                         "--out",
-                        prefix.out,
+                        shQuote(prefix.out),
                         extra.options
                     )
                 )
@@ -268,15 +304,36 @@ dataset as dummy position.\n"))
             }
         
         
-        system_verbose <-function(...) {
-            report <-system(..., intern = T)
-            message(
-                paste0(
-                    "\n\n----------Output of function start:\n\n",
-                    paste(report, collapse = "\n"),
-                    "\n\n----------Output of function finished...\n\n"
-                )
+        # Runs PLINK, shows its log at verbose >= 3, and stops when PLINK
+        # exits with an error. A captured run turns a non-zero exit
+        # into an R warning only, so a failed run used to be reported as
+        # success with no .bed file written.
+        system_verbose <- function(exe, args) {
+            # PLINK writes some errors to stderr, so capture it too.
+            # system2() quotes exe itself and needs no shell for this; the
+            # earlier system(paste(cmd, "2>&1")) failed on Windows, where
+            # system() runs no shell and "2>&1" reached PLINK as an argument
+            plink.out <- suppressWarnings(
+                system2(exe, args, stdout = TRUE, stderr = TRUE)
             )
+            status <- attr(plink.out, "status")
+            if (verbose >= 3) {
+                cat(report(
+                    "\n  ---------- PLINK output start\n",
+                    paste(plink.out, collapse = "\n"),
+                    "\n  ---------- PLINK output end\n\n"
+                ))
+            }
+            if (!is.null(status) && status != 0) {
+                stop(error(
+                    "Fatal Error: PLINK exited with status", status,
+                    "and the .bed file was not written. Last lines of the",
+                    "PLINK output:\n",
+                    paste(utils::tail(plink.out, 5), collapse = "\n"),
+                    "\n"
+                ))
+            }
+            invisible(plink.out)
         }
         
         make_plink(plink.path = paste0(plink.bin.path, "/plink"))

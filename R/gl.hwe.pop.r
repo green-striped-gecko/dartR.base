@@ -9,15 +9,15 @@
 #' @param alpha_val Level of significance for testing [default 0.05].
 #' @param HWformat Switch if data should be returned in HWformat (counts of
 #' Genotypes to be used in package \code{HardyWeinberg})
-#' @param plot.out If TRUE, returns a plot object compatible with ggplot,
-#' otherwise returns a dataframe [default TRUE].
+#' @param plot.out If TRUE, the plot is drawn and returned in the list;
+#' otherwise the plot element is NULL [default TRUE].
 #' @param plot_theme User specified theme [default theme_dartR()].
-#' @param plot_colors Vector with two color names for the borders and fill
-#' [default gl.colors(2)].
-#'  [default gl.colors("dis")].
+#' @param plot_colors Vector with two color names, for non-significant and
+#' significant tests [default c("gray90", "deeppink")].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log ; 3, progress and results summary; 5, full report
-#' [default NULL, unless specified using gl.set.verbosity].
+#' [default NULL, adopting the global verbosity set by gl.set.verbosity(),
+#' or 2 if no global is set].
 
 #' @details
 #' This function employs the \code{HardyWeinberg} package, which needs to be
@@ -32,18 +32,16 @@
 #' an HWE-test for a particular loci and population was below the specified
 #' threshold (alpha_val, default=0.05). The thinking behind this approach is
 #' that loci that are not in HWE in several populations have most likely to be
-#' treated (e.g. filtered if loci under selection are of interest). If plot=TRUE
-#'  a barplot on the loci and the sum of deviation over all population is
-#'  returned. Loci that deviate in the majority of populations can be identified
-#'   via colSums on the resulting matrix.
+#' treated (e.g. filtered if loci under selection are of interest). If
+#'  plot.out = TRUE a raster plot of significant tests over loci (columns)
+#'  and populations (rows) is drawn and returned. Loci that deviate in the
+#'  majority of populations can be identified via colSums on the resulting
+#'  matrix.
 
 #' Plot themes can be obtained from \itemize{
 #'  \item \url{https://ggplot2.tidyverse.org/reference/ggtheme.html} and \item
 #'  \url{https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/}
 #'  }
-
-#' Resultant ggplots and the tabulation are saved to the session's temporary
-#' directory.
 
 #' @return The function returns a list with up to three components:
 #' \itemize{
@@ -55,7 +53,7 @@
 #'  (e.g \code{\link[HardyWeinberg]{HWPerm}} or
 #'  \code{\link[HardyWeinberg]{HWExactPrevious}}).
 #'  }
-#' @author Custodian: Arthur Georges -- Post to
+#' @author Author(s): Arthur Georges. Custodian: Arthur Georges -- Post to
 #' \url{https://groups.google.com/d/forum/dartr}
 #' @examples
 #' if (isTRUE(getOption("dartR_fbm"))) bandicoot.gl <- gl.gen2fbm(bandicoot.gl)
@@ -75,7 +73,7 @@ gl.hwe.pop <-  function(x,
     
     # FLAG SCRIPT START
     funname <- match.call()[[1]]
-    utils.flag.start(func = funname,
+    funname <- utils.flag.start(func = funname,
                      build = "Jackson",
                      verbose = verbose)
     
@@ -85,12 +83,11 @@ gl.hwe.pop <-  function(x,
     # FUNCTION SPECIFIC ERROR CHECKING check if packages is installed
     pkg <- "HardyWeinberg"
     if (!(requireNamespace(pkg, quietly = TRUE))) {
-      cat(error(
+      stop(error(
         "Package",
         pkg,
         " needed for this function to work. Please install it.\n"
       ))
-      return(-1)
     }
     
     # Set a population if none is specified (such as if the genlight object has been generated manually)
@@ -103,21 +100,23 @@ gl.hwe.pop <-  function(x,
                 )
             )
         }
-        pop(x) <- array("pop1", dim = nLoc(x))
+        pop(x) <- array("pop1", dim = nInd(x))
         pop(x) <- as.factor(pop(x))
     }
     
     # DO THE JOB
     
-    pops <- adegenet::seppop(x)
+    # genotype counts per population and locus, read in blocks of loci
+    # (.gl_pop_genotype_counts): the populations are not copied and a
+    # file-backed object is not decoded as a whole
+    pops <- .gl_pop_genotype_counts(x)
     
-    out <- lapply(pops, function(x) {
-        pp <- as.matrix(x)
+    out <- lapply(pops, function(cnt) {
         xx <-
             data.frame(
-                AA = colSums(pp == 0, na.rm = T),
-                AB = colSums(pp == 1, na.rm = T),
-                BB = colSums(pp == 2, na.rm = T)
+                AA = cnt[1, ],
+                AB = cnt[2, ],
+                BB = cnt[3, ]
             )
         HardyWeinberg::HWExactStats(xx) < alpha_val
     })
@@ -151,13 +150,12 @@ gl.hwe.pop <-  function(x,
     out <- NULL
     
     if (HWformat) {
-        out <- lapply(pops, function(x) {
-            pp <- as.matrix(x)
+        out <- lapply(pops, function(cnt) {
             xx <-
                 data.frame(
-                    AA = colSums(pp == 0, na.rm = T),
-                    AB = colSums(pp == 1, na.rm = T),
-                    BB = colSums(pp == 2, na.rm = T)
+                    AA = cnt[1, ],
+                    AB = cnt[2, ],
+                    BB = cnt[3, ]
                 )
             rownames(xx) <- locNames(x)
             xx
