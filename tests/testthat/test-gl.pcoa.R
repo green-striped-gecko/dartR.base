@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.pcoa
 # Baseline snapshotted before review (review-gl.pcoa), upstream/dev ddaed27.
 # Assertions marked [approved F<n>] were flipped in Phase C per the

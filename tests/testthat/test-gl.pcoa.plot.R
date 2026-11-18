@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.pcoa.plot (function-review campaign).
 # Written against upstream/dev ddaed27 to pin the pre-review behaviour, then
 # updated for the changes approved on 2026-09-07. Every expectation that moved

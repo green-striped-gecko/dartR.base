@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Step 3, count from disk: report and filter functions read FBM-backed
 # objects in blocks of loci (.gl_colwise, .gl_rowwise, .gl_n_na) instead of
 # decoding the whole matrix. Results and messages must be identical to those

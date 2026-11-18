@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization baseline (function-review, 2026-09-24): outputs of the
 # reviewed state. Detects change; does not assert correctness.
 lbp.excess <- c("28680077-13-C/T", "28681088-13-A/G", "28685997-50-A/G",

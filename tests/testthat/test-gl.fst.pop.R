@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.fst.pop
 # Baseline snapshotted before review (review-gl.fst.pop), on dartR.data
 # 1.2.5 and StAMPP 1.6.3, then updated for the findings approved on

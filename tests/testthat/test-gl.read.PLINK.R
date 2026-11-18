@@ -1,3 +1,7 @@
+# Slow file: skipped on CRAN to keep the check time under 10 minutes; runs
+# with devtools::test() and on GitHub Actions.
+skip_on_cran()
+
 # Characterization tests for gl.read.PLINK. Captured pre-review at
 # upstream/dev ddaed27, then updated for the approved Phase C fixes
 # (findings F1-F6, approved 2026-09-05); each changed expectation is
