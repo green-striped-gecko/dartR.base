@@ -8,7 +8,14 @@
   from their points; `label.style = 'smart'` restores the previous plot. The
   3D plot draws the star too. `label.size` now defaults to 0.6 for star
   labels and 1 (as before) for smart labels; `label.size = 0` removes the
-  labels (the star then shows only lines and points).
+  labels (the star then shows only lines and points). With
+  `pop.labels = 'none'`, `label.style = 'star'` draws the star lines without
+  labels.
+
+* `gl.pcoa.plot(pop.labels = 'ind')`: each individual name is now centred
+  on its own point. It was placed by directlabels so as not to overlap,
+  which separated names from their points. `hadjust` and `vadjust` apply to
+  the smart population labels only.
 
 * Objects of class dartR saved by the legacy dartR package and read with
   `readRDS()` (instead of `gl.load()`) recorded the legacy package as the

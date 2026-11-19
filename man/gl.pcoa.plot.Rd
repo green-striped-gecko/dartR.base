@@ -57,13 +57,13 @@ mouse-over to identify points [default FALSE].}
 \item{as.pop}{Assign another metric to represent populations for the plot
 [default NULL].}
 
-\item{hadjust}{Horizontal justification of the label against the point it
-annotates in 2D plots; 0.5 centres the label on the point, larger values
-shift it to the left [default 1.5].}
+\item{hadjust}{Horizontal justification of the smart population labels
+against the points they annotate in 2D plots; 0.5 centres the label on the
+point, larger values shift it to the left [default 1.5].}
 
-\item{vadjust}{Vertical justification of the label against the point it
-annotates in 2D plots; 0.5 centres the label on the point, larger values
-shift it downward [default 1].}
+\item{vadjust}{Vertical justification of the smart population labels
+against the points they annotate in 2D plots; 0.5 centres the label on the
+point, larger values shift it downward [default 1].}
 
 \item{xaxis}{Identify the x axis from those available in the ordination
 (xaxis <= nfactors) [default 1].}
@@ -105,7 +105,8 @@ by the global working directory or tempdir()].}
 \item{label.style}{Style of the population labels when pop.labels = 'pop':
 'star' (label at the population centroid, joined by lines to its points)
 or 'smart' (labels placed so as not to overlap) [default NULL: 'star' when
-there are 5 or more populations, 'smart' otherwise].}
+there are 5 or more populations, 'smart' otherwise]. With pop.labels =
+'none', label.style = 'star' draws the star lines without labels.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -140,9 +141,10 @@ The 3D plot draws the star (lines and boxed labels at the centroids) when
 the star style applies; otherwise it identifies populations in its legend.
 Labels are selected with pop.labels -- 'pop' labels each cluster of points
 with its population name, 'ind' labels each point with its individual name,
-'legend' identifies populations in a legend beside the plot, and 'none'
-plots the points alone. The hadjust and vadjust parameters set the
-justification of those labels against the point they annotate.
+centred on the point, 'legend' identifies populations in a legend beside
+the plot, and 'none' plots the points alone. The hadjust and vadjust
+parameters set the justification of the smart population labels against
+the points they annotate.
 3D plotting is activated by specifying a zaxis.
 Any pair or trio of axes can be specified from the ordination, provided they
 are within the range of the nfactors value provided to gl.pcoa().

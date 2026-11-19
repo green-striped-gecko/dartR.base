@@ -25,9 +25,10 @@
 
 #' Labels are selected with pop.labels -- 'pop' labels each cluster of points
 #' with its population name, 'ind' labels each point with its individual name,
-#' 'legend' identifies populations in a legend beside the plot, and 'none'
-#' plots the points alone. The hadjust and vadjust parameters set the
-#' justification of those labels against the point they annotate.
+#' centred on the point, 'legend' identifies populations in a legend beside
+#' the plot, and 'none' plots the points alone. The hadjust and vadjust
+#' parameters set the justification of the smart population labels against
+#' the points they annotate.
 
 #' 3D plotting is activated by specifying a zaxis.
 
@@ -67,12 +68,12 @@
 #' for each population [default 0.95].
 #' @param pop.labels How labels will be added to the plot
 #' ['none'|'ind'|'pop'|'legend', default = 'pop'].
-#' @param hadjust Horizontal justification of the label against the point it
-#' annotates in 2D plots; 0.5 centres the label on the point, larger values
-#' shift it to the left [default 1.5].
-#' @param vadjust Vertical justification of the label against the point it
-#' annotates in 2D plots; 0.5 centres the label on the point, larger values
-#' shift it downward [default 1].
+#' @param hadjust Horizontal justification of the smart population labels
+#' against the points they annotate in 2D plots; 0.5 centres the label on the
+#' point, larger values shift it to the left [default 1.5].
+#' @param vadjust Vertical justification of the smart population labels
+#' against the points they annotate in 2D plots; 0.5 centres the label on the
+#' point, larger values shift it downward [default 1].
 #' @param interactive If TRUE then the populations are plotted without labels,
 #' mouse-over to identify points [default FALSE].
 #' @param as.pop Assign another metric to represent populations for the plot
@@ -105,7 +106,8 @@
 #' @param label.style Style of the population labels when pop.labels = 'pop':
 #' 'star' (label at the population centroid, joined by lines to its points)
 #' or 'smart' (labels placed so as not to overlap) [default NULL: 'star' when
-#' there are 5 or more populations, 'smart' otherwise].
+#' there are 5 or more populations, 'smart' otherwise]. With pop.labels =
+#' 'none', label.style = 'star' draws the star lines without labels.
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
@@ -663,13 +665,18 @@ gl.pcoa.plot <- function(glPca,
     # Population label style: 'star' (labels at the population centroids,
     # joined by lines to the points) by default when there are 5 or more
     # populations, otherwise 'smart' (directlabels, shuffled so as not to
-    # overlap). The star is drawn for pop.labels = 'pop' in 2D, and in 3D.
+    # overlap). The star is drawn for pop.labels = 'pop' in 2D, and in 3D;
+    # with pop.labels = 'none' only when asked for (label.style = 'star'),
+    # as lines without labels.
     n.pops <- nlevels(droplevels(df$pop))
+    star.none <- identical(label.style, "star") && pop.labels == "none"
     if (is.null(label.style)) {
         label.style <- if (n.pops >= 5) "star" else "smart"
     }
+    # 0.6 for the star labels, 1 (as before) for the other labels
     if (is.null(label.size)) {
-        label.size <- if (label.style == "star") 0.6 else 1
+        label.size <- if (label.style == "star" &&
+                          (pop.labels == "pop" || !is.null(zaxis))) 0.6 else 1
     }
     # Centroid (mean) of each population on the plotted axes, and one line
     # from it to each point (rows with a missing population are not joined)
@@ -828,14 +835,16 @@ gl.pcoa.plot <- function(glPca,
                            ))
             }
             plott <- plott + geom_point(size = pt.size, aes(color = pop))
-            # label.size = 0 draws the points without labels
+            # Each name is centred on its own point (shuffling them so as not
+            # to overlap separated names from their points). label.size is
+            # relative to ggplot's default text size (3.88 mm); 0 draws the
+            # points without labels.
             if (label.size > 0) {
                 plott <- plott +
-                    directlabels::geom_dl(aes(label = ind),
-                                          hjust = hadjust,
-                                          vjust = vadjust,
-                                          method = list("smart.grid",
-                                                        cex = label.size))
+                    geom_text(aes(label = ind, color = pop),
+                              size = label.size * 3.88,
+                              hjust = 0.5, vjust = 0.5,
+                              show.legend = FALSE)
             }
             plott <- plott +
                 plot.theme +
@@ -1067,6 +1076,15 @@ gl.pcoa.plot <- function(glPca,
                                color = pop,
                                shape = pop
                            ))
+            }
+            # label.style = 'star' asked for: the star lines, without labels
+            if (star.none) {
+                plott <- plott +
+                    geom_segment(data = star,
+                                 aes(x = cx, y = cy, xend = PCoAx,
+                                     yend = PCoAy, color = pop),
+                                 inherit.aes = FALSE, alpha = 0.6,
+                                 linewidth = 0.3)
             }
             plott <-
                 plott + geom_point(size = pt.size, aes(color = pop)) +

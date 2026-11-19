@@ -293,10 +293,17 @@ test_that("pop.labels = 'ind' builds a plot labelled with individual names
   # [approved F1] the baseline crashed here with "object 'plott' not found"
   expect_s3_class(pind, "ggplot")
   expect_length(pind$layers, 4)
+  # [ind labels on the points, 1.3.1] was GeomDl (smart.grid placement)
   expect_identical(unname(sapply(pind$layers, function(l) class(l$geom)[1])),
-                   c("GeomPoint", "GeomDl", "GeomHline", "GeomVline"))
+                   c("GeomPoint", "GeomText", "GeomHline", "GeomVline"))
   b <- ggplot2::ggplot_build(pind)
   expect_identical(as.character(b$data[[2]]$label), indNames(f$gl))
+  # each name sits centred on its own point, at the default size 1
+  expect_equal(b$data[[2]]$x, unname(f$pca$scores[, 1]))
+  expect_equal(b$data[[2]]$y, unname(f$pca$scores[, 2]))
+  expect_true(all(b$data[[2]]$hjust == 0.5) && all(b$data[[2]]$vjust == 0.5))
+  expect_equal(pind$layers[[2]]$aes_params$size, 3.88)
+  expect_identical(b$data[[2]]$colour, b$data[[1]]$colour)
   # data truth holds on the new branch
   expect_equal(pind$data$PCoAx, unname(f$pca$scores[, 1]))
   expect_equal(pind$data$PCoAy, unname(f$pca$scores[, 2]))
@@ -602,4 +609,25 @@ test_that("label.size = 0 removes the labels: star keeps lines, smart points", {
   bb <- suppressWarnings(plotly::plotly_build(p3))
   expect_null(bb$x$layout$scene$annotations)
   expect_true(any(vapply(bb$x$data, function(tr) tr$mode, "") == "lines"))
+})
+
+test_that("pop.labels = 'none' draws the star lines only when asked for", {
+  f <- fx()
+  geoms <- function(p) unname(sapply(p$layers, function(l) class(l$geom)[1]))
+  quiet <- capture.output({
+    pn <- gl.pcoa.plot(f$pca, f$gl, pop.labels = "none", verbose = 0)
+    pns <- gl.pcoa.plot(f$pca, f$gl, pop.labels = "none",
+                        label.style = "star", verbose = 0)
+    ps0 <- gl.pcoa.plot(f$pca, f$gl, label.size = 0, verbose = 0)
+  })
+  # default (30 populations): points only, as before
+  expect_identical(geoms(pn), c("GeomPoint", "GeomHline", "GeomVline"))
+  # asked for: the star lines without labels, as the unlabelled star
+  expect_identical(geoms(pns), c("GeomSegment", "GeomPoint", "GeomHline",
+                                 "GeomVline"))
+  bn <- ggplot2::ggplot_build(pns)$data
+  b0 <- ggplot2::ggplot_build(ps0)$data
+  cols <- c("x", "y", "xend", "yend", "colour")
+  expect_equal(bn[[1]][, cols], b0[[1]][, cols])
+  expect_equal(bn[[2]][, c("x", "y", "colour")], b0[[2]][, c("x", "y", "colour")])
 })
