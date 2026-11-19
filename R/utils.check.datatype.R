@@ -39,6 +39,15 @@
 #' no warning. Content-level validation beyond that check is the job
 #' of \code{gl.compliance.check}.
 
+#' An object of class dartR saved by the legacy dartR package (for example
+#' read with readRDS() instead of \code{gl.load}) records the legacy package
+#' as the owner of its class; any class check on it would load and attach
+#' that package, masking the dartR.base functions, or fail when it is not
+#' installed. Such an object is converted to a dartR.base object before any
+#' class check, with a warning (verbose >= 1). When it was passed as a
+#' variable, that variable is replaced in the calling function, so a gl.*
+#' function works on and returns the converted object.
+
 #' Note also that this function checks to see if there are individuals or loci
 #' scored as all missing (NA) and if so, issues the user with a warning
 #' (verbose >= 2).
@@ -64,7 +73,29 @@ utils.check.datatype <- function(x,
                                  verbose = NULL) {
     #### SET VERBOSITY
     verbose <- gl.check.verbosity(verbose)
-    
+
+    # An object of class dartR saved by the legacy dartR package and read
+    # with readRDS() points to that package; the is() below would make R
+    # load and attach it, masking the dartR.base functions (or fail when it
+    # is not installed). It is converted to a dartR.base object first. When
+    # the caller passed it as a variable, that variable is replaced in the
+    # calling function's frame, so a gl.* function goes on with (and
+    # returns) the converted object; the user's own copy is unchanged.
+    if (.is_legacy_dartR(x)) {
+        xname <- substitute(x)
+        x <- .fix_legacy_dartR(x)
+        if (is.name(xname) &&
+            exists(as.character(xname), envir = parent.frame(),
+                   inherits = FALSE)) {
+            assign(as.character(xname), x, envir = parent.frame())
+        }
+        if (verbose >= 1) {
+            cat(warn(
+                "  Warning: object of class dartR from the legacy dartR package (e.g. read with readRDS()) converted to a dartR.base object. Load saved objects with gl.load(), or save the result with gl.save(), to avoid this\n"
+            ))
+        }
+    }
+
     if (is(x, "dartR") || is(x, "genlight")) {
         if (is.null(ploidy(x))) {
             stop(

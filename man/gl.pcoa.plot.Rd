@@ -22,12 +22,13 @@ gl.pcoa.plot(
   pt.size = 2,
   pt.colors = NULL,
   pt.shapes = NULL,
-  label.size = 1,
+  label.size = NULL,
   axis.label.size = 1.5,
   plot.display = TRUE,
   plot.theme = theme_dartR(),
   plot.file = NULL,
   plot.dir = NULL,
+  label.style = NULL,
   verbose = NULL
 )
 }
@@ -56,13 +57,13 @@ mouse-over to identify points [default FALSE].}
 \item{as.pop}{Assign another metric to represent populations for the plot
 [default NULL].}
 
-\item{hadjust}{Horizontal justification of the label against the point it
-annotates in 2D plots; 0.5 centres the label on the point, larger values
-shift it to the left [default 1.5].}
+\item{hadjust}{Horizontal justification of the smart population labels
+against the points they annotate in 2D plots; 0.5 centres the label on the
+point, larger values shift it to the left [default 1.5].}
 
-\item{vadjust}{Vertical justification of the label against the point it
-annotates in 2D plots; 0.5 centres the label on the point, larger values
-shift it downward [default 1].}
+\item{vadjust}{Vertical justification of the smart population labels
+against the points they annotate in 2D plots; 0.5 centres the label on the
+point, larger values shift it downward [default 1].}
 
 \item{xaxis}{Identify the x axis from those available in the ordination
 (xaxis <= nfactors) [default 1].}
@@ -82,7 +83,10 @@ shift it downward [default 1].}
 (run gl.select.shapes() for shape options); not applied to the 3D plot
 [default NULL].}
 
-\item{label.size}{Specify the size of the point labels [default 1].}
+\item{label.size}{Specify the size of the labels, relative to the default
+text size; 0 removes the labels (and their boxes), so the star plot shows
+only the lines and points [default NULL: 0.6 for star labels, 1
+otherwise].}
 
 \item{axis.label.size}{Specify the size of the displayed axis labels
 [default 1.5].}
@@ -97,6 +101,12 @@ exclude extension) [default NULL].}
 
 \item{plot.dir}{Directory to save the plot RDS files [default as specified
 by the global working directory or tempdir()].}
+
+\item{label.style}{Style of the population labels when pop.labels = 'pop':
+'star' (label at the population centroid, joined by lines to its points)
+or 'smart' (labels placed so as not to overlap) [default NULL: 'star' when
+there are 5 or more populations, 'smart' otherwise]. With pop.labels =
+'none', label.style = 'star' draws the star lines without labels.}
 
 \item{verbose}{Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 progress log; 3, progress and results summary; 5, full report
@@ -116,16 +126,25 @@ the individuals classified by population.
 The factor scores are taken from the output of gl.pcoa() and the population
 assignments are taken from from the original data file. In the bivariate
 plots, the specimens are shown optionally with adjacent labels and enclosing
-ellipses. Population labels on the plot are shuffled so as not to overlap
-(using package \{directlabels\}).
-This can be a bit clunky, as the labels may be some distance from the points
-to which they refer, but it provides the opportunity for moving labels around
- using graphics software (e.g. Adobe Illustrator).
+ellipses.
+Population labels (pop.labels = 'pop') are drawn in one of two styles, set
+with label.style. In the 'star' style each population label sits at the
+centroid of its population (the mean of its points on the plotted axes),
+in a white box for readability, and a line joins it to each point of that
+population, as with the cstar option of adegenet's s.class(). In the 'smart'
+style the labels are shuffled so as not to overlap (using package
+\{directlabels\}); with many populations and colours they may then be some
+distance from the points to which they refer, but they can be moved around
+using graphics software (e.g. Adobe Illustrator). By default, the star style
+is used when there are 5 or more populations, the smart style otherwise.
+The 3D plot draws the star (lines and boxed labels at the centroids) when
+the star style applies; otherwise it identifies populations in its legend.
 Labels are selected with pop.labels -- 'pop' labels each cluster of points
 with its population name, 'ind' labels each point with its individual name,
-'legend' identifies populations in a legend beside the plot, and 'none'
-plots the points alone. The hadjust and vadjust parameters set the
-justification of those labels against the point they annotate.
+centred on the point, 'legend' identifies populations in a legend beside
+the plot, and 'none' plots the points alone. The hadjust and vadjust
+parameters set the justification of the smart population labels against
+the points they annotate.
 3D plotting is activated by specifying a zaxis.
 Any pair or trio of axes can be specified from the ordination, provided they
 are within the range of the nfactors value provided to gl.pcoa().
@@ -162,6 +181,10 @@ pca<-gl.pcoa(gl,nfactors=5)
 # VARIOUS EXAMPLES
 gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop',
 axis.label.size=1, hadjust=1.5,vadjust=1)
+# many populations: labels at the population centres ('star', the default
+# for 5 or more populations), or placed so as not to overlap ('smart')
+gl.pcoa.plot(pca, testset.gl, label.size=0.8)
+gl.pcoa.plot(pca, testset.gl, label.style='smart')
 gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 axis.label.size=1)
 gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',

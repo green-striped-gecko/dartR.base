@@ -54,6 +54,14 @@ lack the homozygous-alternate class. A clean SNP subset that merely
 lacks the homozygous-alternate class and keeps its loc.all slot raises
 no warning. Content-level validation beyond that check is the job
 of \code{gl.compliance.check}.
+An object of class dartR saved by the legacy dartR package (for example
+read with readRDS() instead of \code{gl.load}) records the legacy package
+as the owner of its class; any class check on it would load and attach
+that package, masking the dartR.base functions, or fail when it is not
+installed. Such an object is converted to a dartR.base object before any
+class check, with a warning (verbose >= 1). When it was passed as a
+variable, that variable is replaced in the calling function, so a gl.*
+function works on and returns the converted object.
 Note also that this function checks to see if there are individuals or loci
 scored as all missing (NA) and if so, issues the user with a warning
 (verbose >= 2).
