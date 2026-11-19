@@ -19,7 +19,7 @@
 #' \{directlabels\}); with many populations and colours they may then be some
 #' distance from the points to which they refer, but they can be moved around
 #' using graphics software (e.g. Adobe Illustrator). By default, the star style
-#' is used when there are more than 5 populations, the smart style otherwise.
+#' is used when there are 5 or more populations, the smart style otherwise.
 #' The 3D plot draws the star (lines and boxed labels at the centroids) when
 #' the star style applies; otherwise it identifies populations in its legend.
 
@@ -90,7 +90,9 @@
 #'  (run gl.select.shapes() for shape options); not applied to the 3D plot
 #'  [default NULL].
 #' @param label.size Specify the size of the labels, relative to the default
-#' text size [default NULL: 0.6 for star labels, 1 otherwise].
+#' text size; 0 removes the labels (and their boxes), so the star plot shows
+#' only the lines and points [default NULL: 0.6 for star labels, 1
+#' otherwise].
 #' @param axis.label.size Specify the size of the displayed axis labels
 #' [default 1.5].
 #' @param plot.display If TRUE, the resultant plot is displayed in the plot
@@ -103,7 +105,7 @@
 #' @param label.style Style of the population labels when pop.labels = 'pop':
 #' 'star' (label at the population centroid, joined by lines to its points)
 #' or 'smart' (labels placed so as not to overlap) [default NULL: 'star' when
-#' there are more than 5 populations, 'smart' otherwise].
+#' there are 5 or more populations, 'smart' otherwise].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
@@ -131,7 +133,7 @@
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop',
 #' axis.label.size=1, hadjust=1.5,vadjust=1)
 #' # many populations: labels at the population centres ('star', the default
-#' # for more than 5 populations), or placed so as not to overlap ('smart')
+#' # for 5 or more populations), or placed so as not to overlap ('smart')
 #' gl.pcoa.plot(pca, testset.gl, label.size=0.8)
 #' gl.pcoa.plot(pca, testset.gl, label.style='smart')
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
@@ -364,9 +366,9 @@ gl.pcoa.plot <- function(glPca,
     }
     if (!is.null(label.size) &&
         (!is.numeric(label.size) || length(label.size) != 1L ||
-         is.na(label.size) || label.size <= 0)) {
-        stop(error("Fatal Error: label.size must be a single positive",
-                   "number\n"))
+         is.na(label.size) || label.size < 0)) {
+        stop(error("Fatal Error: label.size must be a single number of 0",
+                   "(no labels) or more\n"))
     }
 
     if (plevel < 0 | plevel > 1) {
@@ -659,12 +661,12 @@ gl.pcoa.plot <- function(glPca,
     # }
 
     # Population label style: 'star' (labels at the population centroids,
-    # joined by lines to the points) by default when there are more than 5
+    # joined by lines to the points) by default when there are 5 or more
     # populations, otherwise 'smart' (directlabels, shuffled so as not to
     # overlap). The star is drawn for pop.labels = 'pop' in 2D, and in 3D.
     n.pops <- nlevels(droplevels(df$pop))
     if (is.null(label.style)) {
-        label.style <- if (n.pops > 5) "star" else "smart"
+        label.style <- if (n.pops >= 5) "star" else "smart"
     }
     if (is.null(label.size)) {
         label.size <- if (label.style == "star") 0.6 else 1
@@ -730,28 +732,35 @@ gl.pcoa.plot <- function(glPca,
                 # Lines from each population centroid to its points, drawn
                 # beneath the points; the label in a white box on top.
                 # label.size is relative to ggplot's default text size
-                # (3.88 mm), as cex is for the smart labels.
+                # (3.88 mm), as cex is for the smart labels. label.size = 0
+                # draws the lines and points without labels.
                 plott <- plott +
                     geom_segment(data = star,
                                  aes(x = cx, y = cy, xend = PCoAx,
                                      yend = PCoAy, color = pop),
                                  inherit.aes = FALSE, alpha = 0.6,
                                  linewidth = 0.3) +
-                    geom_point(size = pt.size, aes(color = pop)) +
-                    geom_label(data = cent,
-                               aes(x = cx, y = cy, label = pop),
-                               inherit.aes = FALSE,
-                               size = label.size * 3.88,
-                               fill = "white", colour = "black",
-                               label.r = grid::unit(0, "lines"),
-                               label.padding = grid::unit(0.15, "lines"))
+                    geom_point(size = pt.size, aes(color = pop))
+                if (label.size > 0) {
+                    plott <- plott +
+                        geom_label(data = cent,
+                                   aes(x = cx, y = cy, label = pop),
+                                   inherit.aes = FALSE,
+                                   size = label.size * 3.88,
+                                   fill = "white", colour = "black",
+                                   label.r = grid::unit(0, "lines"),
+                                   label.padding = grid::unit(0.15, "lines"))
+                }
             } else {
-                plott <- plott + geom_point(size = pt.size, aes(color = pop)) +
-                    directlabels::geom_dl(aes(label = pop),
-                                          hjust = hadjust,
-                                          vjust = vadjust,
-                                          method = list("smart.grid",
-                                                        cex = label.size))
+                plott <- plott + geom_point(size = pt.size, aes(color = pop))
+                if (label.size > 0) {
+                    plott <- plott +
+                        directlabels::geom_dl(aes(label = pop),
+                                              hjust = hadjust,
+                                              vjust = vadjust,
+                                              method = list("smart.grid",
+                                                            cex = label.size))
+                }
             }
             plott <- plott +
                 plot.theme +
@@ -818,12 +827,17 @@ gl.pcoa.plot <- function(glPca,
                                shape = pop
                            ))
             }
-            plott <- plott + geom_point(size = pt.size, aes(color = pop)) +
-                directlabels::geom_dl(aes(label = ind),
-                                      hjust = hadjust,
-                                      vjust = vadjust,
-                                      method = list("smart.grid",
-                                                    cex = label.size)) +
+            plott <- plott + geom_point(size = pt.size, aes(color = pop))
+            # label.size = 0 draws the points without labels
+            if (label.size > 0) {
+                plott <- plott +
+                    directlabels::geom_dl(aes(label = ind),
+                                          hjust = hadjust,
+                                          vjust = vadjust,
+                                          method = list("smart.grid",
+                                                        cex = label.size))
+            }
+            plott <- plott +
                 plot.theme +
                 theme(axis.title = element_text(face = "bold.italic",
                                                 size = axis.label.size,
@@ -1164,15 +1178,19 @@ gl.pcoa.plot <- function(glPca,
                                   line = list(width = 1), opacity = 0.6,
                                   showlegend = FALSE, hoverinfo = "none",
                                   inherit = FALSE)
-            ann <- lapply(seq_len(nrow(cent)), function(i) {
-                list(x = cent$cx[i], y = cent$cy[i], z = cent$cz[i],
-                     text = as.character(cent$pop[i]), showarrow = FALSE,
-                     bgcolor = "white", bordercolor = "black",
-                     borderwidth = 1,
-                     font = list(size = 12 * label.size, color = "black"))
-            })
-            plott <- plott %>%
-                plotly::layout(scene = list(annotations = ann))
+            # label.size = 0 draws the lines without labels
+            if (label.size > 0) {
+                ann <- lapply(seq_len(nrow(cent)), function(i) {
+                    list(x = cent$cx[i], y = cent$cy[i], z = cent$cz[i],
+                         text = as.character(cent$pop[i]), showarrow = FALSE,
+                         bgcolor = "white", bordercolor = "black",
+                         borderwidth = 1,
+                         font = list(size = 12 * label.size,
+                                     color = "black"))
+                })
+                plott <- plott %>%
+                    plotly::layout(scene = list(annotations = ann))
+            }
         }
         if (plot.display) {
             show(plott)

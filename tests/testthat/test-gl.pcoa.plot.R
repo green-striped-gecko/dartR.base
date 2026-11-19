@@ -456,11 +456,11 @@ withr_restore()
 
 # ------------------------------------------------------- star labels (1.3.1)
 
-test_that("default label style: star for more than 5 populations, else smart", {
+test_that("default label style: star for 5 or more populations, else smart", {
   f <- fx()
   geoms <- function(p) unname(sapply(p$layers, function(l) class(l$geom)[1]))
   quiet <- capture.output(p <- gl.pcoa.plot(f$pca, f$gl, verbose = 0))
-  expect_gt(nlevels(pop(f$gl)), 5)
+  expect_gte(nlevels(pop(f$gl)), 5)
   expect_identical(geoms(p), c("GeomSegment", "GeomPoint", "GeomLabel",
                                "GeomHline", "GeomVline"))
   g4 <- gl.keep.pop(f$gl, pop.list = levels(pop(f$gl))[1:4], verbose = 0)
@@ -473,13 +473,15 @@ test_that("default label style: star for more than 5 populations, else smart", {
                                 "GeomVline"))
   expect_identical(geoms(p4s)[1:3], c("GeomSegment", "GeomPoint",
                                       "GeomLabel"))
-  # 6 populations: star
-  g6 <- gl.keep.pop(f$gl, pop.list = levels(pop(f$gl))[1:6], verbose = 0)
-  quiet <- capture.output({
-    pc6 <- gl.pcoa(g6, nfactors = 2, verbose = 0)
-    p6 <- gl.pcoa.plot(pc6, g6, verbose = 0)
-  })
-  expect_identical(geoms(p6)[1], "GeomSegment")
+  # 5 populations (the threshold) and 6: star
+  for (k in 5:6) {
+    gk <- gl.keep.pop(f$gl, pop.list = levels(pop(f$gl))[1:k], verbose = 0)
+    quiet <- capture.output({
+      pck <- gl.pcoa(gk, nfactors = 2, verbose = 0)
+      pk <- gl.pcoa.plot(pck, gk, verbose = 0)
+    })
+    expect_identical(geoms(pk)[1], "GeomSegment")
+  }
 })
 
 test_that("star labels sit at the population means, lines join each point", {
@@ -573,4 +575,31 @@ test_that("star plot is the same for the gen and FBM storage of x", {
     pf <- gl.pcoa.plot(f$pca, gfbm, verbose = 0)
   })
   expect_equal(ggplot2::ggplot_build(pf)$data, ggplot2::ggplot_build(pg)$data)
+})
+
+test_that("label.size = 0 removes the labels: star keeps lines, smart points", {
+  f <- fx()
+  geoms <- function(p) unname(sapply(p$layers, function(l) class(l$geom)[1]))
+  quiet <- capture.output({
+    ps0 <- gl.pcoa.plot(f$pca, f$gl, label.size = 0, verbose = 0)
+    pm0 <- gl.pcoa.plot(f$pca, f$gl, label.size = 0, label.style = "smart",
+                        verbose = 0)
+    pi0 <- gl.pcoa.plot(f$pca, f$gl, label.size = 0, pop.labels = "ind",
+                        verbose = 0)
+  })
+  expect_identical(geoms(ps0), c("GeomSegment", "GeomPoint", "GeomHline",
+                                 "GeomVline"))
+  expect_identical(geoms(pm0), c("GeomPoint", "GeomHline", "GeomVline"))
+  expect_identical(geoms(pi0), c("GeomPoint", "GeomHline", "GeomVline"))
+  # the lines and points are those of the labelled star plot
+  quiet <- capture.output(ps <- gl.pcoa.plot(f$pca, f$gl, verbose = 0))
+  expect_equal(ggplot2::ggplot_build(ps0)$data[1:2],
+               ggplot2::ggplot_build(ps)$data[1:2])
+  # 3D: lines, no annotations
+  skip_if_not_installed("plotly")
+  quiet <- capture.output(p3 <- gl.pcoa.plot(f$pca, f$gl, zaxis = 3,
+                                             label.size = 0, verbose = 0))
+  bb <- suppressWarnings(plotly::plotly_build(p3))
+  expect_null(bb$x$layout$scene$annotations)
+  expect_true(any(vapply(bb$x$data, function(tr) tr$mode, "") == "lines"))
 })
