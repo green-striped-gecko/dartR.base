@@ -79,6 +79,28 @@ setClassUnion("FBMcode256_or_NULL", c("NULL", "FBM.code256"))
   x
 }
 
+## Objects of class "dartR" saved by the legacy dartR package (or by any
+## package other than dartR.base) record that package in
+## attr(class(x), "package"). The first is() on such an object makes R load
+## and attach that package, which masks the dartR.base functions for the rest
+## of the session (or fails when it is not installed).
+## .is_legacy_dartR() tests the attribute without any class lookup. Objects
+## without the attribute (e.g. the dartR.data datasets) are not legacy: R
+## resolves their class from the loaded definitions without loading a
+## package. .fix_legacy_dartR() points the class to dartR.base and adds the
+## slots the legacy class lacks (@fbm).
+.is_legacy_dartR <- function(x) {
+  cl <- attr(x, "class", exact = TRUE)
+  pkg <- attr(cl, "package", exact = TRUE)
+  isS4(x) && identical(as.character(cl), "dartR") &&
+    !is.null(pkg) && !identical(pkg, "dartR.base")
+}
+
+.fix_legacy_dartR <- function(x) {
+  attr(x, "class") <- structure("dartR", package = "dartR.base")
+  .as_dartR(x)
+}
+
 fbm_or_gen <- function(x) {
   # early guard: must be an S4 object
   

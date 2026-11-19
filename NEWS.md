@@ -1,3 +1,17 @@
+# dartR.base 1.3.1
+
+* Objects of class dartR saved by the legacy dartR package and read with
+  `readRDS()` (instead of `gl.load()`) recorded the legacy package as the
+  owner of their class. The first use made R load and attach the legacy
+  dartR, which masked all dartR.base functions, or failed with "unable to
+  find required package 'dartR'" when it was not installed.
+  `utils.check.datatype()`, called at the start of every `gl.*` function,
+  now converts such an object to a dartR.base object first (as `gl.load()`
+  already did), with a warning, so the functions work on it and return a
+  dartR.base object. `print()` or adegenet functions called directly on
+  the object still trigger the problem: load saved objects with
+  `gl.load()`, or save them once with `gl.save()`.
+
 # dartR.base 1.3.0 (file-backed storage: FBM objects read from disk)
 
 * Subsetting (`[`) with a repeated locus: BUG FIX, in objects held in memory

@@ -76,3 +76,52 @@ test_that("accept = 'genlight' semantics", {
   expect_error(utils.check.datatype(testset2.gs,
         accept = c("genlight", "SNP"), verbose = 0))
 })
+
+test_that("legacy dartR objects read with readRDS() work in gl functions", {
+  # An object of class "dartR" defined by another package, without the fbm
+  # slot, as the legacy dartR saved it; the package it points to is not
+  # installed, so any class lookup through it would fail (and with the
+  # legacy dartR installed, would attach it and mask dartR.base)
+  ref <- testset.gl[1:10, 1:20]
+  x <- methods::as(ref, "genlight")
+  attr(x, "class") <- structure("dartR", package = "dartRlegacyNotInstalled")
+  expect_false(methods::.hasSlot(x, "fbm"))
+
+  # utils.check.datatype() itself: classified, silent at verbose 0, and
+  # the variable passed is replaced by the converted object
+  x0 <- x
+  o <- capture.output(dt <- utils.check.datatype(x0, verbose = 0))
+  expect_identical(dt, "SNP")
+  expect_length(o, 0)
+  expect_identical(attr(class(x0), "package"), "dartR.base")
+  expect_true(methods::validObject(x0))
+
+  # a gl.* function converts it, warns, and returns a dartR.base object
+  o <- capture.output(y <- gl.filter.callrate(x, threshold = 0.9,
+                                             plot.display = FALSE,
+                                             verbose = 1))
+  expect_true(any(grepl("legacy dartR", o)))
+  expect_false("dartRlegacyNotInstalled" %in% loadedNamespaces())
+  expect_identical(attr(class(y), "package"), "dartR.base")
+  expect_true(methods::validObject(y))
+  y_ref <- gl.filter.callrate(ref, threshold = 0.9, plot.display = FALSE,
+                              verbose = 0)
+  expect_identical(as.matrix(y), as.matrix(y_ref))
+  expect_identical(y@other$loc.metrics, y_ref@other$loc.metrics)
+  expect_identical(y@other$ind.metrics, y_ref@other$ind.metrics)
+  expect_identical(pop(y), pop(y_ref))
+
+  # the caller's own copy is left as it was
+  expect_identical(attr(class(x), "package"), "dartRlegacyNotInstalled")
+})
+
+test_that("dartR objects without a class package attribute are left alone", {
+  # the dartR.data datasets carry no package attribute on their class; they
+  # are not legacy objects and must pass unchanged and without a message
+  x <- testset.gl
+  expect_null(attr(class(x), "package"))
+  o <- capture.output(dt <- utils.check.datatype(x, verbose = 1))
+  expect_identical(dt, "SNP")
+  expect_length(o, 0)
+  expect_identical(x, testset.gl)
+})
