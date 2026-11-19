@@ -1,5 +1,14 @@
 # dartR.base 1.3.1
 
+* `gl.pcoa.plot()`: new population label style 'star' (argument
+  `label.style`): each population label sits at the centroid of its points
+  in a small white box, with a line to each point, as with the cstar option
+  of adegenet's `s.class()`. It is the default when there are more than 5
+  populations, where the non-overlapping 'smart' labels often ended up far
+  from their points; `label.style = 'smart'` restores the previous plot. The
+  3D plot draws the star too. `label.size` now defaults to 0.6 for star
+  labels and 1 (as before) for smart labels.
+
 * Objects of class dartR saved by the legacy dartR package and read with
   `readRDS()` (instead of `gl.load()`) recorded the legacy package as the
   owner of their class. The first use made R load and attach the legacy

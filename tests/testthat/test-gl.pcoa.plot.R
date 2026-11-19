@@ -118,7 +118,9 @@ test_that("as.pop substitutes the named ind.metric for pop", {
 test_that("layer census: pop branch 4 layers, none branch 3, ellipse appends
            stat_ellipse at plevel", {
   f <- fx()
-  quiet <- capture.output(p <- gl.pcoa.plot(f$pca, f$gl, verbose = 0))
+  # [star labels, 1.3.1] smart labels asked for explicitly (30 populations)
+  quiet <- capture.output(p <- gl.pcoa.plot(f$pca, f$gl, verbose = 0,
+                                            label.style = "smart"))
   expect_length(p$layers, 4)
   expect_identical(unname(sapply(p$layers, function(l) class(l$geom)[1])),
                    c("GeomPoint", "GeomDl", "GeomHline", "GeomVline"))
@@ -126,7 +128,8 @@ test_that("layer census: pop branch 4 layers, none branch 3, ellipse appends
     pn <- gl.pcoa.plot(f$pca, f$gl, pop.labels = "none", verbose = 0))
   expect_length(pn$layers, 3)
   quiet <- capture.output(
-    pe <- gl.pcoa.plot(f$pca, f$gl, ellipse = TRUE, plevel = 0.9, verbose = 0))
+    pe <- gl.pcoa.plot(f$pca, f$gl, ellipse = TRUE, plevel = 0.9, verbose = 0,
+                       label.style = "smart"))
   expect_length(pe$layers, 5)
   lev <- pe$layers[[5]]$stat_params$level
   expect_equal(lev, 0.9)
@@ -135,14 +138,15 @@ test_that("layer census: pop branch 4 layers, none branch 3, ellipse appends
 
 test_that("pt.size, pt.colors, pt.shapes reach the plot object (2D pop branch)", {
   f <- fx()
-  quiet <- capture.output(pz <- gl.pcoa.plot(f$pca, f$gl, pt.size = 5, verbose = 0))
+  quiet <- capture.output(pz <- gl.pcoa.plot(f$pca, f$gl, pt.size = 5, verbose = 0,
+                                             label.style = "smart"))
   expect_equal(pz$layers[[1]]$aes_params$size, 5)
   npop <- nlevels(pop(f$gl))
   cols <- grDevices::rainbow(npop)
   shps <- rep(c(16, 17, 15, 0, 2), length.out = npop)
   quiet <- capture.output(
     pc2 <- gl.pcoa.plot(f$pca, f$gl, pt.colors = cols, pt.shapes = shps,
-                        verbose = 0))
+                        verbose = 0, label.style = "smart"))
   bld <- ggplot2::ggplot_build(pc2)
   used <- cols[as.integer(factor(pop(f$gl)))]
   expect_setequal(unique(bld$data[[1]]$colour), unique(used))
@@ -153,9 +157,11 @@ test_that("pt.size, pt.colors, pt.shapes reach the plot object (2D pop branch)",
 test_that("hadjust and vadjust set the label justification [approved F2]", {
   f <- fx()
   quiet <- capture.output(
-    p0 <- gl.pcoa.plot(f$pca, f$gl, hadjust = 0, vadjust = 0, verbose = 0))
+    p0 <- gl.pcoa.plot(f$pca, f$gl, hadjust = 0, vadjust = 0, verbose = 0,
+                       label.style = "smart"))
   quiet <- capture.output(
-    p3 <- gl.pcoa.plot(f$pca, f$gl, hadjust = 3, vadjust = 3, verbose = 0))
+    p3 <- gl.pcoa.plot(f$pca, f$gl, hadjust = 3, vadjust = 3, verbose = 0,
+                       label.style = "smart"))
   d0 <- ggplot2::ggplot_build(p0)$data[[2]]   # the GeomDl label layer
   d3 <- ggplot2::ggplot_build(p3)$data[[2]]
   # [approved F2] the baseline asserted these two builds were identical
@@ -167,7 +173,8 @@ test_that("hadjust and vadjust set the label justification [approved F2]", {
                ggplot2::ggplot_build(p3)$data[[1]])
   # the range check now tests vadjust, and resets it to the documented 1
   out <- capture.output(
-    pv <- gl.pcoa.plot(f$pca, f$gl, vadjust = 5, verbose = 2))
+    pv <- gl.pcoa.plot(f$pca, f$gl, vadjust = 5, verbose = 2,
+                       label.style = "smart"))
   expect_gt(length(grep("vadjust", out)), 0)   # [approved F10] now warns
   expect_length(grep("hadjust", out), 0)
   expect_true(all(ggplot2::ggplot_build(pv)$data[[2]]$vjust == 1))
@@ -252,7 +259,8 @@ test_that("3D branch returns plotly with truthful axis labels and score
   f <- fx()
   e <- pct(f$pca$eig)
   out <- capture.output(
-    p3 <- gl.pcoa.plot(f$pca, f$gl, zaxis = 3, verbose = 0))
+    p3 <- gl.pcoa.plot(f$pca, f$gl, zaxis = 3, verbose = 0,
+                       label.style = "smart"))
   expect_s3_class(p3, "plotly")
   expect_length(out, 0)
   bb <- suppressWarnings(plotly::plotly_build(p3))
@@ -445,3 +453,124 @@ test_that("plot.file saves an RDS to plot.dir; with plot.dir NULL it lands in
 })
 
 withr_restore()
+
+# ------------------------------------------------------- star labels (1.3.1)
+
+test_that("default label style: star for more than 5 populations, else smart", {
+  f <- fx()
+  geoms <- function(p) unname(sapply(p$layers, function(l) class(l$geom)[1]))
+  quiet <- capture.output(p <- gl.pcoa.plot(f$pca, f$gl, verbose = 0))
+  expect_gt(nlevels(pop(f$gl)), 5)
+  expect_identical(geoms(p), c("GeomSegment", "GeomPoint", "GeomLabel",
+                               "GeomHline", "GeomVline"))
+  g4 <- gl.keep.pop(f$gl, pop.list = levels(pop(f$gl))[1:4], verbose = 0)
+  quiet <- capture.output({
+    pc4 <- gl.pcoa(g4, nfactors = 2, verbose = 0)
+    p4 <- gl.pcoa.plot(pc4, g4, verbose = 0)
+    p4s <- gl.pcoa.plot(pc4, g4, verbose = 0, label.style = "star")
+  })
+  expect_identical(geoms(p4), c("GeomPoint", "GeomDl", "GeomHline",
+                                "GeomVline"))
+  expect_identical(geoms(p4s)[1:3], c("GeomSegment", "GeomPoint",
+                                      "GeomLabel"))
+  # 6 populations: star
+  g6 <- gl.keep.pop(f$gl, pop.list = levels(pop(f$gl))[1:6], verbose = 0)
+  quiet <- capture.output({
+    pc6 <- gl.pcoa(g6, nfactors = 2, verbose = 0)
+    p6 <- gl.pcoa.plot(pc6, g6, verbose = 0)
+  })
+  expect_identical(geoms(p6)[1], "GeomSegment")
+})
+
+test_that("star labels sit at the population means, lines join each point", {
+  f <- fx()
+  quiet <- capture.output(p <- gl.pcoa.plot(f$pca, f$gl, verbose = 0))
+  b <- ggplot2::ggplot_build(p)
+  lab <- b$data[[3]]
+  pops <- factor(pop(f$gl))
+  mx <- vapply(split(f$pca$scores[, 1], pops), mean, 0)
+  my <- vapply(split(f$pca$scores[, 2], pops), mean, 0)
+  expect_setequal(as.character(lab$label), levels(pops))
+  o <- match(levels(pops), as.character(lab$label))
+  expect_equal(lab$x[o], unname(mx))
+  expect_equal(lab$y[o], unname(my))
+  # one line per individual, from its population mean to the point itself
+  seg <- p$layers[[1]]$data
+  expect_equal(nrow(seg), nInd(f$gl))
+  expect_equal(seg$PCoAx, unname(f$pca$scores[, 1]))
+  expect_equal(seg$PCoAy, unname(f$pca$scores[, 2]))
+  expect_equal(seg$cx, unname(mx[as.character(seg$pop)]))
+  expect_equal(seg$cy, unname(my[as.character(seg$pop)]))
+  # small labels in a white box by default; label.size scales them
+  expect_equal(p$layers[[3]]$aes_params$size, 0.6 * 3.88)
+  expect_identical(p$layers[[3]]$aes_params$fill, "white")
+  quiet <- capture.output(p2 <- gl.pcoa.plot(f$pca, f$gl, label.size = 1.2,
+                                             verbose = 0))
+  expect_equal(p2$layers[[3]]$aes_params$size, 1.2 * 3.88)
+  # the points are unchanged by the label style
+  quiet <- capture.output(ps <- gl.pcoa.plot(f$pca, f$gl, verbose = 0,
+                                             label.style = "smart"))
+  expect_equal(ggplot2::ggplot_build(ps)$data[[1]][, c("x", "y", "colour")],
+               b$data[[2]][, c("x", "y", "colour")])
+})
+
+test_that("star lines take the point colours, also with pt.colors", {
+  f <- fx()
+  npop <- nlevels(pop(f$gl))
+  cols <- grDevices::rainbow(npop)
+  quiet <- capture.output(p <- gl.pcoa.plot(f$pca, f$gl, pt.colors = cols,
+                                            verbose = 0))
+  b <- ggplot2::ggplot_build(p)
+  used <- cols[as.integer(factor(pop(f$gl)))]
+  expect_identical(b$data[[1]]$colour, used)
+  expect_identical(b$data[[2]]$colour, used)
+})
+
+test_that("label.style and label.size are validated", {
+  f <- fx()
+  expect_error(gl.pcoa.plot(f$pca, f$gl, label.style = "cstar", verbose = 0),
+               "label.style")
+  expect_error(gl.pcoa.plot(f$pca, f$gl, label.size = -1, verbose = 0),
+               "label.size")
+  expect_error(gl.pcoa.plot(f$pca, f$gl, label.size = "big", verbose = 0),
+               "label.size")
+})
+
+test_that("3D plot draws the star: lines per population and boxed labels", {
+  skip_if_not_installed("plotly")
+  f <- fx()
+  quiet <- capture.output(p3 <- gl.pcoa.plot(f$pca, f$gl, zaxis = 3,
+                                             verbose = 0))
+  bb <- suppressWarnings(plotly::plotly_build(p3))
+  ann <- bb$x$layout$scene$annotations
+  pops <- factor(pop(f$gl))
+  expect_length(ann, nlevels(pops))
+  expect_setequal(vapply(ann, function(a) a$text, ""), levels(pops))
+  a1 <- ann[[match(levels(pops)[1], vapply(ann, function(a) a$text, ""))]]
+  expect_equal(a1$x, mean(f$pca$scores[pops == levels(pops)[1], 1]))
+  expect_equal(a1$z, mean(f$pca$scores[pops == levels(pops)[1], 3]))
+  expect_identical(a1$bgcolor, "white")
+  modes <- vapply(bb$x$data, function(tr) tr$mode, "")
+  expect_true(any(modes == "lines"))
+  expect_false(any(vapply(bb$x$data[modes == "lines"],
+                          function(tr) isTRUE(tr$showlegend), TRUE)))
+  # the markers are the scores, as before
+  xs <- sort(unlist(lapply(bb$x$data[modes == "markers"], function(tr) tr$x)))
+  expect_equal(xs, sort(unname(f$pca$scores[, 1])))
+  # smart: no star in 3D
+  quiet <- capture.output(p3s <- gl.pcoa.plot(f$pca, f$gl, zaxis = 3,
+                                              label.style = "smart",
+                                              verbose = 0))
+  bs <- suppressWarnings(plotly::plotly_build(p3s))
+  expect_null(bs$x$layout$scene$annotations)
+})
+
+test_that("star plot is the same for the gen and FBM storage of x", {
+  f <- fx()
+  quiet <- capture.output({
+    gfbm <- gl.gen2fbm(f$gl, verbose = 0)
+    pg <- gl.pcoa.plot(f$pca, f$gl, verbose = 0)
+    pf <- gl.pcoa.plot(f$pca, gfbm, verbose = 0)
+  })
+  expect_equal(ggplot2::ggplot_build(pf)$data, ggplot2::ggplot_build(pg)$data)
+})

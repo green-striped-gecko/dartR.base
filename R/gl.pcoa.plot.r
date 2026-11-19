@@ -8,11 +8,20 @@
 #' The factor scores are taken from the output of gl.pcoa() and the population
 #' assignments are taken from from the original data file. In the bivariate
 #' plots, the specimens are shown optionally with adjacent labels and enclosing
-#' ellipses. Population labels on the plot are shuffled so as not to overlap
-#' (using package \{directlabels\}).
-#' This can be a bit clunky, as the labels may be some distance from the points
-#' to which they refer, but it provides the opportunity for moving labels around
-#'  using graphics software (e.g. Adobe Illustrator).
+#' ellipses.
+
+#' Population labels (pop.labels = 'pop') are drawn in one of two styles, set
+#' with label.style. In the 'star' style each population label sits at the
+#' centroid of its population (the mean of its points on the plotted axes),
+#' in a white box for readability, and a line joins it to each point of that
+#' population, as with the cstar option of adegenet's s.class(). In the 'smart'
+#' style the labels are shuffled so as not to overlap (using package
+#' \{directlabels\}); with many populations and colours they may then be some
+#' distance from the points to which they refer, but they can be moved around
+#' using graphics software (e.g. Adobe Illustrator). By default, the star style
+#' is used when there are more than 5 populations, the smart style otherwise.
+#' The 3D plot draws the star (lines and boxed labels at the centroids) when
+#' the star style applies; otherwise it identifies populations in its legend.
 
 #' Labels are selected with pop.labels -- 'pop' labels each cluster of points
 #' with its population name, 'ind' labels each point with its individual name,
@@ -80,7 +89,8 @@
 #' @param pt.shapes Optionally provide a vector of nPop shapes
 #'  (run gl.select.shapes() for shape options); not applied to the 3D plot
 #'  [default NULL].
-#' @param label.size Specify the size of the point labels [default 1].
+#' @param label.size Specify the size of the labels, relative to the default
+#' text size [default NULL: 0.6 for star labels, 1 otherwise].
 #' @param axis.label.size Specify the size of the displayed axis labels
 #' [default 1.5].
 #' @param plot.display If TRUE, the resultant plot is displayed in the plot
@@ -90,6 +100,10 @@
 #' by the global working directory or tempdir()].
 #' @param plot.file Name for the RDS binary file to save (base name only,
 #' exclude extension) [default NULL].
+#' @param label.style Style of the population labels when pop.labels = 'pop':
+#' 'star' (label at the population centroid, joined by lines to its points)
+#' or 'smart' (labels placed so as not to overlap) [default NULL: 'star' when
+#' there are more than 5 populations, 'smart' otherwise].
 #' @param verbose Verbosity: 0, silent or fatal errors; 1, begin and end; 2,
 #' progress log; 3, progress and results summary; 5, full report
 #'  [default 2 or as specified using gl.set.verbosity].
@@ -116,6 +130,10 @@
 #' # VARIOUS EXAMPLES
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.95, pop.labels='pop',
 #' axis.label.size=1, hadjust=1.5,vadjust=1)
+#' # many populations: labels at the population centres ('star', the default
+#' # for more than 5 populations), or placed so as not to overlap ('smart')
+#' gl.pcoa.plot(pca, testset.gl, label.size=0.8)
+#' gl.pcoa.plot(pca, testset.gl, label.style='smart')
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
 #' axis.label.size=1)
 #' gl.pcoa.plot(pca, gl, ellipse=TRUE, plevel=0.99, pop.labels='legend',
@@ -159,12 +177,13 @@ gl.pcoa.plot <- function(glPca,
                          pt.size = 2,
                          pt.colors = NULL,
                          pt.shapes = NULL,
-                         label.size = 1,
+                         label.size = NULL,
                          axis.label.size = 1.5,
                          plot.display = TRUE,
                          plot.theme = theme_dartR(),
                          plot.file=NULL,
                          plot.dir=NULL,
+                         label.style = NULL,
                          verbose = NULL) {
 
     hold_x <- x
@@ -335,6 +354,19 @@ gl.pcoa.plot <- function(glPca,
           )
         }
         pop.labels <- "pop"
+    }
+
+    if (!is.null(label.style) &&
+        (!is.character(label.style) || length(label.style) != 1L ||
+         !label.style %in% c("star", "smart"))) {
+        stop(error("Fatal Error: label.style must be NULL, 'star' or",
+                   "'smart'\n"))
+    }
+    if (!is.null(label.size) &&
+        (!is.numeric(label.size) || length(label.size) != 1L ||
+         is.na(label.size) || label.size <= 0)) {
+        stop(error("Fatal Error: label.size must be a single positive",
+                   "number\n"))
     }
 
     if (plevel < 0 | plevel > 1) {
@@ -626,6 +658,31 @@ gl.pcoa.plot <- function(glPca,
     #   pop.labels <- "pop"
     # }
 
+    # Population label style: 'star' (labels at the population centroids,
+    # joined by lines to the points) by default when there are more than 5
+    # populations, otherwise 'smart' (directlabels, shuffled so as not to
+    # overlap). The star is drawn for pop.labels = 'pop' in 2D, and in 3D.
+    n.pops <- nlevels(droplevels(df$pop))
+    if (is.null(label.style)) {
+        label.style <- if (n.pops > 5) "star" else "smart"
+    }
+    if (is.null(label.size)) {
+        label.size <- if (label.style == "star") 0.6 else 1
+    }
+    # Centroid (mean) of each population on the plotted axes, and one line
+    # from it to each point (rows with a missing population are not joined)
+    cx <- cy <- cz <- NULL
+    if (label.style == "star") {
+        star.vars <- intersect(c("PCoAx", "PCoAy", "PCoAz"), names(df))
+        has.pop <- !is.na(df$pop)
+        cent <- stats::aggregate(df[has.pop, star.vars, drop = FALSE],
+                                 by = list(pop = droplevels(df$pop[has.pop])),
+                                 FUN = mean)
+        names(cent) <- c("pop", c("cx", "cy", "cz")[seq_along(star.vars)])
+        star <- df[has.pop, c(star.vars, "pop")]
+        star <- cbind(star, cent[match(star$pop, cent$pop), -1, drop = FALSE])
+    }
+
     ####### 2D PLOT
     if (is.null(zaxis)) {
         # If population labels
@@ -669,12 +726,34 @@ gl.pcoa.plot <- function(glPca,
                                shape = pop
                            ))
             }
-            plott <- plott + geom_point(size = pt.size, aes(color = pop)) +
-                directlabels::geom_dl(aes(label = pop),
-                                      hjust = hadjust,
-                                      vjust = vadjust,
-                                      method = list("smart.grid",
-                                                    cex = label.size)) +
+            if (label.style == "star") {
+                # Lines from each population centroid to its points, drawn
+                # beneath the points; the label in a white box on top.
+                # label.size is relative to ggplot's default text size
+                # (3.88 mm), as cex is for the smart labels.
+                plott <- plott +
+                    geom_segment(data = star,
+                                 aes(x = cx, y = cy, xend = PCoAx,
+                                     yend = PCoAy, color = pop),
+                                 inherit.aes = FALSE, alpha = 0.6,
+                                 linewidth = 0.3) +
+                    geom_point(size = pt.size, aes(color = pop)) +
+                    geom_label(data = cent,
+                               aes(x = cx, y = cy, label = pop),
+                               inherit.aes = FALSE,
+                               size = label.size * 3.88,
+                               fill = "white", colour = "black",
+                               label.r = grid::unit(0, "lines"),
+                               label.padding = grid::unit(0.15, "lines"))
+            } else {
+                plott <- plott + geom_point(size = pt.size, aes(color = pop)) +
+                    directlabels::geom_dl(aes(label = pop),
+                                          hjust = hadjust,
+                                          vjust = vadjust,
+                                          method = list("smart.grid",
+                                                        cex = label.size))
+            }
+            plott <- plott +
                 plot.theme +
                 theme(axis.title = element_text(face = "bold.italic",
                                                 size = axis.label.size,
@@ -1064,6 +1143,37 @@ gl.pcoa.plot <- function(glPca,
                     )
                 )
             )
+        if (label.style == "star") {
+            # One line from each population centroid to each of its points;
+            # each line is a centroid-point pair followed by a gap (NA). The
+            # lines take the population colours of the markers and stay out
+            # of the legend. The labels are scene annotations, which can be
+            # boxed in white (plain 3D text cannot).
+            idx <- rep(seq_len(nrow(star)), each = 3)
+            lines3d <- data.frame(
+                PCoAx = c(rbind(star$cx, star$PCoAx, NA)),
+                PCoAy = c(rbind(star$cy, star$PCoAy, NA)),
+                PCoAz = c(rbind(star$cz, star$PCoAz, NA)),
+                pop = star$pop[idx]
+            )
+            plott <- plott %>%
+                plotly::add_trace(data = lines3d, x = ~ PCoAx, y = ~ PCoAy,
+                                  z = ~ PCoAz, color = ~ pop,
+                                  colors = pt.colors,
+                                  type = "scatter3d", mode = "lines",
+                                  line = list(width = 1), opacity = 0.6,
+                                  showlegend = FALSE, hoverinfo = "none",
+                                  inherit = FALSE)
+            ann <- lapply(seq_len(nrow(cent)), function(i) {
+                list(x = cent$cx[i], y = cent$cy[i], z = cent$cz[i],
+                     text = as.character(cent$pop[i]), showarrow = FALSE,
+                     bgcolor = "white", bordercolor = "black",
+                     borderwidth = 1,
+                     font = list(size = 12 * label.size, color = "black"))
+            })
+            plott <- plott %>%
+                plotly::layout(scene = list(annotations = ann))
+        }
         if (plot.display) {
             show(plott)
         }
