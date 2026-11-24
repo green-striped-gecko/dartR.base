@@ -1,3 +1,23 @@
+# dartR.base 1.3.2
+
+* New `gl.last.plot()`: returns the plot of the last dartR function that
+  made one, so it can be changed or saved without `plot.file`. Functions
+  such as the filters still return the genlight object; their plot is kept
+  whether or not it was displayed or saved. A function that makes several
+  plots, or a plot and a summary table (e.g. `gl.diagnostics.hwe()`,
+  `gl.report.contamination()`, `gl.test.heterozygosity()`), returns all of
+  them as a named list; `which` picks one, `clear = TRUE` frees the memory.
+  The 32 plotting functions of dartR.base keep their plots through the new
+  internal `utils.plot.keep()` (not `gl.report.fstat()`, whose heatmap is
+  not a ggplot). Return values, arguments and `plot.file` are unchanged.
+
+* New `gl.plot.help()`: prints code to change a ggplot made by dartR (by
+  default the last one): axis titles and ranges, title, colours and symbols
+  of its groups (with their current values), fixed colours of bars,
+  marking and labelling single data points (using the plot's own columns),
+  text size, legend, theme and saving. For a figure of several panels
+  (patchwork) it shows how to change one panel (`p[[i]]`) or all (`&`).
+
 # dartR.base 1.3.1
 
 * `gl.pcoa.plot()`: new population label style 'star' (argument

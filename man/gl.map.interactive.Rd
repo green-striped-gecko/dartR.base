@@ -129,7 +129,9 @@ ind.circle.transparency=0.5)
 \seealso{
 Other graphics: 
 \code{\link{gl.colors}()},
+\code{\link{gl.last.plot}()},
 \code{\link{gl.plot.heatmap}()},
+\code{\link{gl.plot.help}()},
 \code{\link{gl.plot.snp.density}()},
 \code{\link{gl.select.colors}()},
 \code{\link{gl.select.shapes}()},

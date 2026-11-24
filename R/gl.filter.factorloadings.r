@@ -215,6 +215,8 @@ gl.filter.factorloadings <- function(x,
   p3 <- (p1 / p2) + plot_layout(heights = c(1, 1))
   if (plot.display) {print(p3)}
   
+  # keep the plot for gl.last.plot()
+  if (exists("p3", inherits = FALSE)) utils.plot.keep(p3, "plot")
   if(!is.null(plot.file)){
     saved <- utils.plot.save(p3,
                              dir=plot.dir,

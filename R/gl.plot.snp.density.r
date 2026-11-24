@@ -261,6 +261,8 @@ gl.plot.snp.density <- function(x,
   }
   
   # Optionally save the plot
+  # keep the plot for gl.last.plot()
+  if (exists("p1", inherits = FALSE)) utils.plot.keep(p1, "plot")
   if (!is.null(plot.file)) {
     tmp <- utils.plot.save(p1,
                            dir = plot.dir,

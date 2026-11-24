@@ -62,6 +62,7 @@ Other utilities:
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.keep}()},
 \code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},

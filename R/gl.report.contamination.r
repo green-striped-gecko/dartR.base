@@ -878,6 +878,8 @@ gl.report.contamination <- function(x,
                   title = "Contamination screen") +
     plot.theme
   if (plot.display) print(p1)
+  # keep the plot for gl.last.plot()
+  if (exists("p1", inherits = FALSE)) utils.plot.keep(p1, "plot")
   if (!is.null(plot.file)) {
     tmp <- utils.plot.save(p1, dir = plot.dir, file = plot.file,
                            verbose = verbose)
@@ -975,6 +977,8 @@ gl.report.contamination <- function(x,
       plot.theme +
       ggplot2::theme(panel.grid = ggplot2::element_blank())
     if (plot.display) print(p2)
+    # keep the plot for gl.last.plot()
+    if (exists("p2", inherits = FALSE)) utils.plot.keep(p2, "plate")
     if (!is.null(plot.file)) {
       tmp <- utils.plot.save(p2, dir = plot.dir,
                              file = paste0(plot.file, "_plate"),

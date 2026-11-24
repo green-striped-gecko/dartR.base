@@ -60,8 +60,10 @@ shapes <- gl.select.shapes(x=gl,select=c(1,1,1,5,8))
 
 Other graphics: 
 \code{\link{gl.colors}()},
+\code{\link{gl.last.plot}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
+\code{\link{gl.plot.help}()},
 \code{\link{gl.plot.snp.density}()},
 \code{\link{gl.select.colors}()},
 \code{\link{gl.smearplot}()},

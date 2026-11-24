@@ -100,8 +100,10 @@ colors <- gl.select.colors(x=gl,library='baseR',palette='rainbow',ncolors=12,sel
 
 Other graphics: 
 \code{\link{gl.colors}()},
+\code{\link{gl.last.plot}()},
 \code{\link{gl.map.interactive}()},
 \code{\link{gl.plot.heatmap}()},
+\code{\link{gl.plot.help}()},
 \code{\link{gl.plot.snp.density}()},
 \code{\link{gl.select.shapes}()},
 \code{\link{gl.smearplot}()},

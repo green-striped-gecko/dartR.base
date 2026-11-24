@@ -513,6 +513,8 @@ gl.report.diversity <- function(x,
     print(p3)
     }
     
+    # keep the plot for gl.last.plot()
+    if (exists("p3", inherits = FALSE)) utils.plot.keep(p3, "plot")
     if (!is.null(plot.file)) {
       if (exists("p3", inherits = FALSE)) {
         tmp <- utils.plot.save(p3,
