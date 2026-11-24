@@ -33,7 +33,12 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"all"'
-          extra-packages: local::.
+          # SIBER needs rjags, and rjags 5 does not build against Ubuntu's
+          # JAGS 4.3.2; examples that need SIBER are listed as failing in
+          # both modes and do not fail the job
+          extra-packages: |
+            local::.
+            SIBER=?ignore
 
       - name: Run the examples in memory and file-backed
         run: Rscript function-review/run_examples_fbm.R . fbm-examples.csv 600
