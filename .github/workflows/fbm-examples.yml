@@ -30,15 +30,31 @@ jobs:
           r-version: 'release'
           use-public-rspm: true
 
+      # SIBER (suggested by dartR.base) needs rjags, and rjags 5 needs JAGS 5.
+      # Where the system offers only an older JAGS (Ubuntu ships 4.3.2), rjags
+      # cannot be built, so SIBER is skipped; R CMD check does not require
+      # suggested packages. Once JAGS 5 is available, SIBER is installed again.
+      - name: Skip SIBER while JAGS 5 is not available
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          v=$(apt-cache policy jags | awk '/Candidate:/ {print $2}' | sed 's/^[0-9]*://')
+          echo "JAGS offered by apt: ${v:-none}"
+          case "$v" in
+            [5-9]*|[1-9][0-9]*) echo "JAGS 5 or newer: SIBER is installed" ;;
+            *) echo "IGNORE_ON_LINUX=SIBER=?ignore" >> "$GITHUB_ENV"
+               echo "No JAGS 5: SIBER is skipped" ;;
+          esac
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"all"'
-          # SIBER needs rjags, and rjags 5 does not build against Ubuntu's
-          # JAGS 4.3.2; examples that need SIBER are listed as failing in
-          # both modes and do not fail the job
+          # SIBER is skipped while JAGS 5 is not available (step above);
+          # examples that need it then fail in both modes, which does not
+          # fail the job
           extra-packages: |
             local::.
-            SIBER=?ignore
+            ${{ env.IGNORE_ON_LINUX }}
 
       - name: Run the examples in memory and file-backed
         run: Rscript function-review/run_examples_fbm.R . fbm-examples.csv 600
