@@ -44,6 +44,13 @@ function can be added in the same way. A plot of several panels (a patchwork obj
 is changed per panel with p[[i]] <- p[[i]] + ..., or for all panels with
 p & theme(...).
 
+A title set as the name of a scale (e.g. scale_x_discrete(name = "Loci"))
+has priority over labs(), so labs() does not change it. For such titles
+the code uses guides() (e.g. guides(x = guide_axis(title = "Loci"))),
+whose title has priority over both. A new colour, fill or symbol scale
+replaces the whole scale of the plot, so the code shown repeats the legend
+title and labels the current scale sets.
+
 Constant colours of bars or lines (not linked to a variable) are set in
 the plot layer itself; the code shown changes them in place with
 p$layers[[i]]$aes_params, which also changes any copy of p.

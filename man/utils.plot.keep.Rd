@@ -34,10 +34,15 @@ replaced when another function call registers a plot, so only the plots
 of the most recent plotting function are kept. The calling function is
 identified by a marker variable placed in its evaluation frame.
 
-A ggplot made inside a function keeps a reference to that function's
-environment (its plot_env), which holds the function's arguments, so the
-kept set holds them in memory until it is replaced or cleared with
-gl.last.plot(clear = TRUE).
+A ggplot made inside a function refers to that function's environment
+(its plot_env and the environments of its aes() mappings), which holds
+all objects of the function, e.g. the genlight, a decoded genotype matrix
+or a filtered copy. To keep these from staying in memory, the kept copy
+of a ggplot (also each panel of a patchwork) is "slimmed": every
+reference to the function's environment is replaced by a small
+environment that holds only the objects the plot refers to by name. The
+plot is unchanged; the object returned by the function is not modified.
+If slimming fails, the plot is kept as it is.
 }
 \seealso{
 Other utilities: 

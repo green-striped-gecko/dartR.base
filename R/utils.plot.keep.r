@@ -25,10 +25,15 @@
 #' of the most recent plotting function are kept. The calling function is
 #' identified by a marker variable placed in its evaluation frame.
 #'
-#' A ggplot made inside a function keeps a reference to that function's
-#' environment (its plot_env), which holds the function's arguments, so the
-#' kept set holds them in memory until it is replaced or cleared with
-#' gl.last.plot(clear = TRUE).
+#' A ggplot made inside a function refers to that function's environment
+#' (its plot_env and the environments of its aes() mappings), which holds
+#' all objects of the function, e.g. the genlight, a decoded genotype matrix
+#' or a filtered copy. To keep these from staying in memory, the kept copy
+#' of a ggplot (also each panel of a patchwork) is "slimmed": every
+#' reference to the function's environment is replaced by a small
+#' environment that holds only the objects the plot refers to by name. The
+#' plot is unchanged; the object returned by the function is not modified.
+#' If slimming fails, the plot is kept as it is.
 #'
 #' @author Custodian: Bernd Gruber (Post to
 #' \url{https://groups.google.com/d/forum/dartr})
@@ -60,9 +65,237 @@ utils.plot.keep <- function(x, name = "plot") {
   }
   # NULL (no plot drawn) leaves the new set empty
   if (!is.null(x)) {
-    .dartR_plots$objects[[name]] <- x
+    # keep a slimmed copy: it does not hold the function's objects in memory
+    .dartR_plots$objects[[name]] <- utils.plot.slim(x, caller)
   }
   invisible(x)
+}
+
+# ---- slimming of kept plots (internal, not exported) ------------------------
+
+# A copy of a ggplot or patchwork object that no longer refers to the
+# evaluation frame of the function that made it (frame). Every reference
+# to frame (or an environment inside it) is replaced by one small
+# environment holding only the objects the plot refers to by name, with
+# the parent of frame (usually the package namespace) as its parent, so
+# functions still resolve. Layers, facet and scales are copied before they
+# are changed (they are environments shared with the original plot), so the
+# plot returned by the function is not modified. Any other object, e.g. a
+# table or a recorded base R plot, is returned as it is. If anything fails,
+# x is returned unchanged.
+utils.plot.slim <- function(x, frame) {
+  if (!(inherits(x, "ggplot") || inherits(x, "patchwork"))) {
+    return(x)
+  }
+  tryCatch(utils.plot.slim.do(x, frame), error = function(e) x)
+}
+
+utils.plot.slim.do <- function(x, frame) {
+  slim <- new.env(parent = parent.env(frame))
+  # the namespace (or global environment) of the function that keeps the plot
+  home <- environmentName(parent.env(frame))
+  # Is e the evaluation frame of a function (or an environment inside one)
+  # whose code lives in a dartR package or in the keeping function's home?
+  # This covers frame itself and the frames of dartR functions called by it
+  # that made parts of the plot (e.g. gl.smearplot() panels). Frames of other
+  # packages' functions (e.g. label closures from scales) are left alone:
+  # they are small and refer to their own internal functions.
+  in_frame <- function(e) {
+    if (!is.environment(e) || identical(e, slim) || !is.null(attr(e, "class")) ||
+        nzchar(environmentName(e))) {
+      return(FALSE)
+    }
+    for (k in seq_len(1000)) {
+      e <- parent.env(e)
+      if (identical(e, emptyenv())) {
+        return(FALSE)
+      }
+      nm <- environmentName(e)
+      if (nzchar(nm)) {
+        return(nm == home || startsWith(nm, "dartR"))
+      }
+    }
+    FALSE
+  }
+  todo <- list() # names to copy, with the environment to look them up in
+
+  queue <- function(names, env) {
+    for (n in unique(names[nzchar(names)])) {
+      todo[[length(todo) + 1]] <<- list(n = n, env = env)
+    }
+  }
+  # a function defined inside the frame: refer to slim instead
+  fix_fun <- function(f) {
+    if (is.function(f) && !is.primitive(f) && in_frame(environment(f))) {
+      queue(c(all.names(body(f)), unlist(lapply(formals(f), all.names))),
+            environment(f))
+      environment(f) <- slim
+    }
+    f
+  }
+  # an aesthetic mapping or facet variable (a quosure: a one-sided formula
+  # with its environment as attribute)
+  fix_quo <- function(q) {
+    e <- attr(q, ".Environment")
+    if (inherits(q, "formula") && in_frame(e)) {
+      u <- unclass(q)
+      queue(all.names(u[[length(u)]]), e)
+      attr(q, ".Environment") <- slim
+    }
+    q
+  }
+  fix_list <- function(l) {
+    if (is.list(l) && length(l)) {
+      for (i in seq_along(l)) {
+        if (inherits(l[[i]], "formula")) {
+          l[[i]] <- fix_quo(l[[i]])
+        } else if (is.function(l[[i]])) {
+          l[[i]] <- fix_fun(l[[i]])
+        }
+      }
+    }
+    l
+  }
+  # is p a ggproto class defined in a package (e.g. ggplot2's
+  # ScaleContinuousPosition), rather than an object made while plotting?
+  is_class <- function(p) {
+    cls <- class(p)[1]
+    for (ns in loadedNamespaces()) {
+      nse <- asNamespace(ns)
+      if (exists(cls, envir = nse, inherits = FALSE) &&
+          identical(get(cls, envir = nse, inherits = FALSE), p)) {
+        return(TRUE)
+      }
+    }
+    FALSE
+  }
+  # Flat copy of a ggproto object (an environment). ggproto objects inherit
+  # fields through super(), a closure in the frame of the ggproto() call
+  # whose unevaluated arguments lead back to the frame of the function that
+  # made the plot; objects made while plotting (e.g. the copies ggplot2 makes
+  # of scales when a plot is changed) inherit from each other this way. The
+  # copy takes the fields of the object and of all such ancestors, and its
+  # super() returns the first ancestor that is a class defined in a package,
+  # so fetching a field gives the same value as before.
+  clone <- function(o) {
+    if (!is.environment(o)) {
+      return(o)
+    }
+    fields <- list()
+    e <- o
+    parent_class <- NULL
+    for (k in seq_len(100)) {
+      f <- as.list.environment(e, all.names = TRUE)
+      fields <- c(fields, f[setdiff(names(f), names(fields))])
+      sup <- get0("super", envir = e, inherits = FALSE)
+      if (!is.function(sup)) {
+        break
+      }
+      p <- sup()
+      if (!is.environment(p) || is_class(p)) {
+        parent_class <- p
+        break
+      }
+      e <- p
+    }
+    fields$super <- NULL
+    o2 <- list2env(fields, parent = parent.env(o))
+    attributes(o2) <- attributes(o)
+    if (!is.null(parent_class)) {
+      se <- new.env(parent = baseenv())
+      assign("sv", parent_class, envir = se)
+      assign("super", eval(quote(function() sv), se), envir = o2)
+    }
+    o2
+  }
+
+  slim_gg <- function(g) {
+    if (inherits(g, "patchwork")) {
+      for (i in seq_along(g)) {
+        g[[i]] <- slim_gg(g[[i]])
+      }
+      return(g)
+    }
+    if (!inherits(g, "ggplot")) {
+      return(g)
+    }
+    g$plot_env <- slim
+    g$mapping <- fix_list(g$mapping)
+    if (is.function(g$data)) {
+      g$data <- fix_fun(g$data)
+    }
+    g$layers <- lapply(g$layers, function(l) {
+      l <- clone(l)
+      l$mapping <- fix_list(l$mapping)
+      # set by ggplot2 when the plot has been printed (plot.display = TRUE)
+      if (!is.null(l$computed_mapping)) {
+        l$computed_mapping <- fix_list(l$computed_mapping)
+      }
+      if (is.function(l$data)) {
+        l$data <- fix_fun(l$data)
+      }
+      l$aes_params <- fix_list(l$aes_params)
+      l$geom_params <- fix_list(l$geom_params)
+      l$stat_params <- fix_list(l$stat_params)
+      l
+    })
+    if (is.environment(g$facet) && is.list(g$facet$params)) {
+      fa <- clone(g$facet)
+      pa <- fa$params
+      for (nm in intersect(c("facets", "rows", "cols"), names(pa))) {
+        pa[[nm]] <- fix_list(pa[[nm]])
+      }
+      fa$params <- pa
+      g$facet <- fa
+    }
+    if (is.environment(g$scales) && is.list(g$scales$scales)) {
+      sl <- clone(g$scales)
+      sl$scales <- lapply(sl$scales, function(s) {
+        if (!is.environment(s)) {
+          return(s)
+        }
+        # always a copy: its super() may lead back to the frame (see clone())
+        s <- clone(s)
+        for (nm in ls(s, all.names = TRUE)) {
+          f <- get(nm, envir = s)
+          if (is.function(f)) {
+            assign(nm, fix_fun(f), envir = s)
+          }
+        }
+        s
+      })
+      g$scales <- sl
+    }
+    # the remaining ggproto parts: copies with a new super() (see clone())
+    for (nm in c("layout", "coordinates", "guides")) {
+      if (is.environment(g[[nm]])) {
+        g[[nm]] <- clone(g[[nm]])
+      }
+    }
+    g
+  }
+
+  out <- slim_gg(x)
+
+  # copy the objects the plot refers to by name into slim; functions among
+  # them that were defined in the frame are redirected to slim as well
+  i <- 1
+  while (i <= length(todo)) {
+    n <- todo[[i]]$n
+    e <- todo[[i]]$env
+    i <- i + 1
+    if (exists(n, envir = slim, inherits = FALSE)) {
+      next
+    }
+    while (in_frame(e)) {
+      if (exists(n, envir = e, inherits = FALSE)) {
+        assign(n, fix_fun(get(n, envir = e, inherits = FALSE)), envir = slim)
+        break
+      }
+      e <- parent.env(e)
+    }
+  }
+  out
 }
 
 #' @name utils.plot.record

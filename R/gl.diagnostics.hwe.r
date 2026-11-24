@@ -356,7 +356,7 @@ gl.diagnostics.hwe <- function(x,
   # Optionally save the plot ---------------------
   
   # keep the plot for gl.last.plot()
-  if (exists("p5", inherits = FALSE)) utils.plot.keep(p5, "plot")
+  utils.plot.keep(if (exists("p5", inherits = FALSE)) p5, "plot")
   if(!is.null(plot.file)){
     tmp <- utils.plot.save(p5,
                            dir=plot.dir,
@@ -364,7 +364,7 @@ gl.diagnostics.hwe <- function(x,
                            verbose=verbose)
   }
   # keep the plot for gl.last.plot()
-  if (exists("hwe_summary", inherits = FALSE)) utils.plot.keep(hwe_summary, "table")
+  utils.plot.keep(if (exists("hwe_summary", inherits = FALSE)) hwe_summary, "table")
   if(!is.null(plot.file)){
     tmp <- utils.plot.save(hwe_summary,
                            dir=plot.dir,

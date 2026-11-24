@@ -15,6 +15,14 @@
   and saved but not changed like a ggplot; if they draw nothing,
   `gl.last.plot()` says so instead of returning an older plot. Return
   values, arguments and `plot.file` are unchanged.
+  Kept ggplots are slimmed: they no longer hold the working space of the
+  function that made them (e.g. its input object and intermediate
+  matrices), only the few objects the plot uses. They draw the same and can
+  be changed as before; on 100 individuals x 10,000 loci a kept plot of
+  `gl.report.callrate()` is 5.7 instead of 19 MB (`gl.report.maf()` 13.6
+  instead of 84 MB), for genlight and FBM objects alike. A function that
+  makes no plot (e.g. `plot.display = FALSE` in `gl.randomize.snps()`)
+  empties the kept set, so no older plot is returned.
 
 * New `gl.plot.code()`: prints code to change a ggplot made by dartR (by
   default the last one), laid out like a table in lines of at most 80
@@ -24,7 +32,10 @@
   (using the plot's own columns), text size, legend, theme and saving. For
   a figure of several panels (patchwork) it shows how to change one panel
   (`p[[i]]`) or all (`&`); for a recorded base R plot, how to redraw and
-  save it.
+  save it. Titles set as the name of a scale (e.g. the axes of
+  `gl.smearplot()`), which `labs()` cannot change, are changed with
+  `guides()`; suggested colour, fill and symbol scales repeat the legend
+  title and labels of the current scale, so these are not lost.
 
 * `gl.plot.heatmap()` (and `gl.report.fstat()`, which uses it): no longer
   warns "'x' is NULL so the result will be NULL" for each dendrogram when

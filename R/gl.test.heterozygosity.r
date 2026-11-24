@@ -503,7 +503,7 @@ gl.test.heterozygosity <- function(x,
             # SAVE INTERMEDIATES TO TEMPDIR
             temp_plot <- paste0(plot.file,"_", seq_1[i], "_to_", seq_2[i])
             # keep the plot for gl.last.plot()
-            if (exists("p_final", inherits = FALSE)) utils.plot.keep(p_final, paste0("plot_", seq_1[i], "_to_", seq_2[i]))
+            utils.plot.keep(if (exists("p_final", inherits = FALSE)) p_final, paste0("plot_", seq_1[i], "_to_", seq_2[i]))
             if(!is.null(plot.file)){
               tmp <- utils.plot.save(p_final,
                                      dir=plot.dir,
@@ -529,7 +529,7 @@ gl.test.heterozygosity <- function(x,
     # Optionally save the plot ---------------------
     
     # keep the plot for gl.last.plot()
-    if (exists("df", inherits = FALSE)) utils.plot.keep(df, "table")
+    utils.plot.keep(if (exists("df", inherits = FALSE)) df, "table")
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(df,
                              dir=plot.dir,

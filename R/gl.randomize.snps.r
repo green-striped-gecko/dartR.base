@@ -190,8 +190,6 @@ gl.randomize.snps <- function(x,
 
         # Optionally save the plot ---------------------
 
-        # keep the plot for gl.last.plot()
-        if (exists("p3", inherits = FALSE)) utils.plot.keep(p3, "plot")
         if(!is.null(plot.file)){
           tmp <- utils.plot.save(p3,
                                  dir=plot.dir,
@@ -199,6 +197,9 @@ gl.randomize.snps <- function(x,
                                  verbose=verbose)
         }
     }
+    # keep the plot for gl.last.plot(); outside the block above, so that no
+    # older plot is returned when none was made (plot.display = FALSE)
+    utils.plot.keep(if (exists("p3", inherits = FALSE)) p3, "plot")
 
     # RESET FLAGS
     # Half the loci had their 0/2 homozygote coding swapped, so the per-locus

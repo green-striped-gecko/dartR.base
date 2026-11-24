@@ -612,7 +612,7 @@ gl.filter.callrate <- function(x,
     if (plot.display) {print(p3)}
     
     # keep the plot for gl.last.plot()
-    if (exists("p3", inherits = FALSE)) utils.plot.keep(p3, "plot")
+    utils.plot.keep(if (exists("p3", inherits = FALSE)) p3, "plot")
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p3,
                              dir=plot.dir,

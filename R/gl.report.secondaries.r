@@ -357,7 +357,7 @@ gl.report.secondaries <- function(x,
     }
 
     # keep the plot for gl.last.plot()
-    if (exists("p4", inherits = FALSE)) utils.plot.keep(p4, "plot")
+    utils.plot.keep(if (exists("p4", inherits = FALSE)) p4, "plot")
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(p4,
                              dir=plot.dir,

@@ -1241,7 +1241,7 @@ gl.pcoa.plot <- function(glPca,
 
     # Optionally save the plot ---------------------
     # keep the plot for gl.last.plot()
-    if (exists("plott", inherits = FALSE)) utils.plot.keep(plott, "plot")
+    utils.plot.keep(if (exists("plott", inherits = FALSE)) plott, "plot")
     if(!is.null(plot.file)){
       tmp <- utils.plot.save(plott,
                              dir=plot.dir,

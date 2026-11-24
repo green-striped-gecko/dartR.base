@@ -35,6 +35,13 @@
 #' is changed per panel with p[[i]] <- p[[i]] + ..., or for all panels with
 #' p & theme(...).
 #'
+#' A title set as the name of a scale (e.g. scale_x_discrete(name = "Loci"))
+#' has priority over labs(), so labs() does not change it. For such titles
+#' the code uses guides() (e.g. guides(x = guide_axis(title = "Loci"))),
+#' whose title has priority over both. A new colour, fill or symbol scale
+#' replaces the whole scale of the plot, so the code shown repeats the legend
+#' title and labels the current scale sets.
+#'
 #' Constant colours of bars or lines (not linked to a variable) are set in
 #' the plot layer itself; the code shown changes them in place with
 #' p$layers[[i]]$aes_params, which also changes any copy of p.
@@ -201,7 +208,8 @@ utils.plot.code.save <- function(pname) {
 # Code for one ggplot. With assign = TRUE (a panel of a patchwork) each line
 # assigns the result back to the panel.
 utils.plot.code.gg <- function(g, gname, assign = FALSE) {
-  q <- function(s) paste0("\"", gsub("\"", "\\\\\"", s), "\"")
+  # a string as R code, with quotes and line breaks escaped
+  q <- function(s) encodeString(as.character(s), quote = "\"")
   # the expression of an aesthetic mapping: a quosure is a one-sided formula;
   # unclass() avoids rlang's deprecated [[ method for quosures
   aes_text <- function(m) {
@@ -232,6 +240,16 @@ utils.plot.code.gg <- function(g, gname, assign = FALSE) {
     v <- labs_now[[a]]
     if (is.character(v) && length(v) == 1) v else NULL
   }
+  # the scale for an aesthetic that the function added to the plot (NULL if
+  # ggplot2 adds a default scale when drawing), and the name set in it
+  sc_added <- function(a) {
+    tryCatch(g$scales$get_scales(a), error = function(e) NULL)
+  }
+  sc_name <- function(a) {
+    s <- sc_added(a)
+    v <- if (is.null(s)) NULL else s$name
+    if (is.character(v) && length(v) == 1) v else NULL
+  }
 
   # aesthetics: those of the plot, completed by those of its layers
   mapping <- as.list(g$mapping)
@@ -254,19 +272,37 @@ utils.plot.code.gg <- function(g, gname, assign = FALSE) {
            if (length(ug) > 1) paste0(" (also ", paste(ug[-1], collapse = ", "), ")"))
   }
   out <- section(paste0(gname, ": ", kind,
-                        if (!is.null(lab("title"))) paste0(" \"", lab("title"), "\"")), "=")
+                        if (!is.null(lab("title"))) paste0(" \"", gsub("[[:space:]]+", " ", lab("title")), "\"")), "=")
   if (is.data.frame(g$data) && ncol(g$data) > 0) {
     out <- c(out, strwrap(paste0("data ", gname, "$data, columns: ",
                                  paste(names(g$data), collapse = ", ")),
                           width = 78, prefix = "# "))
   }
 
-  # titles and axes
+  # titles and axes. A title set as the name of a scale (e.g.
+  # scale_x_discrete(name = "Loci")) has priority over labs(), so labs() would
+  # not change it; a guide title has priority over both, so such titles are
+  # changed with guides() instead.
+  ax_title <- function(a) {
+    s <- sc_name(a)
+    if (!is.null(s)) return(s)
+    if (is.null(lab(a))) paste(a, "title") else lab(a)
+  }
+  ax_labs <- character(0)
+  ax_guides <- character(0)
+  for (a in c("x", "y")) {
+    if (is.null(sc_name(a))) {
+      ax_labs <- c(ax_labs, paste0(a, " = ", q(ax_title(a))))
+    } else {
+      ax_guides <- c(ax_guides, paste0(a, " = guide_axis(title = ", q(ax_title(a)), ")"))
+    }
+  }
   out <- c(out, "", section("titles and axes"),
-           label(call(addh("labs"),
-                      c(paste0("x = ", q(if (is.null(lab("x"))) "x title" else lab("x"))),
-                        paste0("y = ", q(if (is.null(lab("y"))) "y title" else lab("y"))))),
-                 "axis titles"),
+           if (length(ax_labs)) label(call(addh("labs"), ax_labs), "axis titles"),
+           if (length(ax_guides)) {
+             c("# (set in the axis scale, so labs() does not change it; guides() does)",
+               label(call(addh("guides"), ax_guides), "axis titles"))
+           },
            label(call(addh("labs"),
                       paste0("title = ", q(if (is.null(lab("title"))) "My title" else lab("title")))),
                  "plot title"))
@@ -291,10 +327,14 @@ utils.plot.code.gg <- function(g, gname, assign = FALSE) {
     out <- c(out, label(call(addh("coord_cartesian"), lims), "axis ranges"))
   }
 
-  # colours and symbols linked to a variable
+  # colours and symbols linked to a variable. A new scale replaces the whole
+  # scale of the plot, so the code carries over the settings of the current
+  # one (legend title, labels) that would otherwise be lost.
   scale_lines <- function(aesthetic, fun_name, what) {
     sc <- tryCatch(built$plot$scales$get_scales(aesthetic), error = function(e) NULL)
     if (is.null(sc)) return(NULL)
+    nm <- sc_name(aesthetic)
+    keep <- if (!is.null(nm)) paste0("name = ", q(nm))
     if (inherits(sc, "ScaleDiscrete")) {
       br <- tryCatch(sc$get_breaks(), error = function(e) NULL)
       br <- br[!is.na(br)]
@@ -304,21 +344,55 @@ utils.plot.code.gg <- function(g, gname, assign = FALSE) {
       shown <- seq_len(min(length(br), 10))
       vtxt <- if (is.numeric(vals)) as.character(vals[shown]) else q(vals[shown])
       pairs <- paste0(q(br[shown]), " = ", vtxt)
-      lines <- call(paste0(addh(paste0("scale_", fun_name, "_manual")), "(values = c"),
-                    pairs)
+      head <- addh(paste0("scale_", fun_name, "_manual"))
+      lines <- call(paste0(head, "(values = c"), pairs)
+      # labels shown in the legend, if the scale sets them
+      lb <- sc_added(aesthetic)
+      lb <- if (is.null(lb)) NULL else lb$labels
+      note <- NULL
+      if (is.character(lb) && length(lb) == length(br) && length(br) <= 10) {
+        keep <- c(keep, call(paste0(strrep(" ", nchar(head) + 1), "labels = c"),
+                             q(lb), limit = 78))
+      } else if (is.function(lb) || is.character(lb)) {
+        note <- "# (the plot sets the legend labels too; add labels = ... to keep them)"
+      }
+      if (length(keep)) {
+        pad <- strrep(" ", nchar(head) + 1)
+        lines[length(lines)] <- paste0(lines[length(lines)], ",")
+        extra <- ifelse(startsWith(keep, " "), keep, paste0(pad, keep))
+        extra[-length(extra)] <- ifelse(grepl("[,(]$", extra[-length(extra)]),
+                                        extra[-length(extra)],
+                                        paste0(extra[-length(extra)], ","))
+        lines <- c(lines, extra)
+      }
       lines[length(lines)] <- paste0(lines[length(lines)], ")")
       more <- if (length(br) > 10) {
         paste0("# (first 10 of ", length(br),
                " groups shown; add the others in the same way)")
       }
-      c(label(lines, what), more)
+      c(label(lines, what), more, note)
     } else if (inherits(sc, "ScaleContinuous") && aesthetic %in% c("colour", "fill")) {
       label(call(addh(paste0("scale_", fun_name, "_gradient")),
-                 c("low = \"yellow\"", "high = \"darkred\"")),
+                 c(keep, "low = \"yellow\"", "high = \"darkred\"")),
             paste(what, "(gradient)"))
     } else {
       NULL
     }
+  }
+  # legend title: labs() unless the title is set as the name of the scale,
+  # which has priority over labs(); then guides()
+  legend_title <- function(aesthetic) {
+    sc <- tryCatch(built$plot$scales$get_scales(aesthetic), error = function(e) NULL)
+    if (is.null(sc)) return(NULL)
+    nm <- sc_name(aesthetic)
+    if (is.null(nm)) {
+      cur <- lab(aesthetic)
+      if (is.null(cur)) return(NULL)
+      return(label(call(addh("labs"), paste0(aesthetic, " = ", q(cur))), "legend title"))
+    }
+    gd <- if (inherits(sc, "ScaleContinuous")) "guide_colourbar" else "guide_legend"
+    label(call(addh("guides"), paste0(aesthetic, " = ", gd, "(title = ", q(nm), ")")),
+          "legend title")
   }
   grp <- intersect(c("colour", "fill", "shape"), names(mapping))
   if (length(grp)) {
@@ -326,6 +400,7 @@ utils.plot.code.gg <- function(g, gname, assign = FALSE) {
     gl_lines <- c(if ("colour" %in% grp) scale_lines("colour", "colour", "colours"),
                   if ("fill" %in% grp) scale_lines("fill", "fill", "fill colours"),
                   if ("shape" %in% grp) scale_lines("shape", "shape", "symbols"))
+    gl_lines <- c(gl_lines, unlist(lapply(grp, legend_title)))
     if (length(gl_lines)) {
       out <- c(out, "", section(paste0("groups (", paste(vars, collapse = ", "), ")")),
                gl_lines)
