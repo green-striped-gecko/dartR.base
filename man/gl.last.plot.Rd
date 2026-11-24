@@ -37,12 +37,22 @@ kept; the next function that makes a plot replaces them.
 \strong{One plot.} The plot itself is returned, usually a ggplot. Several
 panels drawn as one figure (e.g. a histogram above a boxplot) form one
 patchwork object: change one panel with p[[1]], all panels with the &
-operator (see the examples and \code{\link{gl.plot.help}}).
+operator (see the examples and \code{\link{gl.plot.code}}).
 
 \strong{Several objects.} Some functions make several plots, or a plot
 and a summary table (the objects that plot.file would save in separate
 files). They are returned as a named list, invisibly; the names are
 reported at verbose >= 2. Use which to get one of them.
+
+\strong{Base R graphics.} Heatmaps and trees (gl.plot.heatmap(),
+gl.report.fstat(), gl.tree.nj(), gl.tree.fitch()) and gl.select.shapes()
+draw with base R graphics, not ggplot. Their plot is recorded from the
+graphics device when it is displayed (a recordedplot object): print(p)
+redraws it and it can be saved (see \code{\link{gl.plot.code}}), but it
+cannot be changed like a ggplot. If such a function draws no plot
+(plot.display = FALSE), or the device cannot record it (devices that write
+to a file, e.g. in Rscript), gl.last.plot() reports this instead of
+returning the plot of an earlier function.
 
 A kept plot holds the data it was drawn from in memory until it is
 replaced; use gl.last.plot(clear = TRUE) to free it.
@@ -55,17 +65,17 @@ p[[1]] <- p[[1]] + ggplot2::labs(title = "Call rate before filtering")
 # or the text size of both panels
 p & ggplot2::theme(text = ggplot2::element_text(size = 14))
 # code to change axes, colours, symbols or single points
-gl.plot.help(p)
+gl.plot.code(p)
 
 }
 \seealso{
-\code{\link{gl.plot.help}}, \code{\link{theme_dartR}}
+\code{\link{gl.plot.code}}, \code{\link{theme_dartR}}
 
 Other graphics: 
 \code{\link{gl.colors}()},
 \code{\link{gl.map.interactive}()},
+\code{\link{gl.plot.code}()},
 \code{\link{gl.plot.heatmap}()},
-\code{\link{gl.plot.help}()},
 \code{\link{gl.plot.snp.density}()},
 \code{\link{gl.select.colors}()},
 \code{\link{gl.select.shapes}()},

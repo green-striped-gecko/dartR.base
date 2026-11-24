@@ -28,7 +28,9 @@ test_that("gl.alf equals hand computation colMeans(as.matrix(x))/2 (SNP)", {
 test_that("pinned values on testset.gl anchor the numbers", {
   a <- gl.alf(testset.gl)
   expect_equal(a["100049687-12-C/T", "alf2"], 1)
-  expect_equal(a["100049698-16-G/A", "alf2"], 0.03947368, tolerance = 1e-7)
+  # 3 of 76 alleles (exact; the rounded 0.03947368 is 1.07e-7 off, which
+  # the stricter edition-3 expect_equal() does not accept at 1e-7)
+  expect_equal(a["100049698-16-G/A", "alf2"], 3 / 76)
   expect_equal(a["100049728-23-A/G", "alf2"], 0)
   expect_equal(range(a$alf2, na.rm = TRUE), c(0, 1))
   expect_equal(sum(a$alf1 == 1, na.rm = TRUE), 79L)

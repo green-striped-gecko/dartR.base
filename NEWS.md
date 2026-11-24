@@ -7,16 +7,35 @@
   plots, or a plot and a summary table (e.g. `gl.diagnostics.hwe()`,
   `gl.report.contamination()`, `gl.test.heterozygosity()`), returns all of
   them as a named list; `which` picks one, `clear = TRUE` frees the memory.
-  The 32 plotting functions of dartR.base keep their plots through the new
-  internal `utils.plot.keep()` (not `gl.report.fstat()`, whose heatmap is
-  not a ggplot). Return values, arguments and `plot.file` are unchanged.
+  The 32 ggplot functions of dartR.base keep their plots through the new
+  internal `utils.plot.keep()`. The 5 functions that draw with base R
+  graphics (`gl.plot.heatmap()`, `gl.report.fstat()`, `gl.tree.nj()`,
+  `gl.tree.fitch()`, `gl.select.shapes()`) keep the displayed plot as a
+  recorded plot (new internal `utils.plot.record()`), which can be redrawn
+  and saved but not changed like a ggplot; if they draw nothing,
+  `gl.last.plot()` says so instead of returning an older plot. Return
+  values, arguments and `plot.file` are unchanged.
 
-* New `gl.plot.help()`: prints code to change a ggplot made by dartR (by
-  default the last one): axis titles and ranges, title, colours and symbols
-  of its groups (with their current values), fixed colours of bars,
-  marking and labelling single data points (using the plot's own columns),
-  text size, legend, theme and saving. For a figure of several panels
-  (patchwork) it shows how to change one panel (`p[[i]]`) or all (`&`).
+* New `gl.plot.code()`: prints code to change a ggplot made by dartR (by
+  default the last one), laid out like a table in lines of at most 80
+  characters (code left, what it does right, in sections): axis titles and
+  ranges, title, colours and symbols of its groups (with their current
+  values), fixed colours of bars, marking and labelling single data points
+  (using the plot's own columns), text size, legend, theme and saving. For
+  a figure of several panels (patchwork) it shows how to change one panel
+  (`p[[i]]`) or all (`&`); for a recorded base R plot, how to redraw and
+  save it.
+
+* `gl.plot.heatmap()` (and `gl.report.fstat()`, which uses it): no longer
+  warns "'x' is NULL so the result will be NULL" for each dendrogram when
+  no population colours are given (`x = NULL`); the dendrogram labels are
+  only coloured when colours are given (`utils.heatmap()`).
+
+* `utils.check.datatype()` and `gl.fixed.diff()` check for distance
+  matrices with `inherits()` instead of `is()`, so they no longer trigger
+  the message "Found more than one class "dist" in cache ... Also defined
+  by 'spam'" when spam and BiocGenerics are both loaded (e.g. in
+  `gl.report.fstat()`, `gl.plot.heatmap()`).
 
 # dartR.base 1.3.1
 

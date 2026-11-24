@@ -128,7 +128,8 @@ test_that("uHe and FIS use Nei's per-locus sample-size correction", {
   uHe_l <- (2 * n_l / (2 * n_l - 1)) * He_l
   Ho_l <- colMeans(m == 1, na.rm = TRUE)
   row <- r[r$pop == p1, ]
-  expect_equal(row$uHe, mean(uHe_l), tolerance = 1e-5)
+  # the report rounds to 6 decimals: allow exactly that rounding error
+  expect_lte(abs(row$uHe - mean(uHe_l)), 5e-7)
   expect_equal(row$FIS, mean(1 - Ho_l / uHe_l, na.rm = TRUE),
                tolerance = 1e-5)
 })

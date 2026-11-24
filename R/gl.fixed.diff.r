@@ -183,7 +183,9 @@ gl.fixed.diff <- function(x,
     # define dist2list function
     
     dist2list <- function(dist) {
-        if (!is(dist,"dist")) {
+        # inherits(), not is(): avoids the S4 class conflict message
+        # ("Found more than one class \"dist\" in cache")
+        if (!inherits(dist, "dist")) {
             stop(error("the input data must be a dist object."))
         }
         dat <- as.data.frame(as.matrix(dist))

@@ -690,10 +690,12 @@ gl.report.fstat <- function(x,
   )
   
   # PLOT THE RESULTS -----------------
+  drawn <- FALSE
   if (plot.display & npops > 2) {
     tryCatch(
       expr = {
         p3()
+        drawn <- TRUE
       },
       error = function(e) {
         # report what actually failed; not every heatmap error is a pane
@@ -728,6 +730,10 @@ gl.report.fstat <- function(x,
                            file = plot.file,
                            verbose = verbose)
   }
+  
+  # keep the plot for gl.last.plot(); base R graphics are recorded from the
+  # device (after plot.file, whose p3() call keeps its own; NULL if not drawn: an older plot is then not returned)
+  utils.plot.keep(if (drawn) utils.plot.record(), "plot")
   
   # FINISH UP -------------------
   

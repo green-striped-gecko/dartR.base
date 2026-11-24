@@ -317,6 +317,10 @@ gl.plot.heatmap <- function(D,
     }
   }
   
+  # keep the plot for gl.last.plot(); base R graphics are recorded from the
+  # device (NULL if nothing was drawn: an older plot is then not returned)
+  utils.plot.keep(if (plot.out) utils.plot.record(), "plot")
+
   # FLAG SCRIPT END
   
   if (verbose > 0) {

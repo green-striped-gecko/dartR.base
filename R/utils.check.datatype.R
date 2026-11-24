@@ -268,7 +268,9 @@ utils.check.datatype <- function(x,
             )
         }
         datatype <- "fd"
-    } else if (is(x, "dist")) {
+    } else if (inherits(x, "dist")) {
+        # inherits(), not is(): is() looks "dist" up among the S4 classes,
+        # which reports a conflict when spam and BiocGenerics are loaded
         if (verbose >= 2) {
             cat(report("  Processing a distance matrix\n"))
         }

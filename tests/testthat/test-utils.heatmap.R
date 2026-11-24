@@ -40,3 +40,23 @@ test_that("scale='row' honours the return contract", {
   expect_false(is.null(r$rowSDs))
   expect_equal(dim(r$carpet), c(ncol(x), nrow(x)))
 })
+
+test_that("no label colours: no dendextend warning, plain labels", {
+  # regression: without colRow/colCol (e.g. gl.plot.heatmap(D) with x = NULL)
+  # dendextend::set("labels_col", NULL) warned "'x' is NULL so the result
+  # will be NULL" for each dendrogram drawn
+  pdf(NULL); on.exit(dev.off())
+  x <- as.matrix(mtcars)
+  expect_no_warning(utils.heatmap(x))
+  expect_no_warning(utils.heatmap(x, dendrogram = "row"))
+  expect_no_warning(utils.heatmap(x, dendrogram = "column"))
+  # with label colours the dendrograms are still coloured without warnings
+  expect_no_warning(utils.heatmap(x, colRow = rep(c("red", "blue"), 16),
+                                  colCol = rep("purple", 11)))
+})
+
+test_that("gl.plot.heatmap without x gives no warning", {
+  pdf(NULL); on.exit(dev.off())
+  D <- dist(as.matrix(testset.gl[1:12, 1:50]))
+  expect_no_warning(utils::capture.output(gl.plot.heatmap(D, verbose = 0)))
+})

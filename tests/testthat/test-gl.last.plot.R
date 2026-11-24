@@ -103,3 +103,68 @@ test_that("a function that makes a plot and a table returns both", {
   expect_true(inherits(res$plot, "ggplot") || inherits(res$plot, "patchwork"))
   expect_s3_class(res$table, "data.frame")
 })
+
+# ---- base R graphics: recorded from the device ------------------------------
+
+# run code with a graphics device that records (a pdf device keeps no
+# display list unless it is enabled); nothing is written to disk
+with_recording_device <- function(code) {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  grDevices::dev.control("enable")
+  force(code)
+}
+
+test_that("a file device without display list records nothing", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  graphics::plot(1:3)
+  expect_null(utils.plot.record())
+})
+
+test_that("a base R plot is kept as a recorded plot; return unchanged", {
+  gl.last.plot(clear = TRUE, verbose = 0)
+  # at verbose = 0 these functions draw nothing (plot.display is switched off)
+  invisible(utils::capture.output(
+    res <- with_recording_device(gl.select.shapes(select = 1:5, verbose = 1))))
+  expect_equal(res, 1:5)
+  p <- gl.last.plot(verbose = 0)
+  expect_s3_class(p, "recordedplot")
+  # it can be redrawn
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  expect_silent(print(p))
+})
+
+test_that("a tree is kept; the tree is still returned", {
+  gl.last.plot(clear = TRUE, verbose = 0)
+  invisible(utils::capture.output(
+    tree <- with_recording_device(gl.tree.nj(testset.gl[1:10, 1:50], verbose = 1))))
+  expect_s3_class(tree, "phylo")
+  expect_s3_class(gl.last.plot(verbose = 0), "recordedplot")
+})
+
+test_that("a heatmap is kept; nothing kept with plot.out = FALSE", {
+  D <- dist(as.matrix(testset.gl[1:10, 1:50]))
+  invisible(utils::capture.output(with_recording_device(
+    suppressWarnings(gl.plot.heatmap(D, verbose = 0)))))
+  expect_s3_class(gl.last.plot(verbose = 0), "recordedplot")
+  invisible(utils::capture.output(with_recording_device(
+    suppressWarnings(gl.plot.heatmap(D, plot.out = FALSE, verbose = 0)))))
+  expect_error(gl.last.plot(verbose = 0), "did not draw one")
+})
+
+test_that("no plot drawn: an older plot is not returned", {
+  x <- testset.gl[1:30, 1:50]
+  invisible(gl.report.callrate(x, plot.display = FALSE, verbose = 0))
+  expect_true(inherits(gl.last.plot(verbose = 0), "patchwork"))
+  invisible(gl.select.shapes(select = 1:5, plot.display = FALSE, verbose = 0))
+  expect_error(gl.last.plot(verbose = 0), "gl.select.shapes(), did not draw one",
+               fixed = TRUE)
+  # a device that cannot record: also no older plot
+  invisible(gl.report.callrate(x, plot.display = FALSE, verbose = 0))
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  invisible(utils::capture.output(gl.select.shapes(select = 1:5, verbose = 1)))
+  expect_error(gl.last.plot(verbose = 0), "did not draw one")
+})

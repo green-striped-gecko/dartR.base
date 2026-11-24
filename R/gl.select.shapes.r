@@ -146,6 +146,9 @@ gl.select.shapes <- function(x = NULL,
         )
         text(x.coord, y.coord, labels = select, pos = 3)
     }
+    # keep the plot for gl.last.plot(); base R graphics are recorded from the
+    # device (NULL if nothing was drawn: an older plot is then not returned)
+    utils.plot.keep(if (plot.display) utils.plot.record(), "plot")
 
     if (verbose >= 2) {
         cat(report(

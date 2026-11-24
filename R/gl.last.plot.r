@@ -26,12 +26,22 @@
 #' \strong{One plot.} The plot itself is returned, usually a ggplot. Several
 #' panels drawn as one figure (e.g. a histogram above a boxplot) form one
 #' patchwork object: change one panel with p[[1]], all panels with the &
-#' operator (see the examples and \code{\link{gl.plot.help}}).
+#' operator (see the examples and \code{\link{gl.plot.code}}).
 #'
 #' \strong{Several objects.} Some functions make several plots, or a plot
 #' and a summary table (the objects that plot.file would save in separate
 #' files). They are returned as a named list, invisibly; the names are
 #' reported at verbose >= 2. Use which to get one of them.
+#'
+#' \strong{Base R graphics.} Heatmaps and trees (gl.plot.heatmap(),
+#' gl.report.fstat(), gl.tree.nj(), gl.tree.fitch()) and gl.select.shapes()
+#' draw with base R graphics, not ggplot. Their plot is recorded from the
+#' graphics device when it is displayed (a recordedplot object): print(p)
+#' redraws it and it can be saved (see \code{\link{gl.plot.code}}), but it
+#' cannot be changed like a ggplot. If such a function draws no plot
+#' (plot.display = FALSE), or the device cannot record it (devices that write
+#' to a file, e.g. in Rscript), gl.last.plot() reports this instead of
+#' returning the plot of an earlier function.
 #'
 #' A kept plot holds the data it was drawn from in memory until it is
 #' replaced; use gl.last.plot(clear = TRUE) to free it.
@@ -47,9 +57,9 @@
 #' # or the text size of both panels
 #' p & ggplot2::theme(text = ggplot2::element_text(size = 14))
 #' # code to change axes, colours, symbols or single points
-#' gl.plot.help(p)
+#' gl.plot.code(p)
 #'
-#' @seealso \code{\link{gl.plot.help}}, \code{\link{theme_dartR}}
+#' @seealso \code{\link{gl.plot.code}}, \code{\link{theme_dartR}}
 #' @export
 #' @return The plot, or a named list of the objects when the function made
 #' several (invisibly), or NULL when clear = TRUE.
@@ -73,7 +83,7 @@ gl.last.plot <- function(which = NULL,
   # DO THE JOB
   if (clear) {
     .dartR_plots$marker <- NULL
-    .dartR_plots$fun <- ""
+    .dartR_plots$fun <- "" # cleared: "no plot yet", not "did not draw one"
     .dartR_plots$objects <- list()
     if (verbose >= 2) {
       cat(report("  Kept plots removed from memory\n"))
@@ -85,11 +95,16 @@ gl.last.plot <- function(which = NULL,
   }
 
   obj <- .dartR_plots$objects
+  fun <- .dartR_plots$fun
+  if (length(obj) == 0 && nzchar(fun)) {
+    stop(error("Fatal Error: the last dartR function that draws plots,",
+               paste0(fun, "(),"), "did not draw one (e.g. plot.display =",
+               "FALSE, or a device that cannot record base R graphics).\n"))
+  }
   if (length(obj) == 0) {
     stop(error("Fatal Error: no dartR function has made a plot yet in this",
                "session (or the plots were cleared).\n"))
   }
-  fun <- .dartR_plots$fun
   nms <- names(obj)
 
   if (!is.null(which)) {

@@ -738,10 +738,12 @@ utils.heatmap <- function(x,
   if (dendrogram %in% c("both", "row")) {
     # flag <- try(plot(ddr, horiz = TRUE, axes = TRUE, yaxs = "i"))
     
-    flag <- try(
-      ddr %>%
-        dendextend::set("labels_col", colRow) %>%
-        plot(yaxs = "i",horiz = TRUE))
+    # colour the labels only if colours are given: dendextend::set() warns
+    # "'x' is NULL so the result will be NULL" on NULL
+    if (!is.null(colRow)) {
+      ddr <- dendextend::set(ddr, "labels_col", colRow)
+    }
+    flag <- try(plot(ddr, yaxs = "i", horiz = TRUE))
     
     if ("try-error" %in% class(flag)) {
       cond <- attr(flag, "condition")
@@ -761,10 +763,10 @@ utils.heatmap <- function(x,
   if (dendrogram %in% c("both", "column")) {
     # flag <- try(plot(ddc, xaxs = "i"))
     
-    flag <- try(
-      ddc %>%
-        dendextend::set("labels_col", colCol) %>%
-        plot(xaxs = "i"))
+    if (!is.null(colCol)) {
+      ddc <- dendextend::set(ddc, "labels_col", colCol)
+    }
+    flag <- try(plot(ddc, xaxs = "i"))
     if ("try-error" %in% class(flag)) {
       cond <- attr(flag, "condition")
       if (!is.null(cond) &&

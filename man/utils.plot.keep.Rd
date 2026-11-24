@@ -7,7 +7,10 @@
 utils.plot.keep(x, name = "plot")
 }
 \arguments{
-\item{x}{The plot (usually a ggplot or patchwork object) or other object.}
+\item{x}{The plot (usually a ggplot or patchwork object, or a base R
+graphics plot recorded with utils.plot.record()) or other object. NULL
+means that this call drew no plot: the plots of earlier functions are
+then removed, so gl.last.plot() does not return an unrelated plot.}
 
 \item{name}{Name of the object within the set kept for the calling
 function, e.g. "plot", or "table" for a summary table [default "plot"].}
@@ -67,6 +70,7 @@ Other utilities:
 \code{\link{utils.is.fixed}()},
 \code{\link{utils.jackknife}()},
 \code{\link{utils.n.var.invariant}()},
+\code{\link{utils.plot.record}()},
 \code{\link{utils.plot.save}()},
 \code{\link{utils.read.fasta}()},
 \code{\link{utils.read.ped}()},

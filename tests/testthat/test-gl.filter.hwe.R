@@ -47,7 +47,15 @@ test_that("gl.filter.excess.het stub matches the original's removals on LBP", {
   skip_if_not_installed("HardyWeinberg")
   pdf(NULL); on.exit(dev.off())
   expect_warning(
-    f <- gl.filter.excess.het(LBP, Yates = TRUE, verbose = 0),
+    withCallingHandlers(
+      f <- gl.filter.excess.het(LBP, Yates = TRUE, verbose = 0),
+      # edition 3: expect_warning() catches only the expected warning;
+      # drop the chi-square small-count warnings of the HWE tests
+      warning = function(w) {
+        if (grepl("Expected counts below 5", conditionMessage(w))) {
+          invokeRestart("muffleWarning")
+        }
+      }),
     "deprecated"
   )
   # the original implementation removed 6 loci from LBP with Yates=TRUE

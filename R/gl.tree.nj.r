@@ -198,6 +198,7 @@ gl.tree.nj <- function(x,
 
     # Plot the tree; decoupled from the computation so a plotting failure
     # cannot lose the computed tree
+    drawn <- FALSE
     if (plot.display) {
         # Save the prior settings for mfrow, oma, mai and pty, and reassign
         op <-
@@ -209,7 +210,10 @@ gl.tree.nj <- function(x,
             )
         on.exit(par(op))
         tryCatch(
-            ape::plot.phylo(tree, type = type, cex = labelsize),
+            {
+                ape::plot.phylo(tree, type = type, cex = labelsize)
+                drawn <- TRUE
+            },
             error = function(e) {
                 if (verbose >= 1) {
                     cat(warn("  Warning: tree computed but could not be plotted:",
@@ -218,6 +222,10 @@ gl.tree.nj <- function(x,
             }
         )
     }
+
+    # keep the plot for gl.last.plot(); base R graphics are recorded from the
+    # device (NULL if nothing was drawn: an older plot is then not returned)
+    utils.plot.keep(if (drawn) utils.plot.record(), "plot")
 
     # FLAG SCRIPT END
 

@@ -453,10 +453,12 @@ gl.tree.fitch <- function(D,
   # Plot the tree -- after the result is secured; a plotting failure must
   # not destroy the computed tree [approved F8]
 
+  drawn <- FALSE
   if (plot.display) {
     tryCatch({
       plot(tree_1, type = plot.type, edge.width = branch.width,
            edge.color = branch.color, cex = terminal.label.cex)
+      drawn <- TRUE
       if(bstrap > 1){
         node.text <- ifelse(!is.na(supports) & supports >= bstrap.threshold,
                             sprintf("%.2f", supports), " ")
@@ -470,6 +472,10 @@ gl.tree.fitch <- function(D,
       }
     })
   }
+
+  # keep the plot for gl.last.plot(); base R graphics are recorded from the
+  # device (NULL if nothing was drawn: an older plot is then not returned)
+  utils.plot.keep(if (drawn) utils.plot.record(), "plot")
 
   # Copy the Phylip artefacts to out.path [approved F6]
 

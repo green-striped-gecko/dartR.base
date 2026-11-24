@@ -11,7 +11,10 @@
 #' dartR function wherever a plot is made, whether or not it is displayed or
 #' saved, with a name that is unique within the function.
 #'
-#' @param x The plot (usually a ggplot or patchwork object) or other object.
+#' @param x The plot (usually a ggplot or patchwork object, or a base R
+#' graphics plot recorded with utils.plot.record()) or other object. NULL
+#' means that this call drew no plot: the plots of earlier functions are
+#' then removed, so gl.last.plot() does not return an unrelated plot.
 #' @param name Name of the object within the set kept for the calling
 #' function, e.g. "plot", or "table" for a summary table [default "plot"].
 #'
@@ -55,8 +58,52 @@ utils.plot.keep <- function(x, name = "plot") {
     .dartR_plots$fun <- fun
     .dartR_plots$objects <- list()
   }
-  .dartR_plots$objects[[name]] <- x
+  # NULL (no plot drawn) leaves the new set empty
+  if (!is.null(x)) {
+    .dartR_plots$objects[[name]] <- x
+  }
   invisible(x)
+}
+
+#' @name utils.plot.record
+#' @title An internal function to record a plot drawn with base R graphics
+#' @family utilities
+#'
+#' @description
+#' WARNING: UTILITY SCRIPTS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE USED BY
+#' END USERS AS THEIR USE OUT OF CONTEXT COULD LEAD TO UNPREDICTABLE OUTCOMES.
+#'
+#' Records the plot on the current graphics device with
+#' grDevices::recordPlot(), so that a function that draws with base R
+#' graphics (e.g. a heatmap or a tree) can keep it with
+#' \code{\link{utils.plot.keep}}. Call it right after the plot is drawn
+#' completely.
+#'
+#' @details
+#' A recorded plot is redrawn with print() or grDevices::replayPlot(); it
+#' cannot be changed like a ggplot. Devices that write to a file (pdf, png,
+#' as in Rscript) keep no display list, so nothing can be recorded there and
+#' NULL is returned; the screen devices of R and RStudio can be recorded.
+#'
+#' @author Custodian: Bernd Gruber (Post to
+#' \url{https://groups.google.com/d/forum/dartr})
+#'
+#' @keywords internal
+#' @export
+#' @return A recordedplot object, or NULL if no device is open or the
+#' device keeps no display list.
+
+utils.plot.record <- function() {
+  if (grDevices::dev.cur() == 1) {
+    return(NULL)
+  }
+  rp <- tryCatch(suppressWarnings(grDevices::recordPlot()),
+                 error = function(e) NULL)
+  # an empty display list: the device does not record (file devices)
+  if (is.null(rp) || length(rp[[1]]) == 0) {
+    return(NULL)
+  }
+  rp
 }
 
 # The plots kept by utils.plot.keep(); read by gl.last.plot()

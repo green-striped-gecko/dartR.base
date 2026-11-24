@@ -88,8 +88,16 @@ test_that("gl.report.excess.het stub reproduces the published workflow shape", {
   skip_if_not_installed("HardyWeinberg")
   pdf(NULL); on.exit(dev.off())
   expect_warning(
-    res <- gl.report.excess.het(LBP, Yates = TRUE, plot.display = FALSE,
-                                verbose = 0),
+    withCallingHandlers(
+      res <- gl.report.excess.het(LBP, Yates = TRUE,
+                                  plot.display = FALSE, verbose = 0),
+      # edition 3: expect_warning() catches only the expected warning;
+      # drop the chi-square small-count warnings of the HWE tests
+      warning = function(w) {
+        if (grepl("Expected counts below 5", conditionMessage(w))) {
+          invokeRestart("muffleWarning")
+        }
+      }),
     "deprecated"
   )
   expect_named(res, c("results.table", "removed.loci"))
