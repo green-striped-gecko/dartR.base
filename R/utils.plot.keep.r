@@ -87,7 +87,23 @@ utils.plot.slim <- function(x, frame) {
   if (!(inherits(x, "ggplot") || inherits(x, "patchwork"))) {
     return(x)
   }
-  tryCatch(utils.plot.slim.do(x, frame), error = function(e) x)
+  # if slimming fails, the plot is kept unslimmed; the reason (message and
+  # the calls that led to it) is stored in .dartR_plots$slim_error, so a
+  # failure can be found (e.g. by a test) instead of passing unnoticed
+  where <- NULL
+  out <- tryCatch(
+    withCallingHandlers(utils.plot.slim.do(x, frame), error = function(e) {
+      # the calls up to the error, without the two of this handler
+      calls <- utils::head(sys.calls(), -2)
+      where <<- vapply(utils::tail(calls, 8), function(cl) {
+        substr(paste(deparse(cl), collapse = " "), 1, 120)
+      }, character(1))
+    }),
+    error = function(e) {
+      .dartR_plots$slim_error <- c(paste("Error:", conditionMessage(e)), where)
+      x
+    })
+  out
 }
 
 utils.plot.slim.do <- function(x, frame) {

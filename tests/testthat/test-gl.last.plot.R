@@ -190,8 +190,14 @@ test_that("the kept plot is slimmed: same plot, without the function's objects",
     p
   }
   set.seed(1)
+  .dartR_plots$slim_error <- NULL
   returned <- f()
   kept <- gl.last.plot(verbose = 0)
+  # slimming did not fail (if it does, the plot is kept unslimmed and the
+  # reason is shown here)
+  slim_error <- .dartR_plots$slim_error
+  expect(is.null(slim_error),
+         paste(c("slimming failed:", slim_error), collapse = "\n"))
   size <- function(o) length(serialize(o, NULL)) / 1e6
   # the returned plot is unchanged and still holds the working space with
   # the large object; the kept plot does not, so it is smaller by at least
