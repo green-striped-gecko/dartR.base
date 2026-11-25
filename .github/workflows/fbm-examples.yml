@@ -5,9 +5,10 @@
 # examples failing in both modes (e.g. a missing optional package) are
 # listed in the log but do not fail it. The table of results is uploaded as
 # an artifact.
+# Not run on every push (most pushes do not touch the FBM code): it runs for
+# pull requests into dev and is started by hand before a merge into beta,
+# e.g. gh workflow run FBM-examples --ref dev
 on:
-  push:
-    branches: [dev, dev_fbm]
   pull_request:
     branches: [dev]
   workflow_dispatch:

@@ -91,9 +91,19 @@ utils.plot.slim <- function(x, frame) {
 }
 
 utils.plot.slim.do <- function(x, frame) {
-  slim <- new.env(parent = parent.env(frame))
+  # The slimmed plot hangs from the first named environment above frame (for
+  # a dartR function its namespace, otherwise e.g. the global environment).
+  # Unnamed environments in between (e.g. that of a function defined inside
+  # another function, or in a test) would be saved with the plot together
+  # with everything in them; the objects the plot needs from them are copied
+  # into slim below.
+  anchor <- parent.env(frame)
+  while (!nzchar(environmentName(anchor)) && !identical(anchor, emptyenv())) {
+    anchor <- parent.env(anchor)
+  }
+  slim <- new.env(parent = anchor)
   # the namespace (or global environment) of the function that keeps the plot
-  home <- environmentName(parent.env(frame))
+  home <- environmentName(anchor)
   # Is e the evaluation frame of a function (or an environment inside one)
   # whose code lives in a dartR package or in the keeping function's home?
   # This covers frame itself and the frames of dartR functions called by it
@@ -287,7 +297,10 @@ utils.plot.slim.do <- function(x, frame) {
     if (exists(n, envir = slim, inherits = FALSE)) {
       next
     }
-    while (in_frame(e)) {
+    # look in the frame and the unnamed environments above it, up to anchor
+    while (is.environment(e) && !identical(e, anchor) &&
+           !identical(e, emptyenv()) && !identical(e, slim) &&
+           !nzchar(environmentName(e))) {
       if (exists(n, envir = e, inherits = FALSE)) {
         assign(n, fix_fun(get(n, envir = e, inherits = FALSE)), envir = slim)
         break

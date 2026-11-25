@@ -168,3 +168,45 @@ test_that("no plot drawn: an older plot is not returned", {
   invisible(utils::capture.output(gl.select.shapes(select = 1:5, verbose = 1)))
   expect_error(gl.last.plot(verbose = 0), "did not draw one")
 })
+
+test_that("the kept plot is slimmed: same plot, without the function's objects", {
+  gl.last.plot(clear = TRUE, verbose = 0)
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  # a plotting function whose working space holds a large object (8 MB) that
+  # the plot does not use, a label function the plot does use, and a plot
+  # that is printed (ggplot2 then caches the mapping in the layers)
+  f <- function() {
+    big <- stats::rnorm(1e6)
+    lab_fun <- function(v) paste0(v, " x")
+    d <- data.frame(a = 1:3, b = c(2, 5, 3), g = c("A", "B", "A"))
+    p1 <- ggplot2::ggplot(d, ggplot2::aes(a, b, colour = g)) +
+      ggplot2::geom_point() +
+      ggplot2::scale_x_continuous(labels = lab_fun)
+    p2 <- ggplot2::ggplot(d, ggplot2::aes(a)) + ggplot2::geom_histogram(bins = 3)
+    p <- patchwork::wrap_plots(p1, p2, ncol = 1)
+    print(p)
+    utils.plot.keep(p, "plot")
+    p
+  }
+  set.seed(1)
+  returned <- f()
+  kept <- gl.last.plot(verbose = 0)
+  size <- function(o) length(serialize(o, NULL)) / 1e6
+  # the returned plot is unchanged and still holds the working space; the
+  # kept plot does not (about 1.5 MB, mostly ggplot2's own objects)
+  expect_gt(size(returned), 8)
+  expect_lt(size(kept), 3)
+  # it draws the same: data, and axis labels made by the label function
+  for (i in 1:2) {
+    expect_equal(ggplot2::layer_data(kept[[i]]), ggplot2::layer_data(returned[[i]]))
+  }
+  x_labels <- function(g) {
+    ggplot2::ggplot_build(g)$layout$panel_params[[1]]$x$get_labels()
+  }
+  expect_identical(x_labels(kept[[1]]), x_labels(returned[[1]]))
+  # and can be changed like any ggplot
+  changed <- kept[[1]] + ggplot2::labs(title = "new")
+  expect_identical(ggplot2::ggplot_build(changed)$plot$labels$title, "new")
+  expect_no_error(print(kept))
+})
