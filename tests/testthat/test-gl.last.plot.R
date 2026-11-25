@@ -194,11 +194,12 @@ test_that("the kept plot is slimmed: same plot, without the function's objects",
   kept <- gl.last.plot(verbose = 0)
   size <- function(o) length(serialize(o, NULL)) / 1e6
   # the returned plot is unchanged and still holds the working space with
-  # the 8 MB object; the kept plot does not. Compared as a difference, since
-  # the size of ggplot2's own objects depends on the ggplot2 and S7 versions
-  # (about 1.5 MB with ggplot2 4.0.0, about 7 MB with 4.0.4 and S7 1.0.0).
-  expect_gt(size(returned), 8)
-  expect_gt(size(returned) - size(kept), 7.5)
+  # the large object; the kept plot does not, so it is smaller by at least
+  # the size of that object. Compared as a difference, since the size of
+  # ggplot2's own objects depends on the ggplot2 and S7 versions.
+  big_size <- size(numeric(1e6))
+  expect_gt(size(returned), big_size)
+  expect_gt(size(returned) - size(kept), big_size)
   # it draws the same: data, and axis labels made by the label function
   for (i in 1:2) {
     expect_equal(ggplot2::layer_data(kept[[i]]), ggplot2::layer_data(returned[[i]]))
