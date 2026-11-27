@@ -48,6 +48,16 @@
   by 'spam'" when spam and BiocGenerics are both loaded (e.g. in
   `gl.report.fstat()`, `gl.plot.heatmap()`).
 
+* `gl.pcoa.plot()` matches the rows of the ordination to the individuals of
+  `x` by name. It took them by position, so when `x` listed the same
+  individuals in another order than the ordination (e.g. sorted with
+  `gl.sort()` after `gl.pcoa()`), every point was drawn with another
+  individual's name and population, and the star labels joined points to
+  the wrong population centres. An ordination whose individuals are not
+  all in `x` now stops with an error naming them, instead of plotting a
+  different dataset of the same size. Ordinations without row names are
+  still taken by position.
+
 # dartR.base 1.3.1
 
 * `gl.pcoa.plot()`: new population label style 'star' (argument

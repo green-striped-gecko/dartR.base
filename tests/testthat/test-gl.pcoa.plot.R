@@ -631,3 +631,33 @@ test_that("pop.labels = 'none' draws the star lines only when asked for", {
   expect_equal(bn[[1]][, cols], b0[[1]][, cols])
   expect_equal(bn[[2]][, c("x", "y", "colour")], b0[[2]][, c("x", "y", "colour")])
 })
+
+test_that("the ordination is matched to the individuals by name, not by row", {
+  # Same individuals in another order than in the ordination (as after
+  # gl.sort): each point must keep its own name, population and scores.
+  f <- fx()
+  gl.re <- f$gl[order(indNames(f$gl), decreasing = TRUE), ]
+  quiet <- capture.output(p <- gl.pcoa.plot(f$pca, gl.re, verbose = 0))
+  expect_identical(as.character(p$data$ind), indNames(gl.re))
+  expect_identical(as.character(p$data$pop), as.character(pop(gl.re)))
+  expect_equal(p$data$PCoAx, unname(f$pca$scores[indNames(gl.re), 1]))
+  expect_equal(p$data$PCoAy, unname(f$pca$scores[indNames(gl.re), 2]))
+  # each individual sits where it sits in the plot of the original order
+  quiet <- capture.output(p0 <- gl.pcoa.plot(f$pca, f$gl, verbose = 0))
+  i <- match(as.character(p0$data$ind), as.character(p$data$ind))
+  expect_equal(p$data$PCoAx[i], p0$data$PCoAx)
+  expect_identical(as.character(p$data$pop[i]), as.character(p0$data$pop))
+})
+
+test_that("an ordination of other individuals is refused, also with the same
+           number of them", {
+  f <- fx()
+  gl.other <- f$gl
+  indNames(gl.other)[1:3] <- paste0("other_", 1:3)
+  quiet <- capture.output(
+    err <- tryCatch(gl.pcoa.plot(f$pca, gl.other, verbose = 0),
+                    error = function(e) conditionMessage(e)))
+  expect_match(err, "3 of the 250 individuals")
+  expect_match(err, "other_1")
+  expect_match(err, "gl.pcoa")
+})
