@@ -342,6 +342,63 @@ gl.pcoa.plot <- function(glPca,
       }
     }
 
+    # The rows of the ordination are matched to the individuals of x by
+    # name. gl.pcoa() names them after the individuals; taken by position,
+    # an ordination of the same individuals in another order (x sorted with
+    # gl.sort() after the ordination) gave every point another individual's
+    # name and population. Unnamed rows are still taken by position.
+    if (datatype1 != "list" & datatype2 %in% c("SNP", "SilicoDArT")) {
+      score.names <- if (is.null(dim(glPca$scores))) {
+        names(glPca$scores)
+      } else {
+        rownames(glPca$scores)
+      }
+      if (!is.null(score.names) && !identical(score.names, indNames(x))) {
+        dup <- score.names[duplicated(score.names)]
+        if (length(dup) > 0) {
+          stop(
+            error(
+              paste0(
+                "Fatal Error: the ordination lists the individuals in ",
+                "another order than the genlight object and names some of ",
+                "them more than once (e.g. ", dup[1], "), so they cannot be ",
+                "matched by name.\n",
+                "  Give the individuals unique names and run gl.pcoa() ",
+                "again.\n"
+              )
+            )
+          )
+        }
+        ord <- match(indNames(x), score.names)
+        if (anyNA(ord)) {
+          missing.ind <- indNames(x)[is.na(ord)]
+          stop(
+            error(
+              paste0(
+                "Fatal Error: the ordination and the genlight object do not ",
+                "hold the same individuals: ", length(missing.ind), " of the ",
+                nInd(x), " individuals of the genlight object are not in the ",
+                "ordination (e.g. ",
+                paste(utils::head(missing.ind, 3), collapse = ", "), ").\n",
+                "  Run gl.pcoa() again on this genlight object.\n"
+              )
+            )
+          )
+        }
+        if (is.null(dim(glPca$scores))) {
+          glPca$scores <- glPca$scores[ord]
+        } else {
+          glPca$scores <- glPca$scores[ord, , drop = FALSE]
+        }
+        if (verbose >= 2) {
+          cat(report(
+            "  The genlight object lists the individuals in another order",
+            "than the ordination; they were matched by name\n"
+          ))
+        }
+      }
+    }
+
     # Check parameter values
 
     axis.label.size <- axis.label.size * 10
